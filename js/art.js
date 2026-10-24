@@ -191,6 +191,10 @@ const NODE_G={
   shrine:'<path d="M4 21 V10 L12 4 L20 10 V21"/><path d="M9 21 V14 Q12 11 15 14 V21"/>',
   peddler:'<path d="M9 4 H15 L13 8 Q20 11 19 17 Q18 21 12 21 Q6 21 5 17 Q4 11 11 8 Z"/><path d="M14 12.5 Q12 11.5 10.5 12.5 Q10 14 12 14.5 Q14 15 13.5 16.5 Q12 17.5 10 16.5"/>',
   camp:'<path d="M12 3 C15 8 18 10 18 14 A6 6 0 0 1 6 14 C6 11 8 9 9 7 C10 10 11 11 12 11 C12 8 11 6 12 3 Z"/><path d="M4 21 L20 18 M4 18 L20 21"/>',
+  altar:'<path d="M5 20 H19 M7 20 V13 H17 V20 M9 13 V10 H15 V13"/><path d="M12 2.5 C14.5 5 14.5 7 12 9.5 C9.5 7 9.5 5 12 2.5 Z"/>',
+  alchemist:'<path d="M10 3 H14 M11 3 V9 L5 19 Q4.5 21 7 21 H17 Q19.5 21 19 19 L13 9 V3"/><path d="M8 15 H16"/>',
+  traveller:'<circle cx="10" cy="5" r="2.2"/><path d="M10 8 V15 L7 21 M10 15 L13 21 M6 11.5 L14 11.5 M17 6 V21"/>',
+  scroll:'<path d="M7 4 H18 V17 Q18 20 15 20 H6 Q9 20 9 17 V6 Q9 4 7 4 Z"/><path d="M12 8 H15 M12 11 H15"/>',
   hidden:'<circle cx="12" cy="12" r="2.2" fill="currentColor" stroke="none"/>',
   mystery:'<circle cx="12" cy="12" r="9.5"/><path d="M9.5 9.5 A2.6 2.6 0 1 1 13 11.9 C12.3 12.3 12 12.8 12 13.6 V14.4"/><path d="M12 17.6 V17.7"/>',
   // tab + action icons

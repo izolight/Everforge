@@ -157,10 +157,22 @@ const ENEMIES={
     sp:{every:2,name:"Chomp",kind:"heavy",x:2.3,tell:"opening its lid very wide"},drops:[]}
 };
 const AFFIXES=[["Burning","Fire"],["Frostbound","Ice"],["Venomous","Poison"],["Hallowed","Holy"],["Umbral","Shadow"],["Ironclad","Iron"],["Fleet","Swift"],["Arcane","Arcane"]];
+// Legendary secrets: ids = exact inputs (sorted match), hint = cryptic clue, bonus = extra trait merged into the result (on top of the +20% stats).
+// Hints come from scrolls (S.hints lists secret indexes; each repeat reveals one more ingredient, see hintLv). The first three start revealed.
 const SECRETS=[
   {ids:["ess_Light","ess_Sweet","iron_helmet"],name:"Lantern Helm",hint:"A helmet that lights caves, though the bugs adore it. Distilled, not cooked."},
   {ids:["holy_water","iron_sword","phoenix"],name:"Dawnbringer",hint:"A sword reborn in sacred fire."},
-  {ids:["bread","chili","honey"],name:"Hearthfire Loaf",hint:"Sweet, spicy, and baked for a long winter march."}
+  {ids:["bread","chili","honey"],name:"Hearthfire Loaf",hint:"Sweet, spicy, and baked for a long winter march."},
+  {ids:["oak_staff","rune_shard","ess_Swift"],name:"Stormcaller",hint:"A staff of the Spire, taught to answer to the wind.",bonus:{trait:"Arcane",v:2}},
+  {ids:["iron_sword","rime_fang","spring_water"],name:"Glacier's Tooth",hint:"A blade quenched in meltwater, edged with the Pack Mother's bite.",bonus:{trait:"Frost",v:2}},
+  {ids:["hunter_spear","gnarl_tusk","nightshade"],name:"Briar Widow",hint:"The Boar King's tusk, a hunter's point, and something that grows in the dark.",bonus:{trait:"Venomous",v:2}},
+  {ids:["dagger","wraith_wraps","void_crystal","ess_Swift"],name:"Nightfang Claws",hint:"Four things, one skulking: a thief's edge and a ghost's grip, fed with the void, made quick. (Smith level 8.)",bonus:{trait:"Shadow",v:2}},
+  {ids:["void_robe","star_heart","storm_feather"],name:"Mantle of Falling Stars",hint:"Woven darkness, a fallen star's heart, and the feather of a thing that flies above it all.",bonus:{trait:"Radiant",v:2}},
+  {ids:["sentinel_aegis","golem_core","ess_Holy"],name:"Oathkeeper's Aegis",hint:"A guardian's shield taught to hold like a mountain, and sworn on something holy.",bonus:{trait:"Runic",v:2}},
+  {ids:["ember_treads","gale_boots","coal"],name:"Cinderwind Treads",hint:"One boot walks in fire, the other on the gale. A coal binds the pair.",bonus:{trait:"Swift",v:2}},
+  {ids:["sprite_lantern","star_heart","ess_Holy"],name:"Beacon of the Fallen",hint:"A small light from the woods, a great one fallen from the sky, and a blessing between.",bonus:{trait:"Holy",v:2}},
+  {ids:["holy_water","spring_water","honey"],name:"Tears of Dawn",hint:"Two clear waters and a drop of sweetness, in a bottle that is somehow also a meal.",bonus:{trait:"Medicine",v:2}},
+  {ids:["honey","mushroom","ess_Arcane"],name:"Starlit Honeycake",hint:"Glowing from the woods, sweet from the hive, with a pinch of the unseen.",bonus:{trait:"Radiant",v:1.5}}
 ];
 const TUTORIAL=[
   {text:"Win your first battle.",tab:"battle",done:s=>s.wins>=1,reward:{items:["bread"]}},

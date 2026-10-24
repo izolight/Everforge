@@ -1,11 +1,19 @@
 // ================= GOALS =================
+// Hint scrolls: S.hints holds secret indexes; level = how many times one appears (1 = the rumor, +1 per extra scroll = one more ingredient, up to all but one).
+const found=s=>S.journal.some(j=>S.items[j.id]?.legendary&&S.items[j.id].name===s.name),hintLv=i=>Math.min(SECRETS[i].ids.length,S.hints.filter(x=>x===i).length);
+const idName=id=>S.items[id]?.name||(id.startsWith("ess_")?`${id.slice(4)} Essence`:BASE[id][0]);
+function giveHint(x){ // reveals something about a secret you haven't forged; x (0-1) picks among the candidates. Returns a log line, or "" if there is nothing left to learn
+  const open=SECRETS.map((s,i)=>i).filter(i=>!found(SECRETS[i])&&hintLv(i)<SECRETS[i].ids.length),fresh=open.filter(i=>!hintLv(i)),c=fresh.length?fresh:open;
+  if(!c.length)return"";const i=c[Math.floor((x==null?Math.random():x)*c.length)];S.hints.push(i);const s=SECRETS[i],lv=hintLv(i);
+  return lv===1?`A hint scroll: "${s.hint}"`:`A hint scroll sharpens a rumor ("${s.hint.split(/[.,]/)[0]}"): one ingredient is ${idName(s.ids[lv-2])}.`;
+}
 function rewardIds(r){return (r.items||[]).map(x=>x.startsWith("ess:")?essence(x.slice(4)):x)}
-function rewardText(r){const p=rewardIds(r).map(id=>S.items[id].name);if(r.xp)p.push(`${r.xp} smith XP`);if(r.camp)p.push("a campfire charge");return p.join(", ")}
+function rewardText(r){const p=rewardIds(r).map(id=>S.items[id].name);if(r.xp)p.push(`${r.xp} smith XP`);if(r.camp)p.push("a campfire charge");if(r.hint)p.push("a hint scroll");return p.join(", ")}
 function newBounty(){
-  if(Math.random()<.3)return{kind:"forge",need:2,base:S.journal.length,reward:{items:[`ess:${pick(ESS_POOL)}`,`ess:${pick(ESS_POOL)}`],xp:20}};
+  if(Math.random()<.3)return{kind:"forge",need:2,base:S.journal.length,reward:{items:[`ess:${pick(ESS_POOL)}`,`ess:${pick(ESS_POOL)}`],xp:20,hint:Math.random()<.3?1:0}};
   const pool=Object.entries(ENEMIES).filter(([,e])=>!e.boss&&e.zone!=="any"&&S.unlocked.includes(e.zone));
   const [id]=pick(pool),need=2+Math.floor(Math.random()*3);
-  return{kind:"hunt",enemy:id,need,base:S.kills[id]||0,reward:{items:[`ess:${pick(ESS_POOL)}`,`ess:${pick(ESS_POOL)}`],xp:15,camp:Math.random()<.35?1:0}};
+  return{kind:"hunt",enemy:id,need,base:S.kills[id]||0,reward:{items:[`ess:${pick(ESS_POOL)}`,`ess:${pick(ESS_POOL)}`],xp:15,camp:Math.random()<.35?1:0,hint:Math.random()<.3?1:0}};
 }
 function goal(){
   if(S.quest<TUTORIAL.length){const q=TUTORIAL[S.quest];
@@ -21,6 +29,7 @@ function goal(){
 function claimGoal(){
   const g=goal();if(!g.done)return;
   rewardIds(g.reward).forEach(id=>addItem(id));if(g.reward.xp)S.xp+=g.reward.xp;if(g.reward.camp)S.camp=Math.min(3,S.camp+g.reward.camp);
+  const hm=g.reward.hint?giveHint():"";
   if(S.quest<TUTORIAL.length)S.quest++;else S.bounty=null;
-  save();render();toast(`Reward: ${rewardText(g.reward)}.`);
+  save();render();toast(`Reward: ${rewardText(g.reward)}.${hm?" "+hm:""}`);
 }

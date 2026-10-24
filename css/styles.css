@@ -353,3 +353,11 @@ textarea.code{width:100%;min-height:72px;background:#120f0c;color:var(--fg);bord
 .hchip[aria-pressed="true"]{background:var(--ember);border-color:var(--ember);color:#1e0d04}
 .dres.won{color:var(--up)}
 .dcard .foot{line-height:1.4}
+.secs{display:grid;gap:10px;margin:0;padding:0;list-style:none}
+.sec{font-size:.88rem;color:var(--muted);display:grid;gap:6px;padding-top:10px;border-top:1px solid var(--line)}
+.sec:first-child{border-top:0;padding-top:0}
+.sec.ok b{color:var(--accent)}.sec.lock{color:var(--dim)}
+.sec .si{display:flex;flex-wrap:wrap;gap:6px}
+.scrl{display:flex;gap:8px;align-items:flex-start;justify-content:center;text-align:left;font-size:.88rem;font-style:italic;color:var(--accent);margin:0}
+.scrl svg{width:22px;height:22px;flex:none}
+.ambn{text-align:center;color:var(--down)}

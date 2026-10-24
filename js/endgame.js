@@ -29,6 +29,6 @@ function dailyBundle(got){ // boss kill: essences + one rare drop (same for ever
   const d=S.daily,R=rng(d.seed^0x5bd1e995),rare=zoneRare(d.zone);
   for(let i=0;i<DAILY_REWARD.ess;i++)got.push(essence(ESS_POOL[Math.floor(R()*ESS_POOL.length)]));
   if(rare.length)got.push(rare[Math.floor(R()*rare.length)]);
-  S.xp+=DAILY_REWARD.xp;blog(`Daily reward: ${DAILY_REWARD.ess} essences, a rare find and ${DAILY_REWARD.xp} smith XP.`,"big");
+  const hm=giveHint(R());S.xp+=DAILY_REWARD.xp;blog(`Daily reward: ${DAILY_REWARD.ess} essences, a rare find${hm?", a hint scroll":""} and ${DAILY_REWARD.xp} smith XP.`,"big");if(hm)blog(hm,"good");
 }
 const dailyResult=r=>`${r.boss?"Boss beaten":`Fell after ${r.rows} of ${MAP_ROWS} rows`} · ${r.turns} turns`;
