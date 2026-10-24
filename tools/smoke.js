@@ -14,7 +14,7 @@ async function run(label,setup){
   if(setup){await page.evaluate(setup);await page.reload()}
   await page.waitForFunction(()=>typeof S==="object"&&S);
   const stats=await page.evaluate(async steps=>{
-    const sleep=ms=>new Promise(r=>setTimeout(r,ms)),out={steps:0,battles:0,won:0,lost:0,forged:0,zones:new Set(),views:0,wields:0,abil:0,heat:0,daily:0,aband:0,bought:0,sold:0,refined:0,reforged:0,bad:[]};
+    const sleep=ms=>new Promise(r=>setTimeout(r,ms)),out={steps:0,battles:0,won:0,lost:0,forged:0,zones:new Set(),views:0,wields:0,abil:0,heat:0,daily:0,aband:0,bought:0,sold:0,upgraded:0,reforged:0,bad:[]};
     const click=el=>{el.click();return true};let wantZone=null,doChores=false,wantWield=false,wantHeat=false,wantDaily=false,wantAband=false,wantShop=false;
     const q=s=>document.querySelector(s),qa=s=>[...document.querySelectorAll(s)];
     for(let i=0;i<steps;i++){out.steps++;
@@ -73,8 +73,8 @@ async function run(label,setup){
       const can2=qa("#finv [data-can='1']");if(can2.length)click(can2[Math.floor(Math.random()*can2.length)]);
       if(S.bench.length>=2){q("#combine").click();q("#combine").click();await sleep(30);out.forged++;} // twice: the first tap only arms the equipped-item warning
       S.bench=[];save();
-      S.embers+=40;{const t=pick(ESS_POOL);for(let k=0;k<3;k++)addItem(essence(t))}go("forge"); // refining, then a mishap to reforge
-      const rf=q("#refbtns [data-refine]:not([disabled])");if(rf){rf.click();out.refined++}
+      S.embers+=40;{const t=pick(ESS_POOL);for(let k=0;k<3;k++)addItem(essG(t,1))}go("forge"); // upgrading a grade (3 Faint, Alchemy Lv 1 is enough), then a mishap to reforge
+      const rf=q("#upgrows [data-upgrade]:not([disabled])");if(rf){rf.click();out.upgraded++}
       S.items.t_curse={id:"t_curse",name:"Cursed Test Blade",form:"blade",noun:"Blade",traits:{Fire:2,Cursed:2},tier:2,crafted:true,recipe:["a","b"],recipeIds:[]};addItem("t_curse");
       go("gear");{const cb=qa("#ginv [data-id]").find(b=>b.dataset.id==="t_curse");if(cb){cb.click();const rg=q("#sheet [data-act='reforge']:not([disabled])");if(rg){rg.click();out.reforged++}else closeSheet()}}
       go("gear");const it=qa("#ginv [data-id]").find(b=>!eqCount(b.dataset.id));if(it){it.click();const sv=q("#sheet [data-act='salvage']");if(sv&&Math.random()<.5){sv.click();q("#sheet [data-act='salvage']")?.click()}closeSheet()}
@@ -97,7 +97,7 @@ async function run(label,setup){
   if(fresh.errors.length){failed=true;console.error(fresh.errors.join("\n"))}
   if(fresh.stats.wields>=7&&!fresh.stats.abil){failed=true;console.error("No ability buttons were clicked; they may have vanished.")}
   if(fresh.stats.bad.length){failed=true;console.error(fresh.stats.bad.join("\n"))}
-  const st=fresh.stats;if(!st.bought||!st.sold||!st.refined||!st.reforged){failed=true;console.error(`The bot never exercised the economy (bought ${st.bought}, sold ${st.sold}, refined ${st.refined}, reforged ${st.reforged}).`)}
+  const st=fresh.stats;if(!st.bought||!st.sold||!st.upgraded||!st.reforged){failed=true;console.error(`The bot never exercised the economy (bought ${st.bought}, sold ${st.sold}, upgraded ${st.upgraded}, reforged ${st.reforged}).`)}
   if(!fresh.stats.heat||!fresh.stats.daily){failed=true;console.error("The bot never exercised heat or the daily.")}
   if(fresh.stats.battles<3){failed=true;console.error("Too few battles completed; the loop got stuck.")}
   // Every old save fixture must still load (migrations) and play without errors.

@@ -1,16 +1,18 @@
 // ================= EMBERS ECONOMY =================
-// Embers (S.embers) come from fights, salvage and selling; they buy peddler stock, refine essences and reforge mishaps. Tunables live in EMB (data.js).
-const worth=it=>Math.round(3+power(it)*.6+2*(it.tier-1));
-const buyPrice=id=>{if(isEss(id))return EMB.ess;const it=S.items[id];return Math.max(Math.round(worth(it)*EMB.buy),Math.ceil(EMB.floor*(salvageYield(it).length*EMB.val+salvageEmbers(it))))},sellPrice=id=>Math.max(1,Math.round(worth(S.items[id])*EMB.sell));
-const salvageEmbers=it=>isEss(it.id)||isRefined(it.id)?0:Math.max(1,Math.round(worth(it)*EMB.salv));
+// Embers (S.embers) come from fights, salvage and selling; they buy peddler stock, upgrade essence grades and reforge mishaps. Tunables live in EMB (data.js).
+const worth=it=>Math.round((3+power(it)*.6+2*(it.tier-1))*GRADE_W[(it.grade||3)-1]);
+const plainEq=g=>INF_W[g-1]/INF_W[2],salvGrade=it=>it.grade||SALV_GRADE[Math.min(8,it.tier-1)]; // plain essences a grade is worth; the grade of essence an item salvages into
+const buyPrice=id=>{if(isEss(id))return Math.max(1,Math.round(EMB.ess*plainEq(gradeOf(id))));const it=S.items[id];return Math.max(Math.round(worth(it)*EMB.buy),Math.ceil(EMB.floor*(salvageYield(it).length*EMB.val*plainEq(salvGrade(it))+salvageEmbers(it))))},sellPrice=id=>Math.max(1,Math.round(worth(S.items[id])*EMB.sell));
+const salvageEmbers=it=>isEss(it.id)?0:Math.max(1,Math.round(worth(it)*EMB.salv));
 function spendEmbers(n){S.embers-=n;S.stats.spent+=n}
 function gainEmbers(n){if(n>0){S.embers+=n;S.stats.earned+=n;fx("emb","+"+n,"ember")}return n}
 function fightEmbers(E,B){const base=E.boss?EMB.boss:B.elite||B.id==="mimic"?EMB.elite:EMB.fight;return gainEmbers(Math.round(base*(1+(B.heat||0)*EMB.heat)))}
 // Peddler stock: EMB.stock items from this zone's and the next zone's drops plus one or two essences. rv = six 0-1 rolls (pre-rolled per node on the seeded daily map), so the same day shows the same shop.
 function shopStock(rv){
   const next=ZONES[Math.min(zoneIdx(S.zone)+1,ZONES.length-1)][0],pool=[...new Set([...zonePool(S.zone),...zonePool(next)])],ids=[];
-  for(let k=0;k<EMB.stock&&pool.length;k++)ids.push(pool.splice(Math.floor(rv[k]*pool.length),1)[0]);
-  ids.push(essence(at(ESS_POOL,rv[3])));if(rv[4]<.5)ids.push(essence(at(ESS_POOL,rv[5])));
+  const fr=(x,n)=>x*n%1; // the fraction of a roll left after picking an index is a fresh roll for the grade
+  for(let k=0;k<EMB.stock&&pool.length;k++){const n=pool.length;ids.push(dropNow(pool.splice(Math.floor(rv[k]*n),1)[0],fr(rv[k],n)))}
+  ids.push(essNow(at(ESS_POOL,rv[3]),fr(rv[3],ESS_POOL.length)));if(rv[4]<.5)ids.push(essNow(at(ESS_POOL,rv[5]),fr(rv[5],ESS_POOL.length)));
   return ids.map(id=>({id,price:buyPrice(id)}));
 }
 // What you could sell: the cheapest few spares (never equipped, in the crucible, legendary or a wanted secret ingredient; essences are kept)
@@ -26,10 +28,17 @@ function shopPick(c,ev){
   else{if(!S.inv[e.id]||!spare(e.id)){e.done=true;save();render();return toast("You no longer have that item.")}takeOne(e.id);gainEmbers(e.price);toast(`Sold ${S.items[e.id].name} for ${e.price} embers.`)}
   e.done=true;save();render();
 }
-// Refining: REFINE_N plain essences + EMB.refine embers -> one refined essence (stronger trait, takes one crucible slot)
-function refine(t){
-  const b="ess_"+t;if(inBattle()||avail(b)<REFINE_N||S.embers<EMB.refine)return;
-  S.inv[b]-=REFINE_N;trimBench();spendEmbers(EMB.refine);S.stats.refined++;const r=refined(t);addItem(r);sfx("loot");save();render();toast(`${REFINE_N} ${t} Essences refined into a ${S.items[r].name}.`);
+// Upgrading: UP.n of a graded essence or material + embers -> 1 of the next grade (see UP in data.js). A miss costs the embers and 1 of the UP.n, never all.
+const upChance=tg=>Math.max(UP.min,Math.min(UP.max,UP.base+UP.slope*(skLv("alchemy")-GRADE_LV[tg-1])));
+const upgradable=()=>Object.keys(S.inv).filter(id=>gradable(baseIdOf(id))&&gradeOf(id)<5&&avail(id)>=UP.n).sort((a,b)=>(S.items[baseIdOf(a)].name<S.items[baseIdOf(b)].name?-1:S.items[baseIdOf(a)].name>S.items[baseIdOf(b)].name?1:0)||gradeOf(a)-gradeOf(b));
+function upgrade(id){
+  const g=gradeOf(id),tg=g+1,b=baseIdOf(id);if(inBattle()||!gradable(b)||g>=5||avail(id)<UP.n||S.embers<UP.emb[g-1])return;
+  const lv=skLv("alchemy"),need=GRADE_LV[tg-1];if(lv<need)return toast(`${GRADES[tg-1][0]} needs Alchemy Lv ${need}. You are Lv ${lv}.`);
+  const ok=Math.random()*100<upChance(tg);spendEmbers(UP.emb[g-1]);S.inv[id]-=ok?UP.n:1;trimBench();
+  const x=Math.max(1,Math.round(UP.xp[tg-1]*(ok?1:.5)*skFactor(need,lv)));S.skills.alchemy=skXp("alchemy")+x;
+  const nid=gradedItem(b,tg),nm=S.items[nid].name;if(ok){S.stats.refined++;addItem(nid)}
+  sfx(ok?"loot":"clang");const up=skLv("alchemy")>lv;save();render();
+  toast(ok?`${UP.n}× ${S.items[id].name} combine into a ${nm}.${up?" "+skMsg("alchemy",lv):""}`:`The mix slumps. One ${S.items[id].name} is lost; ${UP.n-1} remain.${up?" "+skMsg("alchemy",lv):""}`);
 }
 // Reforge: pay embers to strip every mishap (Cursed, Brittle, Rust, and a Weakened flag, which restores the traits from before the fizzle) from a crafted or tempered piece. Like the old forge's tempering it makes a new c_ item (a flawed craft turns back into its clean recipe item), keeps the legendary flag and bonus, and takes over the equip slot.
 const mishapsOf=it=>!it.crafted?[]:[...MISHAP_TRAITS.filter(t=>it.traits[t]>0),...it.mishap==="Weakened"?["Weakened"]:[]],reforgeCost=it=>EMB.reforge[0]+EMB.reforge[1]*it.tier;

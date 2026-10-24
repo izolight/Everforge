@@ -44,7 +44,7 @@ function combine(raw,o={}){
       log.push({k:"Reaction",t:`${a} + ${b} → ${res}`,warn:TRAITS[res].f==="bad"});inst+=3}
     if(!any)break}
   const secret=SECRETS.find(s=>s.ids.slice().sort().join("+")===key);
-  if(!secret&&inputs.some(i=>isRefined(i.id))){const sk=inputs.map(i=>i.id.replace(/^(ess_[A-Za-z]+)_2$/,"$1")).sort().join("+");if(SECRETS.some(s=>s.ids.slice().sort().join("+")===sk))log.push({k:"Refined",t:"A refined essence is too potent for this secret. Use a plain one."})}
+  if(!secret&&inputs.some(i=>gradeOf(i.id)!==3)){const sk=inputs.map(i=>baseIdOf(i.id)).sort().join("+");if(SECRETS.some(s=>s.ids.slice().sort().join("+")===sk))log.push({k:"Grade",t:"A graded ingredient throws this secret off. Secrets want Plain ones."})}
   let bon=null; // the secret's bonus always keeps a slot
   if(secret&&secret.bonus){const {trait:bt,v:bv}=secret.bonus;bon=[bt,r1((tr[bt]||0)+bv)];delete tr[bt];log.push({k:"Legendary",t:`The secret lends it +${bv} ${bt}.`})}
   const slots=traitSlots()-(bon?1:0),sorted=topTraits(tr);

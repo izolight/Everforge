@@ -220,11 +220,20 @@ const CRAFT={base:1,tier:.8,inst:12,up:.5,upFrom:3},FAIL={base:10,slope:10,min:3
 const STAT_NAMES={atk:"Attack",def:"Defense",mag:"Magic",heal:"Heal",spd:"Speed"};
 const DECAY=[1,.5,.3,.2,.15,.1,.1,.1];
 const ESS_VALUE=2.5;
-// Embers: a currency from fights, salvage and selling; it buys peddler stock, refines essences and reforges mishaps (economy.js).
+// Embers: a currency from fights, salvage and selling; it buys peddler stock, upgrades grades and reforges mishaps (economy.js).
 // worth(it) = 3 + 0.6 x power + 2 per tier above 1. Fights pay fight/elite/boss (+20% per heat level), salvage pays salv x worth, selling pays sell x worth, shop prices are buy x worth (essences: ess) but never below floor x the salvage value of the item (val per essence it yields + its embers), so buying to salvage never beats buying the essence.
-// Refining turns REFINE_N of one essence + refine embers into one refined essence (ess_<T>_2, trait REFINE_VALUE); it counts as REFINE_N essences for infusion. Reforge costs reforge[0] + reforge[1] x tier.
-const EMB={fight:3,elite:6,boss:18,heat:.2,salv:.15,sell:.5,buy:3.5,ess:36,val:12,floor:1.3,refine:12,reforge:[10,4],stock:3,sells:4};
-const REFINE_VALUE=4,REFINE_N=3,MISHAP_TRAITS=["Cursed","Brittle","Rust"];
+// Reforge costs reforge[0] + reforge[1] x tier. Upgrading grades costs UP.emb (below).
+const EMB={fight:3,elite:6,boss:18,heat:.2,salv:.15,sell:.5,buy:3.5,ess:36,val:12,floor:1.3,reforge:[10,4],stock:3,sells:4};
+const MISHAP_TRAITS=["Cursed","Brittle","Rust"];
+// Quality grades of essences and basic materials (ores, hides, herbs): 1 Faint, 2 Lesser, 3 Plain, 4 Greater, 5 Pure. A graded item has the id `<base>@<g>` (ess_Fire@4, golem_core@2); Plain keeps the bare id, so secrets, recipes and old saves are unchanged. Its traits are the base's x GRADE_M (an essence: ESS_VALUE x GRADE_M). worth() is x GRADE_W.
+// Infusion: an essence counts INF_W ninths of a plain one (3 of a grade make 1 of the next, so the weights are powers of 3). Drops roll a grade from GRADE_ODDS (weights per zone); each Heat level scales every weight by 1 + GRADE_HEAT, bosses roll as if GRADE_BOSS levels hotter. Salvaged gear gives the essence grade SALV_GRADE[tier-1]; a graded material salvages into its own grade.
+// Upgrade: UP.n of a grade + UP.emb[grade-1] embers -> 1 of the next. Making a grade needs Alchemy GRADE_LV[grade-1]. Success = UP.base + UP.slope per Alchemy level above that need (UP.min..UP.max); a miss costs the embers and 1 of the UP.n. Alchemy XP is UP.xp[target-1] (half on a miss), faded by skFactor.
+const GRADES=[["Faint","#948d82"],["Lesser","#7dbd8d"],["Plain","#d2c9bb"],["Greater","#6eb1f0"],["Pure","#f2a54a"]],GRADE_M=[.6,.8,1,1.4,2],GRADE_W=[.5,.75,1,1.6,2.5],INF_W=[1,3,9,27,81];
+const GRADE_ODDS={woods:[30,40,28,2,0],pass:[12,33,45,9,1],hollow:[5,22,50,20,3],spire:[2,12,46,32,8]},GRADE_HEAT=[-.12,-.06,0,.25,.5],GRADE_BOSS=2,SALV_GRADE=[3,3,3,3,3,4,4,4,5];
+const INF_EQ=["⅑","⅓","1","3","9"]; // INF_W as plain essences, for text
+const GRADE_LV=[1,1,1,3,6],UP={n:3,emb:[4,8,12,30],base:80,slope:6,min:80,max:98,xp:[3,4,6,14,30]};
+const gradeOf=id=>{const m=/@([1-5])$/.exec(id);return m?+m[1]:3},baseIdOf=id=>id.replace(/@[1-5]$/,""),gradedId=(b,g)=>g===3?b:`${b}@${g}`; // pure id helpers (migrate needs them before helpers.js loads)
+const gradable=b=>/^ess_[A-Za-z]+$/.test(b)||(!!BASE[b]&&BASE[b][1]==="material"&&["ore","hide","herb"].includes(BASE[b][3]));
 const VIEWS=["battle","gear","forge","recipes","codex"];
 // Heat: harder expeditions in a cleared zone, cumulative per level. Beating the boss at heat h unlocks h+1.
 const HEAT_MAX=5,HEAT_T={hp:.15,elite:2,inf:1.5,affix:.2,boss:1.2,rest:.25,shrine:.5,loot:.15,ess:1,xp:20};

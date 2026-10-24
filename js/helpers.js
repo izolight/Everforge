@@ -24,14 +24,19 @@ const benchCount=id=>S.bench.filter(x=>x===id).length;
 const avail=id=>(S.inv[id]||0)-benchCount(id);
 const eqCount=id=>Object.values(S.eq).filter(x=>x===id).length;
 const inBattle=()=>!!(S.battle&&!S.battle.over);
-const rarity=it=>it.legendary?["Legendary","#f2a54a"]:RARITY[Math.min(4,it.tier-1)];
+const rarity=it=>it.grade?GRADES[it.grade-1]:it.legendary?["Legendary","#f2a54a"]:RARITY[Math.min(4,it.tier-1)]; // graded essences and materials show their grade instead
 const formName=f=>FORMS[f].label.toLowerCase();
 const shortName=id=>ENEMIES[id].short||ENEMIES[id].name;
 function kindOf(it){const g=grp(it);if(g==="material")return it.kind||"ore";if(g==="consumable")return it.form==="food"?"food":"potion";return g}
 function labelOf(it){return grp(it)==="material"?cap(kindOf(it)):(grp(it)==="weapon"?"Weapon · ":"")+FORMS[it.form].label}
-function essence(trait){const id="ess_"+trait;if(!S.items[id])S.items[id]={id,name:`${trait} Essence`,form:"material",kind:"essence",noun:"Essence",traits:{[trait]:ESS_VALUE},tier:1,crafted:false};return id}
-function refined(trait){const id=`ess_${trait}_2`;essence(trait);if(!S.items[id])S.items[id]={id,name:`Refined ${trait} Essence`,form:"material",kind:"essence",noun:"Essence",traits:{[trait]:REFINE_VALUE},tier:1,crafted:false};return id}
-const isEss=id=>/^ess_[A-Za-z]+$/.test(id),isRefined=id=>/^ess_[A-Za-z]+_2$/.test(id);
+// Graded items (see GRADES in data.js): gradedItem makes the item for base id b at grade g in S.items on demand; essence(t) is the Plain one
+function gradedItem(b,g){const id=gradedId(b,g);if(g!==3)gradedItem(b,3);if(!S.items[id])S.items[id]=mkGraded(b,g);return id}
+const essence=trait=>gradedItem("ess_"+trait,3),essG=(trait,g)=>gradedItem("ess_"+trait,g);
+const isEss=id=>/^ess_[A-Za-z]+(@[1-5])?$/.test(id),essTrait=id=>id.slice(4).replace(/@.*/,"");
+// The grade a drop rolls in zone at heat: x (0-1) picks it, so the seeded daily can pre-roll it
+function rollGrade(zone,heat,x){const h=Math.max(0,heat|0),w=(GRADE_ODDS[zone]||GRADE_ODDS.woods).map((v,i)=>Math.max(0,v*(1+h*GRADE_HEAT[i]))),t=w.reduce((a,b)=>a+b,0);let r=(x??Math.random())*t;for(let i=0;i<5;i++){if(r<w[i])return i+1;r-=w[i]}return 3}
+const gdrop=(id,zone,heat,x)=>gradable(id)?gradedItem(id,rollGrade(zone,heat,x)):id,gess=(t,zone,heat,x)=>essG(t,rollGrade(zone,heat,x));
+const dropNow=(id,x)=>gdrop(id,S.zone,heatNow(),x),essNow=(t,x)=>gess(t,S.zone,heatNow(),x); // map finds and rewards in the zone you are in
 function addItem(id,n){S.inv[id]=(S.inv[id]||0)+(n||1);if(!S.fresh.includes(id))S.fresh.push(id)}
 const sortInputs=raw=>raw.slice().sort((a,b)=>FORMS[b.form].p-FORMS[a.form].p||b.tier-a.tier||(a.id<b.id?-1:1));
 const isFusion=(a,b)=>FUSIONS.some(([x,y])=>(x===a&&y===b)||(x===b&&y===a));
