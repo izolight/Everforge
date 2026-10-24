@@ -2,9 +2,9 @@
 const NODE_INFO={fight:"Fight",elite:"Elite",boss:"Boss",chest:"Chest",shrine:"Shrine",peddler:"Peddler",camp:"Camp",mystery:"Mystery"};
 const MYSTERY=[[.14,"ambush"],[.26,"shrine"],[.38,"pack"],[.5,"chest"],[.6,"peddler"],[.68,"altar"],[.76,"alchemist"],[.84,"traveller"],[.92,"forge"],[1,"riddle"]],mystery=x=>MYSTERY.find(([p])=>x<p)[1];
 // ---- grid helpers: m.g = tile rows ("." floor, "," brush, "#" rock/tree, "~" water), m.pois = things on tiles, m.sn = seen flags, m.mem = last-seen POI types
-const inb=(m,x,y)=>x>=0&&y>=0&&x<m.w&&y<m.h,walk=(m,x,y)=>inb(m,x,y)&&!"#~".includes(m.g[y][x]),poiAt=(m,x,y)=>m.pois.find(p=>p.x===x&&p.y===y),DIRS=[[0,-1],[1,0],[0,1],[-1,0]];
-function bfs(m,x,y){const d=Array(m.w*m.h).fill(-1),q=[[x,y]];d[y*m.w+x]=0;
-  for(let k=0;k<q.length;k++){const [a,b]=q[k];DIRS.forEach(([dx,dy])=>{const u=a+dx,v=b+dy;if(walk(m,u,v)&&d[v*m.w+u]<0){d[v*m.w+u]=d[b*m.w+a]+1;q.push([u,v])}})}return d}
+const inb=(m,x,y)=>x>=0&&y>=0&&x<m.w&&y<m.h,walk=(m,x,y)=>inb(m,x,y)&&!"#~".includes(m.g[y][x]),poiAt=(m,x,y)=>m.pois.find(p=>p.x===x&&p.y===y&&!p.done)||m.pois.find(p=>p.x===x&&p.y===y),DIRS=[[0,-1],[1,0],[0,1],[-1,0]];
+function bfs(m,x,y,ok=walk){const d=Array(m.w*m.h).fill(-1),q=[[x,y]];d[y*m.w+x]=0;
+  for(let k=0;k<q.length;k++){const [a,b]=q[k];DIRS.forEach(([dx,dy])=>{const u=a+dx,v=b+dy;if(ok(m,u,v)&&d[v*m.w+u]<0){d[v*m.w+u]=d[b*m.w+a]+1;q.push([u,v])}})}return d}
 const depthOf=(m,x,y)=>x===m.lair.x&&y===m.lair.y?MAP_ROWS-1:Math.max(0,Math.min(MAP_ROWS-2,Math.floor((MAP_ROWS-1)*m.d[y*m.w+x]/m.D)));
 const lightR=m=>m.torch>0?TORCH.rad:TORCH.dim,litAt=(m,x,y)=>Math.max(Math.abs(x-m.pos.x),Math.abs(y-m.pos.y))<=lightR(m); // Chebyshev radius
 function reveal(m){
@@ -33,10 +33,11 @@ function genMap(o){
   const dist=(x,y)=>m.d[y*W+x],depth=(x,y)=>depthOf(m,x,y);
   const cand=[];for(let y=2;y<H;y++)for(let x=0;x<W;x++)if(walk(m,x,y)&&dist(x,y)>=3&&!(x===sx-1&&y===1)&&!(x===sx&&y===2))cand.push([x,y]);
   for(let i=cand.length-1;i>0;i--){const j=Math.floor(R()*(i+1));[cand[i],cand[j]]=[cand[j],cand[i]]}
-  const add=(t,x,y)=>{const p={t,x,y,r:depth(x,y),done:false};if(t==="fight"||t==="elite")p.mv="still";m.pois.push(p);return p};
+  const add=(t,x,y)=>{const p={t,x,y,r:depth(x,y),done:false};m.pois.push(p);return p};
   add("boss",sx,0);add("fight",sx,1);add(o.twist==="nocamp"?"fight":"camp",sx-1,1);
-  const place=(t,minR)=>{const ok=(c,sp)=>depth(...c)>=minR&&(!sp||m.pois.every(p=>Math.max(Math.abs(p.x-c[0]),Math.abs(p.y-c[1]))>=2)),i=[cand.findIndex(c=>ok(c,1)),cand.findIndex(c=>ok(c,0)),0].find(i=>i>=0);
-    if(cand.length)add(t,...cand.splice(i,1)[0])};
+  const fe=t=>t==="fight"||t==="elite",far=c=>dist(...c)>3&&Math.max(Math.abs(c[0]-sx),Math.abs(c[1]-(H-1)))>3; // enemies never start within 3 tiles of the start
+  const place=(t,minR)=>{const ok=(c,sp)=>depth(...c)>=minR&&(!fe(t)||far(c))&&(!sp||m.pois.every(p=>Math.max(Math.abs(p.x-c[0]),Math.abs(p.y-c[1]))>=2)),i=[cand.findIndex(c=>ok(c,1)),cand.findIndex(c=>ok(c,0)),fe(t)?cand.findIndex(far):0].find(i=>i>=0);
+    if(i>=0&&cand.length)add(t,...cand.splice(i,1)[0])};
   const ne=Math.round((POI_N.elite[0]+Math.floor(R()*POI_N.elite[1]))*(h>=2?HEAT_T.elite:1)),nf=POI_N.fight[0]+Math.floor(R()*POI_N.fight[1]);
   for(let i=0;i<ne;i++)place("elite",2);
   place("peddler",1);for(let i=0;i<POI_N.shrine;i++)place("shrine",1);for(let i=0;i<POI_N.chest;i++)place("chest",0);for(let i=0;i<POI_N.mystery;i++)place("mystery",0);for(let i=0;i<nf;i++)place("fight",0);
@@ -46,10 +47,12 @@ function genMap(o){
     // pre-rolled so the same day plays out alike: elite upgrade, affix, chest (mimic, loot, scroll), pack loot and four rolls (rv) for choice events and six (sh) for the peddler's stock (the one-for-one offer, what you can sell and satchel-based event choices depend on you, so they vary)
     const zp=zonePool(o.zone),pk=a=>a[Math.floor(rn()*a.length)];nd.up=rn()<eliteCh(h);nd.af=Math.floor(rn()*AFFIXES.length);
     nd.ch={m:rn()<.25,l:[pk(zp),pk(zp)],e:rn()<.5?pk(ESS_POOL):null,s:rn()<.15,sx:rn()};nd.pk=[pk(zp),...rn()<.5?[pk(zp)]:[]];nd.rv=[rn(),rn(),rn(),rn()];nd.sh=[rn(),rn(),rn(),rn(),rn(),rn()];nd.gr=Array.from({length:8},rn);nd.ch.g=nd.gr}); // gr: grade rolls for chest, pack and event finds
+  m.pois.forEach(p=>{if(!fe(p.t))return;if(o.zone&&!p.e)p.e=pickEnemy(o.zone); // each enemy is picked now (so its way of moving is known); the gate guard never moves, elites stalk slowly
+    p.mv=!o.zone||(p.x===sx&&p.y===1)?"still":p.t==="elite"?"chase":ENEMIES[p.e].mv||"still"});
   m.torch=m.tmax;m.mem[key(sx,0)]="boss";m.sn[sx]=1;reveal(m);
   return m;
 }
-const eliteCh=h=>h>=3?HEAT_T.affix:.08*(h>=2?HEAT_T.elite:1),heatOf=z=>S.heat[z]||{max:0,sel:0},newMap=z=>genMap({heat:heatOf(z).sel});
+const eliteCh=h=>h>=3?HEAT_T.affix:.08*(h>=2?HEAT_T.elite:1),heatOf=z=>S.heat[z]||{max:0,sel:0},newMap=z=>genMap({heat:heatOf(z).sel,zone:z});
 const curMap=()=>S.run==="daily"&&S.daily?S.daily.map:S.maps[S.zone]||(S.maps[S.zone]=newMap(S.zone));
 const heatNow=()=>curMap().heat||0,twistNow=()=>S.run==="daily"&&S.daily?S.daily.twist:null,campFrac=()=>heatNow()>=5?HEAT_T.rest:.4;
 function setHeat(n){ // pick the heat for new expeditions here; an untouched map is rerolled at once
@@ -70,17 +73,49 @@ function step(x,y){
   const nd=poiAt(m,x,y);if(nd&&!nd.done)return enter(nd);
   if(m.torch<=0){const ra=m.sd?rng(hash(m.seed+":a:"+m.steps)):Math.random; // a seeded map rolls the dark's ambush by step number, so the same path meets the same things
     if(ra()<TORCH.amb){const e=pickEnemy(S.zone,ra),up=ra()<eliteCh(m.heat||0),af=Math.floor(ra()*AFFIXES.length);return startBattle(null,{row:depthOf(m,x,y),ambush:true,amsg:"Ambush! Something finds you in the dark.",e,up,af})}}
+  if(foesAct(m))return;
   save();render();
 }
-function enter(nd){ // the one place a POI is resolved into a battle or an event
+// ---- roaming enemies: after each step that met nothing, every live mover acts once, in map order
+const isFoe=p=>p.t==="fight"||p.t==="elite",roamer=p=>isFoe(p)&&p.mv&&p.mv!=="still"&&!p.done,mlog=(m,t)=>{(m.log||(m.log=[])).push(t);if(m.log.length>20)m.log.shift()};
+const fixed=(m,x,y)=>[m.start,m.gate,m.lair].some(q=>q.x===x&&q.y===y);
+// a tile no enemy may ever stand on: rock, water, the start, the gate, the lair, any POI that is not an enemy (dead or alive) or a defeated one's corpse
+const hard=(m,x,y)=>!walk(m,x,y)||fixed(m,x,y)||m.pois.some(p=>p.x===x&&p.y===y&&!(isFoe(p)&&(p.done||roamer(p))));
+const vacant=(m,x,y,me)=>!hard(m,x,y)&&!m.pois.some(p=>p!==me&&p.x===x&&p.y===y&&!p.done); // ... and one nobody stands on
+function foesAct(m){
+  if(m.steps<2)return false; // the first step of an expedition is safe
+  const rs=m.pois.filter(roamer);if(!rs.length)return false;
+  const R=m.sd?rng(hash(m.seed+":e:"+m.steps)):Math.random,dp=bfs(m,m.pos.x,m.pos.y),dm=bfs(m,m.pos.x,m.pos.y,(m,x,y)=>!hard(m,x,y)),W=m.w,dark=m.torch<=0;
+  for(const p of rs){
+    if(p.dz>0){p.dz--;continue}
+    const el=p.t==="elite",d=dp[p.y*W+p.x]<0?99:dp[p.y*W+p.x],nm=ENEMIES[p.e]?ENEMIES[p.e].name:"The hunter";
+    if(el||p.mv==="chase"){const rg=el?ROAM.elite:ROAM.aw+(dark?ROAM.dark-ROAM.aw:0)+(m.heat>=3?ROAM.heat:0);
+      if(!p.aw&&d<=rg){p.aw=1;mlog(m,`The ${nm} catches your scent.`)}else if(p.aw&&d>ROAM.lose){p.aw=0;mlog(m,`The ${nm} loses you.`)}}
+    if(el){p.pa=p.pa?0:1;if(p.pa)continue} // elites move on every other step
+    const at=(x,y)=>x===m.pos.x&&y===m.pos.y;
+    const nb=DIRS.map(([a,b])=>[p.x+a,p.y+b]).filter(([x,y])=>walk(m,x,y)&&(at(x,y)?!hard(m,x,y):vacant(m,x,y,p)));
+    let to=null;
+    if(p.aw&&dm[p.y*W+p.x]>0)to=nb.find(([x,y])=>dm[y*W+x]===dm[p.y*W+p.x]-1)||null;
+    else if(nb.length&&R()>=ROAM.stay)to=nb[Math.floor(R()*nb.length)];
+    if(!to)continue;
+    const from=[p.x,p.y];p.x=to[0];p.y=to[1];p.ms=m.steps;
+    if(at(p.x,p.y)){reveal(m);enter(p,"it",from);return true}}
+  reveal(m);return false}
+function slip(B){ // you fled a map enemy: it stays and is dazed; you step back, or stay put if it walked into you
+  const m=curMap(),nd=m.pois[B.pi];if(!nd||!isFoe(nd)||!nd.done)return;
+  nd.done=false;nd.dz=ROAM.daze;
+  if(B.by==="it"&&B.ef&&walk(m,B.ef[0],B.ef[1])){nd.x=B.ef[0];nd.y=B.ef[1]}
+  else if(m.prev&&walk(m,m.prev.x,m.prev.y)){m.pos=m.prev;m.prev=null}
+  mlog(m,`You slip away. The ${ENEMIES[B.id].name} is dazed and stays put for ${ROAM.daze} steps.`);blog(`The ${B.name} is dazed. It will not follow for ${ROAM.daze} steps.`,"good");reveal(m)}
+function enter(nd,by,from){ // the one place a POI is resolved into a battle or an event; by "it": the enemy walked into you (from = the tile it left)
   const m=curMap();nd.done=true;delete m.mem[nd.x+","+nd.y];S.battle=null;S.event=null;
   let t=nd.t;
   if(t==="mystery")t=nd.my||mystery(Math.random());
-  const P=pstats(),hl=m.heat||0,amb=!!m.amb&&["fight","elite"].includes(t),r=nd.r; // m.amb: a robbed traveller's friends make your next fight an ambush; it ends with the next stop whatever it is
+  const src=isFoe(nd)?{pi:m.pois.indexOf(nd),by:by||"you",ef:from}:{},P=pstats(),hl=m.heat||0,amb=!!m.amb&&["fight","elite"].includes(t),r=nd.r; // m.amb: a robbed traveller's friends make your next fight an ambush; it ends with the next stop whatever it is
   m.amb=false;
-  if(t==="fight")return startBattle(null,{row:r,ambush:amb,e:nd.e,up:nd.up,af:nd.af});
+  if(t==="fight")return startBattle(null,{row:r,ambush:amb,e:nd.e,up:nd.up,af:nd.af,...src});
   if(t==="ambush")return startBattle(null,{row:r,ambush:true,e:nd.e,up:nd.up,af:nd.af});
-  if(t==="elite")return startBattle(null,{row:r,elite:true,ambush:amb,e:nd.e,af:nd.af});
+  if(t==="elite")return startBattle(null,{row:r,elite:true,ambush:amb,e:nd.e,af:nd.af,...src});
   if(t==="boss")return startBattle(ZONES[zoneIdx(S.zone)][2]);
   if(ENC[t])S.event=ENC[t].make([...nd.rv||[0,0,0,0].map(()=>Math.random()),...(nd.gr||[]).slice(0,4)],hl); // rv[4..7] roll the grades of what the event gives
   if(t==="pack"){const pool=zonePool(S.zone),got=(nd.pk?[...nd.pk]:[pick(pool)]).map((id,k)=>dropNow(id,nd.gr&&nd.gr[k]));if(!nd.pk&&Math.random()<.5)got.push(dropNow(pick(pool)));got.forEach(id=>addItem(id));sfx("loot");

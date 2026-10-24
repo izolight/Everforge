@@ -14,7 +14,7 @@ async function run(label,setup){
   if(setup){await page.evaluate(setup);await page.reload()}
   await page.waitForFunction(()=>typeof S==="object"&&S);
   const stats=await page.evaluate(async steps=>{
-    const sleep=ms=>new Promise(r=>setTimeout(r,ms)),out={steps:0,battles:0,won:0,lost:0,forged:0,zones:new Set(),views:0,wields:0,abil:0,tiles:0,outs:0,heat:0,daily:0,aband:0,bought:0,sold:0,upgraded:0,reforged:0,bad:[]};
+    const sleep=ms=>new Promise(r=>setTimeout(r,ms)),out={steps:0,battles:0,won:0,lost:0,forged:0,zones:new Set(),views:0,wields:0,abil:0,tiles:0,outs:0,byfoe:0,fled:0,heat:0,daily:0,aband:0,bought:0,sold:0,upgraded:0,reforged:0,bad:[]};
     const click=el=>{el.click();return true};let wantZone=null,doChores=false,wantWield=false,wantHeat=false,wantDaily=false,wantAband=false,wantShop=false;
     const q=s=>document.querySelector(s),qa=s=>[...document.querySelectorAll(s)];
     for(let i=0;i<steps;i++){out.steps++;
@@ -32,15 +32,22 @@ async function run(label,setup){
       // the daily run and the normal zone must never mix
       if(S.run==="daily"?!(S.daily&&S.daily.state==="run"&&S.zone===S.daily.zone&&curMap()===S.daily.map):(S.daily&&S.daily.state==="run"))out.bad.push(`daily state broken at step ${i}`);
       if(S.run==="daily"&&i%41===0){const s2=migrate(JSON.parse(JSON.stringify(S)));if(s2&&s2.run==="daily")S=s2;else out.bad.push("daily did not survive a save round trip")}
+      {const m=curMap(),seen=new Set(); // roaming enemies: never on rock, water or the fixed tiles, never two on a tile
+        for(const p of m.pois){if(!isFoe(p)||p.done)continue;const k=p.x+","+p.y;if(seen.has(k)||!walk(m,p.x,p.y)||(roamer(p)&&fixed(m,p.x,p.y)))out.bad.push(`enemy on a bad tile ${k} at step ${i}`);seen.add(k)}}
       if(S.view!=="battle")go("battle");
       out.zones.add(S.zone);
       if(S.battle&&!S.battle.over){
         if(S.hp<pstats().maxHp*.35&&i%3)S.hp=pstats().maxHp;
         if(S.battle.turn>40)S.battle.hp=1; // don't let a stalemate eat the whole run
+        if(S.battle.pi!=null&&i%19===2&&q("#flee")){ // flee a map enemy now and then: it must stay, dazed
+          for(let k=0;k<8&&S.battle&&!S.battle.over&&q("#flee");k++)click(q("#flee"));
+          if(S.battle&&S.battle.over==="fled"){out.fled++;const nd=curMap().pois[S.battle.pi];if(!nd||nd.done||nd.dz!==ROAM.daze)out.bad.push("a fled-from enemy is not dazed")}
+          if(S.battle&&S.battle.over){out.battles++;out[S.battle.over==="won"?"won":"lost"]++;if(S.battle.by==="it")out.byfoe++}
+          continue}
         const btns=qa("#arena button:not([disabled])").filter(b=>b.id&&!["flee","rest"].includes(b.id)||b.dataset.ability);
         const b=btns.length?btns[Math.floor(Math.random()*btns.length)]:q("#atk");
         if(Math.random()<.75&&q("#atk"))click(q("#atk"));else if(b){if(b.dataset.ability)out.abil++;click(b)}
-        if(S.battle&&S.battle.over){out.battles++;out[S.battle.over==="won"?"won":"lost"]++}
+        if(S.battle&&S.battle.over){out.battles++;out[S.battle.over==="won"?"won":"lost"]++;if(S.battle.by==="it")out.byfoe++}
         continue}
       if(doChores){doChores=false;await chores();continue}
       if(wantHeat&&S.run!=="daily"&&!S.event&&!S.battle){S.heat[S.zone]={max:1+Math.floor(Math.random()*HEAT_MAX),sel:0};render();
@@ -109,6 +116,7 @@ async function run(label,setup){
   const st=fresh.stats;if(!st.bought||!st.sold||!st.upgraded||!st.reforged){failed=true;console.error(`The bot never exercised the economy (bought ${st.bought}, sold ${st.sold}, upgraded ${st.upgraded}, reforged ${st.reforged}).`)}
   if(!fresh.stats.heat||!fresh.stats.daily){failed=true;console.error("The bot never exercised heat or the daily.")}
   if(fresh.stats.tiles<30){failed=true;console.error("The bot barely explored the map.")}
+  if(!fresh.stats.byfoe||!fresh.stats.fled){failed=true;console.error(`The bot never met an enemy that walked into it (${fresh.stats.byfoe}) or fled a map enemy (${fresh.stats.fled}).`)}
   if(fresh.stats.battles<3){failed=true;console.error("Too few battles completed; the loop got stuck.")}
   // Every old save fixture must still load (migrations) and play without errors.
   for(const f of fs.readdirSync(FIX).filter(f=>f.endsWith(".json")).sort()){
