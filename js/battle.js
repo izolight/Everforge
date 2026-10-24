@@ -34,7 +34,7 @@ function inflict(B,P,sp){ // enemy hit landed: maybe afflict you; your element r
   l.forEach(({s,ch})=>{const T=STATUS[s];if(Math.random()>=Math.min(1,ch*(sp?2:1))*(1-(P.rs[T.el]||0)/100))return;
     if(s==="poison"){const o=Y.poison||{n:0};Y.poison={n:Math.min(POISON_STACK,o.n+1),t:T.t,d:Math.max(1,Math.round(B.atk*.12))}}
     else Y[s]={t:T.t,d:Math.max(1,Math.round(B.atk*.2))};
-    blog(INF_MSG[s]+(s==="poison"&&Y.poison.n>1?` (x${Y.poison.n})`:""),"foe");learn(B.id,"inf",s)})}
+    blog(`${INF_MSG[s]} (${s==="burn"||s==="poison"?`${s==="poison"?Y.poison.d*Y.poison.n:Y[s].d} damage per turn${s==="poison"&&Y.poison.n>1?`, x${Y.poison.n}`:""}`:STATUS[s].tip}).`,"foe");if(E.inf&&E.inf.s===s)learn(B.id,"inf",s)})}
 function tickYou(B,P){
   const Y=stOf();
   ["burn","poison"].forEach(s=>{const x=Y[s];if(!x||S.hp<=0)return;const d=s==="poison"?x.d*x.n:x.d;S.hp-=d;fx("youHud","-"+d,"hurt");
@@ -136,7 +136,7 @@ function enemyTurn(){
 }
 function enemyDown(){
   const B=S.battle,E=ENEMIES[B.id];
-  if(E.rebirth&&!B.reborn){B.reborn=true;B.hp=Math.round(B.max*.4);B.burn=null;B.poison=0;B.guard=false;B.parry=false;blog(`The ${B.name} bursts into flame and rises from its ashes!`,"big");B.turn++;save();return render()}
+  if(E.rebirth&&!B.reborn){B.reborn=true;B.hp=Math.round(B.max*.4);B.burn=null;B.poison=0;B.guard=false;B.parry=false;if(B.off>0)B.off--;blog(`The ${B.name} bursts into flame and rises from its ashes!`,"big");B.turn++;save();return render()}
   const P=pstats();
   B.hp=0;B.over="won";S.kills[B.id]=(S.kills[B.id]||0)+1;S.wins+=E.boss?3:1;
   if(!E.boss&&B.id!=="mimic")S.zoneKills[E.zone]=(S.zoneKills[E.zone]||0)+1;

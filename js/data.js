@@ -150,7 +150,7 @@ const RES_PER=5,RES_CAP=40,RES_ALT={Fur:["ice",1],Insulated:["ice",2.5]},RES_MSG
 const ARC_PER=12,ARC_CAP=60,WARD_PER=4,WARD_CAP=40,THORN_PER=4,THORN_CAP=30,STONE_DR=.75,STONE_CAP=8,SHRED_PER=1.5,SHRED_CAP=6,ROOT_PER=1.5,ROOT_CAP=8,DODGE_PER=4,DODGE_CAP=25,MED_PER=.1,MED_CAP=.5,MED_REGEN=.5;
 // statuses enemies inflict on you: el = resisting element (P.rs), t = turns; cures = traits on consumables that clear them
 const STATUS={burn:{n:"Burn",el:"fire",t:3,tip:"damage each turn"},chill:{n:"Chill",el:"ice",t:3,tip:"no swift follow-ups, half dodge"},poison:{n:"Poison",el:"poison",t:4,tip:"stacking damage each turn"},curse:{n:"Curse",el:"shadow",t:4,tip:"healing you receive is halved"}};
-const INF_MSG={burn:"You catch fire!",chill:"A numbing chill sets in.",poison:"Venom seeps into your blood.",curse:"A curse withers you."};
+const INF_MSG={burn:"You catch fire",chill:"A numbing chill sets in",poison:"Venom seeps into your blood",curse:"A curse withers you"};
 const ELITE_INF={Fire:"burn",Ice:"chill",Poison:"poison",Shadow:"curse"},ELITE_INF_CH=.25,POISON_STACK=3,CLEANSE_PER=6,CLEANSE_CAP=50,PARRY_X=1.5,PARRY_FAIL=1.25;
 const CURES={Medicine:["burn","chill","poison","curse"],Holy:["curse","poison"],Water:["burn","chill"],Nourishing:["poison"]};
 const RARITY=[["Common","#b3aa9e"],["Uncommon","#88d7a1"],["Rare","#7cb6f2"],["Epic","#c39cf7"],["Mythic","#ff8a50"]];
