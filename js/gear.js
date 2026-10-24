@@ -30,9 +30,9 @@ function effects(it){
     if(v("Runic"))out.push(`Ward absorbs ${Math.round(Math.min(WARD_CAP,v("Runic")*WARD_PER))} damage at the start of each battle`);
     if(v("Wood"))out.push(`Heals ${Math.round(Math.min(ROOT_CAP,v("Wood")*ROOT_PER))} HP per turn while below half health`);
     if(v("Swift"))out.push(`${Math.round(Math.min(DODGE_CAP,v("Swift")*DODGE_PER))}% chance to dodge a hit`);
-    if(v("Medicine"))out.push(`+${Math.round(v("Medicine")*MED_REGEN)} HP per turn`);
+    if(v("Medicine"))out.push(`+${Math.round(v("Medicine")*MED_REGEN)} HP per turn`,`${Math.round(Math.min(CLEANSE_CAP,v("Medicine")*CLEANSE_PER))}% chance each turn to shake off a status (burn, chill, poison, curse)`);
     if(it.form==="shield")out.push(`${Math.round(15+v("Heavy")*3)}% chance to block a hit`)}
-  if(g==="consumable"){if(st.heal>0)out.push(`Restores ${medHeal(it)} HP${v("Medicine")?" (Medicine boosts healing)":""}`);const d=Math.round((st.atk+st.mag)*.6);if(d>=3)out.push(`Deals about ${d} damage when used in battle`)}
+  if(g==="consumable"){if(st.heal>0)out.push(`Restores ${medHeal(it)} HP${v("Medicine")?" (Medicine boosts healing)":""}`);const cu=cures(tr);if(cu.length)out.push(`Cures ${cu.join(", ")} when used in battle`);const d=Math.round((st.atk+st.mag)*.6);if(d>=3)out.push(`Deals about ${d} damage when used in battle`)}
   out.push(`Mixes with ${acceptsText(it)}`);
   return out;
 }

@@ -61,7 +61,7 @@ function youHud(){
   const P=pstats(),B=S.battle,guarding=B&&!B.over&&B.guard;
   return `<div class="you" id="youHud">${glyph(P.main,"fists")}<div class="fname">You<em>${P.main?P.main.name:"Bare fists"}</em></div>
     <div class="hpline">${hpBar(S.hp,P.maxHp)}<span class="hpnum">${S.hp}<small>/${P.maxHp}</small></span></div>
-    <div class="fsub"><span>ATK ${P.atk}</span><span>DEF ${Math.round(P.red*100)}%</span>${P.regen?`<span>+${P.regen}/turn</span>`:""}${Object.keys(S.infuse).length?`<span>${Object.keys(S.infuse).join(" · ")}</span>`:""}${guarding?"<span>Guarding</span>":""}${B&&!B.over&&P.rs[B.el]?`<span>Resists ${B.el} ${P.rs[B.el]}%</span>`:""}${B&&!B.over&&B.ward>0?`<span>Ward ${B.ward}</span>`:""}</div></div>`;
+    <div class="fsub"><span>ATK ${P.atk}</span><span>DEF ${Math.round(P.red*100)}%</span>${P.regen?`<span>+${P.regen}/turn</span>`:""}${Object.keys(S.infuse).length?`<span>${Object.keys(S.infuse).join(" · ")}</span>`:""}${guarding?"<span>Guarding</span>":""}${B&&!B.over&&B.off>0?"<span>Off balance</span>":""}${B&&!B.over&&P.rs[B.el]?`<span>Resists ${B.el} ${P.rs[B.el]}%</span>`:""}${B&&!B.over&&B.ward>0?`<span>Ward ${B.ward}</span>`:""}${B&&!B.over?Object.entries(B.you||{}).map(([s,x])=>`<span class="st ${s}" title="${STATUS[s].tip}">${STATUS[s].n}${x.n>1?" x"+x.n:""} ${x.t}t</span>`).join(""):""}</div></div>`;
 }
 function campbar(){
   const P=pstats(),low=S.hp/P.maxHp<.35;
@@ -106,12 +106,12 @@ function renderBattle(){
     const P=pstats(),sp=isSpecial(B)?E.sp:null,est=Math.max(1,Math.round(B.atk*(sp&&sp.kind!=="heal"?sp.x*(sp.n||1):1)*(1-P.red)));
     const dmgTxt=K.stats?` About ${est} damage.`:"";
     const intent=B.frozen?`<div class="intent"><b>NEXT</b><span>Frozen. It will lose its turn.</span></div>`
-      :sp?`<div class="intent special"><b>NEXT</b><span>It's ${sp.tell}. ${K.sp?`${sp.name} is coming.`:"Something big is coming."}${sp.kind==="heal"?"":`${dmgTxt} Guard!`}</span></div>`
-      :`<div class="intent"><b>NEXT</b><span>A normal attack.${dmgTxt}</span></div>`;
+      :sp?`<div class="intent special"><b>NEXT</b><span>It's ${sp.tell}. ${K.sp?`${sp.name} is coming.`:"Something big is coming."}${sp.kind==="heal"?" Parry to interrupt it.":`${dmgTxt} Guard, or Parry to turn it back!`}</span></div>`
+      :`<div class="intent"><b>NEXT</b><span>A normal attack.${dmgTxt} Parrying now would backfire.</span></div>`;
     const cons=Object.keys(S.inv).filter(id=>S.inv[id]>0&&grp(S.items[id])==="consumable");
     const canStudy=unknownFacts(B.id).length>0;
     body=`${intent}${youHud()}
-      <div class="acts"><button class="btn primary act" id="atk">${icon("attack")}Attack</button><button class="btn act" id="guard">${icon("guard")}Guard</button>
+      <div class="acts"><button class="btn primary act" id="atk">${icon("attack")}Attack</button><button class="btn act" id="guard">${icon("guard")}Guard</button><button class="btn act" id="parry" title="Beat a telegraphed special: negate it and riposte. Mistimed: +25% damage and a lost guard.">${icon("parry")}Parry</button>
       <button class="btn act" id="study" ${canStudy?"":"disabled"}>${icon("study")}${canStudy?"Study":"Known"}</button><button class="btn act" id="flee">${icon("flee")}Flee</button></div>
       ${cons.length?`<div class="strip">${cons.map(id=>{const it=S.items[id];return `<button class="tile" data-use="${id}" aria-label="Use ${it.name}">${glyph(it)}<span class="tname">${nameHtml(it)}</span><span class="ttr">${useHint(it)}</span><span class="cnt">×${S.inv[id]}</span></button>`}).join("")}</div>`:""}
       ${logBlock(B)}`;
@@ -122,7 +122,7 @@ function renderBattle(){
   a.innerHTML=`${foeStage(B)}${body}`;
   const bl=$("blog");if(bl)bl.scrollTop=bl.scrollHeight;
 }
-function useHint(it){const st=statsOf(it),p=[];if(st.heal>0)p.push(`+${medHeal(it)} HP`);const d=Math.round((st.atk+st.mag)*.6);if(d>=3)p.push(`${d} dmg`);return p.join(" · ")||"no effect"}
+function useHint(it){const st=statsOf(it),p=[];if(st.heal>0)p.push(`+${medHeal(it)} HP`);const d=Math.round((st.atk+st.mag)*.6);if(d>=3)p.push(`${d} dmg`);const c=cures(it.traits);if(c.length)p.push("cures");return p.join(" · ")||"no effect"}
 function renderBench(){
   const max=maxInputs(),parts=[],items=S.bench.map(id=>S.items[id]),chk=checkMix(items);
   for(let i=0;i<3;i++){
