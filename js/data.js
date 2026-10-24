@@ -97,13 +97,13 @@ const ENEMIES={
   boar:{name:"Thornback Boar",plural:"Thornback Boars",zone:"woods",mv:"chase",el:"wood",hp:30,atk:6,def:2,weak:["fire"],resist:[],w:3,verb:"gores you",intro:"A Thornback Boar bursts out of the brush.",
     lore:"Bristled forest boars that sharpen their tusks on oak bark. They charge when cornered, and often when not.",
     sp:{every:3,name:"Tusk Charge",kind:"heavy",x:2,tell:"lowering its tusks"},drops:[["boar_hide",.6],["chili",.4],["hide_gloves",.15]]},
-  sprite:{name:"Glowcap Sprite",plural:"Glowcap Sprites",zone:"woods",mv:"wander",el:"holy",hp:22,atk:4,def:0,weak:["fire","shadow"],resist:["holy"],w:3,verb:"flings spores at you",intro:"A Glowcap Sprite drifts out from between the roots.",
+  sprite:{name:"Glowcap Sprite",plural:"Glowcap Sprites",zone:"woods",mv:"wander",el:"holy",hp:26,atk:5,def:0,weak:["fire","shadow"],resist:["holy"],w:3,verb:"flings spores at you",intro:"A Glowcap Sprite drifts out from between the roots.",
     lore:"Mushroom spirits that glow brighter when frightened. They knit their caps back together with spores.",
     sp:{every:3,name:"Mend",kind:"heal",x:.3,tell:"gathering glowing spores around itself"},drops:[["mushroom",.75],["honey",.45],["sprite_lantern",.12]]},
   bandit:{name:"Woods Bandit",plural:"Woods Bandits",zone:"woods",mv:"still",el:"metal",hp:34,atk:7,def:3,weak:["arcane"],resist:[],w:2,verb:"slashes at you",intro:"A Woods Bandit steps onto the path, blade drawn.",
     lore:"Deserters and debtors who work the woods road. They carry whatever they last stole.",
     sp:{every:3,name:"Flurry",kind:"multi",n:3,x:.6,tell:"shifting into a low, quick stance"},drops:[["bread",.55],["dagger",.25],["wood_shield",.2],["leather_cap",.2],["jerkin",.18],["trail_boots",.18],["hunter_spear",.1],["oak_staff",.1],["iron_sword",.07]]},
-  gnarlhorn:{name:"Gnarlhorn, the Boar King",short:"Gnarlhorn",zone:"woods",el:"wood",boss:true,hp:75,atk:9,def:4,weak:["fire"],resist:["wood"],verb:"tramples you",intro:"The ground shakes. Gnarlhorn, the Boar King, crashes through the trees.",
+  gnarlhorn:{name:"Gnarlhorn, the Boar King",short:"Gnarlhorn",zone:"woods",el:"wood",boss:true,hp:66,atk:8,def:4,weak:["fire"],resist:["wood"],verb:"tramples you",intro:"The ground shakes. Gnarlhorn, the Boar King, crashes through the trees.",
     lore:"The old king of the boar herds, his hide grown thick as bark. The woods go quiet when he walks.",
     sp:{every:3,name:"Stampede",kind:"heavy",x:2.2,tell:"pawing the ground"},drops:[["gnarl_tusk",1],["boar_hide",.8]]},
   wolf:{name:"Frost Wolf",plural:"Frost Wolves",zone:"pass",mv:"chase",el:"ice",hp:60,atk:11,def:3,weak:["fire"],resist:["ice"],w:3,verb:"bites",intro:"A Frost Wolf circles you through the snow.",
@@ -114,14 +114,14 @@ const ENEMIES={
     lore:"Travellers who froze on the pass and never stopped walking. They feed on warmth.",
     inf:{s:"curse",ch:0.35},
     sp:{every:3,name:"Soul Siphon",kind:"drain",x:1.2,tell:"reaching toward your chest"},drops:[["shroud",.55],["spring_water",.4],["holy_water",.25],["wraith_wraps",.18]]},
-  golem:{name:"Stone Golem",plural:"Stone Golems",zone:"pass",mv:"still",el:"stone",hp:90,atk:10,def:8,weak:["arcane","ice"],resist:["metal","poison"],w:2,verb:"slams you",intro:"A boulder unfolds into a Stone Golem.",
+  golem:{name:"Stone Golem",plural:"Stone Golems",zone:"pass",mv:"still",el:"stone",hp:76,atk:10,def:7,weak:["arcane","ice"],resist:["metal","poison"],w:2,verb:"slams you",intro:"A boulder unfolds into a Stone Golem.",
     lore:"Boulders woken by old runes. Slow to anger and slower to stop.",
     sp:{every:4,name:"Earthquake",kind:"heavy",x:2.5,tell:"raising both fists overhead"},drops:[["golem_core",.7],["iron_helmet",.3],["stone_plate",.2]]},
   rimeclaw:{name:"Rimeclaw, the Pack Mother",short:"Rimeclaw",zone:"pass",el:"ice",boss:true,hp:140,atk:14,def:5,weak:["fire"],resist:["ice","shadow"],verb:"mauls you",intro:"A howl splits the air. Rimeclaw, the Pack Mother, blocks the pass.",
     lore:"Mother of every pack on the pass. Her howl turns the air to needles.",
     inf:{s:"chill",ch:0.35},
     sp:{every:3,name:"Blizzard Howl",kind:"multi",n:3,x:.75,tell:"drawing a long breath"},drops:[["rime_fang",1],["pelt",.8]]},
-  imp:{name:"Ember Imp",plural:"Ember Imps",zone:"hollow",mv:"wander",el:"fire",hp:80,atk:14,def:4,weak:["ice"],resist:["fire"],w:3,verb:"scorches you",intro:"An Ember Imp cackles from a vent of smoke.",
+  imp:{name:"Ember Imp",plural:"Ember Imps",zone:"hollow",mv:"wander",el:"fire",hp:88,atk:14,def:4,weak:["ice"],resist:["fire"],w:3,verb:"scorches you",intro:"An Ember Imp cackles from a vent of smoke.",
     lore:"Small, spiteful fire spirits that nest in the vents of the Hollow.",
     inf:{s:"burn",ch:0.3},
     sp:{every:3,name:"Fireball",kind:"heavy",x:2,tell:"cupping a glow between its hands"},drops:[["coal",.75],["chili",.4],["ember_treads",.18]]},
@@ -129,7 +129,7 @@ const ENEMIES={
     lore:"Herbalists who stayed too long among the nightshade. Their brews heal them and only them.",
     inf:{s:"poison",ch:0.35},
     sp:{every:3,name:"Hex Brew",kind:"heal",x:.25,tell:"stirring her cauldron"},drops:[["nightshade",.7],["oak_staff",.25],["holy_water",.3],["witch_eye",.18]]},
-  phoenix:{name:"Cinder Phoenix",short:"the Phoenix",zone:"hollow",el:"fire",boss:true,rebirth:true,hp:170,atk:18,def:7,weak:["ice"],resist:["fire","holy"],verb:"rakes you with burning talons",intro:"The sky ignites. A Cinder Phoenix descends.",
+  phoenix:{name:"Cinder Phoenix",short:"the Phoenix",zone:"hollow",el:"fire",boss:true,rebirth:true,hp:150,atk:17,def:7,weak:["ice"],resist:["fire","holy"],verb:"rakes you with burning talons",intro:"The sky ignites. A Cinder Phoenix descends.",
     lore:"The Hollow's heart. It has died many times and seems to have enjoyed none of them.",
     inf:{s:"burn",ch:0.35},
     sp:{every:3,name:"Inferno",kind:"heavy",x:2.2,tell:"spreading its burning wings"},drops:[["phoenix",1],["holy_water",.6]]},
@@ -137,7 +137,7 @@ const ENEMIES={
     lore:"Wind-spirits in the shape of birds, forever circling the spire. Each wingbeat carries a little thunder.",
     inf:{s:"chill",ch:0.3},
     sp:{every:3,name:"Gale Rush",kind:"multi",n:4,x:.55,tell:"wheeling overhead, wings drawn tight"},drops:[["storm_feather",.75],["storm_draught",.35],["gale_boots",.16]]},
-  sentinel:{name:"Runebound Sentinel",plural:"Runebound Sentinels",zone:"spire",mv:"still",el:"arcane",hp:155,atk:22,def:9,weak:["metal","poison"],resist:["arcane","stone"],w:2,verb:"strikes you",intro:"A Runebound Sentinel grinds to life, its glyphs flaring.",
+  sentinel:{name:"Runebound Sentinel",plural:"Runebound Sentinels",zone:"spire",mv:"still",el:"arcane",hp:155,atk:22,def:8,weak:["metal","poison"],resist:["arcane","stone"],w:2,verb:"strikes you",intro:"A Runebound Sentinel grinds to life, its glyphs flaring.",
     lore:"Guardians carved before the spire fell. Their armor shrugs off blows, but rust and venom still find the seams.",
     sp:{every:4,name:"Rune Slam",kind:"heavy",x:2.5,tell:"its runes flaring white"},drops:[["rune_shard",.7],["golem_core",.3],["sentinel_aegis",.16]]},
   acolyte:{name:"Void Acolyte",plural:"Void Acolytes",zone:"spire",mv:"chase",el:"shadow",hp:112,atk:22,def:4,weak:["holy","arcane"],resist:["shadow"],w:3,verb:"touches you",intro:"A Void Acolyte steps out of a seam in the air.",
@@ -152,9 +152,9 @@ const ENEMIES={
     phase:{at:.5,label:"VOID FORM",msg:"The storm collapses inward. The Archon turns to the dark behind it!",
       to:{el:"shadow",weak:["holy","metal"],resist:["shadow","arcane"],inf:{s:"curse",ch:0.4},verb:"unmakes you",sp:{every:3,name:"Void Collapse",kind:"drain",x:1.5,tell:"folding the air around a black point"}}},
     drops:[["star_heart",1],["storm_feather",.8]]},
-  mimic:{name:"Mimic",zone:"any",el:"metal",hp:40,atk:8,def:3,weak:["arcane"],resist:["metal"],verb:"bites you",intro:"The lid creaks open into a mouth. It's a Mimic!",
+  mimic:{name:"Mimic",zone:"any",el:"metal",hp:36,atk:6,def:3,weak:["arcane"],resist:["metal"],verb:"bites you",intro:"The lid creaks open into a mouth. It's a Mimic!",
     lore:"A chest with teeth. It has learned that travellers cannot resist opening things.",
-    sp:{every:2,name:"Chomp",kind:"heavy",x:2.3,tell:"opening its lid very wide"},drops:[]}
+    sp:{every:3,name:"Chomp",kind:"heavy",x:2.2,tell:"opening its lid very wide"},drops:[]}
 };
 const AFFIXES=[["Burning","Fire"],["Frostbound","Ice"],["Venomous","Poison"],["Hallowed","Holy"],["Umbral","Shadow"],["Ironclad","Iron"],["Fleet","Swift"],["Arcane","Arcane"]];
 // Legendary secrets: ids = exact inputs (sorted match), hint = cryptic clue, bonus = extra trait merged into the result (on top of the +20% stats).
@@ -190,20 +190,22 @@ const TORCH={max:40,rad:2,dim:1,amb:.3,shrine:20,rest:15,h5:1.5,nocamp:20};
 // roaming enemies: aw = path steps at which a chaser notices you (dark = torch out, heat = extra at Heat 3+, elite = elites), lose = steps at which it loses you, daze = steps a fled-from enemy stays idle, stay = a wanderer's chance to hold still
 const ROAM={aw:4,dark:6,heat:1,elite:2,lose:8,daze:3,stay:.4};
 const INF_SLOTS=3,INF_COST=3,INF_MAX=3,CRIT_CAP=75,FREEZE_CAP=60;
+// damage model: armor cuts a blow by def/(def+DEF_K) (a mild curve, so stacking Defense keeps paying but slowly); an enemy hit never falls below HIT_MIN of its raw damage, whatever Defense, resists or Stone you stack, and armor eats a share arm/(arm+base) of your own blow (base = half your strike power), so a weak strike still gets through. Magic counts MAG_W as much as Attack in every normal strike.
+const DEF_K=50,HIT_MIN=.3,MAG_W=1.3,redOf=d=>d/(d+DEF_K);
 // trait combat tunables: res = elemental defense from armor traits, ward = Runic, pierce = Arcane, shred = Tempered
 const RES_PER=5,RES_CAP=40,RES_ALT={Fur:[["ice",1],["wood",1]],Insulated:[["ice",2.5]]},RES_MSG={ice:"Your fur-lined gear blunts the cold.",fire:"Your gear turns aside the heat.",poison:"Your gear keeps the venom at bay.",holy:"Your gear dulls the glare.",shadow:"Your gear holds the gloom back.",wood:"Your gear shrugs off the thorns.",metal:"Your gear turns the blades.",stone:"Your gear absorbs the crushing blows.",arcane:"Your gear scatters the stray magic.",swift:"Your gear slows the flurry."};
-const ARC_PER=12,ARC_CAP=60,WARD_PER=4,WARD_CAP=40,THORN_PER=4,THORN_CAP=30,STONE_DR=.75,STONE_CAP=8,SHRED_PER=1.5,SHRED_CAP=6,ROOT_PER=1.5,ROOT_CAP=8,DODGE_PER=4,DODGE_CAP=25,MED_PER=.1,MED_CAP=.5,MED_REGEN=.5;
+const ARC_PER=12,ARC_CAP=60,WARD_PER=4,WARD_CAP=40,THORN_PER=4,THORN_CAP=30,STONE_DR=.6,STONE_CAP=6,SHRED_PER=1.5,SHRED_CAP=6,ROOT_PER=1.5,ROOT_CAP=8,DODGE_PER=4,DODGE_CAP=25,MED_PER=.1,MED_CAP=.5,MED_REGEN=.5;
 // statuses enemies inflict on you: el = resisting element (P.rs), t = turns; cures = traits on consumables that clear them
 const STATUS={burn:{n:"Burn",el:"fire",t:3,tip:"damage each turn"},chill:{n:"Chill",el:"ice",t:3,tip:"no swift follow-ups, half dodge"},poison:{n:"Poison",el:"poison",t:4,tip:"stacking damage each turn"},curse:{n:"Curse",el:"shadow",t:4,tip:"healing you receive is halved"}};
 const INF_MSG={burn:"You catch fire",chill:"A numbing chill sets in",poison:"Venom seeps into your blood",curse:"A curse withers you"};
-const ELITE_INF={Fire:"burn",Ice:"chill",Poison:"poison",Shadow:"curse"},ELITE_INF_CH=.25,POISON_STACK=3,CLEANSE_PER=6,CLEANSE_CAP=50,PARRY_X=1.5,PARRY_FAIL=1.25;
+const ELITE_INF={Fire:"burn",Ice:"chill",Poison:"poison",Shadow:"curse"},ELITE_INF_CH=.25,POISON_STACK=3,CLEANSE_PER=6,CLEANSE_CAP=50,PARRY_X=1.5,PARRY_FAIL=1.25,PARRY_CH=.8; // PARRY_CH: chance a parry on a telegraphed special lands (a miss leaves you open)
 // signature abilities by weapon form (+ shield): cd = turns before reuse, x = power vs a normal attack
 const ABILITIES={
   blade:{name:"Flurry",icon:"flurry",cd:3,hits:2,x:.7,desc:"Two quick strikes at 0.7x each. Each can crit."},
   spear:{name:"Lunge",icon:"lunge",cd:3,x:1.2,pen:.7,open:.5,desc:"1.2x strike that ignores 70% of armor. A spear also jabs first at 0.5x when a battle starts."},
-  staff:{name:"Channel",icon:"channel",cd:3,x:1.3,pen:.5,desc:"At least 1.3x a normal attack, more on Magic-heavy staffs. Ignores half of armor; the weapon's top element effect always lands."},
+  staff:{name:"Channel",icon:"channel",cd:3,x:1.3,pen:.5,desc:"1.3x a normal attack that ignores half of armor. The weapon's top element effect always lands."},
   lance:{name:"Charge",icon:"charge",cd:4,x:2,open:.25,desc:"2.0x heavy strike, but the enemy's reply hits you 25% harder."},
-  spellblade:{name:"Arc Slash",icon:"arcslash",cd:3,x:1,desc:"About 1-1.3x a normal attack, scaling fully with Magic. A crit refunds 1 turn of cooldown."},
+  spellblade:{name:"Arc Slash",icon:"arcslash",cd:3,x:1.2,desc:"1.2x a normal attack. A crit refunds 1 turn of cooldown."},
   warstaff:{name:"Sweep",icon:"sweep",cd:3,x:1,stun:.35,bossStun:.15,desc:"1.0x strike with a 35% chance to stun (15% on bosses). A stunned enemy loses its turn."},
   claws:{name:"Rend",icon:"rend",cd:3,x:.9,desc:"0.9x strike that opens a bleed: 20% of Attack per turn for 5 turns (ignores armor). Rending again before it ends adds a stack, up to 3, and refreshes it."},
   shield:{name:"Shield Bash",icon:"bash",cd:3,x:.6,int:.85,bossInt:.6,stun:.2,bossStun:.08,desc:"0.6x Attack plus your shield's defense. Cancels a telegraphed special (85%, 60% on bosses), otherwise 20% to stun (8% on bosses)."}
@@ -212,7 +214,7 @@ const CURES={Medicine:["burn","chill","poison","curse"],Holy:["curse","poison"],
 const RARITY=[["Common","#b3aa9e"],["Uncommon","#88d7a1"],["Rare","#7cb6f2"],["Epic","#c39cf7"],["Mythic","#ff8a50"]];
 const XP_LV=[0,60,160,320,560,900,1400,2100,3000,4200];
 // smith level perks: level-up toast text (lvMsg) and what maxInputs, infSlots and traitSlots read
-const LV_PERK={2:"Third crucible slot unlocked.",3:"Another trait slot, and you can appraise a forge.",5:"Another trait slot.",7:"Another trait slot.",8:"Fourth crucible slot unlocked.",9:"Fourth infusion slot unlocked.",10:"Master smith: an eighth trait slot."},INPUT_LV=[2,8],MIMIC_HP=[1,1.9,2.8,3.7],MIMIC_ATK=[1,1.6,2.1,2.6];
+const LV_PERK={2:"Third crucible slot unlocked.",3:"Another trait slot, and you can appraise a forge.",5:"Another trait slot.",7:"Another trait slot.",8:"Fourth crucible slot unlocked.",9:"Fourth infusion slot unlocked.",10:"Master smith: an eighth trait slot."},INPUT_LV=[2,8],MIMIC_HP=[1,2.1,3.1,4.1],MIMIC_ATK=[1,2.1,2.8,3.5];
 // Crafting skills (S.skills[key]=xp): every category of thing levels on its own. A craft trains the result's skill (SK_XP.self of the craft's XP) and each other input category (SK_XP.input); a fizzle teaches SK_XP.fizzle of the base XP. Levels 1-10 come from SK_LV; SK_CAP[lv-1] is the highest result tier that skill can reach (the craft is blocked above it).
 const SKILLS={weapon:{name:"Weaponsmithing",g:"blade",forms:["blade","spear","staff","lance","spellblade","warstaff","claws"],cats:"all weapons"},shield:{name:"Shieldwright",g:"shield",forms:["shield"],cats:"shields"},helm:{name:"Helmsmithing",g:"helm",forms:["helm"],cats:"head armor"},
   body:{name:"Armorsmithing",g:"chest",forms:["chest","bulwark"],cats:"body armor, bulwarks"},gloves:{name:"Glovemaking",g:"gloves",forms:["gloves"],cats:"gloves"},boots:{name:"Bootmaking",g:"boots",forms:["boots"],cats:"boots"},
@@ -229,26 +231,26 @@ const ESS_VALUE=2.5;
 // Embers: a currency from fights, salvage and selling; it buys peddler stock, upgrades grades and reforges mishaps (economy.js).
 // worth(it) = 3 + 0.6 x power + 2 per tier above 1. Fights pay fight/elite/boss (+20% per heat level), salvage pays salv x worth, selling pays sell x worth, shop prices are buy x worth (essences: ess) but never below floor x the salvage value of the item (val per essence it yields + its embers), so buying to salvage never beats buying the essence.
 // Reforge costs reforge[0] + reforge[1] x tier. Upgrading grades costs UP.emb (below).
-const EMB={fight:3,elite:6,boss:18,heat:.2,salv:.15,sell:.5,buy:3.5,ess:36,val:12,floor:1.3,reforge:[10,4],stock:3,sells:4};
+const EMB={fight:2,elite:5,boss:15,heat:.2,salv:.15,sell:.5,buy:4.5,ess:36,val:12,floor:1.3,reforge:[10,4],stock:3,sells:4};
 const MISHAP_TRAITS=["Cursed","Brittle","Rust"];
 // Quality grades of essences and basic materials (ores, hides, herbs): 1 Faint, 2 Lesser, 3 Plain, 4 Greater, 5 Pure. A graded item has the id `<base>@<g>` (ess_Fire@4, golem_core@2); Plain keeps the bare id, so secrets, recipes and old saves are unchanged. Its traits are the base's x GRADE_M (an essence: ESS_VALUE x GRADE_M). worth() is x GRADE_W.
 // Infusion: an essence counts INF_W ninths of a plain one (3 of a grade make 1 of the next, so the weights are powers of 3). Drops roll a grade from GRADE_ODDS (weights per zone); each Heat level scales every weight by 1 + GRADE_HEAT, bosses roll as if GRADE_BOSS levels hotter. Salvaged gear gives essences of the lowest grade among the essences and materials it was crafted from (`sg` on the item, Plain if none), never above; a graded material salvages into its own grade.
 // Upgrade: UP.n of a grade + UP.emb[grade-1] embers -> 1 of the next. Making a grade needs Alchemy GRADE_LV[grade-1]. Success = UP.base + UP.slope per Alchemy level above that need (UP.min..UP.max); a miss costs the embers and 1 of the UP.n. Alchemy XP is UP.xp[target-1] (half on a miss), faded by skFactor.
 const GRADES=[["Faint","#948d82"],["Lesser","#7dbd8d"],["Plain","#d2c9bb"],["Greater","#6eb1f0"],["Pure","#f2a54a"]],GRADE_M=[.6,.8,1,1.4,2],GRADE_W=[.5,.75,1,1.6,2.5],INF_W=[1,3,9,27,81];
-const GRADE_ODDS={woods:[40,40,19,1,0],pass:[18,38,38,6,0],hollow:[8,28,50,13,1],spire:[3,16,50,26,5]},GRADE_HEAT=[-.08,-.04,0,.12,.25],GRADE_BOSS=1;
+const GRADE_ODDS={woods:[40,40,19,1,0],pass:[18,38,38,6,0],hollow:[8,28,50,13,1],spire:[6,18,52,21,3]},GRADE_HEAT=[-.08,-.04,0,.12,.25],GRADE_BOSS=1;
 const INF_EQ=["⅑","⅓","1","3","9"]; // INF_W as plain essences, for text
 const GRADE_LV=[1,1,1,3,6],UP={n:3,emb:[4,8,12,30],base:80,slope:6,min:80,max:98,xp:[3,4,6,14,30]};
 const gradeOf=id=>{const m=/@([1-5])$/.exec(id);return m?+m[1]:3},baseIdOf=id=>id.replace(/@[1-5]$/,""),gradedId=(b,g)=>g===3?b:`${b}@${g}`; // pure id helpers (migrate needs them before helpers.js loads)
 const gradable=b=>/^ess_[A-Za-z]+$/.test(b)||(!!BASE[b]&&BASE[b][1]==="material"&&["ore","hide","herb"].includes(BASE[b][3]));
 const VIEWS=["battle","gear","forge","recipes","codex"];
-// Heat: harder expeditions in a cleared zone, cumulative per level. Beating the boss at heat h unlocks h+1.
-const HEAT_MAX=5,HEAT_T={hp:.15,elite:2,inf:1.5,affix:.2,boss:1.2,rest:.25,shrine:.5,loot:.15,ess:1,xp:20};
+// Heat: harder expeditions in a cleared zone, cumulative per level: every level adds hp/atk to all enemies (it ramps, 1.0x at Heat 0), and Heat 5 enemies bite through `bite` of your Defense. Beating the boss at heat h unlocks h+1.
+const HEAT_MAX=5,HEAT_T={hp:.1,atk:.1,bite:.4,elite:2,inf:1.5,affix:.2,boss:1.2,rest:.25,shrine:.5,loot:.15,ess:1,xp:20};
 const HEAT=[
-  {name:"Kindled",desc:"Enemies have +15% HP and Attack."},
+  {name:"Kindled",desc:`Enemies have +${Math.round(HEAT_T.hp*100)}% HP and +${Math.round(HEAT_T.atk*100)}% Attack. Every Heat level adds the same again.`},
   {name:"Smoldering",desc:"Elites and random elite upgrades are twice as likely, and each map hides one extra elite."},
   {name:"Blazing",desc:"Enemy status effects land 1.5x as often, and random elemental elites turn up far more often. Hunters notice you from one step further away."},
   {name:"Searing",desc:"Bosses use their special one turn sooner (at least every 2) and have +20% HP."},
-  {name:"Inferno",desc:"Camps only offer rest, and it heals less (25%). Shrines heal half as much."}
+  {name:"Inferno",desc:`Enemy blows bite through ${Math.round(HEAT_T.bite*100)}% of your Defense. Camps only offer rest, and it heals less (25%). Shrines heal half as much.`}
 ];
 // Rewards at heat h: +15% per level on drop rolls, +1 essence and 20 smith XP per level on a boss kill.
 // Daily expedition: seeded by the UTC date; one attempt a day, one twist.

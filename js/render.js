@@ -156,12 +156,12 @@ function renderBattle(){
     const P=pstats(),sp=isSpecial(B)?foeOf(B).sp:null,est=foeHit(B,P,sp?sp.x:1,1)*(sp&&sp.kind==="multi"?sp.n:1);
     const dmgTxt=K.stats?B.ward>=est?" No damage expected (ward absorbs it).":` About ${est} damage${B.ward>0?` (ward absorbs ${B.ward})`:""}.`:"";
     const intent=B.frozen?`<div class="intent"><b>NEXT</b><span>Frozen. It will lose its turn.</span></div>`
-      :sp?`<div class="intent special"><b>NEXT</b><span>It's ${sp.tell}. ${(B.phased?K.sp2:K.sp)?`${sp.name} is coming.`:"Something big is coming."}${sp.kind==="heal"?" Parry to interrupt it.":`${dmgTxt} Guard, or Parry to turn it back!`}</span></div>`
+      :sp?`<div class="intent special"><b>NEXT</b><span>It's ${sp.tell}. ${(B.phased?K.sp2:K.sp)?`${sp.name} is coming.`:"Something big is coming."}${sp.kind==="heal"?" Parry to interrupt it.":`${dmgTxt} Guard, or Parry (${Math.round(PARRY_CH*100)}%) to turn it back!`}</span></div>`
       :`<div class="intent"><b>NEXT</b><span>A normal attack.${dmgTxt} Parrying now would backfire.</span></div>`;
     const cons=Object.keys(S.inv).filter(id=>S.inv[id]>0&&grp(S.items[id])==="consumable");
     const canStudy=unknownFacts(B.id).length>0,abs=abKeys(P),abBtn=k=>{const A=ABILITIES[k],c=(B.cd||{})[k]||0;return `<button class="btn act ab" data-ability="${k}" ${c>0?"disabled":""} title="${A.desc}">${icon(A.icon)}${A.name}${c>0?`<i class="cdb">${c}</i>`:""}</button>`};
     body=`${intent}${youHud()}
-      <div class="acts n${abs.length}"><button class="btn primary act" id="atk">${icon("attack")}Attack</button>${abs.map(abBtn).join("")}<button class="btn act" id="guard">${icon("guard")}Guard</button><button class="btn act" id="parry" title="Beat a telegraphed special: negate it and riposte. Mistimed: +25% damage and a lost guard.">${icon("parry")}Parry</button>
+      <div class="acts n${abs.length}"><button class="btn primary act" id="atk">${icon("attack")}Attack</button>${abs.map(abBtn).join("")}<button class="btn act" id="guard">${icon("guard")}Guard</button><button class="btn act" id="parry" title="Beat a telegraphed special: negate it and riposte (${Math.round(PARRY_CH*100)}% to land). Mistimed: +25% damage and a lost guard.">${icon("parry")}Parry</button>
       <button class="btn act" id="study" ${canStudy?"":"disabled"}>${icon("study")}${canStudy?"Study":"Known"}</button><button class="btn act" id="flee">${icon("flee")}Flee</button></div>
       ${cons.length?`<div class="strip">${cons.map(id=>{const it=S.items[id];return `<button class="tile" data-use="${id}" aria-label="Use ${it.name}">${glyph(it)}<span class="tname">${nameHtml(it)}</span><span class="ttr">${useHint(it)}</span><span class="cnt">×${S.inv[id]}</span></button>`}).join("")}</div>`:""}
       ${logBlock(B)}`;

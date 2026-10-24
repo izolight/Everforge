@@ -79,4 +79,7 @@ function statsOf(item){
   return out;
 }
 function power(it){const s=statsOf(it);return Math.round(s.atk+s.def+s.mag+s.spd*1.5+s.heal*.5)}
-function salvageYield(it){if(it.id.startsWith("ess_"))return[];return topTraits(it.grade?baseItem(baseIdOf(it.id)).traits:it.traits).filter(([t])=>TRAITS[t].f!=="bad").slice(0,2).filter(([,v],i)=>i===0||v>=2).map(([t])=>t)}
+// essences that went into a crafted item, counting through the crafted items it was made from (old items carry recipeIds too)
+const essIn=(it,d=0)=>!it||!it.crafted||d>8?0:(it.recipeIds||[]).reduce((n,r)=>n+(isEss(r)?1:essIn(S.items[r],d+1)),0);
+// up to two essences from the item's top traits, but a crafted item never gives back more essences than were put into it (a raw drop is free, a forged-with-essence piece is not a mint)
+function salvageYield(it){if(it.id.startsWith("ess_"))return[];const ys=topTraits(it.grade?baseItem(baseIdOf(it.id)).traits:it.traits).filter(([t])=>TRAITS[t].f!=="bad").slice(0,2).filter(([,v],i)=>i===0||v>=2).map(([t])=>t),n=essIn(it);return n?ys.slice(0,n):ys}

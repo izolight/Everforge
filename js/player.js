@@ -18,9 +18,9 @@ function pstats(){
   const asum=t=>armor.reduce((a,it)=>a+(it.traits[t]||0),0)+(inn[t]||0),rr={},rs={};
   armor.forEach(it=>resRaw(it.traits,rr));resRaw(inn,rr);Object.keys(rr).forEach(k=>{const p=resPct(rr[k]);if(p)rs[k]=p});
   const med=tsum("Medicine"),def=Math.max(0,Math.round(sum.def+(ms.def+os.def)*.5));
-  return {main,offW,shield,def,red:def/(def+30),
+  return {main,offW,shield,def,red:redOf(def),
     atk:Math.max(1,Math.round(4+ms.atk+sum.atk*.5)),mag:Math.max(0,Math.round(ms.mag+sum.mag*.5)),
-    offPow:offW?Math.max(1,Math.round((os.atk+os.mag*.7)*.6)):0,
+    offPow:offW?Math.max(1,Math.round((os.atk+os.mag*MAG_W)*.6)):0,
     spd:Math.max(0,Math.round(sum.spd+ms.spd+os.spd*.5)),
     regen:Math.max(0,Math.round((sum.heal+ms.heal+os.heal)*.2+med*MED_REGEN)),
     maxHp:50+Math.round(def*.6),lure:tsum("Lure"),blind:tsum("Steam"),rs,
