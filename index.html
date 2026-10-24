@@ -79,66 +79,67 @@
 
   <div id="v-recipes" class="view" hidden>
     <section class="panel">
-      <p class="label">Your recipes</p>
+      <p class="label lrow" id="rlabel">Your recipes</p>
       <div class="tabs" id="rtabs"></div>
       <div id="rlist"></div>
     </section>
     <section class="panel">
-      <p class="label">What mixes with what</p>
-      <dl class="rules-table" id="mixrules"></dl>
-      <p class="label" style="margin-top:4px">Fusions</p>
-      <ul class="rx" id="fusions"></ul>
+      <details id="mixd"><summary class="label" id="mixsum">What mixes with what</summary><div class="mixt" id="mixrules"></div></details>
+      <p class="label">Fusions</p>
+      <div class="fus" id="fusions"></div>
     </section>
     <section class="panel">
-      <p class="label" id="rxlabel">Trait reactions</p>
-      <ul class="rx" id="reactions"></ul>
+      <p class="label lrow" id="rxlabel">Trait reactions</p>
+      <div class="rxg" id="reactions"></div>
     </section>
     <section class="panel">
-      <p class="label" id="seclabel">Legendary secrets</p>
-      <p class="foot">Hint scrolls from chests, shrines, riddles, bosses, bounties and the daily reveal a rumor, then its ingredients.</p>
-      <ul class="secs" id="secrets"></ul>
+      <p class="label lrow" id="seclabel">Legendary secrets</p>
+      <div class="sqg secg" id="secrets"></div>
     </section>
   </div>
 
   <div id="v-codex" class="view" hidden>
     <section class="panel" aria-label="Lifetime stats">
-      <details id="statsd"><summary class="label">Lifetime stats</summary><div id="stats"></div></details>
+      <details id="statsd"><summary class="label"><span data-ic="renown"></span> Lifetime stats</summary><div id="stats"></div></details>
     </section>
     <section class="panel">
-      <p class="label" id="cxlabel">Creature codex</p>
-      <p class="empty">Fight, study and hunt creatures to fill in their pages. A fully known creature takes 15% more damage from you.</p>
+      <p class="label lrow" id="cxlabel">Creature codex</p>
       <div id="cxlist"></div>
     </section>
     <section class="panel">
-      <p class="label">Your save</p>
+      <details id="saved"><summary class="label"><svg class="ic s" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><path d="M5 4 H16 L20 8 V20 H5 Z"/><path d="M8 4 V9 H15 V4 M8 20 V14 H17 V20"/></svg> Your save</summary>
+      <div class="sv">
       <p class="empty">Your progress lives in this browser. Copy the save code to move it to another device or a local copy of the game.</p>
       <div class="actions"><button class="btn grow" id="exportBtn">Copy save code</button></div>
       <textarea class="code" id="exportBox" readonly hidden aria-label="Save code"></textarea>
       <label class="foot" for="importBox">Paste a save code to load it</label>
       <textarea class="code" id="importBox" placeholder="Paste a save code here"></textarea>
       <div class="actions"><button class="btn grow" id="importBtn">Load save code</button></div>
+      </div></details>
     </section>
-    <section class="panel">
-      <details class="howto">
-        <summary>How to play</summary>
-        <div class="rules">
+    <section class="panel" id="howto">
+      <p class="label">How to play</p>
+      <details class="howto"><summary><span data-ic="hero"></span> The map</summary><div class="rules">
           <p><b>The loop.</b> Cross each region's map, fight for loot, salvage it into essences, forge better gear, and beat the boss at the end of the map to open the next region.</p>
           <p><b>The map.</b> Each region is a grid of tiles. Tap a glowing tile next to you to step; you only see a couple of tiles around you, and explored ground stays dim. Walk onto fights, elites (harder, but they drop an essence), chests, shrines, peddlers and mystery tiles (?) to meet them. The boss waits in the lair at the top, behind a camp. Losing sends you back to a fresh map; cleared regions can be explored again.</p>
           <p><b>Torchlight.</b> Your torch burns down one step at a time. When it runs out you only see one tile around you and every step risks an ambush. Camps, shrine prayers and campfire rests relight it.</p>
           <p><b>Health.</b> HP carries over between fights. Heal by eating, resting at a campfire (one charge per three wins), camps and shrines. Healing traits on gear mend you each turn.</p>
           <p><b>Defeat.</b> You wake at the region's edge with 30% HP, and a scavenger takes one unequipped item.</p>
+      </div></details>
+      <details class="howto"><summary><span data-ic="battle"></span> Fighting</summary><div class="rules">
           <p><b>Abilities.</b> A weapon's form gives it one signature move (a spear lunges, a staff channels its element, claws rend) and a shield can bash. They show as extra buttons in battle, take your turn, and then need a few turns to cool down. Inspect the item to see the numbers.</p>
-          <p><b>Gear.</b> Seven slots. An off-hand weapon adds a weaker second strike; a shield can block hits.</p>
           <p><b>Trait effects.</b> Fire burns, Ice can freeze, Poison stacks, Holy heals you, Shadow drains life, Sharp raises crits, Heavy pierces armor, Swift gives extra strikes, Steam makes enemies miss.</p>
-          <p><b>Knowledge.</b> You learn a weakness by hitting it, a resistance by being resisted, a special move by surviving it, stats by winning and drops by finding them. Study reveals one fact but costs your turn.</p>
           <p><b>Enemy moves.</b> Special moves are announced a turn ahead, and the creature glows red. Guard takes 60% less damage. Parry a telegraphed special to negate it and strike back, though a parry can miss (<span data-k="pmiss"></span>% of the time). A mistimed parry, or a parry on a normal attack, costs you 25% more damage and your next guard. Parrying a heal interrupts it.</p>
           <p><b>Armor.</b> Defense cuts the damage you take by DEF/(DEF+<span data-k="defk"></span>), with diminishing returns, and Defense, resists and Stone together never cut a hit by more than <span data-k="hitmax"></span>%. Your own blows lose armor/(armor+half your strike) to the enemy's Defense, so a weak attack still gets through. Magic counts <span data-k="magw"></span> times as much as Attack in your strikes.</p>
           <p><b>Statuses.</b> Some creatures burn, chill, poison or curse you. They tick or hinder you for a few turns and end with the battle. Medicine gear, resist gear and some consumables (Medicine, Holy, Water, Nourishing) shake them off.</p>
+          <p><b>Knowledge.</b> You learn a weakness by hitting it, a resistance by being resisted, a special move by surviving it, stats by winning and drops by finding them. Study reveals one fact but costs your turn.</p>
+      </div></details>
+      <details class="howto"><summary><span data-ic="forge"></span> Gear and forge</summary><div class="rules">
+          <p><b>Gear.</b> Seven slots. An off-hand weapon adds a weaker second strike; a shield can block hits.</p>
           <p><b>Mixing.</b> Only sensible combinations work; the Recipes tab has the table. Salvage turns any item into essences, which mix with everything.</p>
           <p><b>Infusions.</b> Pure essences can be infused into yourself in the Gear tab. The trait stays with you whatever you wield.</p>
           <p><b>Previews.</b> Known recipes show their full result before you forge. New combinations show the form and any reactions you've discovered. Every forge can go wrong: the line under the crucible shows your skill for that kind of item, the odds of a clean result, a mishap or a fizzle (the ingredients are lost, some embers return), and the highest tier that skill can reach. Failing teaches a little, but easy recipes teach less. Merged trait values above 8 grow at half rate, and upgrading a crafted item again is harder each time.  a higher skill and simpler recipes make it rarer. From Smith Lv 3 the forge also appraises the traits to expect.</p>
-        </div>
-      </details>
+      </div></details>
       <div class="actions"><button class="btn danger" id="reset">Start a new game</button></div>
     </section>
   </div>

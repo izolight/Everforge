@@ -17,13 +17,15 @@ $("arena").addEventListener("click",e=>{
   if(t.dataset.use)return useItem(t.dataset.use);
   if(t.dataset.ability)return ability(t.dataset.ability);
   if(t.dataset.heat)return setHeat(+t.dataset.heat);
+  if(t.id==="heatBtn"){heatOpen=!heatOpen;return render()}
   if(t.dataset.tile){const [x,y]=t.dataset.tile.split(",").map(Number);return step(x,y)}
   if(t.dataset.zone){S.zone=t.dataset.zone;S.battle=null;S.event=null;save();render();return window.scrollTo({top:0})}
   ({rest,atk:attack,guard,parry,study,flee,again:newExpedition,dailyStart:startDaily,dailyAbandon:abandonDaily,toforge:()=>go("forge"),
     cont:()=>{S.battle=null;S.event=null;logOpen=false;save();render()}})[t.id]?.();
 });
-$("arena").addEventListener("toggle",e=>{if(e.target.id==="heatd")heatOpen=e.target.open;
-  if(e.target.id==="logd"){logOpen=e.target.open;const m=e.target.querySelector(".more");if(m)m.textContent=`${logOpen?"Hide":"Show"} full log`;const bl=$("blog");if(bl)bl.scrollTop=bl.scrollHeight}},true);
+$("arena").addEventListener("toggle",e=>{if(e.target.id==="legend")legendOpen=e.target.open;
+  if(e.target.id==="logd"){logOpen=e.target.open;const bl=$("blog");if(bl)bl.scrollTop=bl.scrollHeight}},true);
+addEventListener("resize",()=>{if(S.view==="battle"&&!S.battle&&!S.event)fitMap()});document.fonts&&document.fonts.ready.then(()=>{if(S.view==="battle"&&!S.battle&&!S.event)fitMap()});
 $("gear").addEventListener("click",e=>{const b=e.target.closest("[data-gear]");if(!b)return;const s=b.dataset.gear,it=gearOf(s);
   if(it)return openSheet(it.id);
   S.tab=s==="main"?"weapon":s==="charm"?"charm":s==="off"?"all":"armor";save();render();
@@ -114,6 +116,7 @@ let armed=false;$("reset").onclick=e=>{
 
 try{const ud=$("upgd");ud.open=localStorage.getItem("everforge-upgopen")==="1";ud.addEventListener("toggle",()=>{try{localStorage.setItem("everforge-upgopen",ud.open?"1":"0")}catch(e){}})}catch(e){}
 try{const sd=$("statsd");sd.open=localStorage.getItem("everforge-statsopen")==="1";sd.addEventListener("toggle",()=>{try{localStorage.setItem("everforge-statsopen",sd.open?"1":"0")}catch(e){}})}catch(e){}
+document.querySelectorAll("[data-ic]").forEach(e=>e.innerHTML=ic(e.dataset.ic,"s")); // icons in static headers
 const RV={defk:DEF_K,hitmax:Math.round((1-HIT_MIN)*100),magw:MAG_W,pmiss:Math.round((1-PARRY_CH)*100)};document.querySelectorAll("[data-k]").forEach(e=>e.textContent=RV[e.dataset.k]);
 try{render()}catch(e){ // a bad stored run should not cost the whole save: drop the transient parts first
   try{S.daily=null;S.run=null;S.battle=null;S.event=null;render()}catch(e2){S=freshState();save();render()}}
