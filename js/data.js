@@ -170,3 +170,21 @@ const STAT_NAMES={atk:"Attack",def:"Defense",mag:"Magic",heal:"Heal",spd:"Speed"
 const DECAY=[1,.5,.3,.2,.15,.1,.1,.1];
 const ESS_VALUE=2.5;
 const VIEWS=["battle","gear","forge","recipes","codex"];
+// Heat: harder expeditions in a cleared zone, cumulative per level. Beating the boss at heat h unlocks h+1.
+const HEAT_MAX=5,HEAT_T={hp:.15,elite:2,inf:1.5,affix:.2,boss:1.2,rest:.25,shrine:.5,loot:.15,ess:1,xp:20};
+const HEAT=[
+  {name:"Kindled",desc:"Enemies have +15% HP and Attack."},
+  {name:"Smoldering",desc:"Elite nodes and random elites are twice as likely, and each map hides one extra elite."},
+  {name:"Blazing",desc:"Enemy status effects land 1.5x as often, and random elemental elites turn up far more often."},
+  {name:"Searing",desc:"Bosses use their special one turn sooner (at least every 2) and have +20% HP."},
+  {name:"Inferno",desc:"Camps only offer rest, and it heals less (25%). Shrines heal half as much."}
+];
+// Rewards at heat h: +15% per level on drop rolls, +1 essence and 20 smith XP per level on a boss kill.
+// Daily expedition: seeded by the UTC date; one attempt a day, one twist.
+const DAILY_TWISTS={
+  elites:{name:"Elites everywhere",desc:"Every fight is an elite."},
+  cinder:{name:"Fire enemies burn hotter",desc:"Every enemy can set you alight (30%, doubled if it already burns), and burns hurt 50% more."},
+  nocamp:{name:"No campfires",desc:"Camps become fights, and you can't rest at the fire."},
+  double:{name:"Double loot, double damage",desc:"Enemies hit twice as hard. Every drop is doubled."}
+};
+const DAILY_REWARD={ess:3,xp:80};
