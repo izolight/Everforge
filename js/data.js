@@ -183,7 +183,7 @@ const HEAT=[
 // Daily expedition: seeded by the UTC date; one attempt a day, one twist.
 const DAILY_TWISTS={
   elites:{name:"Elites everywhere",desc:"Every fight is an elite."},
-  cinder:{name:"Fire enemies burn hotter",desc:"Every enemy can set you alight (30%, doubled if it already burns), and burns hurt 50% more."},
+  cinder:{name:"Everything burns",desc:"Every enemy can set you alight (30%, doubled if it already burns), and burns hurt 50% more."},
   nocamp:{name:"No campfires",desc:"Camps become fights, and you can't rest at the fire."},
   double:{name:"Double loot, double damage",desc:"Enemies hit twice as hard. Every drop is doubled."}
 };
