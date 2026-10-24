@@ -43,10 +43,11 @@ function combine(raw){
       log.push({k:"Reaction",t:`${a} + ${b} → ${res}`,warn:TRAITS[res].f==="bad"});inst+=3}
     if(!any)break}
   const secret=SECRETS.find(s=>s.ids.slice().sort().join("+")===key);
-  if(secret&&secret.bonus){const {trait:bt,v:bv}=secret.bonus;tr[bt]=r1((tr[bt]||0)+bv);log.push({k:"Legendary",t:`The secret lends it +${bv} ${bt}.`})}
-  const slots=traitSlots(),sorted=topTraits(tr);
-  if(sorted.length>slots)log.push({k:"Lost",t:`${sorted.slice(slots).map(x=>x[0]).join(", ")} (only ${slots} trait slots)`});
-  tr=Object.fromEntries(sorted.slice(0,slots));
+  let bon=null; // the secret's bonus always keeps a slot
+  if(secret&&secret.bonus){const {trait:bt,v:bv}=secret.bonus;bon=[bt,r1((tr[bt]||0)+bv)];delete tr[bt];log.push({k:"Legendary",t:`The secret lends it +${bv} ${bt}.`})}
+  const slots=traitSlots()-(bon?1:0),sorted=topTraits(tr);
+  if(sorted.length>slots)log.push({k:"Lost",t:`${sorted.slice(slots).map(x=>x[0]).join(", ")} (only ${traitSlots()} trait slots)`});
+  tr=Object.fromEntries(sorted.slice(0,slots));if(bon)tr[bon[0]]=bon[1];
   inst+=(inputs.length-2)*6;inst=Math.max(0,Math.min(85,Math.round(inst-level()*4)));
   let mishap=null;
   if(rand()*100<inst){mishap=["Cursed","Weakened","Brittle"][Math.floor(rand()*3)];

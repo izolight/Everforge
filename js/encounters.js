@@ -7,7 +7,7 @@ const endEv=(icon,title,text,loot,sc)=>{S.event={type:"done",icon,title,text,loo
 const at=(a,x)=>a[Math.floor(x*a.length)];
 const spare=id=>avail(id)-eqCount(id)>0&&!S.items[id].legendary;
 const cheapest=ids=>ids.slice().sort((a,b)=>power(S.items[a])-power(S.items[b])||(a<b?-1:1))[0];
-const spareGoods=()=>cheapest(Object.keys(S.inv).filter(id=>spare(id)&&!id.startsWith("ess_")));
+const wanted=id=>SECRETS.some(s=>!found(s)&&s.ids.includes(id)),spareGoods=()=>cheapest(Object.keys(S.inv).filter(id=>spare(id)&&!id.startsWith("ess_")&&!wanted(id)));
 const takeOne=id=>{S.inv[id]--;trimBench()};
 const hurtYou=n=>{S.hp=Math.max(1,S.hp-n)};
 const RIDDLES=[["What is born in flame, sleeps in water, and wakes as a blade?","Steel",["Ash","Smoke"]],["The more you take from me, the larger I grow. What am I?","A hole",["A shadow","A fire"]],
@@ -39,10 +39,10 @@ const ENC={
       endEv("alchemist","A lesson learned",`"Mark this," she says. ${a} and ${b} make ${res}${cons.length?"":", and keep both"}. It's in your recipe book now.`)}},
   traveller:{make:rv=>{const med=cheapest(Object.keys(S.inv).filter(id=>spare(id)&&grp(S.items[id])==="consumable"&&statsOf(S.items[id]).heal>0));
       return evt("traveller","traveller","A wounded traveller","A traveller slumps against a milestone, one hand pressed to his side. \"Please,\" he whispers. \"Anything that heals.\" His pack looks full.",
-        [...med?[["tend",`Give him your ${S.items[med].name}`]]:[],["rob","Rob him (loot, but your next fight is an ambush)"],["leave","Walk on"]],{rv,give:med})},
+        [...med?[["tend",`Give him your ${S.items[med].name}`]]:[],["rob","Rob him (loot, but the next fight is an ambush)"],["leave","Walk on"]],{rv,give:med})},
     pick:(c,ev)=>{
       if(c==="rob"){const p=zonePool(S.zone),got=[at(p,ev.rv[0]),at(p,ev.rv[1]),essence(at(ESS_POOL,ev.rv[2]))];got.forEach(id=>addItem(id));curMap().amb=true;
-        return endEv("traveller","Ill-gotten gains","You take his pack while he's too weak to stop you. Somewhere behind you, a whistle. Your next fight starts with an ambush.",got)}
+        return endEv("traveller","Ill-gotten gains","You take his pack while he's too weak to stop you. Somewhere behind you, a whistle. If your next stop is a fight, it starts with an ambush.",got)}
       if(!ev.give||!spare(ev.give)||!S.inv[ev.give]){toast("You no longer have that item.");return endEv("traveller","The traveller sighs","He closes his eyes.")}
       const nm=S.items[ev.give].name,rare=zoneRare(S.zone),got=[rare.length?at(rare,ev.rv[0]):at(zonePool(S.zone),ev.rv[0])];takeOne(ev.give);got.forEach(id=>addItem(id));
       endEv("traveller","Kindness repaid",`He drinks your ${nm}, and the colour returns to his face. "The road remembers." He presses something into your hands.`,got,giveHint(ev.rv[1]))}},
@@ -52,9 +52,9 @@ const ENC={
     pick:(c,ev)=>{
       if(c==="warm"){const got=healYou(ev.n);return endEv("forge","Warm coals",got?`You sit by the coals and recover ${got} HP.`:"The coals are warm. You're already in good shape.")}
       const sl=c.slice(7),it=gearOf(sl);if(!it||it.tier>=9){toast("Nothing to temper there.");return endEv("forge","Cold coals","The fire has gone out.")}
-      const bad=ev.rv[0]<.25,base=it.name.replace(/ \+\d+$/,""),n=(it.temper||0)+(bad?0:1),id="c_"+hash(it.id+":temper:"+(bad?"x":"y")).toString(36);
-      if(!S.items[id]){const tr={...it.traits},top=topTraits(tr)[0];if(bad)tr.Brittle=1.5;else if(top)tr[top[0]]=r1(top[1]+1);
-        S.items[id]={...it,id,crafted:true,temper:n,tier:bad?it.tier:it.tier+1,traits:tr,name:bad?`Cracked ${base}`:`${base} +${n}`}}
+      const bad=ev.rv[0]<.25,base=it.name.replace(/ \+\d+$/,"").replace(/^Cracked /,""),n=(it.temper||0)+(bad?0:1),id="c_"+hash(it.id+":temper:"+(bad?"x":"y")).toString(36);
+      if(!S.items[id]){const tr={...it.traits},top=topTraits(tr)[0];if(bad)tr.Brittle=Math.max(tr.Brittle||0,1.5);else if(top)tr[top[0]]=r1(top[1]+1);
+        S.items[id]={...it,id,crafted:true,recipe:undefined,recipeIds:undefined,temper:n,tier:bad?it.tier:it.tier+1,traits:tr,name:bad?`Cracked ${base}`:`${base} +${n}`}}
       takeOne(it.id);addItem(id);S.eq[sl]=id;clampHp();
       endEv("forge",bad?"It cracks":"Tempered",bad?`You strike too hard. Your ${base} cracks along its length (Brittle). The tier holds.`:`The metal rings true. Your ${base} is now tier ${S.items[id].tier}, with a stronger edge.`,[id])}},
   riddle:{make:rv=>{const [q,ans,bad]=at(RIDDLES,rv[0]),k=Math.floor(rv[1]*3),o=[ans,...bad],opts=o.map((_,i)=>o[(i+k)%3]);
