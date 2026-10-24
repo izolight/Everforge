@@ -29,8 +29,9 @@ function abandonDaily(){
 const zoneRare=z=>[...new Set(Object.values(ENEMIES).filter(e=>e.zone===z&&!e.boss).flatMap(e=>e.drops.filter(d=>d[1]<=.2).map(d=>d[0])))];
 function dailyBundle(got){ // boss kill: essences + one rare drop (same for everyone) + smith XP
   const d=S.daily,R=rng(d.seed^0x5bd1e995),rare=zoneRare(d.zone);
-  for(let i=0;i<DAILY_REWARD.ess;i++)got.push(essence(ESS_POOL[Math.floor(R()*ESS_POOL.length)]));
-  if(rare.length)got.push(rare[Math.floor(R()*rare.length)]);
+  const gh=d.heat+GRADE_BOSS; // grades come from the seeded stream too, so the reward is the same for everyone
+  for(let i=0;i<DAILY_REWARD.ess;i++){const t=ESS_POOL[Math.floor(R()*ESS_POOL.length)];got.push(gess(t,d.zone,gh,R()))}
+  if(rare.length){const r=rare[Math.floor(R()*rare.length)];got.push(gdrop(r,d.zone,gh,R()))}
   const hm=giveHint(R());S.xp+=DAILY_REWARD.xp;blog(`Daily reward: ${DAILY_REWARD.ess} essences, a rare find${hm?", a hint scroll":""} and ${DAILY_REWARD.xp} smith XP.`,"big");if(hm)blog(hm,"good");
 }
 const dailyResult=r=>`${r.boss?"Boss beaten":`Fell after ${r.rows} of ${MAP_ROWS} rows`} · ${r.turns} turns`;

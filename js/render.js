@@ -17,15 +17,19 @@ function cmpBlock(it,other,label){
     <div class="row pw"><span>Power ${b} → ${a}</span>${delta(a,b)}</div></div>`;
 }
 function hpBar(cur,max,cls){const p=Math.max(0,cur)/max;return `<div class="bar ${cls||(p<.3?"low":"")}"><i style="width:${p*100}%"></i></div>`}
-const lootChips=ids=>ids.map(id=>`<button class="chip" data-item="${id}" style="color:var(--accent)">${S.items[id].name}</button>`).join("");
+const gcol=id=>S.items[id].grade?GRADES[S.items[id].grade-1][1]:"var(--accent)";
+const lootChips=ids=>ids.map(id=>`<button class="chip" data-item="${id}" style="color:${gcol(id)}">${S.items[id].name}</button>`).join("");
 
-const shopRow=(id,label,c,off)=>`<div class="shoprow"><button class="chip" data-item="${id}" style="color:var(--accent)">${S.items[id].name}</button><button class="btn sm" data-choice="${c}" ${off?"disabled":""}>${label}</button></div>`;
+const shopRow=(id,label,c,off)=>`<div class="shoprow"><button class="chip" data-item="${id}" style="color:${gcol(id)}">${S.items[id].name}</button><button class="btn sm" data-choice="${c}" ${off?"disabled":""}>${label}</button></div>`;
 const shopHtml=ev=>`<div class="shop"><p class="label">For sale · you have ${S.embers} embers</p>${ev.stock.map((e,i)=>e.done?"":shopRow(e.id,`${icon("ember")}${e.price}`,`buy:${i}`,S.embers<e.price)).join("")}
   ${ev.sells.some(e=>!e.done)?`<p class="label">Sell a spare</p>${ev.sells.map((e,i)=>e.done?"":shopRow(e.id,`Sell +${e.price}`,`sell:${i}`)).join("")}`:""}</div>`;
-function renderRefine(){
-  $("refinfo").textContent=`${REFINE_N} essences of one kind and ${EMB.refine} embers make one refined essence: a stronger trait (${REFINE_VALUE} instead of ${ESS_VALUE}) in a single crucible slot. It also counts as ${REFINE_N} essences for infusion.`;
-  const ts=[...new Set(Object.keys(S.items).filter(isEss).map(id=>id.slice(4)))].filter(t=>avail("ess_"+t)>=REFINE_N);
-  $("refbtns").innerHTML=ts.length?ts.map(t=>`<button class="btn sm" data-refine="${t}" style="border-color:${tColor(t)}" ${inBattle()||S.embers<EMB.refine?"disabled":""}>Refine ${t} · ${REFINE_N} of ${avail("ess_"+t)}</button>`).join(""):`<p class="foot">Collect ${REFINE_N} essences of one kind to refine them.</p>`;
+function renderUpgrade(){
+  const lv=skLv("alchemy");
+  $("upginfo").textContent=`${UP.n} essences or materials of one grade and some embers make 1 of the next grade (Faint, Lesser, Plain, Greater, Pure): stronger traits, in a single crucible slot. A miss costs the embers and one of them. Greater needs Alchemy Lv ${GRADE_LV[3]}, Pure Lv ${GRADE_LV[4]}. You are Lv ${lv}.`;
+  const ids=upgradable();
+  $("upgrows").innerHTML=ids.length?ids.map(id=>{const g=gradeOf(id),tg=g+1,it=S.items[id],low=lv<GRADE_LV[tg-1],poor=S.embers<UP.emb[g-1];
+    return `<div class="shoprow up"><span class="uname"><span style="color:${GRADES[g-1][1]}">${it.name}</span> <small>×${avail(id)}</small></span>
+      <button class="btn sm" data-upgrade="${id}" ${inBattle()||low||poor?"disabled":""} aria-label="Upgrade ${it.name} to ${GRADES[tg-1][0]}">${low?`${GRADES[tg-1][0]} needs Lv ${GRADE_LV[tg-1]}`:`${icon("ember")}${UP.emb[g-1]} · ${GRADES[tg-1][0]} · ${upChance(tg)}%`}</button></div>`}).join(""):`<p class="foot">Collect ${UP.n} of the same grade of an essence, ore, hide or herb to upgrade them.</p>`;
 }
 // ================= RENDER =================
 let forgeArmed="",freshShown=new Set(),logOpen=false,heatOpen=false;
@@ -66,8 +70,8 @@ function renderGear(){
     const [t,r]=e,st=innateStats(t),bits=Object.entries(st).filter(([,v])=>v).map(([s,v])=>`${v>0?"+":""}${v} ${s.toUpperCase()}`).join(" · ");
     return `<div class="islot on" style="border-color:${tColor(t)};color:${tColor(t)}"><b>${t} ${["I","II","III"][r-1]}</b><small>${bits||"effect on hit"}</small></div>`}).join("");
   const can=infusable();
-  $("infbtns").innerHTML=can.length?can.map(t=>`<button class="btn sm" data-infuse="${t}" style="border-color:${tColor(t)}">${S.infuse[t]?`Deepen ${t} → ${["I","II","III"][S.infuse[t]]}`:`Infuse ${t}`} · ${essHave(t).reg>=INF_COST?`${INF_COST} of ${essHave(t).reg}`:"1 refined"}</button>`).join("")
-    :`<p class="foot">${inf.length>=infSlots()?"All slots used. You can still deepen an infusion with 3 more of its essence.":"Collect 3 essences of the same trait (salvage, elites, bounties) to infuse one. A refined essence counts as 3."}</p>`;
+  $("infbtns").innerHTML=can.length?can.map(t=>`<button class="btn sm" data-infuse="${t}" style="border-color:${tColor(t)}">${S.infuse[t]?`Deepen ${t} → ${["I","II","III"][S.infuse[t]]}`:`Infuse ${t}`} · ${payText(infPay(t))}</button>`).join("")
+    :`<p class="foot">${inf.length>=infSlots()?"All slots used. You can still deepen an infusion with more of its essence.":`Collect essences of one trait worth ${INF_COST} plain ones (salvage, elites, bounties) to infuse it.`}</p>`;
 }
 function youHud(){
   const P=pstats(),B=S.battle,guarding=B&&!B.over&&B.guard;
@@ -238,16 +242,17 @@ function renderResult(fresh){
     ${S.inv[it.id]>0?`<div class="actions"><button class="btn${isGear(it)&&!eqCount(it.id)?" primary":""}" data-open="${it.id}">${isGear(it)&&!eqCount(it.id)?"Equip or inspect":"Inspect"}</button></div>`:""}`;
 }
 const TABS=[["all","All"],["weapon","Weapons"],["armor","Armor"],["charm","Trinkets"],["consumable","Consumables"],["material","Materials"]];
+const baseName=it=>(S.items[baseIdOf(it.id)]||it).name; // graded items sort next to their Plain kin, by grade
 function satchel(mode){
   const tabs=TABS.map(([k,l])=>`<button class="tab" data-tab="${k}" aria-pressed="${S.tab===k}">${l}</button>`).join("");
   const list=Object.keys(S.inv).filter(id=>S.inv[id]>0).map(id=>S.items[id]).filter(it=>S.tab==="all"||grp(it)===S.tab)
-    .sort((a,b)=>FORMS[b.form].p-FORMS[a.form].p||b.tier-a.tier||a.name.localeCompare(b.name));
+    .sort((a,b)=>FORMS[b.form].p-FORMS[a.form].p||b.tier-a.tier||baseName(a).localeCompare(baseName(b))||gradeOf(a.id)-gradeOf(b.id)||a.name.localeCompare(b.name));
   const benchItems=S.bench.map(id=>S.items[id]),full=S.bench.length>=maxInputs();
   const tiles=list.length?list.map(it=>{const eq=eqCount(it.id)>0,left=avail(it.id),isNew=freshShown.has(it.id)||S.fresh.includes(it.id);
     let note="",no=false;
     if(mode==="forge"){if(left<=0){no=true;note="all in crucible"}else if(full){no=true;note="crucible full"}else if(!checkMix([...benchItems,it]).ok){no=true;note="won't mix"}}
     const sub=note?`<span style="color:var(--down)">${note}</span>`:`${eq?'<span class="tag">WORN · </span>':""}${isGear(it)?`PWR ${power(it)} · `:""}${topTraits(it.traits).slice(0,2).map(x=>x[0]).join(" · ")}`;
-    return `<button class="tile${it.legendary?" legend":""}${eq?" eq":""}${no?" no":""}" data-id="${it.id}" data-can="${no?0:1}" aria-label="${it.name}${note?`, ${note}`:""}">
+    return `<button class="tile${it.legendary?" legend":""}${it.grade?" gr":""}${eq?" eq":""}${no?" no":""}"${it.grade?` style="--gc:${GRADES[it.grade-1][1]}"`:""} data-id="${it.id}" data-can="${no?0:1}" aria-label="${it.name}${note?`, ${note}`:""}">
       ${glyph(it)}<span class="tname">${nameHtml(it)}</span><span class="ttr">${sub}</span><span class="cnt">×${left}</span>${isNew?'<span class="new">NEW</span>':""}</button>`}).join("")
     :`<p class="empty">Nothing here yet.</p>`;
   return [tabs,tiles];
@@ -292,7 +297,7 @@ function renderStats(){
     +grp("Exploration",cell(kz.reduce((a,b)=>a+b,0),"creatures slain")+cell(st.elites,"elites slain")+cell(st.bosses,"bosses slain")+cell(st.exped,"expeditions done")
       +`<div class="sc wide"><b>${kz.join(" / ")}</b><span>kills by region (${ZONES.map(z=>z[1].split(" ").pop()).join(" / ")})</span></div>`
       +`<div class="sc wide"><b>${heat}</b><span>highest Heat cleared</span></div>`)
-    +grp("Forge",cell(st.forged,"items forged")+cell(S.journal.length,"recipes found")+cell(st.legend,"legendaries forged")+cell(st.mishaps,"mishaps")+cell(st.fizzles,"fizzles")+cell(st.salvaged,"items salvaged")+cell(st.refined,"essences refined"))
+    +grp("Forge",cell(st.forged,"items forged")+cell(S.journal.length,"recipes found")+cell(st.legend,"legendaries forged")+cell(st.mishaps,"mishaps")+cell(st.fizzles,"fizzles")+cell(st.salvaged,"items salvaged")+cell(st.refined,"grades upgraded"))
     +grp("Economy",cell(sn(st.earned),"embers earned")+cell(sn(st.spent),"embers spent")+cell(S.embers,"embers now"))
     +`<p class="label">Records</p><ul class="rec2">${fast}<li><span>Dailies played / won</span><b>${st.dailies} / ${st.dailyWins}</b></li><li><span>Best daily</span><b>${st.dBest?dailyResult(st.dBest):"none yet"}</b></li></ul>`;
 }
@@ -311,7 +316,7 @@ function render(fresh){
   renderHeader();renderNav();renderGoal();
   if(S.view==="battle")renderBattle();
   if(S.view==="gear")renderGear();
-  if(S.view==="forge"){renderBench();renderRefine();renderSkills();renderResult(fresh)}
+  if(S.view==="forge"){renderBench();renderUpgrade();renderSkills();renderResult(fresh)}
   renderSatchels();
   if(S.view==="recipes")renderRecipes();
   if(S.view==="codex")renderCodex();

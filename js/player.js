@@ -28,10 +28,20 @@ function pstats(){
     dodge:Math.min(DODGE_CAP,Math.round(tsum("Swift")*DODGE_PER)),root:Math.min(ROOT_CAP,Math.round(tsum("Wood")*ROOT_PER)),cleanse:med}; // cleanse: hook for status effects
 }
 function clampHp(){const m=pstats().maxHp;if(S.hp>m)S.hp=m}
-const essHave=t=>({reg:avail("ess_"+t),ref:avail(`ess_${t}_2`)}); // a refined essence counts as REFINE_N plain ones (INF_COST) toward infusion
+// Infusion: an essence counts INF_W ninths of a plain one; a trait needs INF_COST plain ones' worth (INF_NEED ninths), paid with the cheapest essences that cover it
+const INF_NEED=INF_COST*INF_W[2],essIds=t=>Object.keys(S.items).filter(id=>isEss(id)&&essTrait(id)===t&&avail(id)>0);
+const infHave=t=>essIds(t).reduce((n,id)=>n+avail(id)*INF_W[gradeOf(id)-1],0);
+function infPay(t){
+  const p=[];let sum=0;
+  for(const id of essIds(t).sort((a,b)=>gradeOf(a)-gradeOf(b))){for(let i=avail(id);i>0&&sum<INF_NEED;i--){p.push(id);sum+=INF_W[gradeOf(id)-1]}if(sum>=INF_NEED)break}
+  if(sum<INF_NEED)return null;
+  for(let i=p.length-1;i>=0;i--){const w=INF_W[gradeOf(p[i])-1];if(sum-w>=INF_NEED){sum-=w;p.splice(i,1)}} // drop what the total does not need, dearest first
+  return p;
+}
+const payText=ids=>{const c={};ids.forEach(id=>c[gradeOf(id)]=(c[gradeOf(id)]||0)+1);return Object.keys(c).sort().map(g=>`${c[g]} ${GRADES[g-1][0]}`).join(" + ")};
 function infusable(){
-  return [...new Set(Object.keys(S.items).filter(id=>id.startsWith("ess_")).map(id=>id.split("_")[1]))].filter(t=>{
-    const {reg,ref}=essHave(t),r=S.infuse[t]||0;
-    return (reg>=INF_COST||ref>0)&&r<INF_MAX&&(r>0||Object.keys(S.infuse).length<infSlots())})}
-function infuse(t){if(!infusable().includes(t))return;const {reg}=essHave(t);if(reg>=INF_COST)S.inv["ess_"+t]-=INF_COST;else S.inv[`ess_${t}_2`]--;trimBench();S.infuse[t]=(S.infuse[t]||0)+1;clampHp();save();render();
+  return [...new Set(Object.keys(S.items).filter(isEss).map(essTrait))].filter(t=>{
+    const r=S.infuse[t]||0;
+    return infHave(t)>=INF_NEED&&r<INF_MAX&&(r>0||Object.keys(S.infuse).length<infSlots())})}
+function infuse(t){if(!infusable().includes(t))return;infPay(t).forEach(id=>S.inv[id]--);trimBench();S.infuse[t]=(S.infuse[t]||0)+1;clampHp();save();render();
   toast(`${t} infused into you. Rank ${["I","II","III"][S.infuse[t]-1]}.`)}
