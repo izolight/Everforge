@@ -49,6 +49,7 @@ function openCodex(id,refresh){
       <dt>Strength</dt><dd>${K.stats?`<span class="chip">HP ${E.hp}</span><span class="chip">ATK ${E.atk}</span><span class="chip">DEF ${E.def}</span>`:unkChip("Win a fight to learn")}</dd>
       <dt>Weak to</dt><dd>${weak}</dd>
       <dt>Resists</dt><dd>${res}</dd>
+      ${E.mv?`<dt>On the map</dt><dd>${{chase:"Hunts you once it catches your scent (from 4 steps, 6 with your torch out). Elite ones move every other step and notice you within 2.",wander:"Drifts about the region. Elite ones move every other step.",still:"Holds its ground."}[E.mv]}</dd>`:""}
       <dt>Special</dt><dd>${K.sp?`<span>${E.sp.name}: ${spText(E.sp)}, every ${spEvery(E,hn)} turns. Watch for it ${E.sp.tell}.</span>`:unkChip("Survive it to learn")}</dd>
       ${E.phase?`<dt>Second form</dt><dd>${ph?`<span>Below half health it turns ${ph.el}. ${K.sp2?`${ph.sp.name}: ${spText(ph.sp)}, every ${spEvery({...E,...ph},hn)} turns. `:"Its new special is still a mystery. "}Its weak points change too.</span>`:unkChip("Wound it badly to learn")}</dd>`:""}
       ${E.inf||(K.inf||[]).length?`<dt>Afflicts</dt><dd>${[...new Set(K.inf||[])].map(s=>`<span class="chip" style="color:var(--bad)">${STATUS[s].n}</span> <span class="foot">${STATUS[s].tip}</span>`).join("")||unkChip("Survive its special to learn")}</dd>`:""}
