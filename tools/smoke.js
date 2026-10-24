@@ -45,7 +45,7 @@ async function run(label,setup){
         const hb=qa("#arena [data-heat]");if(hb.length){click(hb[Math.floor(Math.random()*hb.length)]);out.heat++;continue}}
       if(wantDaily&&S.run!=="daily"){wantDaily=false;S.kills[ZONES[0][2]]=S.kills[ZONES[0][2]]||1;if(Math.random()<.6)S.daily=null;render();const db=q("#dailyStart");if(db){click(db);out.daily++;continue}}
       if(S.run==="daily"&&wantAband&&q("#dailyAbandon")&&Math.random()<.5){wantAband=false;click(q("#dailyAbandon"));click(q("#dailyAbandon"));if(S.run!=="daily")out.aband++;continue}
-      const choice=qa("#arena [data-choice]").find(b=>b.dataset.choice!=="inspect"&&b.dataset.choice!=="leave")||q("#arena [data-choice]");
+      const cs=qa("#arena [data-choice]"),choice=Math.random()<.35?cs[Math.floor(Math.random()*cs.length)]:cs.find(b=>b.dataset.choice!=="inspect"&&b.dataset.choice!=="leave")||cs[0]; // sometimes any choice, so leave and the odd ones run too
       if(choice){click(choice);continue}
       const nodes=qa("#arena [data-node]:not([disabled])");
       if(nodes.length){click(nodes[Math.floor(Math.random()*nodes.length)]);continue}

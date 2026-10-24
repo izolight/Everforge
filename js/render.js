@@ -93,14 +93,15 @@ function logBlock(B){
 // Map header: heat badge, modifier list and heat selector (cleared zones), or the daily run's banner
 function mapHead(){
   const m=curMap(),dl=S.run==="daily",d=S.daily,h=m.heat||0,hz=heatOf(S.zone);
-  if(!dl&&!h&&!hz.max)return "";
+  const amb=m.amb?`<p class="foot ambn">A whistle sounds behind you. If your next stop is a fight, it starts with an ambush.</p>`:"";
+  if(!dl&&!h&&!hz.max)return amb;
   const mods=[...dl?[`<li><b>${DAILY_TWISTS[d.twist].name}</b> ${DAILY_TWISTS[d.twist].desc}</li>`]:[],...HEAT.slice(0,h).map((x,i)=>`<li><b>Heat ${i+1} · ${x.name}</b> ${x.desc}</li>`)];
   const sel=!dl&&hz.max?`<div class="hsel" role="group" aria-label="Heat for new expeditions"><span class="foot">New expeditions</span>${Array.from({length:hz.max+1},(_,n)=>`<button class="hchip" data-heat="${n}" aria-pressed="${hz.sel===n}" title="${n?HEAT[n-1].name+": "+HEAT[n-1].desc:"Normal difficulty"}">${n?"Heat "+n:"Normal"}</button>`).join("")}</div>
     <p class="foot">${hz.sel?`Heat ${hz.sel} · ${HEAT[hz.sel-1].name}: ${HEAT[hz.sel-1].desc}`:"Normal difficulty."}${hz.sel!==h&&!m.cleared?` This map is Heat ${h}; the choice applies to your next expedition here.`:""}</p>`:"";
   return `<div class="maphead"><div class="mh1"><b>${zoneName(S.zone)}</b>${dl?`<span class="heat daily">Daily</span>`:""}${h?`<span class="heat">Heat ${h}</span>`:""}</div>
     ${dl?`<p class="foot">Daily expedition · ${d.date}${d.date!==today()?" (still going from an earlier day)":""} · ${d.turns} turns so far</p>`:""}
     ${mods.length?`<details class="heatd" id="heatd"${heatOpen?" open":""}><summary>${mods.length} active modifier${mods.length>1?"s":""}</summary><ul class="heatl">${mods.join("")}</ul></details>`:""}${sel}
-    ${dl?`<div class="actions"><button class="btn sm" id="dailyAbandon">${dArmed?"Tap again to abandon (no retry today)":"Abandon the daily"}</button></div>`:""}</div>`;
+    ${dl?`<div class="actions"><button class="btn sm" id="dailyAbandon">${dArmed?"Tap again to abandon (no retry today)":"Abandon the daily"}</button></div>`:""}${amb}</div>`;
 }
 function dailyCard(){
   if(S.run==="daily"||!dailyReady())return "";
@@ -123,6 +124,7 @@ function renderBattle(){
   if(S.event){const ev=S.event;
     a.innerHTML=`<div class="event">${ev.icon?`<svg class="evart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true">${NODE_G[ev.icon]}</svg>`:""}<h2>${ev.title}</h2><p class="empty">${ev.text}</p></div>
       ${ev.loot.length?`<div class="loot" style="justify-content:center">${lootChips(ev.loot)}</div>`:""}
+      ${ev.sc?`<p class="scrl"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true">${NODE_G.scroll}</svg><span>${ev.sc}</span></p>`:""}
       ${ev.choices.length?`<div class="actions">${ev.choices.map(([c,l],i)=>`<button class="btn ${i===0?"primary":""} grow" data-choice="${c}">${l}</button>`).join("")}</div>`:cont}${youHud()}`;return}
   if(!B){
     const m=curMap(),zi=zoneIdx(S.zone),bossId=ZONES[zi][2],next=ZONES[zi+1];
@@ -238,8 +240,12 @@ function renderRecipes(){
   $("reactions").innerHTML=REACTIONS.map(([a,b,res,cons])=>known.has(a+"+"+b)
     ?`<li><span class="chip" style="color:${tColor(a)}">${a}</span>+<span class="chip" style="color:${tColor(b)}">${b}</span>→<span class="chip" style="color:${tColor(res)}">${res}</span>${cons.length?"":`<span class="foot">keeps both</span>`}</li>`
     :`<li class="unk">??? + ??? → ???</li>`).join("");
-  const hidden=SECRETS.filter(s=>!S.journal.some(j=>S.items[j.id]?.legendary&&S.items[j.id].name===s.name));
-  $("secrets").innerHTML=hidden.length?hidden.map(s=>`<i>${s.hint}</i>`).join("<br>"):"You've found every legendary recipe.";
+  const fd=SECRETS.filter(found).length,chip=(n,c)=>`<span class="chip" style="color:${c}">${n}</span>`;
+  $("seclabel").textContent=`Legendary secrets · ${fd}/${SECRETS.length} discovered`;
+  $("secrets").innerHTML=SECRETS.map((s,i)=>{const ok=found(s),lv=hintLv(i);
+    return ok?`<li class="sec ok"><b>${s.name}</b> <span class="foot">discovered</span><div class="si">${s.ids.map(id=>chip(idName(id),"var(--accent)")).join("")}</div></li>`
+      :lv?`<li class="sec"><i>${s.hint}</i><div class="si">${s.ids.map((id,k)=>k<lv-1?chip(idName(id),"var(--accent)"):chip("?","var(--dim)")).join("")}</div></li>`
+      :`<li class="sec lock">??? <span class="foot">undiscovered</span></li>`}).join("");
 }
 function renderCodex(){
   const ids=Object.keys(ENEMIES),seenN=ids.filter(id=>S.seen[id]).length,mast=ids.filter(id=>S.seen[id]&&know(id).mastered).length;

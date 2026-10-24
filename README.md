@@ -21,6 +21,7 @@ js/
   player.js       equipment, player stats, infusions
   fx.js           floating-number / hit-flash queue
   map.js          region maps, nodes, map events (chest, shrine, peddler, camp)
+  encounters.js   choice-driven map events (ENC table: shrine, altar, alchemist, traveller, forge, riddle)
   battle.js       combat loop, enemy turns, victory and defeat
   endgame.js      daily expedition (seeded by the UTC date): plan, start, finish, abandon, reward
   gear.js         equip / settle gear, item effect descriptions
@@ -41,6 +42,8 @@ js/
 - Bosses can carry a data-driven `phase` (see `archon` in `data.js`): below `at` of max HP they spend a turn changing form, and `foeOf(B)` returns the current form's fields (element, weak, resist, special, status). Use `foeOf(B)` rather than `ENEMIES[B.id]` for anything that depends on the form.
 - Adding a zone: append to `ZONES` and give it enemies, a boss and a `terrain()` look in `art.js`. Unlocking, the mimic scaling (`MIMIC_HP`/`MIMIC_ATK`), bounties and the daily pick it up; `migrate()` opens zones for saves that already beat the boss before them; a daily boss kill unlocks the next zone too (same rule, so a reload never changes what is open).
 - When the save shape changes, bump `KEY`/`v`, add a migration step in `migrate()`, and extend `sane()` if new required fields are added.
+- Secrets (`SECRETS`, optional `bonus:{trait,v}` merged by `combine()`) start hidden except the first three. `S.hints` lists secret indexes; each repeat of an index reveals one more ingredient (`hintLv`, `giveHint(x)` in `goals.js`). Hint scrolls come from chests, shrine offerings, riddles, travellers, boss first kills, bounties and the daily.
+- Map events live in `ENC[type]={make(rv,hl),pick(choice,ev)}`; `rv` is four rolls pre-rolled per node (`nd.rv`) in the seeded daily map. Satchel-dependent choices vary per player. Every event must finish in `endEv(...)` (no choices) or a leave.
 
 ## Testing
 

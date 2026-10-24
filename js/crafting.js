@@ -42,15 +42,17 @@ function combine(raw){
       cons.forEach(c=>delete tr[c]);tr[res]=r1(Math.max(tr[res]||0,v));reacted.add(res);
       log.push({k:"Reaction",t:`${a} + ${b} → ${res}`,warn:TRAITS[res].f==="bad"});inst+=3}
     if(!any)break}
-  const slots=traitSlots(),sorted=topTraits(tr);
-  if(sorted.length>slots)log.push({k:"Lost",t:`${sorted.slice(slots).map(x=>x[0]).join(", ")} (only ${slots} trait slots)`});
-  tr=Object.fromEntries(sorted.slice(0,slots));
+  const secret=SECRETS.find(s=>s.ids.slice().sort().join("+")===key);
+  let bon=null; // the secret's bonus always keeps a slot
+  if(secret&&secret.bonus){const {trait:bt,v:bv}=secret.bonus;bon=[bt,r1((tr[bt]||0)+bv)];delete tr[bt];log.push({k:"Legendary",t:`The secret lends it +${bv} ${bt}.`})}
+  const slots=traitSlots()-(bon?1:0),sorted=topTraits(tr);
+  if(sorted.length>slots)log.push({k:"Lost",t:`${sorted.slice(slots).map(x=>x[0]).join(", ")} (only ${traitSlots()} trait slots)`});
+  tr=Object.fromEntries(sorted.slice(0,slots));if(bon)tr[bon[0]]=bon[1];
   inst+=(inputs.length-2)*6;inst=Math.max(0,Math.min(85,Math.round(inst-level()*4)));
   let mishap=null;
   if(rand()*100<inst){mishap=["Cursed","Weakened","Brittle"][Math.floor(rand()*3)];
     if(mishap==="Weakened")Object.keys(tr).forEach(t=>tr[t]=r1(tr[t]*.7));else tr[mishap]=2;
     log.push({k:"Mishap",t:mishap==="Weakened"?"The mixture fizzled. Every trait lost 30%.":`The mixture turned unstable and became ${mishap}.`,warn:true})}
-  const secret=SECRETS.find(s=>s.ids.slice().sort().join("+")===key);
   const noun=FORMS[form].noun||base.noun;
   const score=([t,v])=>v+(t in base.traits?0:3)+(reacted.has(t)?1:0);
   const ranked=Object.entries(tr).filter(([t])=>TRAITS[t].adj.toLowerCase()!==noun.toLowerCase()).sort((a,b)=>score(b)-score(a)).map(x=>x[0]);
