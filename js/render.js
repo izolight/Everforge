@@ -148,7 +148,7 @@ function renderBattle(){
     const m=curMap(),zi=zoneIdx(S.zone),bossId=ZONES[zi][2],next=ZONES[zi+1];
     const head=m.cleared?`<div class="cleared"><h2>${ZONES[zi][1]} cleared</h2><p class="empty">${shortName(bossId)} has fallen. Explore a fresh map here for more loot${next&&zoneOpen(next[0])?`, or move on to ${next[1]}`:""}.</p>
         <div class="actions"><button class="btn grow" id="again">New expedition here</button>${next&&zoneOpen(next[0])?`<button class="btn primary grow" data-zone="${next[0]}">Travel to ${next[1]}</button>`:""}</div></div>`
-      :`<p class="foot" style="text-align:center">${m.steps?"Tap a glowing tile next to you to step.":"Tap a glowing tile next to you to set out."} ${shortName(bossId)} waits in the lair at the top. Every step burns your torch.</p>`;
+      :`<p class="foot" style="text-align:center">${m.steps?"Tap a glowing tile next to you to step.":"Tap a glowing tile next to you to set out."} ${shortName(bossId)} waits in the lair at the top. Every step burns your torch, and some creatures roam and hunt you.</p>`;
     a.innerHTML=`${youHud()}${head}${mapHead()}${mapHtml()}${campbar()}${dailyCard()}`;a.querySelector(".tl.here")?.scrollIntoView({block:"nearest"});return}
   const K=cx(B.id);
   let body="";
