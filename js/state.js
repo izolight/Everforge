@@ -1,16 +1,19 @@
 // ================= STATE =================
-const KEY="everforge-v10",OLD_KEYS=["everforge-v9","everforge-v8","everforge-v7","everforge-v6","everforge-v5","everforge-v4","everforge-v3"];
+const KEY="everforge-v11",OLD_KEYS=["everforge-v10","everforge-v9","everforge-v8","everforge-v7","everforge-v6","everforge-v5","everforge-v4","everforge-v3"];
 function baseItem(id){const [name,form,traits,kind]=BASE[id];return {id,name,form,noun:name.split(" ").pop(),traits,tier:1,crafted:false,...(kind?{kind}:{})}}
+function mkGraded(b,g){ // the item for base id b at grade g (pure: migrate rebuilds graded items with it)
+  const es=/^ess_([A-Za-z]+)$/.exec(b),it=es?{id:b,name:`${es[1]} Essence`,form:"material",kind:"essence",noun:"Essence",traits:{[es[1]]:ESS_VALUE},tier:1,crafted:false}:baseItem(b);
+  return g===3?it:{...it,id:gradedId(b,g),name:`${GRADES[g-1][0]} ${it.name}`,traits:Object.fromEntries(Object.entries(it.traits).map(([t,v])=>[t,Math.round(v*GRADE_M[g-1]*10)/10])),grade:g}}
 // lifetime counters (S.stats); migrate() merges these into older saves. kills per zone come from S.zoneKills
 const statsDef=()=>({salvaged:0,studied:0,dealt:0,taken:0,big:0,bigW:"",crits:0,parries:0,abil:0,sufd:0,cured:0,elites:0,bosses:0,deaths:0,exped:0,heatBest:{},fast:{},forged:0,legend:0,mishaps:0,fizzles:0,earned:0,spent:0,refined:0,dailies:0,dailyWins:0,dBest:null});
 function freshState(){
   const items={};Object.keys(BASE).forEach(id=>items[id]=baseItem(id));
-  return {v:10,embers:0,skills:{},maps:{},heat:{},daily:null,run:null,infuse:{},items,inv:{iron_sword:1},eq:{main:"iron_sword",off:null,head:null,body:null,hands:null,feet:null,charm:null},
+  return {v:11,embers:0,infCredit:0,skills:{},maps:{},heat:{},daily:null,run:null,infuse:{},items,inv:{iron_sword:1},eq:{main:"iron_sword",off:null,head:null,body:null,hands:null,feet:null,charm:null},
     hp:999,camp:2,campProg:0,xp:0,journal:[],knownR:[],hints:[0,1,2],bench:[],last:null,tab:"all",rtab:"all",view:"battle",zone:"woods",
     wins:0,kills:{},seen:{},codex:{},unlocked:["woods"],zoneKills:{},quest:0,bounty:null,stats:statsDef(),fresh:[],battle:null,event:null};
 }
 const isObj=v=>!!v&&typeof v==="object"&&!Array.isArray(v);
-const DEFAULTED=["maps","infuse","eq","kills","seen","codex","zoneKills","stats","journal","knownR","bench","unlocked","fresh","hp","xp","zone","heat","daily","run","hints","embers","skills"];
+const DEFAULTED=["maps","infuse","eq","kills","seen","codex","zoneKills","stats","journal","knownR","bench","unlocked","fresh","hp","xp","zone","heat","daily","run","hints","embers","skills","infCredit"];
 // Shape check for loaded or imported saves, so a malformed one is rejected instead of breaking every render.
 function sane(s){
   return ["maps","heat","infuse","items","inv","eq","kills","seen","codex","zoneKills","stats"].every(k=>isObj(s[k]))
@@ -61,13 +64,32 @@ function migrate(s){
       const own=new Set([...Object.keys(s.inv).filter(id=>s.inv[id]>0),...Object.values(s.eq).filter(Boolean),...(Array.isArray(s.journal)?s.journal.map(j=>j.id):[])]),top={};
       own.forEach(id=>{const it=s.items[id],k=it&&it.crafted&&FORMS[it.form]&&skillOf(it);if(k)top[k]=Math.max(top[k]||0,it.tier|0)});
       Object.entries(top).forEach(([k,t])=>{const l=SK_CAP.findIndex(c=>c>=Math.min(9,t+1));s.skills[k]=Math.max(s.skills[k]||0,SK_LV[l<0?SK_LV.length-1:l])})}}
-  if(s.v!==10||!isObj(s.items)||!isObj(s.inv))return null;
+  if(s.v===10){s.v=11; // refined essences ess_<T>_2 become Greater ones (ess_<T>@4)
+    if(isObj(s.items)&&isObj(s.inv)&&isObj(s.eq)){
+      const RE=/^(ess_[A-Za-z]+)_2$/,ren={};Object.keys(s.items).forEach(id=>{if(RE.test(id))ren[id]=id.replace(RE,"$1@4")});
+      // a clean craft's id hashes its inputs: crafts made with a refined essence (and crafts of those...) move to the id the same recipe has now
+      const orig={};Object.values(s.items).forEach(it=>{if(isObj(it)&&it.crafted&&Array.isArray(it.recipeIds))orig[it.id]=it.recipeIds.slice()});
+      for(let pass=0;pass<5;pass++){let ch=false;Object.values(s.items).forEach(it=>{const o=isObj(it)&&orig[it.id];if(!o||ren[it.id]||o.length<2||!o.some(r=>ren[r]))return;
+        const ok=o.slice().sort().join("+"),nk=o.map(r=>ren[r]||r).sort().join("+"),mk=[null,"Cursed","Weakened","Brittle"].find(m=>it.id==="c_"+hash(m?ok+"|"+m:ok).toString(36));
+        if(mk!==undefined){ren[it.id]="c_"+hash(mk?nk+"|"+mk:nk).toString(36);ch=true}});if(!ch)break}
+      // a flawed craft's clean recipe item may never have been made: re-hash that recipe key directly
+      const cleanFix={};Object.values(s.items).forEach(it=>{const o=isObj(it)&&orig[it.id];if(!o||!it.clean||!o.some(r=>ren[r]))return;
+        if(it.clean==="c_"+hash(o.slice().sort().join("+")).toString(36))cleanFix[it.clean]="c_"+hash(o.map(r=>ren[r]||r).sort().join("+")).toString(36)});
+      const fix=id=>ren[id]||cleanFix[id]||id;
+      Object.entries(ren).forEach(([o,n])=>{if(!s.items[n])s.items[n]={...s.items[o],id:n};delete s.items[o];if(s.inv[o]!==undefined){s.inv[n]=(s.inv[n]||0)+s.inv[o];delete s.inv[o]}});
+      Object.keys(s.eq).forEach(k=>{s.eq[k]=s.eq[k]?fix(s.eq[k]):s.eq[k]});
+      if(Array.isArray(s.bench))s.bench=s.bench.map(fix);if(Array.isArray(s.fresh))s.fresh=s.fresh.map(fix);
+      if(Array.isArray(s.journal))s.journal.forEach(j=>{if(isObj(j))j.id=fix(j.id)});
+      const nm=a=>Array.isArray(a)?a.map(x=>typeof x==="string"?x.replace(/^Refined (\w+ Essence)$/,"Greater $1"):x):a;
+      Object.values(s.items).forEach(it=>{if(!isObj(it))return;if(it.clean)it.clean=fix(it.clean);if(Array.isArray(it.recipeIds))it.recipeIds=it.recipeIds.map(fix);if(it.recipe)it.recipe=nm(it.recipe)});
+      if(isObj(s.last)){if(s.last.id)s.last.id=fix(s.last.id);if(s.last.baseId)s.last.baseId=fix(s.last.baseId);s.last.recipe=nm(s.last.recipe);if(isObj(s.last.item)){s.last.item.id=fix(s.last.item.id);if(Array.isArray(s.last.item.recipeIds))s.last.item.recipeIds=s.last.item.recipeIds.map(fix);s.last.item.recipe=nm(s.last.item.recipe)}}}}
+  if(s.v!==11||!isObj(s.items)||!isObj(s.inv))return null;
   const dflt=freshState();DEFAULTED.forEach(k=>{if(s[k]===undefined)s[k]=dflt[k]});
   Object.keys(BASE).forEach(id=>s.items[id]=baseItem(id));
   if(!sane(s))return null;
   ZONES.forEach((z,i)=>{if(i&&(s.kills[ZONES[i-1][2]]||0)>0&&!s.unlocked.includes(z[0]))s.unlocked.push(z[0])}); // zones added later open for saves that already beat the boss before them
-  Object.values(s.items).forEach(it=>{const m=it.id.match(/^ess_([A-Za-z]+)(_2)?$/);if(m){it.kind="essence";it.traits={[m[1]]:m[2]?REFINE_VALUE:ESS_VALUE}}}); // plain and refined essences are reset to their fixed values
-  s.embers=Math.max(0,Math.floor(Number(s.embers))||0);
+  Object.keys(s.items).forEach(id=>{const b=baseIdOf(id),g=gradeOf(id);if(gradable(b)&&gradedId(b,g)===id)s.items[id]=mkGraded(b,g)}); // essences and graded materials are rebuilt from their fixed values
+  s.embers=Math.max(0,Math.floor(Number(s.embers))||0);s.infCredit=Math.max(0,Math.floor(Number(s.infCredit))||0);
   s.skills=Object.fromEntries(Object.keys(SKILLS).map(k=>[k,isObj(s.skills)?Math.max(0,Math.floor(Number(s.skills[k]))||0):0]));
   const st0=s.stats,sd=statsDef(),had=k=>st0[k]!==undefined;
   const dv={forged:s.journal.length,legend:s.journal.filter(j=>j.legendary).length,bosses:ZONES.reduce((n,z)=>n+(s.kills[z[2]]|0),0),

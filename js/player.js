@@ -28,10 +28,22 @@ function pstats(){
     dodge:Math.min(DODGE_CAP,Math.round(tsum("Swift")*DODGE_PER)),root:Math.min(ROOT_CAP,Math.round(tsum("Wood")*ROOT_PER)),cleanse:med}; // cleanse: hook for status effects
 }
 function clampHp(){const m=pstats().maxHp;if(S.hp>m)S.hp=m}
-const essHave=t=>({reg:avail("ess_"+t),ref:avail(`ess_${t}_2`)}); // a refined essence counts as REFINE_N plain ones (INF_COST) toward infusion
+// Infusion: an essence counts INF_W ninths of a plain one; a trait needs INF_COST plain ones' worth (INF_NEED ninths), paid with the cheapest essences that cover it
+const INF_NEED=INF_COST*INF_W[2],essIds=t=>Object.keys(S.items).filter(id=>isEss(id)&&essTrait(id)===t&&avail(id)>0);
+const infHave=t=>essIds(t).reduce((n,id)=>n+avail(id)*INF_W[gradeOf(id)-1],0);
+function infPay(t,need=INF_NEED){
+  const p=[];let sum=0;
+  for(const id of essIds(t).sort((a,b)=>gradeOf(a)-gradeOf(b))){for(let i=avail(id);i>0&&sum<need;i--){p.push(id);sum+=INF_W[gradeOf(id)-1]}if(sum>=need)break}
+  if(sum<need)return null;
+  for(let i=p.length-1;i>=0;i--){const w=INF_W[gradeOf(p[i])-1];if(sum-w>=need){sum-=w;p.splice(i,1)}} // drop what the total does not need, dearest first
+  return p;
+}
+const payText=ids=>{const c={};ids.forEach(id=>c[gradeOf(id)]=(c[gradeOf(id)]||0)+1);return Object.keys(c).sort().map(g=>`${c[g]} ${GRADES[g-1][0]}`).join(" + ")};
 function infusable(){
-  return [...new Set(Object.keys(S.items).filter(id=>id.startsWith("ess_")).map(id=>id.split("_")[1]))].filter(t=>{
-    const {reg,ref}=essHave(t),r=S.infuse[t]||0;
-    return (reg>=INF_COST||ref>0)&&r<INF_MAX&&(r>0||Object.keys(S.infuse).length<infSlots())})}
-function infuse(t){if(!infusable().includes(t))return;const {reg}=essHave(t);if(reg>=INF_COST)S.inv["ess_"+t]-=INF_COST;else S.inv[`ess_${t}_2`]--;trimBench();S.infuse[t]=(S.infuse[t]||0)+1;clampHp();save();render();
+  return [...new Set(Object.keys(S.items).filter(isEss).map(essTrait))].filter(t=>{
+    const r=S.infuse[t]||0;
+    return infHave(t)+S.infCredit>=INF_NEED&&r<INF_MAX&&(r>0||Object.keys(S.infuse).length<infSlots())})}
+// surplus from an infusion (a Pure paying for one rank) is kept as credit (S.infCredit, ninths) and spent first on the next
+const creditTxt=c=>{const w=Math.floor(c/9),r=c%9;return `${w?w+" ":""}${r?(r%3?r+"/9":r/3+"/3"):""}`.trim()||"0"};
+function infuse(t){if(!infusable().includes(t))return;const pay=infPay(t,Math.max(0,INF_NEED-S.infCredit)),sum=pay.reduce((n,id)=>n+INF_W[gradeOf(id)-1],0);pay.forEach(id=>S.inv[id]--);S.infCredit=S.infCredit+sum-INF_NEED;trimBench();S.infuse[t]=(S.infuse[t]||0)+1;clampHp();save();render();
   toast(`${t} infused into you. Rank ${["I","II","III"][S.infuse[t]-1]}.`)}

@@ -9,7 +9,7 @@ const URL="file://"+path.resolve(__dirname,"..","index.html");
 // ---------- kit table ----------
 // Smith level/XP per stage. A stage kit is what a player plausibly owns when they finish that zone.
 const STAGES={woods:{label:"woods-end",xp:160,sk:80},pass:{label:"pass-end",xp:560,sk:280},hollow:{label:"hollow-end",xp:1400,sk:680},spire:{label:"spire-end",xp:3200,sk:1350}}; // sk = XP in every crafting skill (Lv 3 / 5 / 7 / 9): what a focused player has by then
-// Each step crafts with the real combine(): [slot or "", label, "input input input"] (a single input is a raw drop, equipped as is). Inputs: a base item id, "ess:Trait" (plain essence), "ess:Trait:2" (refined),
+// Each step crafts with the real combine(): [slot or "", label, "input input input"] (a single input is a raw drop, equipped as is). Inputs: a base item id, "ess:Trait" (plain essence), "ess:Trait:4" (grade 4, Greater; 1-5, 3 = Plain), "golem_core@4" (a graded material),
 // or "$label" for an earlier step. The crafted item is equipped in the slot (consumables have no slot). inf = traits to infuse (repeat a trait for rank II/III),
 // carry = spare consumables (base id: count; crafted labels work too). Essences and base items are simply granted, so the "ess" count printed is what the kit assumes you salvaged.
 const KITS={
@@ -17,18 +17,18 @@ const KITS={
     woods:{steps:[["main","sword","iron_sword gnarl_tusk ess:Sharp"],["off","shield","wood_shield boar_hide"],["head","helm","leather_cap"],["body","body","jerkin"],["hands","gloves","hide_gloves"],["feet","boots","trail_boots"],["charm","charm","sprite_lantern"]],inf:["Sharp"],carry:{bread:3,honey:2}},
     pass:{steps:[["main","sword","iron_sword rime_fang ess:Sharp"],["off","shield","wood_shield pelt ess:Iron"],["head","helm","iron_helmet"],["body","body","stone_plate"],["hands","gloves","hide_gloves pelt"],["feet","boots","trail_boots pelt ess:Swift"],["charm","charm","fang_charm"],
       ["","potion","holy_water spring_water"]],inf:["Sharp","Iron"],carry:{bread:3,potion:2}},
-    hollow:{steps:[["main","sword","iron_sword phoenix ess:Sharp"],["off","shield","wood_shield pelt ess:Iron"],["head","helm","iron_helmet pelt ess:Iron"],["body","body","stone_plate pelt ess:Stone"],["hands","gloves","wraith_wraps"],["feet","boots","ember_treads trail_boots ess:Swift"],["charm","charm","witch_eye"],
+    hollow:{steps:[["main","sword","iron_sword phoenix ess:Sharp:4"],["off","shield","wood_shield pelt ess:Iron"],["head","helm","iron_helmet pelt ess:Iron"],["body","body","stone_plate pelt ess:Stone"],["hands","gloves","wraith_wraps"],["feet","boots","ember_treads trail_boots ess:Swift"],["charm","charm","witch_eye"],
       ["","potion","holy_water spring_water ess:Nourishing"]],inf:["Sharp","Iron","Swift"],carry:{potion:3,bread:2}},
-    spire:{steps:[["main","s1","iron_sword phoenix ess:Sharp"],["main","sword","$s1 ess:Sharp ess:Sharp"],["off","shield","sentinel_aegis"],["head","helm","iron_helmet golem_core ess:Iron"],["body","body","stone_plate golem_core ess:Stone"],["hands","gloves","wraith_wraps rune_shard ess:Swift"],
+    spire:{steps:[["main","s1","iron_sword phoenix ess:Sharp:4"],["main","sword","$s1 ess:Sharp ess:Sharp"],["off","shield","sentinel_aegis"],["head","helm","iron_helmet golem_core@4 ess:Iron"],["body","body","stone_plate golem_core@4 ess:Stone"],["hands","gloves","wraith_wraps rune_shard ess:Swift"],
       ["feet","boots","gale_boots"],["charm","charm","witch_eye ess:Sharp ess:Holy"],["","potion","holy_water spring_water ess:Nourishing"]],inf:["Sharp","Sharp","Iron","Swift"],carry:{potion:3,storm_draught:1}}},
   defensive:{ // Stone / Iron / Runic heavy, slow and hard to hurt
     woods:{steps:[["main","sword","iron_sword ess:Iron ess:Iron"],["off","shield","wood_shield boar_hide ess:Stone"],["head","helm","leather_cap boar_hide ess:Iron"],["body","body","jerkin boar_hide ess:Stone"],
       ["hands","gloves","hide_gloves boar_hide ess:Iron"],["feet","boots","trail_boots boar_hide ess:Stone"],["charm","charm","sprite_lantern ess:Stone"]],inf:["Stone"],carry:{bread:3,honey:2}},
     pass:{steps:[["main","sword","iron_sword golem_core ess:Iron"],["off","shield","wood_shield golem_core ess:Stone"],["head","helm","iron_helmet golem_core ess:Iron"],["body","body","stone_plate golem_core ess:Stone"],
       ["hands","gloves","hide_gloves golem_core ess:Iron"],["feet","boots","trail_boots golem_core ess:Stone"],["charm","charm","fang_charm ess:Stone ess:Iron"],["","potion","holy_water spring_water ess:Nourishing"]],inf:["Stone","Iron"],carry:{bread:3,potion:2}},
-    hollow:{steps:[["main","sword","iron_sword golem_core ess:Iron"],["off","shield","wood_shield golem_core ess:Stone"],["head","helm","iron_helmet golem_core ess:Iron"],["body","body","stone_plate golem_core ess:Arcane"],
+    hollow:{steps:[["main","sword","iron_sword golem_core ess:Iron"],["off","shield","wood_shield golem_core ess:Stone"],["head","helm","iron_helmet golem_core ess:Iron"],["body","body","stone_plate golem_core@4 ess:Arcane"],
       ["hands","gloves","hide_gloves golem_core ess:Iron"],["feet","boots","ember_treads golem_core ess:Stone"],["charm","charm","fang_charm ess:Stone ess:Arcane"],["","potion","holy_water spring_water ess:Nourishing"]],inf:["Stone","Iron","Arcane"],carry:{potion:3,bread:2}},
-    spire:{steps:[["main","sword","iron_sword golem_core ess:Iron"],["off","shield","sentinel_aegis golem_core ess:Stone"],["head","helm","iron_helmet golem_core ess:Arcane"],["body","body","stone_plate rune_shard ess:Stone"],
+    spire:{steps:[["main","sword","iron_sword golem_core@4 ess:Iron"],["off","shield","sentinel_aegis golem_core@4 ess:Stone"],["head","helm","iron_helmet golem_core ess:Arcane:4"],["body","body","stone_plate rune_shard ess:Stone"],
       ["hands","gloves","hide_gloves golem_core ess:Iron"],["feet","boots","ember_treads golem_core ess:Stone"],["charm","charm","fang_charm ess:Stone ess:Arcane"],["","potion","holy_water spring_water ess:Nourishing"]],inf:["Stone","Arcane","Iron","Stone"],carry:{potion:3,storm_draught:1}}},
   staff:{ // Magic-heavy staff caster in lighter armor
     woods:{steps:[["main","staff","oak_staff oak_staff ess:Arcane"],["head","helm","leather_cap"],["body","body","jerkin"],["feet","boots","trail_boots"],["charm","charm","sprite_lantern"]],inf:["Arcane"],carry:{bread:3,honey:2}},
@@ -36,17 +36,17 @@ const KITS={
       ["charm","charm","sprite_lantern ess:Arcane"],["","potion","holy_water spring_water"]],inf:["Arcane","Fire"],carry:{bread:3,potion:2}},
     hollow:{steps:[["main","s1","oak_staff oak_staff ess:Arcane"],["main","staff","$s1 phoenix ess:Arcane"],["head","helm","leather_cap shroud"],["body","body","jerkin shroud ess:Arcane"],["hands","gloves","wraith_wraps"],["feet","boots","ember_treads"],
       ["charm","charm","witch_eye"],["","potion","holy_water spring_water ess:Nourishing"]],inf:["Arcane","Fire","Holy"],carry:{potion:3,bread:2}},
-    spire:{steps:[["main","s1","oak_staff rune_shard ess:Arcane"],["main","s2","$s1 phoenix ess:Arcane"],["main","staff","$s2 star_heart ess:Arcane ess:Holy"],["head","helm","leather_cap void_crystal"],["body","body","void_robe"],
+    spire:{steps:[["main","s1","oak_staff rune_shard ess:Arcane"],["main","s2","$s1 phoenix ess:Arcane:4"],["main","staff","$s2 star_heart ess:Arcane ess:Holy"],["head","helm","leather_cap void_crystal"],["body","body","void_robe"],
       ["hands","gloves","wraith_wraps rune_shard ess:Arcane"],["feet","boots","gale_boots"],["charm","charm","witch_eye void_crystal ess:Arcane"],["","potion","holy_water spring_water ess:Nourishing"]],inf:["Arcane","Arcane","Fire","Holy"],carry:{potion:3,storm_draught:1}}},
   stacked:{ // min-max: one trait hammered into each piece (item + essences, again and again) plus infusions, to see how far stacking runs away
     woods:{steps:[["main","s1","iron_sword gnarl_tusk ess:Sharp"],["main","s2","$s1 ess:Sharp ess:Sharp"],["main","sword","$s2 ess:Sharp ess:Sharp"],["body","b1","jerkin boar_hide ess:Iron"],["body","body","$b1 ess:Iron ess:Iron"],["feet","boots","trail_boots ess:Swift ess:Swift"],["off","shield","wood_shield boar_hide ess:Iron"]],inf:["Sharp"],carry:{bread:3}},
     pass:{steps:[["main","s1","iron_sword rime_fang ess:Sharp"],["main","s2","$s1 ess:Sharp ess:Sharp"],["main","s3","$s2 ess:Sharp ess:Sharp"],["main","sword","$s3 ess:Sharp ess:Sharp"],["body","b1","stone_plate golem_core ess:Iron"],["body","b2","$b1 ess:Iron ess:Iron"],["body","body","$b2 ess:Iron ess:Iron"],
       ["feet","b3","trail_boots ess:Swift ess:Swift"],["feet","boots","$b3 ess:Swift ess:Swift"],["off","shield","wood_shield golem_core ess:Iron"]],inf:["Sharp","Sharp","Swift"],carry:{bread:3}},
-    hollow:{steps:[["main","s1","iron_sword rime_fang ess:Sharp"],["main","s2","$s1 ess:Sharp:2 ess:Sharp:2"],["main","s3","$s2 ess:Sharp:2 ess:Sharp:2"],["main","sword","$s3 ess:Sharp:2 ess:Sharp:2"],["body","b1","stone_plate golem_core ess:Iron:2"],["body","b2","$b1 ess:Iron:2 ess:Iron:2"],["body","body","$b2 ess:Iron:2 ess:Iron:2"],
-      ["head","h1","iron_helmet golem_core ess:Iron:2"],["head","helm","$h1 ess:Iron:2 ess:Iron:2"],["feet","b3","trail_boots ess:Swift:2 ess:Swift:2"],["feet","boots","$b3 ess:Swift:2 ess:Swift:2"],["off","shield","wood_shield golem_core ess:Iron:2"]],inf:["Sharp","Sharp","Sharp","Swift"],carry:{bread:3}},
-    spire:{steps:[["main","s1","iron_sword rime_fang ess:Sharp"],["main","s2","$s1 ess:Sharp:2 ess:Sharp:2"],["main","s3","$s2 ess:Sharp:2 ess:Sharp:2"],["main","s4","$s3 ess:Sharp:2 ess:Sharp:2"],["main","s5","$s4 ess:Sharp:2 ess:Sharp:2"],["main","sword","$s5 ess:Sharp:2 ess:Sharp:2 ess:Sharp:2"],
-      ["body","b1","stone_plate golem_core ess:Iron:2"],["body","b2","$b1 ess:Iron:2 ess:Iron:2"],["body","b3","$b2 ess:Iron:2 ess:Iron:2"],["body","body","$b3 ess:Iron:2 ess:Iron:2 ess:Iron:2"],["head","h1","iron_helmet golem_core ess:Iron:2"],["head","helm","$h1 ess:Iron:2 ess:Iron:2 ess:Iron:2"],
-      ["feet","f1","trail_boots ess:Swift:2 ess:Swift:2"],["feet","boots","$f1 ess:Swift:2 ess:Swift:2 ess:Swift:2"],["off","shield","sentinel_aegis ess:Iron:2 ess:Iron:2 ess:Iron:2"]],inf:["Sharp","Sharp","Sharp","Swift"],carry:{bread:3}}}
+    hollow:{steps:[["main","s1","iron_sword rime_fang ess:Sharp"],["main","s2","$s1 ess:Sharp:4 ess:Sharp:4"],["main","s3","$s2 ess:Sharp:4 ess:Sharp:4"],["main","sword","$s3 ess:Sharp:4 ess:Sharp:4"],["body","b1","stone_plate golem_core ess:Iron:4"],["body","b2","$b1 ess:Iron:4 ess:Iron:4"],["body","body","$b2 ess:Iron:4 ess:Iron:4"],
+      ["head","h1","iron_helmet golem_core ess:Iron:4"],["head","helm","$h1 ess:Iron:4 ess:Iron:4"],["feet","b3","trail_boots ess:Swift:4 ess:Swift:4"],["feet","boots","$b3 ess:Swift:4 ess:Swift:4"],["off","shield","wood_shield golem_core ess:Iron:4"]],inf:["Sharp","Sharp","Sharp","Swift"],carry:{bread:3}},
+    spire:{steps:[["main","s1","iron_sword rime_fang ess:Sharp"],["main","s2","$s1 ess:Sharp:4 ess:Sharp:4"],["main","s3","$s2 ess:Sharp:4 ess:Sharp:4"],["main","s4","$s3 ess:Sharp:4 ess:Sharp:4"],["main","s5","$s4 ess:Sharp:4 ess:Sharp:4"],["main","sword","$s5 ess:Sharp:4 ess:Sharp:4 ess:Sharp:4"],
+      ["body","b1","stone_plate golem_core ess:Iron:4"],["body","b2","$b1 ess:Iron:4 ess:Iron:4"],["body","b3","$b2 ess:Iron:4 ess:Iron:4"],["body","body","$b3 ess:Iron:4 ess:Iron:4 ess:Iron:4"],["head","h1","iron_helmet golem_core ess:Iron:4"],["head","helm","$h1 ess:Iron:4 ess:Iron:4 ess:Iron:4"],
+      ["feet","f1","trail_boots ess:Swift:4 ess:Swift:4"],["feet","boots","$f1 ess:Swift:4 ess:Swift:4 ess:Swift:4"],["off","shield","sentinel_aegis ess:Iron:4 ess:Iron:4 ess:Iron:4"]],inf:["Sharp","Sharp","Sharp","Swift"],carry:{bread:3}}}
 };
 // the fresh-save kit: arrival at the woods (a new player: the starting sword, nothing else)
 const STARTER={steps:[["main","sword","iron_sword"]],inf:[],carry:{}};
@@ -63,12 +63,13 @@ function setup(){ // runs inside the game page; everything here uses the real ga
   const mulberry=a=>()=>{a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296};
   const realRandom=Math.random,seedFor=(seed,key)=>seed==null?null:mulberry(hash(seed+"|"+key));
   const useSeed=(seed,key)=>{Math.random=seed==null?realRandom:seedFor(seed,key)};
-  const ref=s=>s.startsWith("ess:")?(s.endsWith(":2")?refined(s.split(":")[1]):essence(s.split(":")[1])):s;
+  const upCost=g=>g<=3?0:3*upCost(g-1)+UP.emb[g-2]; // embers to make one essence of grade g from Plain ones
+  const ref=s=>{if(s.startsWith("ess:")){const [,t,g]=s.split(":");return essG(t,+g||3)}return s.includes("@")?gradedItem(baseIdOf(s),gradeOf(s)):s};
   const SIM=window.SIM={kits:{}};
   // craft a kit with combine(), equip it, infuse. Returns the save snapshot and a summary
   SIM.build=(k,stage,xp,mast,sk)=>{ // mast = highest zone index whose enemies the player has mastered in the codex (-1: none)
-    S=freshState();S.xp=xp;Object.keys(SKILLS).forEach(x=>S.skills[x]=sk);let tries=0,fizz=0,nc=0;S.unlocked=ZONES.map(z=>z[0]);S.zone=stage;const out={},warn=[];let ess=0,refs=0;
-    const need=id=>{if(id.startsWith("ess:")){ess+=id.endsWith(":2")?3:1;if(id.endsWith(":2"))refs++;const r=ref(id);addItem(r);return r}if(!S.items[id])warn.push("unknown "+id);return id};
+    S=freshState();S.xp=xp;Object.keys(SKILLS).forEach(x=>S.skills[x]=sk);let tries=0,fizz=0,nc=0;S.unlocked=ZONES.map(z=>z[0]);S.zone=stage;const out={},warn=[];let ess=0;const refs=[];
+    const need=id=>{if(id.startsWith("ess:")){const g=+id.split(":")[2]||3;ess+=plainEq(g);if(g>3)refs.push(g);const r=ref(id);addItem(r);return r}const r=ref(id);if(!S.items[r])warn.push("unknown "+id);return r};
     k.steps.forEach(([slot,as,ins])=>{
       const ids=ins.split(" ").map(i=>i[0]==="$"?out[i.slice(1)]:need(i));
       if(ids.length===1){addItem(ids[0]);out[as]=ids[0];if(slot)equip(ids[0],slot);return} // an uncrafted drop, worn as it fell
@@ -85,7 +86,7 @@ function setup(){ // runs inside the game page; everything here uses the real ga
     S.hp=pstats().maxHp;const P=pstats(),st=id=>statsOf(S.items[id]);
     const gear=SLOTS.map(([s])=>{const it=gearOf(s);return it&&`${s}:${it.name}`}).filter(Boolean);
     const sum={lv:level(),atk:P.atk,mag:P.mag,def:P.def,red:Math.round(P.red*100),hp:P.maxHp,spd:P.spd,regen:P.regen,ward:P.ward,thorns:P.thorns,dr:P.dr,dodge:P.dodge,root:P.root,cleanse:P.cleanse,res:P.rs,
-      crit:Math.round(Math.min(CRIT_CAP,5+(P.main?withInnate(P.main.traits).Sharp||0:0)*3)),abil:abKeys(P),main:P.main&&P.main.name,form:P.main&&P.main.form,shield:!!P.shield,infuse:{...S.infuse},ess,refine:refs*EMB.refine,tries:Math.round(tries*10)/10,crafts:nc,fizz:Math.round(fizz*10)/10,warn,gear,heals:Object.keys(S.inv).filter(id=>grp(S.items[id])==="consumable").map(id=>`${S.items[id].name} x${S.inv[id]} (${medHeal(S.items[id])})`)};
+      crit:Math.round(Math.min(CRIT_CAP,5+(P.main?withInnate(P.main.traits).Sharp||0:0)*3)),abil:abKeys(P),main:P.main&&P.main.name,form:P.main&&P.main.form,shield:!!P.shield,infuse:{...S.infuse},ess,refine:refs.reduce((n,g)=>n+upCost(g),0),tries:Math.round(tries*10)/10,crafts:nc,fizz:Math.round(fizz*10)/10,warn,gear,heals:Object.keys(S.inv).filter(id=>grp(S.items[id])==="consumable").map(id=>`${S.items[id].name} x${S.inv[id]} (${medHeal(S.items[id])})`)};
     return {snap:JSON.stringify(S),sum};
   };
   const POL={
@@ -119,7 +120,7 @@ function setup(){ // runs inside the game page; everything here uses the real ga
       if(ok)clear++}
     return{clear:clear/n,fights:fights/n}};
   // ---- economy: whole expeditions through visit() ----
-  const essCount=()=>Object.keys(S.inv).filter(id=>isEss(id)||isRefined(id)).reduce((a,id)=>a+S.inv[id]*(isRefined(id)?REFINE_N:1),0);
+  const essCount=()=>Object.keys(S.inv).filter(isEss).reduce((a,id)=>a+S.inv[id]*plainEq(gradeOf(id)),0); // plain-essence equivalents
   const itemCount=()=>Object.values(S.inv).reduce((a,b)=>a+b,0);
   SIM.exped=(snap,zone,heat,pol,seedKey,seed)=>{
     useSeed(seed,seedKey);S=JSON.parse(snap);S.zone=zone;S.embers=0;S.hp=pstats().maxHp;S.camp=2;S.maps[zone]=genMap({heat});S.stats.earned=0;
@@ -150,7 +151,7 @@ function setup(){ // runs inside the game page; everything here uses the real ga
       if(!settle()){r.lost=1;break}
       if(S.battle&&S.battle.over==="won"&&ENEMIES[S.battle.id].boss){r.won=1;break}}
     // what salvaging the new loot would add: its essences and embers (the sim itself never salvages)
-    let sEss=0,sEmb=0;Object.keys(S.inv).forEach(id=>{const d=S.inv[id]-(inv0[id]||0),it=S.items[id];if(d>0&&!isEss(id)&&!isRefined(id)){sEss+=d*salvageYield(it).length;sEmb+=d*salvageEmbers(it)}});
+    let sEss=0,sEmb=0;Object.keys(S.inv).forEach(id=>{const d=S.inv[id]-(inv0[id]||0),it=S.items[id];if(d>0&&!isEss(id)){sEss+=d*salvageYield(it).length*plainEq(salvGrade(it));sEmb+=d*salvageEmbers(it)}});
     return{...r,embers:S.stats.earned,ess:essCount()-e0,items:itemCount()-i0,steps,sEss,sEmb};
   };
 }

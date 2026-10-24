@@ -1,5 +1,5 @@
 // ================= ENCOUNTERS =================
-// Choice-driven map events. ENC[type]={make(rv,hl) -> S.event, pick(choice,ev)}. rv = four 0-1 rolls, pre-rolled per node on the seeded daily map (see genMap)
+// Choice-driven map events. ENC[type]={make(rv,hl) -> S.event, pick(choice,ev)}. rv = four 0-1 rolls (+ four more, rv[4..7], that roll the grades of what it gives), pre-rolled per node on the seeded daily map (see genMap)
 // so the same day plays out alike. What depends on your satchel or gear (the item asked for, the healing item, the piece to temper) varies per player, like the peddler.
 // Every event ends in a "done" event with no choices (or a leave), so none can trap you.
 const evt=(type,icon,title,text,choices,x)=>({type,icon,title,text,loot:[],choices,sc:"",...x});
@@ -7,7 +7,7 @@ const endEv=(icon,title,text,loot,sc)=>{if(loot&&loot.length)sfx("loot");S.event
 const at=(a,x)=>a[Math.floor(x*a.length)];
 const spare=id=>avail(id)-eqCount(id)>0&&!S.items[id].legendary;
 const cheapest=ids=>ids.slice().sort((a,b)=>power(S.items[a])-power(S.items[b])||(a<b?-1:1))[0];
-const wanted=id=>SECRETS.some(s=>!found(s)&&s.ids.includes(id)),spareList=()=>Object.keys(S.inv).filter(id=>spare(id)&&!id.startsWith("ess_")&&!wanted(id)).sort((a,b)=>power(S.items[a])-power(S.items[b])||(a<b?-1:1)),spareGoods=()=>spareList()[0];
+const wanted=id=>SECRETS.some(s=>!found(s)&&s.ids.includes(id)),spareList=()=>Object.keys(S.inv).filter(id=>spare(id)&&!isEss(id)&&!wanted(id)).sort((a,b)=>power(S.items[a])-power(S.items[b])||(a<b?-1:1)),spareGoods=()=>spareList()[0];
 const takeOne=id=>{S.inv[id]--;trimBench()};
 const hurtYou=n=>{S.hp=Math.max(1,S.hp-n)};
 const RIDDLES=[["What is born in flame, sleeps in water, and wakes as a blade?","Steel",["Ash","Smoke"]],["The more you take from me, the larger I grow. What am I?","A hole",["A shadow","A fire"]],
@@ -22,18 +22,18 @@ const ENC={
       if(!ev.give||!spare(ev.give)||!S.inv[ev.give]){toast("You no longer have that item.");return endEv("shrine","The quiet shrine","The stones stay silent.")}
       const nm=S.items[ev.give].name,sc=ev.rv[0]<.6?giveHint(ev.rv[1]):"";takeOne(ev.give);
       if(sc)return endEv("shrine","The stones answer",`The moss swallows your ${nm}. A scroll unrolls where it lay.`,[],sc);
-      const e=essence(at(ESS_POOL,ev.rv[2]));addItem(e);endEv("shrine","The stones answer",`The moss swallows your ${nm}. A bead of light is left behind.`,[e])}},
+      const e=essNow(at(ESS_POOL,ev.rv[2]),ev.rv[4]);addItem(e);endEv("shrine","The stones answer",`The moss swallows your ${nm}. A bead of light is left behind.`,[e])}},
   altar:{make:rv=>{const a=Math.round(pstats().maxHp*.15),b=Math.round(pstats().maxHp*.4);
       return evt("altar","altar","A cursed altar","A black slab, slick with old offerings. Something that isn't quite a voice says: \"Blood buys power.\"",
         [...S.hp>a?[["small",`Prick a finger (-${a} HP, 1 essence)`]]:[],...S.hp>b?[["deep",`Open a vein (-${b} HP, 3 essences)`]]:[],["leave","Back away"]],{rv,a,b})},
     pick:(c,ev)=>{const cost=c==="deep"?ev.b:ev.a,n=c==="deep"?3:1;if(S.hp<=cost){toast("You're too weak for that.");return endEv("altar","The altar waits","You hesitate, and the moment passes.")}
-      hurtYou(cost);const k=Math.floor(ev.rv[0]*4),got=Array.from({length:n},(_,i)=>essence(ALTAR_ESS[(k+i)%4]));got.forEach(id=>addItem(id));
+      hurtYou(cost);const k=Math.floor(ev.rv[0]*4),got=Array.from({length:n},(_,i)=>essNow(ALTAR_ESS[(k+i)%4],ev.rv[4+i]));got.forEach(id=>addItem(id));
       endEv("altar","The altar drinks",`Your blood runs black across the stone. You lose ${cost} HP. The slab gives back what it owes.`,got)}},
   alchemist:{make:rv=>{const g=spareGoods(),nm=g&&S.items[g].name,unk=REACTIONS.some(([a,b])=>!S.knownR.includes(a+"+"+b));
       return evt("alchemist","alchemist","A wandering alchemist","A hooded alchemist stirs a pot that smells of three different weathers. \"Knowledge or essence, friend. Both cost something.\"",
         [...unk?[["lesson",g?`Trade your ${nm} for a lesson`:"Hear a free lesson (you've nothing to trade)"]]:[],...g?[["swap",`Trade your ${nm} for 2 essences`]]:[],["leave","Decline"]],{rv,give:g})},
     pick:(c,ev)=>{if(ev.give&&(!spare(ev.give)||!S.inv[ev.give])){toast("You no longer have that item.");return endEv("alchemist","The alchemist shrugs","\"Come back with something to trade.\"")}
-      if(c==="swap"){takeOne(ev.give);const got=[essence(at(ESS_POOL,ev.rv[1])),essence(at(ESS_POOL,ev.rv[2]))];got.forEach(id=>addItem(id));return endEv("alchemist","A fair swap",`The alchemist pockets your ${S.items[ev.give].name} and counts out two vials.`,got)}
+      if(c==="swap"){takeOne(ev.give);const got=[essNow(at(ESS_POOL,ev.rv[1]),ev.rv[4]),essNow(at(ESS_POOL,ev.rv[2]),ev.rv[5])];got.forEach(id=>addItem(id));return endEv("alchemist","A fair swap",`The alchemist pockets your ${S.items[ev.give].name} and counts out two vials.`,got)}
       const unk=REACTIONS.filter(([a,b])=>!S.knownR.includes(a+"+"+b));if(!unk.length)return endEv("alchemist","Nothing left to teach","\"You know all I know. Almost.\"");
       const [a,b,res,cons]=at(unk,ev.rv[0]);if(ev.give)takeOne(ev.give);S.knownR.push(a+"+"+b);
       endEv("alchemist","A lesson learned",`"Mark this," she says. ${a} and ${b} make ${res}${cons.length?"":", and keep both"}. It's in your recipe book now.`)}},
@@ -41,7 +41,7 @@ const ENC={
       return evt("traveller","traveller","A wounded traveller","A traveller slumps against a milestone, one hand pressed to his side. \"Please,\" he whispers. \"Anything that heals.\" His pack looks full.",
         [...med?[["tend",`Give him your ${S.items[med].name}`]]:[],["rob","Rob him (loot, but the next fight is an ambush)"],["leave","Walk on"]],{rv,give:med})},
     pick:(c,ev)=>{
-      if(c==="rob"){const p=zonePool(S.zone),got=[at(p,ev.rv[0]),at(p,ev.rv[1]),essence(at(ESS_POOL,ev.rv[2]))];got.forEach(id=>addItem(id));curMap().amb=true;
+      if(c==="rob"){const p=zonePool(S.zone),got=[dropNow(at(p,ev.rv[0]),ev.rv[4]),dropNow(at(p,ev.rv[1]),ev.rv[5]),essNow(at(ESS_POOL,ev.rv[2]),ev.rv[6])];got.forEach(id=>addItem(id));curMap().amb=true;
         return endEv("traveller","Ill-gotten gains","You take his pack while he's too weak to stop you. Somewhere behind you, a whistle. If your next stop is a fight, it starts with an ambush.",got)}
       if(!ev.give||!spare(ev.give)||!S.inv[ev.give]){toast("You no longer have that item.");return endEv("traveller","The traveller sighs","He closes his eyes.")}
       const nm=S.items[ev.give].name,rare=zoneRare(S.zone),got=[rare.length?at(rare,ev.rv[0]):at(zonePool(S.zone),ev.rv[0])];takeOne(ev.give);got.forEach(id=>addItem(id));
@@ -61,6 +61,6 @@ const ENC={
       return evt("riddle","mystery","A riddle stone",`A standing stone, its face worn smooth, speaks in gravel: "${q}"`,[...opts.map((a,i)=>[`ans:${i}`,a]),["leave","Walk away"]],{rv,ok:opts.indexOf(ans),ans})},
     pick:(c,ev)=>{const ans=ev.ans;
       if(+c.slice(4)!==ev.ok){const n=Math.round(pstats().maxHp*.1);hurtYou(n);return endEv("mystery","Wrong","The stone groans, and a shard of it cracks against your shoulder. You lose "+n+` HP. The answer was "${ans}".`)}
-      const e=essence(at(ESS_POOL,ev.rv[2])),sc=giveHint(ev.rv[3]),got=sc?[e]:[e,at(zonePool(S.zone),ev.rv[3])];got.forEach(id=>addItem(id));
+      const e=essNow(at(ESS_POOL,ev.rv[2]),ev.rv[4]),sc=giveHint(ev.rv[3]),got=sc?[e]:[e,dropNow(at(zonePool(S.zone),ev.rv[3]),ev.rv[5])];got.forEach(id=>addItem(id));
       endEv("mystery","Correct",`"${ans}." The stone rumbles and opens like a hand.`,got,sc)}}
 };
