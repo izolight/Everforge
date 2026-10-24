@@ -44,7 +44,7 @@ function combine(raw,o={}){
       log.push({k:"Reaction",t:`${a} + ${b} → ${res}`,warn:TRAITS[res].f==="bad"});inst+=3}
     if(!any)break}
   const secret=SECRETS.find(s=>s.ids.slice().sort().join("+")===key);
-  if(!secret&&inputs.some(i=>isRefined(i.id))){const sk=inputs.map(i=>i.id.replace(/^(ess_[A-Za-z]+)_2$/,"$1")).sort().join("+");if(SECRETS.some(s=>s.ids.slice().sort().join("+")===sk))log.push({k:"Refined",t:"A refined essence is too potent for this secret. Use a plain one."})}
+  if(!secret&&inputs.some(i=>gradeOf(i.id)!==3)){const sk=inputs.map(i=>baseIdOf(i.id)).sort().join("+");if(SECRETS.some(s=>s.ids.slice().sort().join("+")===sk))log.push({k:"Grade",t:"A graded ingredient throws this secret off. Secrets want Plain ones."})}
   let bon=null; // the secret's bonus always keeps a slot
   if(secret&&secret.bonus){const {trait:bt,v:bv}=secret.bonus;bon=[bt,r1((tr[bt]||0)+bv)];delete tr[bt];log.push({k:"Legendary",t:`The secret lends it +${bv} ${bt}.`})}
   const slots=traitSlots()-(bon?1:0),sorted=topTraits(tr);
@@ -66,7 +66,8 @@ function combine(raw,o={}){
   const score=([t,v])=>v+(t in base.traits?0:3)+(reacted.has(t)?1:0);
   const ranked=Object.entries(tr).filter(([t])=>TRAITS[t].adj.toLowerCase()!==noun.toLowerCase()).sort((a,b)=>score(b)-score(a)).map(x=>x[0]);
   const name=secret?secret.name:[...ranked.slice(0,2).map(t=>TRAITS[t].adj),noun].join(" ");
-  const item={id:mishap?"c_"+hash(key+"|"+mishap).toString(36):cleanId,name,form,noun,traits:tr,tier,crafted:true,legendary:!!secret,recipe:inputs.map(i=>i.name),recipeIds:inputs.map(i=>i.id),...mishap?{clean:cleanId}:{},...unweak?{mishap,unweak}:{}}; // a mishap gets its own id, so clean and flawed copies never stack
+  const sg=Math.min(...inputs.map(i=>i.grade||i.sg||3)); // salvaging it never returns a better grade than the worst thing it was made from
+  const item={id:mishap?"c_"+hash(key+"|"+mishap).toString(36):cleanId,name,form,noun,traits:tr,tier,crafted:true,legendary:!!secret,recipe:inputs.map(i=>i.name),recipeIds:inputs.map(i=>i.id),...sg!==3?{sg}:{},...mishap?{clean:cleanId}:{},...unweak?{mishap,unweak}:{}}; // a mishap gets its own id, so clean and flawed copies never stack
   if(form==="material"){const core=inputs.map(kindOf).find(k=>k!=="essence"&&k!=="relic");item.kind=core||(inputs.some(i=>kindOf(i)==="relic")?"relic":"essence")}
   return {item,log,inst:fail,fail,fiz,mis,diff,gap,skill:sk,lv,blocked,fizzle,mishap,cleanId,baseId:base.id,rxKeys};
 }
@@ -78,4 +79,4 @@ function statsOf(item){
   return out;
 }
 function power(it){const s=statsOf(it);return Math.round(s.atk+s.def+s.mag+s.spd*1.5+s.heal*.5)}
-function salvageYield(it){if(it.id.startsWith("ess_"))return[];return topTraits(it.traits).filter(([t])=>TRAITS[t].f!=="bad").slice(0,2).filter(([,v],i)=>i===0||v>=2).map(([t])=>t)}
+function salvageYield(it){if(it.id.startsWith("ess_"))return[];return topTraits(it.grade?baseItem(baseIdOf(it.id)).traits:it.traits).filter(([t])=>TRAITS[t].f!=="bad").slice(0,2).filter(([,v],i)=>i===0||v>=2).map(([t])=>t)}

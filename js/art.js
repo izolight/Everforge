@@ -35,7 +35,7 @@ const MAT={metal:["#f1f4f5","#9aa6ab","#4a5458"],wood:["#e0b07a","#93653a","#4a2
   glass:["#e8f8fb","#8fc6d4","#336170"],food:["#f8d28c","#cc8a44","#6a3f1c"],herbal:["#bde4a2","#62a24d","#2a5124"]};
 let gid=0;
 function matOf(it){
-  const k=ART_ID[it.id]||(grp(it)==="material"?kindOf(it):it.form),tr=topTraits(it.traits).map(x=>x[0]);
+  const k=ART_ID[baseIdOf(it.id)]||(grp(it)==="material"?kindOf(it):it.form),tr=topTraits(it.traits).map(x=>x[0]);
   if(k==="essence"||k==="relic"||k==="starheart"||k==="crystal"||k==="shard"||k==="feather")return null;
   if(k==="potion"||k==="elixir")return"glass";
   if(k==="food")return"food";if(k==="herb")return"herbal";if(k==="hide")return"hide";if(k==="ore")return tr.some(t=>TRAITS[t].f==="metal")?"metal":"stone";
@@ -44,7 +44,7 @@ function matOf(it){
 }
 // layered item art: base form + material gradient, then trait overlays (glow, frost, embers, drips, runes...)
 function art(it){
-  const id="a"+(gid++),tr=topTraits(it.traits),k=ART_ID[it.id]||(grp(it)==="material"?kindOf(it):it.form),top=tr[0]?tr[0][0]:null;
+  const id="a"+(gid++),tr=topTraits(it.traits),k=ART_ID[baseIdOf(it.id)]||(grp(it)==="material"?kindOf(it):it.form),top=tr[0]?tr[0][0]:null;
   const m=matOf(it);let pal=m?MAT[m]:null;
   if(!pal){const c=top?tColor(top):"#9c998c";pal=[shade(c,.6),c,shade(c,-.55)]}
   const has=f=>tr.filter(([t,v])=>TRAITS[t].f===f&&v>=1.5).length>0;
@@ -63,6 +63,8 @@ function art(it){
   if(poison)front+=`<g fill="${FAM.poison}"><path d="M24 55 q2.4 4 0 6.5 q-2.4 -2.5 0 -6.5Z"/><path d="M39 57 q2.4 4 0 6.5 q-2.4 -2.5 0 -6.5Z"/></g>`;
   if(sharp>=3&&grp(it)==="weapon")front+=`<path d="M49 4 l1.5 4 4 1.5 -4 1.5 -1.5 4 -1.5 -4 -4 -1.5 4 -1.5Z" fill="#fff" opacity=".95"/>`;
   if(bad)front+=`<path d="M25 21 l5 6 -3 5 6 7 -2 5" stroke="#e2593f" stroke-width="1.7" fill="none"/>`;
+  if(it.grade){const gc=GRADES[it.grade-1][1];if(it.grade>=4)back+=`<circle cx="32" cy="32" r="30" fill="none" stroke="${gc}" stroke-width="${it.grade-2}" opacity=".6"/>`; // grade: a ring for Greater and Pure, pips for every non-Plain grade
+    front+=Array.from({length:it.grade},(_,i)=>`<circle cx="${32+(i-(it.grade-1)/2)*6.5}" cy="60" r="2.4" fill="${gc}" stroke="#14100c" stroke-width=".8"/>`).join("")}
   if(it.legendary)back+=`<circle cx="32" cy="32" r="30" fill="none" stroke="#f2a54a" stroke-width="1.2" opacity=".7"/>`;
   return `<svg viewBox="0 0 64 64" aria-hidden="true"><defs>${defs}</defs>${back}<g transform="translate(6 6) scale(2.1667)" fill="url(#${id})" stroke="${shade(pal[2],-.55)}" stroke-width=".8" stroke-linejoin="round" stroke-linecap="round">${G[k]||G.material}</g>${front}</svg>`;
 }

@@ -30,7 +30,7 @@ $("gear").addEventListener("click",e=>{const b=e.target.closest("[data-gear]");i
   toast(s==="off"?"Equip a second weapon or a shield in your off hand.":`Tap a ${SLOTS.find(x=>x[0]===s)[1].toLowerCase()} item below to equip it.`)});
 document.querySelectorAll("#gtabs,#ftabs").forEach(el=>el.addEventListener("click",e=>{const b=e.target.closest("[data-tab]");if(!b)return;S.tab=b.dataset.tab;save();renderSatchels()}));
 $("ginv").addEventListener("click",e=>{const b=e.target.closest("[data-id]");if(b)openSheet(b.dataset.id)});
-$("refbtns").addEventListener("click",e=>{const b=e.target.closest("[data-refine]");if(b)refine(b.dataset.refine)});
+$("upgrows").addEventListener("click",e=>{const b=e.target.closest("[data-upgrade]");if(b)upgrade(b.dataset.upgrade)});
 $("infbtns").addEventListener("click",e=>{const b=e.target.closest("[data-infuse]");if(b&&!inBattle())infuse(b.dataset.infuse)});
 $("finv").addEventListener("click",e=>{const b=e.target.closest("[data-id]");if(!b)return;
   if(b.dataset.can==="1"&&!inBattle()){S.bench.push(b.dataset.id);save();render()}else openSheet(b.dataset.id)});
@@ -51,8 +51,8 @@ $("sheet").addEventListener("click",e=>{const b=e.target.closest("[data-act]");i
   if(a==="add"){S.bench.push(id);closeSheet();go("forge");toast(`${it.name} added to the crucible.`);return}
   if(a==="salvage"){
     if(!salvageArmed){salvageArmed=true;return openSheet(id,true)}
-    const ys=salvageYield(it);S.inv[id]--;trimBench();settleGear(null);S.stats.salvaged++;
-    ys.forEach(t=>addItem(essence(t)));const em=gainEmbers(salvageEmbers(it));closeSheet();toast(`Salvaged into ${ys.join(" and ")} Essence${em?` and ${em} embers`:""}.`)}
+    const ys=salvageYield(it),sg=salvGrade(it);S.inv[id]--;trimBench();settleGear(null);S.stats.salvaged++;
+    ys.forEach(t=>addItem(essG(t,sg)));const em=gainEmbers(salvageEmbers(it));closeSheet();toast(`Salvaged into ${ys.map(t=>S.items[gradedId("ess_"+t,sg)].name).join(" and ")}${em?` and ${em} embers`:""}.`)}
   if(a==="reforge")return reforge(id);
   save();render()});
 $("combine").onclick=()=>{
@@ -112,6 +112,7 @@ let armed=false;$("reset").onclick=e=>{
   if(!armed){armed=true;e.target.textContent="Tap again to erase all progress";setTimeout(()=>{armed=false;e.target.textContent="Start a new game"},3000);return}
   S=freshState();armed=false;e.target.textContent="Start a new game";save();go("battle");toast("A new journey begins.")};
 
+try{const ud=$("upgd");ud.open=localStorage.getItem("everforge-upgopen")==="1";ud.addEventListener("toggle",()=>{try{localStorage.setItem("everforge-upgopen",ud.open?"1":"0")}catch(e){}})}catch(e){}
 try{const sd=$("statsd");sd.open=localStorage.getItem("everforge-statsopen")==="1";sd.addEventListener("toggle",()=>{try{localStorage.setItem("everforge-statsopen",sd.open?"1":"0")}catch(e){}})}catch(e){}
 try{render()}catch(e){ // a bad stored run should not cost the whole save: drop the transient parts first
   try{S.daily=null;S.run=null;S.battle=null;S.event=null;render()}catch(e2){S=freshState();save();render()}}
