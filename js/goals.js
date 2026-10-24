@@ -18,7 +18,7 @@ function newBounty(){
 }
 function goal(){
   if(S.quest<TUTORIAL.length){const q=TUTORIAL[S.quest];
-    let prog="";if(S.quest===5&&!S.kills.gnarlhorn){const m=S.maps.woods;prog=`map row ${m&&m.pos?m.pos.r+1:0}/${MAP_ROWS}`}
+    let prog="";if(S.quest===5&&!S.kills.gnarlhorn){const m=S.maps.woods;prog=`map depth ${m&&m.steps?m.dp+1:0}/${MAP_ROWS}`}
     return{step:`Step ${S.quest+1} of ${TUTORIAL.length}`,text:q.text,tab:q.tab,done:q.done(S),reward:q.reward,prog}}
   if(!S.bounty){S.bounty=newBounty();save()}
   const b=S.bounty;

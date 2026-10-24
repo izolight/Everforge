@@ -7,7 +7,7 @@ const salvageEmbers=it=>isEss(it.id)?0:Math.max(1,Math.round(worth(it)*EMB.salv)
 function spendEmbers(n){S.embers-=n;S.stats.spent+=n}
 function gainEmbers(n){if(n>0){S.embers+=n;S.stats.earned+=n;fx("emb","+"+n,"ember")}return n}
 function fightEmbers(E,B){const base=E.boss?EMB.boss:B.elite||B.id==="mimic"?EMB.elite:EMB.fight;return gainEmbers(Math.round(base*(1+(B.heat||0)*EMB.heat)))}
-// Peddler stock: EMB.stock items from this zone's and the next zone's drops plus one or two essences. rv = six 0-1 rolls (pre-rolled per node on the seeded daily map), so the same day shows the same shop.
+// Peddler stock: EMB.stock items from this zone's and the next zone's drops plus one or two essences. rv = six 0-1 rolls (pre-rolled per POI on the seeded daily map), so the same day shows the same shop.
 function shopStock(rv){
   const next=ZONES[Math.min(zoneIdx(S.zone)+1,ZONES.length-1)][0],pool=[...new Set([...zonePool(S.zone),...zonePool(next)])],ids=[];
   const fr=(x,n)=>x*n%1; // the fraction of a roll left after picking an index is a fresh roll for the grade

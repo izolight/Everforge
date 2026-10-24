@@ -14,7 +14,7 @@ async function run(label,setup){
   if(setup){await page.evaluate(setup);await page.reload()}
   await page.waitForFunction(()=>typeof S==="object"&&S);
   const stats=await page.evaluate(async steps=>{
-    const sleep=ms=>new Promise(r=>setTimeout(r,ms)),out={steps:0,battles:0,won:0,lost:0,forged:0,zones:new Set(),views:0,wields:0,abil:0,heat:0,daily:0,aband:0,bought:0,sold:0,upgraded:0,reforged:0,bad:[]};
+    const sleep=ms=>new Promise(r=>setTimeout(r,ms)),out={steps:0,battles:0,won:0,lost:0,forged:0,zones:new Set(),views:0,wields:0,abil:0,tiles:0,outs:0,heat:0,daily:0,aband:0,bought:0,sold:0,upgraded:0,reforged:0,bad:[]};
     const click=el=>{el.click();return true};let wantZone=null,doChores=false,wantWield=false,wantHeat=false,wantDaily=false,wantAband=false,wantShop=false;
     const q=s=>document.querySelector(s),qa=s=>[...document.querySelectorAll(s)];
     for(let i=0;i<steps;i++){out.steps++;
@@ -25,6 +25,7 @@ async function run(label,setup){
       if(i%10===9)wantWield=true;
       if(wantWield&&!busy()){wantWield=false;wield()}
       if(i%37===5)wantHeat=true;
+      if(i%70===33&&!busy()){curMap().torch=0;render()} // the torch dying: dim light, ambushes
       if(i%53===17)wantDaily=true;
       if(i%29===3)wantAband=true;
       if(i%47===11)wantShop=true;
@@ -52,14 +53,22 @@ async function run(label,setup){
       if(sc&&sc.length&&Math.random()<.7){const b=sc[Math.floor(Math.random()*sc.length)];out[b.dataset.choice[0]==="b"?"bought":"sold"]++;click(b);continue}
       const choice=Math.random()<.35?cs[Math.floor(Math.random()*cs.length)]:cs.find(b=>b.dataset.choice!=="inspect"&&b.dataset.choice!=="leave")||cs[0]; // sometimes any choice, so leave and the odd ones run too
       if(choice){click(choice);continue}
-      const nodes=qa("#arena [data-node]:not([disabled])");
-      if(wantShop&&nodes.length){wantShop=false;const n=nodes[Math.floor(Math.random()*nodes.length)],[r,c]=n.dataset.node.split(",").map(Number);if(r<MAP_ROWS-1)curMap().rows[r][c].t="peddler";click(n);continue} // force a peddler so the shop gets exercised
-      if(nodes.length){click(nodes[Math.floor(Math.random()*nodes.length)]);continue}
+      const tiles=qa("#arena [data-tile]");
+      if(wantShop&&tiles.length){wantShop=false;const n=tiles[Math.floor(Math.random()*tiles.length)],[x,y]=n.dataset.tile.split(",").map(Number),m=curMap();let p=poiAt(m,x,y);if(!p||p.t!=="boss"){if(!p)m.pois.push(p={x,y,r:0});p.t="peddler";p.done=false;p.sh=null}click(n);out.tiles++;continue} // force a peddler so the shop gets exercised
+      if(tiles.length){click(explore(tiles));out.tiles++;if(curMap().torch<=0)out.outs++;continue}
       const cont=q("#cont")||q("#again");
       if(cont){click(cont);continue}
       const claim=q("#claim");if(claim){click(claim);continue}
       await chores();
     }
+    // explore: step towards the nearest unvisited POI (as last seen) or unexplored edge by BFS over seen tiles; the lair once most of the map is done or the bot has walked a while; sometimes a random step
+    function explore(tiles){
+      const m=curMap(),W=m.w,H=m.h;if(Math.random()<.1)return tiles[Math.floor(Math.random()*tiles.length)];
+      const goalLair=m.steps>45||Math.random()<.02,dist=Array(W*H).fill(-1),first=Array(W*H).fill(null),q=[[m.pos.x,m.pos.y]];dist[m.pos.y*W+m.pos.x]=0;
+      const want=(x,y)=>{const t=m.mem[x+","+y];if(t)return goalLair?t==="boss":t!=="boss";return !goalLair&&[[1,0],[-1,0],[0,1],[0,-1]].some(([a,b])=>inb(m,x+a,y+b)&&!m.sn[(y+b)*W+x+a])};
+      for(let k=0;k<q.length;k++){const [x,y]=q[k];if(k&&want(x,y)){const f=first[y*W+x];const b=tiles.find(t=>t.dataset.tile===f.join());if(b)return b}
+        DIRS.forEach(([a,b])=>{const u=x+a,v=y+b;if(walk(m,u,v)&&m.sn[v*W+u]&&dist[v*W+u]<0){dist[v*W+u]=1;first[v*W+u]=k?first[y*W+x]:[u,v];q.push([u,v])}})}
+      return tiles[Math.floor(Math.random()*tiles.length)]}
     function wield(){ // each weapon form in turn (and sometimes a shield) so every signature ability gets exercised
       const wf=Object.keys(FORMS).filter(k=>FORMS[k].g==="weapon"),f=wf[out.wields++%wf.length],id="t_"+f,tr=pick([{Fire:2,Sharp:2},{Ice:3,Arcane:1},{Poison:2,Heavy:1},{Holy:2,Tempered:2},{Shadow:2}]);
       S.items[id]={id,name:"Test "+FORMS[f].label,form:f,noun:FORMS[f].label,traits:tr,tier:1,crafted:true};addItem(id);equip(id,"main");
@@ -79,7 +88,7 @@ async function run(label,setup){
       go("gear");{const cb=qa("#ginv [data-id]").find(b=>b.dataset.id==="t_curse");if(cb){cb.click();const rg=q("#sheet [data-act='reforge']:not([disabled])");if(rg){rg.click();out.reforged++}else closeSheet()}}
       go("gear");const it=qa("#ginv [data-id]").find(b=>!eqCount(b.dataset.id));if(it){it.click();const sv=q("#sheet [data-act='salvage']");if(sv&&Math.random()<.5){sv.click();q("#sheet [data-act='salvage']")?.click()}closeSheet()}
       const inf=q("#infbtns [data-infuse]");if(inf)inf.click();
-      go("battle");if(!qa("#arena [data-node]:not([disabled])").length)q("#again")?.click();
+      go("battle");if(!qa("#arena [data-tile]").length)q("#again")?.click();
     }
     await sleep(500);
     out.zones=[...out.zones];out.save=localStorage.getItem(KEY);out.key=KEY;out.v=S.v;
@@ -99,6 +108,7 @@ async function run(label,setup){
   if(fresh.stats.bad.length){failed=true;console.error(fresh.stats.bad.join("\n"))}
   const st=fresh.stats;if(!st.bought||!st.sold||!st.upgraded||!st.reforged){failed=true;console.error(`The bot never exercised the economy (bought ${st.bought}, sold ${st.sold}, upgraded ${st.upgraded}, reforged ${st.reforged}).`)}
   if(!fresh.stats.heat||!fresh.stats.daily){failed=true;console.error("The bot never exercised heat or the daily.")}
+  if(fresh.stats.tiles<30){failed=true;console.error("The bot barely explored the map.")}
   if(fresh.stats.battles<3){failed=true;console.error("Too few battles completed; the loop got stuck.")}
   // Every old save fixture must still load (migrations) and play without errors.
   for(const f of fs.readdirSync(FIX).filter(f=>f.endsWith(".json")).sort()){

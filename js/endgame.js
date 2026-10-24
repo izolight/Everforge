@@ -1,5 +1,5 @@
 // ================= DAILY EXPEDITION =================
-// One seeded run per UTC day: same map, node types and enemy picks for everyone. S.daily={date,seed,zone,heat,twist,map,state:"run"|"done",turns,back,result}; S.run==="daily" while it is being played (curMap() then returns S.daily.map).
+// One seeded run per UTC day: same map, POIs and enemy picks for everyone. S.daily={date,seed,zone,heat,twist,map,state:"run"|"done",turns,back,result}; S.run==="daily" while it is being played (curMap() then returns S.daily.map).
 const today=()=>new Date().toISOString().slice(0,10),dailyReady=()=>(S.kills[ZONES[0][2]]||0)>0;
 function dailyPlan(date){ // zone, heat (1-3) and twist all come from the date; a zone you haven't opened falls back to the highest one you have
   const seed=hash(date),R=rng(seed),want=ZONES[Math.floor(R()*ZONES.length)][0],heat=1+Math.floor(R()*3),tw=Object.keys(DAILY_TWISTS),twist=tw[Math.floor(R()*tw.length)];
@@ -24,7 +24,7 @@ let dArmed=false;
 function abandonDaily(){
   if(S.run!=="daily"||busy())return;
   if(!dArmed){dArmed=true;render();setTimeout(()=>{dArmed=false;render()},3000);return}
-  dArmed=false;const m=S.daily.map;finishDaily(m.pos?m.pos.r+1:0,false);toast("You abandon the expedition. Tomorrow brings another.");save();render();
+  dArmed=false;const m=S.daily.map;finishDaily(m.steps?m.dp:0,false);toast("You abandon the expedition. Tomorrow brings another.");save();render();
 }
 const zoneRare=z=>[...new Set(Object.values(ENEMIES).filter(e=>e.zone===z&&!e.boss).flatMap(e=>e.drops.filter(d=>d[1]<=.2).map(d=>d[0])))];
 function dailyBundle(got){ // boss kill: essences + one rare drop (same for everyone) + smith XP
@@ -34,4 +34,4 @@ function dailyBundle(got){ // boss kill: essences + one rare drop (same for ever
   if(rare.length){const r=rare[Math.floor(R()*rare.length)];got.push(gdrop(r,d.zone,gh,R()))}
   const hm=giveHint(R());S.xp+=DAILY_REWARD.xp;blog(`Daily reward: ${DAILY_REWARD.ess} essences, a rare find${hm?", a hint scroll":""} and ${DAILY_REWARD.xp} smith XP.`,"big");if(hm)blog(hm,"good");
 }
-const dailyResult=r=>`${r.boss?"Boss beaten":`Fell after ${r.rows} of ${MAP_ROWS} rows`} · ${r.turns} turns`;
+const dailyResult=r=>`${r.boss?"Boss beaten":`Fell at depth ${r.rows} of ${MAP_ROWS-1}`} · ${r.turns} turns`;
