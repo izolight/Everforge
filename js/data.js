@@ -191,7 +191,7 @@ const TORCH={max:40,rad:2,dim:1,amb:.3,shrine:20,rest:15,h5:1.5,nocamp:20};
 const ROAM={aw:4,dark:6,heat:1,elite:2,lose:8,daze:3,stay:.4};
 const INF_SLOTS=3,INF_COST=3,INF_MAX=3,CRIT_CAP=75,FREEZE_CAP=60;
 // damage model: armor cuts a blow by def/(def+DEF_K) (a mild curve, so stacking Defense keeps paying but slowly); an enemy hit never falls below HIT_MIN of its raw damage, whatever Defense, resists or Stone you stack, and armor eats a share arm/(arm+base) of your own blow (base = half your strike power), so a weak strike still gets through. Magic counts MAG_W as much as Attack in every normal strike.
-const DEF_K=50,HIT_MIN=.3,MAG_W=1.3,redOf=d=>d/(d+DEF_K);
+const DEF_K=50,HIT_MIN=.2,MAG_W=1.3,redOf=d=>d/(d+DEF_K);
 // trait combat tunables: res = elemental defense from armor traits, ward = Runic, pierce = Arcane, shred = Tempered
 const RES_PER=5,RES_CAP=40,RES_ALT={Fur:[["ice",1],["wood",1]],Insulated:[["ice",2.5]]},RES_MSG={ice:"Your fur-lined gear blunts the cold.",fire:"Your gear turns aside the heat.",poison:"Your gear keeps the venom at bay.",holy:"Your gear dulls the glare.",shadow:"Your gear holds the gloom back.",wood:"Your gear shrugs off the thorns.",metal:"Your gear turns the blades.",stone:"Your gear absorbs the crushing blows.",arcane:"Your gear scatters the stray magic.",swift:"Your gear slows the flurry."};
 const ARC_PER=12,ARC_CAP=60,WARD_PER=4,WARD_CAP=40,THORN_PER=4,THORN_CAP=30,STONE_DR=.6,STONE_CAP=6,SHRED_PER=1.5,SHRED_CAP=6,ROOT_PER=1.5,ROOT_CAP=8,DODGE_PER=4,DODGE_CAP=25,MED_PER=.1,MED_CAP=.5,MED_REGEN=.5;
@@ -245,6 +245,7 @@ const gradable=b=>/^ess_[A-Za-z]+$/.test(b)||(!!BASE[b]&&BASE[b][1]==="material"
 const VIEWS=["battle","gear","forge","recipes","codex"];
 // Heat: harder expeditions in a cleared zone, cumulative per level: every level adds hp/atk to all enemies (it ramps, 1.0x at Heat 0), and Heat 5 enemies bite through `bite` of your Defense. Beating the boss at heat h unlocks h+1.
 const HEAT_MAX=5,HEAT_T={hp:.1,atk:.1,bite:.4,elite:2,inf:1.5,affix:.2,boss:1.2,rest:.25,shrine:.5,loot:.15,ess:1,xp:20};
+const heatTot=h=>`enemies get +${Math.round(h*HEAT_T.hp*100)}% HP and +${Math.round(h*HEAT_T.atk*100)}% Attack`;
 const HEAT=[
   {name:"Kindled",desc:`Enemies have +${Math.round(HEAT_T.hp*100)}% HP and +${Math.round(HEAT_T.atk*100)}% Attack. Every Heat level adds the same again.`},
   {name:"Smoldering",desc:"Elites and random elite upgrades are twice as likely, and each map hides one extra elite."},

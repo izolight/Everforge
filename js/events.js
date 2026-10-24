@@ -114,6 +114,7 @@ let armed=false;$("reset").onclick=e=>{
 
 try{const ud=$("upgd");ud.open=localStorage.getItem("everforge-upgopen")==="1";ud.addEventListener("toggle",()=>{try{localStorage.setItem("everforge-upgopen",ud.open?"1":"0")}catch(e){}})}catch(e){}
 try{const sd=$("statsd");sd.open=localStorage.getItem("everforge-statsopen")==="1";sd.addEventListener("toggle",()=>{try{localStorage.setItem("everforge-statsopen",sd.open?"1":"0")}catch(e){}})}catch(e){}
+const RV={defk:DEF_K,hitmax:Math.round((1-HIT_MIN)*100),magw:MAG_W,pmiss:Math.round((1-PARRY_CH)*100)};document.querySelectorAll("[data-k]").forEach(e=>e.textContent=RV[e.dataset.k]);
 try{render()}catch(e){ // a bad stored run should not cost the whole save: drop the transient parts first
   try{S.daily=null;S.run=null;S.battle=null;S.event=null;render()}catch(e2){S=freshState();save();render()}}
 if(migNote){migNote=false;toast("A map was redrawn. Your expedition there starts fresh.")}
