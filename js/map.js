@@ -21,7 +21,9 @@ function genMap(o){
     while(go[0]!==sx){go[0]+=go[0]<sx?1:-1;keep.add(key(...go))}
     let g=Array.from({length:H},(_,y)=>Array.from({length:W},(_,x)=>keep.has(key(x,y))?".":R()<.3?"#":"."));
     for(let p=0;p<2;p++)g=g.map((row,y)=>row.map((t,x)=>{if(keep.has(key(x,y)))return t;let n=0;for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++)if(dx||dy){const u=x+dx,v=y+dy;if(u<0||v<0||u>=W||v>=H||g[v][u]==="#")n++}return n>=5?"#":n<=3?".":t}));
-    for(let x=0;x<W;x++)if(x!==sx)g[0][x]="#";g[1][sx+1]="#";g[0][sx]=".";
+    for(let x=0;x<W;x++)if(x!==sx)g[0][x]="#";g[1][sx+1]="#";
+    for(const by of [4,8]){const gaps=new Set([...Array(W).keys()].filter(x=>keep.has(key(x,by))));gaps.add(Math.floor(R()*W));for(let x=0;x<W;x++)if(!gaps.has(x))g[by][x]="#"} // two wall bands with a gap each force detours
+    g[0][sx]=".";
     m.g=g.map(r=>r.join(""));const d=bfs(m,sx,H-1);
     g=g.map((row,y)=>row.map((t,x)=>d[y*W+x]<0?"#":t));m.g=g.map(r=>r.join(""));
     const fl=g.flat().filter(t=>t!=="#").length;if(fl>=60&&fl<=92)break}

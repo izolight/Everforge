@@ -84,7 +84,7 @@ function migrate(s){
       Object.values(s.items).forEach(it=>{if(!isObj(it))return;if(it.clean)it.clean=fix(it.clean);if(Array.isArray(it.recipeIds))it.recipeIds=it.recipeIds.map(fix);if(it.recipe)it.recipe=nm(it.recipe)});
       if(isObj(s.last)){if(s.last.id)s.last.id=fix(s.last.id);if(s.last.baseId)s.last.baseId=fix(s.last.baseId);s.last.recipe=nm(s.last.recipe);if(isObj(s.last.item)){s.last.item.id=fix(s.last.item.id);if(Array.isArray(s.last.item.recipeIds))s.last.item.recipeIds=s.last.item.recipeIds.map(fix);s.last.item.recipe=nm(s.last.item.recipe)}}}}
   if(s.v===11){s.v=12; // node maps become tile grids: old maps can't convert, so they are dropped (new ones generate on demand)
-    s.maps={};s.battle=null;s.event=null;
+    s.maps={};s.battle=null;s.event=null;migNote=true;
     const d=s.daily;if(isObj(d)&&d.state==="run"){ // a daily in progress keeps no replay: it ends with what it had reached
       const r=isObj(d.map)&&Array.isArray(d.map.rows)&&isObj(d.map.pos)?Math.max(0,Math.min(MAP_ROWS-1,(d.map.pos.r|0)+1)):0;
       d.state="done";d.result={rows:r,boss:false,turns:d.turns|0};s.run=null;if(ZONES.some(z=>z[0]===d.back))s.zone=d.back;if(isObj(s.stats)){s.stats.dailies=(s.stats.dailies|0)+1;if(!isObj(s.stats.dBest))s.stats.dBest={...d.result}}}
@@ -115,7 +115,7 @@ function migrate(s){
   if(!VIEWS.includes(s.view))s.view="battle";
   return s;
 }
-let S=null;
+let migNote=false,S=null; // migNote: a migration redrew the maps (shown once as a toast after load)
 try{S=JSON.parse(localStorage.getItem(KEY)||"null");if(!S)for(const k of OLD_KEYS){S=JSON.parse(localStorage.getItem(k)||"null");if(S)break}}catch(e){S=null}
 const hotS=window.claude?.hot?.data?.S;if(hotS)S=hotS;
 try{S=migrate(S)}catch(e){S=null}

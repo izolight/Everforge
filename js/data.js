@@ -186,7 +186,7 @@ const TUTORIAL=[
 // the map is a GRID.w x GRID.h tile grid; MAP_ROWS is its depth scale (0..5 by distance from the start, 6 = the lair) that sets enemy scaling and the daily's "depth reached"
 const MAP_ROWS=7,GRID={w:9,h:13},POI_N={fight:[5,3],elite:[1,2],chest:2,shrine:2,peddler:1,mystery:3}; // [min,spread]: fights 5-7, elites 1-2 (doubled at Heat 2+)
 // torchlight: the torch drains 1 per step (Heat 5: h5 per step); at 0 light drops to dim and every step risks an ambush (amb); shrine/rest refill
-const TORCH={max:60,rad:2,dim:1,amb:.3,shrine:30,rest:20,h5:1.5,nocamp:30};
+const TORCH={max:40,rad:2,dim:1,amb:.3,shrine:20,rest:15,h5:1.5,nocamp:20};
 const INF_SLOTS=3,INF_COST=3,INF_MAX=3,CRIT_CAP=75,FREEZE_CAP=60;
 // trait combat tunables: res = elemental defense from armor traits, ward = Runic, pierce = Arcane, shred = Tempered
 const RES_PER=5,RES_CAP=40,RES_ALT={Fur:[["ice",1],["wood",1]],Insulated:[["ice",2.5]]},RES_MSG={ice:"Your fur-lined gear blunts the cold.",fire:"Your gear turns aside the heat.",poison:"Your gear keeps the venom at bay.",holy:"Your gear dulls the glare.",shadow:"Your gear holds the gloom back.",wood:"Your gear shrugs off the thorns.",metal:"Your gear turns the blades.",stone:"Your gear absorbs the crushing blows.",arcane:"Your gear scatters the stray magic.",swift:"Your gear slows the flurry."};
@@ -243,7 +243,7 @@ const VIEWS=["battle","gear","forge","recipes","codex"];
 const HEAT_MAX=5,HEAT_T={hp:.15,elite:2,inf:1.5,affix:.2,boss:1.2,rest:.25,shrine:.5,loot:.15,ess:1,xp:20};
 const HEAT=[
   {name:"Kindled",desc:"Enemies have +15% HP and Attack."},
-  {name:"Smoldering",desc:"Elite nodes and random elites are twice as likely, and each map hides one extra elite."},
+  {name:"Smoldering",desc:"Elites and random elite upgrades are twice as likely, and each map hides one extra elite."},
   {name:"Blazing",desc:"Enemy status effects land 1.5x as often, and random elemental elites turn up far more often."},
   {name:"Searing",desc:"Bosses use their special one turn sooner (at least every 2) and have +20% HP."},
   {name:"Inferno",desc:"Camps only offer rest, and it heals less (25%). Shrines heal half as much."}

@@ -100,7 +100,7 @@ function setup(){ // runs inside the game page; everything here uses the real ga
   };
   // one fight on a fresh copy of the kit's save; returns {w,t,hp}
   SIM.fight=(snap,id,heat,pol,o)=>{
-    S=JSON.parse(snap);const E=ENEMIES[id];S.zone=id==="mimic"?o.zone:E.zone;S.hp=pstats().maxHp;S.maps[S.zone]={heat,rows:[],path:[]};S.run=null;
+    S=JSON.parse(snap);const E=ENEMIES[id];S.zone=id==="mimic"?o.zone:E.zone;S.hp=pstats().maxHp;S.maps[S.zone]=genMap({heat});S.run=null;
     startBattle(id,{row:E.boss||id==="mimic"?0:o.row,up:!!o.elite,elite:!!o.elite,af:o.af});
     const B=S.battle;let g=0;while(S.battle===B&&!B.over&&B.turn<150&&g++<600)POL[pol](B);
     const won=B.over==="won";return{w:won?1:0,t:B.turn,hp:won?S.hp/pstats().maxHp:0};
@@ -113,7 +113,7 @@ function setup(){ // runs inside the game page; everything here uses the real ga
   // attrition: a typical expedition (4 regulars at rows 1-4, then the boss) on one HP bar; a 35% heal after fights 2 and 4 stands in for shrine/camp
   SIM.attr=(snap,zone,heat,pol,n,o)=>{
     useSeed(o.seed,["attr",zone,heat,pol,o.kit].join());let clear=0,fights=0;
-    for(let i=0;i<n;i++){S=JSON.parse(snap);S.zone=zone;S.hp=pstats().maxHp;S.maps[zone]={heat,rows:[],path:[]};let ok=true;
+    for(let i=0;i<n;i++){S=JSON.parse(snap);S.zone=zone;S.hp=pstats().maxHp;S.maps[zone]=genMap({heat});let ok=true;
       for(let f=0;f<5&&ok;f++){const id=f<4?pickEnemy(zone):ZONES[zoneIdx(zone)][2];startBattle(id,{row:f<4?f+1:0,up:false,elite:false});
         const B=S.battle;let g=0;while(S.battle===B&&!B.over&&B.turn<150&&g++<600)POL[pol](B);
         if(B.over!=="won"){ok=false;break}fights++;if(f===1||f===3)healYou(Math.round(pstats().maxHp*.35))}

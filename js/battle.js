@@ -219,5 +219,5 @@ function youFall(){
   blog(`You collapse and wake at the edge of ${zn} with ${S.hp} HP. ${dl?"Your daily expedition is over.":"The paths have shifted."}${lost?` A scavenger made off with your ${S.items[lost].name}.`:""}`,"foe");
   save();render();
 }
-function rest(){const P=pstats();if(twistNow()==="nocamp")return toast("No campfires on this expedition.");if(S.camp<=0||S.hp>=P.maxHp)return;S.camp--;const g=healYou(Math.round(P.maxHp*.5)),m=curMap(),lit=m.cleared?0:torchUp(TORCH.rest);save();render();toast(`You rest by the fire and recover ${g} HP.${lit?` Your torch burns brighter (+${lit}).`:""}`)}
+function rest(){const P=pstats();if(twistNow()==="nocamp")return toast("No campfires on this expedition.");const m0=curMap();if(S.camp<=0||(S.hp>=P.maxHp&&(m0.cleared||m0.torch>=m0.tmax)))return;S.camp--;const g=healYou(Math.round(P.maxHp*.5)),m=curMap(),lit=m.cleared?0:torchUp(TORCH.rest);save();render();toast(`You rest by the fire and recover ${g} HP.${lit?` Your torch burns brighter (+${lit}).`:""}`)}
 function trimBench(){const seen={};S.bench=S.bench.filter(id=>{seen[id]=(seen[id]||0)+1;return seen[id]<=(S.inv[id]||0)})}
