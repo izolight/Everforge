@@ -85,7 +85,7 @@ function campbar(){
   const P=pstats(),low=S.hp/P.maxHp<.35;
   if(twistNow()==="nocamp")return `${low?`<p class="warn-text">You're badly hurt. Eat something before your next fight.</p>`:""}<p class="foot" style="text-align:center">No campfires on this expedition.</p>`;
   return `${low?`<p class="warn-text">You're badly hurt. Eat something or rest before your next fight.</p>`:""}
-  <div class="actions"><button class="btn grow" id="rest" ${S.camp>0&&S.hp<P.maxHp?"":"disabled"}>${icon("camp").replace("<svg","<svg style='width:18px;height:18px;vertical-align:-3px;margin-right:6px'")}Rest at campfire · ${S.camp} left</button></div>
+  <div class="actions"><button class="btn grow" id="rest" ${S.camp>0&&(S.hp<P.maxHp||(!curMap().cleared&&curMap().torch<curMap().tmax))?"":"disabled"}>${icon("camp").replace("<svg","<svg style='width:18px;height:18px;vertical-align:-3px;margin-right:6px'")}Rest at campfire · ${S.camp} left</button></div>
   <p class="foot" style="text-align:center">Campfire heals 50% and adds ${TORCH.rest} torch. Next charge in ${3-S.campProg} win${3-S.campProg===1?"":"s"}${S.camp>=3?" (pouch full)":""}.</p>`;
 }
 function foeStage(B){
@@ -110,7 +110,7 @@ function mapHead(){
   const m=curMap(),dl=S.run==="daily",d=S.daily,h=m.heat||0,hz=heatOf(S.zone);
   const amb=m.amb?`<p class="foot ambn">A whistle sounds behind you. If your next stop is a fight, it starts with an ambush.</p>`:"",
     tp=Math.round(100*m.torch/m.tmax),tc=m.torch<=0?" out":m.torch<=TORCH.max/6?" low":"",
-    torch=`<span class="torchb${tc}" role="img" aria-label="Torch ${m.torch} of ${m.tmax}">${icon("torch")}<span class="tbar"><i style="width:${tp}%"></i></span><b>${m.torch}</b></span>`,
+    torch=m.cleared?"":`<span class="torchb${tc}" role="img" aria-label="Torch ${m.torch} of ${m.tmax}">${icon("torch")}<span class="tbar"><i style="width:${tp}%"></i></span><b>${m.torch}</b></span>`,
     dark=m.torch<=0&&!m.cleared?`<p class="foot ambn">Your torch has guttered out. You see only one tile around you, and every step risks an ambush. A camp or shrine will relight it.</p>`:"";
   if(!dl&&!h&&!hz.max)return `<div class="maphead mini"><div class="mh1"><b>${zoneName(S.zone)}</b>${torch}</div>${dark}${amb}</div>`;
   const mods=[...dl?[`<li><b>${DAILY_TWISTS[d.twist].name}</b> ${DAILY_TWISTS[d.twist].desc}</li>`]:[],...HEAT.slice(0,h).map((x,i)=>`<li><b>Heat ${i+1} · ${x.name}</b> ${x.desc}</li>`)];
