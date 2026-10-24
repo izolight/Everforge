@@ -18,12 +18,21 @@ function cmpBlock(it,other,label){
 function hpBar(cur,max,cls){const p=Math.max(0,cur)/max;return `<div class="bar ${cls||(p<.3?"low":"")}"><i style="width:${p*100}%"></i></div>`}
 const lootChips=ids=>ids.map(id=>`<button class="chip" data-item="${id}" style="color:var(--accent)">${S.items[id].name}</button>`).join("");
 
+const shopRow=(id,label,c,off)=>`<div class="shoprow"><button class="chip" data-item="${id}" style="color:var(--accent)">${S.items[id].name}</button><button class="btn sm" data-choice="${c}" ${off?"disabled":""}>${label}</button></div>`;
+const shopHtml=ev=>`<div class="shop"><p class="label">For sale · you have ${S.embers} embers</p>${ev.stock.map((e,i)=>e.done?"":shopRow(e.id,`${icon("ember")}${e.price}`,`buy:${i}`,S.embers<e.price)).join("")}
+  ${ev.sells.some(e=>!e.done)?`<p class="label">Sell a spare</p>${ev.sells.map((e,i)=>e.done?"":shopRow(e.id,`Sell +${e.price}`,`sell:${i}`)).join("")}`:""}</div>`;
+function renderRefine(){
+  $("refinfo").textContent=`${REFINE_N} essences of one kind and ${EMB.refine} embers make one refined essence: a stronger trait (${REFINE_VALUE} instead of ${ESS_VALUE}) in a single crucible slot. It also counts as ${REFINE_N} essences for infusion.`;
+  const ts=[...new Set(Object.keys(S.items).filter(isEss).map(id=>id.slice(4)))].filter(t=>avail("ess_"+t)>=REFINE_N);
+  $("refbtns").innerHTML=ts.length?ts.map(t=>`<button class="btn sm" data-refine="${t}" style="border-color:${tColor(t)}" ${inBattle()||S.embers<EMB.refine?"disabled":""}>Refine ${t} · ${REFINE_N} of ${avail("ess_"+t)}</button>`).join(""):`<p class="foot">Collect ${REFINE_N} essences of one kind to refine them.</p>`;
+}
 // ================= RENDER =================
 let freshShown=new Set(),logOpen=false,heatOpen=false;
 function renderHeader(){
   const l=level(),cur=XP_LV[l-1],nxt=XP_LV[l];clampHp();
   $("lvl").textContent=`Smith Lv ${l}`;
   $("xpbar").style.width=nxt?`${Math.min(100,(S.xp-cur)/(nxt-cur)*100)}%`:"100%";
+  $("emb").innerHTML=`${icon("ember")}${S.embers}`;
   $("disc").textContent=`${S.wins} renown · ${S.journal.length} forged`;
 }
 function renderNav(){
@@ -57,8 +66,8 @@ function renderGear(){
     const [t,r]=e,st=innateStats(t),bits=Object.entries(st).filter(([,v])=>v).map(([s,v])=>`${v>0?"+":""}${v} ${s.toUpperCase()}`).join(" · ");
     return `<div class="islot on" style="border-color:${tColor(t)};color:${tColor(t)}"><b>${t} ${["I","II","III"][r-1]}</b><small>${bits||"effect on hit"}</small></div>`}).join("");
   const can=infusable();
-  $("infbtns").innerHTML=can.length?can.map(t=>`<button class="btn sm" data-infuse="${t}" style="border-color:${tColor(t)}">${S.infuse[t]?`Deepen ${t} → ${["I","II","III"][S.infuse[t]]}`:`Infuse ${t}`} · ${INF_COST} of ${S.inv["ess_"+t]}</button>`).join("")
-    :`<p class="foot">${inf.length>=infSlots()?"All slots used. You can still deepen an infusion with 3 more of its essence.":"Collect 3 essences of the same trait (salvage, elites, bounties) to infuse one."}</p>`;
+  $("infbtns").innerHTML=can.length?can.map(t=>`<button class="btn sm" data-infuse="${t}" style="border-color:${tColor(t)}">${S.infuse[t]?`Deepen ${t} → ${["I","II","III"][S.infuse[t]]}`:`Infuse ${t}`} · ${essHave(t).reg>=INF_COST?`${INF_COST} of ${essHave(t).reg}`:"1 refined"}</button>`).join("")
+    :`<p class="foot">${inf.length>=infSlots()?"All slots used. You can still deepen an infusion with 3 more of its essence.":"Collect 3 essences of the same trait (salvage, elites, bounties) to infuse one. A refined essence counts as 3."}</p>`;
 }
 function youHud(){
   const P=pstats(),B=S.battle,guarding=B&&!B.over&&B.guard;
@@ -123,7 +132,7 @@ function renderBattle(){
   const a=$("arena"),B=S.battle,cont=`<div class="actions"><button class="btn primary grow" id="cont">Back to the map</button></div>`;
   if(S.event){const ev=S.event;
     a.innerHTML=`<div class="event">${ev.icon?`<svg class="evart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true">${NODE_G[ev.icon]}</svg>`:""}<h2>${ev.title}</h2><p class="empty">${ev.text}</p></div>
-      ${ev.loot.length?`<div class="loot" style="justify-content:center">${lootChips(ev.loot)}</div>`:""}
+      ${ev.loot.length?`<div class="loot" style="justify-content:center">${lootChips(ev.loot)}</div>`:""}${ev.stock?shopHtml(ev):""}
       ${ev.sc?`<p class="scrl"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true">${NODE_G.scroll}</svg><span>${ev.sc}</span></p>`:""}
       ${ev.choices.length?`<div class="actions">${ev.choices.map(([c,l],i)=>`<button class="btn ${i===0?"primary":""} grow" data-choice="${c}">${l}</button>`).join("")}</div>`:cont}${youHud()}`;return}
   if(!B){
@@ -148,7 +157,7 @@ function renderBattle(){
       ${cons.length?`<div class="strip">${cons.map(id=>{const it=S.items[id];return `<button class="tile" data-use="${id}" aria-label="Use ${it.name}">${glyph(it)}<span class="tname">${nameHtml(it)}</span><span class="ttr">${useHint(it)}</span><span class="cnt">×${S.inv[id]}</span></button>`}).join("")}</div>`:""}
       ${logBlock(B)}`;
   }else{
-    const loot=B.over==="won"?`<div class="loot"><span class="label">Loot</span>${lootChips(B.loot)}</div>`:"";
+    const loot=B.over==="won"?`<div class="loot"><span class="label">Loot</span>${lootChips(B.loot)}${B.emb?`<span class="chip emb">${icon("ember")}+${B.emb}</span>`:""}</div>`:"";
     body=`${loot}${youHud()}<div class="actions"><button class="btn primary grow" id="cont">Back to the map</button>${B.over==="won"?'<button class="btn grow" id="toforge">Go to the forge</button>':""}</div>${logBlock(B)}`;
   }
   a.innerHTML=`${foeStage(B)}${body}`;
@@ -261,7 +270,7 @@ function render(fresh){
   renderHeader();renderNav();renderGoal();
   if(S.view==="battle")renderBattle();
   if(S.view==="gear")renderGear();
-  if(S.view==="forge"){renderBench();renderResult(fresh)}
+  if(S.view==="forge"){renderBench();renderRefine();renderResult(fresh)}
   renderSatchels();
   if(S.view==="recipes")renderRecipes();
   if(S.view==="codex")renderCodex();

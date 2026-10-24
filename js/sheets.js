@@ -17,7 +17,8 @@ function openSheet(id,refresh,preview){
     if(g==="consumable"&&statsOf(it).heal>0&&!locked)btns.push(`<button class="btn primary grow" data-act="eat" ${S.hp>=P.maxHp?"disabled":""}>${S.hp>=P.maxHp?"Already at full HP":`Use now (+${Math.min(statsOf(it).heal,P.maxHp-S.hp)} HP)`}</button>`);
     btns.push(`<button class="btn grow" data-act="add" ${left<=0||full||locked||!mix.ok?"disabled":""}>${locked?"Finish the fight to forge":full?"Crucible full":left<=0?"All in crucible":!mix.ok?"Won't mix with the crucible":"Add to crucible"}</button>`);
     const ys=salvageYield(it);
-    if(ys.length)btns.push(`<button class="btn ${salvageArmed?"danger":""} grow" data-act="salvage" ${locked||left<=0?"disabled":""}>${salvageArmed?"Tap again to salvage":`Salvage → ${ys.join(" + ")} Essence`}</button>`);
+    if(ys.length)btns.push(`<button class="btn ${salvageArmed?"danger":""} grow" data-act="salvage" ${locked||left<=0?"disabled":""}>${salvageArmed?"Tap again to salvage":`Salvage → ${ys.join(" + ")} Essence${salvageEmbers(it)?` + ${salvageEmbers(it)} embers`:""}`}</button>`);
+    const mh=mishapsOf(it);if(mh.length)btns.push(`<button class="btn grow" data-act="reforge" ${locked||S.embers<reforgeCost(it)?"disabled":""}>Reforge — ${mh.map(m=>m==="Weakened"?"restore Weakened":"remove "+m).join(" and ")} (${reforgeCost(it)} embers)</button>`);
   }
   btns.push(`<button class="btn" data-act="close">Close</button>`);
   $("sheetIn").innerHTML=`<div class="grab" aria-hidden="true"></div>
@@ -25,6 +26,7 @@ function openSheet(id,refresh,preview){
     <div class="chips">${chips(it.traits)}</div>
     ${cmp?cmpBlock(it,cmp,"Versus equipped"):""}${statGrid(statsOf(it),cmp?statsOf(cmp):null)}
     ${!preview&&!mix.ok?`<p class="warn-text">${mix.reason}</p>`:""}
+    ${it.mishap==="Weakened"?`<p class="warn-text">Weakened: a fizzled mixture cost every trait 30%.</p>`:""}
     <ul class="fx">${effects(it).map(f=>`<li>${f}</li>`).join("")}</ul>
     ${it.recipe?`<p class="empty">Forged from ${it.recipe.join(" + ")}.</p>`:""}
     <div class="actions">${btns.join("")}</div>`;

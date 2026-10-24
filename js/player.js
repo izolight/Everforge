@@ -28,9 +28,10 @@ function pstats(){
     dodge:Math.min(DODGE_CAP,Math.round(tsum("Swift")*DODGE_PER)),root:Math.min(ROOT_CAP,Math.round(tsum("Wood")*ROOT_PER)),cleanse:med}; // cleanse: hook for status effects
 }
 function clampHp(){const m=pstats().maxHp;if(S.hp>m)S.hp=m}
+const essHave=t=>({reg:avail("ess_"+t),ref:avail(`ess_${t}_2`)}); // a refined essence counts as REFINE_N plain ones (INF_COST) toward infusion
 function infusable(){
-  return Object.keys(S.items).filter(id=>id.startsWith("ess_")).map(id=>id.slice(4)).filter(t=>{
-    const have=(S.inv["ess_"+t]||0)-benchCount("ess_"+t),r=S.infuse[t]||0;
-    return have>=INF_COST&&r<INF_MAX&&(r>0||Object.keys(S.infuse).length<infSlots())})}
-function infuse(t){if(!infusable().includes(t))return;S.inv["ess_"+t]-=INF_COST;trimBench();S.infuse[t]=(S.infuse[t]||0)+1;clampHp();save();render();
+  return [...new Set(Object.keys(S.items).filter(id=>id.startsWith("ess_")).map(id=>id.split("_")[1]))].filter(t=>{
+    const {reg,ref}=essHave(t),r=S.infuse[t]||0;
+    return (reg>=INF_COST||ref>0)&&r<INF_MAX&&(r>0||Object.keys(S.infuse).length<infSlots())})}
+function infuse(t){if(!infusable().includes(t))return;const {reg}=essHave(t);if(reg>=INF_COST)S.inv["ess_"+t]-=INF_COST;else S.inv[`ess_${t}_2`]--;trimBench();S.infuse[t]=(S.infuse[t]||0)+1;clampHp();save();render();
   toast(`${t} infused into you. Rank ${["I","II","III"][S.infuse[t]-1]}.`)}

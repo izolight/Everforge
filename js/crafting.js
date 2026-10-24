@@ -43,22 +43,23 @@ function combine(raw){
       log.push({k:"Reaction",t:`${a} + ${b} → ${res}`,warn:TRAITS[res].f==="bad"});inst+=3}
     if(!any)break}
   const secret=SECRETS.find(s=>s.ids.slice().sort().join("+")===key);
+  if(!secret&&inputs.some(i=>isRefined(i.id))){const sk=inputs.map(i=>i.id.replace(/^(ess_[A-Za-z]+)_2$/,"$1")).sort().join("+");if(SECRETS.some(s=>s.ids.slice().sort().join("+")===sk))log.push({k:"Refined",t:"A refined essence is too potent for this secret. Use a plain one."})}
   let bon=null; // the secret's bonus always keeps a slot
   if(secret&&secret.bonus){const {trait:bt,v:bv}=secret.bonus;bon=[bt,r1((tr[bt]||0)+bv)];delete tr[bt];log.push({k:"Legendary",t:`The secret lends it +${bv} ${bt}.`})}
   const slots=traitSlots()-(bon?1:0),sorted=topTraits(tr);
   if(sorted.length>slots)log.push({k:"Lost",t:`${sorted.slice(slots).map(x=>x[0]).join(", ")} (only ${traitSlots()} trait slots)`});
   tr=Object.fromEntries(sorted.slice(0,slots));if(bon)tr[bon[0]]=bon[1];
   inst+=(inputs.length-2)*6;inst=Math.max(0,Math.min(85,Math.round(inst-level()*4)));
-  let mishap=null;
+  let mishap=null,unweak=null;
   if(rand()*100<inst){mishap=["Cursed","Weakened","Brittle"][Math.floor(rand()*3)];
-    if(mishap==="Weakened")Object.keys(tr).forEach(t=>tr[t]=r1(tr[t]*.7));else tr[mishap]=2;
+    if(mishap==="Weakened"){unweak={...tr};Object.keys(tr).forEach(t=>tr[t]=r1(tr[t]*.7))}else tr[mishap]=2;
     log.push({k:"Mishap",t:mishap==="Weakened"?"The mixture fizzled. Every trait lost 30%.":`The mixture turned unstable and became ${mishap}.`,warn:true})}
   const noun=FORMS[form].noun||base.noun;
   const score=([t,v])=>v+(t in base.traits?0:3)+(reacted.has(t)?1:0);
   const ranked=Object.entries(tr).filter(([t])=>TRAITS[t].adj.toLowerCase()!==noun.toLowerCase()).sort((a,b)=>score(b)-score(a)).map(x=>x[0]);
   const name=secret?secret.name:[...ranked.slice(0,2).map(t=>TRAITS[t].adj),noun].join(" ");
   const tier=Math.min(9,Math.max(...inputs.map(i=>i.tier))+1);
-  const item={id:"c_"+hash(key).toString(36),name,form,noun,traits:tr,tier,crafted:true,legendary:!!secret,recipe:inputs.map(i=>i.name),recipeIds:inputs.map(i=>i.id)};
+  const item={id:"c_"+hash(key).toString(36),name,form,noun,traits:tr,tier,crafted:true,legendary:!!secret,recipe:inputs.map(i=>i.name),recipeIds:inputs.map(i=>i.id),...unweak?{mishap,unweak}:{}};
   if(form==="material"){const core=inputs.map(kindOf).find(k=>k!=="essence"&&k!=="relic");item.kind=core||(inputs.some(i=>kindOf(i)==="relic")?"relic":"essence")}
   return {item,log,inst,mishap,baseId:base.id,rxKeys};
 }
