@@ -45,7 +45,7 @@ async function run(label,setup){
           if(S.battle&&S.battle.over==="fled"){out.fled++;const nd=curMap().pois[S.battle.pi];if(!nd||nd.done||nd.aw||(nd.mv!=="still"?nd.dz!==ROAM.daze:nd.dz))out.bad.push("a fled-from enemy is not dazed (or a still one is)")}
           if(S.battle&&S.battle.over){out.battles++;out[S.battle.over==="won"?"won":"lost"]++;if(S.battle.by==="it")out.byfoe++}
           continue}
-        const btns=qa("#arena button:not([disabled])").filter(b=>b.id&&!["flee","rest"].includes(b.id)||b.dataset.ability);
+        const btns=qa("#arena button:not([disabled]):not([aria-disabled=true])").filter(b=>b.id&&!["flee","rest"].includes(b.id)||b.dataset.ability);
         const b=btns.length?btns[Math.floor(Math.random()*btns.length)]:q("#atk");
         if(Math.random()<.75&&q("#atk"))click(q("#atk"));else if(b){if(b.dataset.ability)out.abil++;click(b)}
         if(S.battle&&S.battle.over){out.battles++;out[S.battle.over==="won"?"won":"lost"]++;if(S.battle.by==="it")out.byfoe++}

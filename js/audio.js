@@ -62,5 +62,5 @@ function setSnd(o){Object.assign(snd,o);sndSave();if(master)master.gain.value=VO
 ["pointerdown","keydown","touchend"].forEach(ev=>addEventListener(ev,()=>{gesture=true;if(snd.on){const a=actx();if(a&&a.state!=="running")a.resume().catch(()=>{})}},{capture:true,passive:true}));
 document.addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;
   if(b.id==="snd"){const l=snd.on?snd.vol+1:0,n=(l+1)%4;setSnd(n?{on:true,vol:n-1}:{on:false});if(n)sfx("tap");return}
-  if(!b.disabled&&!b.dataset.tile&&!b.dataset.ability&&!b.dataset.use&&!["atk","combine"].includes(b.id))sfx("tap")}); // buttons with their own sounds stay out
+  if(!b.disabled&&b.getAttribute("aria-disabled")!=="true"&&!b.dataset.tile&&!b.dataset.ability&&!b.dataset.use&&!["atk","combine"].includes(b.id))sfx("tap")}); // buttons with their own sounds stay out
 sndUi();

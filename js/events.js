@@ -10,7 +10,7 @@ $("goal").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)
 $("zones").addEventListener("scroll",zoneFade);
 $("zones").addEventListener("click",e=>{const b=e.target.closest("[data-zone]");if(!b||b.disabled)return;S.zone=b.dataset.zone;S.battle=null;S.event=null;save();render()});
 $("arena").addEventListener("click",e=>{
-  const t=e.target.closest("button");if(!t)return;
+  const t=e.target.closest("button");if(!t||t.getAttribute("aria-disabled")==="true")return;
   if(t.dataset.codex)return openCodex(t.dataset.codex);
   if(t.dataset.item)return openSheet(t.dataset.item,false,!S.inv[t.dataset.item]);
   if(t.dataset.choice)return eventChoice(t.dataset.choice);
@@ -25,7 +25,7 @@ $("arena").addEventListener("click",e=>{
 });
 $("arena").addEventListener("toggle",e=>{if(e.target.id==="legend")legendOpen=e.target.open;
   if(e.target.id==="logd"){logOpen=e.target.open;const bl=$("blog");if(bl)bl.scrollTop=bl.scrollHeight}},true);
-addEventListener("resize",()=>{if(S.view==="battle"&&!S.battle&&!S.event)fitMap()});document.fonts&&document.fonts.ready.then(()=>{if(S.view==="battle"&&!S.battle&&!S.event)fitMap()});
+addEventListener("resize",()=>{if(S.view==="battle"&&!S.battle&&!S.event){fitMap();heroView()}});document.fonts&&document.fonts.ready.then(()=>{if(S.view==="battle"&&!S.battle&&!S.event){fitMap();heroView()}});
 $("gear").addEventListener("click",e=>{const b=e.target.closest("[data-gear]");if(!b)return;const s=b.dataset.gear,it=gearOf(s);
   if(it)return openSheet(it.id);
   S.tab=s==="main"?"weapon":s==="charm"?"charm":s==="off"?"all":"armor";save();render();
