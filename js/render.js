@@ -256,7 +256,24 @@ function renderRecipes(){
       :lv?`<li class="sec"><i>${s.hint}</i><div class="si">${s.ids.map((id,k)=>k<lv-1?chip(idName(id),"var(--accent)"):chip("?","var(--dim)")).join("")}</div></li>`
       :`<li class="sec lock">??? <span class="foot">undiscovered</span></li>`}).join("");
 }
+const sn=n=>n>=1e4?(n/1e3).toFixed(n>=1e5?0:1).replace(/\.0$/,"")+"k":String(n);
+function renderStats(){
+  const st=S.stats,zn=Object.fromEntries(ZONES.map(z=>[z[0],z[1]])),cell=(v,l)=>`<div class="sc"><b>${v}</b><span>${l}</span></div>`,grp=(t,h)=>`<p class="label">${t}</p><div class="sgrid">${h}</div>`;
+  const kz=ZONES.map(z=>S.zoneKills[z[0]]|0),bossIds=ZONES.map(z=>z[2]);
+  const heat=ZONES.filter(z=>st.heatBest[z[0]]!==undefined).map(z=>`${zn[z[0]].split(" ").pop()} ${st.heatBest[z[0]]}`).join(" · ")||"none yet";
+  const fast=bossIds.filter(id=>st.fast[id]).map(id=>`<li><span>${ENEMIES[id].name}</span><b>${st.fast[id]} turns</b></li>`).join("")||`<li><span>No boss beaten yet</span></li>`;
+  $("stats").innerHTML=grp("Combat",cell(sn(st.dealt),"damage dealt")+cell(sn(st.taken),"damage taken")+cell(st.big?`${st.big}`:"-",st.big?`biggest hit · ${st.bigW}`:"biggest hit")+cell(st.crits,"critical hits")
+      +cell(st.parries,"perfect parries")+cell(st.abil,"abilities used")+cell(st.sufd,"statuses suffered")+cell(st.cured,"statuses cured")+cell(st.deaths,"defeats")+cell(st.studied,"creatures studied"))
+    +grp("Exploration",cell(kz.reduce((a,b)=>a+b,0),"creatures slain")+cell(st.elites,"elites slain")+cell(st.bosses,"bosses slain")+cell(st.exped,"expeditions done")
+      +`<div class="sc wide"><b>${kz.join(" / ")}</b><span>kills by region (${ZONES.map(z=>z[1].split(" ").pop()).join(" / ")})</span></div>`
+      +`<div class="sc wide"><b>${heat}</b><span>highest Heat cleared</span></div>`)
+    +grp("Forge",cell(st.forged,"items forged")+cell(S.journal.length,"recipes found")+cell(st.legend,"legendaries forged")+cell(st.mishaps,"mishaps")+cell(st.salvaged,"items salvaged")+cell(st.refined,"essences refined"))
+    +grp("Economy",cell(sn(st.earned),"embers earned")+cell(sn(st.spent),"embers spent")+cell(S.embers,"embers now"))
+    +grp("Records",`<ul class="rec2">${fast}<li><span>Dailies played / won</span><b>${st.dailies} / ${st.dailyWins}</b></li><li><span>Best daily</span><b>${st.dBest?dailyResult(st.dBest):"none yet"}</b></li></ul>`);
+  sndUi();
+}
 function renderCodex(){
+  renderStats();
   const ids=Object.keys(ENEMIES),seenN=ids.filter(id=>S.seen[id]).length,mast=ids.filter(id=>S.seen[id]&&know(id).mastered).length;
   $("cxlabel").textContent=`Creature codex · ${seenN}/${ids.length} met · ${mast} mastered`;
   const groups=[...ZONES.map(z=>[z[0],z[1]]),["any","Anywhere"]];
