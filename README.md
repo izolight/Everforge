@@ -22,6 +22,7 @@ js/
   fx.js           floating-number / hit-flash queue
   map.js          region maps, nodes, map events (chest, shrine, peddler, camp)
   battle.js       combat loop, enemy turns, victory and defeat
+  endgame.js      daily expedition (seeded by the UTC date): plan, start, finish, abandon, reward
   gear.js         equip / settle gear, item effect descriptions
   art.js          SVG art for items, creatures, map nodes and icons
   render.js       view rendering (battle, gear, forge, recipes, codex)
@@ -36,6 +37,7 @@ js/
 - The scripts are plain (non-module) scripts that share one global scope, so they work from `file://` without a server. **Load order matters**; it is the order of the `<script>` tags in `index.html`. Each file may use anything defined by files above it at load time, and anything at all inside functions at call time.
 - All game state lives in the single global `S` (see `freshState()` in `state.js`). After changing it, call `save()` and `render()`.
 - Weapon-form and shield abilities live in the `ABILITIES` table (`data.js`); `ability(key)` in `battle.js` runs them, cooldowns are per battle in `B.cd`, and `effects()` reads the same table for item text.
+- Heat (`HEAT`, `HEAT_T` in `data.js`) is stored per zone in `S.heat[zone]={max,sel}`; a map remembers the heat it was generated with (`map.heat`) and `heatNow()` reads it. The daily lives in `S.daily` (not `S.maps`); while `S.run==='daily'`, `curMap()` returns its map and `S.zone` is the daily's zone, restored from `S.daily.back` by `finishDaily()`. Daily maps come from `genMap({seed,...})`, which uses the seeded `rng` instead of `Math.random`.
 - When the save shape changes, bump `KEY`/`v`, add a migration step in `migrate()`, and extend `sane()` if new required fields are added.
 
 ## Testing

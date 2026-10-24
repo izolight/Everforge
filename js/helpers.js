@@ -7,6 +7,7 @@ const pick=a=>a[Math.floor(Math.random()*a.length)];
 const $=id=>document.getElementById(id);
 const reduced=()=>window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches;
 function level(){let l=1;XP_LV.forEach((t,i)=>{if(S.xp>=t)l=i+1});return l}
+const lvMsg=()=>`Smith level ${level()}! ${level()===2?"Third crucible slot unlocked.":"More trait slots and better stability."}`;
 const maxInputs=()=>level()>=2?3:2;
 const traitSlots=()=>Math.min(7,4+Math.floor((level()-1)/2));
 const tColor=t=>FAM[(TRAITS[t]||{f:"stone"}).f];
