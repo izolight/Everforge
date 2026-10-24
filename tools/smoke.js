@@ -45,9 +45,9 @@ async function run(label,setup){
       await chores();
     }
     function wield(){ // each weapon form in turn (and sometimes a shield) so every signature ability gets exercised
-        const wf=Object.keys(FORMS).filter(k=>FORMS[k].g==="weapon"),f=wf[out.wields++%wf.length],id="t_"+f,tr=pick([{Fire:2,Sharp:2},{Ice:3,Arcane:1},{Poison:2,Heavy:1},{Holy:2,Tempered:2},{Shadow:2}]);
-        S.items[id]={id,name:"Test "+FORMS[f].label,form:f,noun:FORMS[f].label,traits:tr,tier:1,crafted:true};addItem(id);equip(id,"main");
-        if(Math.random()<.6){addItem("wood_shield");equip("wood_shield","off")}}
+      const wf=Object.keys(FORMS).filter(k=>FORMS[k].g==="weapon"),f=wf[out.wields++%wf.length],id="t_"+f,tr=pick([{Fire:2,Sharp:2},{Ice:3,Arcane:1},{Poison:2,Heavy:1},{Holy:2,Tempered:2},{Shadow:2}]);
+      S.items[id]={id,name:"Test "+FORMS[f].label,form:f,noun:FORMS[f].label,traits:tr,tier:1,crafted:true};addItem(id);equip(id,"main");
+      if(Math.random()<.6){addItem("wood_shield");equip("wood_shield","off")}}
     // Visit the other views, forge something, salvage, infuse.
     async function chores(){
       for(const v of VIEWS){go(v);out.views++}
@@ -75,6 +75,7 @@ async function run(label,setup){
   let failed=false;
   const fresh=await run("fresh");
   if(fresh.errors.length){failed=true;console.error(fresh.errors.join("\n"))}
+  if(fresh.stats.wields>=7&&!fresh.stats.abil){failed=true;console.error("No ability buttons were clicked; they may have vanished.")}
   if(fresh.stats.battles<3){failed=true;console.error("Too few battles completed; the loop got stuck.")}
   // Every old save fixture must still load (migrations) and play without errors.
   for(const f of fs.readdirSync(FIX).filter(f=>f.endsWith(".json")).sort()){

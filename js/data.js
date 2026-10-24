@@ -156,12 +156,12 @@ const ELITE_INF={Fire:"burn",Ice:"chill",Poison:"poison",Shadow:"curse"},ELITE_I
 const ABILITIES={
   blade:{name:"Flurry",icon:"flurry",cd:3,hits:2,x:.7,desc:"Two quick strikes at 0.7x each. Each can crit."},
   spear:{name:"Lunge",icon:"lunge",cd:3,x:1.2,pen:.7,open:.5,desc:"1.2x strike that ignores 70% of armor. A spear also jabs first at 0.5x when a battle starts."},
-  staff:{name:"Channel",icon:"channel",cd:3,x:1.3,pen:.5,desc:"A spell at 1.3x power, built from half your Attack and 1.2x Magic. Ignores half of armor, in your weapon's top element, and its on-hit effect always lands."},
+  staff:{name:"Channel",icon:"channel",cd:3,x:1.3,pen:.5,desc:"At least 1.3x a normal attack, more on Magic-heavy staffs. Ignores half of armor; the weapon's top element effect always lands."},
   lance:{name:"Charge",icon:"charge",cd:4,x:2,open:.25,desc:"2.0x heavy strike, but the enemy's reply hits you 25% harder."},
-  spellblade:{name:"Arc Slash",icon:"arcslash",cd:3,x:1,desc:"Strike scaling from full Attack and full Magic. A crit refunds 1 turn of cooldown."},
+  spellblade:{name:"Arc Slash",icon:"arcslash",cd:3,x:1,desc:"About 1-1.3x a normal attack, scaling fully with Magic. A crit refunds 1 turn of cooldown."},
   warstaff:{name:"Sweep",icon:"sweep",cd:3,x:1,stun:.35,bossStun:.15,desc:"1.0x strike with a 35% chance to stun (15% on bosses). A stunned enemy loses its turn."},
   claws:{name:"Rend",icon:"rend",cd:3,x:.9,desc:"0.9x strike that opens a bleed: 20% of Attack per turn for 5 turns (ignores armor). Rending again before it ends adds a stack, up to 3, and refreshes it."},
-  shield:{name:"Shield Bash",icon:"bash",cd:3,x:.6,int:.85,bossInt:.6,stun:.2,bossStun:.08,desc:"Small bash. Cancels a telegraphed special (85%, 60% on bosses), otherwise 20% to stun (8% on bosses)."}
+  shield:{name:"Shield Bash",icon:"bash",cd:3,x:.6,int:.85,bossInt:.6,stun:.2,bossStun:.08,desc:"0.6x Attack plus your shield's defense. Cancels a telegraphed special (85%, 60% on bosses), otherwise 20% to stun (8% on bosses)."}
 },BLEED_STACK=3,BLEED_PER=.2,BLEED_T=5;
 const CURES={Medicine:["burn","chill","poison","curse"],Holy:["curse","poison"],Water:["burn","chill"],Nourishing:["poison"]};
 const RARITY=[["Common","#b3aa9e"],["Uncommon","#88d7a1"],["Rare","#7cb6f2"],["Epic","#c39cf7"],["Mythic","#ff8a50"]];

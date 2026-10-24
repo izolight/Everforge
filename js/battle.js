@@ -80,7 +80,7 @@ function ability(key){
   if(key==="blade"){for(let i=0;i<A.hits&&B.hp>0;i++)strike(W,n*A.x,i?"A second cut lands":"Flurry! You cut",true)}
   else if(key==="spear")strike(W,n*A.x,"You lunge",true,{pen:A.pen});
   else if(key==="staff"){const tr=withInnate(W.traits),el=Object.entries(ELS).map(([e,l])=>[e,l.reduce((a,t)=>a+(tr[t]||0),0)]).sort((a,b)=>b[1]-a[1])[0];
-    strike(W,(P.atk*.5+P.mag*1.2)*A.x,el[1]>0?`You channel ${el[0]} through ${W.name}`:"You loose a bolt of raw magic",true,{pen:A.pen,force:el[1]>0?el[0]:""})}
+    strike(W,Math.max(n,P.atk*.5+P.mag*1.2)*A.x,el[1]>0?`You channel ${el[0]} through ${W.name}`:"You loose a bolt of raw magic",true,{pen:A.pen,force:el[1]>0?el[0]:""})}
   else if(key==="lance"){strike(W,n*A.x,"You charge",true);B.open=true;if(B.hp>0)blog("You're exposed after the charge.","foe")}
   else if(key==="spellblade"){const r=strike(W,(P.atk+P.mag)*A.x,"Arc Slash tears",true);if(r.crit){bonus=1;blog("The arc sings. Your cooldown eases.","good")}}
   else if(key==="warstaff"){strike(W,n*A.x,"Your sweep crashes into it",true);
@@ -166,7 +166,7 @@ function enemyTurn(){
 }
 function enemyDown(){
   const B=S.battle,E=ENEMIES[B.id];
-  if(E.rebirth&&!B.reborn){B.reborn=true;B.hp=Math.round(B.max*.4);B.burn=null;B.poison=0;B.bleed=null;B.stun=0;blog(`The ${B.name} bursts into flame and rises from its ashes!`,"big");endTurn(B);save();return render()}
+  if(E.rebirth&&!B.reborn){B.reborn=true;B.hp=Math.round(B.max*.4);B.burn=null;B.poison=0;B.bleed=null;B.stun=0;B.frozen=false;blog(`The ${B.name} bursts into flame and rises from its ashes!`,"big");endTurn(B);save();return render()}
   const P=pstats();
   B.hp=0;B.over="won";S.kills[B.id]=(S.kills[B.id]||0)+1;S.wins+=E.boss?3:1;
   if(!E.boss&&B.id!=="mimic")S.zoneKills[E.zone]=(S.zoneKills[E.zone]||0)+1;
