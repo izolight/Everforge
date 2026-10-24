@@ -7,7 +7,7 @@ function pickEnemy(zone){const pool=Object.entries(ENEMIES).filter(([,e])=>e.zon
 function startBattle(forced,opt){
   opt=opt||{};const id=forced||pickEnemy(S.zone),E=ENEMIES[id],sc=1+.06*(opt.row||0);
   const B={id,name:E.name,el:E.el,hp:Math.round(E.hp*sc),max:Math.round(E.hp*sc),atk:Math.round(E.atk*sc),def:E.def,weak:[...E.weak],resist:[...E.resist],turn:1,
-    burn:null,poison:0,frozen:false,guard:false,reborn:false,elite:null,log:[],over:null,loot:[]};
+    burn:null,poison:0,shred:0,ward:null,frozen:false,guard:false,reborn:false,elite:null,log:[],over:null,loot:[]};
   if(id==="mimic"){const zi=zoneIdx(S.zone);B.max=B.hp=Math.round(E.hp*[1,1.9,2.8][zi]);B.atk=Math.round(E.atk*[1,1.6,2.1][zi]);B.def=E.def+zi*2}
   if(opt.ambush)B.log.push({t:"Ambush! Something leaps out at you.",c:"big"});
   if(!E.boss&&id!=="mimic"&&(opt.elite||Math.random()<.08)){const [adj,trait]=pick(AFFIXES),f=TRAITS[trait].f;
@@ -15,6 +15,8 @@ function startBattle(forced,opt){
     if(!B.resist.includes(f))B.resist.push(f);B.weak=B.weak.filter(x=>x!==f)}
   S.battle=B;S.event=null;S.seen[id]=true;cx(id);
   blog(B.elite?`${E.intro} It crackles with ${B.elite.toLowerCase()}. An elite!`:E.intro,B.elite||E.boss?"big":"");
+  const P=pstats(),rp=P.rs[B.el];if(rp)blog(`${RES_MSG[B.el]} (-${rp}% damage)`,"good");
+  if(P.ward){B.ward=P.ward;blog(`A rune ward flares around you (${P.ward}).`,"good")}
   save();render();
 }
 const isSpecial=B=>{const sp=ENEMIES[B.id].sp;return sp&&B.turn%sp.every===0};
@@ -27,13 +29,15 @@ function eff(traits,B){
 function noteEff(ef){const B=S.battle,E=ENEMIES[B.id];if(ef.k==="weak")learn(B.id,"weak",ef.f);if(ef.k==="resist"&&E.resist.includes(ef.f))learn(B.id,"resist",ef.f)}
 function healYou(n,why){const P=pstats(),b=S.hp;S.hp=Math.min(P.maxHp,S.hp+n);const got=S.hp-b;if(got>0){fx("youHud","+"+got,"heal");if(why&&S.battle&&!S.battle.over)blog(`${why} (+${got} HP).`,"good")}return got}
 function strike(W,pow,label,inn){
-  const B=S.battle,E=ENEMIES[B.id],tr=inn?withInnate(W?W.traits:{}):(W?W.traits:{}),ef=eff(tr,B),v=t=>tr[t]||0,mast=know(B.id).mastered?1.15:1;
+  const B=S.battle,E=ENEMIES[B.id],tr=inn?withInnate(W?W.traits:{}):(W?W.traits:{}),v=t=>tr[t]||0,mast=know(B.id).mastered?1.15:1;
+  let ef=eff(tr,B);const arc=ef.k==="resist"&&v("Arcane")&&Math.random()*100<Math.min(ARC_CAP,v("Arcane")*ARC_PER);if(arc){ef={m:1};blog("Arcane power cuts through its resistance.","you")}
   const crit=Math.random()*100<Math.min(CRIT_CAP,5+v("Sharp")*3),pierce=v("Heavy")?.4:1;
-  const dmg=Math.max(1,Math.round((pow*.5-B.def*pierce)*ef.m*mast*(crit?1.75:1)*vary()));
+  const dmg=Math.max(1,Math.round((pow*.5-Math.max(0,B.def-(B.shred||0))*pierce)*ef.m*mast*(crit?1.75:1)*vary()));
   B.hp-=dmg;fx("enemyHud","-"+dmg,crit?"crit":"");fx("foeArt","","hit");
   const note=ef.k==="weak"?` ${ef.t} cuts deep!`:ef.k==="resist"?` It resists the ${ef.t.toLowerCase()}.`:"";
   blog(`${label} for ${dmg}${crit?", a critical hit":""}.${note}`,crit?"big":"you");noteEff(ef);
   if(B.hp<=0)return;
+  if(v("Tempered")&&B.def>0){const c=Math.min(SHRED_CAP,Math.round(v("Tempered")*SHRED_PER)),s=Math.min(c,B.def,(B.shred||0)+1);if(s>(B.shred||0)){B.shred=s;blog(`Its armor cracks (-${s} DEF).`,"you")}}
   const fire=v("Fire")+v("Sunfire"),ice=v("Ice")+v("Frost"),poi=v("Poison")+v("Venomous"),holy=v("Holy")+v("Radiant"),sha=v("Shadow")+v("Twilight");
   const immune=(f,msg)=>{blog(msg,"");if(E.resist.includes(f))learn(B.id,"resist",f)};
   if(fire){if(B.resist.includes("fire"))immune("fire",`The ${B.name} won't burn.`);else{const d=Math.max(1,Math.round(fire*.8));if(!B.burn)blog(`The ${B.name} catches fire.`,"you");B.burn={d,t:3}}}
@@ -59,7 +63,7 @@ function useItem(id){
   const B=S.battle,it=S.items[id],st=statsOf(it);
   S.inv[id]--;trimBench();
   let did=false;
-  if(st.heal>0){healYou(st.heal,`You use ${it.name}`);did=true}
+  if(st.heal>0){healYou(medHeal(it),`You use ${it.name}`);did=true}
   const d=Math.round((st.atk+st.mag)*.6);
   if(d>=3){const ef=eff(it.traits,B),dmg=Math.max(1,Math.round(d*ef.m*vary()));B.hp-=dmg;fx("enemyHud","-"+dmg,"");fx("foeArt","","hit");
     blog(`${it.name} bursts against the ${B.name} for ${dmg}.${ef.k==="weak"?" Super effective!":""}`,"you");noteEff(ef);did=true}
@@ -90,14 +94,22 @@ function enemyTurn(){
     for(let i=0;i<hits&&S.hp>0;i++){
       if(P.blind&&Math.random()<Math.min(.4,.08*P.blind)){blog("Steam clouds its eyes. It misses.","good");continue}
       if(P.shield&&!B.guard&&Math.random()<.15+(P.shield.traits.Heavy||0)*.03){blog(`You block with ${P.shield.name}.`,"good");continue}
-      const dmg=Math.max(1,Math.round(B.atk*mult*vary()*(1-P.red)*(B.guard?.4:1)));S.hp-=dmg;
-      fx("youHud","-"+dmg,"hurt");fx("youHud","","shake");fx("vig","","on");
-      blog(sp?`It hits you for ${dmg}${B.guard?" through your guard":""}.`:`The ${B.name} ${E.verb} for ${dmg}${B.guard?" through your guard":""}.`,"foe");
+      if(P.dodge&&Math.random()*100<P.dodge){blog("You dodge aside. It misses.","good");continue}
+      let dmg=Math.max(1,Math.round(B.atk*mult*vary()*(1-P.red)*(B.guard?.4:1)*(1-(P.rs[B.el]||0)/100)));
+      if(P.dr)dmg=Math.max(1,Math.round(dmg-P.dr));
+      if(B.ward==null)B.ward=P.ward; // old battles start unwarded
+      const tot=dmg,ab=Math.min(B.ward,dmg);B.ward-=ab;dmg-=ab;S.hp-=dmg;
+      fx("youHud",dmg?"-"+dmg:"","hurt");fx("youHud","","shake");fx("vig","","on");
+      blog(sp?`It hits you for ${tot}${B.guard?" through your guard":""}.`:`The ${B.name} ${E.verb} for ${tot}${B.guard?" through your guard":""}.`,"foe");
+      if(ab)blog(`Your rune ward absorbs ${ab}${B.ward?"":" and shatters"}.`,"good");
+      if(P.thorns&&dmg>0&&S.hp>0){const th=Math.max(1,Math.round(dmg*P.thorns/100));B.hp-=th;fx("enemyHud","-"+th,"hurt");blog(`Your iron barbs bite it for ${th}.`,"you");if(B.hp<=0)break}
       if(sp&&sp.kind==="drain"){B.hp=Math.min(B.max,B.hp+dmg);blog(`It drinks ${dmg} HP from you.`,"foe")}
     }
     if(S.hp<=0)return youFall();
+    if(B.hp<=0)return enemyDown();
   }
   if(P.regen&&S.hp<P.maxHp)healYou(P.regen,"Your gear mends you");
+  if(P.root&&S.hp<P.maxHp*.5)healYou(P.root,"Roots knit your wounds");
   B.guard=false;B.turn++;save();render();
 }
 function enemyDown(){
