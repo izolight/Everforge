@@ -3,7 +3,8 @@
 const worth=it=>Math.round(3+power(it)*.6+2*(it.tier-1));
 const buyPrice=id=>{if(isEss(id))return EMB.ess;const it=S.items[id];return Math.max(Math.round(worth(it)*EMB.buy),Math.ceil(EMB.floor*(salvageYield(it).length*EMB.val+salvageEmbers(it))))},sellPrice=id=>Math.max(1,Math.round(worth(S.items[id])*EMB.sell));
 const salvageEmbers=it=>isEss(it.id)||isRefined(it.id)?0:Math.max(1,Math.round(worth(it)*EMB.salv));
-function gainEmbers(n){if(n>0){S.embers+=n;fx("emb","+"+n,"ember")}return n}
+function spendEmbers(n){S.embers-=n;S.stats.spent+=n}
+function gainEmbers(n){if(n>0){S.embers+=n;S.stats.earned+=n;fx("emb","+"+n,"ember")}return n}
 function fightEmbers(E,B){const base=E.boss?EMB.boss:B.elite||B.id==="mimic"?EMB.elite:EMB.fight;return gainEmbers(Math.round(base*(1+(B.heat||0)*EMB.heat)))}
 // Peddler stock: EMB.stock items from this zone's and the next zone's drops plus one or two essences. rv = six 0-1 rolls (pre-rolled per node on the seeded daily map), so the same day shows the same shop.
 function shopStock(rv){
@@ -21,14 +22,14 @@ function merchant(sh){
 }
 function shopPick(c,ev){
   const [k,n]=c.split(":"),e=(k==="buy"?ev.stock:ev.sells)[+n];if(!e||e.done)return;
-  if(k==="buy"){if(S.embers<e.price)return toast("Not enough embers.");S.embers-=e.price;addItem(e.id);toast(`Bought ${S.items[e.id].name} for ${e.price} embers.`)}
+  if(k==="buy"){if(S.embers<e.price)return toast("Not enough embers.");spendEmbers(e.price);addItem(e.id);toast(`Bought ${S.items[e.id].name} for ${e.price} embers.`)}
   else{if(!S.inv[e.id]||!spare(e.id)){e.done=true;save();render();return toast("You no longer have that item.")}takeOne(e.id);gainEmbers(e.price);toast(`Sold ${S.items[e.id].name} for ${e.price} embers.`)}
   e.done=true;save();render();
 }
 // Refining: REFINE_N plain essences + EMB.refine embers -> one refined essence (stronger trait, takes one crucible slot)
 function refine(t){
   const b="ess_"+t;if(inBattle()||avail(b)<REFINE_N||S.embers<EMB.refine)return;
-  S.inv[b]-=REFINE_N;trimBench();S.embers-=EMB.refine;const r=refined(t);addItem(r);save();render();toast(`${REFINE_N} ${t} Essences refined into a ${S.items[r].name}.`);
+  S.inv[b]-=REFINE_N;trimBench();spendEmbers(EMB.refine);S.stats.refined++;const r=refined(t);addItem(r);sfx("loot");save();render();toast(`${REFINE_N} ${t} Essences refined into a ${S.items[r].name}.`);
 }
 // Reforge: pay embers to strip every mishap (Cursed, Brittle, Rust, and a Weakened flag, which restores the traits from before the fizzle) from a crafted or tempered piece. Like the old forge's tempering it makes a new c_ item, keeps the legendary flag and bonus, and takes over the equip slot.
 const mishapsOf=it=>!it.crafted?[]:[...MISHAP_TRAITS.filter(t=>it.traits[t]>0),...it.mishap==="Weakened"?["Weakened"]:[]],reforgeCost=it=>EMB.reforge[0]+EMB.reforge[1]*it.tier;
@@ -39,7 +40,7 @@ function reforge(id){
     ms.forEach(m=>{if(m!=="Weakened"){delete tr[m];name=name.replace(TRAITS[m].adj+" ","")}});
     if(ms.includes("Weakened"))tr=it.unweak?{...it.unweak}:Object.fromEntries(Object.entries(tr).map(([t,v])=>[t,r1(v/.7)])); // old Weakened items without a snapshot fall back to undoing the 30%
     S.items[nid]={...it,id:nid,recipe:undefined,recipeIds:undefined,mishap:undefined,unweak:undefined,traits:tr,name}}
-  S.embers-=cost;takeOne(id);addItem(nid);
+  spendEmbers(cost);sfx("forge");takeOne(id);addItem(nid);
   for(const [s] of SLOTS)if(S.eq[s]===id&&eqCount(id)>(S.inv[id]||0)){S.eq[s]=nid;break}
   clampHp();save();render();closeSheet();toast(`${S.items[nid].name} reforged. ${ms.join(" and ")} gone.`);
 }

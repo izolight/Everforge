@@ -61,7 +61,7 @@ $("combine").onclick=()=>{
   if(inBattle()){toast("Finish the fight first.");return}
   const lvBefore=level(),{item,log,inst,mishap,baseId,rxKeys}=combine(items);
   S.bench.forEach(id=>S.inv[id]--);S.bench=[];
-  const isNew=!S.items[item.id];
+  const st=S.stats,isNew=!S.items[item.id];st.forged++;if(item.legendary)st.legend++;if(mishap)st.mishaps++;
   if(isNew){S.items[item.id]=item;S.journal.push({id:item.id,name:item.name,legendary:item.legendary})}
   S.inv[item.id]=(S.inv[item.id]||0)+1;
   const newRx=rxKeys.filter(k=>!S.knownR.includes(k));S.knownR.push(...newRx);
