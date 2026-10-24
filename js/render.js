@@ -1,20 +1,20 @@
 // ================= SMALL RENDER HELPERS =================
-const chips=tr=>topTraits(tr).map(([t,v])=>`<span class="chip" style="color:${tColor(t)}">${t}<b>${v}</b></span>`).join("");
+const chips=(tr,full)=>topTraits(tr).map(([t,v])=>`<span class="chip tc" style="color:${tColor(t)}" ${tt(`${t} ${v}`,`${cap(TRAITS[t].f)} trait`)}>${famIc(TRAITS[t].f,"s")}${full?`${t} `:""}<b>${v}</b></span>`).join(""); // icon + number; full adds the name (item sheet)
+const statLine=st=>Object.entries(STAT_NAMES).filter(([k])=>st[k]).map(([k,l])=>`${l} ${st[k]>0?"+":""}${st[k]}`).join(" · ");
 const famChip=(f,pre)=>`<span class="chip fam" style="color:${FAM[f]}">${pre?pre+" ":""}${f}</span>`;
 const unkChip=t=>`<span class="chip unk">${t}</span>`;
 const nameHtml=it=>`<span style="color:${rarity(it)[1]}">${it.name}</span>`;
 function delta(a,b){const d=a-b;if(!d)return `<em class="d same">±0</em>`;return `<em class="d ${d>0?"up":"down"}">${d>0?"▲":"▼"}${Math.abs(d)}</em>`}
 const shown=it=>{const s=statsOf(it);return grp(it)==="consumable"?{...s,heal:medHeal(it)}:s}; // consumables show the heal they really restore
-function statGrid(st,cmp){
+function statGrid(st,cmp,full){ // icon + number per stat (full adds the word); with cmp, a delta against the other item
   const h=Object.entries(STAT_NAMES).filter(([k])=>st[k]!==0||(cmp&&cmp[k]!==0))
-    .map(([k,l])=>`<div class="stat"><span>${l}</span><b class="${st[k]<0?"neg":""}">${st[k]>0?"+":""}${st[k]}</b>${cmp?delta(st[k],cmp[k]):""}</div>`).join("");
+    .map(([k,l])=>{const d=cmp?st[k]-cmp[k]:0;return `<div class="stat" ${tt(`${l} ${st[k]>0?"+":""}${st[k]}`,cmp?(d?`${d>0?"+":""}${d} against the comparison`:"Same as the comparison"):"")}>${stIc(k,"s")}${full?`<span>${l}</span>`:""}<b class="${st[k]<0?"neg":""}">${st[k]>0?"+":""}${st[k]}</b>${cmp?delta(st[k],cmp[k]):""}</div>`}).join("");
   return h?`<div class="stats">${h}</div>`:"";
 }
-function cmpBlock(it,other,label){
+function cmpBlock(it,other,label){ // one row: vs <name>, % verdict, power before -> after
   const a=power(it),b=power(other),pct=b?Math.round((a-b)/Math.abs(b)*100):0,cls=a>b?"up":a<b?"down":"same";
   const word=a>b?`${pct}% stronger`:a<b?`${Math.abs(pct)}% weaker`:"About the same";
-  return `<div class="cmp"><div class="row"><span>${label} ${nameHtml(other)}</span><span class="verdict ${cls}">${word}</span></div>
-    <div class="row pw"><span>Power ${b} → ${a}</span>${delta(a,b)}</div></div>`;
+  return `<div class="cmp" ${tt(`${label} ${other.name}`,word,`Power ${b} → ${a}`)}><span class="cn">${label==="Versus equipped"?ic("equip","s"):"vs"} ${nameHtml(other)}</span><span class="verdict ${cls}">${a>b?"▲":a<b?"▼":"="}${Math.abs(pct)}%</span><span class="pw">PWR ${b}→${a}</span></div>`;
 }
 function hpBar(cur,max,cls){const p=Math.max(0,cur)/max;return `<div class="bar ${cls||(p<.3?"low":"")}"><i style="width:${p*100}%"></i></div>`}
 const gcol=id=>S.items[id].grade?GRADES[S.items[id].grade-1][1]:"var(--accent)";
@@ -26,20 +26,20 @@ const shopHtml=ev=>`<div class="shop"><p class="label">For sale · you have ${S.
 const topT=id=>topTraits(S.items[baseIdOf(id)].traits)[0][0];
 function renderUpgrade(){
   const lv=skLv("alchemy"),ids=upgradable().sort((a,b)=>topT(a).localeCompare(topT(b))||S.items[baseIdOf(a)].name.localeCompare(S.items[baseIdOf(b)].name)||gradeOf(a)-gradeOf(b));
-  $("upgsum").textContent=`Upgrade grades${ids.length?` · ${ids.length} ready`:""}`;
-  $("upginfo").textContent=`${UP.n} essences or materials of one grade and some embers make 1 of the next grade (Faint, Lesser, Plain, Greater, Pure): stronger traits, in a single crucible slot. A miss costs the embers and one of them. Greater needs Alchemy Lv ${GRADE_LV[3]}, Pure Lv ${GRADE_LV[4]}. You are Lv ${lv}.`;
+  $("upgsum").innerHTML=`${ic("upgrade","s")} Upgrade grades${ids.length?` <b class="rdy">${ids.length}</b>`:""}${helpBtn("Upgrade grades",`${UP.n} essences or materials of one grade and some embers make 1 of the next grade (Faint, Lesser, Plain, Greater, Pure): stronger traits, in a single crucible slot.`,"A miss costs the embers and one of them.",`Greater needs Alchemy Lv ${GRADE_LV[3]}, Pure Lv ${GRADE_LV[4]}. You are Lv ${lv}.`)}`;
   $("upgrows").innerHTML=ids.length?ids.map(id=>{const g=gradeOf(id),tg=g+1,it=S.items[id],low=lv<GRADE_LV[tg-1],poor=S.embers<UP.emb[g-1];
-    return `<div class="shoprow up"><span class="uname"><span style="color:${GRADES[g-1][1]}">${it.name}</span> <small>×${avail(id)}</small></span>
-      <button class="btn sm" data-upgrade="${id}" ${inBattle()||low||poor?"disabled":""} aria-label="Upgrade ${it.name} to ${GRADES[tg-1][0]}">${low?`${GRADES[tg-1][0]} needs Lv ${GRADE_LV[tg-1]}`:`${icon("ember")}${UP.emb[g-1]} · ${GRADES[tg-1][0]} · ${upChance(tg)}%`}</button></div>`}).join(""):`<p class="foot">Collect ${UP.n} of the same grade of an essence, ore, hide or herb to upgrade them.</p>`;
+    return `<div class="shoprow up">${glyph(it)}<span class="uname"><span style="color:${GRADES[g-1][1]}">${it.name}</span> <small>×${avail(id)}</small></span>
+      <button class="btn sm" data-upgrade="${id}" ${inBattle()||low||poor?"disabled":""} aria-label="Upgrade ${it.name} to ${GRADES[tg-1][0]}" ${tt(`${it.name} → ${GRADES[tg-1][0]}`,low?`Needs Alchemy Lv ${GRADE_LV[tg-1]}`:`${UP.n} of them and ${UP.emb[g-1]} embers make 1. ${upChance(tg)}% to succeed.`)}>${low?`${ic("lock","s")} Lv ${GRADE_LV[tg-1]}`:`${icon("ember")}${UP.emb[g-1]} · ${GRADES[tg-1][0]} · ${upChance(tg)}%`}</button></div>`}).join(""):`<p class="foot">Collect ${UP.n} of the same grade of an essence, ore, hide or herb to upgrade them.</p>`;
 }
 // ================= RENDER =================
 let forgeArmed="",freshShown=new Set(),logOpen=false,heatOpen=false;
 function renderHeader(){
   const l=level(),cur=XP_LV[l-1],nxt=XP_LV[l];clampHp();
-  $("lvl").textContent=`Smith Lv ${l}`;
+  const lt=`Smith Lv ${l}\n${nxt?`${S.xp-cur}/${nxt-cur} XP to Lv ${l+1}.`:"Highest level reached."}${LV_PERK[l]?` ${LV_PERK[l]}`:""}\nSmith XP comes from forging and unlocks crucible slots, trait slots and appraisal.`;
+  $("lvl").innerHTML=`${ic("smith","l")}<b>${l}</b>`;$("lvl").dataset.tip=lt;$("xpbar").parentNode.dataset.tip=lt;
   $("xpbar").style.width=nxt?`${Math.min(100,(S.xp-cur)/(nxt-cur)*100)}%`:"100%";
-  $("emb").innerHTML=`${icon("ember")}${S.embers}`;
-  $("disc").textContent=`${S.wins} renown · ${S.journal.length} forged`;
+  $("emb").innerHTML=`${icon("ember")}${S.embers}`;$("emb").dataset.tip="Embers\nThe currency of the forge. Fights, salvage and selling earn it; the peddler, grade upgrades and reforging spend it.";
+  $("disc").innerHTML=`<span class="mi" ${tt("Renown","Battles you have won.")}>${ic("renown")}${S.wins}</span><span class="mi" ${tt("Recipes forged","Different things you have forged. Each is saved in the Recipes tab.")}>${ic("hammer")}${S.journal.length}</span>`;
 }
 function renderNav(){
   $("nav").innerHTML=VIEWS.map(v=>{
@@ -50,36 +50,48 @@ function renderNav(){
   VIEWS.forEach(v=>$("v-"+v).hidden=S.view!==v);
 }
 function renderGoal(){
-  const g=goal(),el=$("goal");
+  const g=goal(),el=$("goal"),st=g.step.replace(/^Step (\d+) of (\d+)/,"$1/$2");
   el.hidden=inBattle();
   el.className="goal"+(g.done?" done":"");
-  el.innerHTML=`<div class="gt"><small>${g.step}${g.prog?` · ${g.prog}`:""}</small><span>${g.text}</span></div>
-    ${g.done?`<button class="btn primary sm" id="claim">Claim: ${rewardText(g.reward)}</button>`:S.view!==g.tab?`<button class="btn sm" id="goGoal">Go to ${cap(g.tab)}</button>`:""}`;
+  el.innerHTML=`<div class="gt" ${tt(g.step+(g.prog?` · ${g.prog}`:""),g.text,g.done?`Reward: ${rewardText(g.reward)}`:"")}><small>${st}</small> ${g.text}${g.prog?` <em>${g.prog}</em>`:""}</div>
+    ${g.done?`<button class="btn primary sm" id="claim">Claim</button>`:S.view!==g.tab?`<button class="btn sm" id="goGoal">Go to ${cap(g.tab)}</button>`:""}`;
 }
+const itemLines=it=>[it.name,`${rarity(it)[0]} · ${labelOf(it)}${isGear(it)?` · PWR ${power(it)}`:""}`,statLine(shown(it)),topTraits(it.traits).slice(0,4).map(([t,v])=>`${t} ${v}`).join(", ")];
+const itemTip=(it,...x)=>tt(...itemLines(it),...x),itemAria=it=>esc(itemLines(it).slice(1).filter(Boolean).join(". ")); // the tip text also goes in aria-label, for screen readers
+const ROMAN=["","I","II","III","IV","V"];
+const rcol=it=>`--rc:${rarity(it)[1]}${it.grade?`;--gc:${GRADES[it.grade-1][1]}`:""}`; // rarity stripe + grade frame colours
 function renderGear(){
   const P=pstats();P.floor=atFloor(P);
   $("ghp").className="bar"+(S.hp/P.maxHp<.3?" low":"");$("ghp").firstElementChild.style.width=`${S.hp/P.maxHp*100}%`;$("ghptxt").textContent=`${S.hp}/${P.maxHp}`;
   $("gear").innerHTML=SLOTS.map(([s,l])=>{const it=gearOf(s);
-    return `<button class="gslot${it?"":" none"}" data-gear="${s}" aria-label="${l}: ${it?it.name:"empty"}">${glyph(it,SLOT_GLYPH[s])}<small>${l}</small><span>${it?nameHtml(it):s==="main"?"Bare fists":"Empty"}</span></button>`}).join("");
-  $("pstats").innerHTML=[["ATK",P.atk,P.offW?`+${P.offPow}`:""],["MAG",P.mag,""],["DEF",P.def,`${Math.round(P.red*100)}%`],["SPD",P.spd,""]]
-    .map(([l,v,x])=>`<div class="ps"><span>${l}</span><b>${v}</b>${x?` <small>${x}</small>`:""}</div>`).join("");
-  const cf=[...Object.entries(P.rs).map(([k,v])=>`Resists ${k} ${v}%`),P.ward&&`Ward ${P.ward}`,P.thorns&&`Thorns ${P.thorns}%`,P.dr&&`-${P.dr}/hit`,P.floor&&`Hits at floor (${Math.round(HIT_MIN*100)}%)`,P.dodge&&`Dodge ${P.dodge}%`,P.root&&`Roots +${P.root}`,P.cleanse&&`Cleanse ${Math.round(Math.min(CLEANSE_CAP,P.cleanse*CLEANSE_PER))}%`].filter(Boolean);
-  $("cfx").innerHTML=cf.length?cf.map(x=>`<span>${x}</span>`).join(""):"";
-  const inf=Object.entries(S.infuse);
-  $("inflabel").textContent=`Infusions · ${inf.length}/${infSlots()} slots`;
-  $("inf").innerHTML=Array.from({length:infSlots()},(_,k)=>{const e=inf[k];if(!e)return `<div class="islot"><b style="color:var(--dim)">Empty</b><small>3 essences of one kind</small></div>`;
-    const [t,r]=e,st=innateStats(t),bits=Object.entries(st).filter(([,v])=>v).map(([s,v])=>`${v>0?"+":""}${v} ${s.toUpperCase()}`).join(" · ");
-    return `<div class="islot on" style="border-color:${tColor(t)};color:${tColor(t)}"><b>${t} ${["I","II","III"][r-1]}</b><small>${bits||"effect on hit"}</small></div>`}).join("");
-  const can=infusable();
+    return `<button class="sq gs${it?"":" none"}${it&&it.legendary?" legend":""}${it&&it.grade?" gr":""}"${it?` style="${rcol(it)}"`:""} data-gear="${s}" aria-label="${l}: ${it?`${it.name}. ${itemAria(it)}`:"empty"}" ${it?itemTip(it,l):tt(l,s==="main"?"Bare fists. Tap to choose a weapon.":"Empty. Tap to choose an item for it.")}>${glyph(it,SLOT_GLYPH[s])}</button>`}).join("");
+  const sp=Math.min(35,P.spd*3),rd=Math.round(P.red*100);
+  $("pstats").innerHTML=[["atk","Attack",P.atk,P.offW?`+${P.offPow}`:"",`Strike power of your main hand${P.offW?`. Your off hand adds a weaker second strike of ${P.offPow}`:""}.`],["mag","Magic",P.mag,"",`Counts ${MAG_W} times as much as Attack in your strikes.`],
+    ["def","Defense",P.def,`${rd}%`,`Cuts the damage you take by ${rd}%, with diminishing returns.`],["spd","Speed",P.spd,"",`${sp}% chance each turn of a swift follow-up strike (up to 35%).`]]
+    .map(([k,l,v,x,t])=>`<div class="ps" ${tt(`${l} ${v}`,t)}>${stIc(k)}<b>${v}</b>${x?`<small>${x}</small>`:""}</div>`).join("");
+  const rc=(col,ics,val,...t)=>`<span class="chip" style="color:${col}" ${tt(...t)}>${ics}<b>${val}</b></span>`;
+  const cf=[...Object.entries(P.rs).map(([k,v])=>rc(FAM[k]||"var(--muted)",famIc(k,"s")+ic("resist","xs"),`${v}%`,`Resists ${cap(k)} ${v}%`,`Cuts damage from ${k} attacks.`)),
+    P.ward&&rc("var(--verd)",ic("ward","s"),P.ward,`Ward ${P.ward}`,"Absorbs this much damage at the start of each battle."),
+    P.thorns&&rc("var(--muted)",ic("thorns","s"),`${P.thorns}%`,`Thorns ${P.thorns}%`,"Reflects this share of damage taken back at the attacker."),
+    P.dr&&rc("var(--muted)",ic("dr","s"),`-${P.dr}`,`-${P.dr} per hit`,"Stone takes this much off every hit you take."),
+    P.floor&&rc("var(--down)",ic("floor","s"),`${Math.round(HIT_MIN*100)}%`,`Hits at floor (${Math.round(HIT_MIN*100)}%)`,"Defense, resists and Stone together can't cut a hit below this share of its raw damage. More armor won't help against it."),
+    P.dodge&&rc(FAM.swift,famIc("swift","s"),`${P.dodge}%`,`Dodge ${P.dodge}%`,"Chance to dodge a hit."),
+    P.root&&rc(FAM.wood,ic("root","s"),`+${P.root}`,`Roots +${P.root}`,"HP healed each turn while you are below half health."),
+    P.cleanse&&rc(FAM.heal,ic("cleanse","s"),`${Math.round(Math.min(CLEANSE_CAP,P.cleanse*CLEANSE_PER))}%`,`Cleanse ${Math.round(Math.min(CLEANSE_CAP,P.cleanse*CLEANSE_PER))}%`,"Chance each turn to shake off a status (burn, chill, poison, curse).")].filter(Boolean);
+  $("cfx").innerHTML=cf.join("");
+  const inf=Object.entries(S.infuse),can=infusable(),R=["I","II","III"];
+  $("inflabel").innerHTML=`<p class="label">${ic("infuse","s")} Infusions · ${inf.length}/${infSlots()}</p>${helpBtn("Infusions",`Essences worth ${INF_COST} plain ones (a Greater counts as 3, a Pure as 9, a Lesser as ⅓) infuse a trait into you; as many again deepen it, up to III. Infused traits act as if they were on your weapon.`,can.length?"":inf.length>=infSlots()?"All slots used. You can still deepen an infusion with more of its essence.":`Collect essences of one trait worth ${INF_COST} plain ones (salvage, elites, bounties) to infuse it.`)}`;
+  $("inf").innerHTML=Array.from({length:infSlots()},(_,k)=>{const e=inf[k];if(!e)return `<div class="islot" ${tt("Empty infusion slot",`Collect ${INF_COST} plain essences of one kind to fill it.`)}>${ic("plus","l")}</div>`;
+    const [t,r]=e,st=innateStats(t),bits=Object.entries(st).filter(([,v])=>v);
+    return `<div class="islot on" style="border-color:${tColor(t)};color:${tColor(t)}" ${tt(`${t} ${R[r-1]}`,bits.map(([s,v])=>`${v>0?"+":""}${v} ${STAT_NAMES[s]}`).join(", ")||"Effect on hit",`Rank ${r} of ${INF_MAX}`)}>${famIc(TRAITS[t].f,"l")}<b>${t} ${R[r-1]}</b><span class="ib">${bits.map(([s,v])=>`<span>${stIc(s,"xs")}${v>0?"+":""}${v}</span>`).join("")||"<span>on hit</span>"}</span></div>`}).join("");
   const cr=S.infCredit?`<p class="foot" style="flex-basis:100%">Credit: ${creditTxt(S.infCredit)} plain, spent first on your next infusion.</p>`:"";
-  $("infbtns").innerHTML=(can.length?can.map(t=>`<button class="btn sm" data-infuse="${t}" style="border-color:${tColor(t)}">${S.infuse[t]?`Deepen ${t} → ${["I","II","III"][S.infuse[t]]}`:`Infuse ${t}`} · ${payText(infPay(t,Math.max(0,INF_NEED-S.infCredit)))||"credit"}</button>`).join("")
-    :`<p class="foot">${inf.length>=infSlots()?"All slots used. You can still deepen an infusion with more of its essence.":`Collect essences of one trait worth ${INF_COST} plain ones (salvage, elites, bounties) to infuse it.`}</p>`)+cr;
+  $("infbtns").innerHTML=can.map(t=>`<button class="btn sm" data-infuse="${t}" style="border-color:${tColor(t)}">${famIc(TRAITS[t].f,"s")} ${S.infuse[t]?`Deepen ${t} → ${R[S.infuse[t]]}`:`Infuse ${t}`} · ${payText(infPay(t,Math.max(0,INF_NEED-S.infCredit)))||"credit"}</button>`).join("")+cr;
 }
 function youHud(){
   const P=pstats(),B=S.battle,guarding=B&&!B.over&&B.guard;
   return `<div class="you" id="youHud">${glyph(P.main,"fists")}<div class="fname">You<em>${P.main?P.main.name:"Bare fists"}</em></div>
     <div class="hpline">${hpBar(S.hp,P.maxHp)}<span class="hpnum">${S.hp}<small>/${P.maxHp}</small></span></div>
-    <div class="fsub"><span>ATK ${P.atk}</span><span>DEF ${Math.round((B&&!B.over&&B.heat>=5?redOf(P.def*(1-HEAT_T.bite)):P.red)*100)}%${B&&!B.over&&B.heat>=5?` (-${Math.round(HEAT_T.bite*100)}% bite)`:""}</span>${P.regen?`<span>+${P.regen}/turn</span>`:""}${Object.keys(S.infuse).length?`<span>${Object.keys(S.infuse).join(" · ")}</span>`:""}${guarding?"<span>Guarding</span>":""}${B&&!B.over&&B.off>0?"<span>Off balance</span>":""}${B&&!B.over&&P.rs[B.el]?`<span>Resists ${B.el} ${P.rs[B.el]}%</span>`:""}${B&&!B.over&&B.ward>0?`<span>Ward ${B.ward}</span>`:""}${B&&!B.over?Object.entries(B.you||{}).map(([s,x])=>`<span class="st ${s}" title="${STATUS[s].tip}">${STATUS[s].n}${x.n>1?" x"+x.n:""} ${x.t}t</span>`).join(""):""}</div></div>`;
+    <div class="fsub"><span>ATK ${P.atk}</span><span>DEF ${Math.round((B&&!B.over&&B.heat>=5?redOf(P.def*(1-HEAT_T.bite)):P.red)*100)}%${B&&!B.over&&B.heat>=5?` (-${Math.round(HEAT_T.bite*100)}% bite)`:""}</span>${P.regen?`<span>+${P.regen}/turn</span>`:""}${Object.keys(S.infuse).length?`<span>${Object.keys(S.infuse).join(" · ")}</span>`:""}${guarding?"<span>Guarding</span>":""}${B&&!B.over&&B.off>0?"<span>Off balance</span>":""}${B&&!B.over&&P.rs[B.el]?`<span>Resists ${B.el} ${P.rs[B.el]}%</span>`:""}${B&&!B.over&&B.ward>0?`<span>Ward ${B.ward}</span>`:""}${B&&!B.over?Object.entries(B.you||{}).map(([s,x])=>`<span class="st ${s}" ${tt(STATUS[s].n,STATUS[s].tip)}>${STATUS[s].n}${x.n>1?" x"+x.n:""} ${x.t}t</span>`).join(""):""}</div></div>`;
 }
 function campbar(){
   const P=pstats(),low=S.hp/P.maxHp<.35;
@@ -114,7 +126,7 @@ function mapHead(){
     dark=m.torch<=0&&!m.cleared?`<p class="foot ambn">Your torch has guttered out. You see only one tile around you, and every step risks an ambush. A camp or shrine will relight it. Hunters notice you from 6 steps away instead of 4.</p>`:"";
   if(!dl&&!h&&!hz.max)return `<div class="maphead mini"><div class="mh1"><b>${zoneName(S.zone)}</b>${torch}</div>${dark}${amb}</div>`;
   const mods=[...dl?[`<li><b>${DAILY_TWISTS[d.twist].name}</b> ${DAILY_TWISTS[d.twist].desc}</li>`]:[],...HEAT.slice(0,h).map((x,i)=>`<li><b>Heat ${i+1} · ${x.name}</b> ${x.desc}</li>`)];
-  const sel=!dl&&hz.max?`<div class="hsel" role="group" aria-label="Heat for new expeditions"><span class="foot">New expeditions</span>${Array.from({length:hz.max+1},(_,n)=>`<button class="hchip" data-heat="${n}" aria-pressed="${hz.sel===n}" title="${n?HEAT[n-1].name+": "+HEAT[n-1].desc:"Normal difficulty"}">${n?"Heat "+n:"Normal"}</button>`).join("")}</div>
+  const sel=!dl&&hz.max?`<div class="hsel" role="group" aria-label="Heat for new expeditions"><span class="foot">New expeditions</span>${Array.from({length:hz.max+1},(_,n)=>`<button class="hchip" data-heat="${n}" aria-pressed="${hz.sel===n}" ${n?tt(HEAT[n-1].name,HEAT[n-1].desc):tt("Normal","Normal difficulty.")}>${n?"Heat "+n:"Normal"}</button>`).join("")}</div>
     <p class="foot">${hz.sel?`Heat ${hz.sel} · ${HEAT[hz.sel-1].name}: ${HEAT[hz.sel-1].desc} In all: ${heatTot(hz.sel)}.`:"Normal difficulty."}${hz.sel!==h&&!m.cleared?` This map is Heat ${h}; the choice applies to your next expedition here.`:""}</p>`:"";
   return `<div class="maphead"><div class="mh1"><b>${zoneName(S.zone)}</b>${dl?`<span class="heat daily">Daily</span>`:""}${h?`<span class="heat">Heat ${h}</span>`:""}${torch}</div>
     ${dl?`<p class="foot">Daily expedition · ${d.date}${d.date!==today()?" (still going from an earlier day)":""} · ${d.turns} turns so far</p>`:""}
@@ -159,9 +171,9 @@ function renderBattle(){
       :sp?`<div class="intent special"><b>NEXT</b><span>It's ${sp.tell}. ${(B.phased?K.sp2:K.sp)?`${sp.name} is coming.`:"Something big is coming."}${sp.kind==="heal"?` Parry (${Math.round(PARRY_CH*100)}%) to interrupt it.`:`${dmgTxt} Guard, or Parry (${Math.round(PARRY_CH*100)}%) to turn it back!`}</span></div>`
       :`<div class="intent"><b>NEXT</b><span>A normal attack.${dmgTxt} Parrying now would backfire.</span></div>`;
     const cons=Object.keys(S.inv).filter(id=>S.inv[id]>0&&grp(S.items[id])==="consumable");
-    const canStudy=unknownFacts(B.id).length>0,abs=abKeys(P),abBtn=k=>{const A=ABILITIES[k],c=(B.cd||{})[k]||0;return `<button class="btn act ab" data-ability="${k}" ${c>0?"disabled":""} title="${A.desc}">${icon(A.icon)}${A.name}${c>0?`<i class="cdb">${c}</i>`:""}</button>`};
+    const canStudy=unknownFacts(B.id).length>0,abs=abKeys(P),abBtn=k=>{const A=ABILITIES[k],c=(B.cd||{})[k]||0;return `<button class="btn act ab" data-ability="${k}" ${c>0?"disabled":""} ${tt(A.name,A.desc)}>${icon(A.icon)}${A.name}${c>0?`<i class="cdb">${c}</i>`:""}</button>`};
     body=`${intent}${youHud()}
-      <div class="acts n${abs.length}"><button class="btn primary act" id="atk">${icon("attack")}Attack</button>${abs.map(abBtn).join("")}<button class="btn act" id="guard">${icon("guard")}Guard</button><button class="btn act" id="parry" title="Beat a telegraphed special: negate it and riposte (${Math.round(PARRY_CH*100)}% to land). Mistimed: +25% damage and a lost guard.">${icon("parry")}Parry</button>
+      <div class="acts n${abs.length}"><button class="btn primary act" id="atk">${icon("attack")}Attack</button>${abs.map(abBtn).join("")}<button class="btn act" id="guard">${icon("guard")}Guard</button><button class="btn act" id="parry" ${tt("Parry","Beat a telegraphed special: negate it and riposte ("+Math.round(PARRY_CH*100)+"% to land). Mistimed: +25% damage and a lost guard.")}>${icon("parry")}Parry</button>
       <button class="btn act" id="study" ${canStudy?"":"disabled"}>${icon("study")}${canStudy?"Study":"Known"}</button><button class="btn act" id="flee">${icon("flee")}Flee</button></div>
       ${cons.length?`<div class="strip">${cons.map(id=>{const it=S.items[id];return `<button class="tile" data-use="${id}" aria-label="Use ${it.name}">${glyph(it)}<span class="tname">${nameHtml(it)}</span><span class="ttr">${useHint(it)}</span><span class="cnt">×${S.inv[id]}</span></button>`}).join("")}</div>`:""}
       ${logBlock(B)}`;
@@ -177,48 +189,48 @@ function useHint(it){const st=statsOf(it),p=[];if(st.heal>0)p.push(`+${medHeal(i
 const equippedRisk=items=>[...new Set(items.map(i=>i.id))].filter(id=>(S.inv[id]||0)-benchCount(id)<eqCount(id)).map(id=>S.items[id].name);
 // Forge preview line: the skill that makes this, success / mishap / fizzle odds, and the tier cap
 function craftLine(r,items){
-  const risk=equippedRisk(items);
-  const sk=SKILLS[r.skill],cp=SK_CAP[r.lv-1],b=r.blocked;
-  return `<div class="cline${b?" blocked":""}"><div class="cl1"><span>${skIcon(r.skill)}${sk.name} Lv ${r.lv}</span><span class="foot">Tier ${r.item.tier} · cap ${cp}</span></div>
-    ${b?`<p class="warn-text">${blockText(b)}</p>`:`<div class="odds"><span class="ok-text">${100-r.fail}% clean</span><span class="mis">${r.mis}% mishap</span><span class="warn-text">${r.fiz}% fizzle</span></div>`}
-    ${b?"":`<span class="foot">${S.journal.length?`Difficulty ${r.diff} vs your skill ${r.lv}${r.diff-r.lv>2?" · a reach for you":""}. A fizzle loses the ingredients but returns some embers.`:"Your first forge never fails."}</span>`}
+  const risk=equippedRisk(items),sk=SKILLS[r.skill],cp=SK_CAP[r.lv-1],b=r.blocked,ch=(col,ics,v,...t)=>`<span class="chip" style="color:${col}" ${tt(...t)}>${ics}<b>${v}</b></span>`;
+  return `<div class="cline${b?" blocked":""}"><div class="chips">${ch("var(--accent)",skIcon(r.skill),`Lv ${r.lv}`,`${sk.name} Lv ${r.lv}`,"The skill that makes this.")}${ch("var(--muted)",ic("tier","s"),`${r.item.tier}/${cp}`,`Tier ${r.item.tier}, your cap is ${cp}`,"The result's tier against the highest tier your skill can reach.")}
+    ${b?"":ch("var(--up)",ic("ok","s"),`${100-r.fail}%`,`${100-r.fail}% clean`,"A clean forge gives exactly the item previewed.")+ch("var(--accent)",ic("warn","s"),`${r.mis}%`,`${r.mis}% mishap`,"A mishap gives a flawed copy (Cursed, Brittle, Rust or Weakened) that you can reforge for embers.")+ch("var(--down)",ic("smoke","s"),`${r.fiz}%`,`${r.fiz}% fizzle`,"A fizzle loses the ingredients but returns some embers.")
+      +helpBtn("Forge odds",S.journal.length?`Difficulty ${r.diff} against your skill ${r.lv}${r.diff-r.lv>2?", a reach for you":""}. The higher your skill, the fewer mishaps and fizzles.`:"Your first forge never fails.")}</div>
+    ${b?`<p class="warn-text">${blockText(b)}</p>`:""}
     ${risk.length?`<p class="warn-text">${risk.join(" and ")} ${risk.length>1?"are":"is"} equipped. A fizzle would destroy ${risk.length>1?"them":"it"}; tap Forge twice to confirm.</p>`:""}</div>`;
 }
 const skIcon=k=>`<svg class="ski" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">${G[SKILLS[k].g]}</svg>`;
 function renderSkills(){
+  $("sksum").innerHTML=`${ic("hammer","s")} Crafting skills${helpBtn("Crafting skills","Every kind of thing has its own skill. A craft trains the skill of what you make, and a little of each other kind you put in. A higher skill raises the tier you can reach and lowers the chance a forge goes wrong.")}`;
   $("skills").innerHTML=Object.entries(SKILLS).map(([k,sk])=>{const l=skLv(k),cur=SK_LV[l-1],nxt=SK_LV[l],x=skXp(k);
     const f=Math.round(Math.max(FAIL.min,Math.min(FAIL.max,FAIL.base+FAIL.slope*(CRAFT.base+CRAFT.tier-l)))); // a plain tier-2 craft with no clashes
-    return `<div class="sk">${skIcon(k)}<div class="skb"><b>${sk.name}</b> <span class="foot">Lv ${l}${nxt?` · ${x-cur}/${nxt-cur} XP`:" · max"}</span>
-      <div class="bar know"><i style="width:${nxt?Math.min(100,(x-cur)/(nxt-cur)*100):100}%"></i></div><span class="foot">${sk.cats} · tier cap ${SK_CAP[l-1]} · ${f}% base failure</span></div></div>`}).join("");
+    return `<div class="sk" ${tt(`${sk.name} Lv ${l}`,`Makes ${sk.cats}.`,nxt?`${x-cur}/${nxt-cur} XP to Lv ${l+1}.`:"Highest level reached.",`Tier cap ${SK_CAP[l-1]}; about ${f}% base failure on a plain tier-2 craft.`)}>${skIcon(k)}<div class="skb"><span class="sn"><b>${sk.name}</b> <span class="foot">Lv ${l}</span></span>
+      <div class="bar know"><i style="width:${nxt?Math.min(100,(x-cur)/(nxt-cur)*100):100}%"></i></div></div><span class="skc"><span>${ic("tier","xs")}${SK_CAP[l-1]}</span><span>${ic("warn","xs")}${f}%</span></span></div>`}).join("");
 }
 function renderBench(){
   const max=maxInputs(),parts=[],items=S.bench.map(id=>S.items[id]),chk=checkMix(items);
   for(let i=0;i<(level()>=2?4:3);i++){
     if(i>0)parts.push('<span class="plus" aria-hidden="true">+</span>');
-    if(i>=max){parts.push(`<div class="slot locked" title="Unlocks at Smith Lv ${INPUT_LV[i-2]}">Lv ${INPUT_LV[i-2]}</div>`);continue}
+    if(i>=max){parts.push(`<div class="slot locked" ${tt(`Slot ${i+1}`,`Unlocks at Smith Lv ${INPUT_LV[i-2]}`)}>${ic("lock")}<small>Lv ${INPUT_LV[i-2]}</small></div>`);continue}
     const it=items[i];
-    parts.push(it?`<button class="slot full${!chk.ok&&chk.bad?.id===it.id?" bad":""}" data-slot="${i}" aria-label="Remove ${it.name}">${glyph(it)}<span>${it.name}</span></button>`:`<div class="slot">Empty</div>`);
+    parts.push(it?`<button class="slot full${!chk.ok&&chk.bad?.id===it.id?" bad":""}" style="${rcol(it)}" data-slot="${i}" aria-label="Remove ${it.name}" ${itemTip(it,"Tap to take it out.")}>${glyph(it)}</button>`:`<div class="slot" aria-label="Empty slot">${ic("plus","l")}</div>`);
   }
   $("slots").className=level()>=2?"slots s4":"slots";$("slots").innerHTML=parts.join("");
   let hint="",crafting=null;
-  if(!items.length)hint=`<p class="foot" style="text-align:center">Tap gear or a material below. Dimmed items won't mix with what's already in.</p>`;
+  if(!items.length)hint=`<p class="foot" style="text-align:center">Tap items below to add them.</p>`;
   else if(!chk.ok)hint=`<p class="warn-text">${chk.reason}</p>`;
   else if(items.length===1)hint=`<p class="foot">${items[0].name} takes ${acceptsText(items[0])}.</p>`;
   else{
     const r=combine(items,{roll:100}),known=S.items[r.item.id],base=S.items[r.baseId];crafting=r;
     if(known){
       const ts=targetSlot(known),eqIt=ts&&gearOf(ts),showEq=eqIt&&eqIt.id!==known.id&&eqIt.id!==base.id;
-      hint=`<div class="preview"><span class="label">Known recipe · you'll get</span>
-        <div class="rhead sm">${glyph(known)}<div><div class="rform">${rarity(known)[0]} · ${labelOf(known)}</div><b>${nameHtml(known)}</b></div></div>
+      hint=`<div class="preview"><div class="rhead sm">${glyph(known)}<div><div class="rform">${ic("ok","s")} Known recipe · ${rarity(known)[0]} · ${labelOf(known)}</div><b>${nameHtml(known)}</b></div></div>
         <div class="chips">${chips(known.traits)}</div>${statGrid(shown(known),shown(base))}
         ${cmpBlock(known,base,"Compared to")}${showEq?cmpBlock(known,eqIt,"Versus equipped"):""}</div>`}
     else{
       const knownR=new Set(S.knownR),kr=r.rxKeys.filter(k=>knownR.has(k)),ur=r.rxKeys.filter(k=>!knownR.has(k));
       const hidden=new Set(REACTIONS.filter(([a,b])=>ur.includes(a+"+"+b)).map(x=>x[2]));
-      const appraise=level()>=3?`<span class="foot">Appraisal: ${Object.keys(r.item.traits).map(t=>hidden.has(t)?"???":t).join(", ")}</span>`:`<span class="foot">Reach Smith Lv 3 to appraise which traits to expect.</span>`;
-      hint=`<div class="preview"><span class="ok-text">New combination. It will become a ${formName(r.item.form)}.</span>
+      const appraise=level()>=3?`<span class="foot">Appraisal: ${Object.keys(r.item.traits).map(t=>hidden.has(t)?"???":t).join(", ")}</span>`:`<span class="foot">Appraisal unlocks at Smith Lv 3.</span>`;
+      hint=`<div class="preview"><span class="ok-text">${ic("plus","s")} New combination: a ${formName(r.item.form)}.</span>
         ${kr.length?`<span class="foot">Known reactions: ${kr.map(k=>{const x=REACTIONS.find(([a,b])=>a+"+"+b===k);return `${x[0]} + ${x[1]} → ${x[2]}`}).join(", ")}</span>`:""}
-        ${ur.length?`<span class="foot" style="color:var(--accent)">Something in this mix will react in a way you haven't seen yet.</span>`:""}
+        ${ur.length?`<span class="foot" style="color:var(--accent)" ${tt("Unseen reaction","Something in this mix will react in a way you haven't seen yet.")}>${ic("warn","xs")} An unseen reaction</span>`:""}
         ${appraise}</div>`}
     hint+=craftLine(r,items);
   }
@@ -229,36 +241,38 @@ function renderBench(){
 function renderResult(fresh){
   const el=$("result"),total=Object.values(S.inv).reduce((s,c)=>s+c,0);
   if(!S.last){el.className="panel result";el.innerHTML=`<p class="empty">${total<2?"You need at least two items to forge. Win battles to collect loot.":"Your sword takes ores, herbs, potions, essences and relics. Salvage loot in the Gear tab to turn it into essences."}</p>`;return}
-  const r=S.last,sxt=r.sx?`+${r.xpGain} smith XP · ${Object.entries(r.sx).map(([k,n])=>`${SKILLS[k].name} +${n}`).join(", ")}${r.scaled?" (easy or known recipes teach less)":""}`:`+${r.xpGain} smith XP`;
+  const r=S.last,ch=(col,ics,v,...t)=>`<span class="chip" style="color:${col}" ${tt(...t)}>${ics}<b>${v}</b></span>`;
+  const gains=`<div class="chips">${ch("var(--accent)",ic("xp","s"),`+${r.xpGain}`,"Smith XP",`+${r.xpGain} smith XP. It raises your smith level, which opens crucible slots and trait slots.`)}${Object.entries(r.sx||{}).map(([k,n])=>ch("var(--fg)",skIcon(k),`+${n}`,`${SKILLS[k].name} +${n}`,r.scaled?"Easy or known recipes teach less.":"Crafting trains the skill of what you make.")).join("")}`; // the tail (fail chip) is added per branch
   if(r.fizzle){el.className="panel result fizzle"+(fresh?" fresh":"");
     el.innerHTML=`<div class="rhead"><div><div class="rform">Fizzle</div><h2 class="rname">Ashes and smoke</h2></div></div>
       <ul class="log"><li><strong>Recipe</strong> ${r.recipe.join(" + ")}</li>${r.log.map(l=>`<li class="${l.warn?"warn":""}"><strong>${l.k}</strong> ${l.t}</li>`).join("")}${r.refund?`<li><strong>Embers</strong> You sift ${r.refund} out of the ash.</li>`:""}</ul>
-      <p class="foot">${sxt} · you learn from failure</p>`;return}
+      ${gains}<span class="foot">you learn from failure</span></div>`;return}
   const it=S.items[r.id]||r.item,base=S.items[r.baseId],[rn]=rarity(it);
   const ts=targetSlot(it),eqIt=ts&&gearOf(ts),showEq=eqIt&&eqIt.id!==it.id&&eqIt.id!==base?.id;
   el.className="panel result"+(it.legendary?" legend":"")+(fresh?" fresh":"");
   el.innerHTML=`<div class="rhead">${glyph(it)}<div><div class="rform">${rn} · ${labelOf(it)} · Tier ${it.tier}</div>
     <h2 class="rname">${nameHtml(it)}${r.isNew?`<span class="badge${it.legendary?" gold":""}">${it.legendary?"Legendary":"New"}</span>`:""}</h2></div></div>
     <div class="chips">${chips(it.traits)}</div>
-    ${base?cmpBlock(it,base,"Compared to"):""}${statGrid(shown(it),base?shown(base):null)}
+    ${statGrid(shown(it),base?shown(base):null)}${base?cmpBlock(it,base,"Compared to"):""}
     ${showEq?cmpBlock(it,eqIt,"Versus equipped"):""}
     <ul class="log"><li><strong>Recipe</strong> ${it.recipe.join(" + ")}</li>${r.log.map(l=>`<li class="${l.warn?"warn":""}"><strong>${l.k}</strong> ${l.t}</li>`).join("")}</ul>
-    <p class="foot">${r.mishap?"Flawed":"Held together"} (${r.inst}% to fail) · ${sxt}</p>
+    ${gains}${ch(r.mishap?"var(--accent)":"var(--up)",ic(r.mishap?"warn":"ok","s"),`${r.inst}%`,r.mishap?"Flawed":"Held together",`${r.inst}% was the chance to fail.`)}</div>
     ${S.inv[it.id]>0?`<div class="actions"><button class="btn${isGear(it)&&!eqCount(it.id)?" primary":""}" data-open="${it.id}">${isGear(it)&&!eqCount(it.id)?"Equip or inspect":"Inspect"}</button></div>`:""}`;
 }
 const TABS=[["all","All"],["weapon","Weapons"],["armor","Armor"],["charm","Trinkets"],["consumable","Consumables"],["material","Materials"]];
 const baseName=it=>(S.items[baseIdOf(it.id)]||it).name; // graded items sort next to their Plain kin, by grade
+const TAB_IC={all:()=>ic("bag"),weapon:()=>gIc("blade"),armor:()=>gIc("chest"),charm:()=>ic("amulet"),consumable:()=>gIc("potion"),material:()=>gIc("ore")};
+const tabBtn=(attr,k,l,on)=>`<button class="tab ti" data-${attr}="${k}" aria-pressed="${on}" aria-label="${l}" ${tt(l)}>${TAB_IC[k]()}${on?`<span>${l}</span>`:""}</button>`; // icon filter chip: the active one shows its name, the rest have a tip
 function satchel(mode){
-  const tabs=TABS.map(([k,l])=>`<button class="tab" data-tab="${k}" aria-pressed="${S.tab===k}">${l}</button>`).join("");
+  const tabs=TABS.map(([k,l])=>tabBtn("tab",k,l,S.tab===k)).join("");
   const list=Object.keys(S.inv).filter(id=>S.inv[id]>0).map(id=>S.items[id]).filter(it=>S.tab==="all"||grp(it)===S.tab)
     .sort((a,b)=>FORMS[b.form].p-FORMS[a.form].p||b.tier-a.tier||baseName(a).localeCompare(baseName(b))||gradeOf(a.id)-gradeOf(b.id)||a.name.localeCompare(b.name));
   const benchItems=S.bench.map(id=>S.items[id]),full=S.bench.length>=maxInputs();
   const tiles=list.length?list.map(it=>{const eq=eqCount(it.id)>0,left=avail(it.id),isNew=freshShown.has(it.id)||S.fresh.includes(it.id);
     let note="",no=false;
-    if(mode==="forge"){if(left<=0){no=true;note="all in crucible"}else if(full){no=true;note="crucible full"}else if(!checkMix([...benchItems,it]).ok){no=true;note="won't mix"}}
-    const sub=note?`<span style="color:var(--down)">${note}</span>`:`${eq?'<span class="tag">WORN · </span>':""}${isGear(it)?`PWR ${power(it)} · `:""}${topTraits(it.traits).slice(0,2).map(x=>x[0]).join(" · ")}`;
-    return `<button class="tile${it.legendary?" legend":""}${it.grade?" gr":""}${eq?" eq":""}${no?" no":""}"${it.grade?` style="--gc:${GRADES[it.grade-1][1]}"`:""} data-id="${it.id}" data-can="${no?0:1}" aria-label="${it.name}${note?`, ${note}`:""}">
-      ${glyph(it)}<span class="tname">${nameHtml(it)}</span><span class="ttr">${sub}</span><span class="cnt">×${left}</span>${isNew?'<span class="new">NEW</span>':""}</button>`}).join("")
+    if(mode==="forge"){if(left<=0){no=true;note="All in the crucible."}else if(full){no=true;note="The crucible is full."}else if(!checkMix([...benchItems,it]).ok){no=true;note="Won't mix with what is in the crucible."}}
+    return `<button class="sq${it.legendary?" legend":""}${it.grade?" gr":""}${eq?" eq":""}${no?" no":""}" style="${rcol(it)}" data-id="${it.id}" data-can="${no?0:1}" aria-label="${it.name}${left!==1?`, ${left}`:""}${eq?", worn":""}${isNew?", new":""}${note?`, ${note}`:""}. ${itemAria(it)}" ${itemTip(it,left>1?`You hold ${left}.`:"",eq?"Worn.":"",note)}>
+      ${glyph(it)}${left!==1?`<span class="sq-n">${left}</span>`:""}${eq?`<span class="sq-w">${ic("equip","xs")}</span>`:""}${isGear(it)||it.grade?`<span class="sq-p"${it.grade?` style="color:var(--gc)"`:""}>${isGear(it)?power(it):ROMAN[it.grade]}</span>`:""}${isNew?'<i class="sq-d"></i>':""}</button>`}).join("")
     :`<p class="empty">Nothing here yet.</p>`;
   return [tabs,tiles];
 }
