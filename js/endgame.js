@@ -16,7 +16,9 @@ function startDaily(){
   toast(`Daily expedition: ${DAILY_TWISTS[p.twist].name}.`);save();render();
 }
 function finishDaily(rows,boss){
-  const d=S.daily;d.state="done";d.result={rows,boss,turns:d.turns};S.run=null;S.zone=d.back;
+  const d=S.daily,st=S.stats,r={rows,boss:!!boss,turns:d.turns},b=st.dBest;d.state="done";d.result={rows,boss,turns:d.turns};S.run=null;S.zone=d.back;
+  st.dailies++;if(boss)st.dailyWins++;
+  if(!b||(r.boss&&!b.boss)||(r.boss===!!b.boss&&(r.boss?r.turns<b.turns:r.rows>b.rows||(r.rows===b.rows&&r.turns<b.turns))))st.dBest=r; // best daily: a boss kill beats any fall, then fewer turns / more rows
 }
 let dArmed=false;
 function abandonDaily(){

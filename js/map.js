@@ -35,7 +35,7 @@ function openNodes(m){if(m.cleared)return[];if(!m.pos)return m.rows[0].map((_,i)
 const busy=()=>!!((S.battle&&!S.battle.over)||(S.event&&S.event.choices.length));
 function visit(r,i){
   const m=curMap();if(busy()||!openNodes(m).some(([a,b])=>a===r&&b===i))return;
-  m.pos={r,i};m.path.push([r,i]);const nd=m.rows[r][i];nd.done=true;S.battle=null;S.event=null;
+  sfx("step");m.pos={r,i};m.path.push([r,i]);const nd=m.rows[r][i];nd.done=true;S.battle=null;S.event=null;
   let t=nd.t;
   if(t==="mystery")t=nd.my||mystery(Math.random());
   const P=pstats(),hl=m.heat||0,amb=!!m.amb&&["fight","elite"].includes(t); // m.amb: a robbed traveller's friends make your next fight an ambush; it ends with the next node whatever it is
@@ -45,7 +45,7 @@ function visit(r,i){
   if(t==="elite")return startBattle(null,{row:r,elite:true,ambush:amb,e:nd.e,af:nd.af});
   if(t==="boss")return startBattle(ZONES[zoneIdx(S.zone)][2]);
   if(ENC[t])S.event=ENC[t].make(nd.rv||[0,0,0,0].map(()=>Math.random()),hl);
-  if(t==="pack"){const pool=zonePool(S.zone),got=nd.pk?[...nd.pk]:[pick(pool)];if(!nd.pk&&Math.random()<.5)got.push(pick(pool));got.forEach(id=>addItem(id));
+  if(t==="pack"){const pool=zonePool(S.zone),got=nd.pk?[...nd.pk]:[pick(pool)];if(!nd.pk&&Math.random()<.5)got.push(pick(pool));got.forEach(id=>addItem(id));sfx("loot");
     S.event={type:"pack",icon:"chest",title:"An abandoned pack",text:"Someone left in a hurry. You help yourself.",loot:got,choices:[]}}
   if(t==="chest")S.event={type:"chest",icon:"chest",title:"A lone chest",text:"An iron-banded chest sits in the open, unattended. Suspiciously unattended.",loot:[],choices:[["open","Open it"],["leave","Walk past"]],pre:nd.ch};
   if(t==="peddler")S.event=merchant(nd.sh);

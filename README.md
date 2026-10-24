@@ -19,7 +19,8 @@ js/
   codex.js        creature knowledge tracking
   goals.js        tutorial steps and bounties
   player.js       equipment, player stats, infusions
-  fx.js           floating-number / hit-flash queue
+  fx.js           floating-number / hit-flash queue (also maps floaters to sounds)
+  audio.js        synthesized sound effects (Web Audio), mute/volume preference
   map.js          region maps, nodes, map events (chest, shrine, peddler, camp)
   encounters.js   choice-driven map events (ENC table: shrine, altar, alchemist, traveller, forge, riddle)
   economy.js      embers currency: peddler shop, selling, essence refining, reforging mishaps
@@ -46,6 +47,8 @@ js/
 - Secrets (`SECRETS`, optional `bonus:{trait,v}` merged by `combine()`) start hidden except the first three. `S.hints` lists secret indexes; each repeat of an index reveals one more ingredient (`hintLv`, `giveHint(x)` in `goals.js`). Hint scrolls come from chests, shrine offerings, riddles, travellers, boss first kills, bounties and the daily.
 - Map events live in `ENC[type]={make(rv,hl),pick(choice,ev)}`; `rv` is four rolls pre-rolled per node (`nd.rv`) in the seeded daily map. Satchel-dependent choices vary per player. Every event must finish in `endEv(...)` (no choices) or a leave.
 - Embers (`S.embers`, tunables in `EMB` in `data.js`) come from fights (`fightEmbers`), salvage and selling. The peddler is a shop (`merchant(sh)`; the stock is pre-rolled per node as `nd.sh` on the seeded daily). Refined essences are `ess_<T>_2` (`refined(t)`, trait `REFINE_VALUE`); test essence ids with `isEss`/`isRefined`, never `startsWith("ess_")` alone when you need the trait (use `id.split("_")[1]`). A refined essence counts as 3 plain ones for infusion and stands in for its plain kind in secrets. `reforge(id)` makes a new `c_` item, like old-forge tempering.
+- Sound: `sfx(name,delay)` in `audio.js` is a safe no-op without a user gesture or Web Audio; add a sound as one line in `SND` (built from `osc`/`noise`) and a gap in `GAP` if it needs rate limiting. The preference is in `localStorage` key `everforge-sound`, never in `S`.
+- Lifetime counters live in `S.stats` (`statsDef()` in `state.js`; `migrate()` merges missing fields, deriving what it can). Count in the central places (`strike`, `dealt()` before any `B.hp-=`, enemy hit path, `enemyDown`, `youFall`, `finishDaily`, `gainEmbers`/`spendEmbers`) and show them in `renderStats()` (Codex tab).
 
 ## Testing
 
