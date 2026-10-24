@@ -1,14 +1,14 @@
 // ================= STATE =================
-const KEY="everforge-v8",OLD_KEYS=["everforge-v7","everforge-v6","everforge-v5","everforge-v4","everforge-v3"];
+const KEY="everforge-v9",OLD_KEYS=["everforge-v8","everforge-v7","everforge-v6","everforge-v5","everforge-v4","everforge-v3"];
 function baseItem(id){const [name,form,traits,kind]=BASE[id];return {id,name,form,noun:name.split(" ").pop(),traits,tier:1,crafted:false,...(kind?{kind}:{})}}
 function freshState(){
   const items={};Object.keys(BASE).forEach(id=>items[id]=baseItem(id));
-  return {v:8,maps:{},heat:{},daily:null,run:null,infuse:{},items,inv:{iron_sword:1},eq:{main:"iron_sword",off:null,head:null,body:null,hands:null,feet:null,charm:null},
+  return {v:9,embers:0,maps:{},heat:{},daily:null,run:null,infuse:{},items,inv:{iron_sword:1},eq:{main:"iron_sword",off:null,head:null,body:null,hands:null,feet:null,charm:null},
     hp:999,camp:2,campProg:0,xp:0,journal:[],knownR:[],hints:[0,1,2],bench:[],last:null,tab:"all",rtab:"all",view:"battle",zone:"woods",
     wins:0,kills:{},seen:{},codex:{},unlocked:["woods"],zoneKills:{},quest:0,bounty:null,stats:{salvaged:0,studied:0},fresh:[],battle:null,event:null};
 }
 const isObj=v=>!!v&&typeof v==="object"&&!Array.isArray(v);
-const DEFAULTED=["maps","infuse","eq","kills","seen","codex","zoneKills","stats","journal","knownR","bench","unlocked","fresh","hp","xp","zone","heat","daily","run","hints"];
+const DEFAULTED=["maps","infuse","eq","kills","seen","codex","zoneKills","stats","journal","knownR","bench","unlocked","fresh","hp","xp","zone","heat","daily","run","hints","embers"];
 // Shape check for loaded or imported saves, so a malformed one is rejected instead of breaking every render.
 function sane(s){
   return ["maps","heat","infuse","items","inv","eq","kills","seen","codex","zoneKills","stats"].every(k=>isObj(s[k]))
@@ -37,12 +37,14 @@ function migrate(s){
   if(s.v===5){s.v=6;s.maps={};s.infuse={};s.battle=null;s.event=null;if(s.quest>=6&&!(s.kills.gnarlhorn>0))s.quest=5}
   if(s.v===6){s.v=7;s.heat={};s.daily=null;s.run=null;ZONES.forEach(z=>{if((s.kills?.[z[2]]||0)>0)s.heat[z[0]]={max:1,sel:0}})}
   if(s.v===7){s.v=8;s.hints=[0,1,2]} // the three original rumors stay visible
-  if(s.v!==8||!isObj(s.items)||!isObj(s.inv))return null;
+  if(s.v===8){s.v=9;s.embers=Math.min(60,2*(s.wins|0))} // a small grant for progress made before embers existed
+  if(s.v!==9||!isObj(s.items)||!isObj(s.inv))return null;
   const dflt=freshState();DEFAULTED.forEach(k=>{if(s[k]===undefined)s[k]=dflt[k]});
   Object.keys(BASE).forEach(id=>s.items[id]=baseItem(id));
   if(!sane(s))return null;
   ZONES.forEach((z,i)=>{if(i&&(s.kills[ZONES[i-1][2]]||0)>0&&!s.unlocked.includes(z[0]))s.unlocked.push(z[0])}); // zones added later open for saves that already beat the boss before them
-  Object.values(s.items).forEach(it=>{if(it.id.startsWith("ess_")){it.kind="essence";const t=Object.keys(it.traits)[0];it.traits={[t]:ESS_VALUE}}});
+  Object.values(s.items).forEach(it=>{const m=it.id.match(/^ess_([A-Za-z]+)(_2)?$/);if(m){it.kind="essence";it.traits={[m[1]]:m[2]?REFINE_VALUE:ESS_VALUE}}}); // plain and refined essences are reset to their fixed values
+  s.embers=Math.max(0,Math.floor(Number(s.embers))||0);
   Object.values(s.items).forEach(it=>{const sc=it.legendary&&SECRETS.find(x=>x.name===it.name&&x.bonus);if(sc&&!(it.traits[sc.bonus.trait]>0))it.traits[sc.bonus.trait]=sc.bonus.v}); // a legendary that lost its bonus to the trait-slot trim gets it back
   Object.keys(s.heat).forEach(z=>{const h=s.heat[z];if(!ZONES.some(x=>x[0]===z)||!isObj(h))delete s.heat[z];else{h.max=Math.max(0,Math.min(HEAT_MAX,h.max|0));h.sel=Math.max(0,Math.min(h.max,h.sel|0))}});
   const d=s.daily,okMap=m=>isObj(m)&&Array.isArray(m.rows)&&m.rows.length===MAP_ROWS&&m.rows.every(r=>Array.isArray(r)&&r.length&&r.every(n=>isObj(n)&&Number.isFinite(n.x)&&Array.isArray(n.next)&&typeof n.t==="string"));

@@ -18,6 +18,7 @@
     <div class="meta">
       <span class="lvl" id="lvl">Smith Lv 1</span>
       <div class="xp" aria-hidden="true"><i id="xpbar" style="width:0%"></i></div>
+      <span class="emb" id="emb" title="Embers"></span>
       <span id="disc"></span>
     </div>
   </header>
@@ -41,7 +42,7 @@
     <section class="panel" aria-label="Infusions">
       <p class="label" id="inflabel">Infusions</p>
       <div class="inf" id="inf"></div>
-      <p class="foot">3 pure essences infuse a trait into you; 3 more deepen it, up to III. Infused traits act as if they were on your weapon.</p>
+      <p class="foot">3 pure essences (or 1 refined one) infuse a trait into you; 3 more deepen it, up to III. Infused traits act as if they were on your weapon.</p>
       <div class="actions" id="infbtns"></div>
     </section>
     <section style="display:grid;gap:10px">
@@ -60,6 +61,11 @@
         <button class="btn primary grow" id="combine" disabled>Forge</button>
         <button class="btn" id="clear">Clear</button>
       </div>
+    </section>
+    <section class="panel" aria-label="Refining">
+      <p class="label">Refine essences</p>
+      <p class="foot" id="refinfo"></p>
+      <div class="actions" id="refbtns"></div>
     </section>
     <section class="panel result" id="result" aria-live="polite"></section>
     <section style="display:grid;gap:10px">
@@ -168,6 +174,7 @@
 <script src="js/fx.js"></script>
 <script src="js/map.js"></script>
 <script src="js/encounters.js"></script>
+<script src="js/economy.js"></script>
 <script src="js/battle.js"></script>
 <script src="js/endgame.js"></script>
 <script src="js/gear.js"></script>

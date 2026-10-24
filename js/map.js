@@ -16,9 +16,9 @@ function genMap(o){
   if(o.twist==="elites")rows.forEach((row,r)=>{if(r>0)row.forEach(nd=>{if(nd.t==="fight")nd.t="elite"})});
   if(h>=2){const c=rows.flatMap((row,r)=>r>=2&&r<MAP_ROWS-2?row.filter(nd=>nd.t==="fight"):[]);if(c.length)c[Math.floor(R()*c.length)].t="elite"}
   if(sd)rows.forEach((row,r)=>{if(r<MAP_ROWS-1)row.forEach((nd,i)=>{const rn=rng(hash(o.seed+":"+r+":"+i));nd.e=pickEnemy(o.zone,rn);if(nd.t==="mystery")nd.my=mystery(rn());
-    // pre-rolled so the same day plays out alike: elite upgrade, affix, chest (mimic, loot, scroll), pack loot and four rolls (rv) for choice events (peddler offers and satchel-based event choices depend on you, so they vary)
+    // pre-rolled so the same day plays out alike: elite upgrade, affix, chest (mimic, loot, scroll), pack loot and four rolls (rv) for choice events and six (sh) for the peddler's stock (the one-for-one offer, what you can sell and satchel-based event choices depend on you, so they vary)
     const zp=zonePool(o.zone),pk=a=>a[Math.floor(rn()*a.length)];nd.up=rn()<eliteCh(h);nd.af=Math.floor(rn()*AFFIXES.length);
-    nd.ch={m:rn()<.25,l:[pk(zp),pk(zp)],e:rn()<.5?pk(ESS_POOL):null,s:rn()<.15,sx:rn()};nd.pk=[pk(zp),...rn()<.5?[pk(zp)]:[]];nd.rv=[rn(),rn(),rn(),rn()]})});
+    nd.ch={m:rn()<.25,l:[pk(zp),pk(zp)],e:rn()<.5?pk(ESS_POOL):null,s:rn()<.15,sx:rn()};nd.pk=[pk(zp),...rn()<.5?[pk(zp)]:[]];nd.rv=[rn(),rn(),rn(),rn()];nd.sh=[rn(),rn(),rn(),rn(),rn(),rn()]})});
   return{rows,pos:null,path:[],cleared:false,seed:sd?o.seed:Math.floor(Math.random()*1e9),heat:h};
 }
 const eliteCh=h=>h>=3?HEAT_T.affix:.08*(h>=2?HEAT_T.elite:1),heatOf=z=>S.heat[z]||{max:0,sel:0},newMap=z=>genMap({heat:heatOf(z).sel});
@@ -48,9 +48,7 @@ function visit(r,i){
   if(t==="pack"){const pool=zonePool(S.zone),got=nd.pk?[...nd.pk]:[pick(pool)];if(!nd.pk&&Math.random()<.5)got.push(pick(pool));got.forEach(id=>addItem(id));
     S.event={type:"pack",icon:"chest",title:"An abandoned pack",text:"Someone left in a hurry. You help yourself.",loot:got,choices:[]}}
   if(t==="chest")S.event={type:"chest",icon:"chest",title:"A lone chest",text:"An iron-banded chest sits in the open, unattended. Suspiciously unattended.",loot:[],choices:[["open","Open it"],["leave","Walk past"]],pre:nd.ch};
-  if(t==="peddler"){const o=makeOffer();
-    S.event=o?{type:"merchant",icon:"peddler",title:"A travelling peddler",text:`"Fine wares for fine folk. I'll take your ${S.items[o.give].name} for this ${S.items[o.get].name}. Fair's fair."`,offer:o,loot:[],choices:[["trade",`Trade for ${S.items[o.get].name}`],["inspect","Inspect the offer"],["leave","No thanks"]]}
-      :{type:"done",icon:"peddler",title:"A travelling peddler",text:"\"Nothing to trade? Come back with pockets full.\" The peddler wanders off.",loot:[],choices:[]}}
+  if(t==="peddler")S.event=merchant(nd.sh);
   if(t==="camp")S.event={type:"camp",icon:"camp",title:"A sheltered camp",text:"A ring of stones and dry wood, out of the wind. The boss lies just ahead.",loot:[],choices:[["rest",`Rest (+${Math.round(P.maxHp*campFrac())} HP)`],...hl>=5?[]:[["embers","Bank the embers (+1 campfire charge)"]]]};
   save();render();
 }
@@ -65,6 +63,7 @@ function eventChoice(c){
   const ev=S.event;
   if(c==="leave"){S.event=null;save();return render()}
   if(c==="inspect")return openSheet(ev.offer.get,false,true);
+  if(ev.type==="merchant"&&/^(buy|sell):/.test(c))return shopPick(c,ev);
   if(ENC[ev.type]){ENC[ev.type].pick(c,ev);save();return render()}
   if(ev.type==="camp"){
     if(c==="rest"){const g=healYou(Math.round(pstats().maxHp*campFrac()));S.event={type:"done",icon:"camp",title:"Well rested",text:`You sleep by the fire and recover ${g} HP.`,loot:[],choices:[]}}
