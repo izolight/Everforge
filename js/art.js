@@ -167,6 +167,7 @@ const NODE_G={
   forge:'<path d="M3 8 H17 Q21 8 21 11 H15 Q14 14 11 14 V17 H15 V20 H6 V17 H9 V14 Q5 14 4 11 Z"/>',
   recipes:'<path d="M4 5 Q8 3 12 6 Q16 3 20 5 V19 Q16 17 12 20 Q8 17 4 19 Z"/><path d="M12 6 V20"/>',
   codex:'<path d="M2 12 Q12 3 22 12 Q12 21 2 12 Z"/><circle cx="12" cy="12" r="3.5"/>',
+  parry:'<path d="M5 19 L19 5 M5 5 L19 19 M3 21 L6 18 M21 21 L18 18"/>',
   guard:'<path d="M12 2 L20 5 V11 C20 16 16 20 12 22 C8 20 4 16 4 11 V5 Z"/>',
   study:'<circle cx="10" cy="10" r="6"/><path d="M14.5 14.5 L21 21"/>',
   flee:'<path d="M4 12 H16 M11 7 L16 12 L11 17"/><path d="M20 5 V19"/>',

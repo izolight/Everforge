@@ -7,7 +7,7 @@ function pickEnemy(zone){const pool=Object.entries(ENEMIES).filter(([,e])=>e.zon
 function startBattle(forced,opt){
   opt=opt||{};const id=forced||pickEnemy(S.zone),E=ENEMIES[id],sc=1+.06*(opt.row||0);
   const B={id,name:E.name,el:E.el,hp:Math.round(E.hp*sc),max:Math.round(E.hp*sc),atk:Math.round(E.atk*sc),def:E.def,weak:[...E.weak],resist:[...E.resist],turn:1,
-    burn:null,poison:0,shred:0,ward:null,frozen:false,guard:false,reborn:false,elite:null,log:[],over:null,loot:[]};
+    burn:null,poison:0,you:{},off:0,parry:false,shred:0,ward:null,frozen:false,guard:false,reborn:false,elite:null,log:[],over:null,loot:[]};
   if(id==="mimic"){const zi=zoneIdx(S.zone);B.max=B.hp=Math.round(E.hp*[1,1.9,2.8][zi]);B.atk=Math.round(E.atk*[1,1.6,2.1][zi]);B.def=E.def+zi*2}
   if(opt.ambush)B.log.push({t:"Ambush! Something leaps out at you.",c:"big"});
   if(!E.boss&&id!=="mimic"&&(opt.elite||Math.random()<.08)){const [adj,trait]=pick(AFFIXES),f=TRAITS[trait].f;
@@ -27,7 +27,22 @@ function eff(traits,B){
   return{m:1};
 }
 function noteEff(ef){const B=S.battle,E=ENEMIES[B.id];if(ef.k==="weak")learn(B.id,"weak",ef.f);if(ef.k==="resist"&&E.resist.includes(ef.f))learn(B.id,"resist",ef.f)}
-function healYou(n,why){const P=pstats(),b=S.hp;S.hp=Math.min(P.maxHp,S.hp+n);const got=S.hp-b;if(got>0){fx("youHud","+"+got,"heal");if(why&&S.battle&&!S.battle.over)blog(`${why} (+${got} HP).`,"good")}return got}
+const stOf=()=>S.battle.you||(S.battle.you={});
+const cures=tr=>[...new Set(Object.keys(tr).filter(t=>tr[t]>0&&CURES[t]).flatMap(t=>CURES[t]))];
+function inflict(B,P,sp){ // enemy hit landed: maybe afflict you; your element resist lowers the odds
+  const Y=stOf(),E=ENEMIES[B.id],l=E.inf?[E.inf]:[];if(B.elite&&ELITE_INF[B.elite]&&!(E.inf&&E.inf.s===ELITE_INF[B.elite]))l.push({s:ELITE_INF[B.elite],ch:ELITE_INF_CH});
+  l.forEach(({s,ch})=>{const T=STATUS[s];if(Math.random()>=Math.min(1,ch*(sp?2:1))*(1-(P.rs[T.el]||0)/100))return;
+    if(s==="poison"){const o=Y.poison||{n:0};Y.poison={n:Math.min(POISON_STACK,o.n+1),t:T.t,d:Math.max(1,Math.round(B.atk*.12))}}
+    else Y[s]={t:T.t,d:Math.max(1,Math.round(B.atk*.2))};
+    blog(`${INF_MSG[s]} (${s==="burn"||s==="poison"?`${s==="poison"?Y.poison.d*Y.poison.n:Y[s].d} damage per turn${s==="poison"&&Y.poison.n>1?`, x${Y.poison.n}`:""}`:STATUS[s].tip}).`,"foe");if(E.inf&&E.inf.s===s)learn(B.id,"inf",s)})}
+function tickYou(B,P){
+  const Y=stOf();
+  ["burn","poison"].forEach(s=>{const x=Y[s];if(!x||S.hp<=0)return;const d=s==="poison"?x.d*x.n:x.d;S.hp-=d;fx("youHud","-"+d,"hurt");
+    blog(s==="burn"?`Flames lick you for ${d}.`:`Venom burns in your veins for ${d}.`,"foe")});
+  const live=Object.keys(Y);
+  if(P.cleanse&&live.length&&S.hp>0&&Math.random()*100<Math.min(CLEANSE_CAP,P.cleanse*CLEANSE_PER)){const s=pick(live);delete Y[s];blog(`Your gear helps you shake off the ${STATUS[s].n.toLowerCase()}.`,"good")}
+  Object.keys(Y).forEach(s=>{if(--Y[s].t<=0){delete Y[s];blog(`The ${STATUS[s].n.toLowerCase()} fades.`,"good")}})}
+function healYou(n,why){const P=pstats(),b=S.hp;if(S.battle&&!S.battle.over&&stOf().curse)n=Math.ceil(n/2);S.hp=Math.min(P.maxHp,S.hp+n);const got=S.hp-b;if(got>0){fx("youHud","+"+got,"heal");if(why&&S.battle&&!S.battle.over)blog(`${why} (+${got} HP).`,"good")}return got}
 function strike(W,pow,label,inn){
   const B=S.battle,E=ENEMIES[B.id],tr=inn?withInnate(W?W.traits:{}):(W?W.traits:{}),v=t=>tr[t]||0,mast=know(B.id).mastered?1.15:1;
   let ef=eff(tr,B);const arc=ef.k==="resist"&&v("Arcane")&&Math.random()*100<Math.min(ARC_CAP,v("Arcane")*ARC_PER);if(arc){ef={m:1};blog("Arcane power cuts through its resistance.","you")}
@@ -49,11 +64,12 @@ function strike(W,pow,label,inn){
 function attack(){
   const P=pstats(),B=S.battle;
   strike(P.main,P.atk+P.mag*.7,P.main?`You strike with ${P.main.name}`:"You punch",true);
-  if(B.hp>0&&Math.random()*100<Math.min(35,P.spd*3))strike(P.main,P.atk+P.mag*.7,"A swift follow-up hits",true);
+  if(B.hp>0&&!stOf().chill&&Math.random()*100<Math.min(35,P.spd*3))strike(P.main,P.atk+P.mag*.7,"A swift follow-up hits",true);
   if(B.hp>0&&P.offW)strike(P.offW,P.offPow*2,`Your off-hand ${P.offW.name} adds`);
   afterPlayer();
 }
-function guard(){S.battle.guard=true;blog("You raise your guard.","you");enemyTurn()}
+function guard(){const B=S.battle;if(B.off>0)blog("You're off balance. Your guard falters.","foe");else{B.guard=true;blog("You raise your guard.","you")}enemyTurn()}
+function parry(){const B=S.battle;if(B.off>0)blog("You're off balance. Your parry falters.","foe");else{B.parry=true;blog("You wait for an opening...","you")}enemyTurn()}
 function study(){
   const B=S.battle,u=unknownFacts(B.id);S.stats.studied++;
   if(!u.length){blog("You already know everything about it.","");return enemyTurn()}
@@ -62,7 +78,8 @@ function study(){
 function useItem(id){
   const B=S.battle,it=S.items[id],st=statsOf(it);
   S.inv[id]--;trimBench();
-  let did=false;
+  let did=false;const Y=stOf(),cu=cures(it.traits).filter(s=>Y[s]);
+  if(cu.length){cu.forEach(s=>delete Y[s]);blog(`${it.name} clears your ${cu.map(s=>STATUS[s].n.toLowerCase()).join(" and ")}.`,"good");did=true}
   if(st.heal>0){healYou(medHeal(it),`You use ${it.name}`);did=true}
   const d=Math.round((st.atk+st.mag)*.6);
   if(d>=3){const ef=eff(it.traits,B),dmg=Math.max(1,Math.round(d*ef.m*vary()));B.hp-=dmg;fx("enemyHud","-"+dmg,"");fx("foeArt","","hit");
@@ -81,26 +98,30 @@ function flee(){
 }
 function afterPlayer(){if(S.battle.hp<=0)return enemyDown();enemyTurn()}
 function enemyTurn(){
-  const B=S.battle,E=ENEMIES[B.id],P=pstats();
+  const B=S.battle,E=ENEMIES[B.id],P=pstats(),Y=stOf();
   if(B.burn){B.hp-=B.burn.d;fx("enemyHud","-"+B.burn.d,"hurt");blog(`Flames lick the ${B.name} for ${B.burn.d}.`,"you");if(--B.burn.t<=0)B.burn=null}
   if(B.poison&&B.hp>0){B.hp-=B.poison;fx("enemyHud","-"+B.poison,"hurt");blog(`Poison eats at the ${B.name} for ${B.poison}.`,"you")}
   if(B.hp<=0)return enemyDown();
   const sp=isSpecial(B)?E.sp:null;
   if(B.frozen){B.frozen=false;blog(`The ${B.name} is frozen and can't act.`,"good")}
+  else if(sp&&sp.kind==="heal"&&B.parry){blog(`You break the ${B.name}'s concentration. ${sp.name} fizzles!`,"good");learn(B.id,"sp",1)}
   else if(sp&&sp.kind==="heal"){const h=Math.min(B.max-B.hp,Math.round(B.max*sp.x));B.hp+=h;if(h)fx("enemyHud","+"+h,"heal");blog(`The ${B.name} uses ${sp.name} and recovers ${h} HP.`,"foe");learn(B.id,"sp",1)}
   else{
-    const hits=sp&&sp.kind==="multi"?sp.n:1,mult=sp?sp.x:1;
+    const hits=sp&&sp.kind==="multi"?sp.n:1,mult=sp?sp.x:1,perfect=B.parry&&sp,dg=Y.chill?Math.round(P.dodge/2):P.dodge;
     if(sp){blog(`The ${B.name} uses ${sp.name}!`,"foe");learn(B.id,"sp",1)}
-    for(let i=0;i<hits&&S.hp>0;i++){
+    if(perfect){blog(`Perfect parry! You turn ${sp.name} aside.`,"big");strike(P.main,(P.atk+P.mag*.7)*PARRY_X,"You riposte",true)}
+    else if(B.parry){blog("Your parry is mistimed! You're left open.","foe");B.off=2}
+    for(let i=0;i<hits&&S.hp>0&&!perfect&&B.hp>0;i++){
       if(P.blind&&Math.random()<Math.min(.4,.08*P.blind)){blog("Steam clouds its eyes. It misses.","good");continue}
       if(P.shield&&!B.guard&&Math.random()<.15+(P.shield.traits.Heavy||0)*.03){blog(`You block with ${P.shield.name}.`,"good");continue}
-      if(P.dodge&&Math.random()*100<P.dodge){blog("You dodge aside. It misses.","good");continue}
-      let dmg=Math.max(1,Math.round(B.atk*mult*vary()*(1-P.red)*(B.guard?.4:1)*(1-(P.rs[B.el]||0)/100)));
+      if(dg&&Math.random()*100<dg){blog("You dodge aside. It misses.","good");continue}
+      let dmg=Math.max(1,Math.round(B.atk*mult*vary()*(1-P.red)*(B.guard?.4:1)*(B.parry?PARRY_FAIL:1)*(1-(P.rs[B.el]||0)/100)));
       if(P.dr)dmg=Math.max(1,Math.round(dmg-P.dr));
       if(B.ward==null)B.ward=P.ward; // old battles start unwarded
       const tot=dmg,ab=Math.min(B.ward,dmg);B.ward-=ab;dmg-=ab;S.hp-=dmg;
       fx("youHud",dmg?"-"+dmg:"","hurt");fx("youHud","","shake");fx("vig","","on");
       blog(sp?`It hits you for ${tot}${B.guard?" through your guard":""}.`:`The ${B.name} ${E.verb} for ${tot}${B.guard?" through your guard":""}.`,"foe");
+      if(dmg>0&&S.hp>0)inflict(B,P,sp);
       if(ab)blog(`Your rune ward absorbs ${ab}${B.ward?"":" and shatters"}.`,"good");
       if(P.thorns&&dmg>0&&S.hp>0){const th=Math.max(1,Math.round(dmg*P.thorns/100));B.hp-=th;fx("enemyHud","-"+th,"hurt");blog(`Your iron barbs bite it for ${th}.`,"you");if(B.hp<=0)break}
       if(sp&&sp.kind==="drain"){B.hp=Math.min(B.max,B.hp+dmg);blog(`It drinks ${dmg} HP from you.`,"foe")}
@@ -108,13 +129,14 @@ function enemyTurn(){
     if(S.hp<=0)return youFall();
     if(B.hp<=0)return enemyDown();
   }
+  tickYou(B,P);if(S.hp<=0)return youFall();
   if(P.regen&&S.hp<P.maxHp)healYou(P.regen,"Your gear mends you");
   if(P.root&&S.hp<P.maxHp*.5)healYou(P.root,"Roots knit your wounds");
-  B.guard=false;B.turn++;save();render();
+  B.guard=false;B.parry=false;if(B.off>0)B.off--;B.turn++;save();render();
 }
 function enemyDown(){
   const B=S.battle,E=ENEMIES[B.id];
-  if(E.rebirth&&!B.reborn){B.reborn=true;B.hp=Math.round(B.max*.4);B.burn=null;B.poison=0;B.guard=false;blog(`The ${B.name} bursts into flame and rises from its ashes!`,"big");B.turn++;save();return render()}
+  if(E.rebirth&&!B.reborn){B.reborn=true;B.hp=Math.round(B.max*.4);B.burn=null;B.poison=0;B.guard=false;B.parry=false;if(B.off>0)B.off--;blog(`The ${B.name} bursts into flame and rises from its ashes!`,"big");B.turn++;save();return render()}
   const P=pstats();
   B.hp=0;B.over="won";S.kills[B.id]=(S.kills[B.id]||0)+1;S.wins+=E.boss?3:1;
   if(!E.boss&&B.id!=="mimic")S.zoneKills[E.zone]=(S.zoneKills[E.zone]||0)+1;

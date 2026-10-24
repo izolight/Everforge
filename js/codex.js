@@ -5,12 +5,14 @@ function know(id){const E=ENEMIES[id],K=S.codex[id]||{weak:[],resist:[],drops:[]
   return{have,tot,pct:have/tot,mastered:have>=tot}}
 function learn(id,type,val){
   const K=cx(id),was=know(id).mastered;let fresh=false,text="";const nm=shortName(id);
-  if(type==="weak"||type==="resist"||type==="drops"){if(!K[type].includes(val)){K[type].push(val);fresh=true}}
+  if(type==="inf"){K.inf=K.inf||[];if(!K.inf.includes(val)){K.inf.push(val);fresh=true}}
+  else if(type==="weak"||type==="resist"||type==="drops"){if(!K[type].includes(val)){K[type].push(val);fresh=true}}
   else if(!K[type]){K[type]=true;fresh=true}
   if(!fresh)return false;
   if(type==="weak")text=`Codex: ${nm} is weak to ${val}.`;
   else if(type==="resist")text=`Codex: ${nm} resists ${val}.`;
   else if(type==="sp")text=`Codex: you learned ${nm}'s special move, ${ENEMIES[id].sp.name}.`;
+  else if(type==="inf")text=`Codex: ${nm} can inflict ${STATUS[val].n.toLowerCase()}.`;
   else if(type==="stats")text=`Codex: ${nm}'s strength is now recorded.`;
   else text=`Codex: ${nm} can drop ${S.items[val].name}.`;
   if(S.battle&&S.battle.id===id)blog(text,"lore");
