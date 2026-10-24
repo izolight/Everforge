@@ -1,5 +1,4 @@
 // ================= HELPERS =================
-function hash(str){let h=2166136261;for(let i=0;i<str.length;i++){h^=str.charCodeAt(i);h=Math.imul(h,16777619)}return h>>>0}
 function rng(seed){return()=>{seed|=0;seed=seed+0x6D2B79F5|0;let t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
 const r1=v=>Math.round(v*10)/10;
 const cap=s=>s[0].toUpperCase()+s.slice(1);
@@ -9,7 +8,9 @@ const reduced=()=>window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce
 function level(){let l=1;XP_LV.forEach((t,i)=>{if(S.xp>=t)l=i+1});return l}
 const skXp=k=>S.skills[k]||0;
 function skLv(k){let l=1;SK_LV.forEach((t,i)=>{if(skXp(k)>=t)l=i+1});return l}
-const skMsg=k=>(sfx("level",.6),`${SKILLS[k].name} Lv ${skLv(k)}! Tier ${SK_CAP[skLv(k)-1]} is within reach.`);
+// skill XP fades when a recipe is easy for the skill: full from difficulty lv-1, down to a 10% floor at lv-4
+const skFactor=(d,l)=>Math.max(.1,Math.min(1,(d-l+4)/3));
+const skMsg=(k,l0)=>(sfx("level",.6),`${SKILLS[k].name} Lv ${skLv(k)}! ${SK_CAP[skLv(k)-1]>SK_CAP[l0-1]?`Tier ${SK_CAP[skLv(k)-1]} is within reach.`:"Your forges fail less often."}`);
 const blockText=b=>`Your ${SKILLS[b.skill].name} (Lv ${b.lv}) can't reach tier ${b.tier} yet. It needs Lv ${b.need}.`;
 const lvMsg=()=>(sfx("level",.6),`Smith level ${level()}! ${LV_PERK[level()]||"Your mixtures grow steadier."}`);
 const maxInputs=()=>2+INPUT_LV.filter(l=>level()>=l).length;

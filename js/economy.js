@@ -40,7 +40,7 @@ function reforge(id){
     ms.forEach(m=>{if(m!=="Weakened"){delete tr[m];name=name.replace(TRAITS[m].adj+" ","")}});
     if(ms.includes("Weakened"))tr=it.unweak?{...it.unweak}:Object.fromEntries(Object.entries(tr).map(([t,v])=>[t,r1(v/.7)])); // old Weakened items without a snapshot fall back to undoing the 30%
     S.items[nid]={...it,id:nid,...back?{}:{recipe:undefined,recipeIds:undefined},clean:undefined,mishap:undefined,unweak:undefined,traits:tr,name}}
-  if(back){const ji=S.journal.findIndex(j=>j.id===id),have=S.journal.some(j=>j.id===nid);if(have){if(ji>=0)S.journal.splice(ji,1)}else if(ji>=0)S.journal[ji]={...S.journal[ji],id:nid,name:S.items[nid].name};else S.journal.push({id:nid,name:S.items[nid].name,legendary:!!S.items[nid].legendary})}
+  if(back){const ji=S.journal.findIndex(j=>j.id===id),have=S.journal.some(j=>j.id===nid);if(have){if(ji>=0)S.journal.splice(ji,1)}else if(ji>=0)S.journal[ji]={...S.journal[ji],id:nid,name:S.items[nid].name}}
   spendEmbers(cost);sfx("forge");takeOne(id);addItem(nid);
   for(const [s] of SLOTS)if(S.eq[s]===id&&eqCount(id)>(S.inv[id]||0)){S.eq[s]=nid;break}
   clampHp();save();render();closeSheet();toast(`${S.items[nid].name} reforged. ${ms.join(" and ")} gone.`);

@@ -34,7 +34,7 @@ function combine(raw,o={}){
   const base=inputs[0],forms=inputs.map(i=>i.form);let form=base.form;
   for(const [a,b,f] of FUSIONS){if(forms.includes(a)&&forms.includes(b)){form=f;log.push({k:"Fusion",t:`${cap(a)} + ${cap(b)} → ${FORMS[f].noun}`});break}}
   const vals={};inputs.forEach(i=>Object.entries(i.traits).forEach(([t,v])=>(vals[t]=vals[t]||[]).push(v)));
-  let tr={};Object.entries(vals).forEach(([t,vs])=>{const mx=Math.max(...vs),sum=vs.reduce((a,b)=>a+b,0);const g=.25*(sum-mx),lo=Math.max(0,Math.min(g,SOFT-mx));tr[t]=r1(mx+lo+(g-lo)/2)}); // merge gains above SOFT count half
+  let tr={};Object.entries(vals).forEach(([t,vs])=>{const mx=Math.max(...vs),sum=vs.reduce((a,b)=>a+b,0);const g=.25*(sum-mx),lo=Math.max(0,Math.min(g,SOFT-mx));tr[t]=r1(mx+lo+(g-lo)/2);if(g>lo+.05)log.push({k:"Limit",t:`${t} is near its limit; gains above ${SOFT} are halved.`})}); // merge gains above SOFT count half
   let inst=0;CONFLICTS.forEach(([a,b])=>{if(tr[a]&&tr[b])inst+=Math.min(tr[a],tr[b])*7});
   const used=new Set(),reacted=new Set(),rxKeys=[];
   for(let pass=0;pass<3;pass++){let any=false;
