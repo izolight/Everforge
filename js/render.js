@@ -18,7 +18,7 @@ function cmpBlock(it,other,label){ // one row: vs <name>, % verdict, power befor
 }
 function hpBar(cur,max,cls){const p=Math.max(0,cur)/max;return `<div class="bar ${cls||(p<.3?"low":"")}"><i style="width:${p*100}%"></i></div>`}
 const gcol=id=>S.items[id].grade?GRADES[S.items[id].grade-1][1]:"var(--accent)";
-const lootChips=ids=>ids.map(id=>`<button class="chip" data-item="${id}" style="color:${gcol(id)}">${S.items[id].name}</button>`).join("");
+const lootChips=ids=>ids.map(id=>{const it=S.items[id];return `<button class="sq" style="${rcol(it)}" data-item="${id}" aria-label="${it.name}. ${itemAria(it)}" ${itemTip(it)}>${glyph(it)}</button>`}).join(""); // loot as small item squares
 
 const shopRow=(id,label,c,off)=>`<div class="shoprow"><button class="chip" data-item="${id}" style="color:${gcol(id)}">${S.items[id].name}</button><button class="btn sm" data-choice="${c}" ${off?"disabled":""}>${label}</button></div>`;
 const shopHtml=ev=>`<div class="shop"><p class="label">For sale · you have ${S.embers} embers</p>${ev.stock.map((e,i)=>e.done?"":shopRow(e.id,`${icon("ember")}${e.price}`,`buy:${i}`,S.embers<e.price)).join("")}
@@ -32,7 +32,7 @@ function renderUpgrade(){
       <button class="btn sm" data-upgrade="${id}" ${inBattle()||low||poor?"disabled":""} aria-label="Upgrade ${it.name} to ${GRADES[tg-1][0]}" ${tt(`${it.name} → ${GRADES[tg-1][0]}`,low?`Needs Alchemy Lv ${GRADE_LV[tg-1]}`:`${UP.n} of them and ${UP.emb[g-1]} embers make 1. ${upChance(tg)}% to succeed.`)}>${low?`${ic("lock","s")} Lv ${GRADE_LV[tg-1]}`:`${icon("ember")}${UP.emb[g-1]} · ${GRADES[tg-1][0]} · ${upChance(tg)}%`}</button></div>`}).join(""):`<p class="foot">Collect ${UP.n} of the same grade of an essence, ore, hide or herb to upgrade them.</p>`;
 }
 // ================= RENDER =================
-let forgeArmed="",freshShown=new Set(),logOpen=false,heatOpen=false;
+let forgeArmed="",freshShown=new Set(),logOpen=false,heatOpen=false,legendOpen=false;
 function renderHeader(){
   const l=level(),cur=XP_LV[l-1],nxt=XP_LV[l];clampHp();
   const lt=`Smith Lv ${l}\n${nxt?`${S.xp-cur}/${nxt-cur} XP to Lv ${l+1}.`:"Highest level reached."}${LV_PERK[l]?` ${LV_PERK[l]}`:""}\nSmith XP comes from forging and unlocks crucible slots, trait slots and appraisal.`;
@@ -87,66 +87,80 @@ function renderGear(){
   const cr=S.infCredit?`<p class="foot" style="flex-basis:100%">Credit: ${creditTxt(S.infCredit)} plain, spent first on your next infusion.</p>`:"";
   $("infbtns").innerHTML=can.map(t=>`<button class="btn sm" data-infuse="${t}" style="border-color:${tColor(t)}">${famIc(TRAITS[t].f,"s")} ${S.infuse[t]?`Deepen ${t} → ${R[S.infuse[t]]}`:`Infuse ${t}`} · ${payText(infPay(t,Math.max(0,INF_NEED-S.infCredit)))||"credit"}</button>`).join("")+cr;
 }
-function youHud(){
-  const P=pstats(),B=S.battle,guarding=B&&!B.over&&B.guard;
-  return `<div class="you" id="youHud">${glyph(P.main,"fists")}<div class="fname">You<em>${P.main?P.main.name:"Bare fists"}</em></div>
-    <div class="hpline">${hpBar(S.hp,P.maxHp)}<span class="hpnum">${S.hp}<small>/${P.maxHp}</small></span></div>
-    <div class="fsub"><span>ATK ${P.atk}</span><span>DEF ${Math.round((B&&!B.over&&B.heat>=5?redOf(P.def*(1-HEAT_T.bite)):P.red)*100)}%${B&&!B.over&&B.heat>=5?` (-${Math.round(HEAT_T.bite*100)}% bite)`:""}</span>${P.regen?`<span>+${P.regen}/turn</span>`:""}${Object.keys(S.infuse).length?`<span>${Object.keys(S.infuse).join(" · ")}</span>`:""}${guarding?"<span>Guarding</span>":""}${B&&!B.over&&B.off>0?"<span>Off balance</span>":""}${B&&!B.over&&P.rs[B.el]?`<span>Resists ${B.el} ${P.rs[B.el]}%</span>`:""}${B&&!B.over&&B.ward>0?`<span>Ward ${B.ward}</span>`:""}${B&&!B.over?Object.entries(B.you||{}).map(([s,x])=>`<span class="st ${s}" ${tt(STATUS[s].n,STATUS[s].tip)}>${STATUS[s].n}${x.n>1?" x"+x.n:""} ${x.t}t</span>`).join(""):""}</div></div>`;
-}
-function campbar(){
-  const P=pstats(),low=S.hp/P.maxHp<.35;
-  if(twistNow()==="nocamp")return `${low?`<p class="warn-text">You're badly hurt. Eat something before your next fight.</p>`:""}<p class="foot" style="text-align:center">No campfires on this expedition.</p>`;
-  return `${low?`<p class="warn-text">You're badly hurt. Eat something or rest before your next fight.</p>`:""}
-  <div class="actions"><button class="btn grow" id="rest" ${S.camp>0&&(S.hp<P.maxHp||(!curMap().cleared&&curMap().torch<curMap().tmax))?"":"disabled"}>${icon("camp").replace("<svg","<svg style='width:18px;height:18px;vertical-align:-3px;margin-right:6px'")}Rest at campfire · ${S.camp} left</button></div>
-  <p class="foot" style="text-align:center">Campfire heals 50% and adds ${TORCH.rest} torch. Next charge in ${3-S.campProg} win${3-S.campProg===1?"":"s"}${S.camp>=3?" (pouch full)":""}.</p>`;
+const ci=(col,ics,v,...t)=>`<span class="chip" style="color:${col}" ${tt(...t)}>${ics}${v==null||v===""?"":`<b>${v}</b>`}</span>`; // icon chip: icon + value, words in the tip
+const stChip=(s,x)=>ci(FAM[STATUS[s].el]||"var(--bad)",famIc(STATUS[s].el,"s"),`${x.n>1?x.n+"x ":""}${x.t}t`,`${STATUS[s].n}${x.n>1?` x${x.n}`:""}, ${x.t} turns left`,cap(STATUS[s].tip)+".");
+function youHud(){ // compact: weapon, HP bar, then icon chips (words in tips)
+  const P=pstats(),B=S.battle,live=B&&!B.over,bite=live&&B.heat>=5,red=Math.round((bite?redOf(P.def*(1-HEAT_T.bite)):P.red)*100);
+  const c=[ci("var(--fg)",stIc("atk","s"),P.atk,`Attack ${P.atk}`,"Strike power of your main hand."),
+    ci("var(--fg)",stIc("def","s"),`${red}%`,`Defense ${P.def}`,`Cuts the damage you take by ${red}%.${bite?` Heat 5 bites through ${Math.round(HEAT_T.bite*100)}% of your Defense.`:""}`),
+    P.regen&&ci("var(--up)",stIc("heal","s"),`+${P.regen}`,`Regen +${P.regen}`,"HP you mend each turn."),
+    ...Object.entries(S.infuse).map(([t,r])=>ci(tColor(t),famIc(TRAITS[t].f,"s"),["I","II","III"][r-1],`Infused ${t} ${["I","II","III"][r-1]}`,"Acts as if it were on your weapon.")),
+    live&&B.guard&&ci("var(--verd)",ic("guard","s"),"","Guarding","Your next hit taken is cut by 60%."),
+    live&&B.off>0&&ci("var(--down)",ic("warn","s"),"","Off balance","A mistimed parry cost you your guard."),
+    live&&P.rs[B.el]&&ci(FAM[B.el],famIc(B.el,"s")+ic("resist","xs"),`${P.rs[B.el]}%`,`Resists ${cap(B.el)} ${P.rs[B.el]}%`,`Cuts damage from ${B.el} attacks.`),
+    live&&B.ward>0&&ci("var(--verd)",ic("ward","s"),B.ward,`Ward ${B.ward}`,"Absorbs this much damage."),
+    ...(live?Object.entries(B.you||{}).map(([s,x])=>stChip(s,x)):[])].filter(Boolean).join("");
+  return `<div class="you" id="youHud"><span class="yg" ${tt("You",P.main?P.main.name:"Bare fists")}>${glyph(P.main,"fists")}</span><div class="hpline" ${tt(`HP ${S.hp}/${P.maxHp}`)}>${hpBar(S.hp,P.maxHp)}<span class="hpnum">${S.hp}<small>/${P.maxHp}</small></span></div><div class="chips">${c}</div></div>`;
 }
 function foeStage(B){
   const E=ENEMIES[B.id],K=cx(B.id),kn=know(B.id),eliteF=B.elite?TRAITS[B.elite].f:null;
   const kw=B.weak.filter(f=>K.weak.includes(f)),kr=B.resist.filter(f=>K.resist.includes(f)||f===eliteF);
   const F=foeOf(B),unknown=F.weak.filter(f=>!K.weak.includes(f)).length+F.resist.filter(f=>!K.resist.includes(f)).length;
-  const st=[B.burn&&`<span class="chip" style="color:${FAM.fire}">Burning ${B.burn.d}</span>`,B.poison&&`<span class="chip" style="color:${FAM.poison}">Poison ${B.poison}</span>`,B.frozen&&`<span class="chip" style="color:${FAM.ice}">Frozen</span>`,B.bleed&&`<span class="chip" style="color:var(--bad)">Bleed ${B.bleed.d*B.bleed.n}</span>`].filter(Boolean).join("");
+  const st=[B.burn&&ci(FAM.fire,famIc("fire","s"),B.burn.d,`Burning ${B.burn.d}`,`Takes ${B.burn.d} damage each turn.`),B.poison&&ci(FAM.poison,famIc("poison","s"),B.poison,`Poison ${B.poison}`,`Takes ${B.poison} damage each turn.`),B.frozen&&ci(FAM.ice,famIc("ice","s"),"","Frozen","It loses its next turn."),B.bleed&&ci("var(--bad)",ic("rend","s"),B.bleed.d*B.bleed.n,`Bleed ${B.bleed.d*B.bleed.n}`,"Damage each turn that ignores armor.")].filter(Boolean).join("");
   const winding=!B.over&&!B.frozen&&isSpecial(B)&&F.sp.kind!=="heal";
   const cls=`portrait${B.over==="won"?" down":""}${winding?" winding":""}`;
+  const bd=[E.boss&&ci("var(--accent)",ic("boss","s"),"","Boss","Beat it to open the next region."),B.phased&&ci("var(--bad)",ic("warn","s"),"",E.phase.label,"Its second form."),!E.boss&&B.elite&&ci("var(--accent)",ic("elite","s"),"",`Elite, ${B.elite}`,"Tougher, and it drops an essence."),
+    B.heat?ci("var(--ember)",ic("heat","s"),B.heat,`Heat ${B.heat}`,HEAT[B.heat-1].name):"",kn.mastered&&ci("var(--verd)",ic("renown","s"),"","Mastered","You deal 15% more damage to it.")].filter(Boolean).join("");
   return `<div class="stage" id="enemyHud" style="--el:${FAM[B.el]}">
     <button class="${cls}" id="foeArt" data-codex="${B.id}" aria-label="${B.name}. Open codex entry">${portrait(B.id,{el:B.el,elite:B.elite,frozen:B.frozen,burn:!!B.burn&&!B.over,poison:B.poison>0&&!B.over,phased:B.phased})}</button>
-    <div class="foeinfo"><div class="fname">${B.name}${E.boss?`<small>BOSS</small>${B.phased?`<small>${E.phase.label}</small>`:""}`:B.elite?"<small>ELITE</small>":""}${B.heat?`<small>HEAT ${B.heat}</small>`:""}${kn.mastered?"<small>MASTERED</small>":""}</div>
+    <div class="foeinfo"><div class="fname">${B.name}<span class="bd">${bd}</span></div>
       <div class="hpline">${hpBar(B.hp,B.max,"foe")}<span class="hpnum">${Math.max(0,B.hp)}<small>/${B.max}</small></span></div>
-      <div class="fsub">${kw.map(f=>famChip(f,"weak")).join("")}${kr.map(f=>famChip(f,"resists")).join("")}${unknown>0?unkChip(`${unknown} unknown`):""}${st}</div></div></div>`;
+      <div class="chips">${kw.map(f=>ci(FAM[f],ic("weak","s")+famIc(f,"s"),"",`Weak to ${cap(f)}`,"Takes 50% more from it.")).join("")}${kr.map(f=>ci(FAM[f],ic("resist","s")+famIc(f,"s"),"",`Resists ${cap(f)}`,"Takes 40% less from it.")).join("")}${unknown>0?`<span class="chip unk" ${tt(`${unknown} unknown`,"Weaknesses and resistances you have not found yet. Hit it, or Study.")}><b>?</b>${unknown}</span>`:""}${st}</div></div></div>`;
 }
 function logBlock(B){
   const last=B.log.slice(-2).map(l=>`<span class="ll ${l.c}">${l.t}</span>`).join("");
-  return `<details class="logd" id="logd"${logOpen?" open":""}><summary>${last}<span class="more">${logOpen?"Hide":"Show"} full log</span></summary><ul class="blog" id="blog">${B.log.map(l=>`<li class="ll ${l.c}">${l.t}</li>`).join("")}</ul></details>`;
+  return `<details class="logd" id="logd"${logOpen?" open":""}><summary>${last}<span class="more">${ic("list","s")}</span></summary><ul class="blog" id="blog">${B.log.map(l=>`<li class="ll ${l.c}">${l.t}</li>`).join("")}</ul></details>`;
 }
-// Map header: heat badge, modifier list and heat selector (cleared zones), or the daily run's banner
+// Camp rest: one icon button with the charge count (the text is in its tip)
+function campBtn(){
+  const P=pstats(),m=curMap(),low=S.hp/P.maxHp<.35,no=twistNow()==="nocamp",on=!no&&S.camp>0&&(S.hp<P.maxHp||(!m.cleared&&m.torch<m.tmax));
+  const tp=no?tt("No campfires","This expedition has none."):tt(`Rest at campfire, ${S.camp} left`,`Heals 50% and adds ${TORCH.rest} torch. Next charge in ${3-S.campProg} win${3-S.campProg===1?"":"s"}${S.camp>=3?" (pouch full)":""}.`,low?"You're badly hurt. Eat something or rest before your next fight.":"");
+  return `<button class="ibt${low&&on?" warn":""}" id="rest" ${on?"":`aria-disabled="true" data-tap`} aria-label="Rest at campfire, ${S.camp} left${on?"":no?". No campfires here":S.camp?". Nothing to heal or relight":". No charges left"}" ${tp}>${ic("camp")}<i class="cdb">${no?"-":S.camp}</i></button>`;
+}
+// Status strip above the map: HP and stats, torch, daily / heat badges, camp, abandon and one "?" with the map rules and every modifier
 function mapHead(){
-  const m=curMap(),dl=S.run==="daily",d=S.daily,h=m.heat||0,hz=heatOf(S.zone);
-  const amb=m.amb?`<p class="foot ambn">A whistle sounds behind you. If your next stop is a fight, it starts with an ambush.</p>`:"",
-    tp=Math.round(100*m.torch/m.tmax),tc=m.torch<=0?" out":m.torch<=TORCH.max/6?" low":"",
-    torch=m.cleared?"":`<span class="torchb${tc}" role="img" aria-label="Torch ${m.torch} of ${m.tmax}">${icon("torch")}<span class="tbar"><i style="width:${tp}%"></i></span><b>${m.torch}</b></span>`,
-    dark=m.torch<=0&&!m.cleared?`<p class="foot ambn">Your torch has guttered out. You see only one tile around you, and every step risks an ambush. A camp or shrine will relight it. Hunters notice you from 6 steps away instead of 4.</p>`:"";
-  if(!dl&&!h&&!hz.max)return `<div class="maphead mini"><div class="mh1"><b>${zoneName(S.zone)}</b>${torch}</div>${dark}${amb}</div>`;
-  const mods=[...dl?[`<li><b>${DAILY_TWISTS[d.twist].name}</b> ${DAILY_TWISTS[d.twist].desc}</li>`]:[],...HEAT.slice(0,h).map((x,i)=>`<li><b>Heat ${i+1} · ${x.name}</b> ${x.desc}</li>`)];
-  const sel=!dl&&hz.max?`<div class="hsel" role="group" aria-label="Heat for new expeditions"><span class="foot">New expeditions</span>${Array.from({length:hz.max+1},(_,n)=>`<button class="hchip" data-heat="${n}" aria-pressed="${hz.sel===n}" ${n?tt(HEAT[n-1].name,HEAT[n-1].desc):tt("Normal","Normal difficulty.")}>${n?"Heat "+n:"Normal"}</button>`).join("")}</div>
-    <p class="foot">${hz.sel?`Heat ${hz.sel} · ${HEAT[hz.sel-1].name}: ${HEAT[hz.sel-1].desc} In all: ${heatTot(hz.sel)}.`:"Normal difficulty."}${hz.sel!==h&&!m.cleared?` This map is Heat ${h}; the choice applies to your next expedition here.`:""}</p>`:"";
-  return `<div class="maphead"><div class="mh1"><b>${zoneName(S.zone)}</b>${dl?`<span class="heat daily">Daily</span>`:""}${h?`<span class="heat">Heat ${h}</span>`:""}${torch}</div>
-    ${dl?`<p class="foot">Daily expedition · ${d.date}${d.date!==today()?" (still going from an earlier day)":""} · ${d.turns} turns so far</p>`:""}
-    ${mods.length?`<details class="heatd" id="heatd"${heatOpen?" open":""}><summary>${mods.length} active modifier${mods.length>1?"s":""}</summary><ul class="heatl">${mods.join("")}</ul></details>`:""}${sel}
-    ${dl?`<div class="actions"><button class="btn sm" id="dailyAbandon">${dArmed?"Tap again to abandon (no retry today)":"Abandon the daily"}</button></div>`:""}${dark}${amb}</div>`;
+  const m=curMap(),dl=S.run==="daily",d=S.daily,h=m.heat||0,hz=heatOf(S.zone),P=pstats(),zi=zoneIdx(S.zone);
+  const tp=Math.round(100*m.torch/m.tmax),out=m.torch<=0&&!m.cleared,tc=out?" out":m.torch<=TORCH.max/6?" low":"";
+  const torch=m.cleared?"":`<span class="torchb${tc}" ${tt(`Torch ${m.torch} of ${m.tmax}`,out?"Your torch has guttered out. You see only one tile around you, and every step risks an ambush. A camp or shrine will relight it. Hunters notice you from 6 steps away instead of 4.":"Every step burns it. Camps, shrine prayers and campfire rests relight it. At 0 you see one tile and risk ambushes.")}>${icon("torch")}<span class="tbar"><i style="width:${tp}%"></i></span><b>${m.torch}</b></span>`;
+  const mods=[...dl?[`${DAILY_TWISTS[d.twist].name}: ${DAILY_TWISTS[d.twist].desc}`]:[],...HEAT.slice(0,h).map((x,i)=>`Heat ${i+1}, ${x.name}: ${x.desc}`)];
+  const help=helpBtn(zoneName(S.zone),m.cleared?"Cleared. Explore a fresh map for more loot.":`${m.steps?"Tap a glowing tile next to you to step.":"Tap a glowing tile next to you to set out."} ${shortName(ZONES[zi][2])} waits in the lair at the top. Every step burns your torch, and some creatures roam and hunt you.`,dl?`Daily expedition, ${d.date}${d.date!==today()?" (still going from an earlier day)":""}, ${d.turns} turns so far.`:"",...mods);
+  const badges=(dl?`<span class="heat daily" ${tt("Daily expedition",DAILY_TWISTS[d.twist].name,DAILY_TWISTS[d.twist].desc)}>${ic("daily","s")}</span>`:"")
+    +(dl||!hz.max?(h?`<span class="heat" ${tt(`Heat ${h}`,...HEAT.slice(0,h).map(x=>x.name))}>${ic("heat","s")}${h}</span>`:""):`<button class="heat hb" id="heatBtn" aria-expanded="${heatOpen}" aria-label="Heat: this map ${h?h:"Normal"}, next expedition ${hz.sel||"Normal"}" ${tt(`Heat ${h||"Normal"}`,h?HEAT[h-1].name:"Normal difficulty.","Tap to choose the Heat of new expeditions.")}>${ic("heat","s")}${h}${hz.sel!==h&&!m.cleared?`<small>›${hz.sel}</small>`:""}</button>`);
+  const amb=m.amb?`<span class="heat amb" ${tt("Ambush","A whistle sounds behind you. If your next stop is a fight, it starts with an ambush.")}>${ic("warn","s")}</span>`:"";
+  const ab=dl?`<button class="ibt${dArmed?" warn":""}" id="dailyAbandon" aria-label="${dArmed?"Tap again to abandon":"Abandon the daily"}" ${tt(dArmed?"Tap again to abandon":"Abandon the daily",dArmed?"No retry today.":"Tap twice. You get no retry today.")}>${ic(dArmed?"warn":"close")}</button>`:"";
+  const sel=!dl&&hz.max&&heatOpen?`<div class="hpanel"><div class="hsel" role="group" aria-label="Heat for new expeditions">${Array.from({length:hz.max+1},(_,n)=>`<button class="hchip" data-heat="${n}" aria-pressed="${hz.sel===n}" aria-label="${n?"Heat "+n:"Normal"}" ${n?tt(HEAT[n-1].name,HEAT[n-1].desc):tt("Normal","Normal difficulty.")}>${n?ic("heat","s")+n:"0"}</button>`).join("")}</div>
+    <p class="foot">${hz.sel?`Heat ${hz.sel}, ${HEAT[hz.sel-1].name}: ${HEAT[hz.sel-1].desc} In all: ${heatTot(hz.sel)}.`:"New expeditions: normal difficulty."}${hz.sel!==h&&!m.cleared?` This map is Heat ${h}; the choice applies to your next expedition here.`:""}</p></div>`:"";
+  return `<div class="mhead"><div class="mr"><span class="yg" ${tt("You",P.main?P.main.name:"Bare fists")}>${glyph(P.main,"fists")}</span><div class="hpline" id="youHud" ${tt(`HP ${S.hp}/${P.maxHp}`)}>${hpBar(S.hp,P.maxHp)}<span class="hpnum">${S.hp}<small>/${P.maxHp}</small></span></div>
+    ${ci("var(--fg)",stIc("atk","s"),P.atk,`Attack ${P.atk}`,"Strike power of your main hand.")}${ci("var(--fg)",stIc("def","s"),`${Math.round(P.red*100)}%`,`Defense ${P.def}`,`Cuts the damage you take by ${Math.round(P.red*100)}%.`)}</div>
+    <div class="mr">${torch}${amb}${badges}${campBtn()}${ab}${help}</div>${sel}<p class="mnow${m.ls===m.steps&&m.steps?" mnew":""}">${(m.log||[]).slice(-1)[0]||"Tap a glowing tile next to you to set out."}</p></div>`;
 }
 function dailyCard(){
   if(S.run==="daily"||!dailyReady())return "";
   const done=dailyState()==="done",d=done?S.daily:dailyPlan(today()),tw=DAILY_TWISTS[d.twist],r=done&&d.result;
-  return `<div class="dcard"><div class="dtop"><b>Daily expedition</b><span class="foot">${d.date} UTC</span></div>
-    <p class="dline"><span>${zoneName(d.zone)}</span><span class="heat">Heat ${d.heat}</span><span class="heat daily">${tw.name}</span></p>
-    <p class="foot">${tw.desc}${!done&&d.zone!==d.want?` Today's region (${zoneName(d.want)}) isn't open to you, so you go to ${zoneName(d.zone)}.`:""}</p>
-    ${done?`<p class="foot dres ${r.boss?"won":""}">${r.boss?"Done":"Over"}: ${dailyResult(r)}. Come back tomorrow.</p>`
-      :`<p class="foot">One attempt a day. Everyone gets the same map, enemies and chests; fight drops and peddler offers can still differ. Reward for the boss: ${DAILY_REWARD.ess} essences, a rare find, ${DAILY_REWARD.xp} smith XP.</p><div class="actions"><button class="btn primary grow" id="dailyStart">Start today's run</button></div>`}</div>`;
+  return `<div class="dcard"><div class="dtop"><b>${ic("daily")} Daily</b><span class="dline"><span>${zoneName(d.zone)}</span><span class="heat">${ic("heat","s")}${d.heat}</span><span class="heat daily" ${tt(tw.name,tw.desc)}>${tw.name}</span></span>${helpBtn("Daily expedition",`${d.date} UTC. ${tw.desc}${!done&&d.zone!==d.want?` Today's region (${zoneName(d.want)}) isn't open to you, so you go to ${zoneName(d.zone)}.`:""}`,"One attempt a day. Everyone gets the same map, enemies and chests; fight drops and peddler offers can still differ.",`Reward for the boss: ${DAILY_REWARD.ess} essences, a rare find, ${DAILY_REWARD.xp} smith XP.`)}</div>
+    ${done?`<p class="foot dres ${r.boss?"won":""}">${r.boss?"Done":"Over"}: ${dailyResult(r)}. Come back tomorrow.</p>`:`<div class="actions"><button class="btn primary sm grow" id="dailyStart">Start today's run</button></div>`}</div>`;
 }
 function zoneView(){ // keep the chosen region chip in view and fade the edges that hide more chips
   const z=$("zones"),p=z.querySelector('[aria-pressed="true"]');
   if(p&&z.scrollWidth>z.clientWidth)z.scrollLeft+=p.getBoundingClientRect().left-z.getBoundingClientRect().left-(z.clientWidth-p.offsetWidth)/2;
   zoneFade()}
 function zoneFade(){const z=$("zones");z.dataset.l=z.scrollLeft>2?1:0;z.dataset.r=z.scrollLeft+z.clientWidth<z.scrollWidth-2?1:0}
+function fitMap(){ // the grid gets the room above the tab bar, but never tiles under 36px (then the page scrolls and the hero stays in view)
+  const w=document.querySelector(".mapwrap");if(!w||S.view!=="battle")return;const mp=w.firstElementChild,m=curMap(),nav=$("nav").offsetHeight;
+  document.documentElement.style.setProperty("--nav",nav+"px");mp.style.setProperty("--mw","");
+  const top=w.getBoundingClientRect().top+scrollY,room=innerHeight-nav-12-top;mp.style.setProperty("--mw",Math.max(Math.min(37*m.w+3,w.clientWidth-8),Math.min(440,Math.floor(room*m.w/m.h)))+"px");
+}
+const heroView=()=>document.querySelector(".tl.here")?.scrollIntoView({block:"nearest"});
 function renderBattle(){
   $("zones").innerHTML=ZONES.map(([id,name,boss],i)=>{const open=zoneOpen(id),cleared=S.kills[boss]>0;
     return `<button class="zone" data-zone="${id}" aria-pressed="${S.zone===id}" ${open&&!busy()&&S.run!=="daily"?"":"disabled"}>${name}${cleared?" ✓":""}${open?"":` · beat ${shortName(ZONES[i-1][2])}`}</button>`}).join("");zoneView();
@@ -158,27 +172,27 @@ function renderBattle(){
       ${ev.choices.length?`<div class="actions">${ev.choices.map(([c,l],i)=>`<button class="btn ${i===0?"primary":""} grow" data-choice="${c}">${l}</button>`).join("")}</div>`:cont}${youHud()}`;return}
   if(!B){
     const m=curMap(),zi=zoneIdx(S.zone),bossId=ZONES[zi][2],next=ZONES[zi+1];
-    const head=m.cleared?`<div class="cleared"><h2>${ZONES[zi][1]} cleared</h2><p class="empty">${shortName(bossId)} has fallen. Explore a fresh map here for more loot${next&&zoneOpen(next[0])?`, or move on to ${next[1]}`:""}.</p>
-        <div class="actions"><button class="btn grow" id="again">New expedition here</button>${next&&zoneOpen(next[0])?`<button class="btn primary grow" data-zone="${next[0]}">Travel to ${next[1]}</button>`:""}</div></div>`
-      :`<p class="foot" style="text-align:center">${m.steps?"Tap a glowing tile next to you to step.":"Tap a glowing tile next to you to set out."} ${shortName(bossId)} waits in the lair at the top. Every step burns your torch, and some creatures roam and hunt you.</p>`;
-    a.innerHTML=`${youHud()}${head}${mapHead()}${mapHtml()}${campbar()}${dailyCard()}`;a.querySelector(".tl.here")?.scrollIntoView({block:"nearest"});return}
+    const head=m.cleared?`<div class="cleared"><b>${ic("ok")} ${ZONES[zi][1]} cleared</b>${helpBtn(`${shortName(bossId)} has fallen`,`Explore a fresh map here for more loot${next&&zoneOpen(next[0])?`, or move on to ${next[1]}`:""}.`)}
+        <div class="actions"><button class="btn sm grow" id="again">New expedition</button>${next&&zoneOpen(next[0])?`<button class="btn primary sm grow" data-zone="${next[0]}">Travel to ${next[1]}</button>`:""}</div></div>`:"";
+    a.innerHTML=`${mapHead()}${head}${mapHtml()}${dailyCard()}`;fitMap();heroView();return}
   const K=cx(B.id);
   let body="";
   if(!B.over){
     const P=pstats(),sp=isSpecial(B)?foeOf(B).sp:null,est=foeHit(B,P,sp?sp.x:1,1)*(sp&&sp.kind==="multi"?sp.n:1);
     const dmgTxt=K.stats?B.ward>=est?" No damage expected (ward absorbs it).":` About ${est} damage${B.ward>0?` (ward absorbs ${B.ward})`:""}.`:"";
-    const intent=B.frozen?`<div class="intent"><b>NEXT</b><span>Frozen. It will lose its turn.</span></div>`
-      :sp?`<div class="intent special"><b>NEXT</b><span>It's ${sp.tell}. ${(B.phased?K.sp2:K.sp)?`${sp.name} is coming.`:"Something big is coming."}${sp.kind==="heal"?` Parry (${Math.round(PARRY_CH*100)}%) to interrupt it.`:`${dmgTxt} Guard, or Parry (${Math.round(PARRY_CH*100)}%) to turn it back!`}</span></div>`
-      :`<div class="intent"><b>NEXT</b><span>A normal attack.${dmgTxt} Parrying now would backfire.</span></div>`;
+    const pc=Math.round(PARRY_CH*100),dm=K.stats&&!(B.ward>=est)?ci("var(--down)",ic("hit","s"),`~${est}`,`About ${est} damage`,B.ward>0?`Your ward absorbs ${B.ward}.`:"Before your Guard."):K.stats?ci("var(--verd)",ic("ward","s"),"0","No damage expected","Your ward absorbs it."):"";
+    const intent=B.frozen?`<div class="intent" ${tt("Next","Frozen. It will lose its turn.")}><b>NEXT</b>${ci(FAM.ice,famIc("ice","s"),"Frozen","Frozen","It will lose its turn.")}</div>`
+      :sp?`<div class="intent special" ${tt("Next: "+((B.phased?K.sp2:K.sp)?sp.name:"something big"),`It's ${sp.tell}.`,sp.kind==="heal"?`Parry (${pc}%) to interrupt it.`:`${dmgTxt.trim()} Guard, or Parry (${pc}%) to turn it back!`)}><b>NEXT</b><span class="in">${ic("warn","s")} ${(B.phased?K.sp2:K.sp)?sp.name:"Something big"}</span>${sp.kind==="heal"?"":dm}${ci("var(--accent)",ic("parry","s"),`${pc}%`,`Parry ${pc}%`,"Beat a telegraphed special: negate it and riposte.")}</div>`
+      :`<div class="intent" ${tt("Next: a normal attack",dmgTxt.trim(),"Parrying now would backfire.")}><b>NEXT</b><span class="in">${ic("attack","s")} Attack</span>${dm}<span class="chip no">${ic("parry","s")}<b>no parry</b></span></div>`;
     const cons=Object.keys(S.inv).filter(id=>S.inv[id]>0&&grp(S.items[id])==="consumable");
-    const canStudy=unknownFacts(B.id).length>0,abs=abKeys(P),abBtn=k=>{const A=ABILITIES[k],c=(B.cd||{})[k]||0;return `<button class="btn act ab" data-ability="${k}" ${c>0?"disabled":""} ${tt(A.name,A.desc)}>${icon(A.icon)}${A.name}${c>0?`<i class="cdb">${c}</i>`:""}</button>`};
+    const canStudy=unknownFacts(B.id).length>0,abs=abKeys(P),abBtn=k=>{const A=ABILITIES[k],c=(B.cd||{})[k]||0;return `<button class="btn act ab" data-ability="${k}" ${c>0?`aria-disabled="true" data-tap`:""} aria-label="${A.name}${c>0?`, ready in ${c} turn${c>1?"s":""}`:""}. ${esc(A.desc)}" ${tt(A.name,c>0?`Ready in ${c} turn${c>1?"s":""}.`:`Cooldown ${A.cd} turns.`,A.desc)}>${icon(A.icon)}<span>${A.name}</span>${c>0?`<i class="cdb">${c}</i>`:""}</button>`};
     body=`${intent}${youHud()}
-      <div class="acts n${abs.length}"><button class="btn primary act" id="atk">${icon("attack")}Attack</button>${abs.map(abBtn).join("")}<button class="btn act" id="guard">${icon("guard")}Guard</button><button class="btn act" id="parry" ${tt("Parry","Beat a telegraphed special: negate it and riposte ("+Math.round(PARRY_CH*100)+"% to land). Mistimed: +25% damage and a lost guard.")}>${icon("parry")}Parry</button>
-      <button class="btn act" id="study" ${canStudy?"":"disabled"}>${icon("study")}${canStudy?"Study":"Known"}</button><button class="btn act" id="flee">${icon("flee")}Flee</button></div>
-      ${cons.length?`<div class="strip">${cons.map(id=>{const it=S.items[id];return `<button class="tile" data-use="${id}" aria-label="Use ${it.name}">${glyph(it)}<span class="tname">${nameHtml(it)}</span><span class="ttr">${useHint(it)}</span><span class="cnt">×${S.inv[id]}</span></button>`}).join("")}</div>`:""}
+      <div class="acts n${abs.length}"><button class="btn primary act" id="atk" ${tt("Attack","Strike with your main hand.")}>${icon("attack")}<span>Attack</span></button>${abs.map(abBtn).join("")}<button class="btn act" id="guard" ${tt("Guard","Take 60% less damage from the next hit.")}>${icon("guard")}<span>Guard</span></button><button class="btn act" id="parry" ${tt("Parry","Beat a telegraphed special: negate it and riposte ("+pc+"% to land). Mistimed: +25% damage and a lost guard.")}>${icon("parry")}<span>Parry</span></button>
+      <button class="btn act" id="study" ${canStudy?"":`aria-disabled="true" data-tap`} ${tt(canStudy?"Study":"Known",canStudy?"Learn one fact about it, but it costs your turn.":"You know everything it can teach.")}>${icon("study")}<span>${canStudy?"Study":"Known"}</span></button><button class="btn act" id="flee" ${tt("Flee","Try to get away. A creature from the map stays alive and dazed.")}>${icon("flee")}<span>Flee</span></button></div>
+      ${cons.length?`<div class="sqg cons">${cons.map(id=>{const it=S.items[id],hint=useHint(it);return `<button class="sq" style="${rcol(it)}" data-use="${id}" aria-label="Use ${it.name}${S.inv[id]>1?`, ${S.inv[id]} held`:""}. ${esc(hint)}" ${tt(it.name,hint,`You hold ${S.inv[id]}.`)}>${glyph(it)}${S.inv[id]>1?`<span class="sq-n">${S.inv[id]}</span>`:""}<span class="sq-p">${esc(hint.split(" · ")[0])}</span></button>`}).join("")}</div>`:""}
       ${logBlock(B)}`;
   }else{
-    const loot=B.over==="won"?`<div class="loot"><span class="label">Loot</span>${lootChips(B.loot)}${B.emb?`<span class="chip emb">${icon("ember")}+${B.emb}</span>`:""}</div>`:"";
+    const loot=B.over==="won"?`<div class="loot"><span class="label" ${tt("Loot","Tap an item to inspect it.")}>${ic("bag")}</span>${lootChips(B.loot)}${B.emb?`<span class="chip emb">${icon("ember")}+${B.emb}</span>`:""}</div>`:"";
     body=`${loot}${youHud()}<div class="actions"><button class="btn primary grow" id="cont">Back to the map</button>${B.over==="won"?'<button class="btn grow" id="toforge">Go to the forge</button>':""}</div>${logBlock(B)}`;
   }
   a.innerHTML=`${foeStage(B)}${body}`;
@@ -281,29 +295,35 @@ function renderSatchels(){
   if(S.view==="forge"){const [t,i]=satchel("forge");$("ftabs").innerHTML=t;$("finv").innerHTML=i}
 }
 function haveFor(ids){const need={};ids.forEach(id=>need[id]=(need[id]||0)+1);return ids.map(id=>(S.inv[id]||0)>=need[id])}
+const REC_IC={weapon:"blade",armor:"chest",charm:"charm",food:"food",potion:"potion",hide:"hide",ore:"ore",herb:"herb",essence:"essence",relic:"relic"};
+const kic=(k,tip)=>`<span class="kic" ${tt(...tip)}>${gIc(REC_IC[k]||k,"")}</span>`;
 function renderRecipes(){
-  $("rtabs").innerHTML=TABS.map(([k,l])=>`<button class="tab" data-rtab="${k}" aria-pressed="${S.rtab===k}">${l}</button>`).join("");
+  $("rtabs").innerHTML=TABS.map(([k,l])=>tabBtn("rtab",k,l,S.rtab===k)).join("");
   const recs=S.journal.slice().reverse().map(j=>S.items[j.id]).filter(it=>it&&(S.rtab==="all"||grp(it)===S.rtab));
-  $("rlist").innerHTML=recs.length?recs.map(it=>{const ids=it.recipeIds||[],have=haveFor(ids),all=have.every(Boolean)&&ids.length<=maxInputs()&&!inBattle();
-    return `<div class="rec">${glyph(it)}<div class="rn">${nameHtml(it)} <span class="foot">· ${labelOf(it)} · PWR ${power(it)}</span></div>
-      <button class="btn sm${all?" primary":""}" data-load="${it.id}" ${all?"":"disabled"}>${all?"Load":ids.length>maxInputs()?`Needs Lv ${INPUT_LV[ids.length-3]}`:"Missing"}</button>
-      <div class="ri">${ids.map((id,i)=>`<span class="${have[i]?"have":"miss"}">${S.items[id]?.name||"?"}</span>`).join(" + ")}</div></div>`}).join("")
+  $("rlabel").innerHTML=`${ic("recipes","s")} Your recipes · ${S.journal.length}${helpBtn("Recipes","Every combination you forge is saved here. Tap the anvil to load its ingredients into the crucible.","Ingredients you don't have are crossed out.")}`;
+  $("rlist").innerHTML=recs.length?recs.map(it=>{const ids=it.recipeIds||[],have=haveFor(ids),all=have.every(Boolean)&&ids.length<=maxInputs()&&!inBattle(),lv=ids.length>maxInputs();
+    const why=all?"Load the ingredients into the crucible.":lv?`Needs Smith Lv ${INPUT_LV[ids.length-3]} for ${ids.length} slots.`:inBattle()?"Finish the fight first.":"You are missing ingredients.";
+    return `<div class="rr${all?" ok":""}"><span class="rg" style="${rcol(it)}" ${itemTip(it,"Recipe")}>${glyph(it)}</span><div class="rm"><span class="rn">${nameHtml(it)}</span><span class="ris">${ids.map((id,i)=>{const x=S.items[id];return `<span class="ri1 ${have[i]?"have":"miss"}" ${tt(x?x.name:"?",have[i]?"You have it.":"You are out of it.")}>${x?glyph(x):ic("mystery")}</span>`}).join('<i>+</i>')}</span></div>
+      ${all?`<button class="ibt load" data-load="${it.id}" aria-label="Load the recipe for ${esc(it.name)}" ${tt("Load",why)}>${icon("forge")}</button>`
+        :`<button class="ibt load off" data-tap aria-label="Cannot load ${esc(it.name)}: ${why}" ${tt(lv?`Needs Lv ${INPUT_LV[ids.length-3]}`:"Missing",why)}>${lv?ic("lock"):ic("bag")}</button>`}</div>`}).join("")
     :`<p class="empty">${S.journal.length?"No recipes in this category yet.":"Every combination you forge is saved here so you can make it again."}</p>`;
-  $("mixrules").innerHTML=[["Weapons","weapon"],["Armor","armor"],["Trinkets","charm"],["Food","food"],["Potions","potion"]]
-    .map(([l,k])=>`<dt>${l}</dt><dd>${ACCEPTS[k].map(a=>KIND_LABEL[a]).join(", ")}, or the same type</dd>`).join("")
-    +`<dt>Materials</dt><dd>their own kind (hides, ores, herbs), essences, relics</dd><dt>Essences</dt><dd>everything. Salvage any item to get them.</dd>`;
-  $("fusions").innerHTML=FUSIONS.map(([a,b,f])=>`<li>${cap(formName(a))} + ${formName(b)} → <b style="color:var(--fg)">${FORMS[f].noun}</b></li>`).join("");
-  const known=new Set(S.knownR);
-  $("rxlabel").textContent=`Trait reactions · ${REACTIONS.filter(([a,b])=>known.has(a+"+"+b)).length}/${REACTIONS.length} discovered`;
-  $("reactions").innerHTML=REACTIONS.map(([a,b,res,cons])=>known.has(a+"+"+b)
-    ?`<li><span class="chip" style="color:${tColor(a)}">${a}</span>+<span class="chip" style="color:${tColor(b)}">${b}</span>→<span class="chip" style="color:${tColor(res)}">${res}</span>${cons.length?"":`<span class="foot">keeps both</span>`}</li>`
-    :`<li class="unk">??? + ??? → ???</li>`).join("");
-  const fd=SECRETS.filter(found).length,chip=(n,c)=>`<span class="chip" style="color:${c}">${n}</span>`;
-  $("seclabel").textContent=`Legendary secrets · ${fd}/${SECRETS.length} discovered`;
-  $("secrets").innerHTML=SECRETS.map((s,i)=>{const ok=found(s),lv=hintLv(i);
-    return ok?`<li class="sec ok"><b>${s.name}</b> <span class="foot">discovered</span><div class="si">${s.ids.map(id=>chip(idName(id),"var(--accent)")).join("")}</div></li>`
-      :lv?`<li class="sec"><i>${s.hint}</i><div class="si">${s.ids.map((id,k)=>k<lv-1?chip(idName(id),"var(--accent)"):chip("?","var(--dim)")).join("")}</div></li>`
-      :`<li class="sec lock">??? <span class="foot">undiscovered</span></li>`}).join("");
+  $("mixsum").innerHTML=`${ic("filter","s")} What mixes with what${helpBtn("What mixes","Each row lists what that kind of item takes, besides its own type. Essences mix with everything; salvage any item to get them.")}`;
+  $("mixrules").innerHTML=[["weapon","Weapons"],["armor","Armor"],["charm","Trinkets"],["food","Food"],["potion","Potions"]]
+    .map(([k,l])=>`<div class="mx">${kic(k,[l])}<span class="ar">takes</span>${ACCEPTS[k].map(a=>kic(a,[cap(KIND_LABEL[a])])).join("")}<span class="kic same" ${tt("The same type",`${l} also take other ${l.toLowerCase()}.`)}>${ic("plus","s")}</span></div>`).join("")
+    +`<div class="mx">${kic("ore",["Materials","Hides, ores and herbs."])}<span class="ar">takes</span>${["hide","ore","herb","essence","relic"].map(a=>kic(a,[cap(KIND_LABEL[a]),a==="hide"||a==="ore"||a==="herb"?"Only their own kind.":""])).join("")}</div>
+      <div class="mx">${kic("essence",["Essences"])}<span class="ar">takes</span><span class="kic" ${tt("Everything","Salvage any item to get essences.")}>${ic("bag")}</span></div>`;
+  $("fusions").innerHTML=FUSIONS.map(([a,b,f])=>`<span class="fu" ${tt(`${cap(formName(a))} + ${formName(b)} → ${FORMS[f].noun}`,"A fusion: two kinds that merge into a new one.")}>${gIc(a)}<i>+</i>${gIc(b)}<i>→</i><b>${gIc(f)}</b></span>`).join("");
+  const known=new Set(S.knownR),rd=REACTIONS.filter(([a,b])=>known.has(a+"+"+b));
+  $("rxlabel").innerHTML=`${ic("infuse","s")} Trait reactions · ${rd.length}/${REACTIONS.length}${helpBtn("Trait reactions","Some pairs of traits react when they meet in the crucible and become a new trait. Discover one by forging it.")}`;
+  $("reactions").innerHTML=[...rd.map(([a,b,res,cons])=>`<span class="rx1" ${tt(`${a} + ${b} → ${res}`,cons.length?"":"Keeps both traits.")}>${ci(tColor(a),famIc(TRAITS[a].f,"s"))}<i>+</i>${ci(tColor(b),famIc(TRAITS[b].f,"s"))}<i>→</i>${ci(tColor(res),famIc(TRAITS[res].f,"s"))}</span>`),
+    ...REACTIONS.filter(([a,b])=>!known.has(a+"+"+b)).map(()=>`<span class="rx1 unk" ${tt("Undiscovered reaction","Forge the right pair of traits to find it.")}>?</span>`)].join("");
+  const fd=SECRETS.filter(found).length;
+  $("seclabel").innerHTML=`${ic("renown","s")} Legendary secrets · ${fd}/${SECRETS.length}${helpBtn("Legendary secrets","Hint scrolls from chests, shrines, riddles, bosses, bounties and the daily reveal a rumor, then its ingredients.")}`;
+  $("secrets").innerHTML=SECRETS.map((sc,i)=>{const ok=found(sc),lv=hintLv(i),jr=ok&&S.journal.find(j=>S.items[j.id]?.legendary&&S.items[j.id].name===sc.name);
+    const ing=sc.ids.map((id,k)=>k<lv-1?idName(id):"?").join(" + ");
+    return ok?`<span class="sq sec ok" style="--rc:var(--accent)" ${tt(sc.name,"Discovered.",sc.ids.map(idName).join(" + "))}>${jr?glyph(S.items[jr.id]):ic("renown")}</span>`
+      :lv?`<span class="sq sec" ${tt("A rumor",sc.hint,`Ingredients: ${ing}`)}><b>?</b><span class="sq-p">${Math.max(0,lv-1)}/${sc.ids.length}</span></span>`
+      :`<span class="sq sec lock" ${tt("Undiscovered","A hint scroll would reveal a rumor.")}>${ic("lock")}</span>`}).join("");
 }
 const sn=n=>n>=1e6?(n/1e6).toFixed(1).replace(/\.0$/,"")+"M":n>=1e4?(n/1e3).toFixed(n>=1e5?0:1).replace(/\.0$/,"")+"k":String(n);
 function renderStats(){
@@ -323,13 +343,13 @@ function renderStats(){
 function renderCodex(){
   renderStats();
   const ids=Object.keys(ENEMIES),seenN=ids.filter(id=>S.seen[id]).length,mast=ids.filter(id=>S.seen[id]&&know(id).mastered).length;
-  $("cxlabel").textContent=`Creature codex · ${seenN}/${ids.length} met · ${mast} mastered`;
+  $("cxlabel").innerHTML=`${ic("codex","s")} Creature codex · ${seenN}/${ids.length}${mast?` · ${ic("renown","xs")}${mast}`:""}${helpBtn("Creature codex",`${seenN} of ${ids.length} met, ${mast} mastered.`,"Fight, study and hunt creatures to fill in their pages. A fully known creature takes 15% more damage from you.","Tap one to open its page.")}`;
   const groups=[...ZONES.map(z=>[z[0],z[1]]),["any","Anywhere"]];
-  $("cxlist").innerHTML=groups.map(([z,zn])=>`<p class="zonehead">${zn}</p>`+Object.entries(ENEMIES).filter(([,e])=>e.zone===z).map(([id,E])=>{
-    const seen=S.seen[id],k=know(id);
-    return `<button class="cx${seen?"":" sil"}" data-codex="${id}" ${seen?"":"disabled"}>${portrait(id)}<span class="cn">${seen?E.name:"Unknown creature"}${E.boss?' <span class="foot">· boss</span>':""}</span>
-      <span class="cpct ${k.mastered?"m":""}">${seen?(k.mastered?"Mastered":`${Math.round(k.pct*100)}%`):""}</span>
-      <span class="cm">${seen?`Defeated ${S.kills[id]||0} · knowledge ${k.have}/${k.tot}`:"Not yet encountered"}</span></button>`}).join("")).join("");
+  $("cxlist").innerHTML=groups.map(([z,zn])=>`<p class="zonehead">${zn}</p><div class="cxg">`+Object.entries(ENEMIES).filter(([,e])=>e.zone===z).map(([id,E])=>{
+    const seen=S.seen[id],k=know(id),pct=Math.round(k.pct*100),tp=tt(seen?E.name:"Unknown creature",seen?`${E.boss?"Boss. ":""}Defeated ${S.kills[id]||0}`:"Not yet encountered",seen?(k.mastered?"Mastered: you deal 15% more damage.":`Knowledge ${k.have}/${k.tot} (${pct}%)`):"");
+    const bd=`${seen&&E.boss?`<span class="sq-w cb" aria-hidden="true">${ic("boss","xs")}</span>`:""}${seen?`<span class="sq-p${k.mastered?" m":""}">${k.mastered?ic("renown","xs"):pct+"%"}</span>`:""}`;
+    return seen?`<button class="cxt${k.mastered?" mst":""}" data-codex="${id}" aria-label="${E.name}${E.boss?", boss":""}. ${k.mastered?"Mastered":`Knowledge ${pct}%`}. Open its page." ${tp}>${portrait(id)}${bd}</button>`
+      :`<span class="cxt sil" ${tp}>${portrait(id)}</span>`}).join("")+`</div>`).join("");
 }
 function render(fresh){
   renderHeader();renderNav();renderGoal();

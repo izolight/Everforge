@@ -45,14 +45,15 @@ async function run(label,setup){
           if(S.battle&&S.battle.over==="fled"){out.fled++;const nd=curMap().pois[S.battle.pi];if(!nd||nd.done||nd.aw||(nd.mv!=="still"?nd.dz!==ROAM.daze:nd.dz))out.bad.push("a fled-from enemy is not dazed (or a still one is)")}
           if(S.battle&&S.battle.over){out.battles++;out[S.battle.over==="won"?"won":"lost"]++;if(S.battle.by==="it")out.byfoe++}
           continue}
-        const btns=qa("#arena button:not([disabled])").filter(b=>b.id&&!["flee","rest"].includes(b.id)||b.dataset.ability);
+        const btns=qa("#arena button:not([disabled]):not([aria-disabled=true])").filter(b=>b.id&&!["flee","rest"].includes(b.id)||b.dataset.ability);
         const b=btns.length?btns[Math.floor(Math.random()*btns.length)]:q("#atk");
         if(Math.random()<.75&&q("#atk"))click(q("#atk"));else if(b){if(b.dataset.ability)out.abil++;click(b)}
         if(S.battle&&S.battle.over){out.battles++;out[S.battle.over==="won"?"won":"lost"]++;if(S.battle.by==="it")out.byfoe++}
         continue}
       if(doChores){doChores=false;await chores();continue}
       if(wantHeat&&S.run!=="daily"&&!S.event&&!S.battle){S.heat[S.zone]={max:1+Math.floor(Math.random()*HEAT_MAX),sel:0};render();
-        const hb=qa("#arena [data-heat]");if(hb.length){wantHeat=false;click(hb[Math.floor(Math.random()*hb.length)]);out.heat++;continue}}
+        let hb=qa("#arena [data-heat]");if(!hb.length&&q("#heatBtn")){click(q("#heatBtn"));hb=qa("#arena [data-heat]")} // the Heat picker opens from the strip's flame button
+        if(hb.length){wantHeat=false;click(hb[Math.floor(Math.random()*hb.length)]);out.heat++;continue}}
       if(wantDaily&&S.run!=="daily"&&!S.event&&!S.battle){S.kills[ZONES[0][2]]=S.kills[ZONES[0][2]]||1;if(Math.random()<.6)S.daily=null;render();const db=q("#dailyStart");if(db){wantDaily=false;click(db);out.daily++;continue}}
       if(S.run==="daily"&&wantAband&&q("#dailyAbandon")&&Math.random()<.5){wantAband=false;click(q("#dailyAbandon"));click(q("#dailyAbandon"));if(S.run!=="daily")out.aband++;continue}
       const cs=qa("#arena [data-choice]:not([disabled])"),shop=S.event?.type==="merchant"; // the peddler's shop: sometimes buy or sell, else the usual picks
