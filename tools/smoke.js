@@ -21,7 +21,7 @@ async function run(label,setup){
       // Every so often, unlock everything and top up HP so later content gets exercised too.
       if(i%60===59)wantZone=ZONES[(i/60|0)%ZONES.length][0];
       if(wantZone&&!busy()&&S.run!=="daily"){S.unlocked=[...new Set([...S.unlocked,...ZONES.map(z=>z[0])])];S.zone=wantZone;S.battle=null;S.event=null;wantZone=null;save();render()}
-      if(i%25===24&&!busy())doChores=true;
+      if(i%25===24)doChores=true; // stays set until the bot is idle, so a busy moment never skips it
       if(i%10===9)wantWield=true;
       if(wantWield&&!busy()){wantWield=false;wield()}
       if(i%37===5)wantHeat=true;
@@ -42,9 +42,9 @@ async function run(label,setup){
         if(S.battle&&S.battle.over){out.battles++;out[S.battle.over==="won"?"won":"lost"]++}
         continue}
       if(doChores){doChores=false;await chores();continue}
-      if(wantHeat&&S.run!=="daily"){wantHeat=false;S.heat[S.zone]={max:1+Math.floor(Math.random()*HEAT_MAX),sel:0};render();
-        const hb=qa("#arena [data-heat]");if(hb.length){click(hb[Math.floor(Math.random()*hb.length)]);out.heat++;continue}}
-      if(wantDaily&&S.run!=="daily"){wantDaily=false;S.kills[ZONES[0][2]]=S.kills[ZONES[0][2]]||1;if(Math.random()<.6)S.daily=null;render();const db=q("#dailyStart");if(db){click(db);out.daily++;continue}}
+      if(wantHeat&&S.run!=="daily"&&!S.event&&!S.battle){S.heat[S.zone]={max:1+Math.floor(Math.random()*HEAT_MAX),sel:0};render();
+        const hb=qa("#arena [data-heat]");if(hb.length){wantHeat=false;click(hb[Math.floor(Math.random()*hb.length)]);out.heat++;continue}}
+      if(wantDaily&&S.run!=="daily"&&!S.event&&!S.battle){S.kills[ZONES[0][2]]=S.kills[ZONES[0][2]]||1;if(Math.random()<.6)S.daily=null;render();const db=q("#dailyStart");if(db){wantDaily=false;click(db);out.daily++;continue}}
       if(S.run==="daily"&&wantAband&&q("#dailyAbandon")&&Math.random()<.5){wantAband=false;click(q("#dailyAbandon"));click(q("#dailyAbandon"));if(S.run!=="daily")out.aband++;continue}
       const cs=qa("#arena [data-choice]:not([disabled])"),shop=S.event?.type==="merchant"; // the peddler's shop: sometimes buy or sell, else the usual picks
       if(shop&&S.embers<40)S.embers+=40;
@@ -73,7 +73,7 @@ async function run(label,setup){
       const can2=qa("#finv [data-can='1']");if(can2.length)click(can2[Math.floor(Math.random()*can2.length)]);
       if(S.bench.length>=2){const before=S.journal.length;q("#combine").click();await sleep(30);out.forged++;}
       S.bench=[];save();
-      S.embers+=40;for(let k=0;k<3;k++)addItem(essence(pick(ESS_POOL)));go("forge"); // refining, then a mishap to reforge
+      S.embers+=40;{const t=pick(ESS_POOL);for(let k=0;k<3;k++)addItem(essence(t))}go("forge"); // refining, then a mishap to reforge
       const rf=q("#refbtns [data-refine]:not([disabled])");if(rf){rf.click();out.refined++}
       S.items.t_curse={id:"t_curse",name:"Cursed Test Blade",form:"blade",noun:"Blade",traits:{Fire:2,Cursed:2},tier:2,crafted:true,recipe:["a","b"],recipeIds:[]};addItem("t_curse");
       go("gear");{const cb=qa("#ginv [data-id]").find(b=>b.dataset.id==="t_curse");if(cb){cb.click();const rg=q("#sheet [data-act='reforge']:not([disabled])");if(rg){rg.click();out.reforged++}else closeSheet()}}
