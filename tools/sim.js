@@ -93,7 +93,7 @@ function setup(){ // runs inside the game page; everything here uses the real ga
     passive:()=>attack(),
     basic:B=>{const sp=isSpecial(B)?foeOf(B).sp:null;if(sp&&sp.kind!=="heal"&&!B.frozen&&!B.stun&&!(B.off>0))guard();else attack()},
     smart:B=>{const sp=isSpecial(B)?foeOf(B).sp:null,P=pstats();
-      if(sp&&!B.frozen&&!B.stun&&!(B.off>0))return parry(); // the telegraph is reliable, so parrying a special is always a perfect parry (and breaks a heal)
+      if(sp&&!B.frozen&&!B.stun&&!(B.off>0))return parry(); // the telegraph is reliable, so the bot always parries a special; the game itself rolls PARRY_CH in enemyTurn, so a parry misses one time in five (and a hit parry breaks a heal)
       if(S.hp<P.maxHp*.35){const hs=Object.keys(S.inv).filter(id=>S.inv[id]>0&&grp(S.items[id])==="consumable"&&medHeal(S.items[id])>0).sort((a,b)=>medHeal(S.items[b])-medHeal(S.items[a]));if(hs.length)return useItem(hs[0])}
       const ready=abKeys(P).find(a=>!(B.cd&&B.cd[a]>0));if(ready)return ability(ready);
       attack()}

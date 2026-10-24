@@ -20,6 +20,7 @@ function startBattle(forced,opt){
   S.battle=B;S.event=null;S.seen[id]=true;cx(id);
   blog(B.elite?`${E.intro} It crackles with ${B.elite.toLowerCase()}. An elite!`:E.intro,B.elite||E.boss?"big":"");
   if(h)blog(`The heat is on: Heat ${h}, ${HEAT[h-1].name}.`,"foe");
+  if(h>=5)blog(`Its blows bite through ${Math.round(HEAT_T.bite*100)}% of your Defense.`,"foe");
   const P=pstats(),rp=P.rs[B.el];if(rp)blog(`${RES_MSG[B.el]} (-${rp}% damage)`,"good");
   if(P.ward){B.ward=P.ward;blog(`A rune ward flares around you (${P.ward}).`,"good")}
   if(P.main&&P.main.form==="spear"&&!opt.ambush){blog("Your spear darts out before it can move.","you");strike(P.main,(P.atk+P.mag*MAG_W)*ABILITIES.spear.open,"Opening jab",true);if(B.hp<=0)return enemyDown()}
@@ -136,7 +137,9 @@ function flee(){
 function afterPlayer(){if(S.battle.hp<=0)return enemyDown();enemyTurn()}
 // one enemy hit after resist, armor, Stone and guard/parry (vf = damage variance)
 const foeHit=(B,P,mult,vf)=>{const raw=B.atk*mult*vf*(B.guard?.4:1)*(B.open?1+ABILITIES.lance.open:1)*(B.parry?PARRY_FAIL:1),red=B.heat>=5?redOf(P.def*(1-HEAT_T.bite)):P.red;
-  return Math.max(1,Math.round(raw*HIT_MIN),Math.round(raw*(1-(P.rs[B.el]||0)/100)*(1-red))-(P.dr||0))}; // resist, armor and Stone together never take more than 1-HIT_MIN of a hit; Heat 5 bites through part of your Defense
+  return Math.max(1,Math.round(raw*HIT_MIN),Math.round(raw*(1-(P.rs[B.el]||0)/100)*(1-red)-(P.dr||0)))}; // resist, armor and Stone together never take more than 1-HIT_MIN of a hit; Heat 5 bites through part of your Defense
+// true when this zone's regular enemies (at map row 3) already hit you for the HIT_MIN floor, so more Defense, resist or Stone would change nothing here
+const atFloor=P=>{const es=Object.values(ENEMIES).filter(e=>e.zone===S.zone&&!e.boss);return es.length>0&&es.every(e=>{const a=Math.round(e.atk*1.18);return foeHit({atk:a,heat:0,el:e.el},P,1,1)<=Math.max(1,Math.round(a*HIT_MIN))})};
 // end-of-turn bookkeeping: guard/parry/exposure lapse, off-balance and ability cooldowns tick, next turn
 function endTurn(B){B.guard=false;B.parry=false;B.open=false;if(B.off>0)B.off--;Object.keys(B.cd||{}).forEach(k=>{if(B.cd[k]>0)B.cd[k]--});B.turn++}
 const endShift=B=>{endTurn(B);save();render()};
