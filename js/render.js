@@ -122,7 +122,7 @@ function renderBattle(){
   a.innerHTML=`${foeStage(B)}${body}`;
   const bl=$("blog");if(bl)bl.scrollTop=bl.scrollHeight;
 }
-function useHint(it){const st=statsOf(it),p=[];if(st.heal>0)p.push(`+${medHeal(it)} HP`);const d=Math.round((st.atk+st.mag)*.6);if(d>=3)p.push(`${d} dmg`);const c=cures(it.traits);if(c.length)p.push("cures");return p.join(" · ")||"no effect"}
+function useHint(it){const st=statsOf(it),p=[];if(st.heal>0)p.push(`+${medHeal(it)} HP`);const d=Math.round((st.atk+st.mag)*.6);if(d>=3)p.push(`${d} dmg`);const c=cures(it.traits);if(c.length)p.push("cures "+c.join(", "));return p.join(" · ")||"no effect"}
 function renderBench(){
   const max=maxInputs(),parts=[],items=S.bench.map(id=>S.items[id]),chk=checkMix(items);
   for(let i=0;i<3;i++){
