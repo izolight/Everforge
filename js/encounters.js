@@ -16,9 +16,9 @@ const ALTAR_ESS=["Arcane","Shadow","Holy","Fire"];
 const ENC={
   shrine:{make:(rv,hl)=>{const n=Math.round(pstats().maxHp*.35*(hl>=5?HEAT_T.shrine:1)),g=spareGoods();
       return evt("shrine","shrine","A quiet shrine",`Moss-covered stones hum softly.${hl>=5?" The Inferno has scorched them, so they offer less.":""} Pray for strength, or give the stones something of yours.`,
-        [["pray",`Pray (+${n} HP)`],...g?[["offer",`Offer your ${S.items[g].name}`]]:[],["leave","Leave"]],{rv,give:g,n})},
+        [["pray",`Pray (+${n} HP, +${TORCH.shrine} torch)`],...g?[["offer",`Offer your ${S.items[g].name}`]]:[],["leave","Leave"]],{rv,give:g,n})},
     pick:(c,ev)=>{
-      if(c==="pray"){const got=healYou(ev.n);return endEv("shrine","Answered prayer",got?`The stones warm under your hands. You recover ${got} HP.`:"You're already in good shape, so you just enjoy the quiet.")}
+      if(c==="pray"){const got=healYou(ev.n),lit=torchUp(TORCH.shrine);return endEv("shrine","Answered prayer",(got?`The stones warm under your hands. You recover ${got} HP.`:"You're already in good shape, so you just enjoy the quiet.")+(lit?` Your torch flares back to life (+${lit}).`:""))}
       if(!ev.give||!spare(ev.give)||!S.inv[ev.give]){toast("You no longer have that item.");return endEv("shrine","The quiet shrine","The stones stay silent.")}
       const nm=S.items[ev.give].name,sc=ev.rv[0]<.6?giveHint(ev.rv[1]):"";takeOne(ev.give);
       if(sc)return endEv("shrine","The stones answer",`The moss swallows your ${nm}. A scroll unrolls where it lay.`,[],sc);

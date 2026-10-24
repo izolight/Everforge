@@ -1,5 +1,5 @@
 // ================= STATE =================
-const KEY="everforge-v11",OLD_KEYS=["everforge-v10","everforge-v9","everforge-v8","everforge-v7","everforge-v6","everforge-v5","everforge-v4","everforge-v3"];
+const KEY="everforge-v12",OLD_KEYS=["everforge-v11","everforge-v10","everforge-v9","everforge-v8","everforge-v7","everforge-v6","everforge-v5","everforge-v4","everforge-v3"];
 function baseItem(id){const [name,form,traits,kind]=BASE[id];return {id,name,form,noun:name.split(" ").pop(),traits,tier:1,crafted:false,...(kind?{kind}:{})}}
 function mkGraded(b,g){ // the item for base id b at grade g (pure: migrate rebuilds graded items with it)
   const es=/^ess_([A-Za-z]+)$/.exec(b),it=es?{id:b,name:`${es[1]} Essence`,form:"material",kind:"essence",noun:"Essence",traits:{[es[1]]:ESS_VALUE},tier:1,crafted:false}:baseItem(b);
@@ -8,7 +8,7 @@ function mkGraded(b,g){ // the item for base id b at grade g (pure: migrate rebu
 const statsDef=()=>({salvaged:0,studied:0,dealt:0,taken:0,big:0,bigW:"",crits:0,parries:0,abil:0,sufd:0,cured:0,elites:0,bosses:0,deaths:0,exped:0,heatBest:{},fast:{},forged:0,legend:0,mishaps:0,fizzles:0,earned:0,spent:0,refined:0,dailies:0,dailyWins:0,dBest:null});
 function freshState(){
   const items={};Object.keys(BASE).forEach(id=>items[id]=baseItem(id));
-  return {v:11,embers:0,infCredit:0,skills:{},maps:{},heat:{},daily:null,run:null,infuse:{},items,inv:{iron_sword:1},eq:{main:"iron_sword",off:null,head:null,body:null,hands:null,feet:null,charm:null},
+  return {v:12,embers:0,infCredit:0,skills:{},maps:{},heat:{},daily:null,run:null,infuse:{},items,inv:{iron_sword:1},eq:{main:"iron_sword",off:null,head:null,body:null,hands:null,feet:null,charm:null},
     hp:999,camp:2,campProg:0,xp:0,journal:[],knownR:[],hints:[0,1,2],bench:[],last:null,tab:"all",rtab:"all",view:"battle",zone:"woods",
     wins:0,kills:{},seen:{},codex:{},unlocked:["woods"],zoneKills:{},quest:0,bounty:null,stats:statsDef(),fresh:[],battle:null,event:null};
 }
@@ -83,7 +83,13 @@ function migrate(s){
       const nm=a=>Array.isArray(a)?a.map(x=>typeof x==="string"?x.replace(/^Refined (\w+ Essence)$/,"Greater $1"):x):a;
       Object.values(s.items).forEach(it=>{if(!isObj(it))return;if(it.clean)it.clean=fix(it.clean);if(Array.isArray(it.recipeIds))it.recipeIds=it.recipeIds.map(fix);if(it.recipe)it.recipe=nm(it.recipe)});
       if(isObj(s.last)){if(s.last.id)s.last.id=fix(s.last.id);if(s.last.baseId)s.last.baseId=fix(s.last.baseId);s.last.recipe=nm(s.last.recipe);if(isObj(s.last.item)){s.last.item.id=fix(s.last.item.id);if(Array.isArray(s.last.item.recipeIds))s.last.item.recipeIds=s.last.item.recipeIds.map(fix);s.last.item.recipe=nm(s.last.item.recipe)}}}}
-  if(s.v!==11||!isObj(s.items)||!isObj(s.inv))return null;
+  if(s.v===11){s.v=12; // node maps become tile grids: old maps can't convert, so they are dropped (new ones generate on demand)
+    s.maps={};s.battle=null;s.event=null;
+    const d=s.daily;if(isObj(d)&&d.state==="run"){ // a daily in progress keeps no replay: it ends with what it had reached
+      const r=isObj(d.map)&&Array.isArray(d.map.rows)&&isObj(d.map.pos)?Math.max(0,Math.min(MAP_ROWS-1,(d.map.pos.r|0)+1)):0;
+      d.state="done";d.result={rows:r,boss:false,turns:d.turns|0};s.run=null;if(ZONES.some(z=>z[0]===d.back))s.zone=d.back;if(isObj(s.stats)){s.stats.dailies=(s.stats.dailies|0)+1;if(!isObj(s.stats.dBest))s.stats.dBest={...d.result}}}
+    if(isObj(d))d.map=null}
+  if(s.v!==12||!isObj(s.items)||!isObj(s.inv))return null;
   const dflt=freshState();DEFAULTED.forEach(k=>{if(s[k]===undefined)s[k]=dflt[k]});
   Object.keys(BASE).forEach(id=>s.items[id]=baseItem(id));
   if(!sane(s))return null;
@@ -99,8 +105,11 @@ function migrate(s){
   ["heatBest","fast"].forEach(k=>Object.keys(st0[k]).forEach(x=>{if(!Number.isFinite(st0[k][x]))delete st0[k][x]}));
   Object.values(s.items).forEach(it=>{const sc=it.legendary&&SECRETS.find(x=>x.name===it.name&&x.bonus);if(sc&&!(it.traits[sc.bonus.trait]>0))it.traits[sc.bonus.trait]=sc.bonus.v}); // a legendary that lost its bonus to the trait-slot trim gets it back
   Object.keys(s.heat).forEach(z=>{const h=s.heat[z];if(!ZONES.some(x=>x[0]===z)||!isObj(h))delete s.heat[z];else{h.max=Math.max(0,Math.min(HEAT_MAX,h.max|0));h.sel=Math.max(0,Math.min(h.max,h.sel|0))}});
-  const d=s.daily,okMap=m=>isObj(m)&&Array.isArray(m.rows)&&m.rows.length===MAP_ROWS&&m.rows.every(r=>Array.isArray(r)&&r.length&&r.every(n=>isObj(n)&&Number.isFinite(n.x)&&Array.isArray(n.next)&&typeof n.t==="string"));
-  if(d&&!(isObj(d)&&okMap(d.map)&&["run","done"].includes(d.state)&&(d.state!=="done"||isObj(d.result))&&Number.isFinite(d.turns)&&Number.isFinite(d.seed)&&ZONES.some(z=>z[0]===d.zone)&&ZONES.some(z=>z[0]===d.back)&&DAILY_TWISTS[d.twist]))s.daily=null;
+  const d=s.daily,N=GRID.w*GRID.h,pt=p=>isObj(p)&&Number.isInteger(p.x)&&Number.isInteger(p.y)&&p.x>=0&&p.y>=0&&p.x<GRID.w&&p.y<GRID.h;
+  const okMap=m=>isObj(m)&&m.w===GRID.w&&m.h===GRID.h&&Array.isArray(m.g)&&m.g.length===m.h&&m.g.every(r=>typeof r==="string"&&r.length===m.w&&/^[.,#~]+$/.test(r))&&[m.pos,m.start,m.lair,m.gate].every(pt)&&(m.prev===null||pt(m.prev))
+    &&Array.isArray(m.pois)&&m.pois.every(p=>pt(p)&&typeof p.t==="string"&&Number.isFinite(p.r))&&Array.isArray(m.sn)&&m.sn.length===N&&Array.isArray(m.d)&&m.d.length===N&&isObj(m.mem)&&Number.isFinite(m.torch)&&Number.isFinite(m.tmax)&&Number.isFinite(m.steps)&&Number.isFinite(m.dp)&&Number.isFinite(m.D)&&m.D>0&&m.pois.some(p=>p.t==="boss")&&!"#~".includes(m.g[m.pos.y][m.pos.x]);
+  Object.keys(s.maps).forEach(z=>{if(!okMap(s.maps[z]))delete s.maps[z]});
+  if(d&&!(isObj(d)&&(d.state==="done"||okMap(d.map))&&["run","done"].includes(d.state)&&(d.state!=="done"||isObj(d.result))&&Number.isFinite(d.turns)&&Number.isFinite(d.seed)&&ZONES.some(z=>z[0]===d.zone)&&ZONES.some(z=>z[0]===d.back)&&DAILY_TWISTS[d.twist]))s.daily=null;
   if(s.run!=="daily"||!s.daily||s.daily.state!=="run")s.run=null;else s.zone=s.daily.zone;
   s.hints=Array.isArray(s.hints)?s.hints.filter(i=>Number.isInteger(i)&&SECRETS[i]):[0,1,2];
   if(!VIEWS.includes(s.view))s.view="battle";

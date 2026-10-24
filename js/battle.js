@@ -13,7 +13,7 @@ function startBattle(forced,opt){
   if(h){const k=1+HEAT_T.hp;B.max=B.hp=Math.round(B.max*k);B.atk=Math.round(B.atk*k)}
   if(h>=4&&E.boss){B.max=B.hp=Math.round(B.max*HEAT_T.boss);if(E.sp)B.spEvery=spEvery(E,h)}
   if(tw==="double")B.atk*=2;
-  if(opt.ambush)B.log.push({t:"Ambush! Something leaps out at you.",c:"big"});
+  if(opt.ambush)B.log.push({t:opt.amsg||"Ambush! Something leaps out at you.",c:"big"});
   if(!E.boss&&id!=="mimic"&&(opt.elite||tw==="elites"||(opt.up!=null?opt.up:Math.random()<eliteCh(h)))){const [adj,trait]=AFFIXES[opt.af!=null?opt.af:Math.floor(Math.random()*AFFIXES.length)],f=TRAITS[trait].f;
     B.elite=trait;B.name=`${adj} ${E.name}`;B.el=f;B.max=B.hp=Math.round(B.max*1.5);B.atk=Math.round(B.atk*1.25);B.def=E.def+1;
     if(!B.resist.includes(f))B.resist.push(f);B.weak=B.weak.filter(x=>x!==f)}
@@ -129,8 +129,7 @@ function flee(){
   const B=S.battle;
   if(ENEMIES[B.id].boss&&Math.random()<.5){blog("There's no escaping it!","foe");return enemyTurn()}
   if(Math.random()<.7){B.over="fled";if(S.run==="daily")S.daily.turns+=B.turn;blog("You slip away into cover.");
-    if(ENEMIES[B.id].boss){const m=curMap();m.path.pop();const prev=m.path[m.path.length-1];m.pos=prev?{r:prev[0],i:prev[1]}:null;
-      m.rows[MAP_ROWS-1].forEach(nd=>nd.done=false);blog("You fall back to the camp. The way to the boss is still open.","good")}
+    if(ENEMIES[B.id].boss){fallBack(curMap());blog("You fall back from the lair. The way to the boss is still open.","good")}
     save();return render()}
   blog("You try to run, but it cuts you off.");enemyTurn();
 }
@@ -216,9 +215,9 @@ function youFall(){
   const pool=[];Object.keys(S.inv).forEach(id=>{const free=(S.inv[id]||0)-eqCount(id);for(let i=0;i<free;i++)pool.push(id)});
   let lost=null;if(pool.length){lost=pick(pool);S.inv[lost]--;trimBench()}
   S.hp=Math.round(P.maxHp*.3);const dl=S.run==="daily",zn=zoneName(S.zone);
-  if(dl){S.daily.turns+=B.turn;finishDaily(S.daily.map.pos?S.daily.map.pos.r:0,false)}else S.maps[S.zone]=newMap(S.zone);
+  if(dl){S.daily.turns+=B.turn;finishDaily(S.daily.map.steps?S.daily.map.dp:0,false)}else S.maps[S.zone]=newMap(S.zone);
   blog(`You collapse and wake at the edge of ${zn} with ${S.hp} HP. ${dl?"Your daily expedition is over.":"The paths have shifted."}${lost?` A scavenger made off with your ${S.items[lost].name}.`:""}`,"foe");
   save();render();
 }
-function rest(){const P=pstats();if(twistNow()==="nocamp")return toast("No campfires on this expedition.");if(S.camp<=0||S.hp>=P.maxHp)return;S.camp--;const g=healYou(Math.round(P.maxHp*.5));save();render();toast(`You rest by the fire and recover ${g} HP.`)}
+function rest(){const P=pstats();if(twistNow()==="nocamp")return toast("No campfires on this expedition.");if(S.camp<=0||S.hp>=P.maxHp)return;S.camp--;const g=healYou(Math.round(P.maxHp*.5)),m=curMap(),lit=m.cleared?0:torchUp(TORCH.rest);save();render();toast(`You rest by the fire and recover ${g} HP.${lit?` Your torch burns brighter (+${lit}).`:""}`)}
 function trimBench(){const seen={};S.bench=S.bench.filter(id=>{seen[id]=(seen[id]||0)+1;return seen[id]<=(S.inv[id]||0)})}

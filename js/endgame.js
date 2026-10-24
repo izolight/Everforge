@@ -24,7 +24,7 @@ let dArmed=false;
 function abandonDaily(){
   if(S.run!=="daily"||busy())return;
   if(!dArmed){dArmed=true;render();setTimeout(()=>{dArmed=false;render()},3000);return}
-  dArmed=false;const m=S.daily.map;finishDaily(m.pos?m.pos.r+1:0,false);toast("You abandon the expedition. Tomorrow brings another.");save();render();
+  dArmed=false;const m=S.daily.map;finishDaily(m.steps?m.dp+1:0,false);toast("You abandon the expedition. Tomorrow brings another.");save();render();
 }
 const zoneRare=z=>[...new Set(Object.values(ENEMIES).filter(e=>e.zone===z&&!e.boss).flatMap(e=>e.drops.filter(d=>d[1]<=.2).map(d=>d[0])))];
 function dailyBundle(got){ // boss kill: essences + one rare drop (same for everyone) + smith XP
@@ -34,4 +34,4 @@ function dailyBundle(got){ // boss kill: essences + one rare drop (same for ever
   if(rare.length){const r=rare[Math.floor(R()*rare.length)];got.push(gdrop(r,d.zone,gh,R()))}
   const hm=giveHint(R());S.xp+=DAILY_REWARD.xp;blog(`Daily reward: ${DAILY_REWARD.ess} essences, a rare find${hm?", a hint scroll":""} and ${DAILY_REWARD.xp} smith XP.`,"big");if(hm)blog(hm,"good");
 }
-const dailyResult=r=>`${r.boss?"Boss beaten":`Fell after ${r.rows} of ${MAP_ROWS} rows`} · ${r.turns} turns`;
+const dailyResult=r=>`${r.boss?"Boss beaten":`Fell at depth ${r.rows} of ${MAP_ROWS-1}`} · ${r.turns} turns`;

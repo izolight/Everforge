@@ -198,6 +198,8 @@ const NODE_G={
   traveller:'<circle cx="10" cy="5" r="2.2"/><path d="M10 8 V15 L7 21 M10 15 L13 21 M6 11.5 L14 11.5 M17 6 V21"/>',
   ember:'<path d="M12 2 C13 7 18 9 18 14 A6 6 0 0 1 6 14 C6 11 8 10 9 7 C10 9 11 9 11.5 8 C12 6 12 4 12 2 Z"/><path d="M12 20 C10 20 9 18.5 9.5 17 C10.5 17.5 11.5 16.5 12 15 C13 16.5 14.5 17.5 14.5 18.5 C14.5 19.5 13.5 20 12 20 Z"/>',
   scroll:'<path d="M7 4 H18 V17 Q18 20 15 20 H6 Q9 20 9 17 V6 Q9 4 7 4 Z"/><path d="M12 8 H15 M12 11 H15"/>',
+  hero:'<circle cx="12" cy="7.5" r="3.4"/><path d="M5.5 21 V17.5 Q5.5 12.5 12 12.5 Q18.5 12.5 18.5 17.5 V21 Z"/>',
+  torch:'<path d="M12 2.5 C15 6 17 8.5 17 12 A5 5 0 0 1 7 12 C7 10 8 9 9 7.5 C9.5 9 10.5 9.5 11 9.5 C10.5 7 11 4.5 12 2.5 Z"/><path d="M10 18 L9 22 M14 18 L15 22"/>',
   hidden:'<circle cx="12" cy="12" r="2.2" fill="currentColor" stroke="none"/>',
   mystery:'<circle cx="12" cy="12" r="9.5"/><path d="M9.5 9.5 A2.6 2.6 0 1 1 13 11.9 C12.3 12.3 12 12.8 12 13.6 V14.4"/><path d="M12 17.6 V17.7"/>',
   // tab + action icons
@@ -233,17 +235,23 @@ function terrain(zone,H,seed){
     for(let k=0;k<34;k++)s+=`<circle cx="${R()*W}" cy="${R()*H}" r="${.7+R()*1.5}" fill="#e8e4ff" opacity=".4"/>`}
   return `<svg class="terrain" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" aria-hidden="true">${s}</svg>`;
 }
+// per-zone tile look: floor / rock-or-tree / water art, drawn on a 24x24 tile (the zone's terrain() palette)
+const TILE_ART={
+  woods:{rock:'<path d="M12 3 L5 14 H19 Z" fill="#2c5a35"/><path d="M12 8 L4 20 H20 Z" fill="#23472b"/><path d="M11 19 H13 V22 H11 Z" fill="#4a3624"/>',water:'<ellipse cx="12" cy="13" rx="10" ry="6" fill="#1d3b44"/><path d="M5 13 q3-2 5 0 t5 0" stroke="#6fb0c0" stroke-width="1" fill="none"/>'},
+  pass:{rock:'<path d="M2 21 L9 6 L13 13 L16 9 L22 21 Z" fill="#3b4a56"/><path d="M9 6 L11 10 L7.5 10 Z M16 9 L17.5 12 L14.5 12 Z" fill="#cfe3ec"/>',water:'<path d="M3 8 L12 4 L21 9 L19 19 L7 20 Z" fill="#8fbcd0" opacity=".55"/><path d="M8 10 L14 13 M11 8 L10 16" stroke="#e8f6fb" stroke-width=".8"/>'},
+  hollow:{rock:'<path d="M5 21 L7 9 L11 4 L15 9 L19 21 Z" fill="#2a1c18" stroke="#ff6b2c" stroke-width=".8"/><path d="M11 6 L10 13 L12 21" stroke="#ff6b2c" stroke-width=".9" fill="none" opacity=".8"/>',water:'<ellipse cx="12" cy="13" rx="10" ry="6" fill="#b53c0c"/><ellipse cx="12" cy="13" rx="6" ry="3" fill="#ffb15c" opacity=".7"/>'},
+  spire:{rock:'<path d="M12 2 L17 10 L14 22 H10 L7 10 Z" fill="#3a3f78" stroke="#b892f2" stroke-width=".8"/><path d="M12 2 L12 22" stroke="#b892f2" stroke-width=".5" opacity=".6"/>',water:'<ellipse cx="12" cy="13" rx="10" ry="6" fill="#161129" stroke="#8a9bd6" stroke-width=".8"/><circle cx="9" cy="12" r=".8" fill="#e8e4ff"/><circle cx="14" cy="14" r=".6" fill="#e8e4ff"/>'}
+};
+const tileSvg=(z,c,x,y)=>`<svg class="tart" viewBox="0 0 24 24" aria-hidden="true">${c==="~"?TILE_ART[z].water:TILE_ART[z].rock}</svg>`;
+const DIR_N=["north","east","south","west"];
 function mapHtml(){
-  const m=curMap(),R=MAP_ROWS,H=R*62+8,open=busy()?[]:openNodes(m),y=r=>r*62+35;
-  const isOpen=(r,i)=>open.some(([a,b])=>a===r&&b===i),walked=new Set(),adj=new Set(openNodes(m).map(x=>x.join()));
-  for(let k=1;k<m.path.length;k++)walked.add(m.path[k-1].join()+">"+m.path[k].join());
-  let lines="";
-  m.rows.forEach((row,r)=>row.forEach((nd,i)=>nd.next.forEach(j=>{const nx=m.rows[r+1][j],k=`${r},${i}>${r+1},${j}`;
-    const cls=walked.has(k)?"walked":(m.pos&&m.pos.r===r&&m.pos.i===i&&!m.cleared)?"open":"";
-    lines+=`<line x1="${nd.x}" y1="${y(r)}" x2="${nx.x}" y2="${y(r+1)}" class="${cls}"/>`})));
-  const nodes=m.rows.map((row,r)=>row.map((nd,i)=>{const here=m.pos&&m.pos.r===r&&m.pos.i===i,op=isOpen(r,i);
-    const seen=m.cleared||nd.done||here||adj.has(r+","+i)||nd.t==="boss",t=seen?nd.t:"hidden";
-    return `<button class="node ${t==="boss"?"boss":""} ${t==="hidden"?"fog":""} ${here?"here":nd.done?"done":""} ${op?"open":""}" style="left:${nd.x}%;top:${y(r)}px" data-node="${r},${i}" ${op?"":"disabled"} aria-label="${seen?NODE_INFO[nd.t]:"Unexplored"}${t==="boss"?`: ${shortName(ZONES[zoneIdx(S.zone)][2])}`:""}${here?", you are here":op?", reachable":""}">${icon(t)}</button>`}).join("")).join("");
-  const legend=Object.entries(NODE_INFO).map(([t,l])=>`<span>${icon(t)}${l}</span>`).join("")+`<span>${icon("hidden")}Unexplored</span>`;
-  return `<div class="mapwrap"><div class="map" style="height:${H}px">${terrain(S.zone,H,m.seed||7)}<svg class="edges" viewBox="0 0 100 ${H}" preserveAspectRatio="none" aria-hidden="true">${lines}</svg>${nodes}</div></div><div class="legend">${legend}</div>`;
+  const m=curMap(),z=S.zone,adj=busy()?[]:adjTiles(m),H=Math.round(400*m.h/m.w),boss=shortName(ZONES[zoneIdx(z)][2]);
+  let cells="";
+  for(let y=0;y<m.h;y++)for(let x=0;x<m.w;x++){
+    const i=y*m.w+x,c=m.g[y][x],seen=m.sn[i],lit=litAt(m,x,y),here=m.pos.x===x&&m.pos.y===y,p=poiAt(m,x,y),t=!seen?null:lit?(p&&!p.done?p.t:null):m.mem[x+","+y]||null,k=adj.findIndex(a=>a[0]===x&&a[1]===y);
+    const cls=`tl ${!seen?"unk":lit?"lit":"seen"}${c==="#"||c==="~"?" blk":""}${c===","?" brush":""}${t?" p-"+t:""}${here?" here":""}${k>=0?" adj":""}${t==="boss"?" lair":""}`;
+    const inner=`${seen&&(c==="#"||c==="~")?tileSvg(z,c):""}${t?icon(t):""}${here?`<span class="hero">${icon("hero")}</span>`:""}`;
+    cells+=k>=0?`<button class="${cls}" data-tile="${x},${y}" aria-label="Step ${DIR_N[DIRS.findIndex(d=>d[0]===x-m.pos.x&&d[1]===y-m.pos.y)]}${t?`: ${NODE_INFO[t]}${t==="boss"?`, ${boss}`:""}`:""}">${inner}</button>`:`<div class="${cls}"${t?` aria-label="${NODE_INFO[t]}"`:""}>${inner}</div>`}
+  const legend=Object.entries(NODE_INFO).map(([t,l])=>`<span>${icon(t)}${l}</span>`).join("")+`<span>${icon("hero")}You</span><span class="lg-fog"><i></i>Unexplored</span>`;
+  return `<div class="mapwrap"><div class="map z-${z}" style="--w:${m.w}">${terrain(z,H,m.seed||7)}<div class="tls">${cells}</div></div></div><div class="legend">${legend}</div>`;
 }
