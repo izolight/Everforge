@@ -9,11 +9,11 @@ function startBattle(forced,opt){
   const B={id,name:E.name,el:E.el,hp:Math.round(E.hp*sc),max:Math.round(E.hp*sc),atk:Math.round(E.atk*sc),def:E.def,weak:[...E.weak],resist:[...E.resist],turn:1,
     burn:null,poison:0,bleed:null,stun:0,open:false,cd:{},you:{},off:0,parry:false,shred:0,ward:null,frozen:false,guard:false,reborn:false,phased:false,elite:null,log:[],over:null,loot:[]};
   if(id==="mimic"){const zi=zoneIdx(S.zone),at=(a,i)=>a[Math.min(i,a.length-1)];B.max=B.hp=Math.round(E.hp*at(MIMIC_HP,zi));B.atk=Math.round(E.atk*at(MIMIC_ATK,zi));B.def=E.def+zi*2}
-  B.heat=h;
+  B.heat=h;if(opt.pi!=null){B.pi=opt.pi;B.by=opt.by;B.ef=opt.ef} // a map enemy: which one, who moved, where it came from (see slip)
   if(h){const k=1+HEAT_T.hp;B.max=B.hp=Math.round(B.max*k);B.atk=Math.round(B.atk*k)}
   if(h>=4&&E.boss){B.max=B.hp=Math.round(B.max*HEAT_T.boss);if(E.sp)B.spEvery=spEvery(E,h)}
   if(tw==="double")B.atk*=2;
-  if(opt.ambush)B.log.push({t:opt.amsg||"Ambush! Something leaps out at you.",c:"big"});
+  if(opt.ambush||opt.lunge)B.log.push({t:opt.amsg||"Ambush! Something leaps out at you.",c:"big"});
   if(!E.boss&&id!=="mimic"&&(opt.elite||tw==="elites"||(opt.up!=null?opt.up:Math.random()<eliteCh(h)))){const [adj,trait]=AFFIXES[opt.af!=null?opt.af:Math.floor(Math.random()*AFFIXES.length)],f=TRAITS[trait].f;
     B.elite=trait;B.name=`${adj} ${E.name}`;B.el=f;B.max=B.hp=Math.round(B.max*1.5);B.atk=Math.round(B.atk*1.25);B.def=E.def+1;
     if(!B.resist.includes(f))B.resist.push(f);B.weak=B.weak.filter(x=>x!==f)}
@@ -129,7 +129,7 @@ function flee(){
   const B=S.battle;
   if(ENEMIES[B.id].boss&&Math.random()<.5){blog("There's no escaping it!","foe");return enemyTurn()}
   if(Math.random()<.7){B.over="fled";if(S.run==="daily")S.daily.turns+=B.turn;blog("You slip away into cover.");
-    if(ENEMIES[B.id].boss){fallBack(curMap());blog("You fall back from the lair. The way to the boss is still open.","good")}
+    if(ENEMIES[B.id].boss){fallBack(curMap());blog("You fall back from the lair. The way to the boss is still open.","good")}else if(B.pi!=null)slip(B);
     save();return render()}
   blog("You try to run, but it cuts you off.");enemyTurn();
 }

@@ -94,38 +94,38 @@ const BASE={
 };
 const ZONES=[["woods","Whispering Woods","gnarlhorn"],["pass","Frostfang Pass","rimeclaw"],["hollow","Cinder Hollow","phoenix"],["spire","Starfall Spire","archon"]];
 const ENEMIES={
-  boar:{name:"Thornback Boar",plural:"Thornback Boars",zone:"woods",el:"wood",hp:30,atk:6,def:2,weak:["fire"],resist:[],w:3,verb:"gores you",intro:"A Thornback Boar bursts out of the brush.",
+  boar:{name:"Thornback Boar",plural:"Thornback Boars",zone:"woods",mv:"chase",el:"wood",hp:30,atk:6,def:2,weak:["fire"],resist:[],w:3,verb:"gores you",intro:"A Thornback Boar bursts out of the brush.",
     lore:"Bristled forest boars that sharpen their tusks on oak bark. They charge when cornered, and often when not.",
     sp:{every:3,name:"Tusk Charge",kind:"heavy",x:2,tell:"lowering its tusks"},drops:[["boar_hide",.6],["chili",.4],["hide_gloves",.15]]},
-  sprite:{name:"Glowcap Sprite",plural:"Glowcap Sprites",zone:"woods",el:"holy",hp:22,atk:4,def:0,weak:["fire","shadow"],resist:["holy"],w:3,verb:"flings spores at you",intro:"A Glowcap Sprite drifts out from between the roots.",
+  sprite:{name:"Glowcap Sprite",plural:"Glowcap Sprites",zone:"woods",mv:"wander",el:"holy",hp:22,atk:4,def:0,weak:["fire","shadow"],resist:["holy"],w:3,verb:"flings spores at you",intro:"A Glowcap Sprite drifts out from between the roots.",
     lore:"Mushroom spirits that glow brighter when frightened. They knit their caps back together with spores.",
     sp:{every:3,name:"Mend",kind:"heal",x:.3,tell:"gathering glowing spores around itself"},drops:[["mushroom",.75],["honey",.45],["sprite_lantern",.12]]},
-  bandit:{name:"Woods Bandit",plural:"Woods Bandits",zone:"woods",el:"metal",hp:34,atk:7,def:3,weak:["arcane"],resist:[],w:2,verb:"slashes at you",intro:"A Woods Bandit steps onto the path, blade drawn.",
+  bandit:{name:"Woods Bandit",plural:"Woods Bandits",zone:"woods",mv:"still",el:"metal",hp:34,atk:7,def:3,weak:["arcane"],resist:[],w:2,verb:"slashes at you",intro:"A Woods Bandit steps onto the path, blade drawn.",
     lore:"Deserters and debtors who work the woods road. They carry whatever they last stole.",
     sp:{every:3,name:"Flurry",kind:"multi",n:3,x:.6,tell:"shifting into a low, quick stance"},drops:[["bread",.55],["dagger",.25],["wood_shield",.2],["leather_cap",.2],["jerkin",.18],["trail_boots",.18],["hunter_spear",.1],["oak_staff",.1],["iron_sword",.07]]},
   gnarlhorn:{name:"Gnarlhorn, the Boar King",short:"Gnarlhorn",zone:"woods",el:"wood",boss:true,hp:75,atk:9,def:4,weak:["fire"],resist:["wood"],verb:"tramples you",intro:"The ground shakes. Gnarlhorn, the Boar King, crashes through the trees.",
     lore:"The old king of the boar herds, his hide grown thick as bark. The woods go quiet when he walks.",
     sp:{every:3,name:"Stampede",kind:"heavy",x:2.2,tell:"pawing the ground"},drops:[["gnarl_tusk",1],["boar_hide",.8]]},
-  wolf:{name:"Frost Wolf",plural:"Frost Wolves",zone:"pass",el:"ice",hp:60,atk:11,def:3,weak:["fire"],resist:["ice"],w:3,verb:"bites",intro:"A Frost Wolf circles you through the snow.",
+  wolf:{name:"Frost Wolf",plural:"Frost Wolves",zone:"pass",mv:"chase",el:"ice",hp:60,atk:11,def:3,weak:["fire"],resist:["ice"],w:3,verb:"bites",intro:"A Frost Wolf circles you through the snow.",
     lore:"Pack hunters with frost in their fur. They test you from the sides before they commit.",
     inf:{s:"chill",ch:0.3},
     sp:{every:3,name:"Pounce",kind:"heavy",x:1.8,tell:"crouching low"},drops:[["pelt",.75],["spring_water",.35],["fang_charm",.18]]},
-  wraith:{name:"Ice Wraith",plural:"Ice Wraiths",zone:"pass",el:"shadow",hp:50,atk:11,def:1,weak:["holy","fire"],resist:["ice","metal"],w:2,verb:"chills you",intro:"The air freezes as an Ice Wraith takes shape.",
+  wraith:{name:"Ice Wraith",plural:"Ice Wraiths",zone:"pass",mv:"wander",el:"shadow",hp:50,atk:11,def:1,weak:["holy","fire"],resist:["ice","metal"],w:2,verb:"chills you",intro:"The air freezes as an Ice Wraith takes shape.",
     lore:"Travellers who froze on the pass and never stopped walking. They feed on warmth.",
     inf:{s:"curse",ch:0.35},
     sp:{every:3,name:"Soul Siphon",kind:"drain",x:1.2,tell:"reaching toward your chest"},drops:[["shroud",.55],["spring_water",.4],["holy_water",.25],["wraith_wraps",.18]]},
-  golem:{name:"Stone Golem",plural:"Stone Golems",zone:"pass",el:"stone",hp:90,atk:10,def:8,weak:["arcane","ice"],resist:["metal","poison"],w:2,verb:"slams you",intro:"A boulder unfolds into a Stone Golem.",
+  golem:{name:"Stone Golem",plural:"Stone Golems",zone:"pass",mv:"still",el:"stone",hp:90,atk:10,def:8,weak:["arcane","ice"],resist:["metal","poison"],w:2,verb:"slams you",intro:"A boulder unfolds into a Stone Golem.",
     lore:"Boulders woken by old runes. Slow to anger and slower to stop.",
     sp:{every:4,name:"Earthquake",kind:"heavy",x:2.5,tell:"raising both fists overhead"},drops:[["golem_core",.7],["iron_helmet",.3],["stone_plate",.2]]},
   rimeclaw:{name:"Rimeclaw, the Pack Mother",short:"Rimeclaw",zone:"pass",el:"ice",boss:true,hp:140,atk:14,def:5,weak:["fire"],resist:["ice","shadow"],verb:"mauls you",intro:"A howl splits the air. Rimeclaw, the Pack Mother, blocks the pass.",
     lore:"Mother of every pack on the pass. Her howl turns the air to needles.",
     inf:{s:"chill",ch:0.35},
     sp:{every:3,name:"Blizzard Howl",kind:"multi",n:3,x:.75,tell:"drawing a long breath"},drops:[["rime_fang",1],["pelt",.8]]},
-  imp:{name:"Ember Imp",plural:"Ember Imps",zone:"hollow",el:"fire",hp:80,atk:14,def:4,weak:["ice"],resist:["fire"],w:3,verb:"scorches you",intro:"An Ember Imp cackles from a vent of smoke.",
+  imp:{name:"Ember Imp",plural:"Ember Imps",zone:"hollow",mv:"wander",el:"fire",hp:80,atk:14,def:4,weak:["ice"],resist:["fire"],w:3,verb:"scorches you",intro:"An Ember Imp cackles from a vent of smoke.",
     lore:"Small, spiteful fire spirits that nest in the vents of the Hollow.",
     inf:{s:"burn",ch:0.3},
     sp:{every:3,name:"Fireball",kind:"heavy",x:2,tell:"cupping a glow between its hands"},drops:[["coal",.75],["chili",.4],["ember_treads",.18]]},
-  witch:{name:"Nightshade Witch",plural:"Nightshade Witches",zone:"hollow",el:"poison",hp:95,atk:15,def:5,weak:["holy","metal"],resist:["shadow","poison"],w:2,verb:"hexes you",intro:"A Nightshade Witch rises from her bubbling cauldron.",
+  witch:{name:"Nightshade Witch",plural:"Nightshade Witches",zone:"hollow",mv:"chase",el:"poison",hp:95,atk:15,def:5,weak:["holy","metal"],resist:["shadow","poison"],w:2,verb:"hexes you",intro:"A Nightshade Witch rises from her bubbling cauldron.",
     lore:"Herbalists who stayed too long among the nightshade. Their brews heal them and only them.",
     inf:{s:"poison",ch:0.35},
     sp:{every:3,name:"Hex Brew",kind:"heal",x:.25,tell:"stirring her cauldron"},drops:[["nightshade",.7],["oak_staff",.25],["holy_water",.3],["witch_eye",.18]]},
@@ -133,14 +133,14 @@ const ENEMIES={
     lore:"The Hollow's heart. It has died many times and seems to have enjoyed none of them.",
     inf:{s:"burn",ch:0.35},
     sp:{every:3,name:"Inferno",kind:"heavy",x:2.2,tell:"spreading its burning wings"},drops:[["phoenix",1],["holy_water",.6]]},
-  harpy:{name:"Storm Harpy",plural:"Storm Harpies",zone:"spire",el:"swift",hp:105,atk:21,def:3,weak:["stone","ice"],resist:["swift"],w:3,verb:"rakes you",intro:"A Storm Harpy shrieks out of the cloud bank.",
+  harpy:{name:"Storm Harpy",plural:"Storm Harpies",zone:"spire",mv:"wander",el:"swift",hp:105,atk:21,def:3,weak:["stone","ice"],resist:["swift"],w:3,verb:"rakes you",intro:"A Storm Harpy shrieks out of the cloud bank.",
     lore:"Wind-spirits in the shape of birds, forever circling the spire. Each wingbeat carries a little thunder.",
     inf:{s:"chill",ch:0.3},
     sp:{every:3,name:"Gale Rush",kind:"multi",n:4,x:.55,tell:"wheeling overhead, wings drawn tight"},drops:[["storm_feather",.75],["storm_draught",.35],["gale_boots",.16]]},
-  sentinel:{name:"Runebound Sentinel",plural:"Runebound Sentinels",zone:"spire",el:"arcane",hp:155,atk:22,def:9,weak:["metal","poison"],resist:["arcane","stone"],w:2,verb:"strikes you",intro:"A Runebound Sentinel grinds to life, its glyphs flaring.",
+  sentinel:{name:"Runebound Sentinel",plural:"Runebound Sentinels",zone:"spire",mv:"still",el:"arcane",hp:155,atk:22,def:9,weak:["metal","poison"],resist:["arcane","stone"],w:2,verb:"strikes you",intro:"A Runebound Sentinel grinds to life, its glyphs flaring.",
     lore:"Guardians carved before the spire fell. Their armor shrugs off blows, but rust and venom still find the seams.",
     sp:{every:4,name:"Rune Slam",kind:"heavy",x:2.5,tell:"its runes flaring white"},drops:[["rune_shard",.7],["golem_core",.3],["sentinel_aegis",.16]]},
-  acolyte:{name:"Void Acolyte",plural:"Void Acolytes",zone:"spire",el:"shadow",hp:112,atk:22,def:4,weak:["holy","arcane"],resist:["shadow"],w:3,verb:"touches you",intro:"A Void Acolyte steps out of a seam in the air.",
+  acolyte:{name:"Void Acolyte",plural:"Void Acolytes",zone:"spire",mv:"chase",el:"shadow",hp:112,atk:22,def:4,weak:["holy","arcane"],resist:["shadow"],w:3,verb:"touches you",intro:"A Void Acolyte steps out of a seam in the air.",
     lore:"Scholars who read one page too many of what lies between the stars. They feed the emptiness in them with your warmth.",
     inf:{s:"curse",ch:0.4},
     sp:{every:3,name:"Soul Tithe",kind:"drain",x:1.4,tell:"opening its hollow hands"},drops:[["void_crystal",.7],["holy_water",.3],["void_robe",.16]]},
@@ -187,6 +187,8 @@ const TUTORIAL=[
 const MAP_ROWS=7,GRID={w:9,h:13},POI_N={fight:[5,3],elite:[1,2],chest:2,shrine:2,peddler:1,mystery:3}; // [min,spread]: fights 5-7, elites 1-2 (doubled at Heat 2+)
 // torchlight: the torch drains 1 per step (Heat 5: h5 per step); at 0 light drops to dim and every step risks an ambush (amb); shrine/rest refill
 const TORCH={max:40,rad:2,dim:1,amb:.3,shrine:20,rest:15,h5:1.5,nocamp:20};
+// roaming enemies: aw = path steps at which a chaser notices you (dark = torch out, heat = extra at Heat 3+, elite = elites), lose = steps at which it loses you, daze = steps a fled-from enemy stays idle, stay = a wanderer's chance to hold still
+const ROAM={aw:4,dark:6,heat:1,elite:2,lose:8,daze:3,stay:.4};
 const INF_SLOTS=3,INF_COST=3,INF_MAX=3,CRIT_CAP=75,FREEZE_CAP=60;
 // trait combat tunables: res = elemental defense from armor traits, ward = Runic, pierce = Arcane, shred = Tempered
 const RES_PER=5,RES_CAP=40,RES_ALT={Fur:[["ice",1],["wood",1]],Insulated:[["ice",2.5]]},RES_MSG={ice:"Your fur-lined gear blunts the cold.",fire:"Your gear turns aside the heat.",poison:"Your gear keeps the venom at bay.",holy:"Your gear dulls the glare.",shadow:"Your gear holds the gloom back.",wood:"Your gear shrugs off the thorns.",metal:"Your gear turns the blades.",stone:"Your gear absorbs the crushing blows.",arcane:"Your gear scatters the stray magic.",swift:"Your gear slows the flurry."};
@@ -244,7 +246,7 @@ const HEAT_MAX=5,HEAT_T={hp:.15,elite:2,inf:1.5,affix:.2,boss:1.2,rest:.25,shrin
 const HEAT=[
   {name:"Kindled",desc:"Enemies have +15% HP and Attack."},
   {name:"Smoldering",desc:"Elites and random elite upgrades are twice as likely, and each map hides one extra elite."},
-  {name:"Blazing",desc:"Enemy status effects land 1.5x as often, and random elemental elites turn up far more often."},
+  {name:"Blazing",desc:"Enemy status effects land 1.5x as often, and random elemental elites turn up far more often. Hunters notice you from one step further away."},
   {name:"Searing",desc:"Bosses use their special one turn sooner (at least every 2) and have +20% HP."},
   {name:"Inferno",desc:"Camps only offer rest, and it heals less (25%). Shrines heal half as much."}
 ];
