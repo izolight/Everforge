@@ -14,14 +14,16 @@ async function run(label,setup){
   if(setup){await page.evaluate(setup);await page.reload()}
   await page.waitForFunction(()=>typeof S==="object"&&S);
   const stats=await page.evaluate(async steps=>{
-    const sleep=ms=>new Promise(r=>setTimeout(r,ms)),out={steps:0,battles:0,won:0,lost:0,forged:0,zones:new Set(),views:0};
-    const click=el=>{el.click();return true};let wantZone=null,doChores=false;
+    const sleep=ms=>new Promise(r=>setTimeout(r,ms)),out={steps:0,battles:0,won:0,lost:0,forged:0,zones:new Set(),views:0,wields:0,abil:0};
+    const click=el=>{el.click();return true};let wantZone=null,doChores=false,wantWield=false;
     const q=s=>document.querySelector(s),qa=s=>[...document.querySelectorAll(s)];
     for(let i=0;i<steps;i++){out.steps++;
       // Every so often, unlock everything and top up HP so later content gets exercised too.
       if(i%60===59)wantZone=ZONES[(i/60|0)%ZONES.length][0];
       if(wantZone&&!busy()){S.unlocked=[...new Set([...S.unlocked,...ZONES.map(z=>z[0])])];S.zone=wantZone;S.battle=null;S.event=null;wantZone=null;save();render()}
       if(i%25===24&&!busy())doChores=true;
+      if(i%10===9)wantWield=true;
+      if(wantWield&&!busy()){wantWield=false;wield()}
       if(S.view!=="battle")go("battle");
       out.zones.add(S.zone);
       if(S.battle&&!S.battle.over){
@@ -29,7 +31,7 @@ async function run(label,setup){
         if(S.battle.turn>40)S.battle.hp=1; // don't let a stalemate eat the whole run
         const btns=qa("#arena button:not([disabled])").filter(b=>b.id&&!["flee","rest"].includes(b.id)||b.dataset.ability);
         const b=btns.length?btns[Math.floor(Math.random()*btns.length)]:q("#atk");
-        if(Math.random()<.75&&q("#atk"))click(q("#atk"));else if(b)click(b);
+        if(Math.random()<.75&&q("#atk"))click(q("#atk"));else if(b){if(b.dataset.ability)out.abil++;click(b)}
         if(S.battle&&S.battle.over){out.battles++;out[S.battle.over==="won"?"won":"lost"]++}
         continue}
       if(doChores){doChores=false;await chores();continue}
@@ -42,6 +44,10 @@ async function run(label,setup){
       const claim=q("#claim");if(claim){click(claim);continue}
       await chores();
     }
+    function wield(){ // each weapon form in turn (and sometimes a shield) so every signature ability gets exercised
+      const wf=Object.keys(FORMS).filter(k=>FORMS[k].g==="weapon"),f=wf[out.wields++%wf.length],id="t_"+f,tr=pick([{Fire:2,Sharp:2},{Ice:3,Arcane:1},{Poison:2,Heavy:1},{Holy:2,Tempered:2},{Shadow:2}]);
+      S.items[id]={id,name:"Test "+FORMS[f].label,form:f,noun:FORMS[f].label,traits:tr,tier:1,crafted:true};addItem(id);equip(id,"main");
+      if(Math.random()<.6){addItem("wood_shield");equip("wood_shield","off")}}
     // Visit the other views, forge something, salvage, infuse.
     async function chores(){
       for(const v of VIEWS){go(v);out.views++}
@@ -69,6 +75,7 @@ async function run(label,setup){
   let failed=false;
   const fresh=await run("fresh");
   if(fresh.errors.length){failed=true;console.error(fresh.errors.join("\n"))}
+  if(fresh.stats.wields>=7&&!fresh.stats.abil){failed=true;console.error("No ability buttons were clicked; they may have vanished.")}
   if(fresh.stats.battles<3){failed=true;console.error("Too few battles completed; the loop got stuck.")}
   // Every old save fixture must still load (migrations) and play without errors.
   for(const f of fs.readdirSync(FIX).filter(f=>f.endsWith(".json")).sort()){
