@@ -17,9 +17,9 @@
     <h1>Everforge</h1>
     <button class="snd" id="snd" type="button"></button>
     <div class="meta">
-      <span class="lvl" id="lvl">Smith Lv 1</span>
+      <span class="lvl" id="lvl"></span>
       <div class="xp" aria-hidden="true"><i id="xpbar" style="width:0%"></i></div>
-      <span class="emb" id="emb" title="Embers"></span>
+      <span class="emb" id="emb"></span>
       <span id="disc"></span>
     </div>
   </header>
@@ -41,21 +41,20 @@
       <div class="cfx" id="cfx"></div>
     </section>
     <section class="panel" aria-label="Infusions">
-      <p class="label" id="inflabel">Infusions</p>
+      <div class="lrow" id="inflabel"></div>
       <div class="inf" id="inf"></div>
-      <p class="foot">Essences worth 3 plain ones (a Greater counts as 3, a Pure as 9, a Lesser as ⅓) infuse a trait into you; as many again deepen it, up to III. Infused traits act as if they were on your weapon.</p>
       <div class="actions" id="infbtns"></div>
     </section>
     <section style="display:grid;gap:10px">
-      <p class="label">Satchel · tap to equip, use or salvage</p>
+      <div class="lrow"><p class="label">Satchel</p><button type="button" class="qm" data-tap data-tip="Satchel&#10;Tap an item to open it: equip, use, add to the crucible or salvage it.&#10;Long-press or hover for its name and stats. The frame colour is its grade (Faint, Lesser, Plain, Greater, Pure), a tick means worn, a dot means new, a number is how many you hold." aria-label="Help: Satchel">?</button></div>
       <div class="tabs" id="gtabs"></div>
-      <div class="grid" id="ginv"></div>
+      <div class="sqg" id="ginv"></div>
     </section>
   </div>
 
   <div id="v-forge" class="view" hidden>
     <section class="panel" aria-label="Crucible">
-      <p class="label">Crucible</p>
+      <div class="lrow"><p class="label">Crucible</p><button type="button" class="qm" data-tap data-tip="Crucible&#10;Tap gear or a material in the satchel to add it. Tap a filled slot to take it out again.&#10;Dimmed satchel items won't mix with what is already in. Essences mix with everything. The Recipes tab has the full table.&#10;More slots unlock as your Smith level rises." aria-label="Help: Crucible">?</button></div>
       <div class="slots" id="slots"></div>
       <div id="mixhint"></div>
       <div class="actions">
@@ -64,18 +63,17 @@
       </div>
     </section>
     <section class="panel" aria-label="Upgrading">
-      <details id="upgd"><summary class="label" id="upgsum">Upgrade grades</summary>
-      <p class="foot" id="upginfo"></p>
+      <details id="upgd"><summary class="label" id="upgsum"></summary>
       <div class="upgrows" id="upgrows"></div></details>
     </section>
     <section class="panel" aria-label="Skills">
-      <details id="skd"><summary class="label">Crafting skills</summary><p class="foot">Every kind of thing has its own skill. A craft trains the skill of what you make, and a little of each other kind you put in. A higher skill raises the tier you can reach and lowers the chance a forge goes wrong.</p><div id="skills"></div></details>
+      <details id="skd"><summary class="label" id="sksum"></summary><div id="skills"></div></details>
     </section>
     <section class="panel result" id="result" aria-live="polite"></section>
     <section style="display:grid;gap:10px">
-      <p class="label">Satchel · tap to add to the crucible</p>
+      <div class="lrow"><p class="label">Satchel</p><button type="button" class="qm" data-tap data-tip="Satchel&#10;Tap an item to add it to the crucible. Dimmed items won't mix with what is already in; tap one to inspect it.&#10;Long-press or hover for its name and stats. The frame colour is its grade (Faint, Lesser, Plain, Greater, Pure), a tick means worn, a dot means new, a number is how many you hold." aria-label="Help: Satchel">?</button></div>
       <div class="tabs" id="ftabs"></div>
-      <div class="grid" id="finv"></div>
+      <div class="sqg" id="finv"></div>
     </section>
   </div>
 
@@ -176,6 +174,7 @@
 <script src="js/data.js"></script>
 <script src="js/state.js"></script>
 <script src="js/helpers.js"></script>
+<script src="js/tip.js"></script>
 <script src="js/crafting.js"></script>
 <script src="js/codex.js"></script>
 <script src="js/goals.js"></script>
