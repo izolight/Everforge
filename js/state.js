@@ -1,5 +1,5 @@
 // ================= STATE =================
-const KEY="everforge-v12",OLD_KEYS=["everforge-v11","everforge-v10","everforge-v9","everforge-v8","everforge-v7","everforge-v6","everforge-v5","everforge-v4","everforge-v3"];
+const KEY="everforge-v13",OLD_KEYS=["everforge-v12","everforge-v11","everforge-v10","everforge-v9","everforge-v8","everforge-v7","everforge-v6","everforge-v5","everforge-v4","everforge-v3"];
 function baseItem(id){const [name,form,traits,kind]=BASE[id];return {id,name,form,noun:name.split(" ").pop(),traits,tier:1,crafted:false,...(kind?{kind}:{})}}
 function mkGraded(b,g){ // the item for base id b at grade g (pure: migrate rebuilds graded items with it)
   const es=/^ess_([A-Za-z]+)$/.exec(b),it=es?{id:b,name:`${es[1]} Essence`,form:"material",kind:"essence",noun:"Essence",traits:{[es[1]]:ESS_VALUE},tier:1,crafted:false}:baseItem(b);
@@ -8,12 +8,12 @@ function mkGraded(b,g){ // the item for base id b at grade g (pure: migrate rebu
 const statsDef=()=>({salvaged:0,studied:0,dealt:0,taken:0,big:0,bigW:"",crits:0,parries:0,abil:0,sufd:0,cured:0,elites:0,bosses:0,deaths:0,exped:0,heatBest:{},fast:{},forged:0,legend:0,mishaps:0,fizzles:0,earned:0,spent:0,refined:0,dailies:0,dailyWins:0,dBest:null});
 function freshState(){
   const items={};Object.keys(BASE).forEach(id=>items[id]=baseItem(id));
-  return {v:12,embers:0,infCredit:0,skills:{},maps:{},heat:{},daily:null,run:null,infuse:{},items,inv:{iron_sword:1},eq:{main:"iron_sword",off:null,head:null,body:null,hands:null,feet:null,charm:null},
+  return {v:13,embers:0,afx:{},infCredit:0,skills:{},maps:{},heat:{},daily:null,run:null,infuse:{},items,inv:{iron_sword:1},eq:{main:"iron_sword",off:null,head:null,body:null,hands:null,feet:null,charm:null},
     hp:999,camp:2,campProg:0,xp:0,journal:[],knownR:[],hints:[0,1,2],bench:[],last:null,tab:"all",rtab:"all",view:"battle",zone:"woods",
     wins:0,kills:{},seen:{},codex:{},unlocked:["woods"],zoneKills:{},quest:0,bounty:null,stats:statsDef(),fresh:[],battle:null,event:null};
 }
 const isObj=v=>!!v&&typeof v==="object"&&!Array.isArray(v);
-const DEFAULTED=["maps","infuse","eq","kills","seen","codex","zoneKills","stats","journal","knownR","bench","unlocked","fresh","hp","xp","zone","heat","daily","run","hints","embers","skills","infCredit"];
+const DEFAULTED=["maps","infuse","eq","kills","seen","codex","zoneKills","stats","journal","knownR","bench","unlocked","fresh","hp","xp","zone","heat","daily","run","hints","embers","skills","infCredit","afx"];
 // Shape check for loaded or imported saves, so a malformed one is rejected instead of breaking every render.
 function sane(s){
   return ["maps","heat","infuse","items","inv","eq","kills","seen","codex","zoneKills","stats"].every(k=>isObj(s[k]))
@@ -89,8 +89,13 @@ function migrate(s){
       const r=isObj(d.map)&&Array.isArray(d.map.rows)&&isObj(d.map.pos)?Math.max(0,Math.min(MAP_ROWS-1,(d.map.pos.r|0)+1)):0;
       d.state="done";d.result={rows:r,boss:false,turns:d.turns|0};s.run=null;if(ZONES.some(z=>z[0]===d.back))s.zone=d.back;if(isObj(s.stats)){s.stats.dailies=(s.stats.dailies|0)+1;if(!isObj(s.stats.dBest))s.stats.dBest={...d.result}}}
     if(isObj(d))d.map=null}
-  if(s.v!==12||!isObj(s.items)||!isObj(s.inv))return null;
-  const dflt=freshState();DEFAULTED.forEach(k=>{if(s[k]===undefined)s[k]=dflt[k]});
+  if(s.v===12){s.v=13; // map enemies' up/af become a rarity plus an affix list (an old elite is a magic enemy with its one elemental affix); a battle in progress does the same
+    const conv=m=>{if(isObj(m)&&Array.isArray(m.pois))m.pois.forEach(p=>{if(!isObj(p)||(p.up===undefined&&p.af===undefined))return;
+      if(p.t==="elite"||p.up){p.rar="magic";p.afx=[AFX_EL[p.af|0]||AFX_EL[0]]}else{p.rar="normal";p.afx=[]}delete p.up;delete p.af})};
+    Object.values(isObj(s.maps)?s.maps:{}).forEach(conv);if(isObj(s.daily))conv(s.daily.map);
+    const b=s.battle;if(isObj(b)&&b.afx===undefined){const a=b.elite&&AFX_EL.find(x=>AFX[x].tr===b.elite);b.rar=a?"magic":"normal";b.afx=a?[a]:[];delete b.elite;if(a){if(!isObj(s.afx))s.afx={};s.afx[a]=s.afx[a]||{s:1,b:0}}}} // an open elite battle counts as met
+  if(s.v!==13||!isObj(s.items)||!isObj(s.inv))return null;
+  const dflt=freshState();DEFAULTED.forEach(k=>{if(s[k]===undefined)s[k]=dflt[k]});if(!isObj(s.afx))s.afx={};
   Object.keys(BASE).forEach(id=>s.items[id]=baseItem(id));
   if(!sane(s))return null;
   ZONES.forEach((z,i)=>{if(i&&(s.kills[ZONES[i-1][2]]||0)>0&&!s.unlocked.includes(z[0]))s.unlocked.push(z[0])}); // zones added later open for saves that already beat the boss before them

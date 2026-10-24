@@ -49,7 +49,7 @@ const helpBtn=(...l)=>`<button type="button" class="qm" data-tap ${tt(...l)} ari
   const prep=n=>{if(n.nodeType!==1)return;[n,...n.querySelectorAll("[data-tip]")].forEach(x=>{ // tip-only elements become focusable and get a name
     if(!x.matches("[data-tip]")||x.matches("button,a,summary,input,select,textarea"))return;
     if(!x.hasAttribute("tabindex")){const p=x.previousElementSibling;x.tabIndex=p&&p.matches("[data-tip]:not(button)")?-1:0} // one tab stop per cluster of chips/stats; arrows move within it
-    if(!x.hasAttribute("aria-label")||x.dataset.tl){x.setAttribute("role","note");x.dataset.tl=1;x.setAttribute("aria-label",x.dataset.tip.split("\n").join(". "))}})};
+    if(!x.hasAttribute("aria-label")||x.dataset.tl){x.setAttribute("role","note");x.dataset.tl=1;x.setAttribute("aria-label",x.dataset.tip.split("\n").join(". ").replace(/\.\. /g,". "))}})};
   new MutationObserver(ms=>{ms.forEach(m=>m.type==="attributes"?prep(m.target):m.addedNodes.forEach(prep));if(cur&&!cur.isConnected)hide()}).observe(document.body,{childList:true,subtree:true,attributes:true,attributeFilter:["data-tip"]});
   prep(document.body);
 })();

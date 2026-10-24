@@ -2,7 +2,7 @@
 // Balance simulator: plays battles and whole expeditions in the real game code (startBattle, attack, parry, ability, useItem, visit, pstats...)
 // in headless Chromium, with render/save/fx/sfx/toast stubbed. Kits are crafted with the real combine().
 // Usage: node tools/sim.js [--n 40] [--zone woods,pass] [--enemy wolf,archon] [--kit melee,spire-end] [--heat 0,3,5] [--policy smart,basic,passive]
-//        [--seed 7] [--trace (prints one battle log per cell, then exits)] [--elite] [--row 3] [--all] [--attrition] [--no-mastered] [--jobs 4] [--out sim.json] [--econ-only | --no-econ] [--exped 30]
+//        [--seed 7] [--trace (prints one battle log per cell, then exits)] [--elite (adds magic + and rare * variants)] [--rarity (the rarity table only)] [--row 3] [--all] [--attrition] [--no-mastered] [--jobs 4] [--out sim.json] [--econ-only | --no-econ] [--exped 30]
 const {chromium}=require("playwright"),path=require("path"),fs=require("fs"),os=require("os");
 const URL="file://"+path.resolve(__dirname,"..","index.html");
 
@@ -95,30 +95,36 @@ function setup(){ // runs inside the game page; everything here uses the real ga
     smart:B=>{const sp=isSpecial(B)?foeOf(B).sp:null,P=pstats();
       if(sp&&!B.frozen&&!B.stun&&!(B.off>0))return parry(); // the telegraph is reliable, so the bot always parries a special; the game itself rolls PARRY_CH in enemyTurn, so a parry misses one time in five (and a hit parry breaks a heal)
       if(S.hp<P.maxHp*.35){const hs=Object.keys(S.inv).filter(id=>S.inv[id]>0&&grp(S.items[id])==="consumable"&&medHeal(S.items[id])>0).sort((a,b)=>medHeal(S.items[b])-medHeal(S.items[a]));if(hs.length)return useItem(hs[0])}
+      if(hasAfx(B,"boom")&&B.hp<=B.max*AFX_T.boom.warn&&S.hp<=blastOf(B)*1.6){const hs=Object.keys(S.inv).filter(id=>S.inv[id]>0&&grp(S.items[id])==="consumable"&&medHeal(S.items[id])>0).sort((a,b)=>medHeal(S.items[b])-medHeal(S.items[a]));if(hs.length)return useItem(hs[0])} // a Volatile foe is about to burst: heal first, as the NEXT row says
       const ready=abKeys(P).find(a=>!(B.cd&&B.cd[a]>0));if(ready)return ability(ready);
       attack()}
   };
   // one fight on a fresh copy of the kit's save; returns {w,t,hp}
+  // the affixes a magic/rare variant carries: the first cycles through every affix the species can roll (Swift-footed needs a mover), the rest are rolled
+  SIM.afxFor=(id,rar,i,heat)=>{
+    if(!rar||rar==="normal")return[];const E=ENEMIES[id],pool=Object.keys(AFX).filter(a=>!AFX[a].roam||(E.mv&&E.mv!=="still")),k=rar==="rare"&&heat>=RAR_CH.k3?3:RARITIES[rar].k,out=[pool[i%pool.length]];
+    while(out.length<k){const c=pool.filter(a=>!out.includes(a)&&out.every(b=>afxOk(a,b)));if(!c.length)break;out.push(c[Math.floor(Math.random()*c.length)])}
+    return out};
   SIM.fight=(snap,id,heat,pol,o)=>{
     S=JSON.parse(snap);const E=ENEMIES[id];S.zone=id==="mimic"?o.zone:E.zone;S.hp=pstats().maxHp;S.maps[S.zone]=genMap({heat});S.run=null;
-    startBattle(id,{row:E.boss||id==="mimic"?0:o.row,up:!!o.elite,elite:!!o.elite,af:o.af});
+    startBattle(id,{row:E.boss||id==="mimic"?0:o.row,rar:o.rar||"normal",afx:SIM.afxFor(id,o.rar,o.i||0,heat)});
     const B=S.battle;let g=0;while(S.battle===B&&!B.over&&B.turn<150&&g++<600)POL[pol](B);
-    const won=B.over==="won";return{w:won?1:0,t:B.turn,hp:won?S.hp/pstats().maxHp:0};
+    const won=B.over==="won";return{w:won?1:0,t:B.turn,hp:won?S.hp/pstats().maxHp:0,a:B.afx[0]};
   };
   // --trace: one fight with its battle log (your HP after each line's turn is not tracked; the final line is the result)
   SIM.trace=(snap,id,heat,pol,o)=>{useSeed(o.seed,"trace"+id+heat+pol);S=JSON.parse(snap);const E=ENEMIES[id];S.zone=id==="mimic"?o.zone:E.zone;S.hp=pstats().maxHp;S.maps[S.zone]=genMap({heat});S.run=null;
-    startBattle(id,{row:E.boss||id==="mimic"?0:o.row,up:false,elite:false});const B=S.battle,hps=[];let g=0;while(S.battle===B&&!B.over&&B.turn<150&&g++<600){const t=B.turn,n=B.log.length;POL[pol](B);hps.push(`T${t} you ${S.hp}/${pstats().maxHp} foe ${Math.max(0,B.hp)}/${B.max}`)}
+    startBattle(id,{row:E.boss||id==="mimic"?0:o.row,rar:o.rar||"normal",afx:SIM.afxFor(id,o.rar,0,heat)});const B=S.battle,hps=[];let g=0;while(S.battle===B&&!B.over&&B.turn<150&&g++<600){const t=B.turn,n=B.log.length;POL[pol](B);hps.push(`T${t} you ${S.hp}/${pstats().maxHp} foe ${Math.max(0,B.hp)}/${B.max}`)}
     return{log:B.log.map(l=>l.t),hps,over:B.over,turns:B.turn}};
   // run a list of cells [{k,e,h,p}] n times each, deterministic per cell if seeded
   SIM.cells=(cells,n,o)=>cells.map(c=>{
-    const kit=SIM.kits[c.k];useSeed(o.seed,[c.k,c.e,c.h,c.p,c.mz,o.elite].join());let w=0,t=0,hp=0;
-    for(let i=0;i<n;i++){const r=SIM.fight(kit.snap,c.e,c.h,c.p,{...o,af:i%AFFIXES.length,zone:c.mz||kit.zone});w+=r.w;t+=r.t;hp+=r.hp}
-    return{...c,n,win:w/n,turns:t/n,hp:hp/n}});
+    const kit=SIM.kits[c.k];useSeed(o.seed,[c.k,c.e,c.h,c.p,c.mz,o.rar].join());let w=0,t=0,hp=0;const ba={};
+    for(let i=0;i<n;i++){const r=SIM.fight(kit.snap,c.e,c.h,c.p,{...o,i,zone:c.mz||kit.zone});w+=r.w;t+=r.t;hp+=r.hp;if(r.a){const x=ba[r.a]||(ba[r.a]=[0,0]);x[0]++;x[1]+=r.w}}
+    return{...c,n,win:w/n,turns:t/n,hp:hp/n,ba}});
   // attrition: a typical expedition (4 regulars at rows 1-4, then the boss) on one HP bar; a 35% heal after fights 2 and 4 stands in for shrine/camp
   SIM.attr=(snap,zone,heat,pol,n,o)=>{
     useSeed(o.seed,["attr",zone,heat,pol,o.kit].join());let clear=0,fights=0;
     for(let i=0;i<n;i++){S=JSON.parse(snap);S.zone=zone;S.hp=pstats().maxHp;S.maps[zone]=genMap({heat});let ok=true;
-      for(let f=0;f<5&&ok;f++){const id=f<4?pickEnemy(zone):ZONES[zoneIdx(zone)][2];startBattle(id,{row:f<4?f+1:0,up:false,elite:false});
+      for(let f=0;f<5&&ok;f++){const id=f<4?pickEnemy(zone):ZONES[zoneIdx(zone)][2];startBattle(id,{row:f<4?f+1:0,rar:"normal"});
         const B=S.battle;let g=0;while(S.battle===B&&!B.over&&B.turn<150&&g++<600)POL[pol](B);
         if(B.over!=="won"){ok=false;break}fights++;if(f===1||f===3)healYou(Math.round(pstats().maxHp*.35))}
       if(ok)clear++}
@@ -128,8 +134,8 @@ function setup(){ // runs inside the game page; everything here uses the real ga
   const itemCount=()=>Object.values(S.inv).reduce((a,b)=>a+b,0);
   SIM.exped=(snap,zone,heat,pol,seedKey,seed)=>{
     useSeed(seed,seedKey);S=JSON.parse(snap);S.zone=zone;S.embers=0;S.hp=pstats().maxHp;S.camp=2;S.maps[zone]=genMap({heat,zone});S.stats.earned=0;
-    const r={won:0,lost:0,fights:0,cont:0,elites:0,shops:[],visits:{},hp0:S.hp},e0=essCount(),i0=itemCount(),inv0={...S.inv};let steps=0;
-    const fightOut=()=>{const B=S.battle;let g=0;while(S.battle===B&&!B.over&&B.turn<150&&g++<600)POL[pol](B);r.fights++;if(B.by==="it")r.cont++;if(B.elite)r.elites++;return B.over};
+    const r={won:0,lost:0,fights:0,cont:0,mags:0,rares:0,shops:[],visits:{},hp0:S.hp},e0=essCount(),i0=itemCount(),inv0={...S.inv};let steps=0;
+    const fightOut=()=>{const B=S.battle;let g=0;while(S.battle===B&&!B.over&&B.turn<150&&g++<600)POL[pol](B);r.fights++;if(B.by==="it")r.cont++;if(B.afx.length)r[B.rar==="rare"?"rares":"mags"]++;return B.over};
     const settle=()=>{
       for(let k=0;k<12;k++){
         if(S.battle&&!S.battle.over){if(fightOut()==="lost")return false;continue}
@@ -167,7 +173,7 @@ function setup(){ // runs inside the game page; everything here uses the real ga
 
 // ---------- node side ----------
 const pct=x=>Math.round(x*100),f1=x=>(Math.round(x*10)/10).toFixed(1),median=a=>{const s=[...a].sort((x,y)=>x-y);return s.length?s[Math.floor(s.length/2)]:0};
-const ZN=["woods","pass","hollow","spire"],kitName=(t,z)=>`${t}/${z}`;
+const RK=["","magic","rare"],ZN=["woods","pass","hollow","spire"],kitName=(t,z)=>`${t}/${z}`;
 // Flags use bands, not win% alone. mode "arr" (arrival: the kit of the previous stage meets this zone, or the starter kit meets the woods) is the main pairing; "on" is the kit's own zone.
 const TURN_EASY=4,TURN_EASY_BOSS=10,HP_EASY=.85;
 function flagsOf(c,mode,E){
@@ -199,25 +205,25 @@ async function main(){
     await browser.close();return}
   const result={args:{n:N,seed:SEED,row:ROW,heats:HEATS,policies:POLS,elite:has("elite"),mastered},kits:sums,cells:[],attr:[],econ:[]};
   const E=Object.fromEntries(enemiesAll.map(e=>[e.id,e])),K=Object.fromEntries(kits.map(k=>[k.name,k]));
-  if(!has("econ-only")){
+  if(!has("econ-only")&&!has("rarity")){
     const todo=[];
     for(const k of kits)for(const e of enemies){
       const variants=e.id==="mimic"?[k.on&&[k.on,"on"],k.arr&&[k.arr,"arr"]].filter(Boolean):[[null,e.zone===k.arr?"arr":e.zone===k.on?"on":"off"]];
-      for(const [mz,mode] of variants)for(const h of HEATS)for(const p of POLS)for(const el of has("elite")&&!e.boss&&e.id!=="mimic"?[false,true]:[false])todo.push({c:{k:k.name,e:e.id,h,p,mz,mode},el})}
+      for(const [mz,mode] of variants)for(const h of HEATS)for(const p of POLS)for(const el of has("elite")&&!e.boss&&e.id!=="mimic"?["","magic","rare"]:[""])todo.push({c:{k:k.name,e:e.id,h,p,mz,mode},el})}
     const chunks=Array.from({length:JOBS},()=>[]);todo.forEach((x,i)=>chunks[i%JOBS].push(x));let done=0;
     const res=(await Promise.all(chunks.map((ch,i)=>(async()=>{const out=[];
       for(let j=0;j<ch.length;j+=60){const part=ch.slice(j,j+60);
-        for(const el of [...new Set(part.map(x=>x.el))]){const sub=part.filter(x=>x.el===el).map(x=>x.c),r=await pages[i].evaluate(([c,n,o])=>SIM.cells(c,n,o),[sub,N,{seed:SEED,row:ROW,elite:el}]);r.forEach(x=>out.push({...x,el}));done+=sub.length}
+        for(const el of [...new Set(part.map(x=>x.el))]){const sub=part.filter(x=>x.el===el).map(x=>x.c),r=await pages[i].evaluate(([c,n,o])=>SIM.cells(c,n,o),[sub,N,{seed:SEED,row:ROW,rar:el||"normal"}]);r.forEach(x=>out.push({...x,el}));done+=sub.length}
         if(process.stderr.isTTY)process.stderr.write(`\rmatrix ${done}/${todo.length} cells  ${Math.round((Date.now()-t0)/1000)}s`)}
       return out})()))).flat();if(process.stderr.isTTY)process.stderr.write("\n");
-    res.forEach(c=>{c.flags=c.el?[]:flagsOf(c,c.mode,E[c.e]);c.enemy=c.e+(c.el?"*":"")});
+    res.forEach(c=>{c.flags=c.el?[]:flagsOf(c,c.mode,E[c.e]);c.enemy=c.e+({magic:"+",rare:"*"}[c.el]||"")});
     const MO={arr:0,on:1,off:2};
-    res.sort((a,b)=>MO[a.mode]-MO[b.mode]||enemies.findIndex(e=>e.id===a.e)-enemies.findIndex(e=>e.id===b.e)||(a.el-b.el)||kits.findIndex(k=>k.name===a.k)-kits.findIndex(k=>k.name===b.k)||POLS.indexOf(a.p)-POLS.indexOf(b.p)||a.h-b.h);
+    res.sort((a,b)=>MO[a.mode]-MO[b.mode]||enemies.findIndex(e=>e.id===a.e)-enemies.findIndex(e=>e.id===b.e)||(RK.indexOf(a.el)-RK.indexOf(b.el))||kits.findIndex(k=>k.name===a.k)-kits.findIndex(k=>k.name===b.k)||POLS.indexOf(a.p)-POLS.indexOf(b.p)||a.h-b.h);
     result.cells=res;
     const heads={arr:"ARRIVAL (previous stage's kit meets this zone; starter kit meets the woods): the main pairing",on:"ON-STAGE (the kit's own zone)",off:"OTHER pairings"};
     for(const mode of ["arr","on","off"]){
       if(mode==="off"&&!has("all"))continue;
-      console.log(`\n== Matrix, ${heads[mode]}: ${N} fights per cell, seed ${SEED??"random"}, map row ${ROW}${has("elite")?", * = elite":""}. Per heat: win% / mean turns / mean HP left% (losses count 0) ==`);
+      console.log(`\n== Matrix, ${heads[mode]}: ${N} fights per cell, seed ${SEED??"random"}, map row ${ROW}${has("elite")?", + magic, * rare":""}. Per heat: win% / mean turns / mean HP left% (losses count 0) ==`);
       console.log(`${"enemy".padEnd(11)}${"kit".padEnd(17)}${"policy".padEnd(8)}${HEATS.map(h=>("H"+h).padEnd(17)).join("")}flags`);
       const groups={};res.filter(c=>c.mode===mode).forEach(c=>{const key=[c.enemy,c.k,c.p].join("|");(groups[key]=groups[key]||[]).push(c)});
       Object.values(groups).forEach(g=>{const c0=g[0];
@@ -248,21 +254,41 @@ async function main(){
       const ord=x=>jobs.findIndex(j=>j.k===x.k&&j.mode===x.mode&&j.p===x.p);out.sort((a,b)=>ord(a)-ord(b));result.attr=out;
       out.forEach(o=>console.log(`${o.k.padEnd(17)}${o.mode.padEnd(5)}${o.z.padEnd(8)}${o.p.padEnd(8)}${o.heats.map(x=>`${pct(x.clear)}% ${f1(x.fights)}`.padEnd(14)).join("")}`))}
   }
+  // rarity table: each kit's arrival pairing (the previous stage's kit against the next zone's regulars, at map row ROW), every regular enemy, every affix in turn
+  if(has("rarity")){
+    const cells=[];for(const k of kits){if(!k.arr)continue;for(const e of enemies.filter(e=>!e.boss&&e.id!=="mimic"&&e.zone===k.arr))for(const h of HEATS)for(const p of POLS)for(const rar of ["normal","magic","rare"])cells.push({k:k.name,e:e.id,h,p,rar})}
+    const chunks=Array.from({length:JOBS},()=>[]);cells.forEach((x,i)=>chunks[i%JOBS].push(x));
+    const out=(await Promise.all(chunks.map((ch,i)=>(async()=>{const o=[];for(let j=0;j<ch.length;j+=40){const part=ch.slice(j,j+40);
+      for(const rar of ["normal","magic","rare"]){const sub=part.filter(x=>x.rar===rar);if(!sub.length)continue;(await pages[i].evaluate(([c,n,oo])=>SIM.cells(c,n,oo),[sub,N,{seed:SEED,row:ROW,rar}])).forEach(r=>o.push({...r,rar}))}}return o})()))).flat();
+    const agg=(xs)=>{const n=xs.reduce((a,c)=>a+c.n,0),w=a=>xs.reduce((s,c)=>s+c[a]*c.n,0)/n;return{win:w("win"),turns:w("turns"),hp:w("hp")}};
+    console.log(`\n== Rarity table, ARRIVAL (previous stage's kit vs this zone's regular enemies, map row ${ROW}, ${N} fights per enemy and cell, every affix in turn). Per heat: win% / mean turns / mean HP left% ==`);
+    console.log(`${"kit".padEnd(17)}${"policy".padEnd(8)}${"rarity".padEnd(8)}${HEATS.map(h=>("H"+h).padEnd(17)).join("")}flags`);
+    let bad=0;
+    for(const k of kits){if(!k.arr)continue;for(const p of POLS)for(const rar of ["normal","magic","rare"]){
+      const row=HEATS.map(h=>agg(out.filter(c=>c.k===k.name&&c.p===p&&c.rar===rar&&c.h===h))),fl=[];
+      if(rar!=="normal"&&p==="smart"&&HEATS.some((h,i)=>h<=3&&row[i].win<.85))fl.push("RARE_HARD");if(row.some(r=>r.turns>30))fl.push("SLOG");if(fl.length)bad++;
+      console.log(`${k.name.padEnd(17)}${p.padEnd(8)}${rar.padEnd(8)}${row.map(r=>`${String(pct(r.win)).padStart(3)}% ${f1(r.turns).padStart(5)}t ${String(pct(r.hp)).padStart(3)}%`.padEnd(17)).join("")}${fl.join(" ")}`)}}
+    console.log(`flagged rows: ${bad} (RARE_HARD: smart win under 85% at Heat 0-3, which includes magic; SLOG: mean turns over 30)`);
+    for(const rar of ["magic","rare"])for(const h of HEATS){console.log(`\nBy first affix, ${rar}, smart, Heat ${h}, all arrival kits: win% (fights)`);
+      const by={};out.filter(c=>c.rar===rar&&c.p==="smart"&&c.h===h).forEach(c=>Object.entries(c.ba).forEach(([a,[n,w]])=>{const x=by[a]||(by[a]=[0,0]);x[0]+=n;x[1]+=w}));
+      console.log(Object.entries(by).map(([a,[n,w]])=>`${a} ${pct(w/n)}%`).join("  ")+`  (${Object.values(by)[0][0]} each)`)}
+    result.rarity=out;
+  } else
   // economy
   if(!has("no-econ")){
     const ez=zones,eh=HEATS[0],ep=POLS.includes("smart")?"smart":POLS[0];
     console.log(`\n== Economy: ${EXPED} expeditions per zone, ${ep} policy, melee stage kit (codex mastered for its zone), Heat ${eh} ==`);
     console.log("Columns WITHOUT salvage: embers (fight rewards), ess (essences from chests, shrines, elites, bosses...), items (all drops). Columns WITH salvage (the bot never salvages; this is the value of the new non-equipped loot if you did): sv.ess (essences) and sv.emb (embers); emb+sv and ess+sv are the totals; gear/exp = (embers+sv.emb) / median shop gear price.");
-    const cols=[["zone",8],["kit",14],["clear%",7],["lost%",6],["fights",7],["by foe",7],["embers",7],["sv.emb",7],["emb+sv",7],["ess",5],["sv.ess",7],["ess+sv",7],["items",6],["shops",6],["steps",6],["dark",5],["torch",6],["gear price min-med-max",23],["ess price",10],["emb@shop",9],["gear/exp",8]];
+    const cols=[["zone",8],["kit",14],["clear%",7],["lost%",6],["fights",7],["by foe",7],["magic",6],["rare",6],["embers",7],["sv.emb",7],["emb+sv",7],["ess",5],["sv.ess",7],["ess+sv",7],["items",6],["shops",6],["steps",6],["dark",5],["torch",6],["gear price min-med-max",23],["ess price",10],["emb@shop",9],["gear/exp",8]];
     console.log(cols.map(([c,w])=>c.padEnd(w)).join(""));
     for(const z of ez){const k=kits.find(k=>k.on===z&&k.type==="melee")||kits.find(k=>k.on===z);if(!k)continue;
       const ids=Array.from({length:EXPED},(_,i)=>i),chunks=Array.from({length:JOBS},(_,j)=>ids.filter(i=>i%JOBS===j));
       const rs=(await Promise.all(chunks.map((ch,j)=>pages[j].evaluate(([n,zz,h,p,ids,seed])=>ids.map(i=>SIM.exped(SIM.kits[n].snap,zz,h,p,"exp"+zz+i,seed)),[k.name,z,eh,ep,ch,SEED])))).flat();
       const avg=f=>rs.reduce((a,r)=>a+f(r),0)/rs.length,shops=rs.flatMap(r=>r.shops),gear=shops.flatMap(s=>s.gear),essP=shops.flatMap(s=>s.ess);
-      const row={zone:z,kit:k.name,clear:avg(r=>r.won),lost:avg(r=>r.lost),fights:avg(r=>r.fights),cont:avg(r=>r.cont),embers:avg(r=>r.embers),salvEmb:avg(r=>r.sEmb),ess:avg(r=>r.ess),salvEss:avg(r=>r.sEss),items:avg(r=>r.items),shops:shops.length/rs.length,steps:avg(r=>r.steps),dark:avg(r=>r.dark),torch:avg(r=>r.tEnd),
+      const row={zone:z,kit:k.name,clear:avg(r=>r.won),lost:avg(r=>r.lost),fights:avg(r=>r.fights),cont:avg(r=>r.cont),mags:avg(r=>r.mags),rares:avg(r=>r.rares),embers:avg(r=>r.embers),salvEmb:avg(r=>r.sEmb),ess:avg(r=>r.ess),salvEss:avg(r=>r.sEss),items:avg(r=>r.items),shops:shops.length/rs.length,steps:avg(r=>r.steps),dark:avg(r=>r.dark),torch:avg(r=>r.tEnd),
         gear:gear.length?[Math.min(...gear),median(gear),Math.max(...gear)]:null,essPrice:essP.length?[Math.min(...essP),Math.max(...essP)]:null,embAtShop:shops.length?shops.reduce((a,s)=>a+s.emb,0)/shops.length:0,exped:rs.length};
       row.affordable=gear.length?(row.embers+row.salvEmb)/median(gear):0;result.econ.push(row);
-      console.log([z,k.name,pct(row.clear),pct(row.lost),f1(row.fights),f1(row.cont),f1(row.embers),f1(row.salvEmb),f1(row.embers+row.salvEmb),f1(row.ess),f1(row.salvEss),f1(row.ess+row.salvEss),f1(row.items),f1(row.shops),f1(row.steps),f1(row.dark),f1(row.torch),row.gear?row.gear.join("-"):"-",row.essPrice?[...new Set(row.essPrice)].join("-"):"-",f1(row.embAtShop),f1(row.affordable)].map((v,i)=>String(v).padEnd(cols[i][1])).join(""))}
+      console.log([z,k.name,pct(row.clear),pct(row.lost),f1(row.fights),f1(row.cont),f1(row.mags),f1(row.rares),f1(row.embers),f1(row.salvEmb),f1(row.embers+row.salvEmb),f1(row.ess),f1(row.salvEss),f1(row.ess+row.salvEss),f1(row.items),f1(row.shops),f1(row.steps),f1(row.dark),f1(row.torch),row.gear?row.gear.join("-"):"-",row.essPrice?[...new Set(row.essPrice)].join("-"):"-",f1(row.embAtShop),f1(row.affordable)].map((v,i)=>String(v).padEnd(cols[i][1])).join(""))}
   }
   await browser.close();
   if(OUT){fs.writeFileSync(OUT,JSON.stringify(result));console.log(`\nwrote ${OUT}`)}
