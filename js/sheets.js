@@ -23,8 +23,8 @@ function openSheet(id,refresh,preview){
   btns.push(`<button class="btn" data-act="close">Close</button>`);
   $("sheetIn").innerHTML=`<div class="grab" aria-hidden="true"></div>
     <div class="rhead">${glyph(it)}<div><div class="rform">${rn} · ${labelOf(it)} · Tier ${it.tier}${preview?" · on offer":` · ×${S.inv[id]}`}</div><h2 class="rname">${nameHtml(it)}</h2></div></div>
-    <div class="chips">${chips(it.traits)}</div>
-    ${cmp?cmpBlock(it,cmp,"Versus equipped"):""}${statGrid(shown(it),cmp?shown(cmp):null)}
+    <div class="chips">${chips(it.traits,1)}</div>
+    ${statGrid(shown(it),cmp?shown(cmp):null,1)}${cmp?cmpBlock(it,cmp,"Versus equipped"):""}
     ${!preview&&!mix.ok?`<p class="warn-text">${mix.reason}</p>`:""}
     ${it.mishap==="Weakened"?`<p class="warn-text">Weakened: a fizzled mixture cost every trait 30%.</p>`:""}
     <ul class="fx">${effects(it).map(f=>`<li>${f}</li>`).join("")}</ul>
