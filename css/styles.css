@@ -343,11 +343,10 @@ textarea.code{width:100%;min-height:72px;background:#120f0c;color:var(--fg);bord
 .rec2{list-style:none;margin:0;padding:0;display:grid;gap:4px}
 .rec2 li{display:flex;flex-wrap:wrap;justify-content:space-between;gap:2px 10px;font-size:.88rem;border-top:1px solid var(--line);padding-top:4px}
 .rec2 b{font-family:var(--mono);font-weight:500;font-size:.8rem;color:var(--fg);text-align:right}
-.sndrow{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;border-top:1px solid var(--line);padding-top:10px}
-.vols{display:flex;gap:6px}
-.vols .btn.sel{border-color:var(--accent);color:var(--accent)}
-.snd{background:transparent;border:1px solid var(--line2);border-radius:8px;width:30px;height:28px;padding:0;display:inline-grid;place-items:center;color:var(--muted)}
-.snd svg{width:18px;height:18px}
+#statsd>summary{cursor:pointer;padding:2px 0}
+#statsd[open]>summary{margin-bottom:10px}
+.snd{background:transparent;border:0;padding:6px;margin:-6px -4px;min-width:40px;min-height:40px;display:inline-grid;place-items:center;color:var(--muted)}
+.snd svg{width:20px;height:20px}
 .snd[aria-pressed="true"]{color:var(--accent)}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.floater{display:none}}
 @media (max-width:420px){.rname{font-size:1.5rem}h1{font-size:1.8rem}}

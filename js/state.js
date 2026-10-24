@@ -49,9 +49,10 @@ function migrate(s){
   s.embers=Math.max(0,Math.floor(Number(s.embers))||0);
   const st0=s.stats,sd=statsDef(),had=k=>st0[k]!==undefined;
   const dv={forged:s.journal.length,legend:s.journal.filter(j=>j.legendary).length,bosses:ZONES.reduce((n,z)=>n+(s.kills[z[2]]|0),0),
-    heatBest:Object.fromEntries(ZONES.filter(z=>s.kills[z[2]]>0).map(z=>[z[0],Math.max(0,((s.heat[z[0]]||{}).max|0)-1)])),dailies:s.daily&&s.daily.result?1:0,dailyWins:s.daily&&s.daily.result&&s.daily.result.boss?1:0,dBest:s.daily&&s.daily.result?{...s.daily.result,boss:!!s.daily.result.boss}:null}; // old saves keep what can be derived; the rest start at 0
+    heatBest:Object.fromEntries(ZONES.filter(z=>s.kills[z[2]]>0).map(z=>[z[0],Math.max(0,((s.heat[z[0]]||{}).max|0)-1)])),dailies:s.daily&&s.daily.result?1:0,dailyWins:s.daily&&s.daily.result&&s.daily.result.boss?1:0,exped:Math.max(0,ZONES.reduce((n,z)=>n+(s.kills[z[2]]|0),0)-(s.daily&&s.daily.result&&s.daily.result.boss?1:0)),dBest:s.daily&&s.daily.result?{...s.daily.result,boss:!!s.daily.result.boss}:null}; // old saves keep what can be derived; the rest start at 0. Derived heatBest is a lower bound at the Heat cap
   Object.keys(sd).forEach(k=>{const v=st0[k],d=sd[k];const ok=typeof d==="number"?Number.isFinite(v)&&v>=0:typeof d==="string"?typeof v==="string":k==="dBest"?v===null||(isObj(v)&&Number.isFinite(v.rows)&&Number.isFinite(v.turns)):isObj(v);
     st0[k]=had(k)&&ok?v:k in dv?dv[k]:d});
+  ["heatBest","fast"].forEach(k=>Object.keys(st0[k]).forEach(x=>{if(!Number.isFinite(st0[k][x]))delete st0[k][x]}));
   Object.values(s.items).forEach(it=>{const sc=it.legendary&&SECRETS.find(x=>x.name===it.name&&x.bonus);if(sc&&!(it.traits[sc.bonus.trait]>0))it.traits[sc.bonus.trait]=sc.bonus.v}); // a legendary that lost its bonus to the trait-slot trim gets it back
   Object.keys(s.heat).forEach(z=>{const h=s.heat[z];if(!ZONES.some(x=>x[0]===z)||!isObj(h))delete s.heat[z];else{h.max=Math.max(0,Math.min(HEAT_MAX,h.max|0));h.sel=Math.max(0,Math.min(h.max,h.sel|0))}});
   const d=s.daily,okMap=m=>isObj(m)&&Array.isArray(m.rows)&&m.rows.length===MAP_ROWS&&m.rows.every(r=>Array.isArray(r)&&r.length&&r.every(n=>isObj(n)&&Number.isFinite(n.x)&&Array.isArray(n.next)&&typeof n.t==="string"));
