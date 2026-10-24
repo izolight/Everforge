@@ -1,7 +1,7 @@
 // ================= EMBERS ECONOMY =================
 // Embers (S.embers) come from fights, salvage and selling; they buy peddler stock, refine essences and reforge mishaps. Tunables live in EMB (data.js).
 const worth=it=>Math.round(3+power(it)*.6+2*(it.tier-1));
-const buyPrice=id=>isEss(id)?EMB.ess:Math.round(worth(S.items[id])*EMB.buy),sellPrice=id=>Math.max(1,Math.round(worth(S.items[id])*EMB.sell));
+const buyPrice=id=>{if(isEss(id))return EMB.ess;const it=S.items[id];return Math.max(Math.round(worth(it)*EMB.buy),Math.ceil(EMB.floor*(salvageYield(it).length*EMB.val+salvageEmbers(it))))},sellPrice=id=>Math.max(1,Math.round(worth(S.items[id])*EMB.sell));
 const salvageEmbers=it=>isEss(it.id)||isRefined(it.id)?0:Math.max(1,Math.round(worth(it)*EMB.salv));
 function gainEmbers(n){if(n>0){S.embers+=n;fx("emb","+"+n,"ember")}return n}
 function fightEmbers(E,B){const base=E.boss?EMB.boss:B.elite||B.id==="mimic"?EMB.elite:EMB.fight;return gainEmbers(Math.round(base*(1+(B.heat||0)*EMB.heat)))}
@@ -13,7 +13,7 @@ function shopStock(rv){
   return ids.map(id=>({id,price:buyPrice(id)}));
 }
 // What you could sell: the cheapest few spares (never equipped, in the crucible, legendary or a wanted secret ingredient; essences are kept)
-const sellList=()=>Object.keys(S.inv).filter(id=>spare(id)&&!id.startsWith("ess_")&&!wanted(id)).sort((a,b)=>power(S.items[a])-power(S.items[b])||(a<b?-1:1)).slice(0,EMB.sells).map(id=>({id,price:sellPrice(id)}));
+const sellList=()=>spareList().slice(0,EMB.sells).map(id=>({id,price:sellPrice(id)}));
 function merchant(sh){
   const o=makeOffer(),stock=shopStock(sh||Array.from({length:6},Math.random));
   return{type:"merchant",icon:"peddler",title:"A travelling peddler",text:`"Fine wares for fine folk. Buy, sell or swap${o?`: I'll take your ${S.items[o.give].name} for this ${S.items[o.get].name}`:""}. Fair's fair."`,offer:o,stock,sells:sellList(),loot:[],
@@ -30,14 +30,16 @@ function refine(t){
   const b="ess_"+t;if(inBattle()||avail(b)<REFINE_N||S.embers<EMB.refine)return;
   S.inv[b]-=REFINE_N;trimBench();S.embers-=EMB.refine;const r=refined(t);addItem(r);save();render();toast(`${REFINE_N} ${t} Essences refined into a ${S.items[r].name}.`);
 }
-// Reforge: pay embers to strip a mishap (Cursed, Brittle, Rust, or the Weakened flag) from a crafted or tempered piece. Like the old forge's tempering it makes a new c_ item, keeps the legendary flag and bonus, and takes over the equip slot.
-const mishapOf=it=>!it.crafted?null:MISHAP_TRAITS.find(t=>it.traits[t]>0)||(it.mishap==="Weakened"?"Weakened":null),reforgeCost=it=>EMB.reforge[0]+EMB.reforge[1]*it.tier;
+// Reforge: pay embers to strip every mishap (Cursed, Brittle, Rust, and a Weakened flag, which restores the traits from before the fizzle) from a crafted or tempered piece. Like the old forge's tempering it makes a new c_ item, keeps the legendary flag and bonus, and takes over the equip slot.
+const mishapsOf=it=>!it.crafted?[]:[...MISHAP_TRAITS.filter(t=>it.traits[t]>0),...it.mishap==="Weakened"?["Weakened"]:[]],reforgeCost=it=>EMB.reforge[0]+EMB.reforge[1]*it.tier;
 function reforge(id){
-  const it=S.items[id],m=it&&mishapOf(it),cost=m&&reforgeCost(it);if(!m||inBattle()||!S.inv[id]||S.embers<cost)return;
+  const it=S.items[id],ms=it?mishapsOf(it):[],cost=ms.length&&reforgeCost(it);if(!ms.length||inBattle()||!S.inv[id]||S.embers<cost)return;
   const nid="c_"+hash(id+":reforge").toString(36);
-  if(!S.items[nid]){const tr={...it.traits};if(m==="Weakened")Object.keys(tr).forEach(t=>tr[t]=r1(tr[t]/.7));else delete tr[m];
-    S.items[nid]={...it,id:nid,recipe:undefined,recipeIds:undefined,mishap:undefined,traits:tr,name:it.name.replace(/\b(Cursed|Cracked|Rusted) /,"")}}
+  if(!S.items[nid]){let tr={...it.traits},name=it.name;
+    ms.forEach(m=>{if(m!=="Weakened"){delete tr[m];name=name.replace(TRAITS[m].adj+" ","")}});
+    if(ms.includes("Weakened"))tr=it.unweak?{...it.unweak}:Object.fromEntries(Object.entries(tr).map(([t,v])=>[t,r1(v/.7)])); // old Weakened items without a snapshot fall back to undoing the 30%
+    S.items[nid]={...it,id:nid,recipe:undefined,recipeIds:undefined,mishap:undefined,unweak:undefined,traits:tr,name}}
   S.embers-=cost;takeOne(id);addItem(nid);
   for(const [s] of SLOTS)if(S.eq[s]===id&&eqCount(id)>(S.inv[id]||0)){S.eq[s]=nid;break}
-  clampHp();save();render();closeSheet();toast(`${S.items[nid].name} reforged. ${m==="Weakened"?"Its strength returns":m+" is gone"}.`);
+  clampHp();save();render();closeSheet();toast(`${S.items[nid].name} reforged. ${ms.join(" and ")} gone.`);
 }
