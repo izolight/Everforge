@@ -71,7 +71,7 @@ async function run(label,setup){
       const can=qa("#finv [data-can='1']");
       for(const c of can.slice(0,1+Math.floor(Math.random()*2)))click(c);
       const can2=qa("#finv [data-can='1']");if(can2.length)click(can2[Math.floor(Math.random()*can2.length)]);
-      if(S.bench.length>=2){const before=S.journal.length;q("#combine").click();await sleep(30);out.forged++;}
+      if(S.bench.length>=2){q("#combine").click();q("#combine").click();await sleep(30);out.forged++;} // twice: the first tap only arms the equipped-item warning
       S.bench=[];save();
       S.embers+=40;{const t=pick(ESS_POOL);for(let k=0;k<3;k++)addItem(essence(t))}go("forge"); // refining, then a mishap to reforge
       const rf=q("#refbtns [data-refine]:not([disabled])");if(rf){rf.click();out.refined++}

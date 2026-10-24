@@ -68,6 +68,9 @@
       <p class="foot" id="refinfo"></p>
       <div class="actions" id="refbtns"></div>
     </section>
+    <section class="panel" aria-label="Skills">
+      <details id="skd"><summary class="label">Crafting skills</summary><p class="foot">Every kind of thing has its own skill. A craft trains the skill of what you make, and a little of each other kind you put in. A higher skill raises the tier you can reach and lowers the chance a forge goes wrong.</p><div id="skills"></div></details>
+    </section>
     <section class="panel result" id="result" aria-live="polite"></section>
     <section style="display:grid;gap:10px">
       <p class="label">Satchel · tap to add to the crucible</p>
@@ -133,7 +136,7 @@
           <p><b>Statuses.</b> Some creatures burn, chill, poison or curse you. They tick or hinder you for a few turns and end with the battle. Medicine gear, resist gear and some consumables (Medicine, Holy, Water, Nourishing) shake them off.</p>
           <p><b>Mixing.</b> Only sensible combinations work; the Recipes tab has the table. Salvage turns any item into essences, which mix with everything.</p>
           <p><b>Infusions.</b> Pure essences can be infused into yourself in the Gear tab. The trait stays with you whatever you wield.</p>
-          <p><b>Previews.</b> Known recipes show their full result before you forge. New combinations show the form, mishap risk and any reactions you've discovered. From Smith Lv 3 the forge also appraises the traits to expect.</p>
+          <p><b>Previews.</b> Known recipes show their full result before you forge. New combinations show the form and any reactions you've discovered. Every forge can go wrong: the line under the crucible shows your skill for that kind of item, the odds of a clean result, a mishap or a fizzle (the ingredients are lost, some embers return), and the highest tier that skill can reach. Failing teaches a little, but easy recipes teach less. Merged trait values above 8 grow at half rate, and upgrading a crafted item again is harder each time.  a higher skill and simpler recipes make it rarer. From Smith Lv 3 the forge also appraises the traits to expect.</p>
         </div>
       </details>
       <div class="actions"><button class="btn danger" id="reset">Start a new game</button></div>

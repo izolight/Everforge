@@ -27,13 +27,14 @@ function acceptsText(it){
 }
 
 // ================= COMBINE =================
-function combine(raw){
+// o.roll (0-100) fixes the success roll (100 = clean, used by previews and the balance sim); by default every attempt rolls for real. o.full keeps the failure chance even on the first forge (which never fails).
+function combine(raw,o={}){
   const inputs=sortInputs(raw);
-  const key=inputs.map(i=>i.id).sort().join("+"),rand=rng(hash(key)),log=[];
+  const key=inputs.map(i=>i.id).sort().join("+"),log=[];
   const base=inputs[0],forms=inputs.map(i=>i.form);let form=base.form;
   for(const [a,b,f] of FUSIONS){if(forms.includes(a)&&forms.includes(b)){form=f;log.push({k:"Fusion",t:`${cap(a)} + ${cap(b)} → ${FORMS[f].noun}`});break}}
   const vals={};inputs.forEach(i=>Object.entries(i.traits).forEach(([t,v])=>(vals[t]=vals[t]||[]).push(v)));
-  let tr={};Object.entries(vals).forEach(([t,vs])=>{const mx=Math.max(...vs),sum=vs.reduce((a,b)=>a+b,0);tr[t]=r1(mx+.25*(sum-mx))});
+  let tr={};Object.entries(vals).forEach(([t,vs])=>{const mx=Math.max(...vs),sum=vs.reduce((a,b)=>a+b,0);const g=.25*(sum-mx),lo=Math.max(0,Math.min(g,SOFT-mx));tr[t]=r1(mx+lo+(g-lo)/2);if(g>lo+.05)log.push({k:"Limit",t:`${t} is near its limit; gains above ${SOFT} are halved.`})}); // merge gains above SOFT count half
   let inst=0;CONFLICTS.forEach(([a,b])=>{if(tr[a]&&tr[b])inst+=Math.min(tr[a],tr[b])*7});
   const used=new Set(),reacted=new Set(),rxKeys=[];
   for(let pass=0;pass<3;pass++){let any=false;
@@ -49,19 +50,25 @@ function combine(raw){
   const slots=traitSlots()-(bon?1:0),sorted=topTraits(tr);
   if(sorted.length>slots)log.push({k:"Lost",t:`${sorted.slice(slots).map(x=>x[0]).join(", ")} (only ${traitSlots()} trait slots)`});
   tr=Object.fromEntries(sorted.slice(0,slots));if(bon)tr[bon[0]]=bon[1];
-  inst+=(inputs.length-2)*6;inst=Math.max(0,Math.min(85,Math.round(inst-level()*4)));
-  let mishap=null,unweak=null;
-  if(rand()*100<inst){mishap=["Cursed","Weakened","Brittle"][Math.floor(rand()*3)];
+  inst+=(inputs.length-2)*6;
+  const tier=Math.min(9,Math.max(...inputs.map(i=>i.tier))+1),sk=skillOf({form}),lv=skLv(sk),cleanId="c_"+hash(key).toString(36);
+  const ups=inputs.filter(i=>i.crafted&&i.form===form),upg=ups.length?CRAFT.up*Math.max(0,Math.max(...ups.map(i=>i.tier))-CRAFT.upFrom):0;
+  const diff=r1(CRAFT.base+(tier-1)*CRAFT.tier+inst/CRAFT.inst+upg),gap=diff-lv;
+  const fail=S.journal.length||o.full?Math.round(Math.max(FAIL.min,Math.min(FAIL.max,FAIL.base+FAIL.slope*gap))):0; // the very first forge never fails
+  const fiz=Math.round(fail*Math.max(FIZ.min,Math.min(FIZ.max,FIZ.base+FIZ.slope*gap))),mis=fail-fiz;
+  const need=SK_CAP.findIndex(c=>c>=tier)+1,blocked=tier>SK_CAP[lv-1]?{skill:sk,lv,need,tier}:null;
+  const roll=o.roll??Math.random()*100;let mishap=null,unweak=null,fizzle=false;
+  if(roll<fiz){fizzle=true;log.push({k:"Fizzle",t:"The mixture collapsed into ash. The ingredients are gone.",warn:true})}
+  else if(roll<fail){mishap=["Cursed","Weakened","Brittle"][Math.floor(Math.random()*3)];
     if(mishap==="Weakened"){unweak={...tr};Object.keys(tr).forEach(t=>tr[t]=r1(tr[t]*.7))}else tr[mishap]=2;
     log.push({k:"Mishap",t:mishap==="Weakened"?"The mixture fizzled. Every trait lost 30%.":`The mixture turned unstable and became ${mishap}.`,warn:true})}
   const noun=FORMS[form].noun||base.noun;
   const score=([t,v])=>v+(t in base.traits?0:3)+(reacted.has(t)?1:0);
   const ranked=Object.entries(tr).filter(([t])=>TRAITS[t].adj.toLowerCase()!==noun.toLowerCase()).sort((a,b)=>score(b)-score(a)).map(x=>x[0]);
   const name=secret?secret.name:[...ranked.slice(0,2).map(t=>TRAITS[t].adj),noun].join(" ");
-  const tier=Math.min(9,Math.max(...inputs.map(i=>i.tier))+1);
-  const item={id:"c_"+hash(key).toString(36),name,form,noun,traits:tr,tier,crafted:true,legendary:!!secret,recipe:inputs.map(i=>i.name),recipeIds:inputs.map(i=>i.id),...unweak?{mishap,unweak}:{}};
+  const item={id:mishap?"c_"+hash(key+"|"+mishap).toString(36):cleanId,name,form,noun,traits:tr,tier,crafted:true,legendary:!!secret,recipe:inputs.map(i=>i.name),recipeIds:inputs.map(i=>i.id),...mishap?{clean:cleanId}:{},...unweak?{mishap,unweak}:{}}; // a mishap gets its own id, so clean and flawed copies never stack
   if(form==="material"){const core=inputs.map(kindOf).find(k=>k!=="essence"&&k!=="relic");item.kind=core||(inputs.some(i=>kindOf(i)==="relic")?"relic":"essence")}
-  return {item,log,inst,mishap,baseId:base.id,rxKeys};
+  return {item,log,inst:fail,fail,fiz,mis,diff,gap,skill:sk,lv,blocked,fizzle,mishap,cleanId,baseId:base.id,rxKeys};
 }
 function statsOf(item){
   const out={atk:0,def:0,mag:0,heal:0,spd:0},m=FORMS[item.form].m;

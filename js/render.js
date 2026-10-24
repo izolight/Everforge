@@ -28,7 +28,7 @@ function renderRefine(){
   $("refbtns").innerHTML=ts.length?ts.map(t=>`<button class="btn sm" data-refine="${t}" style="border-color:${tColor(t)}" ${inBattle()||S.embers<EMB.refine?"disabled":""}>Refine ${t} · ${REFINE_N} of ${avail("ess_"+t)}</button>`).join(""):`<p class="foot">Collect ${REFINE_N} essences of one kind to refine them.</p>`;
 }
 // ================= RENDER =================
-let freshShown=new Set(),logOpen=false,heatOpen=false;
+let forgeArmed="",freshShown=new Set(),logOpen=false,heatOpen=false;
 function renderHeader(){
   const l=level(),cur=XP_LV[l-1],nxt=XP_LV[l];clampHp();
   $("lvl").textContent=`Smith Lv ${l}`;
@@ -164,6 +164,24 @@ function renderBattle(){
   const bl=$("blog");if(bl)bl.scrollTop=bl.scrollHeight;
 }
 function useHint(it){const st=statsOf(it),p=[];if(st.heal>0)p.push(`+${medHeal(it)} HP`);const d=Math.round((st.atk+st.mag)*.6);if(d>=3)p.push(`${d} dmg`);const c=cures(it.traits);if(c.length)p.push("cures "+c.join(", "));return p.join(" · ")||"no effect"}
+// Worn items a fizzle would take (the bench holds the equipped copy or the last copy)
+const equippedRisk=items=>[...new Set(items.map(i=>i.id))].filter(id=>(S.inv[id]||0)-benchCount(id)<eqCount(id)).map(id=>S.items[id].name);
+// Forge preview line: the skill that makes this, success / mishap / fizzle odds, and the tier cap
+function craftLine(r,items){
+  const risk=equippedRisk(items);
+  const sk=SKILLS[r.skill],cp=SK_CAP[r.lv-1],b=r.blocked;
+  return `<div class="cline${b?" blocked":""}"><div class="cl1"><span>${skIcon(r.skill)}${sk.name} Lv ${r.lv}</span><span class="foot">Tier ${r.item.tier} · cap ${cp}</span></div>
+    ${b?`<p class="warn-text">${blockText(b)}</p>`:`<div class="odds"><span class="ok-text">${100-r.fail}% clean</span><span class="mis">${r.mis}% mishap</span><span class="warn-text">${r.fiz}% fizzle</span></div>`}
+    ${b?"":`<span class="foot">${S.journal.length?`Difficulty ${r.diff} vs your skill ${r.lv}${r.diff-r.lv>2?" · a reach for you":""}. A fizzle loses the ingredients but returns some embers.`:"Your first forge never fails."}</span>`}
+    ${risk.length?`<p class="warn-text">${risk.join(" and ")} ${risk.length>1?"are":"is"} equipped. A fizzle would destroy ${risk.length>1?"them":"it"}; tap Forge twice to confirm.</p>`:""}</div>`;
+}
+const skIcon=k=>`<svg class="ski" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">${G[SKILLS[k].g]}</svg>`;
+function renderSkills(){
+  $("skills").innerHTML=Object.entries(SKILLS).map(([k,sk])=>{const l=skLv(k),cur=SK_LV[l-1],nxt=SK_LV[l],x=skXp(k);
+    const f=Math.round(Math.max(FAIL.min,Math.min(FAIL.max,FAIL.base+FAIL.slope*(CRAFT.base+CRAFT.tier-l)))); // a plain tier-2 craft with no clashes
+    return `<div class="sk">${skIcon(k)}<div class="skb"><b>${sk.name}</b> <span class="foot">Lv ${l}${nxt?` · ${x-cur}/${nxt-cur} XP`:" · max"}</span>
+      <div class="bar know"><i style="width:${nxt?Math.min(100,(x-cur)/(nxt-cur)*100):100}%"></i></div><span class="foot">${sk.cats} · tier cap ${SK_CAP[l-1]} · ${f}% base failure</span></div></div>`}).join("");
+}
 function renderBench(){
   const max=maxInputs(),parts=[],items=S.bench.map(id=>S.items[id]),chk=checkMix(items);
   for(let i=0;i<(level()>=2?4:3);i++){
@@ -173,12 +191,12 @@ function renderBench(){
     parts.push(it?`<button class="slot full${!chk.ok&&chk.bad?.id===it.id?" bad":""}" data-slot="${i}" aria-label="Remove ${it.name}">${glyph(it)}<span>${it.name}</span></button>`:`<div class="slot">Empty</div>`);
   }
   $("slots").className=level()>=2?"slots s4":"slots";$("slots").innerHTML=parts.join("");
-  let hint="";
+  let hint="",crafting=null;
   if(!items.length)hint=`<p class="foot" style="text-align:center">Tap gear or a material below. Dimmed items won't mix with what's already in.</p>`;
   else if(!chk.ok)hint=`<p class="warn-text">${chk.reason}</p>`;
   else if(items.length===1)hint=`<p class="foot">${items[0].name} takes ${acceptsText(items[0])}.</p>`;
   else{
-    const r=combine(items),known=S.items[r.item.id],base=S.items[r.baseId];
+    const r=combine(items,{roll:100}),known=S.items[r.item.id],base=S.items[r.baseId];crafting=r;
     if(known){
       const ts=targetSlot(known),eqIt=ts&&gearOf(ts),showEq=eqIt&&eqIt.id!==known.id&&eqIt.id!==base.id;
       hint=`<div class="preview"><span class="label">Known recipe · you'll get</span>
@@ -192,15 +210,22 @@ function renderBench(){
       hint=`<div class="preview"><span class="ok-text">New combination. It will become a ${formName(r.item.form)}.</span>
         ${kr.length?`<span class="foot">Known reactions: ${kr.map(k=>{const x=REACTIONS.find(([a,b])=>a+"+"+b===k);return `${x[0]} + ${x[1]} → ${x[2]}`}).join(", ")}</span>`:""}
         ${ur.length?`<span class="foot" style="color:var(--accent)">Something in this mix will react in a way you haven't seen yet.</span>`:""}
-        ${appraise}<span class="foot">Mishap risk ${r.inst}%${r.inst>25?" · clashing traits make this risky":""}</span></div>`}
+        ${appraise}</div>`}
+    hint+=craftLine(r,items);
   }
   $("mixhint").innerHTML=hint;
-  $("combine").disabled=items.length<2||!chk.ok;
+  $("combine").textContent=forgeArmed&&forgeArmed===S.bench.join()?"Tap again to forge":"Forge";
+  $("combine").disabled=items.length<2||!chk.ok||!!crafting?.blocked;
 }
 function renderResult(fresh){
   const el=$("result"),total=Object.values(S.inv).reduce((s,c)=>s+c,0);
   if(!S.last){el.className="panel result";el.innerHTML=`<p class="empty">${total<2?"You need at least two items to forge. Win battles to collect loot.":"Your sword takes ores, herbs, potions, essences and relics. Salvage loot in the Gear tab to turn it into essences."}</p>`;return}
-  const r=S.last,it=S.items[r.id]||r.item,base=S.items[r.baseId],[rn]=rarity(it);
+  const r=S.last,sxt=r.sx?`+${r.xpGain} smith XP · ${Object.entries(r.sx).map(([k,n])=>`${SKILLS[k].name} +${n}`).join(", ")}${r.scaled?" (easy or known recipes teach less)":""}`:`+${r.xpGain} smith XP`;
+  if(r.fizzle){el.className="panel result fizzle"+(fresh?" fresh":"");
+    el.innerHTML=`<div class="rhead"><div><div class="rform">Fizzle</div><h2 class="rname">Ashes and smoke</h2></div></div>
+      <ul class="log"><li><strong>Recipe</strong> ${r.recipe.join(" + ")}</li>${r.log.map(l=>`<li class="${l.warn?"warn":""}"><strong>${l.k}</strong> ${l.t}</li>`).join("")}${r.refund?`<li><strong>Embers</strong> You sift ${r.refund} out of the ash.</li>`:""}</ul>
+      <p class="foot">${sxt} · you learn from failure</p>`;return}
+  const it=S.items[r.id]||r.item,base=S.items[r.baseId],[rn]=rarity(it);
   const ts=targetSlot(it),eqIt=ts&&gearOf(ts),showEq=eqIt&&eqIt.id!==it.id&&eqIt.id!==base?.id;
   el.className="panel result"+(it.legendary?" legend":"")+(fresh?" fresh":"");
   el.innerHTML=`<div class="rhead">${glyph(it)}<div><div class="rform">${rn} · ${labelOf(it)} · Tier ${it.tier}</div>
@@ -209,7 +234,7 @@ function renderResult(fresh){
     ${base?cmpBlock(it,base,"Compared to"):""}${statGrid(shown(it),base?shown(base):null)}
     ${showEq?cmpBlock(it,eqIt,"Versus equipped"):""}
     <ul class="log"><li><strong>Recipe</strong> ${it.recipe.join(" + ")}</li>${r.log.map(l=>`<li class="${l.warn?"warn":""}"><strong>${l.k}</strong> ${l.t}</li>`).join("")}</ul>
-    <p class="foot">Instability ${r.inst}%${r.mishap?"":" · held together"} · +${r.xpGain} smith XP</p>
+    <p class="foot">${r.mishap?"Flawed":"Held together"} (${r.inst}% to fail) · ${sxt}</p>
     ${S.inv[it.id]>0?`<div class="actions"><button class="btn${isGear(it)&&!eqCount(it.id)?" primary":""}" data-open="${it.id}">${isGear(it)&&!eqCount(it.id)?"Equip or inspect":"Inspect"}</button></div>`:""}`;
 }
 const TABS=[["all","All"],["weapon","Weapons"],["armor","Armor"],["charm","Trinkets"],["consumable","Consumables"],["material","Materials"]];
@@ -267,7 +292,7 @@ function renderStats(){
     +grp("Exploration",cell(kz.reduce((a,b)=>a+b,0),"creatures slain")+cell(st.elites,"elites slain")+cell(st.bosses,"bosses slain")+cell(st.exped,"expeditions done")
       +`<div class="sc wide"><b>${kz.join(" / ")}</b><span>kills by region (${ZONES.map(z=>z[1].split(" ").pop()).join(" / ")})</span></div>`
       +`<div class="sc wide"><b>${heat}</b><span>highest Heat cleared</span></div>`)
-    +grp("Forge",cell(st.forged,"items forged")+cell(S.journal.length,"recipes found")+cell(st.legend,"legendaries forged")+cell(st.mishaps,"mishaps")+cell(st.salvaged,"items salvaged")+cell(st.refined,"essences refined"))
+    +grp("Forge",cell(st.forged,"items forged")+cell(S.journal.length,"recipes found")+cell(st.legend,"legendaries forged")+cell(st.mishaps,"mishaps")+cell(st.fizzles,"fizzles")+cell(st.salvaged,"items salvaged")+cell(st.refined,"essences refined"))
     +grp("Economy",cell(sn(st.earned),"embers earned")+cell(sn(st.spent),"embers spent")+cell(S.embers,"embers now"))
     +`<p class="label">Records</p><ul class="rec2">${fast}<li><span>Dailies played / won</span><b>${st.dailies} / ${st.dailyWins}</b></li><li><span>Best daily</span><b>${st.dBest?dailyResult(st.dBest):"none yet"}</b></li></ul>`;
 }
@@ -286,7 +311,7 @@ function render(fresh){
   renderHeader();renderNav();renderGoal();
   if(S.view==="battle")renderBattle();
   if(S.view==="gear")renderGear();
-  if(S.view==="forge"){renderBench();renderRefine();renderResult(fresh)}
+  if(S.view==="forge"){renderBench();renderRefine();renderSkills();renderResult(fresh)}
   renderSatchels();
   if(S.view==="recipes")renderRecipes();
   if(S.view==="codex")renderCodex();
