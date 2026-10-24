@@ -34,8 +34,11 @@ function gradedItem(b,g){const id=gradedId(b,g);if(g!==3)gradedItem(b,3);if(!S.i
 const essence=trait=>gradedItem("ess_"+trait,3),essG=(trait,g)=>gradedItem("ess_"+trait,g);
 const isEss=id=>/^ess_[A-Za-z]+(@[1-5])?$/.test(id),essTrait=id=>id.slice(4).replace(/@.*/,"");
 // The grade a drop rolls in zone at heat: x (0-1) picks it, so the seeded daily can pre-roll it
-function rollGrade(zone,heat,x){const h=Math.max(0,heat|0),w=(GRADE_ODDS[zone]||GRADE_ODDS.woods).map((v,i)=>Math.max(0,v*(1+h*GRADE_HEAT[i]))),t=w.reduce((a,b)=>a+b,0);let r=(x??Math.random())*t;for(let i=0;i<5;i++){if(r<w[i])return i+1;r-=w[i]}return 3}
-const gdrop=(id,zone,heat,x)=>gradable(id)?gradedItem(id,rollGrade(zone,heat,x)):id,gess=(t,zone,heat,x)=>essG(t,rollGrade(zone,heat,x));
+// up = grade steps better (an affix essence from a magic or rare enemy; a fraction is the chance of one step), never above the best grade this zone's odds table can roll
+function rollGrade(zone,heat,x,up){const h=Math.max(0,heat|0),o=GRADE_ODDS[zone]||GRADE_ODDS.woods,w=o.map((v,i)=>Math.max(0,v*(1+h*GRADE_HEAT[i]))),t=w.reduce((a,b)=>a+b,0);let r=(x??Math.random())*t,g=3;for(let i=0;i<5;i++){if(r<w[i]){g=i+1;break}r-=w[i]}
+  if(up)g=Math.min(g+Math.floor(up)+(Math.random()<up%1?1:0),o.map(v=>v>0).lastIndexOf(true)+1,5); // a fractional `up` is the chance of one more step
+  return g}
+const gdrop=(id,zone,heat,x)=>gradable(id)?gradedItem(id,rollGrade(zone,heat,x)):id,gess=(t,zone,heat,x,up)=>essG(t,rollGrade(zone,heat,x,up));
 const dropNow=(id,x)=>gdrop(id,S.zone,heatNow(),x),essNow=(t,x)=>gess(t,S.zone,heatNow(),x); // map finds and rewards in the zone you are in
 function addItem(id,n){S.inv[id]=(S.inv[id]||0)+(n||1);if(!S.fresh.includes(id))S.fresh.push(id)}
 const sortInputs=raw=>raw.slice().sort((a,b)=>FORMS[b.form].p-FORMS[a.form].p||b.tier-a.tier||(a.id<b.id?-1:1));
