@@ -118,7 +118,9 @@ h1{font-family:var(--display);font-weight:700;font-size:2.1rem;line-height:1;col
 .acts{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}#atk,#study,#flee{grid-column:span 2}
 .act{display:grid;justify-items:center;gap:3px;padding:10px 4px;font-size:.86rem}
 .act svg{width:22px;height:22px}
-@media (max-width:380px){.acts{grid-template-columns:1fr 1fr}#study,#flee{grid-column:auto}.stage{grid-template-columns:96px 1fr}.portrait{width:96px;height:96px}}
+.acts .ab{grid-column:span 2;position:relative}.acts.n1 #study,.acts.n1 #flee{grid-column:auto}
+.cdb{position:absolute;top:4px;right:6px;min-width:18px;height:18px;padding:0 4px;border-radius:9px;background:var(--panel2);border:1px solid var(--line2);color:var(--accent);font:normal .7rem/16px var(--mono);text-align:center}
+@media (max-width:380px){.acts{grid-template-columns:1fr 1fr}#study,#flee{grid-column:auto}.acts.n2 .ab{grid-column:auto}.stage{grid-template-columns:96px 1fr}.portrait{width:96px;height:96px}}
 .strip{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px;scrollbar-width:thin}
 .strip .tile{flex:0 0 150px}
 .logd{background:#17130f;border:1px solid var(--line);border-radius:10px;padding:8px 12px;font-size:.88rem}
