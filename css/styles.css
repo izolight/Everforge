@@ -197,6 +197,7 @@ button.chip{cursor:pointer}
 .slot.bad{border-color:var(--bad);box-shadow:none}
 .slot.locked{opacity:.45;font-family:var(--mono);font-size:.68rem}
 .slot svg{width:44px;height:44px}
+.slots.s4{gap:2px;flex-wrap:nowrap}.slots.s4 .slot{width:60px;height:88px;padding:3px;font-size:.66rem;flex:none;min-width:0;overflow:hidden}.slots.s4 .slot svg{width:36px;height:36px}.slots.s4 .plus{font-size:1rem}
 .preview{background:#17130f;border:1px solid var(--line);border-radius:10px;padding:10px 12px;display:grid;gap:8px;font-size:.92rem}
 .result{display:grid;gap:12px}
 .result.legend{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent) inset,0 0 30px rgb(242 165 74 / .15)}

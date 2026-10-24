@@ -52,13 +52,13 @@ function renderGear(){
     cf=[rsT&&`Resists ${rsT}`,P.ward&&`Ward ${P.ward}`,P.thorns&&`Thorns ${P.thorns}%`,P.dr&&`-${P.dr}/hit`,P.dodge&&`Dodge ${P.dodge}%`,P.root&&`Roots +${P.root}`,P.cleanse&&`Cleanse ${Math.round(Math.min(CLEANSE_CAP,P.cleanse*CLEANSE_PER))}%`].filter(Boolean);
   $("cfx").innerHTML=cf.length?cf.map(x=>`<span>${x}</span>`).join(""):"";
   const inf=Object.entries(S.infuse);
-  $("inflabel").textContent=`Infusions · ${inf.length}/${INF_SLOTS} slots`;
-  $("inf").innerHTML=Array.from({length:INF_SLOTS},(_,k)=>{const e=inf[k];if(!e)return `<div class="islot"><b style="color:var(--dim)">Empty</b><small>3 essences of one kind</small></div>`;
+  $("inflabel").textContent=`Infusions · ${inf.length}/${infSlots()} slots`;
+  $("inf").innerHTML=Array.from({length:infSlots()},(_,k)=>{const e=inf[k];if(!e)return `<div class="islot"><b style="color:var(--dim)">Empty</b><small>3 essences of one kind</small></div>`;
     const [t,r]=e,st=innateStats(t),bits=Object.entries(st).filter(([,v])=>v).map(([s,v])=>`${v>0?"+":""}${v} ${s.toUpperCase()}`).join(" · ");
     return `<div class="islot on" style="border-color:${tColor(t)};color:${tColor(t)}"><b>${t} ${["I","II","III"][r-1]}</b><small>${bits||"effect on hit"}</small></div>`}).join("");
   const can=infusable();
   $("infbtns").innerHTML=can.length?can.map(t=>`<button class="btn sm" data-infuse="${t}" style="border-color:${tColor(t)}">${S.infuse[t]?`Deepen ${t} → ${["I","II","III"][S.infuse[t]]}`:`Infuse ${t}`} · ${INF_COST} of ${S.inv["ess_"+t]}</button>`).join("")
-    :`<p class="foot">${inf.length>=INF_SLOTS?"All slots used. You can still deepen an infusion with 3 more of its essence.":"Collect 3 essences of the same trait (salvage, elites, bounties) to infuse one."}</p>`;
+    :`<p class="foot">${inf.length>=infSlots()?"All slots used. You can still deepen an infusion with 3 more of its essence.":"Collect 3 essences of the same trait (salvage, elites, bounties) to infuse one."}</p>`;
 }
 function youHud(){
   const P=pstats(),B=S.battle,guarding=B&&!B.over&&B.guard;
@@ -76,13 +76,13 @@ function campbar(){
 function foeStage(B){
   const E=ENEMIES[B.id],K=cx(B.id),kn=know(B.id),eliteF=B.elite?TRAITS[B.elite].f:null;
   const kw=B.weak.filter(f=>K.weak.includes(f)),kr=B.resist.filter(f=>K.resist.includes(f)||f===eliteF);
-  const unknown=E.weak.length+E.resist.length-K.weak.length-K.resist.length;
+  const F=foeOf(B),unknown=F.weak.filter(f=>!K.weak.includes(f)).length+F.resist.filter(f=>!K.resist.includes(f)).length;
   const st=[B.burn&&`<span class="chip" style="color:${FAM.fire}">Burning ${B.burn.d}</span>`,B.poison&&`<span class="chip" style="color:${FAM.poison}">Poison ${B.poison}</span>`,B.frozen&&`<span class="chip" style="color:${FAM.ice}">Frozen</span>`,B.bleed&&`<span class="chip" style="color:var(--bad)">Bleed ${B.bleed.d*B.bleed.n}</span>`].filter(Boolean).join("");
-  const winding=!B.over&&!B.frozen&&isSpecial(B)&&E.sp.kind!=="heal";
+  const winding=!B.over&&!B.frozen&&isSpecial(B)&&F.sp.kind!=="heal";
   const cls=`portrait${B.over==="won"?" down":""}${winding?" winding":""}`;
   return `<div class="stage" id="enemyHud" style="--el:${FAM[B.el]}">
-    <button class="${cls}" id="foeArt" data-codex="${B.id}" aria-label="${B.name}. Open codex entry">${portrait(B.id,{el:B.el,elite:B.elite,frozen:B.frozen,burn:!!B.burn&&!B.over,poison:B.poison>0&&!B.over})}</button>
-    <div class="foeinfo"><div class="fname">${B.name}${E.boss?"<small>BOSS</small>":B.elite?"<small>ELITE</small>":""}${B.heat?`<small>HEAT ${B.heat}</small>`:""}${kn.mastered?"<small>MASTERED</small>":""}</div>
+    <button class="${cls}" id="foeArt" data-codex="${B.id}" aria-label="${B.name}. Open codex entry">${portrait(B.id,{el:B.el,elite:B.elite,frozen:B.frozen,burn:!!B.burn&&!B.over,poison:B.poison>0&&!B.over,phased:B.phased})}</button>
+    <div class="foeinfo"><div class="fname">${B.name}${E.boss?`<small>BOSS</small>${B.phased?`<small>${E.phase.label}</small>`:""}`:B.elite?"<small>ELITE</small>":""}${B.heat?`<small>HEAT ${B.heat}</small>`:""}${kn.mastered?"<small>MASTERED</small>":""}</div>
       <div class="hpline">${hpBar(B.hp,B.max,"foe")}<span class="hpnum">${Math.max(0,B.hp)}<small>/${B.max}</small></span></div>
       <div class="fsub">${kw.map(f=>famChip(f,"weak")).join("")}${kr.map(f=>famChip(f,"resists")).join("")}${unknown>0?unkChip(`${unknown} unknown`):""}${st}</div></div></div>`;
 }
@@ -109,7 +109,7 @@ function dailyCard(){
     <p class="dline"><span>${zoneName(d.zone)}</span><span class="heat">Heat ${d.heat}</span><span class="heat daily">${tw.name}</span></p>
     <p class="foot">${tw.desc}${!done&&d.zone!==d.want?` Today's region (${zoneName(d.want)}) isn't open to you, so you go to ${zoneName(d.zone)}.`:""}</p>
     ${done?`<p class="foot dres ${r.boss?"won":""}">${r.boss?"Done":"Over"}: ${dailyResult(r)}. Come back tomorrow.</p>`
-      :`<p class="foot">One attempt a day. Same map, enemies and chests for everyone (peddler offers depend on your satchel). Reward for the boss: ${DAILY_REWARD.ess} essences, a rare find, ${DAILY_REWARD.xp} smith XP.</p><div class="actions"><button class="btn primary grow" id="dailyStart">Start today's run</button></div>`}</div>`;
+      :`<p class="foot">One attempt a day. Everyone gets the same map and enemies; chest contents, fight drops and peddler offers can still differ. Reward for the boss: ${DAILY_REWARD.ess} essences, a rare find, ${DAILY_REWARD.xp} smith XP.</p><div class="actions"><button class="btn primary grow" id="dailyStart">Start today's run</button></div>`}</div>`;
 }
 function renderBattle(){
   $("zones").innerHTML=ZONES.map(([id,name,boss],i)=>{const open=zoneOpen(id),cleared=S.kills[boss]>0;
@@ -128,7 +128,7 @@ function renderBattle(){
   const E=ENEMIES[B.id],K=cx(B.id);
   let body="";
   if(!B.over){
-    const P=pstats(),sp=isSpecial(B)?E.sp:null,est=foeHit(B,P,sp?sp.x:1,1)*(sp&&sp.kind==="multi"?sp.n:1);
+    const P=pstats(),sp=isSpecial(B)?foeOf(B).sp:null,est=foeHit(B,P,sp?sp.x:1,1)*(sp&&sp.kind==="multi"?sp.n:1);
     const dmgTxt=K.stats?` About ${est} damage${B.ward>0?` (ward absorbs ${Math.min(B.ward,est)})`:""}.`:"";
     const intent=B.frozen?`<div class="intent"><b>NEXT</b><span>Frozen. It will lose its turn.</span></div>`
       :sp?`<div class="intent special"><b>NEXT</b><span>It's ${sp.tell}. ${K.sp?`${sp.name} is coming.`:"Something big is coming."}${sp.kind==="heal"?" Parry to interrupt it.":`${dmgTxt} Guard, or Parry to turn it back!`}</span></div>`
@@ -150,13 +150,13 @@ function renderBattle(){
 function useHint(it){const st=statsOf(it),p=[];if(st.heal>0)p.push(`+${medHeal(it)} HP`);const d=Math.round((st.atk+st.mag)*.6);if(d>=3)p.push(`${d} dmg`);const c=cures(it.traits);if(c.length)p.push("cures "+c.join(", "));return p.join(" · ")||"no effect"}
 function renderBench(){
   const max=maxInputs(),parts=[],items=S.bench.map(id=>S.items[id]),chk=checkMix(items);
-  for(let i=0;i<3;i++){
+  for(let i=0;i<(max>3?4:3);i++){
     if(i>0)parts.push('<span class="plus" aria-hidden="true">+</span>');
     if(i>=max){parts.push('<div class="slot locked">Smith Lv 2</div>');continue}
     const it=items[i];
     parts.push(it?`<button class="slot full${!chk.ok&&chk.bad?.id===it.id?" bad":""}" data-slot="${i}" aria-label="Remove ${it.name}">${glyph(it)}<span>${it.name}</span></button>`:`<div class="slot">Empty</div>`);
   }
-  $("slots").innerHTML=parts.join("");
+  $("slots").className=max>3?"slots s4":"slots";$("slots").innerHTML=parts.join("");
   let hint="";
   if(!items.length)hint=`<p class="foot" style="text-align:center">Tap gear or a material below. Dimmed items won't mix with what's already in.</p>`;
   else if(!chk.ok)hint=`<p class="warn-text">${chk.reason}</p>`;
@@ -221,7 +221,7 @@ function renderRecipes(){
   const recs=S.journal.slice().reverse().map(j=>S.items[j.id]).filter(it=>it&&(S.rtab==="all"||grp(it)===S.rtab));
   $("rlist").innerHTML=recs.length?recs.map(it=>{const ids=it.recipeIds||[],have=haveFor(ids),all=have.every(Boolean)&&ids.length<=maxInputs()&&!inBattle();
     return `<div class="rec">${glyph(it)}<div class="rn">${nameHtml(it)} <span class="foot">· ${labelOf(it)} · PWR ${power(it)}</span></div>
-      <button class="btn sm${all?" primary":""}" data-load="${it.id}" ${all?"":"disabled"}>${all?"Load":ids.length>maxInputs()?"Needs Lv 2":"Missing"}</button>
+      <button class="btn sm${all?" primary":""}" data-load="${it.id}" ${all?"":"disabled"}>${all?"Load":ids.length>maxInputs()?`Needs Lv ${ids.length>3?8:2}`:"Missing"}</button>
       <div class="ri">${ids.map((id,i)=>`<span class="${have[i]?"have":"miss"}">${S.items[id]?.name||"?"}</span>`).join(" + ")}</div></div>`}).join("")
     :`<p class="empty">${S.journal.length?"No recipes in this category yet.":"Every combination you forge is saved here so you can make it again."}</p>`;
   $("mixrules").innerHTML=[["Weapons","weapon"],["Armor","armor"],["Trinkets","charm"],["Food","food"],["Potions","potion"]]
