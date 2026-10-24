@@ -152,6 +152,17 @@ const ARC_PER=12,ARC_CAP=60,WARD_PER=4,WARD_CAP=40,THORN_PER=4,THORN_CAP=30,STON
 const STATUS={burn:{n:"Burn",el:"fire",t:3,tip:"damage each turn"},chill:{n:"Chill",el:"ice",t:3,tip:"no swift follow-ups, half dodge"},poison:{n:"Poison",el:"poison",t:4,tip:"stacking damage each turn"},curse:{n:"Curse",el:"shadow",t:4,tip:"healing you receive is halved"}};
 const INF_MSG={burn:"You catch fire",chill:"A numbing chill sets in",poison:"Venom seeps into your blood",curse:"A curse withers you"};
 const ELITE_INF={Fire:"burn",Ice:"chill",Poison:"poison",Shadow:"curse"},ELITE_INF_CH=.25,POISON_STACK=3,CLEANSE_PER=6,CLEANSE_CAP=50,PARRY_X=1.5,PARRY_FAIL=1.25;
+// signature abilities by weapon form (+ shield): cd = turns before reuse, x = power vs a normal attack
+const ABILITIES={
+  blade:{name:"Flurry",icon:"flurry",cd:3,hits:2,x:.7,desc:"Two quick strikes at 0.7x each. Each can crit."},
+  spear:{name:"Lunge",icon:"lunge",cd:3,x:1.2,pen:.7,open:.5,desc:"1.2x strike that ignores 70% of armor. A spear also jabs first at 0.5x when a battle starts."},
+  staff:{name:"Channel",icon:"channel",cd:3,x:1.3,pen:.5,desc:"At least 1.3x a normal attack, more on Magic-heavy staffs. Ignores half of armor; the weapon's top element effect always lands."},
+  lance:{name:"Charge",icon:"charge",cd:4,x:2,open:.25,desc:"2.0x heavy strike, but the enemy's reply hits you 25% harder."},
+  spellblade:{name:"Arc Slash",icon:"arcslash",cd:3,x:1,desc:"About 1-1.3x a normal attack, scaling fully with Magic. A crit refunds 1 turn of cooldown."},
+  warstaff:{name:"Sweep",icon:"sweep",cd:3,x:1,stun:.35,bossStun:.15,desc:"1.0x strike with a 35% chance to stun (15% on bosses). A stunned enemy loses its turn."},
+  claws:{name:"Rend",icon:"rend",cd:3,x:.9,desc:"0.9x strike that opens a bleed: 20% of Attack per turn for 5 turns (ignores armor). Rending again before it ends adds a stack, up to 3, and refreshes it."},
+  shield:{name:"Shield Bash",icon:"bash",cd:3,x:.6,int:.85,bossInt:.6,stun:.2,bossStun:.08,desc:"0.6x Attack plus your shield's defense. Cancels a telegraphed special (85%, 60% on bosses), otherwise 20% to stun (8% on bosses)."}
+},BLEED_STACK=3,BLEED_PER=.2,BLEED_T=5;
 const CURES={Medicine:["burn","chill","poison","curse"],Holy:["curse","poison"],Water:["burn","chill"],Nourishing:["poison"]};
 const RARITY=[["Common","#b3aa9e"],["Uncommon","#88d7a1"],["Rare","#7cb6f2"],["Epic","#c39cf7"],["Mythic","#ff8a50"]];
 const XP_LV=[0,60,160,320,560,900,1400];

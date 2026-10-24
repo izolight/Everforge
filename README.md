@@ -35,6 +35,7 @@ js/
 
 - The scripts are plain (non-module) scripts that share one global scope, so they work from `file://` without a server. **Load order matters**; it is the order of the `<script>` tags in `index.html`. Each file may use anything defined by files above it at load time, and anything at all inside functions at call time.
 - All game state lives in the single global `S` (see `freshState()` in `state.js`). After changing it, call `save()` and `render()`.
+- Weapon-form and shield abilities live in the `ABILITIES` table (`data.js`); `ability(key)` in `battle.js` runs them, cooldowns are per battle in `B.cd`, and `effects()` reads the same table for item text.
 - When the save shape changes, bump `KEY`/`v`, add a migration step in `migrate()`, and extend `sane()` if new required fields are added.
 
 ## Testing

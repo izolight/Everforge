@@ -14,6 +14,7 @@ $("arena").addEventListener("click",e=>{
   if(t.dataset.item)return openSheet(t.dataset.item,false,!S.inv[t.dataset.item]);
   if(t.dataset.choice)return eventChoice(t.dataset.choice);
   if(t.dataset.use)return useItem(t.dataset.use);
+  if(t.dataset.ability)return ability(t.dataset.ability);
   if(t.dataset.node){const [r,i]=t.dataset.node.split(",").map(Number);return visit(r,i)}
   if(t.dataset.zone){S.zone=t.dataset.zone;S.battle=null;S.event=null;save();render();return window.scrollTo({top:0})}
   ({rest,atk:attack,guard,parry,study,flee,again:newExpedition,toforge:()=>go("forge"),

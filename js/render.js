@@ -76,7 +76,7 @@ function foeStage(B){
   const E=ENEMIES[B.id],K=cx(B.id),kn=know(B.id),eliteF=B.elite?TRAITS[B.elite].f:null;
   const kw=B.weak.filter(f=>K.weak.includes(f)),kr=B.resist.filter(f=>K.resist.includes(f)||f===eliteF);
   const unknown=E.weak.length+E.resist.length-K.weak.length-K.resist.length;
-  const st=[B.burn&&`<span class="chip" style="color:${FAM.fire}">Burning ${B.burn.d}</span>`,B.poison&&`<span class="chip" style="color:${FAM.poison}">Poison ${B.poison}</span>`,B.frozen&&`<span class="chip" style="color:${FAM.ice}">Frozen</span>`].filter(Boolean).join("");
+  const st=[B.burn&&`<span class="chip" style="color:${FAM.fire}">Burning ${B.burn.d}</span>`,B.poison&&`<span class="chip" style="color:${FAM.poison}">Poison ${B.poison}</span>`,B.frozen&&`<span class="chip" style="color:${FAM.ice}">Frozen</span>`,B.bleed&&`<span class="chip" style="color:var(--bad)">Bleed ${B.bleed.d*B.bleed.n}</span>`].filter(Boolean).join("");
   const winding=!B.over&&!B.frozen&&isSpecial(B)&&E.sp.kind!=="heal";
   const cls=`portrait${B.over==="won"?" down":""}${winding?" winding":""}`;
   return `<div class="stage" id="enemyHud" style="--el:${FAM[B.el]}">
@@ -112,9 +112,9 @@ function renderBattle(){
       :sp?`<div class="intent special"><b>NEXT</b><span>It's ${sp.tell}. ${K.sp?`${sp.name} is coming.`:"Something big is coming."}${sp.kind==="heal"?" Parry to interrupt it.":`${dmgTxt} Guard, or Parry to turn it back!`}</span></div>`
       :`<div class="intent"><b>NEXT</b><span>A normal attack.${dmgTxt} Parrying now would backfire.</span></div>`;
     const cons=Object.keys(S.inv).filter(id=>S.inv[id]>0&&grp(S.items[id])==="consumable");
-    const canStudy=unknownFacts(B.id).length>0;
+    const canStudy=unknownFacts(B.id).length>0,abs=abKeys(P),abBtn=k=>{const A=ABILITIES[k],c=(B.cd||{})[k]||0;return `<button class="btn act ab" data-ability="${k}" ${c>0?"disabled":""} title="${A.desc}">${icon(A.icon)}${A.name}${c>0?`<i class="cdb">${c}</i>`:""}</button>`};
     body=`${intent}${youHud()}
-      <div class="acts"><button class="btn primary act" id="atk">${icon("attack")}Attack</button><button class="btn act" id="guard">${icon("guard")}Guard</button><button class="btn act" id="parry" title="Beat a telegraphed special: negate it and riposte. Mistimed: +25% damage and a lost guard.">${icon("parry")}Parry</button>
+      <div class="acts n${abs.length}"><button class="btn primary act" id="atk">${icon("attack")}Attack</button>${abs.map(abBtn).join("")}<button class="btn act" id="guard">${icon("guard")}Guard</button><button class="btn act" id="parry" title="Beat a telegraphed special: negate it and riposte. Mistimed: +25% damage and a lost guard.">${icon("parry")}Parry</button>
       <button class="btn act" id="study" ${canStudy?"":"disabled"}>${icon("study")}${canStudy?"Study":"Known"}</button><button class="btn act" id="flee">${icon("flee")}Flee</button></div>
       ${cons.length?`<div class="strip">${cons.map(id=>{const it=S.items[id];return `<button class="tile" data-use="${id}" aria-label="Use ${it.name}">${glyph(it)}<span class="tname">${nameHtml(it)}</span><span class="ttr">${useHint(it)}</span><span class="cnt">×${S.inv[id]}</span></button>`}).join("")}</div>`:""}
       ${logBlock(B)}`;
