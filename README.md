@@ -1,0 +1,38 @@
+# Everforge
+
+A mobile-first crafting and battling game. Fight through three regions, salvage loot into essences, and forge better gear. It runs entirely in the browser, with no build step and no dependencies. Progress is stored in `localStorage`; the Codex tab can export and import a save code.
+
+## Run it
+
+Open `index.html` in a browser, or serve the folder with any static server (`python3 -m http.server`). It loads three fonts from Google Fonts and falls back to system fonts offline.
+
+## Layout
+
+```
+index.html        page markup and script loading order
+css/styles.css    all styles (one dark "forge" theme)
+js/
+  data.js         traits, forms, recipes, items, enemies, tutorial, constants
+  state.js        save/load, versioned migrations, save validation
+  helpers.js      small utilities and shared item/level helpers
+  crafting.js     mixing rules and combine() (trait merging, reactions, mishaps)
+  codex.js        creature knowledge tracking
+  goals.js        tutorial steps and bounties
+  player.js       equipment, player stats, infusions
+  fx.js           floating-number / hit-flash queue
+  map.js          region maps, nodes, map events (chest, shrine, peddler, camp)
+  battle.js       combat loop, enemy turns, victory and defeat
+  gear.js         equip / settle gear, item effect descriptions
+  art.js          SVG art for items, creatures, map nodes and icons
+  render.js       view rendering (battle, gear, forge, recipes, codex)
+  sheets.js       item and codex bottom sheets
+  forgefx.js      forging animation
+  embers.js       ambient ember canvas
+  events.js       DOM event wiring, save export/import, first render
+```
+
+## Conventions
+
+- The scripts are plain (non-module) scripts that share one global scope, so they work from `file://` without a server. **Load order matters**; it is the order of the `<script>` tags in `index.html`. Each file may use anything defined by files above it at load time, and anything at all inside functions at call time.
+- All game state lives in the single global `S` (see `freshState()` in `state.js`). After changing it, call `save()` and `render()`.
+- When the save shape changes, bump `KEY`/`v`, add a migration step in `migrate()`, and extend `sane()` if new required fields are added.
