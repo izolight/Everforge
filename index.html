@@ -581,7 +581,7 @@ const ENEMIES={
     sp:{every:3,name:"Mend",kind:"heal",x:.3,tell:"gathering glowing spores around itself"},drops:[["mushroom",.75],["honey",.45],["sprite_lantern",.12]]},
   bandit:{name:"Woods Bandit",plural:"Woods Bandits",zone:"woods",el:"metal",hp:34,atk:7,def:3,weak:["arcane"],resist:[],w:2,verb:"slashes at you",intro:"A Woods Bandit steps onto the path, blade drawn.",
     lore:"Deserters and debtors who work the woods road. They carry whatever they last stole.",
-    sp:{every:3,name:"Flurry",kind:"multi",n:3,x:.6,tell:"shifting into a low, quick stance"},drops:[["bread",.55],["dagger",.25],["wood_shield",.2],["leather_cap",.2],["jerkin",.18],["trail_boots",.18],["oak_staff",.1],["iron_sword",.07]]},
+    sp:{every:3,name:"Flurry",kind:"multi",n:3,x:.6,tell:"shifting into a low, quick stance"},drops:[["bread",.55],["dagger",.25],["wood_shield",.2],["leather_cap",.2],["jerkin",.18],["trail_boots",.18],["hunter_spear",.1],["oak_staff",.1],["iron_sword",.07]]},
   gnarlhorn:{name:"Gnarlhorn, the Boar King",short:"Gnarlhorn",zone:"woods",el:"wood",boss:true,hp:75,atk:9,def:4,weak:["fire"],resist:["wood"],verb:"tramples you",intro:"The ground shakes. Gnarlhorn, the Boar King, crashes through the trees.",
     lore:"The old king of the boar herds, his hide grown thick as bark. The woods go quiet when he walks.",
     sp:{every:3,name:"Stampede",kind:"heavy",x:2.2,tell:"pawing the ground"},drops:[["gnarl_tusk",1],["boar_hide",.8]]},
@@ -625,7 +625,7 @@ const TUTORIAL=[
   {text:"Cross the Woods map and defeat Gnarlhorn at the end of it.",tab:"battle",done:s=>(s.kills.gnarlhorn||0)>=1,reward:{items:["ess:Swift","ess:Holy"],xp:30}},
   {text:"Infuse an essence into yourself in the Gear tab.",tab:"gear",done:s=>Object.keys(s.infuse||{}).length>0,reward:{camp:1,xp:20}}
 ];
-const MAP_ROWS=7,INF_SLOTS=3,INF_COST=3,INF_MAX=3;
+const MAP_ROWS=7,INF_SLOTS=3,INF_COST=3,INF_MAX=3,CRIT_CAP=75,FREEZE_CAP=60;
 const RARITY=[["Common","#b3aa9e"],["Uncommon","#88d7a1"],["Rare","#7cb6f2"],["Epic","#c39cf7"],["Mythic","#ff8a50"]];
 const XP_LV=[0,60,160,320,560,900,1400];
 const STAT_NAMES={atk:"Attack",def:"Defense",mag:"Magic",heal:"Heal",spd:"Speed"};
@@ -642,8 +642,18 @@ function freshState(){
     hp:999,camp:2,campProg:0,xp:0,journal:[],knownR:[],bench:[],last:null,tab:"all",rtab:"all",view:"battle",zone:"woods",
     wins:0,kills:{},seen:{},codex:{},unlocked:["woods"],zoneKills:{},quest:0,bounty:null,stats:{salvaged:0,studied:0},fresh:[],battle:null,event:null};
 }
+const isObj=v=>!!v&&typeof v==="object"&&!Array.isArray(v);
+const DEFAULTED=["maps","infuse","eq","kills","seen","codex","zoneKills","stats","journal","knownR","bench","unlocked","fresh","hp","xp","zone"];
+// Shape check for loaded or imported saves, so a malformed one is rejected instead of breaking every render.
+function sane(s){
+  return ["maps","infuse","items","inv","eq","kills","seen","codex","zoneKills","stats"].every(k=>isObj(s[k]))
+    &&["journal","knownR","bench","unlocked","fresh"].every(k=>Array.isArray(s[k]))
+    &&Number.isFinite(s.hp)&&Number.isFinite(s.xp)&&ZONES.some(z=>z[0]===s.zone)
+    &&Object.keys(s.inv).every(id=>isObj(s.items[id])&&isObj(s.items[id].traits)&&typeof s.items[id].name==="string"&&FORMS[s.items[id].form])
+    &&s.bench.every(id=>isObj(s.items[id]))&&s.journal.every(j=>isObj(j)&&isObj(s.items[j.id]));
+}
 function migrate(s){
-  if(!s||typeof s!=="object")return null;
+  if(!isObj(s))return null;
   if(s.v===3){
     s.v=4;s.knownR=[];s.rtab="all";
     const byName=n=>Object.values(s.items).find(i=>i.name===n);
@@ -660,8 +670,10 @@ function migrate(s){
     s.battle=null;s.event=null;
   }
   if(s.v===5){s.v=6;s.maps={};s.infuse={};s.battle=null;s.event=null;if(s.quest>=6&&!(s.kills.gnarlhorn>0))s.quest=5}
-  if(s.v!==6||!s.items||!s.inv)return null;
+  if(s.v!==6||!isObj(s.items)||!isObj(s.inv))return null;
+  const dflt=freshState();DEFAULTED.forEach(k=>{if(s[k]===undefined)s[k]=dflt[k]});
   Object.keys(BASE).forEach(id=>s.items[id]=baseItem(id));
+  if(!sane(s))return null;
   Object.values(s.items).forEach(it=>{if(it.id.startsWith("ess_")){it.kind="essence";const t=Object.keys(it.traits)[0];it.traits={[t]:ESS_VALUE}}});
   if(!VIEWS.includes(s.view))s.view="battle";
   return s;
@@ -669,7 +681,8 @@ function migrate(s){
 let S=null;
 try{S=JSON.parse(localStorage.getItem(KEY)||"null");if(!S)for(const k of OLD_KEYS){S=JSON.parse(localStorage.getItem(k)||"null");if(S)break}}catch(e){S=null}
 const hotS=window.claude?.hot?.data?.S;if(hotS)S=hotS;
-S=migrate(S)||freshState();
+try{S=migrate(S)}catch(e){S=null}
+S=S||freshState();
 window.claude?.hot?.snapshot?.(()=>({S}));
 function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
 
@@ -966,7 +979,7 @@ function noteEff(ef){const B=S.battle,E=ENEMIES[B.id];if(ef.k==="weak")learn(B.i
 function healYou(n,why){const P=pstats(),b=S.hp;S.hp=Math.min(P.maxHp,S.hp+n);const got=S.hp-b;if(got>0){fx("youHud","+"+got,"heal");if(why&&S.battle&&!S.battle.over)blog(`${why} (+${got} HP).`,"good")}return got}
 function strike(W,pow,label,inn){
   const B=S.battle,E=ENEMIES[B.id],tr=inn?withInnate(W?W.traits:{}):(W?W.traits:{}),ef=eff(tr,B),v=t=>tr[t]||0,mast=know(B.id).mastered?1.15:1;
-  const crit=Math.random()*100<5+v("Sharp")*3,pierce=v("Heavy")?.4:1;
+  const crit=Math.random()*100<Math.min(CRIT_CAP,5+v("Sharp")*3),pierce=v("Heavy")?.4:1;
   const dmg=Math.max(1,Math.round((pow*.5-B.def*pierce)*ef.m*mast*(crit?1.75:1)*vary()));
   B.hp-=dmg;fx("enemyHud","-"+dmg,crit?"crit":"");fx("foeArt","","hit");
   const note=ef.k==="weak"?` ${ef.t} cuts deep!`:ef.k==="resist"?` It resists the ${ef.t.toLowerCase()}.`:"";
@@ -975,7 +988,7 @@ function strike(W,pow,label,inn){
   const fire=v("Fire")+v("Sunfire"),ice=v("Ice")+v("Frost"),poi=v("Poison")+v("Venomous"),holy=v("Holy")+v("Radiant"),sha=v("Shadow")+v("Twilight");
   const immune=(f,msg)=>{blog(msg,"");if(E.resist.includes(f))learn(B.id,"resist",f)};
   if(fire){if(B.resist.includes("fire"))immune("fire",`The ${B.name} won't burn.`);else{const d=Math.max(1,Math.round(fire*.8));if(!B.burn)blog(`The ${B.name} catches fire.`,"you");B.burn={d,t:3}}}
-  if(ice){if(B.resist.includes("ice"))immune("ice","The cold slides right off it.");else if(!B.frozen&&Math.random()*100<6+ice*4){B.frozen=true;blog(`The ${B.name} is frozen solid!`,"big")}}
+  if(ice){if(B.resist.includes("ice"))immune("ice","The cold slides right off it.");else if(!B.frozen&&Math.random()*100<Math.min(FREEZE_CAP,6+ice*4)){B.frozen=true;blog(`The ${B.name} is frozen solid!`,"big")}}
   if(poi){if(B.resist.includes("poison"))immune("poison","The poison has no effect.");else B.poison=Math.min(15,B.poison+Math.round(poi))}
   if(holy)healYou(Math.round(holy),"Holy light mends you");
   if(sha)healYou(Math.round(dmg*Math.min(.4,.07*sha)),"You drain its life");
@@ -1007,7 +1020,10 @@ function useItem(id){
 function flee(){
   const B=S.battle;
   if(ENEMIES[B.id].boss&&Math.random()<.5){blog("There's no escaping it!","foe");return enemyTurn()}
-  if(Math.random()<.7){B.over="fled";blog("You slip away into cover.");save();return render()}
+  if(Math.random()<.7){B.over="fled";blog("You slip away into cover.");
+    if(ENEMIES[B.id].boss){const m=curMap();m.path.pop();const prev=m.path[m.path.length-1];m.pos=prev?{r:prev[0],i:prev[1]}:null;
+      m.rows[MAP_ROWS-1].forEach(nd=>nd.done=false);blog("You fall back to the camp. The way to the boss is still open.","good")}
+    save();return render()}
   blog("You try to run, but it cuts you off.");enemyTurn();
 }
 function afterPlayer(){if(S.battle.hp<=0)return enemyDown();enemyTurn()}
@@ -1037,7 +1053,7 @@ function enemyTurn(){
 }
 function enemyDown(){
   const B=S.battle,E=ENEMIES[B.id];
-  if(E.rebirth&&!B.reborn){B.reborn=true;B.hp=Math.round(B.max*.4);B.burn=null;B.poison=0;blog(`The ${B.name} bursts into flame and rises from its ashes!`,"big");B.turn++;save();return render()}
+  if(E.rebirth&&!B.reborn){B.reborn=true;B.hp=Math.round(B.max*.4);B.burn=null;B.poison=0;B.guard=false;blog(`The ${B.name} bursts into flame and rises from its ashes!`,"big");B.turn++;save();return render()}
   const P=pstats();
   B.hp=0;B.over="won";S.kills[B.id]=(S.kills[B.id]||0)+1;S.wins+=E.boss?3:1;
   if(!E.boss&&B.id!=="mimic")S.zoneKills[E.zone]=(S.zoneKills[E.zone]||0)+1;
@@ -1078,9 +1094,9 @@ const targetSlot=it=>{const f=FORMS[it.form].slots;return f?f[0]:null};
 function effects(it){
   const g=grp(it),tr=it.traits,v=t=>tr[t]||0,out=[],st=statsOf(it);
   if(g==="weapon"){const f=v("Fire")+v("Sunfire"),i=v("Ice")+v("Frost"),p=v("Poison")+v("Venomous"),h=v("Holy")+v("Radiant"),s=v("Shadow")+v("Twilight");
-    out.push(`${Math.round(5+v("Sharp")*3)}% critical hit chance`);
+    out.push(`${Math.round(Math.min(CRIT_CAP,5+v("Sharp")*3))}% critical hit chance`);
     if(f)out.push(`Sets enemies on fire for ${Math.max(1,Math.round(f*.8))} damage per turn`);
-    if(i)out.push(`${Math.round(6+i*4)}% chance to freeze an enemy for a turn`);
+    if(i)out.push(`${Math.round(Math.min(FREEZE_CAP,6+i*4))}% chance to freeze an enemy for a turn`);
     if(p)out.push(`Adds ${Math.round(p)} poison per hit, stacking`);
     if(h)out.push(`Heals you ${Math.round(h)} HP per hit`);
     if(s)out.push(`Drains ${Math.round(Math.min(.4,.07*s)*100)}% of damage dealt as HP`);
@@ -1705,7 +1721,7 @@ let armed=false;$("reset").onclick=e=>{
   if(!armed){armed=true;e.target.textContent="Tap again to erase all progress";setTimeout(()=>{armed=false;e.target.textContent="Start a new game"},3000);return}
   S=freshState();armed=false;e.target.textContent="Start a new game";save();go("battle");toast("A new journey begins.")};
 
-render();
+try{render()}catch(e){S=freshState();save();render()}
 </script>
 
 </body></html>
