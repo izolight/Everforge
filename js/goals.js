@@ -1,7 +1,7 @@
 // ================= GOALS =================
 // Hint scrolls: S.hints holds secret indexes; level = how many times one appears (1 = the rumor, +1 per extra scroll = one more ingredient, up to all but one).
 const found=s=>S.journal.some(j=>S.items[j.id]?.legendary&&S.items[j.id].name===s.name),hintLv=i=>Math.min(SECRETS[i].ids.length,S.hints.filter(x=>x===i).length);
-const idName=id=>S.items[id]?.name||(id.startsWith("ess_")?`${id.slice(4)} Essence`:BASE[id][0]);
+const idName=id=>S.items[id]?.name||(id.startsWith("ess_")?`${isRefined(id)?"Refined ":""}${id.split("_")[1]} Essence`:BASE[id][0]);
 function giveHint(x){ // reveals something about a secret you haven't forged; x (0-1) picks among the candidates. Returns a log line, or "" if there is nothing left to learn
   const open=SECRETS.map((s,i)=>i).filter(i=>!found(SECRETS[i])&&hintLv(i)<SECRETS[i].ids.length),fresh=open.filter(i=>!hintLv(i)),c=fresh.length?fresh:open;
   if(!c.length)return"";const i=c[Math.floor((x==null?Math.random():x)*c.length)];S.hints.push(i);const s=SECRETS[i],lv=hintLv(i);

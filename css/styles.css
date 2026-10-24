@@ -361,3 +361,10 @@ textarea.code{width:100%;min-height:72px;background:#120f0c;color:var(--fg);bord
 .scrl{display:flex;gap:8px;align-items:flex-start;justify-content:center;text-align:left;font-size:.88rem;font-style:italic;color:var(--accent);margin:0}
 .scrl svg{width:22px;height:22px;flex:none}
 .ambn{text-align:center;color:var(--down)}
+.emb{display:inline-flex;align-items:center;gap:3px;color:var(--ember);position:relative}
+.emb svg{width:13px;height:13px;fill:currentColor;fill-opacity:.35}
+.emb .floater{top:-4px;right:-6px;font-size:.8rem;color:var(--ember)}
+.chip.emb{display:inline-flex;align-items:center;gap:3px}
+.shop{display:grid;gap:6px;text-align:left}
+.shoprow{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.shoprow .btn svg{width:14px;height:14px;vertical-align:-2px;margin-right:3px;fill:currentColor;fill-opacity:.35}

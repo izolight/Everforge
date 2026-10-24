@@ -193,7 +193,7 @@ function enemyDown(){
   blog(`The ${B.name} falls.${P.lure?" Your Lure gear draws in extra scraps.":""}`,"good");
   if(E.boss&&h&&!dl){const n=h*HEAT_T.ess,xp=h*HEAT_T.xp;for(let i=0;i<n;i++)got.push(essence(pick(ESS_POOL)));S.xp+=xp;blog(`Heat ${h} spoils: ${n} extra essence and ${xp} smith XP.`,"good")}
   if(E.boss&&dl)dailyBundle(got);
-  learn(B.id,"stats",1);
+  learn(B.id,"stats",1);B.emb=fightEmbers(E,B);blog(`You rake ${B.emb} embers from the ashes.`,"good");
   got.forEach(id=>{addItem(id);if(E.drops.some(d=>d[0]===id))learn(B.id,"drops",id)});B.loot=got;
   S.campProg++;let msg="";if(S.campProg>=3){S.campProg=0;if(S.camp<3){S.camp++;msg="You earned a campfire charge."}}
   if(E.boss&&dl){finishDaily(MAP_ROWS,true);const next=ZONES[zoneIdx(E.zone)+1];if(next&&!S.unlocked.includes(next[0])){S.unlocked.push(next[0]);msg=`${next[1]} is now open!`}} // a daily boss kill unlocks like a normal one, matching the load-time fix-up in migrate

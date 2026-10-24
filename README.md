@@ -22,6 +22,7 @@ js/
   fx.js           floating-number / hit-flash queue
   map.js          region maps, nodes, map events (chest, shrine, peddler, camp)
   encounters.js   choice-driven map events (ENC table: shrine, altar, alchemist, traveller, forge, riddle)
+  economy.js      embers currency: peddler shop, selling, essence refining, reforging mishaps
   battle.js       combat loop, enemy turns, victory and defeat
   endgame.js      daily expedition (seeded by the UTC date): plan, start, finish, abandon, reward
   gear.js         equip / settle gear, item effect descriptions
@@ -44,6 +45,7 @@ js/
 - When the save shape changes, bump `KEY`/`v`, add a migration step in `migrate()`, and extend `sane()` if new required fields are added.
 - Secrets (`SECRETS`, optional `bonus:{trait,v}` merged by `combine()`) start hidden except the first three. `S.hints` lists secret indexes; each repeat of an index reveals one more ingredient (`hintLv`, `giveHint(x)` in `goals.js`). Hint scrolls come from chests, shrine offerings, riddles, travellers, boss first kills, bounties and the daily.
 - Map events live in `ENC[type]={make(rv,hl),pick(choice,ev)}`; `rv` is four rolls pre-rolled per node (`nd.rv`) in the seeded daily map. Satchel-dependent choices vary per player. Every event must finish in `endEv(...)` (no choices) or a leave.
+- Embers (`S.embers`, tunables in `EMB` in `data.js`) come from fights (`fightEmbers`), salvage and selling. The peddler is a shop (`merchant(sh)`; the stock is pre-rolled per node as `nd.sh` on the seeded daily). Refined essences are `ess_<T>_2` (`refined(t)`, trait `REFINE_VALUE`); test essence ids with `isEss`/`isRefined`, never `startsWith("ess_")` alone when you need the trait (use `id.split("_")[1]`). A refined essence counts as 3 plain ones for infusion and stands in for its plain kind in secrets. `reforge(id)` makes a new `c_` item, like old-forge tempering.
 
 ## Testing
 

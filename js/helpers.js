@@ -25,6 +25,8 @@ const shortName=id=>ENEMIES[id].short||ENEMIES[id].name;
 function kindOf(it){const g=grp(it);if(g==="material")return it.kind||"ore";if(g==="consumable")return it.form==="food"?"food":"potion";return g}
 function labelOf(it){return grp(it)==="material"?cap(kindOf(it)):(grp(it)==="weapon"?"Weapon · ":"")+FORMS[it.form].label}
 function essence(trait){const id="ess_"+trait;if(!S.items[id])S.items[id]={id,name:`${trait} Essence`,form:"material",kind:"essence",noun:"Essence",traits:{[trait]:ESS_VALUE},tier:1,crafted:false};return id}
+function refined(trait){const id=`ess_${trait}_2`;essence(trait);if(!S.items[id])S.items[id]={id,name:`Refined ${trait} Essence`,form:"material",kind:"essence",noun:"Essence",traits:{[trait]:REFINE_VALUE},tier:1,crafted:false};return id}
+const isEss=id=>/^ess_[A-Za-z]+$/.test(id),isRefined=id=>/^ess_[A-Za-z]+_2$/.test(id);
 function addItem(id,n){S.inv[id]=(S.inv[id]||0)+(n||1);if(!S.fresh.includes(id))S.fresh.push(id)}
 const sortInputs=raw=>raw.slice().sort((a,b)=>FORMS[b.form].p-FORMS[a.form].p||b.tier-a.tier||(a.id<b.id?-1:1));
 const isFusion=(a,b)=>FUSIONS.some(([x,y])=>(x===a&&y===b)||(x===b&&y===a));
