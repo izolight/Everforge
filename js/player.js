@@ -4,6 +4,9 @@ function innate(){const t={};Object.entries(S.infuse||{}).forEach(([k,r])=>t[k]=
 function innateStats(only){const out={atk:0,def:0,mag:0,heal:0,spd:0};Object.entries(S.infuse||{}).forEach(([k,r])=>{if(only&&k!==only)return;
   Object.entries(TRAITS[k].s).forEach(([s,w])=>out[s]+=w*r*1.5*.8)});Object.keys(out).forEach(s=>out[s]=Math.round(out[s]));return out}
 function withInnate(tr){const out={...tr};Object.entries(innate()).forEach(([k,v])=>out[k]=r1((out[k]||0)+v));return out}
+function resRaw(tr,out){out=out||{};Object.entries(tr).forEach(([t,v])=>{const T=TRAITS[t],a=RES_ALT[t],el=a?a[0]:T&&T.f;if(el&&el!=="bad"&&el!=="heal")out[el]=(out[el]||0)+v*(a?a[1]:1)});return out}
+const resPct=v=>Math.round(Math.min(RES_CAP,v*RES_PER));
+const medHeal=it=>Math.round(statsOf(it).heal*(1+Math.min(MED_CAP,MED_PER*(it.traits.Medicine||0))));
 function pstats(){
   const g={};SLOTS.forEach(([s])=>g[s]=gearOf(s));
   const main=g.main,offW=g.off&&grp(g.off)==="weapon"?g.off:null,shield=g.off&&!offW?g.off:null;
@@ -12,13 +15,17 @@ function pstats(){
   const inn=innate(),ist=innateStats();for(const k in sum)sum[k]+=ist[k];
   const ms=main?statsOf(main):Z,os=offW?statsOf(offW):Z;
   const all=[main,offW,...armor].filter(Boolean),tsum=t=>all.reduce((a,it)=>a+(it.traits[t]||0),0)+(inn[t]||0);
-  const def=Math.max(0,Math.round(sum.def+(ms.def+os.def)*.5));
+  const asum=t=>armor.reduce((a,it)=>a+(it.traits[t]||0),0)+(inn[t]||0),rr={},rs={};
+  armor.forEach(it=>resRaw(it.traits,rr));resRaw(inn,rr);Object.keys(rr).forEach(k=>{const p=resPct(rr[k]);if(p)rs[k]=p});
+  const med=tsum("Medicine"),def=Math.max(0,Math.round(sum.def+(ms.def+os.def)*.5));
   return {main,offW,shield,def,red:def/(def+30),
     atk:Math.max(1,Math.round(4+ms.atk+sum.atk*.5)),mag:Math.max(0,Math.round(ms.mag+sum.mag*.5)),
     offPow:offW?Math.max(1,Math.round((os.atk+os.mag*.7)*.6)):0,
     spd:Math.max(0,Math.round(sum.spd+ms.spd+os.spd*.5)),
-    regen:Math.max(0,Math.round((sum.heal+ms.heal+os.heal)*.2)),
-    maxHp:50+Math.round(def*.6),lure:tsum("Lure"),blind:tsum("Steam")};
+    regen:Math.max(0,Math.round((sum.heal+ms.heal+os.heal)*.2+med*MED_REGEN)),
+    maxHp:50+Math.round(def*.6),lure:tsum("Lure"),blind:tsum("Steam"),rs,
+    ward:Math.min(WARD_CAP,Math.round(tsum("Runic")*WARD_PER)),thorns:Math.min(THORN_CAP,Math.round(asum("Iron")*THORN_PER)),dr:Math.min(STONE_CAP,r1(asum("Stone")*STONE_DR)),
+    dodge:Math.min(DODGE_CAP,Math.round(tsum("Swift")*DODGE_PER)),root:Math.min(ROOT_CAP,Math.round(tsum("Wood")*ROOT_PER)),cleanse:med}; // cleanse: hook for status effects
 }
 function clampHp(){const m=pstats().maxHp;if(S.hp>m)S.hp=m}
 function infusable(){
