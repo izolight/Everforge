@@ -10,7 +10,7 @@ function settleGear(result){
 const targetSlot=it=>{const f=FORMS[it.form].slots;return f?f[0]:null};
 function effects(it){
   const g=grp(it),tr=it.traits,v=t=>tr[t]||0,out=[],st=statsOf(it);
-  if(!it.crafted&&gradable(baseIdOf(it.id))){const q=gradeOf(it.id),es=isEss(it.id);out.push(`Grade: ${GRADES[q-1][0]}, ${es?"trait":"traits"} ×${GRADE_M[q-1]} (Plain is ×1).${es?` Counts as ${INF_EQ[q-1]} plain essence${q>3?"s":""} for infusion.`:""} Upgrade 3 of a grade into 1 of the next in the Forge tab.`)}
+  if(!it.crafted&&gradable(baseIdOf(it.id))){const q=gradeOf(it.id),es=isEss(it.id);out.push(`Grade: ${GRADES[q-1][0]}, ${es?"trait":"traits"} ×${GRADE_M[q-1]} (Plain is ×1).${es?` Counts as ${INF_EQ[q-1]} plain essence${q>3?"s":""} for infusion.`:""} Upgrade ${UP.n} of a grade into 1 of the next in the Forge tab.`)}
   if(g==="weapon"){const f=v("Fire")+v("Sunfire"),i=v("Ice")+v("Frost"),p=v("Poison")+v("Venomous"),h=v("Holy")+v("Radiant"),s=v("Shadow")+v("Twilight");
     out.push(`${Math.round(Math.min(CRIT_CAP,5+v("Sharp")*3))}% critical hit chance`);
     if(f)out.push(`Sets enemies on fire for ${Math.max(1,Math.round(f*.8))} damage per turn`);

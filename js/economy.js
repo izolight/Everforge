@@ -1,7 +1,7 @@
 // ================= EMBERS ECONOMY =================
 // Embers (S.embers) come from fights, salvage and selling; they buy peddler stock, upgrade essence grades and reforge mishaps. Tunables live in EMB (data.js).
 const worth=it=>Math.round((3+power(it)*.6+2*(it.tier-1))*GRADE_W[(it.grade||3)-1]);
-const plainEq=g=>INF_W[g-1]/INF_W[2],salvGrade=it=>it.grade||SALV_GRADE[Math.min(8,it.tier-1)]; // plain essences a grade is worth; the grade of essence an item salvages into
+const plainEq=g=>INF_W[g-1]/INF_W[2],salvGrade=it=>it.grade||it.sg||3; // plain essences a grade is worth; the grade of essence an item salvages into
 const buyPrice=id=>{if(isEss(id))return Math.max(1,Math.round(EMB.ess*plainEq(gradeOf(id))));const it=S.items[id];return Math.max(Math.round(worth(it)*EMB.buy),Math.ceil(EMB.floor*(salvageYield(it).length*EMB.val*plainEq(salvGrade(it))+salvageEmbers(it))))},sellPrice=id=>Math.max(1,Math.round(worth(S.items[id])*EMB.sell));
 const salvageEmbers=it=>isEss(it.id)?0:Math.max(1,Math.round(worth(it)*EMB.salv));
 function spendEmbers(n){S.embers-=n;S.stats.spent+=n}

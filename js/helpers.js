@@ -24,7 +24,7 @@ const benchCount=id=>S.bench.filter(x=>x===id).length;
 const avail=id=>(S.inv[id]||0)-benchCount(id);
 const eqCount=id=>Object.values(S.eq).filter(x=>x===id).length;
 const inBattle=()=>!!(S.battle&&!S.battle.over);
-const rarity=it=>it.grade?GRADES[it.grade-1]:it.legendary?["Legendary","#f2a54a"]:RARITY[Math.min(4,it.tier-1)]; // graded essences and materials show their grade instead
+const rarity=it=>it.grade||(!it.crafted&&gradable(baseIdOf(it.id)))?GRADES[(it.grade||3)-1]:it.legendary?["Legendary","#f2a54a"]:RARITY[Math.min(4,it.tier-1)]; // graded essences and materials show their grade instead
 const formName=f=>FORMS[f].label.toLowerCase();
 const shortName=id=>ENEMIES[id].short||ENEMIES[id].name;
 function kindOf(it){const g=grp(it);if(g==="material")return it.kind||"ore";if(g==="consumable")return it.form==="food"?"food":"potion";return g}

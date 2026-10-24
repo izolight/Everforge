@@ -8,12 +8,12 @@ function mkGraded(b,g){ // the item for base id b at grade g (pure: migrate rebu
 const statsDef=()=>({salvaged:0,studied:0,dealt:0,taken:0,big:0,bigW:"",crits:0,parries:0,abil:0,sufd:0,cured:0,elites:0,bosses:0,deaths:0,exped:0,heatBest:{},fast:{},forged:0,legend:0,mishaps:0,fizzles:0,earned:0,spent:0,refined:0,dailies:0,dailyWins:0,dBest:null});
 function freshState(){
   const items={};Object.keys(BASE).forEach(id=>items[id]=baseItem(id));
-  return {v:11,embers:0,skills:{},maps:{},heat:{},daily:null,run:null,infuse:{},items,inv:{iron_sword:1},eq:{main:"iron_sword",off:null,head:null,body:null,hands:null,feet:null,charm:null},
+  return {v:11,embers:0,infCredit:0,skills:{},maps:{},heat:{},daily:null,run:null,infuse:{},items,inv:{iron_sword:1},eq:{main:"iron_sword",off:null,head:null,body:null,hands:null,feet:null,charm:null},
     hp:999,camp:2,campProg:0,xp:0,journal:[],knownR:[],hints:[0,1,2],bench:[],last:null,tab:"all",rtab:"all",view:"battle",zone:"woods",
     wins:0,kills:{},seen:{},codex:{},unlocked:["woods"],zoneKills:{},quest:0,bounty:null,stats:statsDef(),fresh:[],battle:null,event:null};
 }
 const isObj=v=>!!v&&typeof v==="object"&&!Array.isArray(v);
-const DEFAULTED=["maps","infuse","eq","kills","seen","codex","zoneKills","stats","journal","knownR","bench","unlocked","fresh","hp","xp","zone","heat","daily","run","hints","embers","skills"];
+const DEFAULTED=["maps","infuse","eq","kills","seen","codex","zoneKills","stats","journal","knownR","bench","unlocked","fresh","hp","xp","zone","heat","daily","run","hints","embers","skills","infCredit"];
 // Shape check for loaded or imported saves, so a malformed one is rejected instead of breaking every render.
 function sane(s){
   return ["maps","heat","infuse","items","inv","eq","kills","seen","codex","zoneKills","stats"].every(k=>isObj(s[k]))
@@ -72,7 +72,10 @@ function migrate(s){
       for(let pass=0;pass<5;pass++){let ch=false;Object.values(s.items).forEach(it=>{const o=isObj(it)&&orig[it.id];if(!o||ren[it.id]||o.length<2||!o.some(r=>ren[r]))return;
         const ok=o.slice().sort().join("+"),nk=o.map(r=>ren[r]||r).sort().join("+"),mk=[null,"Cursed","Weakened","Brittle"].find(m=>it.id==="c_"+hash(m?ok+"|"+m:ok).toString(36));
         if(mk!==undefined){ren[it.id]="c_"+hash(mk?nk+"|"+mk:nk).toString(36);ch=true}});if(!ch)break}
-      const fix=id=>ren[id]||id;
+      // a flawed craft's clean recipe item may never have been made: re-hash that recipe key directly
+      const cleanFix={};Object.values(s.items).forEach(it=>{const o=isObj(it)&&orig[it.id];if(!o||!it.clean||!o.some(r=>ren[r]))return;
+        if(it.clean==="c_"+hash(o.slice().sort().join("+")).toString(36))cleanFix[it.clean]="c_"+hash(o.map(r=>ren[r]||r).sort().join("+")).toString(36)});
+      const fix=id=>ren[id]||cleanFix[id]||id;
       Object.entries(ren).forEach(([o,n])=>{if(!s.items[n])s.items[n]={...s.items[o],id:n};delete s.items[o];if(s.inv[o]!==undefined){s.inv[n]=(s.inv[n]||0)+s.inv[o];delete s.inv[o]}});
       Object.keys(s.eq).forEach(k=>{s.eq[k]=s.eq[k]?fix(s.eq[k]):s.eq[k]});
       if(Array.isArray(s.bench))s.bench=s.bench.map(fix);if(Array.isArray(s.fresh))s.fresh=s.fresh.map(fix);
@@ -86,7 +89,7 @@ function migrate(s){
   if(!sane(s))return null;
   ZONES.forEach((z,i)=>{if(i&&(s.kills[ZONES[i-1][2]]||0)>0&&!s.unlocked.includes(z[0]))s.unlocked.push(z[0])}); // zones added later open for saves that already beat the boss before them
   Object.keys(s.items).forEach(id=>{const b=baseIdOf(id),g=gradeOf(id);if(gradable(b)&&gradedId(b,g)===id)s.items[id]=mkGraded(b,g)}); // essences and graded materials are rebuilt from their fixed values
-  s.embers=Math.max(0,Math.floor(Number(s.embers))||0);
+  s.embers=Math.max(0,Math.floor(Number(s.embers))||0);s.infCredit=Math.max(0,Math.floor(Number(s.infCredit))||0);
   s.skills=Object.fromEntries(Object.keys(SKILLS).map(k=>[k,isObj(s.skills)?Math.max(0,Math.floor(Number(s.skills[k]))||0):0]));
   const st0=s.stats,sd=statsDef(),had=k=>st0[k]!==undefined;
   const dv={forged:s.journal.length,legend:s.journal.filter(j=>j.legendary).length,bosses:ZONES.reduce((n,z)=>n+(s.kills[z[2]]|0),0),
