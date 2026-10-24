@@ -31,6 +31,6 @@ function clampHp(){const m=pstats().maxHp;if(S.hp>m)S.hp=m}
 function infusable(){
   return Object.keys(S.items).filter(id=>id.startsWith("ess_")).map(id=>id.slice(4)).filter(t=>{
     const have=(S.inv["ess_"+t]||0)-benchCount("ess_"+t),r=S.infuse[t]||0;
-    return have>=INF_COST&&r<INF_MAX&&(r>0||Object.keys(S.infuse).length<INF_SLOTS)})}
+    return have>=INF_COST&&r<INF_MAX&&(r>0||Object.keys(S.infuse).length<infSlots())})}
 function infuse(t){if(!infusable().includes(t))return;S.inv["ess_"+t]-=INF_COST;trimBench();S.infuse[t]=(S.infuse[t]||0)+1;clampHp();save();render();
   toast(`${t} infused into you. Rank ${["I","II","III"][S.infuse[t]-1]}.`)}

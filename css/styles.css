@@ -78,6 +78,7 @@ h1{font-family:var(--display);font-weight:700;font-size:2.1rem;line-height:1;col
 /* zones */
 .zones{display:flex;gap:6px;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;margin:0 -4px;padding:0 4px}
 .zones::-webkit-scrollbar{display:none}
+.zones{--fl:0px;--fr:0px;-webkit-mask-image:linear-gradient(90deg,transparent,#000 var(--fl),#000 calc(100% - var(--fr)),transparent);mask-image:linear-gradient(90deg,transparent,#000 var(--fl),#000 calc(100% - var(--fr)),transparent)}.zones[data-l="1"]{--fl:26px}.zones[data-r="1"]{--fr:26px}
 .zone{flex:none;white-space:nowrap;border:1px solid var(--line);background:transparent;border-radius:99px;padding:5px 12px;font-size:.84rem;color:var(--muted)}
 .zone[aria-pressed="true"]{background:linear-gradient(180deg,#3a2f26,#2a221c);color:var(--fg);border-color:var(--line2)}
 .zone:disabled{opacity:.45;cursor:default}
@@ -99,7 +100,7 @@ h1{font-family:var(--display);font-weight:700;font-size:2.1rem;line-height:1;col
 .flt:nth-child(2){animation-delay:-.8s}.flt:nth-child(3){animation-delay:-1.6s}
 @keyframes flt{50%{transform:translateY(-5px)}}
 .fname{font-family:var(--display);font-size:1.4rem;line-height:1.05;text-wrap:balance;min-width:0}
-.fname small{font-family:var(--mono);font-size:.58rem;letter-spacing:.12em;color:var(--accent);margin-left:6px;vertical-align:middle}
+.fname small{white-space:nowrap;font-family:var(--mono);font-size:.58rem;letter-spacing:.12em;color:var(--accent);margin-left:6px;vertical-align:middle}
 .foeinfo{display:grid;gap:7px;min-width:0}
 .hpline{display:flex;align-items:center;gap:10px}
 .hpline .bar{height:14px;border-radius:7px}
@@ -197,6 +198,7 @@ button.chip{cursor:pointer}
 .slot.bad{border-color:var(--bad);box-shadow:none}
 .slot.locked{opacity:.45;font-family:var(--mono);font-size:.68rem}
 .slot svg{width:44px;height:44px}
+.slots.s4{gap:2px;flex-wrap:nowrap}.slots.s4 .slot{width:60px;height:88px;padding:3px;font-size:.66rem;flex:none;min-width:0;overflow:hidden}.slots.s4 .slot svg{width:36px;height:36px}.slots.s4 .plus{font-size:1rem}
 .preview{background:#17130f;border:1px solid var(--line);border-radius:10px;padding:10px 12px;display:grid;gap:8px;font-size:.92rem}
 .result{display:grid;gap:12px}
 .result.legend{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent) inset,0 0 30px rgb(242 165 74 / .15)}

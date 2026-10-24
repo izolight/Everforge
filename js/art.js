@@ -23,15 +23,20 @@ const G={
   claws:'<path d="M6 21 V12 Q6 8 12 8 Q18 8 18 12 V21 Z"/><path d="M7.4 8.6 L6.2 1.5 L9 8 Z M11.2 8 L12 0.5 L12.8 8 Z M15 8 L17.8 1.5 L16.6 8.6 Z"/>',
   bulwark:'<path d="M5 4 H19 V12 C19 17 15 20 12 22 C9 20 5 17 5 12 Z"/><path d="M5 9 H19 M9 4 V14 M15 4 V14" fill="none"/>',
   elixir:'<path d="M10 2 H14 V7 C18 9 19 12 19 15 C19 19 16 22 12 22 C8 22 5 19 5 15 C5 12 6 9 10 7 Z"/><path d="M8 15 Q12 13 16 15" fill="none"/>',
+  feather:'<path d="M19 2 C9 3 4 9 4 17 L3 22 L5 22 L7 19 C15 19 20 13 19 2 Z"/><path d="M5 20 L14 9" fill="none"/>',
+  shard:'<path d="M9 2 L17 6 L19 15 L12 22 L5 16 L6 7 Z"/><path d="M12 7 V16 M9 11 H15" fill="none"/>',
+  crystal:'<path d="M12 1 L18 8 L15 22 H9 L6 8 Z"/><path d="M6 8 H18 M12 1 V22" fill="none"/>',
+  starheart:'<path d="M12 2 L14 9 L21 12 L14 15 L12 22 L10 15 L3 12 L10 9 Z"/><circle cx="12" cy="12" r="2.2"/>',
   fists:'<path d="M6 10 V6 Q6 4 8 4 Q10 4 10 6 V9 M10 8 V5 Q10 3 12 3 Q14 3 14 5 V9 M14 8 V6 Q14 4 16 4 Q18 4 18 6 V14 Q18 21 12 21 Q6 21 6 14 Z"/>'
 };
+const ART_ID={storm_feather:"feather",rune_shard:"shard",void_crystal:"crystal",star_heart:"starheart"};
 const SLOT_GLYPH={main:"fists",off:"shield",head:"helm",body:"chest",hands:"gloves",feet:"boots",charm:"charm"};
 const MAT={metal:["#f1f4f5","#9aa6ab","#4a5458"],wood:["#e0b07a","#93653a","#4a2f18"],stone:["#d4cec1","#857f72","#454139"],hide:["#e2b88b","#9c6e43","#55391f"],
   glass:["#e8f8fb","#8fc6d4","#336170"],food:["#f8d28c","#cc8a44","#6a3f1c"],herbal:["#bde4a2","#62a24d","#2a5124"]};
 let gid=0;
 function matOf(it){
-  const k=grp(it)==="material"?kindOf(it):it.form,tr=topTraits(it.traits).map(x=>x[0]);
-  if(k==="essence"||k==="relic")return null;
+  const k=ART_ID[it.id]||(grp(it)==="material"?kindOf(it):it.form),tr=topTraits(it.traits).map(x=>x[0]);
+  if(k==="essence"||k==="relic"||k==="starheart"||k==="crystal"||k==="shard"||k==="feather")return null;
   if(k==="potion"||k==="elixir")return"glass";
   if(k==="food")return"food";if(k==="herb")return"herbal";if(k==="hide")return"hide";if(k==="ore")return tr.some(t=>TRAITS[t].f==="metal")?"metal":"stone";
   for(const t of tr){const f=TRAITS[t].f;if(f==="metal")return"metal";if(f==="wood")return t==="Fur"||t==="Insulated"?"hide":"wood";if(f==="stone")return"stone"}
@@ -39,7 +44,7 @@ function matOf(it){
 }
 // layered item art: base form + material gradient, then trait overlays (glow, frost, embers, drips, runes...)
 function art(it){
-  const id="a"+(gid++),tr=topTraits(it.traits),k=grp(it)==="material"?kindOf(it):it.form,top=tr[0]?tr[0][0]:null;
+  const id="a"+(gid++),tr=topTraits(it.traits),k=ART_ID[it.id]||(grp(it)==="material"?kindOf(it):it.form),top=tr[0]?tr[0][0]:null;
   const m=matOf(it);let pal=m?MAT[m]:null;
   if(!pal){const c=top?tColor(top):"#9c998c";pal=[shade(c,.6),c,shade(c,-.55)]}
   const has=f=>tr.filter(([t,v])=>TRAITS[t].f===f&&v>=1.5).length>0;
@@ -125,6 +130,33 @@ const PORTRAITS={
     <path class="flick" d="M60 34 Q54 20 62 10 Q62 22 71 20 Q65 30 60 34Z" fill="${c.g}"/>
     <path d="M66 42 l8 3 -8 3 Z" fill="#f2c94c"/><circle cx="62" cy="40" r="2.2" fill="#1a0f08"/>
     <path d="M14 30 Q30 34 40 46 M106 30 Q90 34 80 46" stroke="${c.g}" stroke-width="2" fill="none" opacity=".7"/>`,
+  harpy:c=>`<g stroke="${c.o}" stroke-width="2.5" stroke-linejoin="round">
+    <path d="M58 56 Q30 22 3 30 Q18 40 20 48 Q8 50 4 62 Q24 56 34 66 Q24 72 22 84 Q44 74 58 76 Z" fill="${c.m}"/><path d="M62 56 Q90 22 117 30 Q102 40 100 48 Q112 50 116 62 Q96 56 86 66 Q96 72 98 84 Q76 74 62 76 Z" fill="${c.m}"/>
+    <path d="M48 70 Q60 62 72 70 L68 100 Q60 108 52 100 Z" fill="${c.d}"/><path d="M52 102 L45 115 M57 105 L54 117 M68 102 L75 115 M63 105 L66 117" fill="none" stroke-width="2.2"/>
+    <path d="M47 42 L42 22 L55 35 Z M73 42 L78 22 L65 35 Z" fill="${c.d}"/><circle cx="60" cy="48" r="13" fill="${c.l}"/></g>
+    <ellipse cx="54" cy="46" rx="3" ry="2.4" fill="${c.e}"/><ellipse cx="66" cy="46" rx="3" ry="2.4" fill="${c.e}"/><path d="M55 52 L65 52 L60 63 Z" fill="#e8c35a" stroke="${c.o}" stroke-width="1.5" stroke-linejoin="round"/>
+    <path class="flick" d="M96 6 L86 24 H94 L87 40 L102 19 H94 Z" fill="${c.e}"/><path d="M16 80 q-6 8 0 14 M104 80 q6 8 0 14" stroke="${c.l}" stroke-width="2" fill="none" opacity=".6"/>`,
+  sentinel:c=>`<g stroke="${c.o}" stroke-width="2.5" stroke-linejoin="round">
+    <rect x="8" y="48" width="24" height="46" rx="7" fill="${c.d}"/><rect x="88" y="48" width="24" height="46" rx="7" fill="${c.d}"/>
+    <rect x="38" y="92" width="18" height="22" rx="4" fill="${c.d}"/><rect x="64" y="92" width="18" height="22" rx="4" fill="${c.d}"/>
+    <rect x="28" y="44" width="64" height="52" rx="8" fill="${c.m}"/><path d="M38 42 V18 Q38 6 60 6 Q82 6 82 18 V42 Z" fill="${c.m}"/><path d="M46 20 H74 V30 H46 Z" fill="#0b0907"/></g>
+    <rect x="50" y="23" width="8" height="3.6" rx="1.5" fill="${c.e}"/><rect x="62" y="23" width="8" height="3.6" rx="1.5" fill="${c.e}"/>
+    <path class="flick" d="M60 52 V86 M46 62 H74 M50 80 L60 68 L70 80" stroke="${c.e}" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+    <path d="M14 58 h12 M14 68 h12 M14 78 h8 M94 58 h12 M98 68 h8 M94 78 h12" stroke="${c.l}" stroke-width="1.8" opacity=".6"/>
+    <g fill="${c.g}"><circle class="flt" cx="6" cy="30" r="2.6"/><circle class="flt" cx="114" cy="36" r="2.2"/><circle class="flt" cx="108" cy="108" r="1.8"/></g>`,
+  acolyte:c=>`<g stroke="${c.o}" stroke-width="2.5" stroke-linejoin="round"><path d="M60 8 Q92 14 94 54 L110 112 H10 L26 54 Q28 14 60 8 Z" fill="${c.d}"/>
+    <path d="M60 22 Q80 28 80 52 Q70 66 60 66 Q50 66 40 52 Q40 28 60 22 Z" fill="#07050c"/></g>
+    <ellipse cx="52" cy="46" rx="3.4" ry="4.6" fill="${c.e}"/><ellipse cx="68" cy="46" rx="3.4" ry="4.6" fill="${c.e}"/>
+    <path d="M26 100 Q60 114 94 100" stroke="${c.m}" stroke-width="3" fill="none"/><path d="M22 98 Q12 88 22 78 M98 98 Q108 88 98 78" stroke="${c.l}" stroke-width="3" fill="none" stroke-linecap="round"/>
+    <ellipse cx="60" cy="90" rx="24" ry="6" fill="none" stroke="${c.l}" stroke-width="1.6" opacity=".55"/><circle cx="60" cy="90" r="11" fill="#07050c" stroke="${c.l}" stroke-width="2"/>
+    <g fill="${c.g}"><circle class="flt" cx="18" cy="40" r="2.6"/><circle class="flt" cx="104" cy="30" r="2.2"/><circle class="flt" cx="96" cy="70" r="1.8"/></g>`,
+  archon:c=>`<circle cx="60" cy="58" r="46" fill="none" stroke="${c.l}" stroke-width="2" stroke-dasharray="3 6" opacity=".7"/><g stroke="${c.o}" stroke-width="2.5" stroke-linejoin="round">
+    <path d="M58 54 L8 18 L22 52 L2 70 L34 66 L26 90 L58 74 Z" fill="${c.m}"/><path d="M62 54 L112 18 L98 52 L118 70 L86 66 L94 90 L62 74 Z" fill="${c.m}"/>
+    <path d="M44 52 Q60 40 76 52 L84 112 Q60 120 36 112 Z" fill="${c.d}"/><circle cx="60" cy="36" r="13" fill="${c.l}"/>
+    <path d="M46 28 L43 6 L54 21 L60 2 L66 21 L77 6 L74 28 Z" fill="${c.g}"/></g>
+    ${c.ph?`<circle cx="60" cy="38" r="7" fill="#07050c"/><circle cx="60" cy="38" r="2.6" fill="${c.e}"/><circle cx="60" cy="76" r="20" fill="#07050c" opacity=".6"/><path d="M60 76 m-20 0 a20 20 0 0 1 40 0" stroke="${c.l}" stroke-width="1.6" fill="none" class="flick"/>`
+    :`<path d="M52 36 l6 2 M68 36 l-6 2" stroke="${c.e}" stroke-width="3" stroke-linecap="round"/><path class="flick" d="M60 62 L64 72 L74 74 L66 80 L68 90 L60 85 L52 90 L54 80 L46 74 L56 72 Z" fill="${c.e}"/>`}
+    <path class="flick" d="M12 6 l8 10 h-6 l8 12 M104 4 l-8 10 h6 l-8 12" stroke="${c.e}" stroke-width="2.2" fill="none" stroke-linejoin="round"/>`,
   mimic:c=>`<g stroke="${c.o}" stroke-width="2.5" stroke-linejoin="round">
     <path d="M18 46 L30 16 H90 L102 46 Z" fill="#8f6238"/><rect x="16" y="58" width="88" height="46" rx="6" fill="#8f6238"/>
     <path d="M18 46 H102 L104 60 H16 Z" fill="#2a120c"/><rect x="16" y="76" width="88" height="7" fill="#9aa3a7"/><rect x="54" y="72" width="12" height="14" rx="2" fill="#c9a24a"/></g>
@@ -140,7 +172,7 @@ function wolfArt(c,big){return `<g stroke="${c.o}" stroke-width="2.5" stroke-lin
 function portrait(id,o){
   o=o||{};const el=o.el||ENEMIES[id].el,base=FAM[el],gidp="p"+(gid++);
   const eye=el==="ice"?"#d8f6ff":el==="shadow"?"#d6bcff":el==="holy"?"#fff2b8":"#ffcf5c";
-  const c={o:"#0d0a08",d:shade(base,-.62),m:shade(base,-.32),l:shade(base,.38),g:base,e:eye};
+  const c={o:"#0d0a08",d:shade(base,-.62),m:shade(base,-.32),l:shade(base,.38),g:base,e:eye,ph:o.phased};
   let over="";
   if(o.frozen)over+=`<g><rect x="4" y="4" width="112" height="112" rx="20" fill="#bfeaff" opacity=".22"/><g stroke="#effbff" stroke-width="2.2" stroke-linecap="round"><path d="M16 14 v14 M9 21 h14 M11 16 l10 10 M21 16 l-10 10"/><path d="M98 92 v12 M92 98 h12"/><path d="M100 18 v8 M96 22 h8"/></g></g>`;
   if(o.burn)over+=`<g fill="#ff8a3d" opacity=".9"><path class="flick" d="M14 116 q4 -18 10 -6 q3 -14 8 0 q3 -10 8 2 Z"/><path class="flick" d="M80 116 q4 -16 9 -4 q4 -14 9 0 q3 -10 8 4 Z"/></g>`;
@@ -189,6 +221,9 @@ function terrain(zone,H,seed){
     for(let k=0;k<40;k++)s+=`<circle cx="${R()*W}" cy="${R()*H}" r="${.8+R()*1.4}" fill="#dbeef6" opacity=".35"/>`}
   if(zone==="hollow"){for(let k=0;k<16;k++){const x=R()*W,y=R()*H;s+=`<path d="M${x} ${y} l${8+R()*8} ${5+R()*6} l${-4+R()*4} ${6+R()*8} l${10+R()*8} ${4+R()*6}" stroke="#ff6b2c" stroke-width="1.6" fill="none" opacity=".35"/>`}
     for(let k=0;k<26;k++)s+=`<circle cx="${R()*W}" cy="${R()*H}" r="${.8+R()*1.6}" fill="#ffb15c" opacity=".35"/>`}
+  if(zone==="spire"){for(let k=0;k<9;k++)s+=`<ellipse cx="${R()*W}" cy="${R()*H}" rx="${30+R()*40}" ry="${7+R()*8}" fill="#8a9bd6" opacity=".12"/>`;
+    for(let k=0;k<5;k++){const x=R()*W,y=R()*H;s+=`<path d="M${x} ${y} l${-5+R()*10} 9 l${-6+R()*12} 8 l${-5+R()*10} 10" stroke="#b892f2" stroke-width="1.6" fill="none" opacity=".35"/>`}
+    for(let k=0;k<34;k++)s+=`<circle cx="${R()*W}" cy="${R()*H}" r="${.7+R()*1.5}" fill="#e8e4ff" opacity=".4"/>`}
   return `<svg class="terrain" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" aria-hidden="true">${s}</svg>`;
 }
 function mapHtml(){
