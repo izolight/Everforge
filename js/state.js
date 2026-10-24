@@ -93,7 +93,7 @@ function migrate(s){
     const conv=m=>{if(isObj(m)&&Array.isArray(m.pois))m.pois.forEach(p=>{if(!isObj(p)||(p.up===undefined&&p.af===undefined))return;
       if(p.t==="elite"||p.up){p.rar="magic";p.afx=[AFX_EL[p.af|0]||AFX_EL[0]]}else{p.rar="normal";p.afx=[]}delete p.up;delete p.af})};
     Object.values(isObj(s.maps)?s.maps:{}).forEach(conv);if(isObj(s.daily))conv(s.daily.map);
-    const b=s.battle;if(isObj(b)&&b.afx===undefined){const a=b.elite&&AFX_EL.find(x=>AFX[x].tr===b.elite);b.rar=a?"magic":"normal";b.afx=a?[a]:[];delete b.elite}}
+    const b=s.battle;if(isObj(b)&&b.afx===undefined){const a=b.elite&&AFX_EL.find(x=>AFX[x].tr===b.elite);b.rar=a?"magic":"normal";b.afx=a?[a]:[];delete b.elite;if(a){if(!isObj(s.afx))s.afx={};s.afx[a]=s.afx[a]||{s:1,b:0}}}} // an open elite battle counts as met
   if(s.v!==13||!isObj(s.items)||!isObj(s.inv))return null;
   const dflt=freshState();DEFAULTED.forEach(k=>{if(s[k]===undefined)s[k]=dflt[k]});if(!isObj(s.afx))s.afx={};
   Object.keys(BASE).forEach(id=>s.items[id]=baseItem(id));
