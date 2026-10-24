@@ -9,7 +9,7 @@ let fails=0;const ok=(c,m)=>{if(!c){fails++;console.log("FAIL",m)}else console.l
   const errs=[];p.on("pageerror",e=>errs.push(e.message));p.on("console",m=>{if(m.type()==="error"&&!/fonts|net::/.test(m.text()))errs.push(m.text())});
   await p.goto(URL);
   const E=(f,a)=>p.evaluate(f,a);
-  const {AFX_T,EMB}=await E(()=>({AFX_T,EMB}));
+  const {AFX_T,EMB,RARITIES}=await E(()=>({AFX_T,EMB,RARITIES}));
   // helpers inside the page
   await E(()=>{
     window.R=(v,fn)=>{const r=Math.random;Math.random=typeof v==="function"?v:()=>v;try{return fn()}finally{Math.random=r}};
@@ -112,11 +112,24 @@ let fails=0;const ok=(c,m)=>{if(!c){fails++;console.log("FAIL",m)}else console.l
   ok(r.viol===0&&r.bad3===0,"rolls: no conflicting or duplicate affixes; rares carry 2 (3 from Heat 4)");
   ok(Math.abs(r.rareShare-r.exp)<.02&&Math.abs(r.fm-r.expm)<.02&&r.h0===0&&r.h1===0&&r.cap<=.6,`rolls: elite rare share ${r.rareShare.toFixed(3)} (exp ${r.exp.toFixed(2)}), fight magic share at Heat 3 ${r.fm.toFixed(3)} (exp ${r.expm}), cap ${r.cap}`);
   // ---- 4. grades: one step per magic, two per rare, capped by the zone table
-  r=await E(()=>{const avg=(z,up)=>{let s=0,mx=0;for(let i=0;i<4000;i++){const g=rollGrade(z,0,undefined,up);s+=g;mx=Math.max(mx,g)}return[s/4000,mx]};return{w0:avg("woods",0),w1:avg("woods",1),w2:avg("woods",2),s2:avg("spire",2),p2:avg("pass",2)}});
-  ok(r.w1[0]>r.w0[0]+.6&&r.w2[0]>r.w1[0]&&r.w2[1]===4&&r.p2[1]===4&&r.s2[1]===5,`grades: woods avg ${r.w0[0].toFixed(2)} -> ${r.w1[0].toFixed(2)} (magic) -> ${r.w2[0].toFixed(2)} (rare), capped at ${r.w2[1]} in woods/pass, ${r.s2[1]} in spire`);
+  r=await E(()=>{const avg=(z,up)=>{let s=0,mx=0;for(let i=0;i<4000;i++){const g=rollGrade(z,0,undefined,up);s+=g;mx=Math.max(mx,g)}return[s/4000,mx]};const gm=RARITIES.magic.gs,gr=RARITIES.rare.gs;return{gm,gr,w0:avg("woods",0),w1:avg("woods",gm),w2:avg("woods",gr),w3:avg("woods",2),s2:avg("spire",2),p2:avg("pass",2),txt:dropLine("vamp",{rar:"magic"})+"|"+dropLine("vamp",{rar:"rare"})+"|"+dropLine("vamp")}});
+  ok(r.w1[0]>r.w0[0]+.2&&r.w2[0]>r.w1[0]&&r.w3[1]===4&&r.p2[1]===4&&r.s2[1]===5,`grades (real gs ${r.gm}/${r.gr}): woods avg ${r.w0[0].toFixed(2)} -> ${r.w1[0].toFixed(2)} (magic) -> ${r.w2[0].toFixed(2)} (rare); whole steps capped at ${r.w3[1]} in woods, ${r.s2[1]} in spire`);
+  ok(/50% chance of one grade better/.test(r.txt.split("|")[0])&&/one grade better/.test(r.txt.split("|")[1])&&!/two grades/.test(r.txt)&&/50% chance/.test(r.txt.split("|")[2]),"drop text follows gs: "+r.txt);
   // real drop through enemyDown: rare, 2 affixes -> 2 essences
-  r=await E(()=>{fresh("pass");const B=fight("wolf",["shadow","vamp"],"rare");B.hp=1;R(.5,()=>attack());return{ess:B.loot.filter(isEss),emb:B.emb,over:B.over,rar:B.rar,name:document.querySelector("#enemyHud .fn").textContent}});
+  r=await E(()=>{fresh("pass");const B=fight("wolf",["shadow","vamp"],"rare");B.hp=1;R(.5,()=>attack());return{ess:B.loot.filter(isEss),emb:B.emb,over:B.over,rar:B.rar,name:document.querySelector("#enemyHud .fname").textContent}});
   ok(r.over==="won"&&r.ess.length===2&&r.emb>=EMB.rar.rare&&/the Bloodthirsty/.test(r.name),`rare drop: ${r.ess.join(",")} and ${r.emb} embers; name "${r.name}"`);
+  // ---- review fixes: remnant attack, dodged riders, thorn cap per round, group rules
+  r=await E(()=>{fresh();const B=fight("bandit",["frenzy"]);applyAfx(B,ENEMIES.bandit,"rare",["frenzy","split"]);const a0=B.a0;B.hp=Math.floor(B.max*.3);frenzy(B);const fa=B.atk;splitFoe(B,ENEMIES.bandit);return{a0,fa,ra:B.atk,exp:Math.round(a0*AFX_T.split.atk),fz:B.fz}});
+  ok(r.fa>r.a0&&r.ra===r.exp&&!r.fz,`remnant attack ${r.ra} = ${AFX_T.split.atk} x base ${r.a0} (frenzied was ${r.fa})`);
+  r=await E(()=>{fresh();const mk=(f,id)=>{S.items[id]={id,name:"Test",form:f,noun:f,traits:{},tier:1,crafted:true};addItem(id);equip(id,"main")};const out={};
+    mk("claws","t_cl");const B=fight("bandit",["elusive"]);R(0,()=>ability("claws"));out.bleed=!!B.bleed;out.cd=B.cd.claws>0;
+    mk("warstaff","t_ws");const B2=fight("bandit",["elusive"]);R(0,()=>ability("warstaff"));out.stun=B2.stun;
+    mk("lance","t_ln");const B3=fight("bandit",["elusive"]);R(0,()=>ability("lance"));out.open=B3.open;out.tip=AFX.elusive.d();return out});
+  ok(!r.bleed&&r.cd&&!r.stun&&!r.open&&/keep ticking/.test(r.tip),"dodged ability strikes apply no bleed/stun/exposure, cooldown still spent");
+  r=await E(()=>{fresh();const B=fight("bandit",["thorn"]);S.hp=pstats().maxHp;const h=S.hp;R(.5,()=>{strike(null,30,"a",false);strike(null,30,"b",false);strike(null,30,"c",false)});return{lost:h-S.hp,cap:Math.round(pstats().maxHp*AFX_T.thorn.cap)}});
+  ok(r.lost<=r.cap&&r.lost>=1,`thorned cap is per round: 3 blows cost ${r.lost} (cap ${r.cap})`);
+  r=await E(()=>{let bad=0;for(let i=0;i<4000;i++){const a=rollAfx(Math.random,"rare",{mv:"chase",heat:4});if(a.filter(x=>["vamp","regen","ward"].includes(x)).length>1)bad++}return bad});
+  ok(r===0,"at most one of Vampiric/Regenerating/Warded per rare");
   // ---- 5. daily determinism: two different Math.random streams, same map affixes and rarities, same dark ambush
   r=await E(()=>{const mul=a=>()=>{a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296};
     const run=(sd)=>{Math.random=mul(sd);const out=[];for(const tw of [null,"elites"]){const m=genMap({seed:20260101,heat:4,zone:"hollow",twist:tw});out.push(JSON.stringify(m.pois.filter(p=>p.rar!=null).map(p=>[p.x,p.y,p.t,p.e,p.rar,p.afx])))}
@@ -146,13 +159,13 @@ let fails=0;const ok=(c,m)=>{if(!c){fails++;console.log("FAIL",m)}else console.l
   r=await pg.evaluate(([fi,ei])=>{const m=S.maps.pass;const f=m.pois[fi],e=m.pois[ei];const B=S.battle;const out={v:S.v,key:KEY,afxState:typeof S.afx,fo:[f.rar,f.afx,f.up,f.af],el:[e.rar,e.afx,e.up,e.af],b:[B.rar,B.afx,B.elite],stored:!!localStorage.getItem("everforge-v13")||true};
     // the old battle finishes
     let g=0;R=(v,fn)=>{const r=Math.random;Math.random=()=>v;try{return fn()}finally{Math.random=r}};R(.5,()=>{while(S.battle===B&&!B.over&&g++<100){S.hp=pstats().maxHp;attack()}});
-    out.over=B.over;out.ess=B.loot.filter(isEss);out.emb=B.emb;out.hud=null;render();
+    out.met=!!(S.afx.shadow&&S.afx.shadow.s>0&&S.afx.shadow.b>0);out.over=B.over;out.ess=B.loot.filter(isEss);out.emb=B.emb;out.hud=null;render();
     const bad=Object.values(S.maps).some(m=>m.pois.some(p=>p.up!==undefined||p.af!==undefined));out.bad=bad;return out},[fi,ei]);
   ok(r.v===13&&r.key==="everforge-v13","migration: v12 -> v13");
   ok(r.fo[0]==="magic"&&r.fo[1][0]==="holy"&&r.fo[2]===undefined&&r.fo[3]===undefined,`migration: fight up:true af:3 -> magic ${r.fo[1]}`);
   ok(r.el[0]==="magic"&&r.el[1][0]==="shadow","migration: elite af:4 -> magic Umbral (shadow)");
   ok(r.b[0]==="magic"&&r.b[1][0]==="shadow"&&r.b[2]===undefined,"migration: the open elite battle keeps its affix");
-  ok(r.over==="won"&&r.ess.some(id=>essTraitOf(id)==="Shadow")&&!r.bad,`migration: old battle finishes (${r.over}), drops Shadow essence, no up/af left`);
+  ok(r.met&&r.over==="won"&&r.ess.some(id=>essTraitOf(id)==="Shadow")&&!r.bad,`migration: old battle finishes (${r.over}), drops Shadow essence, no up/af left`);
   ok(perrs.length===0,"migration: no page errors "+perrs.join("|"));
   // plain v12 fixture loads too
   const pg2=await b.newPage();const e2=[];pg2.on("pageerror",e=>e2.push(e.message));await pg2.goto(URL);await pg2.evaluate(([k,s])=>{localStorage.clear();localStorage.setItem(k,s)},[fx.key,fx.save]);await pg2.reload();

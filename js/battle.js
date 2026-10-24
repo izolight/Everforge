@@ -98,14 +98,14 @@ function ability(key){
   else if(key==="spear")strike(W,n*A.x,"You lunge",true,{pen:A.pen});
   else if(key==="staff"){const tr=withInnate(W.traits),el=Object.entries(ELS).map(([e,l])=>[e,l.reduce((a,t)=>a+(tr[t]||0),0)]).sort((a,b)=>b[1]-a[1])[0];
     strike(W,n*A.x,el[1]>0?`You channel ${el[0]} through ${W.name}`:"You loose a bolt of raw magic",true,{pen:A.pen,force:el[1]>0?el[0]:""})}
-  else if(key==="lance"){strike(W,n*A.x,"You charge",true);B.open=true;if(B.hp>0)blog("You're exposed after the charge.","foe")}
+  else if(key==="lance"){const r=strike(W,n*A.x,"You charge",true);if(!r.miss){B.open=true;if(B.hp>0)blog("You're exposed after the charge.","foe")}}
   else if(key==="spellblade"){const r=strike(W,n*A.x,"Arc Slash tears",true);if(r.crit){bonus=1;blog("The arc sings. Your cooldown eases.","good")}}
-  else if(key==="warstaff"){strike(W,n*A.x,"Your sweep crashes into it",true);
-    if(B.hp>0&&Math.random()<(boss?A.bossStun:A.stun)){B.stun=1;blog(`The ${B.name} is stunned!`,"big")}}
-  else if(key==="claws"){strike(W,n*A.x,"You rend",true);
-    if(B.hp>0){const b=B.bleed||{n:0},d=Math.max(1,Math.round(P.atk*BLEED_PER));B.bleed={n:Math.min(BLEED_STACK,b.n+1),d,t:BLEED_T};blog(`It bleeds for ${d*B.bleed.n} per turn${B.bleed.n>1?`, x${B.bleed.n}`:""}.`,"you")}}
-  else if(key==="shield"){strike(null,P.atk*A.x+statsOf(P.shield).def,`You bash with ${P.shield.name}`,false);
-    if(B.hp>0){const sp=isSpecial(B)?foeOf(B).sp:null,E0=ENEMIES[B.id],shift=E0.phase&&!B.phased&&B.hp<=B.max*E0.phase.at; // a form change eats the turn anyway
+  else if(key==="warstaff"){const r=strike(W,n*A.x,"Your sweep crashes into it",true);
+    if(!r.miss&&B.hp>0&&Math.random()<(boss?A.bossStun:A.stun)){B.stun=1;blog(`The ${B.name} is stunned!`,"big")}}
+  else if(key==="claws"){const r=strike(W,n*A.x,"You rend",true);
+    if(!r.miss&&B.hp>0){const b=B.bleed||{n:0},d=Math.max(1,Math.round(P.atk*BLEED_PER));B.bleed={n:Math.min(BLEED_STACK,b.n+1),d,t:BLEED_T};blog(`It bleeds for ${d*B.bleed.n} per turn${B.bleed.n>1?`, x${B.bleed.n}`:""}.`,"you")}}
+  else if(key==="shield"){const r=strike(null,P.atk*A.x+statsOf(P.shield).def,`You bash with ${P.shield.name}`,false);
+    if(!r.miss&&B.hp>0){const sp=isSpecial(B)?foeOf(B).sp:null,E0=ENEMIES[B.id],shift=E0.phase&&!B.phased&&B.hp<=B.max*E0.phase.at; // a form change eats the turn anyway
       if(sp&&!shift&&Math.random()<(boss?A.bossInt:A.int)){B.stun=2;blog(`The bash throws the ${B.name} off ${sp.name}!`,"big");learn(B.id,B.phased?"sp2":"sp",1)}
       else if(!sp&&Math.random()<(boss?A.bossStun:A.stun)){B.stun=1;blog(`The ${B.name} is rattled!`,"big")}}}
   cd[key]=A.cd+1-bonus;afterPlayer();
@@ -145,7 +145,7 @@ const foeHit=(B,P,mult,vf)=>{const raw=B.atk*mult*vf*(B.guard?.4:1)*(B.open?1+AB
 // true when this zone's regular enemies (at map row 3) already hit you for the HIT_MIN floor, so more Defense, resist or Stone would change nothing here
 const atFloor=P=>{const es=Object.values(ENEMIES).filter(e=>e.zone===S.zone&&!e.boss);return es.length>0&&es.every(e=>{const a=Math.round(e.atk*1.18);return foeHit({atk:a,heat:0,el:e.el},P,1,1)<=Math.max(1,Math.round(a*HIT_MIN))})};
 // end-of-turn bookkeeping: guard/parry/exposure lapse, off-balance and ability cooldowns tick, next turn
-function endTurn(B){B.guard=false;B.parry=false;B.open=false;if(B.off>0)B.off--;Object.keys(B.cd||{}).forEach(k=>{if(B.cd[k]>0)B.cd[k]--});B.turn++}
+function endTurn(B){B.thT=0;B.guard=false;B.parry=false;B.open=false;if(B.off>0)B.off--;Object.keys(B.cd||{}).forEach(k=>{if(B.cd[k]>0)B.cd[k]--});B.turn++}
 const endShift=B=>{endTurn(B);save();render()};
 function enemyTurn(){
   const B=S.battle,P=pstats(),Y=stOf();
