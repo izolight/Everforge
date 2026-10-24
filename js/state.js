@@ -42,7 +42,8 @@ function migrate(s){
   if(!sane(s))return null;
   Object.values(s.items).forEach(it=>{if(it.id.startsWith("ess_")){it.kind="essence";const t=Object.keys(it.traits)[0];it.traits={[t]:ESS_VALUE}}});
   Object.keys(s.heat).forEach(z=>{const h=s.heat[z];if(!ZONES.some(x=>x[0]===z)||!isObj(h))delete s.heat[z];else{h.max=Math.max(0,Math.min(HEAT_MAX,h.max|0));h.sel=Math.max(0,Math.min(h.max,h.sel|0))}});
-  const d=s.daily;if(d&&!(isObj(d)&&isObj(d.map)&&Array.isArray(d.map.rows)&&ZONES.some(z=>z[0]===d.zone)&&DAILY_TWISTS[d.twist]))s.daily=null;
+  const d=s.daily,okMap=m=>isObj(m)&&Array.isArray(m.rows)&&m.rows.length===MAP_ROWS&&m.rows.every(r=>Array.isArray(r)&&r.length&&r.every(n=>isObj(n)&&Number.isFinite(n.x)&&Array.isArray(n.next)&&typeof n.t==="string"));
+  if(d&&!(isObj(d)&&okMap(d.map)&&["run","done"].includes(d.state)&&(d.state!=="done"||isObj(d.result))&&Number.isFinite(d.turns)&&Number.isFinite(d.seed)&&ZONES.some(z=>z[0]===d.zone)&&ZONES.some(z=>z[0]===d.back)&&DAILY_TWISTS[d.twist]))s.daily=null;
   if(s.run!=="daily"||!s.daily||s.daily.state!=="run")s.run=null;else s.zone=s.daily.zone;
   if(!VIEWS.includes(s.view))s.view="battle";
   return s;

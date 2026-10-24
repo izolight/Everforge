@@ -11,10 +11,10 @@ function startBattle(forced,opt){
   if(id==="mimic"){const zi=zoneIdx(S.zone);B.max=B.hp=Math.round(E.hp*[1,1.9,2.8][zi]);B.atk=Math.round(E.atk*[1,1.6,2.1][zi]);B.def=E.def+zi*2}
   B.heat=h;
   if(h){const k=1+HEAT_T.hp;B.max=B.hp=Math.round(B.max*k);B.atk=Math.round(B.atk*k)}
-  if(h>=4&&E.boss){B.max=B.hp=Math.round(B.max*HEAT_T.boss);if(E.sp)B.spEvery=Math.max(2,E.sp.every-1)}
+  if(h>=4&&E.boss){B.max=B.hp=Math.round(B.max*HEAT_T.boss);if(E.sp)B.spEvery=spEvery(E,h)}
   if(tw==="double")B.atk*=2;
   if(opt.ambush)B.log.push({t:"Ambush! Something leaps out at you.",c:"big"});
-  if(!E.boss&&id!=="mimic"&&(opt.elite||tw==="elites"||Math.random()<(h>=3?HEAT_T.affix:.08*(h>=2?HEAT_T.elite:1)))){const [adj,trait]=pick(AFFIXES),f=TRAITS[trait].f;
+  if(!E.boss&&id!=="mimic"&&(opt.elite||tw==="elites"||(opt.up!=null?opt.up:Math.random()<eliteCh(h)))){const [adj,trait]=AFFIXES[opt.af!=null?opt.af:Math.floor(Math.random()*AFFIXES.length)],f=TRAITS[trait].f;
     B.elite=trait;B.name=`${adj} ${E.name}`;B.el=f;B.max=B.hp=Math.round(B.max*1.5);B.atk=Math.round(B.atk*1.25);B.def=E.def+1;
     if(!B.resist.includes(f))B.resist.push(f);B.weak=B.weak.filter(x=>x!==f)}
   S.battle=B;S.event=null;S.seen[id]=true;cx(id);
@@ -25,6 +25,7 @@ function startBattle(forced,opt){
   if(P.main&&P.main.form==="spear"&&!opt.ambush){blog("Your spear darts out before it can move.","you");strike(P.main,(P.atk+P.mag*.7)*ABILITIES.spear.open,"Opening jab",true);if(B.hp<=0)return enemyDown()}
   save();render();
 }
+const spEvery=(E,h)=>E.boss&&h>=4?Math.max(2,E.sp.every-1):E.sp.every;
 const isSpecial=B=>{const sp=ENEMIES[B.id].sp;return sp&&B.turn%(B.spEvery||sp.every)===0};
 function eff(traits,B){
   const ent=topTraits(traits).filter(([t])=>TRAITS[t].f!=="bad");
@@ -174,7 +175,7 @@ function enemyTurn(){
 function enemyDown(){
   const B=S.battle,E=ENEMIES[B.id];
   if(E.rebirth&&!B.reborn){B.reborn=true;B.hp=Math.round(B.max*.4);B.burn=null;B.poison=0;B.bleed=null;B.stun=0;B.frozen=false;blog(`The ${B.name} bursts into flame and rises from its ashes!`,"big");endTurn(B);save();return render()}
-  const P=pstats(),dl=S.run==="daily",h=B.heat||0;
+  const P=pstats(),dl=S.run==="daily",h=B.heat||0,lv0=level();
   if(dl)S.daily.turns+=B.turn;
   B.hp=0;B.over="won";S.kills[B.id]=(S.kills[B.id]||0)+1;S.wins+=E.boss?3:1;
   if(!E.boss&&B.id!=="mimic")S.zoneKills[E.zone]=(S.zoneKills[E.zone]||0)+1;
@@ -192,8 +193,9 @@ function enemyDown(){
   if(E.boss&&dl)finishDaily(MAP_ROWS,true);
   else if(E.boss){const next=ZONES[zoneIdx(E.zone)+1],nh=Math.min(HEAT_MAX,h+1),hz=heatOf(E.zone);if(S.maps[E.zone])S.maps[E.zone].cleared=true;
     if(next&&!S.unlocked.includes(next[0])){S.unlocked.push(next[0]);msg=`${next[1]} is now open!`}
-    else if(!next&&S.kills[B.id]===1)msg="You've conquered the realm. Now turn up the Heat.";
+    else if(!next&&hz.max===0)msg="You've conquered the realm. Now turn up the Heat.";
     if(nh>hz.max){S.heat[E.zone]={max:nh,sel:hz.sel};msg=(msg?msg+" ":"")+`Heat ${nh} unlocked in ${zoneName(E.zone)}: ${HEAT[nh-1].name}.`}}
+  if(level()>lv0)msg=(msg?msg+" ":"")+lvMsg();
   save();render();if(msg)toast(msg);
 }
 function youFall(){

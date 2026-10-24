@@ -15,10 +15,13 @@ function genMap(o){
     b.forEach((m,j)=>{if(!a.some(nd=>nd.next.includes(j))){const i=a.map((nd,i)=>[Math.abs(nd.x-m.x),i]).sort((p,q)=>p[0]-q[0])[0][1];a[i].next.push(j)}})}
   if(o.twist==="elites")rows.forEach((row,r)=>{if(r>0)row.forEach(nd=>{if(nd.t==="fight")nd.t="elite"})});
   if(h>=2){const c=rows.flatMap((row,r)=>r>=2&&r<MAP_ROWS-2?row.filter(nd=>nd.t==="fight"):[]);if(c.length)c[Math.floor(R()*c.length)].t="elite"}
-  if(sd)rows.forEach((row,r)=>{if(r<MAP_ROWS-1)row.forEach((nd,i)=>{const rn=rng(hash(o.seed+":"+r+":"+i));nd.e=pickEnemy(o.zone,rn);if(nd.t==="mystery")nd.my=mystery(rn())})});
+  if(sd)rows.forEach((row,r)=>{if(r<MAP_ROWS-1)row.forEach((nd,i)=>{const rn=rng(hash(o.seed+":"+r+":"+i));nd.e=pickEnemy(o.zone,rn);if(nd.t==="mystery")nd.my=mystery(rn());
+    // pre-rolled so the same day plays out alike: elite upgrade, affix, chest (mimic, loot) and pack loot (peddler offers depend on your satchel, so they stay random)
+    const zp=zonePool(o.zone),pk=a=>a[Math.floor(rn()*a.length)];nd.up=rn()<eliteCh(h);nd.af=Math.floor(rn()*AFFIXES.length);
+    nd.ch={m:rn()<.25,l:[pk(zp),pk(zp)],e:rn()<.5?pk(ESS_POOL):null};nd.pk=[pk(zp),...rn()<.5?[pk(zp)]:[]]})});
   return{rows,pos:null,path:[],cleared:false,seed:sd?o.seed:Math.floor(Math.random()*1e9),heat:h};
 }
-const heatOf=z=>S.heat[z]||{max:0,sel:0},newMap=z=>genMap({heat:heatOf(z).sel});
+const eliteCh=h=>h>=3?HEAT_T.affix:.08*(h>=2?HEAT_T.elite:1),heatOf=z=>S.heat[z]||{max:0,sel:0},newMap=z=>genMap({heat:heatOf(z).sel});
 const curMap=()=>S.run==="daily"&&S.daily?S.daily.map:S.maps[S.zone]||(S.maps[S.zone]=newMap(S.zone));
 const heatNow=()=>curMap().heat||0,twistNow=()=>S.run==="daily"&&S.daily?S.daily.twist:null,campFrac=()=>heatNow()>=5?HEAT_T.rest:.4;
 function setHeat(n){ // pick the heat for new expeditions here; an untouched map is rerolled at once
@@ -36,15 +39,15 @@ function visit(r,i){
   let t=nd.t;
   if(t==="mystery")t=nd.my||mystery(Math.random());
   const P=pstats(),hl=m.heat||0;
-  if(t==="fight")return startBattle(null,{row:r,e:nd.e});
-  if(t==="ambush")return startBattle(null,{row:r,ambush:true,e:nd.e});
-  if(t==="elite")return startBattle(null,{row:r,elite:true,e:nd.e});
+  if(t==="fight")return startBattle(null,{row:r,e:nd.e,up:nd.up,af:nd.af});
+  if(t==="ambush")return startBattle(null,{row:r,ambush:true,e:nd.e,up:nd.up,af:nd.af});
+  if(t==="elite")return startBattle(null,{row:r,elite:true,e:nd.e,af:nd.af});
   if(t==="boss")return startBattle(ZONES[zoneIdx(S.zone)][2]);
   if(t==="shrine"){const got=healYou(Math.round(P.maxHp*.35*(hl>=5?HEAT_T.shrine:1)));
     S.event={type:"shrine",icon:"shrine",title:"A quiet shrine",text:got?`Moss-covered stones hum softly. You rest a moment and recover ${got} HP.${hl>=5?" The Inferno has scorched the stones, so it's less than it should be.":""}`:"Moss-covered stones hum softly. You're already in good shape, so you just enjoy the quiet.",loot:[],choices:[]}}
-  if(t==="pack"){const pool=zonePool(S.zone),got=[pick(pool)];if(Math.random()<.5)got.push(pick(pool));got.forEach(id=>addItem(id));
+  if(t==="pack"){const pool=zonePool(S.zone),got=nd.pk?[...nd.pk]:[pick(pool)];if(!nd.pk&&Math.random()<.5)got.push(pick(pool));got.forEach(id=>addItem(id));
     S.event={type:"pack",icon:"chest",title:"An abandoned pack",text:"Someone left in a hurry. You help yourself.",loot:got,choices:[]}}
-  if(t==="chest")S.event={type:"chest",icon:"chest",title:"A lone chest",text:"An iron-banded chest sits in the open, unattended. Suspiciously unattended.",loot:[],choices:[["open","Open it"],["leave","Walk past"]]};
+  if(t==="chest")S.event={type:"chest",icon:"chest",title:"A lone chest",text:"An iron-banded chest sits in the open, unattended. Suspiciously unattended.",loot:[],choices:[["open","Open it"],["leave","Walk past"]],pre:nd.ch};
   if(t==="peddler"){const o=makeOffer();
     S.event=o?{type:"merchant",icon:"peddler",title:"A travelling peddler",text:`"Fine wares for fine folk. I'll take your ${S.items[o.give].name} for this ${S.items[o.get].name}. Fair's fair."`,offer:o,loot:[],choices:[["trade",`Trade for ${S.items[o.get].name}`],["inspect","Inspect the offer"],["leave","No thanks"]]}
       :{type:"done",icon:"peddler",title:"A travelling peddler",text:"\"Nothing to trade? Come back with pockets full.\" The peddler wanders off.",loot:[],choices:[]}}
@@ -66,8 +69,8 @@ function eventChoice(c){
     if(c==="rest"){const g=healYou(Math.round(pstats().maxHp*campFrac()));S.event={type:"done",icon:"camp",title:"Well rested",text:`You sleep by the fire and recover ${g} HP.`,loot:[],choices:[]}}
     else{const had=S.camp;S.camp=Math.min(3,S.camp+1);S.event={type:"done",icon:"camp",title:"Embers banked",text:S.camp>had?"You pack glowing embers for later. One more campfire charge.":"Your ember pouch is already full. At least it's warm.",loot:[],choices:[]}}}
   if(ev.type==="chest"&&c==="open"){
-    if(Math.random()<.25){S.event=null;return startBattle("mimic")}
-    const p=zonePool(S.zone),got=[pick(p),pick(p)];if(Math.random()<.5)got.push(essence(pick(ESS_POOL)));got.forEach(id=>addItem(id));
+    const pre=ev.pre;if(pre?pre.m:Math.random()<.25){S.event=null;return startBattle("mimic")}
+    const p=zonePool(S.zone),got=pre?[...pre.l]:[pick(p),pick(p)];if(pre?pre.e:Math.random()<.5)got.push(essence(pre?pre.e:pick(ESS_POOL)));got.forEach(id=>addItem(id));
     S.event={type:"done",icon:"chest",title:"Treasure!",text:"It was just a chest. A very generous chest.",loot:got,choices:[]}}
   if(ev.type==="merchant"&&c==="trade"){const {give,get}=ev.offer;
     if((S.inv[give]||0)-eqCount(give)<=0){toast("You no longer have that item.");S.event=null}

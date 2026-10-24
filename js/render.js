@@ -109,7 +109,7 @@ function dailyCard(){
     <p class="dline"><span>${zoneName(d.zone)}</span><span class="heat">Heat ${d.heat}</span><span class="heat daily">${tw.name}</span></p>
     <p class="foot">${tw.desc}${!done&&d.zone!==d.want?` Today's region (${zoneName(d.want)}) isn't open to you, so you go to ${zoneName(d.zone)}.`:""}</p>
     ${done?`<p class="foot dres ${r.boss?"won":""}">${r.boss?"Done":"Over"}: ${dailyResult(r)}. Come back tomorrow.</p>`
-      :`<p class="foot">One attempt a day. Reward for the boss: ${DAILY_REWARD.ess} essences, a rare find, ${DAILY_REWARD.xp} smith XP.</p><div class="actions"><button class="btn primary grow" id="dailyStart">Start today's run</button></div>`}</div>`;
+      :`<p class="foot">One attempt a day. Same map, enemies and chests for everyone (peddler offers depend on your satchel). Reward for the boss: ${DAILY_REWARD.ess} essences, a rare find, ${DAILY_REWARD.xp} smith XP.</p><div class="actions"><button class="btn primary grow" id="dailyStart">Start today's run</button></div>`}</div>`;
 }
 function renderBattle(){
   $("zones").innerHTML=ZONES.map(([id,name,boss],i)=>{const open=zoneOpen(id),cleared=S.kills[boss]>0;

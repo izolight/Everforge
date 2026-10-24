@@ -46,7 +46,7 @@ function openCodex(id,refresh){
       <dt>Strength</dt><dd>${K.stats?`<span class="chip">HP ${E.hp}</span><span class="chip">ATK ${E.atk}</span><span class="chip">DEF ${E.def}</span>`:unkChip("Win a fight to learn")}</dd>
       <dt>Weak to</dt><dd>${weak}</dd>
       <dt>Resists</dt><dd>${res}</dd>
-      <dt>Special</dt><dd>${K.sp?`<span>${E.sp.name}: ${spText(E.sp)}, every ${E.sp.every} turns. Watch for it ${E.sp.tell}.</span>`:unkChip("Survive it to learn")}</dd>
+      <dt>Special</dt><dd>${K.sp?`<span>${E.sp.name}: ${spText(E.sp)}, every ${spEvery(E,heatNow())} turns. Watch for it ${E.sp.tell}.</span>`:unkChip("Survive it to learn")}</dd>
       ${E.inf||(K.inf||[]).length?`<dt>Afflicts</dt><dd>${[...new Set(K.inf||[])].map(s=>`<span class="chip" style="color:var(--bad)">${STATUS[s].n}</span> <span class="foot">${STATUS[s].tip}</span>`).join("")||unkChip("Survive its special to learn")}</dd>`:""}
       <dt>Drops</dt><dd>${drops}</dd>
     </dl>
