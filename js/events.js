@@ -16,7 +16,7 @@ $("arena").addEventListener("click",e=>{
   if(t.dataset.use)return useItem(t.dataset.use);
   if(t.dataset.node){const [r,i]=t.dataset.node.split(",").map(Number);return visit(r,i)}
   if(t.dataset.zone){S.zone=t.dataset.zone;S.battle=null;S.event=null;save();render();return window.scrollTo({top:0})}
-  ({rest,atk:attack,guard,study,flee,again:newExpedition,toforge:()=>go("forge"),
+  ({rest,atk:attack,guard,parry,study,flee,again:newExpedition,toforge:()=>go("forge"),
     cont:()=>{S.battle=null;S.event=null;logOpen=false;save();render()}})[t.id]?.();
 });
 $("arena").addEventListener("toggle",e=>{if(e.target.id==="logd"){logOpen=e.target.open;const m=e.target.querySelector(".more");if(m)m.textContent=`${logOpen?"Hide":"Show"} full log`;const bl=$("blog");if(bl)bl.scrollTop=bl.scrollHeight}},true);
