@@ -39,7 +39,7 @@ js/
 - Weapon-form and shield abilities live in the `ABILITIES` table (`data.js`); `ability(key)` in `battle.js` runs them, cooldowns are per battle in `B.cd`, and `effects()` reads the same table for item text.
 - Heat (`HEAT`, `HEAT_T` in `data.js`) is stored per zone in `S.heat[zone]={max,sel}`; a map remembers the heat it was generated with (`map.heat`) and `heatNow()` reads it. The daily lives in `S.daily` (not `S.maps`); while `S.run==='daily'`, `curMap()` returns its map and `S.zone` is the daily's zone, restored from `S.daily.back` by `finishDaily()`. Daily maps come from `genMap({seed,...})`, which uses the seeded `rng` instead of `Math.random`.
 - Bosses can carry a data-driven `phase` (see `archon` in `data.js`): below `at` of max HP they spend a turn changing form, and `foeOf(B)` returns the current form's fields (element, weak, resist, special, status). Use `foeOf(B)` rather than `ENEMIES[B.id]` for anything that depends on the form.
-- Adding a zone: append to `ZONES` and give it enemies, a boss and a `terrain()` look in `art.js`. Unlocking, the mimic scaling (`MIMIC_HP`/`MIMIC_ATK`), bounties and the daily pick it up; `migrate()` opens zones for saves that already beat the boss before them.
+- Adding a zone: append to `ZONES` and give it enemies, a boss and a `terrain()` look in `art.js`. Unlocking, the mimic scaling (`MIMIC_HP`/`MIMIC_ATK`), bounties and the daily pick it up; `migrate()` opens zones for saves that already beat the boss before them; a daily boss kill unlocks the next zone too (same rule, so a reload never changes what is open).
 - When the save shape changes, bump `KEY`/`v`, add a migration step in `migrate()`, and extend `sane()` if new required fields are added.
 
 ## Testing
