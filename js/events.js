@@ -17,7 +17,7 @@ $("arena").addEventListener("click",e=>{
   if(t.dataset.use)return useItem(t.dataset.use);
   if(t.dataset.ability)return ability(t.dataset.ability);
   if(t.dataset.heat)return setHeat(+t.dataset.heat);
-  if(t.dataset.node){const [r,i]=t.dataset.node.split(",").map(Number);return visit(r,i)}
+  if(t.dataset.tile){const [x,y]=t.dataset.tile.split(",").map(Number);return step(x,y)}
   if(t.dataset.zone){S.zone=t.dataset.zone;S.battle=null;S.event=null;save();render();return window.scrollTo({top:0})}
   ({rest,atk:attack,guard,parry,study,flee,again:newExpedition,dailyStart:startDaily,dailyAbandon:abandonDaily,toforge:()=>go("forge"),
     cont:()=>{S.battle=null;S.event=null;logOpen=false;save();render()}})[t.id]?.();

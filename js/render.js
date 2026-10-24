@@ -86,7 +86,7 @@ function campbar(){
   if(twistNow()==="nocamp")return `${low?`<p class="warn-text">You're badly hurt. Eat something before your next fight.</p>`:""}<p class="foot" style="text-align:center">No campfires on this expedition.</p>`;
   return `${low?`<p class="warn-text">You're badly hurt. Eat something or rest before your next fight.</p>`:""}
   <div class="actions"><button class="btn grow" id="rest" ${S.camp>0&&S.hp<P.maxHp?"":"disabled"}>${icon("camp").replace("<svg","<svg style='width:18px;height:18px;vertical-align:-3px;margin-right:6px'")}Rest at campfire · ${S.camp} left</button></div>
-  <p class="foot" style="text-align:center">Campfire heals 50%. Next charge in ${3-S.campProg} win${3-S.campProg===1?"":"s"}${S.camp>=3?" (pouch full)":""}.</p>`;
+  <p class="foot" style="text-align:center">Campfire heals 50% and adds ${TORCH.rest} torch. Next charge in ${3-S.campProg} win${3-S.campProg===1?"":"s"}${S.camp>=3?" (pouch full)":""}.</p>`;
 }
 function foeStage(B){
   const E=ENEMIES[B.id],K=cx(B.id),kn=know(B.id),eliteF=B.elite?TRAITS[B.elite].f:null;
@@ -108,15 +108,18 @@ function logBlock(B){
 // Map header: heat badge, modifier list and heat selector (cleared zones), or the daily run's banner
 function mapHead(){
   const m=curMap(),dl=S.run==="daily",d=S.daily,h=m.heat||0,hz=heatOf(S.zone);
-  const amb=m.amb?`<p class="foot ambn">A whistle sounds behind you. If your next stop is a fight, it starts with an ambush.</p>`:"";
-  if(!dl&&!h&&!hz.max)return amb;
+  const amb=m.amb?`<p class="foot ambn">A whistle sounds behind you. If your next stop is a fight, it starts with an ambush.</p>`:"",
+    tp=Math.round(100*m.torch/m.tmax),tc=m.torch<=0?" out":m.torch<=TORCH.max/6?" low":"",
+    torch=`<span class="torchb${tc}" role="img" aria-label="Torch ${m.torch} of ${m.tmax}">${icon("torch")}<span class="tbar"><i style="width:${tp}%"></i></span><b>${m.torch}</b></span>`,
+    dark=m.torch<=0&&!m.cleared?`<p class="foot ambn">Your torch has guttered out. You see only one tile around you, and every step risks an ambush. A camp or shrine will relight it.</p>`:"";
+  if(!dl&&!h&&!hz.max)return `<div class="maphead mini"><div class="mh1"><b>${zoneName(S.zone)}</b>${torch}</div>${dark}${amb}</div>`;
   const mods=[...dl?[`<li><b>${DAILY_TWISTS[d.twist].name}</b> ${DAILY_TWISTS[d.twist].desc}</li>`]:[],...HEAT.slice(0,h).map((x,i)=>`<li><b>Heat ${i+1} · ${x.name}</b> ${x.desc}</li>`)];
   const sel=!dl&&hz.max?`<div class="hsel" role="group" aria-label="Heat for new expeditions"><span class="foot">New expeditions</span>${Array.from({length:hz.max+1},(_,n)=>`<button class="hchip" data-heat="${n}" aria-pressed="${hz.sel===n}" title="${n?HEAT[n-1].name+": "+HEAT[n-1].desc:"Normal difficulty"}">${n?"Heat "+n:"Normal"}</button>`).join("")}</div>
     <p class="foot">${hz.sel?`Heat ${hz.sel} · ${HEAT[hz.sel-1].name}: ${HEAT[hz.sel-1].desc}`:"Normal difficulty."}${hz.sel!==h&&!m.cleared?` This map is Heat ${h}; the choice applies to your next expedition here.`:""}</p>`:"";
-  return `<div class="maphead"><div class="mh1"><b>${zoneName(S.zone)}</b>${dl?`<span class="heat daily">Daily</span>`:""}${h?`<span class="heat">Heat ${h}</span>`:""}</div>
+  return `<div class="maphead"><div class="mh1"><b>${zoneName(S.zone)}</b>${dl?`<span class="heat daily">Daily</span>`:""}${h?`<span class="heat">Heat ${h}</span>`:""}${torch}</div>
     ${dl?`<p class="foot">Daily expedition · ${d.date}${d.date!==today()?" (still going from an earlier day)":""} · ${d.turns} turns so far</p>`:""}
     ${mods.length?`<details class="heatd" id="heatd"${heatOpen?" open":""}><summary>${mods.length} active modifier${mods.length>1?"s":""}</summary><ul class="heatl">${mods.join("")}</ul></details>`:""}${sel}
-    ${dl?`<div class="actions"><button class="btn sm" id="dailyAbandon">${dArmed?"Tap again to abandon (no retry today)":"Abandon the daily"}</button></div>`:""}${amb}</div>`;
+    ${dl?`<div class="actions"><button class="btn sm" id="dailyAbandon">${dArmed?"Tap again to abandon (no retry today)":"Abandon the daily"}</button></div>`:""}${dark}${amb}</div>`;
 }
 function dailyCard(){
   if(S.run==="daily"||!dailyReady())return "";
@@ -145,8 +148,8 @@ function renderBattle(){
     const m=curMap(),zi=zoneIdx(S.zone),bossId=ZONES[zi][2],next=ZONES[zi+1];
     const head=m.cleared?`<div class="cleared"><h2>${ZONES[zi][1]} cleared</h2><p class="empty">${shortName(bossId)} has fallen. Explore a fresh map here for more loot${next&&zoneOpen(next[0])?`, or move on to ${next[1]}`:""}.</p>
         <div class="actions"><button class="btn grow" id="again">New expedition here</button>${next&&zoneOpen(next[0])?`<button class="btn primary grow" data-zone="${next[0]}">Travel to ${next[1]}</button>`:""}</div></div>`
-      :`<p class="foot" style="text-align:center">${m.pos?"Pick a glowing node to move on.":"Pick where to start."} ${shortName(bossId)} waits at the end of the map.</p>`;
-    a.innerHTML=`${youHud()}${head}${mapHead()}${mapHtml()}${campbar()}${dailyCard()}`;return}
+      :`<p class="foot" style="text-align:center">${m.steps?"Tap a glowing tile next to you to step.":"Tap a glowing tile next to you to set out."} ${shortName(bossId)} waits in the lair at the top. Every step burns your torch.</p>`;
+    a.innerHTML=`${youHud()}${head}${mapHead()}${mapHtml()}${campbar()}${dailyCard()}`;a.querySelector(".tl.here")?.scrollIntoView({block:"nearest"});return}
   const K=cx(B.id);
   let body="";
   if(!B.over){

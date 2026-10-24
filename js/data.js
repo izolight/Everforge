@@ -183,7 +183,11 @@ const TUTORIAL=[
   {text:"Cross the Woods map and defeat Gnarlhorn at the end of it.",tab:"battle",done:s=>(s.kills.gnarlhorn||0)>=1,reward:{items:["ess:Swift","ess:Holy"],xp:30}},
   {text:"Infuse an essence into yourself in the Gear tab.",tab:"gear",done:s=>Object.keys(s.infuse||{}).length>0,reward:{camp:1,xp:20}}
 ];
-const MAP_ROWS=7,INF_SLOTS=3,INF_COST=3,INF_MAX=3,CRIT_CAP=75,FREEZE_CAP=60;
+// the map is a GRID.w x GRID.h tile grid; MAP_ROWS is its depth scale (0..5 by distance from the start, 6 = the lair) that sets enemy scaling and the daily's "depth reached"
+const MAP_ROWS=7,GRID={w:9,h:13},POI_N={fight:[5,3],elite:[1,2],chest:2,shrine:2,peddler:1,mystery:3}; // [min,spread]: fights 5-7, elites 1-2 (doubled at Heat 2+)
+// torchlight: the torch drains 1 per step (Heat 5: h5 per step); at 0 light drops to dim and every step risks an ambush (amb); shrine/rest refill
+const TORCH={max:60,rad:2,dim:1,amb:.3,shrine:30,rest:20,h5:1.5,nocamp:30};
+const INF_SLOTS=3,INF_COST=3,INF_MAX=3,CRIT_CAP=75,FREEZE_CAP=60;
 // trait combat tunables: res = elemental defense from armor traits, ward = Runic, pierce = Arcane, shred = Tempered
 const RES_PER=5,RES_CAP=40,RES_ALT={Fur:[["ice",1],["wood",1]],Insulated:[["ice",2.5]]},RES_MSG={ice:"Your fur-lined gear blunts the cold.",fire:"Your gear turns aside the heat.",poison:"Your gear keeps the venom at bay.",holy:"Your gear dulls the glare.",shadow:"Your gear holds the gloom back.",wood:"Your gear shrugs off the thorns.",metal:"Your gear turns the blades.",stone:"Your gear absorbs the crushing blows.",arcane:"Your gear scatters the stray magic.",swift:"Your gear slows the flurry."};
 const ARC_PER=12,ARC_CAP=60,WARD_PER=4,WARD_CAP=40,THORN_PER=4,THORN_CAP=30,STONE_DR=.75,STONE_CAP=8,SHRED_PER=1.5,SHRED_CAP=6,ROOT_PER=1.5,ROOT_CAP=8,DODGE_PER=4,DODGE_CAP=25,MED_PER=.1,MED_CAP=.5,MED_REGEN=.5;
