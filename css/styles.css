@@ -333,3 +333,4 @@ textarea.code{width:100%;min-height:72px;background:#120f0c;color:var(--fg);bord
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.floater{display:none}}
 @media (max-width:420px){.rname{font-size:1.5rem}h1{font-size:1.8rem}}
 .fsub .st{color:var(--bad);border:1px solid currentColor;border-radius:5px;padding:0 5px}.fsub .st.chill{color:#7cb6f2}.fsub .st.poison{color:#88d7a1}.fsub .st.curse{color:#c39cf7}.fsub .st.burn{color:#ff8a50}
+.cfx{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}.cfx span{font-family:var(--mono);font-size:.66rem;color:var(--muted);border:1px solid var(--line,#ffffff22);border-radius:5px;padding:1px 6px}

@@ -48,6 +48,9 @@ function renderGear(){
     return `<button class="gslot${it?"":" none"}" data-gear="${s}" aria-label="${l}: ${it?it.name:"empty"}">${glyph(it,SLOT_GLYPH[s])}<small>${l}</small><span>${it?nameHtml(it):s==="main"?"Bare fists":"Empty"}</span></button>`}).join("");
   $("pstats").innerHTML=[["ATK",P.atk,P.offW?`+${P.offPow}`:""],["MAG",P.mag,""],["DEF",P.def,`${Math.round(P.red*100)}%`],["SPD",P.spd,""]]
     .map(([l,v,x])=>`<div class="ps"><span>${l}</span><b>${v}</b>${x?` <small>${x}</small>`:""}</div>`).join("");
+  const rsT=Object.entries(P.rs).map(([k,v])=>`${k} ${v}%`).join(", "),
+    cf=[rsT&&`Resists ${rsT}`,P.ward&&`Ward ${P.ward}`,P.thorns&&`Thorns ${P.thorns}%`,P.dr&&`-${P.dr}/hit`,P.dodge&&`Dodge ${P.dodge}%`,P.root&&`Roots +${P.root}`,P.cleanse&&`Cleanse ${Math.round(Math.min(CLEANSE_CAP,P.cleanse*CLEANSE_PER))}%`].filter(Boolean);
+  $("cfx").innerHTML=cf.length?cf.map(x=>`<span>${x}</span>`).join(""):"";
   const inf=Object.entries(S.infuse);
   $("inflabel").textContent=`Infusions · ${inf.length}/${INF_SLOTS} slots`;
   $("inf").innerHTML=Array.from({length:INF_SLOTS},(_,k)=>{const e=inf[k];if(!e)return `<div class="islot"><b style="color:var(--dim)">Empty</b><small>3 essences of one kind</small></div>`;
@@ -103,8 +106,8 @@ function renderBattle(){
   const E=ENEMIES[B.id],K=cx(B.id);
   let body="";
   if(!B.over){
-    const P=pstats(),sp=isSpecial(B)?E.sp:null,est=Math.max(1,Math.round(B.atk*(sp&&sp.kind!=="heal"?sp.x*(sp.n||1):1)*(1-P.red)));
-    const dmgTxt=K.stats?` About ${est} damage.`:"";
+    const P=pstats(),sp=isSpecial(B)?E.sp:null,est=foeHit(B,P,sp?sp.x:1,1)*(sp&&sp.kind==="multi"?sp.n:1);
+    const dmgTxt=K.stats?` About ${est} damage${B.ward>0?` (ward absorbs ${Math.min(B.ward,est)})`:""}.`:"";
     const intent=B.frozen?`<div class="intent"><b>NEXT</b><span>Frozen. It will lose its turn.</span></div>`
       :sp?`<div class="intent special"><b>NEXT</b><span>It's ${sp.tell}. ${K.sp?`${sp.name} is coming.`:"Something big is coming."}${sp.kind==="heal"?" Parry to interrupt it.":`${dmgTxt} Guard, or Parry to turn it back!`}</span></div>`
       :`<div class="intent"><b>NEXT</b><span>A normal attack.${dmgTxt} Parrying now would backfire.</span></div>`;

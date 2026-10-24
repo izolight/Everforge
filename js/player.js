@@ -4,7 +4,7 @@ function innate(){const t={};Object.entries(S.infuse||{}).forEach(([k,r])=>t[k]=
 function innateStats(only){const out={atk:0,def:0,mag:0,heal:0,spd:0};Object.entries(S.infuse||{}).forEach(([k,r])=>{if(only&&k!==only)return;
   Object.entries(TRAITS[k].s).forEach(([s,w])=>out[s]+=w*r*1.5*.8)});Object.keys(out).forEach(s=>out[s]=Math.round(out[s]));return out}
 function withInnate(tr){const out={...tr};Object.entries(innate()).forEach(([k,v])=>out[k]=r1((out[k]||0)+v));return out}
-function resRaw(tr,out){out=out||{};Object.entries(tr).forEach(([t,v])=>{const T=TRAITS[t],a=RES_ALT[t],el=a?a[0]:T&&T.f;if(el&&el!=="bad"&&el!=="heal")out[el]=(out[el]||0)+v*(a?a[1]:1)});return out}
+function resRaw(tr,out){out=out||{};Object.entries(tr).forEach(([t,v])=>{(RES_ALT[t]||[[(TRAITS[t]||{}).f,1]]).forEach(([el,w])=>{if(el&&el!=="bad"&&el!=="heal")out[el]=(out[el]||0)+v*w})});return out}
 const resPct=v=>Math.round(Math.min(RES_CAP,v*RES_PER));
 const medHeal=it=>Math.round(statsOf(it).heal*(1+Math.min(MED_CAP,MED_PER*(it.traits.Medicine||0))));
 function pstats(){
