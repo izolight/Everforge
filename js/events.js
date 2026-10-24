@@ -59,22 +59,40 @@ $("combine").onclick=()=>{
   const items=S.bench.map(id=>S.items[id]),chk=checkMix(items);
   if(items.length<2)return;if(!chk.ok){toast(chk.reason);return}
   if(inBattle()){toast("Finish the fight first.");return}
-  const lvBefore=level(),{item,log,inst,mishap,baseId,rxKeys}=combine(items);
+  const bl=combine(items,{roll:100}).blocked;if(bl){toast(blockText(bl));return}
+  if(equippedRisk(items).length&&forgeArmed!==S.bench.join()){forgeArmed=S.bench.join();renderBench();setTimeout(()=>{forgeArmed="";if(S.view==="forge")renderBench()},3500);return} // a fizzle would destroy something you wear: tap twice
+  forgeArmed="";
+  const lvBefore=level(),sk0=Object.fromEntries(Object.keys(SKILLS).map(k=>[k,skLv(k)])),{item,log,inst,mishap,fizzle,cleanId,skill,diff,baseId,rxKeys}=combine(items);
+  const worthSum=items.reduce((n,i)=>n+worth(i),0);
   S.bench.forEach(id=>S.inv[id]--);S.bench=[];
-  const st=S.stats,isNew=!S.items[item.id];st.forged++;if(item.legendary)st.legend++;if(mishap)st.mishaps++;
-  if(isNew){S.items[item.id]=item;S.journal.push({id:item.id,name:item.name,legendary:item.legendary})}
-  S.inv[item.id]=(S.inv[item.id]||0)+1;
-  const newRx=rxKeys.filter(k=>!S.knownR.includes(k));S.knownR.push(...newRx);
-  settleGear(S.items[item.id]);
-  const gain=10+(isNew?25:0)+(isNew&&item.legendary?100:0)+newRx.length*10;S.xp+=gain;
-  S.last={id:item.id,item,log,inst,mishap,isNew,xpGain:gain,baseId};
+  const st=S.stats,known=S.journal.some(j=>j.id===cleanId),isNew=!fizzle&&!mishap&&!known,newRx=fizzle?[]:rxKeys.filter(k=>!S.knownR.includes(k));
+  const firstLeg=!fizzle&&item.legendary&&!S.journal.some(j=>j.legendary&&j.name===item.name);
+  if(fizzle)st.fizzles++;else{st.forged++;if(firstLeg)st.legend++;if(mishap)st.mishaps++}
+  let gain=10,refund=0;
+  if(fizzle){gain=Math.round(gain*SK_XP.fizzle);refund=gainEmbers(Math.max(1,Math.round(worthSum*FIZ.refund)));settleGear(null)}
+  else{
+    if(!S.items[item.id])S.items[item.id]=item;
+    const fr=isNew?S.journal.findIndex(j=>S.items[j.id]&&S.items[j.id].clean===cleanId):-1; // a flawed copy was journaled: the clean recipe takes over its row
+    if(isNew){if(fr>=0)S.journal[fr]={...S.journal[fr],id:item.id,name:item.name};else S.journal.push({id:item.id,name:item.name,legendary:item.legendary})}
+    else if(mishap&&firstLeg)S.journal.push({id:item.id,name:item.name,legendary:true}); // a flawed secret still counts as found
+    S.inv[item.id]=(S.inv[item.id]||0)+1;S.knownR.push(...newRx);
+    settleGear(S.items[item.id]);
+    gain+=(isNew?25:0)+(firstLeg?100:0)+newRx.length*10}
+  S.xp+=gain; // smith XP is not scaled by difficulty: it only gates slots, the skills gate tiers
+  const sx={},add=(k,sh)=>{if(!(k in sx))sx[k]=Math.max(1,Math.round(gain*sh*skFactor(diff,skLv(k))*(known?.5:1)))};
+  add(skill,SK_XP.self);items.forEach(i=>add(skillOf(i),SK_XP.input)); // the result's skill, then each other input category once
+  const scaled=Object.keys(sx).some(k=>skFactor(diff,skLv(k))<1)||known;
+  Object.entries(sx).forEach(([k,n])=>S.skills[k]=skXp(k)+n);
+  const ups=Object.keys(sx).filter(k=>skLv(k)>sk0[k]);
+  S.last={id:fizzle?null:item.id,item,log:fizzle?log.filter(l=>l.k==="Fizzle"):log,inst,mishap,fizzle,refund,isNew,xpGain:gain,sx,scaled,baseId,recipe:items.map(i=>i.name)};
   save();
-  playForge(items,S.items[item.id],()=>{
+  const after=()=>{
     render(true);
-    if(level()>lvBefore)toast(lvMsg());
+    if(level()>lvBefore||ups.length)toast([level()>lvBefore?lvMsg():"",...ups.map(k=>skMsg(k,sk0[k]))].filter(Boolean).join(" "));
     else if(newRx.length)toast("New reaction discovered! It's in your recipe book.");
     $("result").scrollIntoView({behavior:"smooth",block:"nearest"});
-  });
+  };
+  if(fizzle){sfx("clang");after()}else playForge(items,S.items[item.id],after);
 };
 $("exportBtn").onclick=()=>{
   const code=btoa(unescape(encodeURIComponent(JSON.stringify({...S,battle:null,event:null}))));

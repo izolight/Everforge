@@ -54,7 +54,7 @@ const ENC={
       const sl=c.slice(7),it=gearOf(sl);if(!it||it.tier>=9){toast("Nothing to temper there.");return endEv("forge","Cold coals","The fire has gone out.")}
       const bad=ev.rv[0]<.25,base=it.name.replace(/ \+\d+$/,"").replace(/^Cracked /,""),n=(it.temper||0)+(bad?0:1),id="c_"+hash(it.id+":temper:"+(bad?"x":"y")).toString(36);
       if(!S.items[id]){const tr={...it.traits},top=topTraits(tr)[0];if(bad)tr.Brittle=Math.max(tr.Brittle||0,1.5);else if(top)tr[top[0]]=r1(top[1]+1);
-        S.items[id]={...it,...it.unweak&&top&&!bad?{unweak:{...it.unweak,[top[0]]:r1((it.unweak[top[0]]||0)+1)}}:{},id,crafted:true,recipe:undefined,recipeIds:undefined,temper:n,tier:bad?it.tier:it.tier+1,traits:tr,name:bad?`Cracked ${base}`:`${base} +${n}`}}
+        S.items[id]={...it,...it.unweak&&top&&!bad?{unweak:{...it.unweak,[top[0]]:r1((it.unweak[top[0]]||0)+1)}}:{},id,crafted:true,recipe:undefined,recipeIds:undefined,clean:undefined,temper:n,tier:bad?it.tier:it.tier+1,traits:tr,name:bad?`Cracked ${base}`:`${base} +${n}`}}
       takeOne(it.id);addItem(id);S.eq[sl]=id;clampHp();
       endEv("forge",bad?"It cracks":"Tempered",bad?`You strike too hard. Your ${base} cracks along its length (Brittle). The tier holds.`:`The metal rings true. Your ${base} is now tier ${S.items[id].tier}, with a stronger edge.`,[id])}},
   riddle:{make:rv=>{const [q,ans,bad]=at(RIDDLES,rv[0]),k=Math.floor(rv[1]*3),o=[ans,...bad],opts=o.map((_,i)=>o[(i+k)%3]);
