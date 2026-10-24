@@ -28,7 +28,7 @@ function renderRefine(){
   $("refbtns").innerHTML=ts.length?ts.map(t=>`<button class="btn sm" data-refine="${t}" style="border-color:${tColor(t)}" ${inBattle()||S.embers<EMB.refine?"disabled":""}>Refine ${t} · ${REFINE_N} of ${avail("ess_"+t)}</button>`).join(""):`<p class="foot">Collect ${REFINE_N} essences of one kind to refine them.</p>`;
 }
 // ================= RENDER =================
-let freshShown=new Set(),logOpen=false,heatOpen=false;
+let forgeArmed="",freshShown=new Set(),logOpen=false,heatOpen=false;
 function renderHeader(){
   const l=level(),cur=XP_LV[l-1],nxt=XP_LV[l];clampHp();
   $("lvl").textContent=`Smith Lv ${l}`;
@@ -164,12 +164,16 @@ function renderBattle(){
   const bl=$("blog");if(bl)bl.scrollTop=bl.scrollHeight;
 }
 function useHint(it){const st=statsOf(it),p=[];if(st.heal>0)p.push(`+${medHeal(it)} HP`);const d=Math.round((st.atk+st.mag)*.6);if(d>=3)p.push(`${d} dmg`);const c=cures(it.traits);if(c.length)p.push("cures "+c.join(", "));return p.join(" · ")||"no effect"}
+// Worn items a fizzle would take (the bench holds the equipped copy or the last copy)
+const equippedRisk=items=>[...new Set(items.map(i=>i.id))].filter(id=>(S.inv[id]||0)-benchCount(id)<eqCount(id)).map(id=>S.items[id].name);
 // Forge preview line: the skill that makes this, success / mishap / fizzle odds, and the tier cap
-function craftLine(r){
+function craftLine(r,items){
+  const risk=equippedRisk(items);
   const sk=SKILLS[r.skill],cp=SK_CAP[r.lv-1],b=r.blocked;
   return `<div class="cline${b?" blocked":""}"><div class="cl1"><span>${skIcon(r.skill)}${sk.name} Lv ${r.lv}</span><span class="foot">Tier ${r.item.tier} · cap ${cp}</span></div>
     ${b?`<p class="warn-text">${blockText(b)}</p>`:`<div class="odds"><span class="ok-text">${100-r.fail}% clean</span><span class="mis">${r.mis}% mishap</span><span class="warn-text">${r.fiz}% fizzle</span></div>`}
-    <span class="foot">${S.journal.length?`Difficulty ${r.diff} vs your skill ${r.lv}${r.diff-r.lv>2?" · a reach for you":""}`:"Your first forge never fails."}. A fizzle loses the ingredients but returns some embers.</span></div>`;
+    ${b?"":`<span class="foot">${S.journal.length?`Difficulty ${r.diff} vs your skill ${r.lv}${r.diff-r.lv>2?" · a reach for you":""}. A fizzle loses the ingredients but returns some embers.`:"Your first forge never fails."}</span>`}
+    ${risk.length?`<p class="warn-text">${risk.join(" and ")} ${risk.length>1?"are":"is"} equipped. A fizzle would destroy ${risk.length>1?"them":"it"}; tap Forge twice to confirm.</p>`:""}</div>`;
 }
 const skIcon=k=>`<svg class="ski" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">${G[SKILLS[k].g]}</svg>`;
 function renderSkills(){
@@ -207,15 +211,16 @@ function renderBench(){
         ${kr.length?`<span class="foot">Known reactions: ${kr.map(k=>{const x=REACTIONS.find(([a,b])=>a+"+"+b===k);return `${x[0]} + ${x[1]} → ${x[2]}`}).join(", ")}</span>`:""}
         ${ur.length?`<span class="foot" style="color:var(--accent)">Something in this mix will react in a way you haven't seen yet.</span>`:""}
         ${appraise}</div>`}
-    hint+=craftLine(r);
+    hint+=craftLine(r,items);
   }
   $("mixhint").innerHTML=hint;
+  $("combine").textContent=forgeArmed&&forgeArmed===S.bench.join()?"Tap again to forge":"Forge";
   $("combine").disabled=items.length<2||!chk.ok||!!crafting?.blocked;
 }
 function renderResult(fresh){
   const el=$("result"),total=Object.values(S.inv).reduce((s,c)=>s+c,0);
   if(!S.last){el.className="panel result";el.innerHTML=`<p class="empty">${total<2?"You need at least two items to forge. Win battles to collect loot.":"Your sword takes ores, herbs, potions, essences and relics. Salvage loot in the Gear tab to turn it into essences."}</p>`;return}
-  const r=S.last,sxt=r.sx?`+${r.xpGain} smith XP · ${Object.entries(r.sx).map(([k,n])=>`${SKILLS[k].name} +${n}`).join(", ")}`:`+${r.xpGain} smith XP`;
+  const r=S.last,sxt=r.sx?`+${r.xpGain} smith XP · ${Object.entries(r.sx).map(([k,n])=>`${SKILLS[k].name} +${n}`).join(", ")}${r.scaled?" (easy or known recipes teach less)":""}`:`+${r.xpGain} smith XP`;
   if(r.fizzle){el.className="panel result fizzle"+(fresh?" fresh":"");
     el.innerHTML=`<div class="rhead"><div><div class="rform">Fizzle</div><h2 class="rname">Ashes and smoke</h2></div></div>
       <ul class="log"><li><strong>Recipe</strong> ${r.recipe.join(" + ")}</li>${r.log.map(l=>`<li class="${l.warn?"warn":""}"><strong>${l.k}</strong> ${l.t}</li>`).join("")}${r.refund?`<li><strong>Embers</strong> You sift ${r.refund} out of the ash.</li>`:""}</ul>

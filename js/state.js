@@ -42,7 +42,25 @@ function migrate(s){
   if(s.v===8){s.v=9;s.embers=Math.min(60,2*(s.wins|0))} // a small grant for progress made before embers existed
   if(s.v===9){s.v=10;s.skills={}; // veterans keep their craft: each crafted piece in the journal trains its category, refining trains alchemy
     if(isObj(s.items)&&Array.isArray(s.journal))s.journal.forEach(j=>{const it=isObj(s.items[j.id])&&s.items[j.id],k=it&&FORMS[it.form]&&skillOf(it);if(k){const n=20+10*(it.tier|0)+(it.legendary?40:0);s.skills[k]=(s.skills[k]||0)+n;if(k!=="alchemy")s.skills.alchemy=(s.skills.alchemy||0)+Math.round(n*SK_XP.input)}});
-    if(isObj(s.stats))s.skills.alchemy=(s.skills.alchemy||0)+10*(s.stats.refined|0)}
+    if(isObj(s.stats))s.skills.alchemy=(s.skills.alchemy||0)+10*(s.stats.refined|0)
+    if(isObj(s.items)&&isObj(s.inv)&&isObj(s.eq)){
+      // pre-v10 flawed crafts share the clean id; move them to their own mishap id so the clean recipe can be forged again
+      const ren={};Object.values(s.items).forEach(it=>{if(!it.crafted||!Array.isArray(it.recipeIds)||it.recipeIds.length<2||!isObj(it.traits))return;
+        const key=it.recipeIds.slice().sort().join("+");if(it.id!=="c_"+hash(key).toString(36))return;
+        const mk=it.mishap==="Weakened"?"Weakened":["Cursed","Brittle"].find(m=>it.traits[m]>0&&!it.recipeIds.some(r=>s.items[r]&&isObj(s.items[r].traits)&&s.items[r].traits[m]>0));
+        if(mk)ren[it.id]="c_"+hash(key+"|"+mk).toString(36)});
+      Object.entries(ren).forEach(([o,n])=>{const it=s.items[o];if(s.items[n]){}else s.items[n]={...it,id:n,clean:o};delete s.items[o];
+        if(s.inv[o]!==undefined){s.inv[n]=(s.inv[n]||0)+s.inv[o];delete s.inv[o]}});
+      const fix=id=>ren[id]||id;
+      Object.keys(s.eq).forEach(k=>{s.eq[k]=s.eq[k]?fix(s.eq[k]):s.eq[k]});
+      if(Array.isArray(s.bench))s.bench=s.bench.map(fix);if(Array.isArray(s.fresh))s.fresh=s.fresh.map(fix);
+      if(Array.isArray(s.journal))s.journal.forEach(j=>{if(isObj(j))j.id=fix(j.id)});
+      if(isObj(s.last)&&s.last.id)s.last.id=fix(s.last.id);
+      Object.values(s.items).forEach(it=>{if(Array.isArray(it.recipeIds))it.recipeIds=it.recipeIds.map(fix)});
+      // floor: a skill is never below what the best piece you own in its category needs (cap >= tier+1)
+      const own=new Set([...Object.keys(s.inv).filter(id=>s.inv[id]>0),...Object.values(s.eq).filter(Boolean),...(Array.isArray(s.journal)?s.journal.map(j=>j.id):[])]),top={};
+      own.forEach(id=>{const it=s.items[id],k=it&&it.crafted&&FORMS[it.form]&&skillOf(it);if(k)top[k]=Math.max(top[k]||0,it.tier|0)});
+      Object.entries(top).forEach(([k,t])=>{const l=SK_CAP.findIndex(c=>c>=Math.min(9,t+1));s.skills[k]=Math.max(s.skills[k]||0,SK_LV[l<0?SK_LV.length-1:l])})}}
   if(s.v!==10||!isObj(s.items)||!isObj(s.inv))return null;
   const dflt=freshState();DEFAULTED.forEach(k=>{if(s[k]===undefined)s[k]=dflt[k]});
   Object.keys(BASE).forEach(id=>s.items[id]=baseItem(id));
