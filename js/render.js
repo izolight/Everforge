@@ -111,7 +111,7 @@ function mapHead(){
   const amb=m.amb?`<p class="foot ambn">A whistle sounds behind you. If your next stop is a fight, it starts with an ambush.</p>`:"",
     tp=Math.round(100*m.torch/m.tmax),tc=m.torch<=0?" out":m.torch<=TORCH.max/6?" low":"",
     torch=m.cleared?"":`<span class="torchb${tc}" role="img" aria-label="Torch ${m.torch} of ${m.tmax}">${icon("torch")}<span class="tbar"><i style="width:${tp}%"></i></span><b>${m.torch}</b></span>`,
-    dark=m.torch<=0&&!m.cleared?`<p class="foot ambn">Your torch has guttered out. You see only one tile around you, and every step risks an ambush. A camp or shrine will relight it.</p>`:"";
+    dark=m.torch<=0&&!m.cleared?`<p class="foot ambn">Your torch has guttered out. You see only one tile around you, and every step risks an ambush. A camp or shrine will relight it. Hunters notice you from 6 steps away instead of 4.</p>`:"";
   if(!dl&&!h&&!hz.max)return `<div class="maphead mini"><div class="mh1"><b>${zoneName(S.zone)}</b>${torch}</div>${dark}${amb}</div>`;
   const mods=[...dl?[`<li><b>${DAILY_TWISTS[d.twist].name}</b> ${DAILY_TWISTS[d.twist].desc}</li>`]:[],...HEAT.slice(0,h).map((x,i)=>`<li><b>Heat ${i+1} · ${x.name}</b> ${x.desc}</li>`)];
   const sel=!dl&&hz.max?`<div class="hsel" role="group" aria-label="Heat for new expeditions"><span class="foot">New expeditions</span>${Array.from({length:hz.max+1},(_,n)=>`<button class="hchip" data-heat="${n}" aria-pressed="${hz.sel===n}" title="${n?HEAT[n-1].name+": "+HEAT[n-1].desc:"Normal difficulty"}">${n?"Heat "+n:"Normal"}</button>`).join("")}</div>

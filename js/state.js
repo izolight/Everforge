@@ -108,7 +108,7 @@ function migrate(s){
   const d=s.daily,N=GRID.w*GRID.h,pt=p=>isObj(p)&&Number.isInteger(p.x)&&Number.isInteger(p.y)&&p.x>=0&&p.y>=0&&p.x<GRID.w&&p.y<GRID.h;
   const okMap=m=>isObj(m)&&m.w===GRID.w&&m.h===GRID.h&&Array.isArray(m.g)&&m.g.length===m.h&&m.g.every(r=>typeof r==="string"&&r.length===m.w&&/^[.,#~]+$/.test(r))&&[m.pos,m.start,m.lair,m.gate].every(pt)&&(m.prev===null||pt(m.prev))
     &&Array.isArray(m.pois)&&m.pois.every(p=>pt(p)&&typeof p.t==="string"&&Number.isFinite(p.r)&&!"#~".includes(m.g[p.y][p.x]))&&Array.isArray(m.sn)&&m.sn.length===N&&Array.isArray(m.d)&&m.d.length===N&&isObj(m.mem)&&Number.isFinite(m.torch)&&Number.isFinite(m.tmax)&&Number.isFinite(m.steps)&&Number.isFinite(m.dp)&&Number.isFinite(m.D)&&m.D>0&&m.pois.some(p=>p.t==="boss")&&!"#~".includes(m.g[m.pos.y][m.pos.x]);
-  Object.keys(s.maps).forEach(z=>{if(!okMap(s.maps[z]))delete s.maps[z]});
+  Object.keys(s.maps).forEach(z=>{if(!okMap(s.maps[z])){delete s.maps[z];migNote=true}});
   if(d&&!(isObj(d)&&(d.state==="done"||okMap(d.map))&&["run","done"].includes(d.state)&&(d.state!=="done"||isObj(d.result))&&Number.isFinite(d.turns)&&Number.isFinite(d.seed)&&ZONES.some(z=>z[0]===d.zone)&&ZONES.some(z=>z[0]===d.back)&&DAILY_TWISTS[d.twist]))s.daily=null;
   if(s.run!=="daily"||!s.daily||s.daily.state!=="run")s.run=null;else s.zone=s.daily.zone;
   s.hints=Array.isArray(s.hints)?s.hints.filter(i=>Number.isInteger(i)&&SECRETS[i]):[0,1,2];
