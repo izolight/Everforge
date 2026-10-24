@@ -47,7 +47,7 @@ $("sheet").addEventListener("click",e=>{const b=e.target.closest("[data-act]");i
   if(a==="close")return closeSheet();
   if(a==="equip"){equip(id,b.dataset.slot);toast(`${it.name} equipped.`)}
   if(a==="unequip"){S.eq[b.dataset.slot]=null;clampHp();toast(`${it.name} unequipped.`)}
-  if(a==="eat"){S.inv[id]--;trimBench();const g=healYou(statsOf(it).heal);toast(`You use ${it.name} and recover ${g} HP.`)}
+  if(a==="eat"){S.inv[id]--;trimBench();const g=healYou(medHeal(it));toast(`You use ${it.name} and recover ${g} HP.`)}
   if(a==="add"){S.bench.push(id);closeSheet();go("forge");toast(`${it.name} added to the crucible.`);return}
   if(a==="salvage"){
     if(!salvageArmed){salvageArmed=true;return openSheet(id,true)}
