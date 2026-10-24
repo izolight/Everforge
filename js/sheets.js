@@ -33,9 +33,10 @@ function openSheet(id,refresh,preview){
 function openCodex(id,refresh){
   Object.assign(sheet,{mode:"codex",id});
   const E=ENEMIES[id],K=cx(id),k=know(id);
-  const weak=[...K.weak.map(f=>famChip(f)),...Array(E.weak.length-K.weak.length).fill(unkChip("???"))].join("")||'<span class="foot">None</span>';
-  const res=[...K.resist.map(f=>famChip(f)),...Array(E.resist.length-K.resist.length).fill(unkChip("???"))].join("")||'<span class="foot">None</span>';
+  const weak=[...K.weak.map(f=>famChip(f)),...Array(allFacts(E,"weak").length-K.weak.length).fill(unkChip("???"))].join("")||'<span class="foot">None</span>';
+  const res=[...K.resist.map(f=>famChip(f)),...Array(allFacts(E,"resist").length-K.resist.length).fill(unkChip("???"))].join("")||'<span class="foot">None</span>';
   const drops=E.drops.length?E.drops.map(([d])=>K.drops.includes(d)?`<span class="chip" style="color:var(--accent)">${S.items[d].name}</span>`:unkChip("???")).join(""):'<span class="foot">Treasure from the region it lurks in</span>';
+  const hn=E.zone===S.zone?heatNow():(S.heat[E.zone]?.sel||0),ph=E.phase&&K.ph?E.phase.to:null;
   const spText=sp=>sp.kind==="heal"?"heals itself":sp.kind==="multi"?`${sp.n} quick hits`:sp.kind==="drain"?"steals your HP":`a heavy hit (×${sp.x})`;
   $("sheetIn").innerHTML=`<div class="grab" aria-hidden="true"></div>
     <div class="rhead">${portrait(id).replace("<svg",'<svg style="width:96px;height:96px;flex:none"')}<div><div class="rform">${zoneName(E.zone)}${E.boss?" · Boss":""} · defeated ${S.kills[id]||0}</div><h2 class="rname">${E.name}</h2></div></div>
@@ -46,7 +47,8 @@ function openCodex(id,refresh){
       <dt>Strength</dt><dd>${K.stats?`<span class="chip">HP ${E.hp}</span><span class="chip">ATK ${E.atk}</span><span class="chip">DEF ${E.def}</span>`:unkChip("Win a fight to learn")}</dd>
       <dt>Weak to</dt><dd>${weak}</dd>
       <dt>Resists</dt><dd>${res}</dd>
-      <dt>Special</dt><dd>${K.sp?`<span>${E.sp.name}: ${spText(E.sp)}, every ${spEvery(E,heatNow())} turns. Watch for it ${E.sp.tell}.</span>`:unkChip("Survive it to learn")}</dd>
+      <dt>Special</dt><dd>${K.sp?`<span>${E.sp.name}: ${spText(E.sp)}, every ${spEvery(E,hn)} turns. Watch for it ${E.sp.tell}.</span>`:unkChip("Survive it to learn")}</dd>
+      ${E.phase?`<dt>Second form</dt><dd>${ph?`<span>Below half health it turns ${ph.el}. ${K.sp2?`${ph.sp.name}: ${spText(ph.sp)}, every ${spEvery({...E,...ph},hn)} turns. `:"Its new special is still a mystery. "}Its weak points change too.</span>`:unkChip("Wound it badly to learn")}</dd>`:""}
       ${E.inf||(K.inf||[]).length?`<dt>Afflicts</dt><dd>${[...new Set(K.inf||[])].map(s=>`<span class="chip" style="color:var(--bad)">${STATUS[s].n}</span> <span class="foot">${STATUS[s].tip}</span>`).join("")||unkChip("Survive its special to learn")}</dd>`:""}
       <dt>Drops</dt><dd>${drops}</dd>
     </dl>
