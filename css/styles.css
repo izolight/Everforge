@@ -569,3 +569,23 @@ details.howto[open]>summary{margin-bottom:4px}
 #howto{gap:6px}
 #v-recipes .panel{padding:10px 12px}
 .secg .sec .sq-p{font-size:.62rem;bottom:1px;left:1px}
+/* affixes: rarity frame on the enemy HUD and map tiles, affix pips, the Codex list */
+.stage.rar{border-color:var(--rc);box-shadow:0 0 0 1px color-mix(in srgb,var(--rc) 45%,transparent),0 0 16px -4px var(--rc)}
+.fname{display:flex;flex-wrap:wrap;align-items:center;gap:2px 0}
+.fname .fn{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;min-width:0;max-width:100%;overflow-wrap:anywhere}
+.foeinfo .chips.afx{gap:4px}
+.tl.r-magic,.tl.r-rare{outline:2px solid var(--rc);outline-offset:-2px;--rc:#6eb1f0}
+.tl.r-rare{--rc:#f2a54a;outline-width:2.5px}
+.tl .afp{position:absolute;left:0;right:0;bottom:2px;display:flex;justify-content:center;gap:2px;pointer-events:none}
+.tl .afp i{width:5px;height:5px;border-radius:50%;box-shadow:0 0 0 1px #000}
+.legend .lg-r i{display:inline-block;width:12px;height:12px;border-radius:3px;border:2px solid #6eb1f0;vertical-align:-2px;margin-right:4px}.legend .lg-r.r i{border-color:#f2a54a}
+.afl{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.af{display:grid;grid-template-columns:30px 1fr;gap:10px;align-items:start;padding:8px 10px;border:1px solid color-mix(in srgb,var(--ac) 45%,var(--line));border-radius:10px;background:#17130f}
+.af .afi{color:var(--ac);display:grid;place-items:center;width:30px;height:30px;border:1px solid currentColor;border-radius:8px;background:color-mix(in srgb,currentColor 12%,transparent)}
+.af .afi .ic{width:20px;height:20px}
+.af b{color:var(--ac)}.af small{font-family:var(--mono);font-size:.65rem;color:var(--muted);margin-left:8px}
+.af p{margin:2px 0 0;font-size:.88rem;color:var(--fg)}.af p.drop{color:var(--muted);font-size:.8rem}.af p.drop .ic{vertical-align:-2px}
+.aflock{margin-top:8px}
+.fname .ti{flex-basis:100%;font-family:var(--body);font-weight:700;font-size:.85rem;line-height:1.1;margin-top:1px}
+.tl.r-rare{background-image:linear-gradient(135deg,rgb(242 165 74/.4),transparent 55%)}
+.tl.r-rare::before{content:"";position:absolute;top:0;left:0;z-index:1;border:7px solid transparent;border-top-color:#f2a54a;border-left-color:#f2a54a}

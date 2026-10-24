@@ -156,7 +156,34 @@ const ENEMIES={
     lore:"A chest with teeth. It has learned that travellers cannot resist opening things.",
     sp:{every:3,name:"Chomp",kind:"heavy",x:2.2,tell:"opening its lid very wide"},drops:[]}
 };
-const AFFIXES=[["Burning","Fire"],["Frostbound","Ice"],["Venomous","Poison"],["Hallowed","Holy"],["Umbral","Shadow"],["Ironclad","Iron"],["Fleet","Swift"],["Arcane","Arcane"]];
+// Affix system (affix.js). A map enemy has a rarity: normal (no affix), magic (1 affix) or rare (2, 3 from Heat RAR_CH.k3). RARITIES: stat multipliers (hp, atk, def added), k = affixes, gs = grade steps its affix essences roll better (a fraction is the chance of one step; a full step per rarity made essence income jump 40% or more at Heat 3, see README). RAR_CH: the rare share of elite tiles (base + heat x Heat + row x depth row, capped) and the magic share of ordinary fights from Heat magic.from. Rarity colours match the Greater (blue) and Pure (gold) grades.
+const RARITIES={magic:{name:"Magic",col:"#6eb1f0",hp:1.35,atk:1.15,def:0,k:1,gs:.5},rare:{name:"Rare",col:"#f2a54a",hp:1.55,atk:1.2,def:0,k:2,gs:1}};
+const RAR_CH={rare:{base:.15,heat:.05,row:.03,cap:.6},magic:{from:2,base:.1,heat:.05},k3:4};
+// Affix tunables: vamp = share of the damage it deals that it heals; thorn = share of your blow reflected, capped at cap of your max HP (never lethal); regen = share of max HP per turn; frenzy = Attack x below `at` of its HP; ward = shield as a share of max HP, back `every` turns after it breaks; dodge = base % to dodge your strikes, less sharp per point of Sharp (up to sharpCap) and study per Study used on it (up to studyMax), never under min; split = remnant HP share and Attack x; boom = blast as a share of its max HP (Guard x guard), shown in the NEXT row below `warn` of its HP; swift = Attack x, chance of a follow-up hit of fx x damage, tiles per map turn.
+const AFX_T={vamp:.4,thorn:{x:.15,cap:.06},regen:.03,frenzy:{at:.4,x:1.4},ward:{x:.2,every:3},dodge:{base:20,sharp:2,sharpCap:8,study:4,studyMax:3,min:4},split:{hp:.35,atk:.6},boom:{x:.15,warn:.35,guard:.4},swift:{atk:1.05,fol:.15,fx:.5,moves:2}};
+// AFX: n = prefix, ti = the rare title ("the Bloodthirsty"), tr = the trait whose essence it drops, t "el" = elemental (fights as that family), g = groups, space-separated (an enemy never rolls two affixes that share one; the same essence is never rolled twice), m = stat multipliers (hp, atk) and flat def, roam = needs a species that moves on the map, d(B) = effect text (B adds live numbers). Elemental affixes keep the old elite behaviour.
+const pcn=x=>Math.round(x*100);
+const elTxt=tr=>{const s=ELITE_INF[tr];return `Fights as ${TRAITS[tr].f}: resists it and has no weakness to it. +1 Defense.${s?` Its hits can inflict ${STATUS[s].n.toLowerCase()} (${pcn(ELITE_INF_CH)}%).`:""}`};
+const AFX={
+  fire:{t:"el",g:"el",n:"Burning",ti:"Cinderborn",tr:"Fire",m:{def:1},d:()=>elTxt("Fire")},
+  ice:{t:"el",g:"el",n:"Frostbound",ti:"Rimeheart",tr:"Ice",m:{def:1},d:()=>elTxt("Ice")},
+  poison:{t:"el",g:"el",n:"Venomous",ti:"Plaguebringer",tr:"Poison",m:{def:1},d:()=>elTxt("Poison")},
+  holy:{t:"el",g:"el",n:"Hallowed",ti:"Radiant",tr:"Holy",m:{def:1},d:()=>elTxt("Holy")},
+  shadow:{t:"el",g:"el",n:"Umbral",ti:"Gloomcaller",tr:"Shadow",m:{def:1},d:()=>elTxt("Shadow")},
+  iron:{t:"el",g:"el",n:"Ironclad",ti:"Unbroken",tr:"Iron",m:{def:1},d:()=>elTxt("Iron")},
+  swift:{t:"el",g:"el",n:"Fleet",ti:"Windrunner",tr:"Swift",m:{def:1},d:()=>elTxt("Swift")},
+  arcane:{t:"el",g:"el",n:"Arcane",ti:"Spellwoven",tr:"Arcane",m:{def:1},d:()=>elTxt("Arcane")},
+  vamp:{n:"Vampiric",ti:"Bloodthirsty",tr:"Nourishing",ic:"a_vamp",col:"#d4607c",g:"sustain",d:()=>`Heals for ${pcn(AFX_T.vamp)}% of the damage it deals you.`},
+  thorn:{n:"Thorned",ti:"Barbed",tr:"Sharp",ic:"a_thorn",col:"#b8a45a",d:()=>`Reflects ${pcn(AFX_T.thorn.x)}% of your blows back at you (at most ${pcn(AFX_T.thorn.cap)}% of your max HP per round, and never enough to kill you).`},
+  regen:{n:"Regenerating",ti:"Undying",tr:"Wood",ic:"a_regen",col:"#7cc47c",g:"tank sustain",m:{hp:.9},d:()=>`Heals ${pcn(AFX_T.regen)}% of its max HP every turn. Burn and poison keep it in check.`},
+  frenzy:{n:"Frenzied",ti:"Savage",tr:"Heavy",ic:"a_frenzy",col:"#e8793b",d:()=>`Below ${pcn(AFX_T.frenzy.at)}% HP its Attack rises ${pcn(AFX_T.frenzy.x-1)}%.`},
+  ward:{n:"Warded",ti:"Shieldbound",tr:"Runic",ic:"ward",col:"#6fb5c4",g:"tank sustain",d:B=>`A shield of ${B&&B.wm?B.wm:`${pcn(AFX_T.ward.x)}% of its HP`} absorbs your blows${B&&B.wm?` (${Math.max(0,B.wd)} left)`:""}. It returns ${AFX_T.ward.every} turns after it breaks. Burn and poison pass through it.`},
+  elusive:{n:"Elusive",ti:"Slippery",tr:"Light",ic:"a_elusive",col:"#b9c4d8",g:"tank",m:{hp:.85},d:B=>`Dodges ${B?dodgeNow(B):AFX_T.dodge.base}% of your strikes. Sharp lowers it by ${AFX_T.dodge.sharp}% per point (up to ${AFX_T.dodge.sharpCap}%), and each Study by ${AFX_T.dodge.study}% (up to ${AFX_T.dodge.studyMax} times). A dodged blow applies nothing (no bleed, stun or status); burn and poison already on it keep ticking.`},
+  split:{n:"Splitting",ti:"Fractured",tr:"Water",ic:"a_split",col:"#c39cf7",g:"death",m:{hp:.85},d:()=>`The first time it falls it splits into a remnant with ${pcn(AFX_T.split.hp)}% of its HP, ${pcn(1-AFX_T.split.atk)}% less Attack and no affixes.`},
+  boom:{n:"Volatile",ti:"Unstable",tr:"Steam",ic:"a_boom",col:"#ffb142",g:"death",d:()=>`Explodes when it dies for ${pcn(AFX_T.boom.x)}% of its max HP. Guard cuts the blast by ${pcn(1-AFX_T.boom.guard)}% when it dies on its own turn. Your rune ward soaks it.`},
+  swiftfoot:{n:"Swift-footed",ti:"Quicksilver",tr:"Swift",ic:"a_swift",col:"#6fd8b6",roam:1,m:{atk:AFX_T.swift.atk},d:()=>`Covers ${AFX_T.swift.moves} tiles per step on the map. In a fight, +${pcn(AFX_T.swift.atk-1)}% Attack and a ${pcn(AFX_T.swift.fol)}% chance each turn of a quick follow-up hit (${pcn(AFX_T.swift.fx)}% damage).`}
+};
+const AFX_EL=Object.keys(AFX).filter(a=>AFX[a].t==="el"); // the old AFFIXES order: a save's `af` index maps into it
 // Legendary secrets: ids = exact inputs (sorted match), hint = cryptic clue, bonus = extra trait merged into the result (on top of the +20% stats).
 // Hints come from scrolls (S.hints lists secret indexes; each repeat reveals one more ingredient, see hintLv). The first three start revealed.
 const SECRETS=[
@@ -231,7 +258,7 @@ const ESS_VALUE=2.5;
 // Embers: a currency from fights, salvage and selling; it buys peddler stock, upgrades grades and reforges mishaps (economy.js).
 // worth(it) = 3 + 0.6 x power + 2 per tier above 1. Fights pay fight/elite/boss (+20% per heat level), salvage pays salv x worth, selling pays sell x worth, shop prices are buy x worth (essences: ess) but never below floor x the salvage value of the item (val per essence it yields + its embers), so buying to salvage never beats buying the essence.
 // Reforge costs reforge[0] + reforge[1] x tier. Upgrading grades costs UP.emb (below).
-const EMB={fight:2,elite:5,boss:15,heat:.2,salv:.15,sell:.5,buy:4.5,ess:36,val:12,floor:1.3,reforge:[10,4],stock:3,sells:4};
+const EMB={fight:2,elite:5,rar:{magic:5,rare:8},boss:15,heat:.2,salv:.15,sell:.5,buy:4.5,ess:36,val:12,floor:1.3,reforge:[10,4],stock:3,sells:4};
 const MISHAP_TRAITS=["Cursed","Brittle","Rust"];
 // Quality grades of essences and basic materials (ores, hides, herbs): 1 Faint, 2 Lesser, 3 Plain, 4 Greater, 5 Pure. A graded item has the id `<base>@<g>` (ess_Fire@4, golem_core@2); Plain keeps the bare id, so secrets, recipes and old saves are unchanged. Its traits are the base's x GRADE_M (an essence: ESS_VALUE x GRADE_M). worth() is x GRADE_W.
 // Infusion: an essence counts INF_W ninths of a plain one (3 of a grade make 1 of the next, so the weights are powers of 3). Drops roll a grade from GRADE_ODDS (weights per zone); each Heat level scales every weight by 1 + GRADE_HEAT, bosses roll as if GRADE_BOSS levels hotter. Salvaged gear gives essences of the lowest grade among the essences and materials it was crafted from (`sg` on the item, Plain if none), never above; a graded material salvages into its own grade.
@@ -244,13 +271,13 @@ const gradeOf=id=>{const m=/@([1-5])$/.exec(id);return m?+m[1]:3},baseIdOf=id=>i
 const gradable=b=>/^ess_[A-Za-z]+$/.test(b)||(!!BASE[b]&&BASE[b][1]==="material"&&["ore","hide","herb"].includes(BASE[b][3]));
 const VIEWS=["battle","gear","forge","recipes","codex"];
 // Heat: harder expeditions in a cleared zone, cumulative per level: every level adds hp/atk to all enemies (it ramps, 1.0x at Heat 0), and Heat 5 enemies bite through `bite` of your Defense. Beating the boss at heat h unlocks h+1.
-const HEAT_MAX=5,HEAT_T={hp:.1,atk:.1,bite:.4,elite:2,inf:1.5,affix:.2,boss:1.2,rest:.25,shrine:.5,loot:.15,ess:1,xp:20};
+const HEAT_MAX=5,HEAT_T={hp:.1,atk:.1,bite:.4,elite:2,inf:1.5,boss:1.2,rest:.25,shrine:.5,loot:.15,ess:1,xp:20};
 const heatTot=h=>`enemies get +${Math.round(h*HEAT_T.hp*100)}% HP and +${Math.round(h*HEAT_T.atk*100)}% Attack`;
 const HEAT=[
   {name:"Kindled",desc:`Enemies have +${Math.round(HEAT_T.hp*100)}% HP and +${Math.round(HEAT_T.atk*100)}% Attack. Every Heat level adds the same again.`},
-  {name:"Smoldering",desc:"Elites and random elite upgrades are twice as likely, and each map hides one extra elite."},
-  {name:"Blazing",desc:"Enemy status effects land 1.5x as often, and random elemental elites turn up far more often. Hunters notice you from one step further away."},
-  {name:"Searing",desc:"Bosses use their special one turn sooner (at least every 2) and have +20% HP."},
+  {name:"Smoldering",desc:`Maps hide twice as many elites and one more besides, and ordinary fights can turn magic (${pcn(RAR_CH.magic.base)}%, +${pcn(RAR_CH.magic.heat)}% per further Heat). Elites turn rare more often at every Heat.`},
+  {name:"Blazing",desc:"Enemy status effects land 1.5x as often. Hunters notice you from one step further away."},
+  {name:"Searing",desc:`Bosses use their special one turn sooner (at least every 2) and have +20% HP. Rare enemies carry a third affix.`},
   {name:"Inferno",desc:`Enemy blows bite through ${Math.round(HEAT_T.bite*100)}% of your Defense. Camps only offer rest, and it heals less (25%). Shrines heal half as much.`}
 ];
 // Rewards at heat h: +15% per level on drop rolls, +1 essence and 20 smith XP per level on a boss kill.
