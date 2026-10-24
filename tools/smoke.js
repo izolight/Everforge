@@ -52,7 +52,8 @@ async function run(label,setup){
         continue}
       if(doChores){doChores=false;await chores();continue}
       if(wantHeat&&S.run!=="daily"&&!S.event&&!S.battle){S.heat[S.zone]={max:1+Math.floor(Math.random()*HEAT_MAX),sel:0};render();
-        const hb=qa("#arena [data-heat]");if(hb.length){wantHeat=false;click(hb[Math.floor(Math.random()*hb.length)]);out.heat++;continue}}
+        let hb=qa("#arena [data-heat]");if(!hb.length&&q("#heatBtn")){click(q("#heatBtn"));hb=qa("#arena [data-heat]")} // the Heat picker opens from the strip's flame button
+        if(hb.length){wantHeat=false;click(hb[Math.floor(Math.random()*hb.length)]);out.heat++;continue}}
       if(wantDaily&&S.run!=="daily"&&!S.event&&!S.battle){S.kills[ZONES[0][2]]=S.kills[ZONES[0][2]]||1;if(Math.random()<.6)S.daily=null;render();const db=q("#dailyStart");if(db){wantDaily=false;click(db);out.daily++;continue}}
       if(S.run==="daily"&&wantAband&&q("#dailyAbandon")&&Math.random()<.5){wantAband=false;click(q("#dailyAbandon"));click(q("#dailyAbandon"));if(S.run!=="daily")out.aband++;continue}
       const cs=qa("#arena [data-choice]:not([disabled])"),shop=S.event?.type==="merchant"; // the peddler's shop: sometimes buy or sell, else the usual picks
