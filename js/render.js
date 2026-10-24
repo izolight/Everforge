@@ -103,18 +103,19 @@ function youHud(){ // compact: weapon, HP bar, then icon chips (words in tips)
   return `<div class="you" id="youHud"><span class="yg" ${tt("You",P.main?P.main.name:"Bare fists")}>${glyph(P.main,"fists")}</span><div class="hpline" ${tt(`HP ${S.hp}/${P.maxHp}`)}>${hpBar(S.hp,P.maxHp)}<span class="hpnum">${S.hp}<small>/${P.maxHp}</small></span></div><div class="chips">${c}</div></div>`;
 }
 function foeStage(B){
-  const E=ENEMIES[B.id],K=cx(B.id),kn=know(B.id),eliteF=B.elite?TRAITS[B.elite].f:null;
+  const E=ENEMIES[B.id],K=cx(B.id),kn=know(B.id),live=afxOn(B),RC=RARITIES[rarOf(B)],et=elTr(B),eliteF=et?TRAITS[et].f:null;
   const kw=B.weak.filter(f=>K.weak.includes(f)),kr=B.resist.filter(f=>K.resist.includes(f)||f===eliteF);
   const F=foeOf(B),unknown=F.weak.filter(f=>!K.weak.includes(f)).length+F.resist.filter(f=>!K.resist.includes(f)).length;
   const st=[B.burn&&ci(FAM.fire,famIc("fire","s"),B.burn.d,`Burning ${B.burn.d}`,`Takes ${B.burn.d} damage each turn.`),B.poison&&ci(FAM.poison,famIc("poison","s"),B.poison,`Poison ${B.poison}`,`Takes ${B.poison} damage each turn.`),B.frozen&&ci(FAM.ice,famIc("ice","s"),"","Frozen","It loses its next turn."),B.bleed&&ci("var(--bad)",ic("rend","s"),B.bleed.d*B.bleed.n,`Bleed ${B.bleed.d*B.bleed.n}`,"Damage each turn that ignores armor.")].filter(Boolean).join("");
   const winding=!B.over&&!B.frozen&&isSpecial(B)&&F.sp.kind!=="heal";
   const cls=`portrait${B.over==="won"?" down":""}${winding?" winding":""}`;
-  const bd=[E.boss&&ci("var(--accent)",ic("boss","s"),"","Boss","Beat it to open the next region."),B.phased&&ci("var(--bad)",ic("warn","s"),"",E.phase.label,"Its second form."),!E.boss&&B.elite&&ci("var(--accent)",ic("elite","s"),"",`Elite, ${B.elite}`,"Tougher, and it drops an essence."),
+  const bd=[E.boss&&ci("var(--accent)",ic("boss","s"),"","Boss","Beat it to open the next region."),B.phased&&ci("var(--bad)",ic("warn","s"),"",E.phase.label,"Its second form."),RC&&ci(RC.col,ic("elite","s"),"",RC.name,`${live.length} affix${live.length>1?"es":""}. Up to ${RC.hp}x HP and ${RC.atk}x Attack before the affixes' own changes.`,`Each affix drops its linked essence, ${RC.gs===1?"one grade":"two grades"} better than usual.`),
     B.heat?ci("var(--ember)",ic("heat","s"),B.heat,`Heat ${B.heat}`,HEAT[B.heat-1].name):"",kn.mastered&&ci("var(--verd)",ic("renown","s"),"","Mastered","You deal 15% more damage to it.")].filter(Boolean).join("");
-  return `<div class="stage" id="enemyHud" style="--el:${FAM[B.el]}">
-    <button class="${cls}" id="foeArt" data-codex="${B.id}" aria-label="${B.name}. Open codex entry">${portrait(B.id,{el:B.el,elite:B.elite,frozen:B.frozen,burn:!!B.burn&&!B.over,poison:B.poison>0&&!B.over,phased:B.phased})}</button>
-    <div class="foeinfo"><div class="fname">${B.name}<span class="bd">${bd}</span></div>
+  return `<div class="stage${RC?" rar":""}" id="enemyHud" style="--el:${FAM[B.el]}${RC?`;--rc:${RC.col}`:""}">
+    <button class="${cls}" id="foeArt" data-codex="${B.id}" aria-label="${fullName(B)}${RC?`, ${RC.name.toLowerCase()}, ${live.map(a=>AFX[a].n).join(", ")}`:""}. Open codex entry">${portrait(B.id,{el:B.el,aura:RC&&RC.col,rare:rarOf(B)==="rare",frozen:B.frozen,burn:!!B.burn&&!B.over,poison:B.poison>0&&!B.over,phased:B.phased})}</button>
+    <div class="foeinfo"><div class="fname"><span class="fn"${RC?` style="color:${RC.col}"`:""}>${fullName(B)}</span><span class="bd">${bd}</span></div>
       <div class="hpline">${hpBar(B.hp,B.max,"foe")}<span class="hpnum">${Math.max(0,B.hp)}<small>/${B.max}</small></span></div>
+      ${live.length?`<div class="chips afx">${live.map(a=>afxChip(a,B)).join("")}</div>`:""}
       <div class="chips">${kw.map(f=>ci(FAM[f],ic("weak","s")+famIc(f,"s"),"",`Weak to ${cap(f)}`,"Takes 50% more from it.")).join("")}${kr.map(f=>ci(FAM[f],ic("resist","s")+famIc(f,"s"),"",`Resists ${cap(f)}`,"Takes 40% less from it.")).join("")}${unknown>0?`<span class="chip unk" ${tt(`${unknown} unknown`,"Weaknesses and resistances you have not found yet. Hit it, or Study.")}><b>?</b>${unknown}</span>`:""}${st}</div></div></div>`;
 }
 function logBlock(B){
@@ -181,14 +182,15 @@ function renderBattle(){
     const P=pstats(),sp=isSpecial(B)?foeOf(B).sp:null,est=foeHit(B,P,sp?sp.x:1,1)*(sp&&sp.kind==="multi"?sp.n:1);
     const dmgTxt=K.stats?B.ward>=est?" No damage expected (ward absorbs it).":` About ${est} damage${B.ward>0?` (ward absorbs ${B.ward})`:""}.`:"";
     const pc=Math.round(PARRY_CH*100),dm=K.stats&&!(B.ward>=est)?ci("var(--down)",ic("hit","s"),`~${est}`,`About ${est} damage`,B.ward>0?`Your ward absorbs ${B.ward}.`:"Before your Guard."):K.stats?ci("var(--verd)",ic("ward","s"),"0","No damage expected","Your ward absorbs it."):"";
-    const intent=B.frozen?`<div class="intent" ${tt("Next","Frozen. It will lose its turn.")}><b>NEXT</b>${ci(FAM.ice,famIc("ice","s"),"Frozen","Frozen","It will lose its turn.")}</div>`
-      :sp?`<div class="intent special" ${tt("Next: "+((B.phased?K.sp2:K.sp)?sp.name:"something big"),`It's ${sp.tell}.`,sp.kind==="heal"?`Parry (${pc}%) to interrupt it.`:`${dmgTxt.trim()} Guard, or Parry (${pc}%) to turn it back!`)}><b>NEXT</b><span class="in">${ic("warn","s")} ${(B.phased?K.sp2:K.sp)?sp.name:"Something big"}</span>${sp.kind==="heal"?"":dm}${ci("var(--accent)",ic("parry","s"),`${pc}%`,`Parry ${pc}%`,"Beat a telegraphed special: negate it and riposte.")}</div>`
-      :`<div class="intent" ${tt("Next: a normal attack",dmgTxt.trim(),"Parrying now would backfire.")}><b>NEXT</b><span class="in">${ic("attack","s")} Attack</span>${dm}<span class="chip no">${ic("parry","s")}<b>no parry</b></span></div>`;
+    const bm=hasAfx(B,"boom")&&B.hp<=B.max*AFX_T.boom.warn?ci("var(--down)",ic("a_boom","s"),`~${blastOf(B)}`,`Blast ~${blastOf(B)} when it dies`,`It is about to burst. Guard cuts the blast by ${pcn(1-AFX_T.boom.guard)}%, but only if it dies on its own turn (burn, poison, bleed). Your rune ward soaks it.`,S.hp<=blastOf(B)?"You would not survive it. Heal first.":""):"";
+    const intent=B.frozen?`<div class="intent" ${tt("Next","Frozen. It will lose its turn.")}><b>NEXT</b>${ci(FAM.ice,famIc("ice","s"),"Frozen","Frozen","It will lose its turn.")}${bm}</div>`
+      :sp?`<div class="intent special" ${tt("Next: "+((B.phased?K.sp2:K.sp)?sp.name:"something big"),`It's ${sp.tell}.`,sp.kind==="heal"?`Parry (${pc}%) to interrupt it.`:`${dmgTxt.trim()} Guard, or Parry (${pc}%) to turn it back!`)}><b>NEXT</b><span class="in">${ic("warn","s")} ${(B.phased?K.sp2:K.sp)?sp.name:"Something big"}</span>${sp.kind==="heal"?"":dm}${ci("var(--accent)",ic("parry","s"),`${pc}%`,`Parry ${pc}%`,"Beat a telegraphed special: negate it and riposte.")}${bm}</div>`
+      :`<div class="intent" ${tt("Next: a normal attack",dmgTxt.trim(),"Parrying now would backfire.")}><b>NEXT</b><span class="in">${ic("attack","s")} Attack</span>${dm}<span class="chip no">${ic("parry","s")}<b>no parry</b></span>${bm}</div>`;
     const cons=Object.keys(S.inv).filter(id=>S.inv[id]>0&&grp(S.items[id])==="consumable");
-    const canStudy=unknownFacts(B.id).length>0,abs=abKeys(P),abBtn=k=>{const A=ABILITIES[k],c=(B.cd||{})[k]||0;return `<button class="btn act ab" data-ability="${k}" ${c>0?`aria-disabled="true" data-tap`:""} aria-label="${A.name}${c>0?`, ready in ${c} turn${c>1?"s":""}`:""}. ${esc(A.desc)}" ${tt(A.name,c>0?`Ready in ${c} turn${c>1?"s":""}.`:`Cooldown ${A.cd} turns.`,A.desc)}>${icon(A.icon)}<span>${A.name}</span>${c>0?`<i class="cdb">${c}</i>`:""}</button>`};
+    const canStudy=unknownFacts(B.id).length>0||(hasAfx(B,"elusive")&&(B.sty||0)<AFX_T.dodge.studyMax),abs=abKeys(P),abBtn=k=>{const A=ABILITIES[k],c=(B.cd||{})[k]||0;return `<button class="btn act ab" data-ability="${k}" ${c>0?`aria-disabled="true" data-tap`:""} aria-label="${A.name}${c>0?`, ready in ${c} turn${c>1?"s":""}`:""}. ${esc(A.desc)}" ${tt(A.name,c>0?`Ready in ${c} turn${c>1?"s":""}.`:`Cooldown ${A.cd} turns.`,A.desc)}>${icon(A.icon)}<span>${A.name}</span>${c>0?`<i class="cdb">${c}</i>`:""}</button>`};
     body=`${intent}${youHud()}
       <div class="acts n${abs.length}"><button class="btn primary act" id="atk" ${tt("Attack","Strike with your main hand.")}>${icon("attack")}<span>Attack</span></button>${abs.map(abBtn).join("")}<button class="btn act" id="guard" ${tt("Guard","Take 60% less damage from the next hit.")}>${icon("guard")}<span>Guard</span></button><button class="btn act" id="parry" ${tt("Parry","Beat a telegraphed special: negate it and riposte ("+pc+"% to land). Mistimed: +25% damage and a lost guard.")}>${icon("parry")}<span>Parry</span></button>
-      <button class="btn act" id="study" ${canStudy?"":`aria-disabled="true" data-tap`} ${tt(canStudy?"Study":"Known",canStudy?"Learn one fact about it, but it costs your turn.":"You know everything it can teach.")}>${icon("study")}<span>${canStudy?"Study":"Known"}</span></button><button class="btn act" id="flee" ${tt("Flee","Try to get away. A creature from the map stays alive and dazed.")}>${icon("flee")}<span>Flee</span></button></div>
+      <button class="btn act" id="study" ${canStudy?"":`aria-disabled="true" data-tap`} ${tt(canStudy?"Study":"Known",canStudy?"Learn one fact about it, but it costs your turn.":"You know everything it can teach.",hasAfx(B,"elusive")?`Also lowers the dodge of an Elusive foe by ${AFX_T.dodge.study}% (${B.sty||0} of ${AFX_T.dodge.studyMax} used).`:"")}>${icon("study")}<span>${canStudy?"Study":"Known"}</span></button><button class="btn act" id="flee" ${tt("Flee","Try to get away. A creature from the map stays alive and dazed.")}>${icon("flee")}<span>Flee</span></button></div>
       ${cons.length?`<div class="sqg cons">${cons.map(id=>{const it=S.items[id],hint=useHint(it);return `<button class="sq" style="${rcol(it)}" data-use="${id}" aria-label="Use ${it.name}${S.inv[id]>1?`, ${S.inv[id]} held`:""}. ${esc(hint)}" ${tt(it.name,hint,`You hold ${S.inv[id]}.`)}>${glyph(it)}${S.inv[id]>1?`<span class="sq-n">${S.inv[id]}</span>`:""}<span class="sq-p">${esc(hint.split(" · ")[0])}</span></button>`}).join("")}</div>`:""}
       ${logBlock(B)}`;
   }else{
@@ -333,15 +335,21 @@ function renderStats(){
   const fast=bossIds.filter(id=>st.fast[id]).map(id=>`<li><span>${ENEMIES[id].name}</span><b>${st.fast[id]} turn${st.fast[id]>1?"s":""}</b></li>`).join("")||`<li><span>No boss beaten yet</span></li>`;
   $("stats").innerHTML=grp("Combat",cell(sn(st.dealt),"damage dealt")+cell(sn(st.taken),"damage taken in battle")+cell(st.big?`${st.big}`:"-",st.big?`biggest hit · ${st.bigW}`:"biggest hit")+cell(st.crits,"critical hits")
       +cell(st.parries,"perfect parries")+cell(st.abil,"abilities used")+cell(st.sufd,"statuses suffered")+cell(st.cured,"statuses cured")+cell(st.deaths,"defeats")+cell(st.studied,"creatures studied"))
-    +grp("Exploration",cell(kz.reduce((a,b)=>a+b,0),"creatures slain")+cell(st.elites,"elites slain")+cell(st.bosses,"bosses slain")+cell(st.exped,"expeditions done")
+    +grp("Exploration",cell(kz.reduce((a,b)=>a+b,0),"creatures slain")+cell(st.elites,"magic & rare slain")+cell(st.bosses,"bosses slain")+cell(st.exped,"expeditions done")
       +`<div class="sc wide"><b>${kz.join(" / ")}</b><span>kills by region (${ZONES.map(z=>z[1].split(" ").pop()).join(" / ")})</span></div>`
       +`<div class="sc wide"><b>${heat}</b><span>highest Heat cleared</span></div>`)
     +grp("Forge",cell(st.forged,"items forged")+cell(S.journal.length,"recipes found")+cell(st.legend,"legendaries forged")+cell(st.mishaps,"mishaps")+cell(st.fizzles,"fizzles")+cell(st.salvaged,"items salvaged")+cell(st.refined,"grades upgraded"))
     +grp("Economy",cell(sn(st.earned),"embers earned")+cell(sn(st.spent),"embers spent")+cell(S.embers,"embers now"))
     +`<p class="label">Records</p><ul class="rec2">${fast}<li><span>Dailies played / won</span><b>${st.dailies} / ${st.dailyWins}</b></li><li><span>Best daily</span><b>${st.dBest?dailyResult(st.dBest):"none yet"}</b></li></ul>`;
 }
+function renderAfx(){ // the Codex list of affixes: an entry opens when you first meet an enemy that carries it
+  const ids=Object.keys(AFX),n=ids.filter(a=>(S.afx[a]||{}).s>0).length;
+  $("aflabel").innerHTML=`${ic("elite","s")} Affixes · ${n}/${ids.length}${helpBtn("Affixes","Magic enemies carry one affix, rare ones two (three from Heat 4). Each affix changes how the fight plays and drops its own essence when you win, a grade or two better than usual.","Meet an enemy that carries an affix to record it here.")}`;
+  const row=a=>{const o=S.afx[a],A=AFX[a];return `<li class="af" style="--ac:${afxCol(a)}"><span class="afi">${afxIc(a)}</span><div><b>${A.n}</b><small>met ${o.s}, beaten ${o.b}</small><p>${A.d()}</p><p class="drop">${famIc(TRAITS[A.tr].f,"s")} ${A.tr} Essence</p></div></li>`},
+    lock=ids.filter(a=>!(S.afx[a]&&S.afx[a].s>0));
+  $("aflist").innerHTML=`${n?`<ul class="afl">${ids.filter(a=>!lock.includes(a)).map(row).join("")}</ul>`:""}${lock.length?`<div class="chips aflock">${lock.map(()=>`<span class="chip unk" ${tt("Unknown affix","Meet a magic or rare enemy that carries it.")}>${ic("lock","s")}<b>???</b></span>`).join("")}</div>`:""}`}
 function renderCodex(){
-  renderStats();
+  renderStats();renderAfx();
   const ids=Object.keys(ENEMIES),seenN=ids.filter(id=>S.seen[id]).length,mast=ids.filter(id=>S.seen[id]&&know(id).mastered).length;
   $("cxlabel").innerHTML=`${ic("codex","s")} Creature codex · ${seenN}/${ids.length}${mast?` · ${ic("renown","xs")}${mast}`:""}${helpBtn("Creature codex",`${seenN} of ${ids.length} met, ${mast} mastered.`,"Fight, study and hunt creatures to fill in their pages. A fully known creature takes 15% more damage from you.","Tap one to open its page.")}`;
   const groups=[...ZONES.map(z=>[z[0],z[1]]),["any","Anywhere"]];

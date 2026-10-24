@@ -179,7 +179,7 @@ function portrait(id,o){
   if(o.frozen)over+=`<g><rect x="4" y="4" width="112" height="112" rx="20" fill="#bfeaff" opacity=".22"/><g stroke="#effbff" stroke-width="2.2" stroke-linecap="round"><path d="M16 14 v14 M9 21 h14 M11 16 l10 10 M21 16 l-10 10"/><path d="M98 92 v12 M92 98 h12"/><path d="M100 18 v8 M96 22 h8"/></g></g>`;
   if(o.burn)over+=`<g fill="#ff8a3d" opacity=".9"><path class="flick" d="M14 116 q4 -18 10 -6 q3 -14 8 0 q3 -10 8 2 Z"/><path class="flick" d="M80 116 q4 -16 9 -4 q4 -14 9 0 q3 -10 8 4 Z"/></g>`;
   if(o.poison)over+=`<g fill="${FAM.poison}"><circle class="flt" cx="22" cy="40" r="3"/><circle class="flt" cx="100" cy="56" r="2.5"/><circle class="flt" cx="94" cy="30" r="2"/></g>`;
-  const aura=o.elite?`<circle cx="60" cy="62" r="56" fill="none" stroke="${FAM[TRAITS[o.elite]?.f||el]}" stroke-width="2" stroke-dasharray="3 6" opacity=".9"/>`:"";
+  const aura=o.aura?`<circle cx="60" cy="62" r="56" fill="none" stroke="${o.aura}" stroke-width="${o.rare?3:2}" stroke-dasharray="${o.rare?"7 3":"3 6"}" opacity=".9"/>`:""; // magic: blue dashes, rare: gold, heavier
   return `<svg viewBox="0 0 120 120" aria-hidden="true"><defs><radialGradient id="${gidp}"><stop offset="0" stop-color="${base}" stop-opacity=".35"/><stop offset="1" stop-color="${base}" stop-opacity="0"/></radialGradient></defs>
     <circle cx="60" cy="62" r="58" fill="url(#${gidp})"/>${aura}${PORTRAITS[id](c)}${over}</svg>`;
 }
@@ -257,7 +257,15 @@ Object.assign(NODE_G,{
   thorns:'<path d="M12 3 L14 9 L20 7 L16 12 L20 17 L14 15 L12 21 L10 15 L4 17 L8 12 L4 7 L10 9 Z"/>',
   dr:'<path d="M12 2 L20 5 V11 C20 16 16 20 12 22 C8 20 4 16 4 11 V5 Z"/><path d="M8.5 12 H15.5"/>',
   floor:'<path d="M3 20 H21 M12 4 V15 M7 11 L12 16 L17 11"/>',
-  cleanse:'<path d="M12 3 C16 9 18 12 18 15 A6 6 0 0 1 6 15 C6 12 8 9 12 3 Z"/><path d="M9 15 H15 M12 12 V18"/>'
+  cleanse:'<path d="M12 3 C16 9 18 12 18 15 A6 6 0 0 1 6 15 C6 12 8 9 12 3 Z"/><path d="M9 15 H15 M12 12 V18"/>',
+  a_vamp:'<path d="M12 3 C16 9 18 12 18 15 A6 6 0 0 1 6 15 C6 12 8 9 12 3 Z"/><path d="M9 14 L10 18 L12 15 L14 18 L15 14"/>',
+  a_thorn:'<path d="M4 20 H20 M6 20 L8 8 L10 20 M11 20 L13 4 L15 20 M16 20 L18 10 L20 20"/>',
+  a_regen:'<path d="M20 12 A8 8 0 1 1 15 4.6"/><path d="M20 4 V9 H15"/><path d="M12 9 V15 M9 12 H15"/>',
+  a_frenzy:'<path d="M5 4 Q8 12 6 20 M11 3 Q14 12 12 21 M17 4 Q20 12 18 20"/>',
+  a_elusive:'<path d="M3 8 H8 M2 12 H7 M3 16 H8"/><circle cx="15" cy="12" r="5" stroke-dasharray="2.5 2.5"/>',
+  a_split:'<circle cx="12" cy="4.5" r="1.8"/><path d="M12 6.5 V11 M12 11 L5 20 M12 11 L19 20"/>',
+  a_boom:'<circle cx="11" cy="14" r="6.5"/><path d="M15.5 9.5 C16.5 7 18 6.5 19.5 7"/><path d="M20 3 V5 M23 6.5 H21 M22 4 L20.8 5.2"/>',
+  a_swift:'<path d="M4 7 L10 12 L4 17 M12 7 L18 12 L12 17"/><path d="M21 5 V19"/>'
 });
 const ic=(t,c)=>`<svg class="ic${c?" "+c:""}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true">${NODE_G[t]}</svg>`;
 const gIc=(k,c)=>`<svg class="ic${c?" "+c:""}" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">${G[k]}</svg>`;
@@ -287,12 +295,12 @@ function mapHtml(){
   const m=curMap(),z=S.zone,adj=busy()?[]:adjTiles(m),H=Math.round(400*m.h/m.w),boss=shortName(ZONES[zoneIdx(z)][2]);
   let cells="";
   for(let y=0;y<m.h;y++)for(let x=0;x<m.w;x++){
-    const i=y*m.w+x,c=m.g[y][x],seen=m.sn[i],lit=litAt(m,x,y),here=m.pos.x===x&&m.pos.y===y,p=poiAt(m,x,y),t=!seen?null:lit?(p&&!p.done?p.t:null):m.mem[x+","+y]||null,k=adj.findIndex(a=>a[0]===x&&a[1]===y),en=lit&&p&&!p.done&&isFoe(p)?p:null,gh=!lit&&(t==="fight"||t==="elite"); // en: an enemy in the light now; gh: only where one was last seen
-    const cls=`tl ${!seen?"unk":lit?"lit":"seen"}${c==="#"||c==="~"?" blk":""}${c===","?" brush":""}${t?" p-"+t:""}${here?" here":""}${k>=0?" adj":""}${t==="boss"?" lair":""}${gh?" ghost":""}${en&&en.aw?" aware":""}${en&&en.dz>0?" dazed":""}${en&&en.ms===m.steps?" moved":""}`;
-    const inner=`${seen&&(c==="#"||c==="~")?tileSvg(z,c):""}${t?icon(t):""}${en&&en.aw?`<b class="bdg bang" aria-hidden="true">!</b>`:""}${en&&en.dz>0?`<b class="bdg zz" aria-hidden="true">z</b>`:""}${here?`<span class="hero">${icon("hero")}</span>`:""}`;
-    const lbl=t?`${gh?"Last seen: ":""}${NODE_INFO[t]}${en&&en.aw?", hunting":""}${en&&en.dz>0?", dazed":""}`:"";
-    cells+=k>=0?`<button class="${cls}" data-tile="${x},${y}" aria-label="Step ${DIR_N[DIRS.findIndex(d=>d[0]===x-m.pos.x&&d[1]===y-m.pos.y)]}${t?`: ${lbl}${t==="boss"?`, ${boss}`:""}`:""}">${inner}</button>`:`<div class="${cls}"${t?` aria-label="${lbl}"`:""}>${inner}</div>`}
-  const legend=Object.entries(NODE_INFO).map(([t,l])=>`<span>${icon(t)}${l}</span>`).join("")+`<span>${icon("hero")}You</span><span class="lg-fog"><i></i>Unseen</span><span><b class="bdg bang">!</b>hunting</span><span><b class="bdg zz">z</b>dazed</span><span class="lg-gh">${icon("fight")}seen</span>`;
+    const i=y*m.w+x,c=m.g[y][x],seen=m.sn[i],lit=litAt(m,x,y),here=m.pos.x===x&&m.pos.y===y,p=poiAt(m,x,y),t=!seen?null:lit?(p&&!p.done?p.t:null):m.mem[x+","+y]||null,k=adj.findIndex(a=>a[0]===x&&a[1]===y),en=lit&&p&&!p.done&&isFoe(p)?p:null,gh=!lit&&(t==="fight"||t==="elite"),ra=en&&RARITIES[en.rar]?RARITIES[en.rar]:null; // en: an enemy in the light now; gh: only where one was last seen; ra: its rarity, shown as a frame and affix pips
+    const cls=`tl ${!seen?"unk":lit?"lit":"seen"}${c==="#"||c==="~"?" blk":""}${c===","?" brush":""}${t?" p-"+t:""}${here?" here":""}${k>=0?" adj":""}${t==="boss"?" lair":""}${gh?" ghost":""}${en&&en.aw?" aware":""}${en&&en.dz>0?" dazed":""}${en&&en.ms===m.steps?" moved":""}${ra?" r-"+en.rar:""}`;
+    const inner=`${seen&&(c==="#"||c==="~")?tileSvg(z,c):""}${t?icon(t):""}${en&&en.aw?`<b class="bdg bang" aria-hidden="true">!</b>`:""}${en&&en.dz>0?`<b class="bdg zz" aria-hidden="true">z</b>`:""}${ra?`<span class="afp" aria-hidden="true">${en.afx.map(a=>`<i style="background:${afxCol(a)}"></i>`).join("")}</span>`:""}${here?`<span class="hero">${icon("hero")}</span>`:""}`;
+    const lbl=t?`${gh?"Last seen: ":""}${ra?ra.name+" ":""}${NODE_INFO[t]}${ra?` (${en.afx.map(a=>AFX[a].n).join(", ")})`:""}${en&&en.aw?", hunting":""}${en&&en.dz>0?", dazed":""}`:"",tp=ra?" "+tt(`${ra.name} ${NODE_INFO[t].toLowerCase()}`,...en.afx.map(a=>`${AFX[a].n}: ${AFX[a].d()}`),`Drops: ${en.afx.map(a=>AFX[a].tr).join(", ")} essence, a better grade than usual.`):"";
+    cells+=k>=0?`<button class="${cls}" data-tile="${x},${y}" aria-label="Step ${DIR_N[DIRS.findIndex(d=>d[0]===x-m.pos.x&&d[1]===y-m.pos.y)]}${t?`: ${lbl}${t==="boss"?`, ${boss}`:""}`:""}"${tp}>${inner}</button>`:`<div class="${cls}"${t?` aria-label="${lbl}"`:""}${tp}>${inner}</div>`}
+  const legend=Object.entries(NODE_INFO).map(([t,l])=>`<span>${icon(t)}${l}</span>`).join("")+`<span>${icon("hero")}You</span><span class="lg-fog"><i></i>Unseen</span><span><b class="bdg bang">!</b>hunting</span><span><b class="bdg zz">z</b>dazed</span><span class="lg-r m"><i></i>Magic</span><span class="lg-r r"><i></i>Rare</span><span class="lg-gh">${icon("fight")}seen</span>`;
   const ml=(m.log||[]).slice(-3),fresh=m.ls===m.steps,lg=ml.slice(0,-1).map(l=>`<li>${l}</li>`).join(""); // the newest line sits in the status strip; the two before it show here; the screen reader hears the newest
   return `<div class="mapwrap"><div class="map z-${z}" style="--w:${m.w}">${terrain(z,H,m.seed||7)}<div class="tls">${cells}</div></div></div>${lg?`<ul class="mlog">${lg}</ul>${fresh?`<p class="sr" role="status">${ml[ml.length-1]}</p>`:""}`:""}<details class="legend" id="legend"${legendOpen?" open":""}><summary>${ic("list","s")} Map key</summary><div>${legend}</div></details>`;
 }

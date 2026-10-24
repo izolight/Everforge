@@ -13,6 +13,7 @@ function effects(it){
   if(!it.crafted&&gradable(baseIdOf(it.id))){const q=gradeOf(it.id),es=isEss(it.id);out.push(`Grade: ${GRADES[q-1][0]}, ${es?"trait":"traits"} ×${GRADE_M[q-1]} (Plain is ×1).${es?` Counts as ${INF_EQ[q-1]} plain essence${q>3?"s":""} for infusion.`:""} Upgrade ${UP.n} of a grade into 1 of the next in the Forge tab.`)}
   if(g==="weapon"){const f=v("Fire")+v("Sunfire"),i=v("Ice")+v("Frost"),p=v("Poison")+v("Venomous"),h=v("Holy")+v("Radiant"),s=v("Shadow")+v("Twilight");
     out.push(`${Math.round(Math.min(CRIT_CAP,5+v("Sharp")*3))}% critical hit chance`);
+    if(v("Sharp"))out.push(`Elusive enemies dodge ${Math.min(AFX_T.dodge.sharpCap,v("Sharp")*AFX_T.dodge.sharp)}% less against it`);
     if(f)out.push(`Sets enemies on fire for ${Math.max(1,Math.round(f*.8))} damage per turn`);
     if(i)out.push(`${Math.round(Math.min(FREEZE_CAP,6+i*4))}% chance to freeze an enemy for a turn`);
     if(p)out.push(`Adds ${Math.round(p)} poison per hit, stacking`);

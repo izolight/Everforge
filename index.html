@@ -107,6 +107,10 @@
       <div id="cxlist"></div>
     </section>
     <section class="panel">
+      <p class="label lrow" id="aflabel">Affixes</p>
+      <div id="aflist"></div>
+    </section>
+    <section class="panel">
       <details id="saved"><summary class="label"><svg class="ic s" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><path d="M5 4 H16 L20 8 V20 H5 Z"/><path d="M8 4 V9 H15 V4 M8 20 V14 H17 V20"/></svg> Your save</summary>
       <div class="sv">
       <p class="empty">Your progress lives in this browser. Copy the save code to move it to another device or a local copy of the game.</p>
@@ -121,7 +125,7 @@
       <p class="label">How to play</p>
       <details class="howto"><summary><span data-ic="hero"></span> The map</summary><div class="rules">
           <p><b>The loop.</b> Cross each region's map, fight for loot, salvage it into essences, forge better gear, and beat the boss at the end of the map to open the next region.</p>
-          <p><b>The map.</b> Each region is a grid of tiles. Tap a glowing tile next to you to step; you only see a couple of tiles around you, and explored ground stays dim. Walk onto fights, elites (harder, but they drop an essence), chests, shrines, peddlers and mystery tiles (?) to meet them. The boss waits in the lair at the top, behind a camp. Losing sends you back to a fresh map; cleared regions can be explored again.</p>
+          <p><b>The map.</b> Each region is a grid of tiles. Tap a glowing tile next to you to step; you only see a couple of tiles around you, and explored ground stays dim. Walk onto fights, elites (magic or rare: tougher, with affixes that change the fight and drop essences), chests, shrines, peddlers and mystery tiles (?) to meet them. The boss waits in the lair at the top, behind a camp. Losing sends you back to a fresh map; cleared regions can be explored again.</p>
           <p><b>Torchlight.</b> Your torch burns down one step at a time. When it runs out you only see one tile around you and every step risks an ambush. Camps, shrine prayers and campfire rests relight it.</p>
           <p><b>Health.</b> HP carries over between fights. Heal by eating, resting at a campfire (one charge per three wins), camps and shrines. Healing traits on gear mend you each turn.</p>
           <p><b>Defeat.</b> You wake at the region's edge with 30% HP, and a scavenger takes one unequipped item.</p>
@@ -182,6 +186,7 @@
 <script src="js/player.js"></script>
 <script src="js/fx.js"></script>
 <script src="js/audio.js"></script>
+<script src="js/affix.js"></script>
 <script src="js/map.js"></script>
 <script src="js/encounters.js"></script>
 <script src="js/economy.js"></script>
