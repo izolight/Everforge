@@ -97,6 +97,8 @@ function flee(){
   blog("You try to run, but it cuts you off.");enemyTurn();
 }
 function afterPlayer(){if(S.battle.hp<=0)return enemyDown();enemyTurn()}
+// one enemy hit after resist, armor, Stone and guard/parry (vf = damage variance)
+const foeHit=(B,P,mult,vf)=>Math.max(1,Math.round(Math.max(1,Math.round(B.atk*mult*vf*(1-P.red)*(B.guard?.4:1)*(B.parry?PARRY_FAIL:1)*(1-(P.rs[B.el]||0)/100)))-(P.dr||0)));
 function enemyTurn(){
   const B=S.battle,E=ENEMIES[B.id],P=pstats(),Y=stOf();
   if(B.burn){B.hp-=B.burn.d;fx("enemyHud","-"+B.burn.d,"hurt");blog(`Flames lick the ${B.name} for ${B.burn.d}.`,"you");if(--B.burn.t<=0)B.burn=null}
@@ -115,16 +117,15 @@ function enemyTurn(){
       if(P.blind&&Math.random()<Math.min(.4,.08*P.blind)){blog("Steam clouds its eyes. It misses.","good");continue}
       if(P.shield&&!B.guard&&Math.random()<.15+(P.shield.traits.Heavy||0)*.03){blog(`You block with ${P.shield.name}.`,"good");continue}
       if(dg&&Math.random()*100<dg){blog("You dodge aside. It misses.","good");continue}
-      let dmg=Math.max(1,Math.round(B.atk*mult*vary()*(1-P.red)*(B.guard?.4:1)*(B.parry?PARRY_FAIL:1)*(1-(P.rs[B.el]||0)/100)));
-      if(P.dr)dmg=Math.max(1,Math.round(dmg-P.dr));
-      if(B.ward==null)B.ward=P.ward; // old battles start unwarded
+      let dmg=foeHit(B,P,mult,vary());
+      if(B.ward==null)B.ward=0; // battles saved before wards have none
       const tot=dmg,ab=Math.min(B.ward,dmg);B.ward-=ab;dmg-=ab;S.hp-=dmg;
       fx("youHud",dmg?"-"+dmg:"","hurt");fx("youHud","","shake");fx("vig","","on");
       blog(sp?`It hits you for ${tot}${B.guard?" through your guard":""}.`:`The ${B.name} ${E.verb} for ${tot}${B.guard?" through your guard":""}.`,"foe");
       if(dmg>0&&S.hp>0)inflict(B,P,sp);
       if(ab)blog(`Your rune ward absorbs ${ab}${B.ward?"":" and shatters"}.`,"good");
       if(P.thorns&&dmg>0&&S.hp>0){const th=Math.max(1,Math.round(dmg*P.thorns/100));B.hp-=th;fx("enemyHud","-"+th,"hurt");blog(`Your iron barbs bite it for ${th}.`,"you");if(B.hp<=0)break}
-      if(sp&&sp.kind==="drain"){B.hp=Math.min(B.max,B.hp+dmg);blog(`It drinks ${dmg} HP from you.`,"foe")}
+      if(sp&&sp.kind==="drain"&&dmg>0){B.hp=Math.min(B.max,B.hp+dmg);blog(`It drinks ${dmg} HP from you.`,"foe")}
     }
     if(S.hp<=0)return youFall();
     if(B.hp<=0)return enemyDown();

@@ -21,7 +21,7 @@ function effects(it){
     if(v("Arcane"))out.push(`${Math.round(Math.min(ARC_CAP,v("Arcane")*ARC_PER))}% chance a hit ignores elemental resistance`);
     if(v("Tempered"))out.push(`Each hit cracks enemy armor, up to -${Math.round(Math.min(SHRED_CAP,v("Tempered")*SHRED_PER))} DEF`)}
   if(isGear(it)){
-    if(st.heal>0)out.push(`Mends about ${Math.max(1,Math.round(st.heal*.2))} HP per battle turn`);
+    if(st.heal>0)out.push(`Mends about ${Math.max(1,Math.round(st.heal*.2+v("Medicine")*MED_REGEN))} HP per battle turn`);
     if(v("Steam"))out.push(`Enemies miss you ${Math.round(Math.min(40,8*v("Steam")))}% of the time`);
     if(v("Lure"))out.push(`+${Math.round(v("Lure")*15)}% loot drop chance`);
     if(g!=="weapon"){const rr=resRaw(tr);Object.keys(rr).forEach(k=>{const p=resPct(rr[k]);if(p)out.push(`Resists ${k} attacks by ${p}%`)})
@@ -30,7 +30,7 @@ function effects(it){
     if(v("Runic"))out.push(`Ward absorbs ${Math.round(Math.min(WARD_CAP,v("Runic")*WARD_PER))} damage at the start of each battle`);
     if(v("Wood"))out.push(`Heals ${Math.round(Math.min(ROOT_CAP,v("Wood")*ROOT_PER))} HP per turn while below half health`);
     if(v("Swift"))out.push(`${Math.round(Math.min(DODGE_CAP,v("Swift")*DODGE_PER))}% chance to dodge a hit`);
-    if(v("Medicine"))out.push(`+${Math.round(v("Medicine")*MED_REGEN)} HP per turn`,`${Math.round(Math.min(CLEANSE_CAP,v("Medicine")*CLEANSE_PER))}% chance each turn to shake off a status (burn, chill, poison, curse)`);
+    if(v("Medicine"))out.push(`${Math.round(Math.min(CLEANSE_CAP,v("Medicine")*CLEANSE_PER))}% chance each turn to shake off a status (burn, chill, poison, curse)`);
     if(it.form==="shield")out.push(`${Math.round(15+v("Heavy")*3)}% chance to block a hit`)}
   if(g==="consumable"){if(st.heal>0)out.push(`Restores ${medHeal(it)} HP${v("Medicine")?" (Medicine boosts healing)":""}`);const cu=cures(tr);if(cu.length)out.push(`Cures ${cu.join(", ")} when used in battle`);const d=Math.round((st.atk+st.mag)*.6);if(d>=3)out.push(`Deals about ${d} damage when used in battle`)}
   out.push(`Mixes with ${acceptsText(it)}`);
