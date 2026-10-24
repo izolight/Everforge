@@ -15,6 +15,7 @@ function learn(id,type,val){
   else if(type==="resist")text=`Codex: ${nm} resists ${val}.`;
   else if(type==="sp")text=`Codex: you learned ${nm}'s special move, ${(S.battle&&S.battle.id===id?foeOf(S.battle):ENEMIES[id]).sp.name}.`;
   else if(type==="inf")text=`Codex: ${nm} can inflict ${STATUS[val].n.toLowerCase()}.`;
+  else if(type==="sp2")text=`Codex: you learned ${nm}'s second-form special, ${foeOf(S.battle).sp.name}.`;
   else if(type==="ph")text=`Codex: ${nm} changes form below half health.`;
   else if(type==="stats")text=`Codex: ${nm}'s strength is now recorded.`;
   else text=`Codex: ${nm} can drop ${S.items[val].name}.`;

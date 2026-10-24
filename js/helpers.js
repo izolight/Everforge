@@ -8,7 +8,7 @@ const $=id=>document.getElementById(id);
 const reduced=()=>window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches;
 function level(){let l=1;XP_LV.forEach((t,i)=>{if(S.xp>=t)l=i+1});return l}
 const lvMsg=()=>`Smith level ${level()}! ${LV_PERK[level()]||"Your mixtures grow steadier."}`;
-const maxInputs=()=>level()>=8?4:level()>=2?3:2;
+const maxInputs=()=>2+INPUT_LV.filter(l=>level()>=l).length;
 const infSlots=()=>INF_SLOTS+(level()>=9?1:0);
 const traitSlots=()=>Math.min(7,4+Math.floor((level()-1)/2))+(level()>=10?1:0);
 const tColor=t=>FAM[(TRAITS[t]||{f:"stone"}).f];

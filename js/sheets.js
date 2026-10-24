@@ -48,7 +48,7 @@ function openCodex(id,refresh){
       <dt>Weak to</dt><dd>${weak}</dd>
       <dt>Resists</dt><dd>${res}</dd>
       <dt>Special</dt><dd>${K.sp?`<span>${E.sp.name}: ${spText(E.sp)}, every ${spEvery(E,hn)} turns. Watch for it ${E.sp.tell}.</span>`:unkChip("Survive it to learn")}</dd>
-      ${E.phase?`<dt>Second form</dt><dd>${ph?`<span>Below half health it turns ${ph.el}. ${ph.sp.name}: ${spText(ph.sp)}, every ${spEvery({...E,...ph},hn)} turns. Its weak points change too.</span>`:unkChip("Wound it badly to learn")}</dd>`:""}
+      ${E.phase?`<dt>Second form</dt><dd>${ph?`<span>Below half health it turns ${ph.el}. ${K.sp2?`${ph.sp.name}: ${spText(ph.sp)}, every ${spEvery({...E,...ph},hn)} turns. `:"Its new special is still a mystery. "}Its weak points change too.</span>`:unkChip("Wound it badly to learn")}</dd>`:""}
       ${E.inf||(K.inf||[]).length?`<dt>Afflicts</dt><dd>${[...new Set(K.inf||[])].map(s=>`<span class="chip" style="color:var(--bad)">${STATUS[s].n}</span> <span class="foot">${STATUS[s].tip}</span>`).join("")||unkChip("Survive its special to learn")}</dd>`:""}
       <dt>Drops</dt><dd>${drops}</dd>
     </dl>

@@ -98,8 +98,8 @@ function ability(key){
   else if(key==="claws"){strike(W,n*A.x,"You rend",true);
     if(B.hp>0){const b=B.bleed||{n:0},d=Math.max(1,Math.round(P.atk*BLEED_PER));B.bleed={n:Math.min(BLEED_STACK,b.n+1),d,t:BLEED_T};blog(`It bleeds for ${d*B.bleed.n} per turn${B.bleed.n>1?`, x${B.bleed.n}`:""}.`,"you")}}
   else if(key==="shield"){strike(null,P.atk*A.x+statsOf(P.shield).def,`You bash with ${P.shield.name}`,false);
-    if(B.hp>0){const sp=isSpecial(B)?foeOf(B).sp:null;
-      if(sp&&Math.random()<(boss?A.bossInt:A.int)){B.stun=2;blog(`The bash throws the ${B.name} off ${sp.name}!`,"big");learn(B.id,"sp",1)}
+    if(B.hp>0){const sp=isSpecial(B)?foeOf(B).sp:null,E0=ENEMIES[B.id],shift=E0.phase&&!B.phased&&B.hp<=B.max*E0.phase.at; // a form change eats the turn anyway
+      if(sp&&!shift&&Math.random()<(boss?A.bossInt:A.int)){B.stun=2;blog(`The bash throws the ${B.name} off ${sp.name}!`,"big");learn(B.id,B.phased?"sp2":"sp",1)}
       else if(!sp&&Math.random()<(boss?A.bossStun:A.stun)){B.stun=1;blog(`The ${B.name} is rattled!`,"big")}}}
   cd[key]=A.cd+1-bonus;afterPlayer();
 }
@@ -149,11 +149,11 @@ function enemyTurn(){
   const E=foeOf(B),sp=isSpecial(B)?E.sp:null;
   if(B.frozen){B.frozen=false;B.stun=0;blog(`The ${B.name} is frozen and can't act.`,"good")}
   else if(B.stun){blog(B.stun===2&&sp?`${sp.name} is cancelled. The ${B.name} can't act.`:`The ${B.name} is stunned and can't act.`,"good");B.stun=0}
-  else if(sp&&sp.kind==="heal"&&B.parry){blog(`You break the ${B.name}'s concentration. ${sp.name} fizzles!`,"good");learn(B.id,"sp",1)}
-  else if(sp&&sp.kind==="heal"){const h=Math.min(B.max-B.hp,Math.round(B.max*sp.x));B.hp+=h;if(h)fx("enemyHud","+"+h,"heal");blog(`The ${B.name} uses ${sp.name} and recovers ${h} HP.`,"foe");learn(B.id,"sp",1)}
+  else if(sp&&sp.kind==="heal"&&B.parry){blog(`You break the ${B.name}'s concentration. ${sp.name} fizzles!`,"good");learn(B.id,B.phased?"sp2":"sp",1)}
+  else if(sp&&sp.kind==="heal"){const h=Math.min(B.max-B.hp,Math.round(B.max*sp.x));B.hp+=h;if(h)fx("enemyHud","+"+h,"heal");blog(`The ${B.name} uses ${sp.name} and recovers ${h} HP.`,"foe");learn(B.id,B.phased?"sp2":"sp",1)}
   else{
     const hits=sp&&sp.kind==="multi"?sp.n:1,mult=sp?sp.x:1,perfect=B.parry&&sp,dg=Y.chill?Math.round(P.dodge/2):P.dodge;
-    if(sp){blog(`The ${B.name} uses ${sp.name}!`,"foe");learn(B.id,"sp",1)}
+    if(sp){blog(`The ${B.name} uses ${sp.name}!`,"foe");learn(B.id,B.phased?"sp2":"sp",1)}
     if(perfect){blog(`Perfect parry! You turn ${sp.name} aside.`,"big");strike(P.main,(P.atk+P.mag*.7)*PARRY_X,"You riposte",true)}
     else if(B.parry){blog("Your parry is mistimed! You're left open.","foe");B.off=2}
     for(let i=0;i<hits&&S.hp>0&&!perfect&&B.hp>0;i++){
@@ -196,7 +196,7 @@ function enemyDown(){
   learn(B.id,"stats",1);
   got.forEach(id=>{addItem(id);if(E.drops.some(d=>d[0]===id))learn(B.id,"drops",id)});B.loot=got;
   S.campProg++;let msg="";if(S.campProg>=3){S.campProg=0;if(S.camp<3){S.camp++;msg="You earned a campfire charge."}}
-  if(E.boss&&dl)finishDaily(MAP_ROWS,true);
+  if(E.boss&&dl){finishDaily(MAP_ROWS,true);const next=ZONES[zoneIdx(E.zone)+1];if(next&&!S.unlocked.includes(next[0])){S.unlocked.push(next[0]);msg=`${next[1]} is now open!`}} // a daily boss kill unlocks like a normal one, matching the load-time fix-up in migrate
   else if(E.boss){const next=ZONES[zoneIdx(E.zone)+1],nh=Math.min(HEAT_MAX,h+1),hz=heatOf(E.zone);if(S.maps[E.zone])S.maps[E.zone].cleared=true;
     if(next&&!S.unlocked.includes(next[0])){S.unlocked.push(next[0]);msg=`${next[1]} is now open!`}
     else if(!next&&hz.max===0)msg="You've conquered the realm. Now turn up the Heat.";
