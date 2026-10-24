@@ -80,13 +80,13 @@ function ability(key){
   if(key==="blade"){for(let i=0;i<A.hits&&B.hp>0;i++)strike(W,n*A.x,i?"A second cut lands":"Flurry! You cut",true)}
   else if(key==="spear")strike(W,n*A.x,"You lunge",true,{pen:A.pen});
   else if(key==="staff"){const tr=withInnate(W.traits),el=Object.entries(ELS).map(([e,l])=>[e,l.reduce((a,t)=>a+(tr[t]||0),0)]).sort((a,b)=>b[1]-a[1])[0];
-    strike(W,Math.max(P.mag,1)*A.x*2,el[1]>0?`You channel ${el[0]} through ${W.name}`:"You loose a bolt of raw magic",true,{pen:A.pen,force:el[1]>0?el[0]:""})}
+    strike(W,(P.atk*.5+P.mag*1.2)*A.x,el[1]>0?`You channel ${el[0]} through ${W.name}`:"You loose a bolt of raw magic",true,{pen:A.pen,force:el[1]>0?el[0]:""})}
   else if(key==="lance"){strike(W,n*A.x,"You charge",true);B.open=true;if(B.hp>0)blog("You're exposed after the charge.","foe")}
   else if(key==="spellblade"){const r=strike(W,(P.atk+P.mag)*A.x,"Arc Slash tears",true);if(r.crit){bonus=1;blog("The arc sings. Your cooldown eases.","good")}}
   else if(key==="warstaff"){strike(W,n*A.x,"Your sweep crashes into it",true);
     if(B.hp>0&&Math.random()<(boss?A.bossStun:A.stun)){B.stun=1;blog(`The ${B.name} is stunned!`,"big")}}
   else if(key==="claws"){strike(W,n*A.x,"You rend",true);
-    if(B.hp>0){const b=B.bleed||{n:0},d=Math.max(1,Math.round(P.atk*BLEED_PER));B.bleed={n:Math.min(BLEED_STACK,b.n+1),d,t:3};blog(`It bleeds for ${d*B.bleed.n} per turn${B.bleed.n>1?`, x${B.bleed.n}`:""}.`,"you")}}
+    if(B.hp>0){const b=B.bleed||{n:0},d=Math.max(1,Math.round(P.atk*BLEED_PER));B.bleed={n:Math.min(BLEED_STACK,b.n+1),d,t:BLEED_T};blog(`It bleeds for ${d*B.bleed.n} per turn${B.bleed.n>1?`, x${B.bleed.n}`:""}.`,"you")}}
   else if(key==="shield"){strike(null,P.atk*A.x+statsOf(P.shield).def,`You bash with ${P.shield.name}`,false);
     if(B.hp>0){const sp=isSpecial(B)?ENEMIES[B.id].sp:null;
       if(sp&&Math.random()<(boss?A.bossInt:A.int)){B.stun=2;blog(`The bash throws the ${B.name} off ${sp.name}!`,"big");learn(B.id,"sp",1)}
@@ -124,6 +124,8 @@ function flee(){
 function afterPlayer(){if(S.battle.hp<=0)return enemyDown();enemyTurn()}
 // one enemy hit after resist, armor, Stone and guard/parry (vf = damage variance)
 const foeHit=(B,P,mult,vf)=>Math.max(1,Math.round(Math.max(1,Math.round(B.atk*mult*vf*(1-P.red)*(B.guard?.4:1)*(B.open?1+ABILITIES.lance.open:1)*(B.parry?PARRY_FAIL:1)*(1-(P.rs[B.el]||0)/100)))-(P.dr||0)));
+// end-of-turn bookkeeping: guard/parry/exposure lapse, off-balance and ability cooldowns tick, next turn
+function endTurn(B){B.guard=false;B.parry=false;B.open=false;if(B.off>0)B.off--;Object.keys(B.cd||{}).forEach(k=>{if(B.cd[k]>0)B.cd[k]--});B.turn++}
 function enemyTurn(){
   const B=S.battle,E=ENEMIES[B.id],P=pstats(),Y=stOf();
   if(B.burn){B.hp-=B.burn.d;fx("enemyHud","-"+B.burn.d,"hurt");blog(`Flames lick the ${B.name} for ${B.burn.d}.`,"you");if(--B.burn.t<=0)B.burn=null}
@@ -160,11 +162,11 @@ function enemyTurn(){
   tickYou(B,P);if(S.hp<=0)return youFall();
   if(P.regen&&S.hp<P.maxHp)healYou(P.regen,"Your gear mends you");
   if(P.root&&S.hp<P.maxHp*.5)healYou(P.root,"Roots knit your wounds");
-  B.guard=false;B.parry=false;B.open=false;if(B.off>0)B.off--;Object.keys(B.cd||{}).forEach(k=>{if(B.cd[k]>0)B.cd[k]--});B.turn++;save();render();
+  endTurn(B);save();render();
 }
 function enemyDown(){
   const B=S.battle,E=ENEMIES[B.id];
-  if(E.rebirth&&!B.reborn){B.reborn=true;B.hp=Math.round(B.max*.4);B.burn=null;B.poison=0;B.bleed=null;B.stun=0;B.guard=false;B.parry=false;if(B.off>0)B.off--;blog(`The ${B.name} bursts into flame and rises from its ashes!`,"big");B.turn++;save();return render()}
+  if(E.rebirth&&!B.reborn){B.reborn=true;B.hp=Math.round(B.max*.4);B.burn=null;B.poison=0;B.bleed=null;B.stun=0;blog(`The ${B.name} bursts into flame and rises from its ashes!`,"big");endTurn(B);save();return render()}
   const P=pstats();
   B.hp=0;B.over="won";S.kills[B.id]=(S.kills[B.id]||0)+1;S.wins+=E.boss?3:1;
   if(!E.boss&&B.id!=="mimic")S.zoneKills[E.zone]=(S.zoneKills[E.zone]||0)+1;
