@@ -13,7 +13,7 @@ function startBattle(forced,opt){
   if(h){const k=1+HEAT_T.hp;B.max=B.hp=Math.round(B.max*k);B.atk=Math.round(B.atk*k)}
   if(h>=4&&E.boss){B.max=B.hp=Math.round(B.max*HEAT_T.boss);if(E.sp)B.spEvery=spEvery(E,h)}
   if(tw==="double")B.atk*=2;
-  if(opt.ambush)B.log.push({t:opt.amsg||"Ambush! Something leaps out at you.",c:"big"});
+  if(opt.ambush||opt.lunge)B.log.push({t:opt.amsg||"Ambush! Something leaps out at you.",c:"big"});
   if(!E.boss&&id!=="mimic"&&(opt.elite||tw==="elites"||(opt.up!=null?opt.up:Math.random()<eliteCh(h)))){const [adj,trait]=AFFIXES[opt.af!=null?opt.af:Math.floor(Math.random()*AFFIXES.length)],f=TRAITS[trait].f;
     B.elite=trait;B.name=`${adj} ${E.name}`;B.el=f;B.max=B.hp=Math.round(B.max*1.5);B.atk=Math.round(B.atk*1.25);B.def=E.def+1;
     if(!B.resist.includes(f))B.resist.push(f);B.weak=B.weak.filter(x=>x!==f)}

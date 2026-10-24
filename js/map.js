@@ -48,7 +48,8 @@ function genMap(o){
     const zp=zonePool(o.zone),pk=a=>a[Math.floor(rn()*a.length)];nd.up=rn()<eliteCh(h);nd.af=Math.floor(rn()*AFFIXES.length);
     nd.ch={m:rn()<.25,l:[pk(zp),pk(zp)],e:rn()<.5?pk(ESS_POOL):null,s:rn()<.15,sx:rn()};nd.pk=[pk(zp),...rn()<.5?[pk(zp)]:[]];nd.rv=[rn(),rn(),rn(),rn()];nd.sh=[rn(),rn(),rn(),rn(),rn(),rn()];nd.gr=Array.from({length:8},rn);nd.ch.g=nd.gr}); // gr: grade rolls for chest, pack and event finds
   m.pois.forEach(p=>{if(!fe(p.t))return;if(o.zone&&!p.e)p.e=pickEnemy(o.zone); // each enemy is picked now (so its way of moving is known); the gate guard never moves, elites stalk slowly
-    p.mv=!o.zone||(p.x===sx&&p.y===1)?"still":p.t==="elite"?"chase":ENEMIES[p.e].mv||"still"});
+    if(p.up==null)p.up=R()<eliteCh(h);if(p.af==null)p.af=Math.floor(R()*AFFIXES.length); // rolled once, so fleeing and coming back meets the same foe
+    p.mv=!o.zone||(p.x===sx&&p.y===1)?"still":ENEMIES[p.e].mv||"still"}); // elites keep their species' way of moving, only slower
   m.torch=m.tmax;m.mem[key(sx,0)]="boss";m.sn[sx]=1;reveal(m);
   return m;
 }
@@ -77,7 +78,7 @@ function step(x,y){
   save();render();
 }
 // ---- roaming enemies: after each step that met nothing, every live mover acts once, in map order
-const isFoe=p=>p.t==="fight"||p.t==="elite",roamer=p=>isFoe(p)&&p.mv&&p.mv!=="still"&&!p.done,mlog=(m,t)=>{(m.log||(m.log=[])).push(t);if(m.log.length>20)m.log.shift()};
+const isFoe=p=>p.t==="fight"||p.t==="elite",roamer=p=>isFoe(p)&&p.mv&&p.mv!=="still"&&!p.done,mlog=(m,t)=>{m.ls=m.steps;(m.log||(m.log=[])).push(t);if(m.log.length>20)m.log.shift()};
 const fixed=(m,x,y)=>[m.start,m.gate,m.lair].some(q=>q.x===x&&q.y===y);
 // a tile no enemy may ever stand on: rock, water, the start, the gate, the lair, any POI that is not an enemy (dead or alive) or a defeated one's corpse
 const hard=(m,x,y)=>!walk(m,x,y)||fixed(m,x,y)||m.pois.some(p=>p.x===x&&p.y===y&&!(isFoe(p)&&(p.done||roamer(p))));
@@ -89,7 +90,7 @@ function foesAct(m){
   for(const p of rs){
     if(p.dz>0){p.dz--;continue}
     const el=p.t==="elite",d=dp[p.y*W+p.x]<0?99:dp[p.y*W+p.x],nm=ENEMIES[p.e]?ENEMIES[p.e].name:"The hunter";
-    if(el||p.mv==="chase"){const rg=el?ROAM.elite:ROAM.aw+(dark?ROAM.dark-ROAM.aw:0)+(m.heat>=3?ROAM.heat:0);
+    if(p.mv==="chase"){const rg=el?ROAM.elite:ROAM.aw+(dark?ROAM.dark-ROAM.aw:0)+(m.heat>=3?ROAM.heat:0);
       if(!p.aw&&d<=rg){p.aw=1;mlog(m,`The ${nm} catches your scent.`)}else if(p.aw&&d>ROAM.lose){p.aw=0;mlog(m,`The ${nm} loses you.`)}}
     if(el){p.pa=p.pa?0:1;if(p.pa)continue} // elites move on every other step
     const at=(x,y)=>x===m.pos.x&&y===m.pos.y;
@@ -99,19 +100,20 @@ function foesAct(m){
     else if(nb.length&&R()>=ROAM.stay)to=nb[Math.floor(R()*nb.length)];
     if(!to)continue;
     const from=[p.x,p.y];p.x=to[0];p.y=to[1];p.ms=m.steps;
-    if(at(p.x,p.y)){reveal(m);enter(p,"it",from);return true}}
+    if(at(p.x,p.y)){reveal(m);mlog(m,`The ${nm} lunges out of the dark!`);enter(p,"it",from);return true}}
   reveal(m);return false}
 function slip(B){ // you fled a map enemy: it stays and is dazed; you step back, or stay put if it walked into you
   const m=curMap(),nd=m.pois[B.pi];if(!nd||!isFoe(nd)||!nd.done)return;
-  nd.done=false;nd.dz=ROAM.daze;
+  nd.done=false;nd.aw=0;const mv=nd.mv&&nd.mv!=="still";if(mv)nd.dz=ROAM.daze; // it loses your trail too, and must notice you again
   if(B.by==="it"&&B.ef&&walk(m,B.ef[0],B.ef[1])){nd.x=B.ef[0];nd.y=B.ef[1]}
   else if(m.prev&&walk(m,m.prev.x,m.prev.y)){m.pos=m.prev;m.prev=null}
-  mlog(m,`You slip away. The ${ENEMIES[B.id].name} is dazed and stays put for ${ROAM.daze} steps.`);blog(`The ${B.name} is dazed. It will not follow for ${ROAM.daze} steps.`,"good");reveal(m)}
+  mlog(m,mv?`You slip away. The ${ENEMIES[B.id].name} is dazed and stays put for ${ROAM.daze} steps.`:`You slip away. The ${ENEMIES[B.id].name} lets you go.`);if(mv)blog(`The ${B.name} is dazed. It will not follow for ${ROAM.daze} steps.`,"good");reveal(m)}
 function enter(nd,by,from){ // the one place a POI is resolved into a battle or an event; by "it": the enemy walked into you (from = the tile it left)
   const m=curMap();nd.done=true;delete m.mem[nd.x+","+nd.y];S.battle=null;S.event=null;
   let t=nd.t;
   if(t==="mystery")t=nd.my||mystery(Math.random());
-  const src=isFoe(nd)?{pi:m.pois.indexOf(nd),by:by||"you",ef:from}:{},P=pstats(),hl=m.heat||0,amb=!!m.amb&&["fight","elite"].includes(t),r=nd.r; // m.amb: a robbed traveller's friends make your next fight an ambush; it ends with the next stop whatever it is
+  if(isFoe(nd)){if(!nd.e)nd.e=pickEnemy(S.zone);if(nd.up==null)nd.up=Math.random()<eliteCh(m.heat||0);if(nd.af==null)nd.af=Math.floor(Math.random()*AFFIXES.length)} // an older map: pick once and keep
+  const src=isFoe(nd)?{pi:m.pois.indexOf(nd),by:by||"you",ef:from,...by==="it"?{amsg:`The ${ENEMIES[nd.e].name} lunges out of the dark!`,lunge:1}:{}}:{},P=pstats(),hl=m.heat||0,amb=!!m.amb&&["fight","elite"].includes(t),r=nd.r; // m.amb: a robbed traveller's friends make your next fight an ambush; it ends with the next stop whatever it is
   m.amb=false;
   if(t==="fight")return startBattle(null,{row:r,ambush:amb,e:nd.e,up:nd.up,af:nd.af,...src});
   if(t==="ambush")return startBattle(null,{row:r,ambush:true,e:nd.e,up:nd.up,af:nd.af});

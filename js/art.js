@@ -253,7 +253,7 @@ function mapHtml(){
     const inner=`${seen&&(c==="#"||c==="~")?tileSvg(z,c):""}${t?icon(t):""}${en&&en.aw?`<b class="bdg bang" aria-hidden="true">!</b>`:""}${en&&en.dz>0?`<b class="bdg zz" aria-hidden="true">z</b>`:""}${here?`<span class="hero">${icon("hero")}</span>`:""}`;
     const lbl=t?`${gh?"Last seen: ":""}${NODE_INFO[t]}${en&&en.aw?", hunting":""}${en&&en.dz>0?", dazed":""}`:"";
     cells+=k>=0?`<button class="${cls}" data-tile="${x},${y}" aria-label="Step ${DIR_N[DIRS.findIndex(d=>d[0]===x-m.pos.x&&d[1]===y-m.pos.y)]}${t?`: ${lbl}${t==="boss"?`, ${boss}`:""}`:""}">${inner}</button>`:`<div class="${cls}"${t?` aria-label="${lbl}"`:""}>${inner}</div>`}
-  const legend=Object.entries(NODE_INFO).map(([t,l])=>`<span>${icon(t)}${l}</span>`).join("")+`<span>${icon("hero")}You</span><span class="lg-fog"><i></i>Unexplored</span><span><b class="bdg bang">!</b>hunting</span><span><b class="bdg zz">z</b>dazed</span><span class="lg-gh">${icon("fight")}last seen</span>`;
-  const lg=(m.log||[]).slice(-3).map(l=>`<li>${l}</li>`).join("");
-  return `<div class="mapwrap"><div class="map z-${z}" style="--w:${m.w}">${terrain(z,H,m.seed||7)}<div class="tls">${cells}</div></div></div>${lg?`<ul class="mlog" aria-live="polite">${lg}</ul>`:""}<div class="legend">${legend}</div>`;
+  const legend=Object.entries(NODE_INFO).map(([t,l])=>`<span>${icon(t)}${l}</span>`).join("")+`<span>${icon("hero")}You</span><span class="lg-fog"><i></i>Unseen</span><span><b class="bdg bang">!</b>hunting</span><span><b class="bdg zz">z</b>dazed</span><span class="lg-gh">${icon("fight")}seen</span>`;
+  const ml=(m.log||[]).slice(-3),fresh=m.ls===m.steps,lg=ml.map((l,i)=>`<li${fresh&&i===ml.length-1?' class="mnew"':""}>${l}</li>`).join("");
+  return `<div class="mapwrap"><div class="map z-${z}" style="--w:${m.w}">${terrain(z,H,m.seed||7)}<div class="tls">${cells}</div></div></div>${lg?`<ul class="mlog">${lg}</ul>${fresh?`<p class="sr" role="status">${ml[ml.length-1]}</p>`:""}`:""}<div class="legend">${legend}</div>`;
 }

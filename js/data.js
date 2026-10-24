@@ -246,7 +246,7 @@ const HEAT_MAX=5,HEAT_T={hp:.15,elite:2,inf:1.5,affix:.2,boss:1.2,rest:.25,shrin
 const HEAT=[
   {name:"Kindled",desc:"Enemies have +15% HP and Attack."},
   {name:"Smoldering",desc:"Elites and random elite upgrades are twice as likely, and each map hides one extra elite."},
-  {name:"Blazing",desc:"Enemy status effects land 1.5x as often, and random elemental elites turn up far more often."},
+  {name:"Blazing",desc:"Enemy status effects land 1.5x as often, and random elemental elites turn up far more often. Hunters notice you from one step further away."},
   {name:"Searing",desc:"Bosses use their special one turn sooner (at least every 2) and have +20% HP."},
   {name:"Inferno",desc:"Camps only offer rest, and it heals less (25%). Shrines heal half as much."}
 ];
