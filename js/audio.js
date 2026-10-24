@@ -1,6 +1,6 @@
 // ================= AUDIO =================
 // Synthesized sound effects (Web Audio only, no files). The preference lives in its own localStorage key, not in S, so saves never carry it. Every call is a safe no-op when audio is unavailable or not yet unlocked by a gesture.
-const SND_KEY="everforge-sound",VOLS=[.35,.65,1],VOL_N=["Low","Medium","High"];
+const SND_KEY="everforge-sound",VOLS=[.35,.65,1],VOL_N=["Off","Low","Medium","High"];
 let snd={on:true,vol:1};try{const o=JSON.parse(localStorage.getItem(SND_KEY)||"null");if(isObj(o))snd={on:o.on!==false,vol:Math.max(0,Math.min(2,o.vol|0))}}catch(e){}
 function sndSave(){try{localStorage.setItem(SND_KEY,JSON.stringify(snd))}catch(e){}}
 let AC=null,master=null,noiseBuf=null,base=0,gesture=false;const lastAt={};
@@ -42,6 +42,7 @@ const SND={
   level:()=>[392,523,659].forEach((f,i)=>note(f,i*.1,.35,.1)),
   loot:()=>{ting(880,0,.08);ting(1320,.07,.07)},
   ember:()=>{noise(.07,{f:"bandpass",hz:2800,g:.08});osc(1500,.08,{g:.04,at:.02})},
+  clang:()=>ting(980,0,.14),
   tap:()=>osc(260,.04,{g:.035}),
   step:()=>{noise(.07,{hz:420,g:.1});osc(95,.08,{g:.1})},
 };
@@ -49,18 +50,17 @@ const GAP={tick:.12,tap:.05,warn:.5,forge:1.5,legend:1,win:.8,lose:.8};
 // play a sound, dl seconds from now; ignored if muted, locked, unsupported or the same sound played within its gap (stops multi-hit and DoT pile-ups)
 function sfx(n,dl){
   if(!snd.on||!SND[n])return;
-  try{const a=actx();if(!a)return;if(a.state==="suspended")a.resume();
-    base=dl||0;const w=a.currentTime+base;if(w<(lastAt[n]||-1)+(GAP[n]||.06))return;lastAt[n]=w;SND[n]()}catch(e){}
+  try{const a=actx();if(!a)return;if(a.state!=="running")a.resume().catch(()=>{});
+    base=dl||0;const w=a.currentTime+base;if(w<(lastAt[n]??-Infinity)+(GAP[n]||.06))return;lastAt[n]=w;SND[n]()}catch(e){}
 }
-function sndUi(){
-  const b=$("snd");if(b){b.innerHTML=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z" fill="currentColor" fill-opacity=".3"/>${snd.on?'<path d="M15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11"/>':'<path d="M16 9.5l5 5M21 9.5l-5 5"/>'}</svg>`;
-    b.setAttribute("aria-pressed",String(snd.on));b.setAttribute("aria-label",snd.on?"Sound on":"Sound off");b.title=snd.on?"Sound on":"Sound off"}
-  document.querySelectorAll("[data-vol]").forEach(x=>x.classList.toggle("sel",snd.on&&+x.dataset.vol===snd.vol));
+function sndUi(){ // header speaker: Off / Low / Medium / High, one wave per level
+  const b=$("snd"),l=snd.on?snd.vol+1:0;
+  if(b){b.innerHTML=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z" fill="currentColor" fill-opacity=".3"/>${l?['<path d="M15 10a3 3 0 0 1 0 4"/>','<path d="M15 10a3 3 0 0 1 0 4M17.5 7.5a6.5 6.5 0 0 1 0 9"/>','<path d="M15 10a3 3 0 0 1 0 4M17.5 7.5a6.5 6.5 0 0 1 0 9M20 5a10 10 0 0 1 0 14"/>'][l-1]:'<path d="M16 9.5l5 5M21 9.5l-5 5"/>'}</svg>`;
+    b.setAttribute("aria-pressed",String(snd.on));b.setAttribute("aria-label",`Sound: ${VOL_N[l]}`);b.title=`Sound: ${VOL_N[l]}`}
 }
 function setSnd(o){Object.assign(snd,o);sndSave();if(master)master.gain.value=VOLS[snd.vol]*.8;sndUi()}
-["pointerdown","keydown","touchend"].forEach(ev=>addEventListener(ev,()=>{gesture=true;if(snd.on){const a=actx();if(a&&a.state==="suspended")a.resume().catch(()=>{})}},{capture:true,passive:true}));
+["pointerdown","keydown","touchend"].forEach(ev=>addEventListener(ev,()=>{gesture=true;if(snd.on){const a=actx();if(a&&a.state!=="running")a.resume().catch(()=>{})}},{capture:true,passive:true}));
 document.addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;
-  if(b.id==="snd"){setSnd({on:!snd.on});if(snd.on)sfx("tap");return}
-  if(b.dataset.vol){setSnd({on:true,vol:+b.dataset.vol});sfx("hit");return}
-  if(!b.disabled&&!["atk","combine"].includes(b.id))sfx("tap")});
+  if(b.id==="snd"){const l=snd.on?snd.vol+1:0,n=(l+1)%4;setSnd(n?{on:true,vol:n-1}:{on:false});if(n)sfx("tap");return}
+  if(!b.disabled&&!b.dataset.node&&!b.dataset.ability&&!b.dataset.use&&!["atk","combine"].includes(b.id))sfx("tap")}); // buttons with their own sounds stay out
 sndUi();

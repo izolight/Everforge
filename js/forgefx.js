@@ -1,6 +1,6 @@
 // ================= FORGE ANIMATION =================
 function playForge(inputs,item,cb){
-  sfx("forge");if(item.legendary)sfx("legend",reduced()?.2:1.5);
+  sfx(reduced()?"clang":"forge");if(item.legendary)sfx("legend",reduced()?.2:1.5);
   if(reduced()){cb();return}
   const o=$("forgefx"),[rn,rc]=rarity(item);
   o.className="forgefx";o.hidden=false;o.style.setProperty("--rc",rc);

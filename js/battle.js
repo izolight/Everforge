@@ -186,7 +186,7 @@ function enemyDown(){
   if(E.rebirth&&!B.reborn){B.reborn=true;B.hp=Math.round(B.max*.4);B.burn=null;B.poison=0;B.bleed=null;B.stun=0;B.frozen=false;blog(`The ${B.name} bursts into flame and rises from its ashes!`,"big");endTurn(B);save();return render()}
   const P=pstats(),dl=S.run==="daily",h=B.heat||0,lv0=level();
   if(dl)S.daily.turns+=B.turn;
-  const st=S.stats;if(E.boss){st.bosses++;st.fast[B.id]=Math.min(st.fast[B.id]||1e9,B.turn);st.heatBest[E.zone]=Math.max(st.heatBest[E.zone]??-1,h);if(!dl)st.exped++}else if(B.elite)st.elites++;
+  const st=S.stats;if(E.boss){st.bosses++;st.fast[B.id]=Math.min(st.fast[B.id]||1e9,B.turn);if(!dl){st.heatBest[E.zone]=Math.max(st.heatBest[E.zone]??-1,h);st.exped++}}else if(B.elite)st.elites++;
   sfx("win",.3);sfx("loot",.9);
   B.hp=0;B.over="won";S.kills[B.id]=(S.kills[B.id]||0)+1;S.wins+=E.boss?3:1;
   if(!E.boss&&B.id!=="mimic")S.zoneKills[E.zone]=(S.zoneKills[E.zone]||0)+1;
