@@ -17,7 +17,8 @@ function openSheet(id,refresh,preview){
     if(g==="consumable"&&statsOf(it).heal>0&&!locked)btns.push(`<button class="btn primary grow" data-act="eat" ${S.hp>=P.maxHp?"disabled":""}>${S.hp>=P.maxHp?"Already at full HP":`Use now (+${Math.min(statsOf(it).heal,P.maxHp-S.hp)} HP)`}</button>`);
     btns.push(`<button class="btn grow" data-act="add" ${left<=0||full||locked||!mix.ok?"disabled":""}>${locked?"Finish the fight to forge":full?"Crucible full":left<=0?"All in crucible":!mix.ok?"Won't mix with the crucible":"Add to crucible"}</button>`);
     const ys=salvageYield(it);
-    if(ys.length)btns.push(`<button class="btn ${salvageArmed?"danger":""} grow" data-act="salvage" ${locked||left<=0?"disabled":""}>${salvageArmed?"Tap again to salvage":`Salvage → ${ys.join(" + ")} Essence`}</button>`);
+    if(ys.length)btns.push(`<button class="btn ${salvageArmed?"danger":""} grow" data-act="salvage" ${locked||left<=0?"disabled":""}>${salvageArmed?"Tap again to salvage":`Salvage → ${ys.join(" + ")} Essence${salvageEmbers(it)?` + ${salvageEmbers(it)} embers`:""}`}</button>`);
+    const mh=mishapOf(it);if(mh)btns.push(`<button class="btn grow" data-act="reforge" ${locked||S.embers<reforgeCost(it)?"disabled":""}>Reforge — remove ${mh} (${reforgeCost(it)} embers)</button>`);
   }
   btns.push(`<button class="btn" data-act="close">Close</button>`);
   $("sheetIn").innerHTML=`<div class="grab" aria-hidden="true"></div>

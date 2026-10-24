@@ -42,7 +42,7 @@ function combine(raw){
       cons.forEach(c=>delete tr[c]);tr[res]=r1(Math.max(tr[res]||0,v));reacted.add(res);
       log.push({k:"Reaction",t:`${a} + ${b} → ${res}`,warn:TRAITS[res].f==="bad"});inst+=3}
     if(!any)break}
-  const secret=SECRETS.find(s=>s.ids.slice().sort().join("+")===key);
+  const sk=inputs.map(i=>i.id.replace(/^(ess_[A-Za-z]+)_2$/,"$1")).sort().join("+"),secret=SECRETS.find(s=>s.ids.slice().sort().join("+")===sk); // a refined essence stands in for its plain kind
   let bon=null; // the secret's bonus always keeps a slot
   if(secret&&secret.bonus){const {trait:bt,v:bv}=secret.bonus;bon=[bt,r1((tr[bt]||0)+bv)];delete tr[bt];log.push({k:"Legendary",t:`The secret lends it +${bv} ${bt}.`})}
   const slots=traitSlots()-(bon?1:0),sorted=topTraits(tr);
@@ -58,7 +58,7 @@ function combine(raw){
   const ranked=Object.entries(tr).filter(([t])=>TRAITS[t].adj.toLowerCase()!==noun.toLowerCase()).sort((a,b)=>score(b)-score(a)).map(x=>x[0]);
   const name=secret?secret.name:[...ranked.slice(0,2).map(t=>TRAITS[t].adj),noun].join(" ");
   const tier=Math.min(9,Math.max(...inputs.map(i=>i.tier))+1);
-  const item={id:"c_"+hash(key).toString(36),name,form,noun,traits:tr,tier,crafted:true,legendary:!!secret,recipe:inputs.map(i=>i.name),recipeIds:inputs.map(i=>i.id)};
+  const item={id:"c_"+hash(key).toString(36),name,form,noun,traits:tr,tier,crafted:true,legendary:!!secret,recipe:inputs.map(i=>i.name),recipeIds:inputs.map(i=>i.id),...mishap==="Weakened"?{mishap}:{}};
   if(form==="material"){const core=inputs.map(kindOf).find(k=>k!=="essence"&&k!=="relic");item.kind=core||(inputs.some(i=>kindOf(i)==="relic")?"relic":"essence")}
   return {item,log,inst,mishap,baseId:base.id,rxKeys};
 }

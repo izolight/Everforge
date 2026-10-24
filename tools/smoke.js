@@ -14,8 +14,8 @@ async function run(label,setup){
   if(setup){await page.evaluate(setup);await page.reload()}
   await page.waitForFunction(()=>typeof S==="object"&&S);
   const stats=await page.evaluate(async steps=>{
-    const sleep=ms=>new Promise(r=>setTimeout(r,ms)),out={steps:0,battles:0,won:0,lost:0,forged:0,zones:new Set(),views:0,wields:0,abil:0,heat:0,daily:0,aband:0,bad:[]};
-    const click=el=>{el.click();return true};let wantZone=null,doChores=false,wantWield=false,wantHeat=false,wantDaily=false,wantAband=false;
+    const sleep=ms=>new Promise(r=>setTimeout(r,ms)),out={steps:0,battles:0,won:0,lost:0,forged:0,zones:new Set(),views:0,wields:0,abil:0,heat:0,daily:0,aband:0,bought:0,sold:0,refined:0,reforged:0,bad:[]};
+    const click=el=>{el.click();return true};let wantZone=null,doChores=false,wantWield=false,wantHeat=false,wantDaily=false,wantAband=false,wantShop=false;
     const q=s=>document.querySelector(s),qa=s=>[...document.querySelectorAll(s)];
     for(let i=0;i<steps;i++){out.steps++;
       // Every so often, unlock everything and top up HP so later content gets exercised too.
@@ -27,6 +27,7 @@ async function run(label,setup){
       if(i%37===5)wantHeat=true;
       if(i%53===17)wantDaily=true;
       if(i%29===3)wantAband=true;
+      if(i%47===11)wantShop=true;
       // the daily run and the normal zone must never mix
       if(S.run==="daily"?!(S.daily&&S.daily.state==="run"&&S.zone===S.daily.zone&&curMap()===S.daily.map):(S.daily&&S.daily.state==="run"))out.bad.push(`daily state broken at step ${i}`);
       if(S.run==="daily"&&i%41===0){const s2=migrate(JSON.parse(JSON.stringify(S)));if(s2&&s2.run==="daily")S=s2;else out.bad.push("daily did not survive a save round trip")}
@@ -45,9 +46,14 @@ async function run(label,setup){
         const hb=qa("#arena [data-heat]");if(hb.length){click(hb[Math.floor(Math.random()*hb.length)]);out.heat++;continue}}
       if(wantDaily&&S.run!=="daily"){wantDaily=false;S.kills[ZONES[0][2]]=S.kills[ZONES[0][2]]||1;if(Math.random()<.6)S.daily=null;render();const db=q("#dailyStart");if(db){click(db);out.daily++;continue}}
       if(S.run==="daily"&&wantAband&&q("#dailyAbandon")&&Math.random()<.5){wantAband=false;click(q("#dailyAbandon"));click(q("#dailyAbandon"));if(S.run!=="daily")out.aband++;continue}
-      const cs=qa("#arena [data-choice]"),choice=Math.random()<.35?cs[Math.floor(Math.random()*cs.length)]:cs.find(b=>b.dataset.choice!=="inspect"&&b.dataset.choice!=="leave")||cs[0]; // sometimes any choice, so leave and the odd ones run too
+      const cs=qa("#arena [data-choice]:not([disabled])"),shop=S.event?.type==="merchant"; // the peddler's shop: sometimes buy or sell, else the usual picks
+      if(shop&&S.embers<40)S.embers+=40;
+      const sc=shop&&qa("#arena [data-choice]:not([disabled])").filter(b=>/^(buy|sell):/.test(b.dataset.choice));
+      if(sc&&sc.length&&Math.random()<.7){const b=sc[Math.floor(Math.random()*sc.length)];out[b.dataset.choice[0]==="b"?"bought":"sold"]++;click(b);continue}
+      const choice=Math.random()<.35?cs[Math.floor(Math.random()*cs.length)]:cs.find(b=>b.dataset.choice!=="inspect"&&b.dataset.choice!=="leave")||cs[0]; // sometimes any choice, so leave and the odd ones run too
       if(choice){click(choice);continue}
       const nodes=qa("#arena [data-node]:not([disabled])");
+      if(wantShop&&nodes.length){wantShop=false;const n=nodes[Math.floor(Math.random()*nodes.length)],[r,c]=n.dataset.node.split(",").map(Number);if(r<MAP_ROWS-1)curMap().rows[r][c].t="peddler";click(n);continue} // force a peddler so the shop gets exercised
       if(nodes.length){click(nodes[Math.floor(Math.random()*nodes.length)]);continue}
       const cont=q("#cont")||q("#again");
       if(cont){click(cont);continue}
@@ -67,6 +73,10 @@ async function run(label,setup){
       const can2=qa("#finv [data-can='1']");if(can2.length)click(can2[Math.floor(Math.random()*can2.length)]);
       if(S.bench.length>=2){const before=S.journal.length;q("#combine").click();await sleep(30);out.forged++;}
       S.bench=[];save();
+      S.embers+=40;for(let k=0;k<3;k++)addItem(essence(pick(ESS_POOL)));go("forge"); // refining, then a mishap to reforge
+      const rf=q("#refbtns [data-refine]:not([disabled])");if(rf){rf.click();out.refined++}
+      S.items.t_curse={id:"t_curse",name:"Cursed Test Blade",form:"blade",noun:"Blade",traits:{Fire:2,Cursed:2},tier:2,crafted:true,recipe:["a","b"],recipeIds:[]};addItem("t_curse");
+      go("gear");{const cb=qa("#ginv [data-id]").find(b=>b.dataset.id==="t_curse");if(cb){cb.click();const rg=q("#sheet [data-act='reforge']:not([disabled])");if(rg){rg.click();out.reforged++}else closeSheet()}}
       go("gear");const it=qa("#ginv [data-id]").find(b=>!eqCount(b.dataset.id));if(it){it.click();const sv=q("#sheet [data-act='salvage']");if(sv&&Math.random()<.5){sv.click();q("#sheet [data-act='salvage']")?.click()}closeSheet()}
       const inf=q("#infbtns [data-infuse]");if(inf)inf.click();
       go("battle");if(!qa("#arena [data-node]:not([disabled])").length)q("#again")?.click();
@@ -87,6 +97,7 @@ async function run(label,setup){
   if(fresh.errors.length){failed=true;console.error(fresh.errors.join("\n"))}
   if(fresh.stats.wields>=7&&!fresh.stats.abil){failed=true;console.error("No ability buttons were clicked; they may have vanished.")}
   if(fresh.stats.bad.length){failed=true;console.error(fresh.stats.bad.join("\n"))}
+  const st=fresh.stats;if(!st.bought||!st.sold||!st.refined||!st.reforged){failed=true;console.error(`The bot never exercised the economy (bought ${st.bought}, sold ${st.sold}, refined ${st.refined}, reforged ${st.reforged}).`)}
   if(!fresh.stats.heat||!fresh.stats.daily){failed=true;console.error("The bot never exercised heat or the daily.")}
   if(fresh.stats.battles<3){failed=true;console.error("Too few battles completed; the loop got stuck.")}
   // Every old save fixture must still load (migrations) and play without errors.
