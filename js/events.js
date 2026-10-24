@@ -6,7 +6,7 @@ function go(view){
 }
 $("nav").addEventListener("click",e=>{const b=e.target.closest("[data-view]");if(b)go(b.dataset.view)});
 $("goal").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;
-  if(b.id==="claim")claimGoal();else if(b.id==="goGoal"){const g=goal();if(g.zone&&zoneOpen(g.zone)&&!busy()){S.zone=g.zone;if(S.battle?.over)S.battle=null}go(g.tab)}});
+  if(b.id==="claim")claimGoal();else if(b.id==="goGoal"){const g=goal();if(g.zone&&zoneOpen(g.zone)&&!busy()&&S.run!=="daily"){S.zone=g.zone;if(S.battle?.over)S.battle=null}go(g.tab)}});
 $("zones").addEventListener("click",e=>{const b=e.target.closest("[data-zone]");if(!b||b.disabled)return;S.zone=b.dataset.zone;S.battle=null;S.event=null;save();render()});
 $("arena").addEventListener("click",e=>{
   const t=e.target.closest("button");if(!t)return;
@@ -15,12 +15,14 @@ $("arena").addEventListener("click",e=>{
   if(t.dataset.choice)return eventChoice(t.dataset.choice);
   if(t.dataset.use)return useItem(t.dataset.use);
   if(t.dataset.ability)return ability(t.dataset.ability);
+  if(t.dataset.heat)return setHeat(+t.dataset.heat);
   if(t.dataset.node){const [r,i]=t.dataset.node.split(",").map(Number);return visit(r,i)}
   if(t.dataset.zone){S.zone=t.dataset.zone;S.battle=null;S.event=null;save();render();return window.scrollTo({top:0})}
-  ({rest,atk:attack,guard,parry,study,flee,again:newExpedition,toforge:()=>go("forge"),
+  ({rest,atk:attack,guard,parry,study,flee,again:newExpedition,dailyStart:startDaily,dailyAbandon:abandonDaily,toforge:()=>go("forge"),
     cont:()=>{S.battle=null;S.event=null;logOpen=false;save();render()}})[t.id]?.();
 });
-$("arena").addEventListener("toggle",e=>{if(e.target.id==="logd"){logOpen=e.target.open;const m=e.target.querySelector(".more");if(m)m.textContent=`${logOpen?"Hide":"Show"} full log`;const bl=$("blog");if(bl)bl.scrollTop=bl.scrollHeight}},true);
+$("arena").addEventListener("toggle",e=>{if(e.target.id==="heatd")heatOpen=e.target.open;
+  if(e.target.id==="logd"){logOpen=e.target.open;const m=e.target.querySelector(".more");if(m)m.textContent=`${logOpen?"Hide":"Show"} full log`;const bl=$("blog");if(bl)bl.scrollTop=bl.scrollHeight}},true);
 $("gear").addEventListener("click",e=>{const b=e.target.closest("[data-gear]");if(!b)return;const s=b.dataset.gear,it=gearOf(s);
   if(it)return openSheet(it.id);
   S.tab=s==="main"?"weapon":s==="charm"?"charm":s==="off"?"all":"armor";save();render();
