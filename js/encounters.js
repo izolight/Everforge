@@ -1,5 +1,5 @@
 // ================= ENCOUNTERS =================
-// Choice-driven map events. ENC[type]={make(rv,hl) -> S.event, pick(choice,ev)}. rv = four 0-1 rolls, pre-rolled per node on the seeded daily map (see genMap)
+// Choice-driven map events. ENC[type]={make(rv,hl) -> S.event, pick(choice,ev)}. rv = four 0-1 rolls (+ four more, rv[4..7], that roll the grades of what it gives), pre-rolled per node on the seeded daily map (see genMap)
 // so the same day plays out alike. What depends on your satchel or gear (the item asked for, the healing item, the piece to temper) varies per player, like the peddler.
 // Every event ends in a "done" event with no choices (or a leave), so none can trap you.
 const evt=(type,icon,title,text,choices,x)=>({type,icon,title,text,loot:[],choices,sc:"",...x});

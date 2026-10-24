@@ -23,10 +23,11 @@ const lootChips=ids=>ids.map(id=>`<button class="chip" data-item="${id}" style="
 const shopRow=(id,label,c,off)=>`<div class="shoprow"><button class="chip" data-item="${id}" style="color:${gcol(id)}">${S.items[id].name}</button><button class="btn sm" data-choice="${c}" ${off?"disabled":""}>${label}</button></div>`;
 const shopHtml=ev=>`<div class="shop"><p class="label">For sale · you have ${S.embers} embers</p>${ev.stock.map((e,i)=>e.done?"":shopRow(e.id,`${icon("ember")}${e.price}`,`buy:${i}`,S.embers<e.price)).join("")}
   ${ev.sells.some(e=>!e.done)?`<p class="label">Sell a spare</p>${ev.sells.map((e,i)=>e.done?"":shopRow(e.id,`Sell +${e.price}`,`sell:${i}`)).join("")}`:""}</div>`;
+const topT=id=>topTraits(S.items[baseIdOf(id)].traits)[0][0];
 function renderUpgrade(){
-  const lv=skLv("alchemy");
+  const lv=skLv("alchemy"),ids=upgradable().sort((a,b)=>topT(a).localeCompare(topT(b))||S.items[baseIdOf(a)].name.localeCompare(S.items[baseIdOf(b)].name)||gradeOf(a)-gradeOf(b));
+  $("upgsum").textContent=`Upgrade grades${ids.length?` · ${ids.length} ready`:""}`;
   $("upginfo").textContent=`${UP.n} essences or materials of one grade and some embers make 1 of the next grade (Faint, Lesser, Plain, Greater, Pure): stronger traits, in a single crucible slot. A miss costs the embers and one of them. Greater needs Alchemy Lv ${GRADE_LV[3]}, Pure Lv ${GRADE_LV[4]}. You are Lv ${lv}.`;
-  const ids=upgradable();
   $("upgrows").innerHTML=ids.length?ids.map(id=>{const g=gradeOf(id),tg=g+1,it=S.items[id],low=lv<GRADE_LV[tg-1],poor=S.embers<UP.emb[g-1];
     return `<div class="shoprow up"><span class="uname"><span style="color:${GRADES[g-1][1]}">${it.name}</span> <small>×${avail(id)}</small></span>
       <button class="btn sm" data-upgrade="${id}" ${inBattle()||low||poor?"disabled":""} aria-label="Upgrade ${it.name} to ${GRADES[tg-1][0]}">${low?`${GRADES[tg-1][0]} needs Lv ${GRADE_LV[tg-1]}`:`${icon("ember")}${UP.emb[g-1]} · ${GRADES[tg-1][0]} · ${upChance(tg)}%`}</button></div>`}).join(""):`<p class="foot">Collect ${UP.n} of the same grade of an essence, ore, hide or herb to upgrade them.</p>`;
@@ -70,8 +71,9 @@ function renderGear(){
     const [t,r]=e,st=innateStats(t),bits=Object.entries(st).filter(([,v])=>v).map(([s,v])=>`${v>0?"+":""}${v} ${s.toUpperCase()}`).join(" · ");
     return `<div class="islot on" style="border-color:${tColor(t)};color:${tColor(t)}"><b>${t} ${["I","II","III"][r-1]}</b><small>${bits||"effect on hit"}</small></div>`}).join("");
   const can=infusable();
-  $("infbtns").innerHTML=can.length?can.map(t=>`<button class="btn sm" data-infuse="${t}" style="border-color:${tColor(t)}">${S.infuse[t]?`Deepen ${t} → ${["I","II","III"][S.infuse[t]]}`:`Infuse ${t}`} · ${payText(infPay(t))}</button>`).join("")
-    :`<p class="foot">${inf.length>=infSlots()?"All slots used. You can still deepen an infusion with more of its essence.":`Collect essences of one trait worth ${INF_COST} plain ones (salvage, elites, bounties) to infuse it.`}</p>`;
+  const cr=S.infCredit?`<p class="foot" style="flex-basis:100%">Credit: ${creditTxt(S.infCredit)} plain, spent first on your next infusion.</p>`:"";
+  $("infbtns").innerHTML=(can.length?can.map(t=>`<button class="btn sm" data-infuse="${t}" style="border-color:${tColor(t)}">${S.infuse[t]?`Deepen ${t} → ${["I","II","III"][S.infuse[t]]}`:`Infuse ${t}`} · ${payText(infPay(t,Math.max(0,INF_NEED-S.infCredit)))||"credit"}</button>`).join("")
+    :`<p class="foot">${inf.length>=infSlots()?"All slots used. You can still deepen an infusion with more of its essence.":`Collect essences of one trait worth ${INF_COST} plain ones (salvage, elites, bounties) to infuse it.`}</p>`)+cr;
 }
 function youHud(){
   const P=pstats(),B=S.battle,guarding=B&&!B.over&&B.guard;
