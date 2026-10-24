@@ -82,9 +82,17 @@ const BASE={
   spring_water:["Spring Water","potion",{Water:2}],
   phoenix:["Phoenix Feather","material",{Fire:3,Holy:2,Swift:2},"relic"],
   gnarl_tusk:["Gnarlhorn Tusk","material",{Sharp:3,Heavy:2,Wood:2},"relic"],
-  rime_fang:["Rimeclaw Fang","material",{Ice:3,Sharp:2,Swift:2},"relic"]
+  rime_fang:["Rimeclaw Fang","material",{Ice:3,Sharp:2,Swift:2},"relic"],
+  storm_feather:["Storm Feather","material",{Swift:3,Arcane:1},"hide"],
+  rune_shard:["Rune Shard","material",{Arcane:3,Stone:2},"ore"],
+  void_crystal:["Void Crystal","material",{Shadow:3,Arcane:2},"ore"],
+  star_heart:["Starheart Fragment","material",{Arcane:3,Holy:2,Shadow:2},"relic"],
+  gale_boots:["Galewing Boots","boots",{Swift:3,Arcane:1}],
+  sentinel_aegis:["Sentinel's Aegis","shield",{Runic:3,Iron:1}],
+  void_robe:["Voidweave Robe","chest",{Shadow:2,Arcane:2,Swift:1}],
+  storm_draught:["Stormdraught","potion",{Swift:2,Water:2,Arcane:1}]
 };
-const ZONES=[["woods","Whispering Woods","gnarlhorn"],["pass","Frostfang Pass","rimeclaw"],["hollow","Cinder Hollow","phoenix"]];
+const ZONES=[["woods","Whispering Woods","gnarlhorn"],["pass","Frostfang Pass","rimeclaw"],["hollow","Cinder Hollow","phoenix"],["spire","Starfall Spire","archon"]];
 const ENEMIES={
   boar:{name:"Thornback Boar",plural:"Thornback Boars",zone:"woods",el:"wood",hp:30,atk:6,def:2,weak:["fire"],resist:[],w:3,verb:"gores you",intro:"A Thornback Boar bursts out of the brush.",
     lore:"Bristled forest boars that sharpen their tusks on oak bark. They charge when cornered, and often when not.",
@@ -125,6 +133,25 @@ const ENEMIES={
     lore:"The Hollow's heart. It has died many times and seems to have enjoyed none of them.",
     inf:{s:"burn",ch:0.35},
     sp:{every:3,name:"Inferno",kind:"heavy",x:2.2,tell:"spreading its burning wings"},drops:[["phoenix",1],["holy_water",.6]]},
+  harpy:{name:"Storm Harpy",plural:"Storm Harpies",zone:"spire",el:"swift",hp:105,atk:17,def:3,weak:["stone","ice"],resist:["swift"],w:3,verb:"rakes you",intro:"A Storm Harpy shrieks out of the cloud bank.",
+    lore:"Wind-spirits in the shape of birds, forever circling the spire. Each wingbeat carries a little thunder.",
+    inf:{s:"chill",ch:0.3},
+    sp:{every:3,name:"Gale Rush",kind:"multi",n:4,x:.55,tell:"wheeling overhead, wings drawn tight"},drops:[["storm_feather",.75],["storm_draught",.35],["gale_boots",.16]]},
+  sentinel:{name:"Runebound Sentinel",plural:"Runebound Sentinels",zone:"spire",el:"arcane",hp:130,atk:18,def:11,weak:["metal","poison"],resist:["arcane","stone"],w:2,verb:"strikes you",intro:"A Runebound Sentinel grinds to life, its glyphs flaring.",
+    lore:"Guardians carved before the spire fell. Their armor shrugs off blows, but rust and venom still find the seams.",
+    sp:{every:4,name:"Rune Slam",kind:"heavy",x:2.5,tell:"its runes flaring white"},drops:[["rune_shard",.7],["golem_core",.3],["sentinel_aegis",.16]]},
+  acolyte:{name:"Void Acolyte",plural:"Void Acolytes",zone:"spire",el:"shadow",hp:112,atk:18,def:4,weak:["holy","arcane"],resist:["shadow"],w:3,verb:"touches you",intro:"A Void Acolyte steps out of a seam in the air.",
+    lore:"Scholars who read one page too many of what lies between the stars. They feed the emptiness in them with your warmth.",
+    inf:{s:"curse",ch:0.4},
+    sp:{every:3,name:"Soul Tithe",kind:"drain",x:1.4,tell:"opening its hollow hands"},drops:[["void_crystal",.7],["holy_water",.3],["void_robe",.16]]},
+  archon:{name:"Starfallen Archon",short:"the Archon",zone:"spire",el:"swift",boss:true,hp:230,atk:22,def:9,weak:["stone"],resist:["swift","arcane"],verb:"strikes you with lightning",intro:"Lightning stitches the clouds shut. The Starfallen Archon unfolds above the spire.",
+    lore:"A star that fell upward. Hurt enough, it stops being a storm and becomes the dark behind the storm.",
+    inf:{s:"chill",ch:0.3},
+    sp:{every:3,name:"Chain Lightning",kind:"multi",n:4,x:.65,tell:"crackling with stored lightning"},
+    // generic boss twist: at `at` of max HP it loses a turn shifting form; `to` overrides element, weak, resist, special, inf and verb
+    phase:{at:.5,label:"VOID FORM",msg:"The storm collapses inward. The Archon turns to the dark behind it!",
+      to:{el:"shadow",weak:["holy","metal"],resist:["shadow","arcane"],inf:{s:"curse",ch:0.4},verb:"unmakes you",sp:{every:3,name:"Void Collapse",kind:"drain",x:1.5,tell:"folding the air around a black point"}}},
+    drops:[["star_heart",1],["storm_feather",.8]]},
   mimic:{name:"Mimic",zone:"any",el:"metal",hp:40,atk:8,def:3,weak:["arcane"],resist:["metal"],verb:"bites you",intro:"The lid creaks open into a mouth. It's a Mimic!",
     lore:"A chest with teeth. It has learned that travellers cannot resist opening things.",
     sp:{every:2,name:"Chomp",kind:"heavy",x:2.3,tell:"opening its lid very wide"},drops:[]}
@@ -165,7 +192,9 @@ const ABILITIES={
 },BLEED_STACK=3,BLEED_PER=.2,BLEED_T=5;
 const CURES={Medicine:["burn","chill","poison","curse"],Holy:["curse","poison"],Water:["burn","chill"],Nourishing:["poison"]};
 const RARITY=[["Common","#b3aa9e"],["Uncommon","#88d7a1"],["Rare","#7cb6f2"],["Epic","#c39cf7"],["Mythic","#ff8a50"]];
-const XP_LV=[0,60,160,320,560,900,1400];
+const XP_LV=[0,60,160,320,560,900,1400,2100,3000,4200];
+// smith level perks: level-up toast text (lvMsg) and what maxInputs, infSlots and traitSlots read
+const LV_PERK={2:"Third crucible slot unlocked.",3:"Another trait slot, and you can appraise a forge.",5:"Another trait slot and steadier mixtures.",7:"Another trait slot and steadier mixtures.",8:"Fourth crucible slot unlocked.",9:"Fourth infusion slot unlocked.",10:"Master smith: an eighth trait slot."},MIMIC_HP=[1,1.9,2.8,3.7],MIMIC_ATK=[1,1.6,2.1,2.6];
 const STAT_NAMES={atk:"Attack",def:"Defense",mag:"Magic",heal:"Heal",spd:"Speed"};
 const DECAY=[1,.5,.3,.2,.15,.1,.1,.1];
 const ESS_VALUE=2.5;

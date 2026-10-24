@@ -1,6 +1,6 @@
 # Everforge
 
-A mobile-first crafting and battling game. Fight through three regions, salvage loot into essences, and forge better gear. It runs entirely in the browser, with no build step and no dependencies. Progress is stored in `localStorage`; the Codex tab can export and import a save code.
+A mobile-first crafting and battling game. Fight through four regions, salvage loot into essences, and forge better gear. It runs entirely in the browser, with no build step and no dependencies. Progress is stored in `localStorage`; the Codex tab can export and import a save code.
 
 ## Run it
 
@@ -38,6 +38,8 @@ js/
 - All game state lives in the single global `S` (see `freshState()` in `state.js`). After changing it, call `save()` and `render()`.
 - Weapon-form and shield abilities live in the `ABILITIES` table (`data.js`); `ability(key)` in `battle.js` runs them, cooldowns are per battle in `B.cd`, and `effects()` reads the same table for item text.
 - Heat (`HEAT`, `HEAT_T` in `data.js`) is stored per zone in `S.heat[zone]={max,sel}`; a map remembers the heat it was generated with (`map.heat`) and `heatNow()` reads it. The daily lives in `S.daily` (not `S.maps`); while `S.run==='daily'`, `curMap()` returns its map and `S.zone` is the daily's zone, restored from `S.daily.back` by `finishDaily()`. Daily maps come from `genMap({seed,...})`, which uses the seeded `rng` instead of `Math.random`.
+- Bosses can carry a data-driven `phase` (see `archon` in `data.js`): below `at` of max HP they spend a turn changing form, and `foeOf(B)` returns the current form's fields (element, weak, resist, special, status). Use `foeOf(B)` rather than `ENEMIES[B.id]` for anything that depends on the form.
+- Adding a zone: append to `ZONES` and give it enemies, a boss and a `terrain()` look in `art.js`. Unlocking, the mimic scaling (`MIMIC_HP`/`MIMIC_ATK`), bounties and the daily pick it up; `migrate()` opens zones for saves that already beat the boss before them.
 - When the save shape changes, bump `KEY`/`v`, add a migration step in `migrate()`, and extend `sane()` if new required fields are added.
 
 ## Testing
