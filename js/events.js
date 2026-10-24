@@ -17,7 +17,7 @@ $("arena").addEventListener("click",e=>{
   if(t.dataset.use)return useItem(t.dataset.use);
   if(t.dataset.ability)return ability(t.dataset.ability);
   if(t.dataset.heat)return setHeat(+t.dataset.heat);
-  if(t.dataset.node){const [r,i]=t.dataset.node.split(",").map(Number);return visit(r,i)}
+  if(t.dataset.tile){const [x,y]=t.dataset.tile.split(",").map(Number);return step(x,y)}
   if(t.dataset.zone){S.zone=t.dataset.zone;S.battle=null;S.event=null;save();render();return window.scrollTo({top:0})}
   ({rest,atk:attack,guard,parry,study,flee,again:newExpedition,dailyStart:startDaily,dailyAbandon:abandonDaily,toforge:()=>go("forge"),
     cont:()=>{S.battle=null;S.event=null;logOpen=false;save();render()}})[t.id]?.();
@@ -116,3 +116,4 @@ try{const ud=$("upgd");ud.open=localStorage.getItem("everforge-upgopen")==="1";u
 try{const sd=$("statsd");sd.open=localStorage.getItem("everforge-statsopen")==="1";sd.addEventListener("toggle",()=>{try{localStorage.setItem("everforge-statsopen",sd.open?"1":"0")}catch(e){}})}catch(e){}
 try{render()}catch(e){ // a bad stored run should not cost the whole save: drop the transient parts first
   try{S.daily=null;S.run=null;S.battle=null;S.event=null;render()}catch(e2){S=freshState();save();render()}}
+if(migNote){migNote=false;toast("The maps were redrawn. Your expedition starts fresh.")}

@@ -100,7 +100,7 @@ function setup(){ // runs inside the game page; everything here uses the real ga
   };
   // one fight on a fresh copy of the kit's save; returns {w,t,hp}
   SIM.fight=(snap,id,heat,pol,o)=>{
-    S=JSON.parse(snap);const E=ENEMIES[id];S.zone=id==="mimic"?o.zone:E.zone;S.hp=pstats().maxHp;S.maps[S.zone]={heat,rows:[],path:[]};S.run=null;
+    S=JSON.parse(snap);const E=ENEMIES[id];S.zone=id==="mimic"?o.zone:E.zone;S.hp=pstats().maxHp;S.maps[S.zone]=genMap({heat});S.run=null;
     startBattle(id,{row:E.boss||id==="mimic"?0:o.row,up:!!o.elite,elite:!!o.elite,af:o.af});
     const B=S.battle;let g=0;while(S.battle===B&&!B.over&&B.turn<150&&g++<600)POL[pol](B);
     const won=B.over==="won";return{w:won?1:0,t:B.turn,hp:won?S.hp/pstats().maxHp:0};
@@ -113,13 +113,13 @@ function setup(){ // runs inside the game page; everything here uses the real ga
   // attrition: a typical expedition (4 regulars at rows 1-4, then the boss) on one HP bar; a 35% heal after fights 2 and 4 stands in for shrine/camp
   SIM.attr=(snap,zone,heat,pol,n,o)=>{
     useSeed(o.seed,["attr",zone,heat,pol,o.kit].join());let clear=0,fights=0;
-    for(let i=0;i<n;i++){S=JSON.parse(snap);S.zone=zone;S.hp=pstats().maxHp;S.maps[zone]={heat,rows:[],path:[]};let ok=true;
+    for(let i=0;i<n;i++){S=JSON.parse(snap);S.zone=zone;S.hp=pstats().maxHp;S.maps[zone]=genMap({heat});let ok=true;
       for(let f=0;f<5&&ok;f++){const id=f<4?pickEnemy(zone):ZONES[zoneIdx(zone)][2];startBattle(id,{row:f<4?f+1:0,up:false,elite:false});
         const B=S.battle;let g=0;while(S.battle===B&&!B.over&&B.turn<150&&g++<600)POL[pol](B);
         if(B.over!=="won"){ok=false;break}fights++;if(f===1||f===3)healYou(Math.round(pstats().maxHp*.35))}
       if(ok)clear++}
     return{clear:clear/n,fights:fights/n}};
-  // ---- economy: whole expeditions through visit() ----
+  // ---- economy: whole expeditions on the grid map (step(), BFS to POIs then the lair) ----
   const essCount=()=>Object.keys(S.inv).filter(isEss).reduce((a,id)=>a+S.inv[id]*plainEq(gradeOf(id)),0); // plain-essence equivalents
   const itemCount=()=>Object.values(S.inv).reduce((a,b)=>a+b,0);
   SIM.exped=(snap,zone,heat,pol,seedKey,seed)=>{
@@ -143,16 +143,21 @@ function setup(){ // runs inside the game page; everything here uses the real ga
         if(!has(c))c=has("leave")?"leave":ids[0];
         eventChoice(c);if(c==="leave")S.event=null}
       return true};
-    while(steps++<40){
-      const m=curMap(),open=openNodes(m);if(!open.length)break;
+    let dark=0,vis=0;
+    while(steps<220){ // walk the grid: nearest unvisited POI (no elites when hurt), then the lair once ~8 are done or the torch is low
+      const m=curMap();if(m.cleared)break;
       if(S.hp<pstats().maxHp*.5&&S.camp>0)rest();
-      const safe=S.hp<pstats().maxHp*.6?open.filter(([a,b])=>m.rows[a][b].t!=="elite"):open,from=safe.length?safe:open,[a,b]=from[Math.floor(Math.random()*from.length)];
-      const t=m.rows[a][b].t;r.visits[t]=(r.visits[t]||0)+1;visit(a,b);
+      const d=bfs(m,m.pos.x,m.pos.y),hurt=S.hp<pstats().maxHp*.6,ix=p=>p.y*m.w+p.x;
+      const tg=m.pois.filter(p=>!p.done&&p.t!=="boss"&&d[ix(p)]>=0&&!(hurt&&p.t==="elite")).sort((a,b)=>d[ix(a)]-d[ix(b)]);
+      const goal=vis>=8||m.torch<=10||!tg.length?m.lair:tg[0],dg=bfs(m,goal.x,goal.y),nx=adjTiles(m).sort((a,b)=>dg[a[1]*m.w+a[0]]-dg[b[1]*m.w+b[0]])[0];
+      if(!nx)break;const was=poiAt(m,nx[0],nx[1]);if(was&&!was.done){r.visits[was.t]=(r.visits[was.t]||0)+1;vis++}
+      if(m.torch<=0)dark++;steps++;step(...nx);
       if(!settle()){r.lost=1;break}
       if(S.battle&&S.battle.over==="won"&&ENEMIES[S.battle.id].boss){r.won=1;break}}
+    const tEnd=curMap().torch;
     // what salvaging the new loot would add: its essences and embers (the sim itself never salvages)
     let sEss=0,sEmb=0;Object.keys(S.inv).forEach(id=>{const d=S.inv[id]-(inv0[id]||0),it=S.items[id];if(d>0&&!isEss(id)){sEss+=d*salvageYield(it).length*plainEq(salvGrade(it));sEmb+=d*salvageEmbers(it)}});
-    return{...r,embers:S.stats.earned,ess:essCount()-e0,items:itemCount()-i0,steps,sEss,sEmb};
+    return{...r,embers:S.stats.earned,ess:essCount()-e0,items:itemCount()-i0,steps,dark,tEnd,sEss,sEmb};
   };
 }
 
@@ -242,16 +247,16 @@ async function main(){
     const ez=zones,eh=HEATS[0],ep=POLS.includes("smart")?"smart":POLS[0];
     console.log(`\n== Economy: ${EXPED} expeditions per zone, ${ep} policy, melee stage kit (codex mastered for its zone), Heat ${eh} ==`);
     console.log("Columns WITHOUT salvage: embers (fight rewards), ess (essences from chests, shrines, elites, bosses...), items (all drops). Columns WITH salvage (the bot never salvages; this is the value of the new non-equipped loot if you did): sv.ess (essences) and sv.emb (embers); emb+sv and ess+sv are the totals; gear/exp = (embers+sv.emb) / median shop gear price.");
-    const cols=[["zone",8],["kit",14],["clear%",7],["lost%",6],["fights",7],["embers",7],["sv.emb",7],["emb+sv",7],["ess",5],["sv.ess",7],["ess+sv",7],["items",6],["shops",6],["gear price min-med-max",23],["ess price",10],["emb@shop",9],["gear/exp",8]];
+    const cols=[["zone",8],["kit",14],["clear%",7],["lost%",6],["fights",7],["embers",7],["sv.emb",7],["emb+sv",7],["ess",5],["sv.ess",7],["ess+sv",7],["items",6],["shops",6],["steps",6],["dark",5],["torch",6],["gear price min-med-max",23],["ess price",10],["emb@shop",9],["gear/exp",8]];
     console.log(cols.map(([c,w])=>c.padEnd(w)).join(""));
     for(const z of ez){const k=kits.find(k=>k.on===z&&k.type==="melee")||kits.find(k=>k.on===z);if(!k)continue;
       const ids=Array.from({length:EXPED},(_,i)=>i),chunks=Array.from({length:JOBS},(_,j)=>ids.filter(i=>i%JOBS===j));
       const rs=(await Promise.all(chunks.map((ch,j)=>pages[j].evaluate(([n,zz,h,p,ids,seed])=>ids.map(i=>SIM.exped(SIM.kits[n].snap,zz,h,p,"exp"+zz+i,seed)),[k.name,z,eh,ep,ch,SEED])))).flat();
       const avg=f=>rs.reduce((a,r)=>a+f(r),0)/rs.length,shops=rs.flatMap(r=>r.shops),gear=shops.flatMap(s=>s.gear),essP=shops.flatMap(s=>s.ess);
-      const row={zone:z,kit:k.name,clear:avg(r=>r.won),lost:avg(r=>r.lost),fights:avg(r=>r.fights),embers:avg(r=>r.embers),salvEmb:avg(r=>r.sEmb),ess:avg(r=>r.ess),salvEss:avg(r=>r.sEss),items:avg(r=>r.items),shops:shops.length/rs.length,
+      const row={zone:z,kit:k.name,clear:avg(r=>r.won),lost:avg(r=>r.lost),fights:avg(r=>r.fights),embers:avg(r=>r.embers),salvEmb:avg(r=>r.sEmb),ess:avg(r=>r.ess),salvEss:avg(r=>r.sEss),items:avg(r=>r.items),shops:shops.length/rs.length,steps:avg(r=>r.steps),dark:avg(r=>r.dark),torch:avg(r=>r.tEnd),
         gear:gear.length?[Math.min(...gear),median(gear),Math.max(...gear)]:null,essPrice:essP.length?[Math.min(...essP),Math.max(...essP)]:null,embAtShop:shops.length?shops.reduce((a,s)=>a+s.emb,0)/shops.length:0,exped:rs.length};
       row.affordable=gear.length?(row.embers+row.salvEmb)/median(gear):0;result.econ.push(row);
-      console.log([z,k.name,pct(row.clear),pct(row.lost),f1(row.fights),f1(row.embers),f1(row.salvEmb),f1(row.embers+row.salvEmb),f1(row.ess),f1(row.salvEss),f1(row.ess+row.salvEss),f1(row.items),f1(row.shops),row.gear?row.gear.join("-"):"-",row.essPrice?[...new Set(row.essPrice)].join("-"):"-",f1(row.embAtShop),f1(row.affordable)].map((v,i)=>String(v).padEnd(cols[i][1])).join(""))}
+      console.log([z,k.name,pct(row.clear),pct(row.lost),f1(row.fights),f1(row.embers),f1(row.salvEmb),f1(row.embers+row.salvEmb),f1(row.ess),f1(row.salvEss),f1(row.ess+row.salvEss),f1(row.items),f1(row.shops),f1(row.steps),f1(row.dark),f1(row.torch),row.gear?row.gear.join("-"):"-",row.essPrice?[...new Set(row.essPrice)].join("-"):"-",f1(row.embAtShop),f1(row.affordable)].map((v,i)=>String(v).padEnd(cols[i][1])).join(""))}
   }
   await browser.close();
   if(OUT){fs.writeFileSync(OUT,JSON.stringify(result));console.log(`\nwrote ${OUT}`)}
