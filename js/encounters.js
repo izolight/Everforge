@@ -3,7 +3,7 @@
 // so the same day plays out alike. What depends on your satchel or gear (the item asked for, the healing item, the piece to temper) varies per player, like the peddler.
 // Every event ends in a "done" event with no choices (or a leave), so none can trap you.
 const evt=(type,icon,title,text,choices,x)=>({type,icon,title,text,loot:[],choices,sc:"",...x});
-const endEv=(icon,title,text,loot,sc)=>{S.event={type:"done",icon,title,text,loot:loot||[],choices:[],sc:sc||""}};
+const endEv=(icon,title,text,loot,sc)=>{if(loot&&loot.length)sfx("loot");S.event={type:"done",icon,title,text,loot:loot||[],choices:[],sc:sc||""}};
 const at=(a,x)=>a[Math.floor(x*a.length)];
 const spare=id=>avail(id)-eqCount(id)>0&&!S.items[id].legendary;
 const cheapest=ids=>ids.slice().sort((a,b)=>power(S.items[a])-power(S.items[b])||(a<b?-1:1))[0];

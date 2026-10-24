@@ -20,6 +20,7 @@
       <div class="xp" aria-hidden="true"><i id="xpbar" style="width:0%"></i></div>
       <span class="emb" id="emb" title="Embers"></span>
       <span id="disc"></span>
+      <button class="snd" id="snd" type="button"></button>
     </div>
   </header>
 
@@ -99,6 +100,9 @@
   </div>
 
   <div id="v-codex" class="view" hidden>
+    <section class="panel" aria-label="Lifetime stats">
+      <details id="statsd"><summary class="label">Lifetime stats</summary><div id="stats"></div></details>
+    </section>
     <section class="panel">
       <p class="label" id="cxlabel">Creature codex</p>
       <p class="empty">Fight, study and hunt creatures to fill in their pages. A fully known creature takes 15% more damage from you.</p>
@@ -172,6 +176,7 @@
 <script src="js/goals.js"></script>
 <script src="js/player.js"></script>
 <script src="js/fx.js"></script>
+<script src="js/audio.js"></script>
 <script src="js/map.js"></script>
 <script src="js/encounters.js"></script>
 <script src="js/economy.js"></script>

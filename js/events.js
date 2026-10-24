@@ -61,7 +61,7 @@ $("combine").onclick=()=>{
   if(inBattle()){toast("Finish the fight first.");return}
   const lvBefore=level(),{item,log,inst,mishap,baseId,rxKeys}=combine(items);
   S.bench.forEach(id=>S.inv[id]--);S.bench=[];
-  const isNew=!S.items[item.id];
+  const st=S.stats,isNew=!S.items[item.id];st.forged++;if(item.legendary)st.legend++;if(mishap)st.mishaps++;
   if(isNew){S.items[item.id]=item;S.journal.push({id:item.id,name:item.name,legendary:item.legendary})}
   S.inv[item.id]=(S.inv[item.id]||0)+1;
   const newRx=rxKeys.filter(k=>!S.knownR.includes(k));S.knownR.push(...newRx);
@@ -94,5 +94,6 @@ let armed=false;$("reset").onclick=e=>{
   if(!armed){armed=true;e.target.textContent="Tap again to erase all progress";setTimeout(()=>{armed=false;e.target.textContent="Start a new game"},3000);return}
   S=freshState();armed=false;e.target.textContent="Start a new game";save();go("battle");toast("A new journey begins.")};
 
+try{const sd=$("statsd");sd.open=localStorage.getItem("everforge-statsopen")==="1";sd.addEventListener("toggle",()=>{try{localStorage.setItem("everforge-statsopen",sd.open?"1":"0")}catch(e){}})}catch(e){}
 try{render()}catch(e){ // a bad stored run should not cost the whole save: drop the transient parts first
   try{S.daily=null;S.run=null;S.battle=null;S.event=null;render()}catch(e2){S=freshState();save();render()}}
