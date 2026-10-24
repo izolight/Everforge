@@ -211,9 +211,9 @@ const STAT_NAMES={atk:"Attack",def:"Defense",mag:"Magic",heal:"Heal",spd:"Speed"
 const DECAY=[1,.5,.3,.2,.15,.1,.1,.1];
 const ESS_VALUE=2.5;
 // Embers: a currency from fights, salvage and selling; it buys peddler stock, refines essences and reforges mishaps (economy.js).
-// worth(it) = 3 + 0.6 x power + 2 per tier above 1. Fights pay fight/elite/boss (+20% per heat level), salvage pays salv x worth, selling pays sell x worth, shop prices are buy x worth (essences: ess).
+// worth(it) = 3 + 0.6 x power + 2 per tier above 1. Fights pay fight/elite/boss (+20% per heat level), salvage pays salv x worth, selling pays sell x worth, shop prices are buy x worth (essences: ess) but never below floor x the salvage value of the item (val per essence it yields + its embers), so buying to salvage never beats buying the essence.
 // Refining turns REFINE_N of one essence + refine embers into one refined essence (ess_<T>_2, trait REFINE_VALUE); it counts as REFINE_N essences for infusion. Reforge costs reforge[0] + reforge[1] x tier.
-const EMB={fight:3,elite:6,boss:18,heat:.2,salv:.15,sell:.5,buy:3.5,ess:20,refine:12,reforge:[10,4],stock:3,sells:4};
+const EMB={fight:3,elite:6,boss:18,heat:.2,salv:.15,sell:.5,buy:3.5,ess:36,val:12,floor:1.3,refine:12,reforge:[10,4],stock:3,sells:4};
 const REFINE_VALUE=4,REFINE_N=3,MISHAP_TRAITS=["Cursed","Brittle","Rust"];
 const VIEWS=["battle","gear","forge","recipes","codex"];
 // Heat: harder expeditions in a cleared zone, cumulative per level. Beating the boss at heat h unlocks h+1.

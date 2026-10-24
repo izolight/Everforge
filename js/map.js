@@ -54,7 +54,7 @@ function visit(r,i){
 }
 function newExpedition(){if(S.run==="daily")return;S.maps[S.zone]=newMap(S.zone);S.battle=null;S.event=null;save();render()}
 function makeOffer(){
-  const free=Object.keys(S.inv).filter(id=>(S.inv[id]-eqCount(id)-benchCount(id))>0&&!S.items[id].legendary);if(!free.length)return null;
+  const free=Object.keys(S.inv).filter(id=>(S.inv[id]-eqCount(id)-benchCount(id))>0&&!S.items[id].legendary&&!isRefined(id));if(!free.length)return null;
   const give=pick(free),zi=zoneIdx(S.zone),next=ZONES[Math.min(zi+1,ZONES.length-1)][0];
   const get=Math.random()<.3?essence(pick([...ESS_POOL,"Radiant","Tempered","Frost"])):pick([...zonePool(S.zone),...zonePool(next),...zonePool(next)]);
   return get===give?null:{give,get};
@@ -74,6 +74,6 @@ function eventChoice(c){
     endEv("chest","Treasure!","It was just a chest. A very generous chest.",got,(pre?pre.s:Math.random()<.15)?giveHint(pre?pre.sx:undefined):"")}
   if(ev.type==="merchant"&&c==="trade"){const {give,get}=ev.offer;
     if((S.inv[give]||0)-eqCount(give)<=0){toast("You no longer have that item.");S.event=null}
-    else{S.inv[give]--;trimBench();addItem(get);S.event={type:"done",icon:"peddler",title:"A fair trade",text:`The peddler pockets your ${S.items[give].name} and hands over the ${S.items[get].name}.`,loot:[get],choices:[]}}}
+    else{S.inv[give]--;trimBench();addItem(get);ev.offer=null;ev.choices=[["leave","Move on"]];ev.loot=[get];ev.text=`The peddler pockets your ${S.items[give].name} and hands over the ${S.items[get].name}. "Anything else?"`;ev.sells=sellList().map(x=>({...x}))}}
   save();render();
 }
