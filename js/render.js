@@ -57,13 +57,13 @@ function renderGoal(){
     ${g.done?`<button class="btn primary sm" id="claim">Claim: ${rewardText(g.reward)}</button>`:S.view!==g.tab?`<button class="btn sm" id="goGoal">Go to ${cap(g.tab)}</button>`:""}`;
 }
 function renderGear(){
-  const P=pstats();
+  const P=pstats();P.floor=atFloor(P);
   $("ghp").className="bar"+(S.hp/P.maxHp<.3?" low":"");$("ghp").firstElementChild.style.width=`${S.hp/P.maxHp*100}%`;$("ghptxt").textContent=`${S.hp}/${P.maxHp}`;
   $("gear").innerHTML=SLOTS.map(([s,l])=>{const it=gearOf(s);
     return `<button class="gslot${it?"":" none"}" data-gear="${s}" aria-label="${l}: ${it?it.name:"empty"}">${glyph(it,SLOT_GLYPH[s])}<small>${l}</small><span>${it?nameHtml(it):s==="main"?"Bare fists":"Empty"}</span></button>`}).join("");
   $("pstats").innerHTML=[["ATK",P.atk,P.offW?`+${P.offPow}`:""],["MAG",P.mag,""],["DEF",P.def,`${Math.round(P.red*100)}%`],["SPD",P.spd,""]]
     .map(([l,v,x])=>`<div class="ps"><span>${l}</span><b>${v}</b>${x?` <small>${x}</small>`:""}</div>`).join("");
-  const cf=[...Object.entries(P.rs).map(([k,v])=>`Resists ${k} ${v}%`),P.ward&&`Ward ${P.ward}`,P.thorns&&`Thorns ${P.thorns}%`,P.dr&&`-${P.dr}/hit`,P.dodge&&`Dodge ${P.dodge}%`,P.root&&`Roots +${P.root}`,P.cleanse&&`Cleanse ${Math.round(Math.min(CLEANSE_CAP,P.cleanse*CLEANSE_PER))}%`].filter(Boolean);
+  const cf=[...Object.entries(P.rs).map(([k,v])=>`Resists ${k} ${v}%`),P.ward&&`Ward ${P.ward}`,P.thorns&&`Thorns ${P.thorns}%`,P.dr&&`-${P.dr}/hit`,P.floor&&`Hits at floor (${Math.round(HIT_MIN*100)}%)`,P.dodge&&`Dodge ${P.dodge}%`,P.root&&`Roots +${P.root}`,P.cleanse&&`Cleanse ${Math.round(Math.min(CLEANSE_CAP,P.cleanse*CLEANSE_PER))}%`].filter(Boolean);
   $("cfx").innerHTML=cf.length?cf.map(x=>`<span>${x}</span>`).join(""):"";
   const inf=Object.entries(S.infuse);
   $("inflabel").textContent=`Infusions · ${inf.length}/${infSlots()} slots`;
@@ -79,7 +79,7 @@ function youHud(){
   const P=pstats(),B=S.battle,guarding=B&&!B.over&&B.guard;
   return `<div class="you" id="youHud">${glyph(P.main,"fists")}<div class="fname">You<em>${P.main?P.main.name:"Bare fists"}</em></div>
     <div class="hpline">${hpBar(S.hp,P.maxHp)}<span class="hpnum">${S.hp}<small>/${P.maxHp}</small></span></div>
-    <div class="fsub"><span>ATK ${P.atk}</span><span>DEF ${Math.round(P.red*100)}%</span>${P.regen?`<span>+${P.regen}/turn</span>`:""}${Object.keys(S.infuse).length?`<span>${Object.keys(S.infuse).join(" · ")}</span>`:""}${guarding?"<span>Guarding</span>":""}${B&&!B.over&&B.off>0?"<span>Off balance</span>":""}${B&&!B.over&&P.rs[B.el]?`<span>Resists ${B.el} ${P.rs[B.el]}%</span>`:""}${B&&!B.over&&B.ward>0?`<span>Ward ${B.ward}</span>`:""}${B&&!B.over?Object.entries(B.you||{}).map(([s,x])=>`<span class="st ${s}" title="${STATUS[s].tip}">${STATUS[s].n}${x.n>1?" x"+x.n:""} ${x.t}t</span>`).join(""):""}</div></div>`;
+    <div class="fsub"><span>ATK ${P.atk}</span><span>DEF ${Math.round((B&&!B.over&&B.heat>=5?redOf(P.def*(1-HEAT_T.bite)):P.red)*100)}%${B&&!B.over&&B.heat>=5?` (-${Math.round(HEAT_T.bite*100)}% bite)`:""}</span>${P.regen?`<span>+${P.regen}/turn</span>`:""}${Object.keys(S.infuse).length?`<span>${Object.keys(S.infuse).join(" · ")}</span>`:""}${guarding?"<span>Guarding</span>":""}${B&&!B.over&&B.off>0?"<span>Off balance</span>":""}${B&&!B.over&&P.rs[B.el]?`<span>Resists ${B.el} ${P.rs[B.el]}%</span>`:""}${B&&!B.over&&B.ward>0?`<span>Ward ${B.ward}</span>`:""}${B&&!B.over?Object.entries(B.you||{}).map(([s,x])=>`<span class="st ${s}" title="${STATUS[s].tip}">${STATUS[s].n}${x.n>1?" x"+x.n:""} ${x.t}t</span>`).join(""):""}</div></div>`;
 }
 function campbar(){
   const P=pstats(),low=S.hp/P.maxHp<.35;
@@ -115,7 +115,7 @@ function mapHead(){
   if(!dl&&!h&&!hz.max)return `<div class="maphead mini"><div class="mh1"><b>${zoneName(S.zone)}</b>${torch}</div>${dark}${amb}</div>`;
   const mods=[...dl?[`<li><b>${DAILY_TWISTS[d.twist].name}</b> ${DAILY_TWISTS[d.twist].desc}</li>`]:[],...HEAT.slice(0,h).map((x,i)=>`<li><b>Heat ${i+1} · ${x.name}</b> ${x.desc}</li>`)];
   const sel=!dl&&hz.max?`<div class="hsel" role="group" aria-label="Heat for new expeditions"><span class="foot">New expeditions</span>${Array.from({length:hz.max+1},(_,n)=>`<button class="hchip" data-heat="${n}" aria-pressed="${hz.sel===n}" title="${n?HEAT[n-1].name+": "+HEAT[n-1].desc:"Normal difficulty"}">${n?"Heat "+n:"Normal"}</button>`).join("")}</div>
-    <p class="foot">${hz.sel?`Heat ${hz.sel} · ${HEAT[hz.sel-1].name}: ${HEAT[hz.sel-1].desc}`:"Normal difficulty."}${hz.sel!==h&&!m.cleared?` This map is Heat ${h}; the choice applies to your next expedition here.`:""}</p>`:"";
+    <p class="foot">${hz.sel?`Heat ${hz.sel} · ${HEAT[hz.sel-1].name}: ${HEAT[hz.sel-1].desc} In all: ${heatTot(hz.sel)}.`:"Normal difficulty."}${hz.sel!==h&&!m.cleared?` This map is Heat ${h}; the choice applies to your next expedition here.`:""}</p>`:"";
   return `<div class="maphead"><div class="mh1"><b>${zoneName(S.zone)}</b>${dl?`<span class="heat daily">Daily</span>`:""}${h?`<span class="heat">Heat ${h}</span>`:""}${torch}</div>
     ${dl?`<p class="foot">Daily expedition · ${d.date}${d.date!==today()?" (still going from an earlier day)":""} · ${d.turns} turns so far</p>`:""}
     ${mods.length?`<details class="heatd" id="heatd"${heatOpen?" open":""}><summary>${mods.length} active modifier${mods.length>1?"s":""}</summary><ul class="heatl">${mods.join("")}</ul></details>`:""}${sel}
@@ -156,12 +156,12 @@ function renderBattle(){
     const P=pstats(),sp=isSpecial(B)?foeOf(B).sp:null,est=foeHit(B,P,sp?sp.x:1,1)*(sp&&sp.kind==="multi"?sp.n:1);
     const dmgTxt=K.stats?B.ward>=est?" No damage expected (ward absorbs it).":` About ${est} damage${B.ward>0?` (ward absorbs ${B.ward})`:""}.`:"";
     const intent=B.frozen?`<div class="intent"><b>NEXT</b><span>Frozen. It will lose its turn.</span></div>`
-      :sp?`<div class="intent special"><b>NEXT</b><span>It's ${sp.tell}. ${(B.phased?K.sp2:K.sp)?`${sp.name} is coming.`:"Something big is coming."}${sp.kind==="heal"?" Parry to interrupt it.":`${dmgTxt} Guard, or Parry to turn it back!`}</span></div>`
+      :sp?`<div class="intent special"><b>NEXT</b><span>It's ${sp.tell}. ${(B.phased?K.sp2:K.sp)?`${sp.name} is coming.`:"Something big is coming."}${sp.kind==="heal"?` Parry (${Math.round(PARRY_CH*100)}%) to interrupt it.`:`${dmgTxt} Guard, or Parry (${Math.round(PARRY_CH*100)}%) to turn it back!`}</span></div>`
       :`<div class="intent"><b>NEXT</b><span>A normal attack.${dmgTxt} Parrying now would backfire.</span></div>`;
     const cons=Object.keys(S.inv).filter(id=>S.inv[id]>0&&grp(S.items[id])==="consumable");
     const canStudy=unknownFacts(B.id).length>0,abs=abKeys(P),abBtn=k=>{const A=ABILITIES[k],c=(B.cd||{})[k]||0;return `<button class="btn act ab" data-ability="${k}" ${c>0?"disabled":""} title="${A.desc}">${icon(A.icon)}${A.name}${c>0?`<i class="cdb">${c}</i>`:""}</button>`};
     body=`${intent}${youHud()}
-      <div class="acts n${abs.length}"><button class="btn primary act" id="atk">${icon("attack")}Attack</button>${abs.map(abBtn).join("")}<button class="btn act" id="guard">${icon("guard")}Guard</button><button class="btn act" id="parry" title="Beat a telegraphed special: negate it and riposte. Mistimed: +25% damage and a lost guard.">${icon("parry")}Parry</button>
+      <div class="acts n${abs.length}"><button class="btn primary act" id="atk">${icon("attack")}Attack</button>${abs.map(abBtn).join("")}<button class="btn act" id="guard">${icon("guard")}Guard</button><button class="btn act" id="parry" title="Beat a telegraphed special: negate it and riposte (${Math.round(PARRY_CH*100)}% to land). Mistimed: +25% damage and a lost guard.">${icon("parry")}Parry</button>
       <button class="btn act" id="study" ${canStudy?"":"disabled"}>${icon("study")}${canStudy?"Study":"Known"}</button><button class="btn act" id="flee">${icon("flee")}Flee</button></div>
       ${cons.length?`<div class="strip">${cons.map(id=>{const it=S.items[id];return `<button class="tile" data-use="${id}" aria-label="Use ${it.name}">${glyph(it)}<span class="tname">${nameHtml(it)}</span><span class="ttr">${useHint(it)}</span><span class="cnt">×${S.inv[id]}</span></button>`}).join("")}</div>`:""}
       ${logBlock(B)}`;

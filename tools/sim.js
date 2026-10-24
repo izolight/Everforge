@@ -2,7 +2,7 @@
 // Balance simulator: plays battles and whole expeditions in the real game code (startBattle, attack, parry, ability, useItem, visit, pstats...)
 // in headless Chromium, with render/save/fx/sfx/toast stubbed. Kits are crafted with the real combine().
 // Usage: node tools/sim.js [--n 40] [--zone woods,pass] [--enemy wolf,archon] [--kit melee,spire-end] [--heat 0,3,5] [--policy smart,basic,passive]
-//        [--seed 7] [--elite] [--row 3] [--all] [--attrition] [--no-mastered] [--jobs 4] [--out sim.json] [--econ-only | --no-econ] [--exped 30]
+//        [--seed 7] [--trace (prints one battle log per cell, then exits)] [--elite] [--row 3] [--all] [--attrition] [--no-mastered] [--jobs 4] [--out sim.json] [--econ-only | --no-econ] [--exped 30]
 const {chromium}=require("playwright"),path=require("path"),fs=require("fs"),os=require("os");
 const URL="file://"+path.resolve(__dirname,"..","index.html");
 
@@ -30,13 +30,13 @@ const KITS={
       ["hands","gloves","hide_gloves golem_core ess:Iron"],["feet","boots","ember_treads golem_core ess:Stone"],["charm","charm","fang_charm ess:Stone ess:Arcane"],["","potion","holy_water spring_water ess:Nourishing"]],inf:["Stone","Iron","Arcane"],carry:{potion:3,bread:2}},
     spire:{steps:[["main","sword","iron_sword golem_core@4 ess:Iron"],["off","shield","sentinel_aegis golem_core@4 ess:Stone"],["head","helm","iron_helmet golem_core ess:Arcane:4"],["body","body","stone_plate rune_shard ess:Stone"],
       ["hands","gloves","hide_gloves golem_core ess:Iron"],["feet","boots","ember_treads golem_core ess:Stone"],["charm","charm","fang_charm ess:Stone ess:Arcane"],["","potion","holy_water spring_water ess:Nourishing"]],inf:["Stone","Arcane","Iron","Stone"],carry:{potion:3,storm_draught:1}}},
-  staff:{ // Magic-heavy staff caster in lighter armor
-    woods:{steps:[["main","staff","oak_staff oak_staff ess:Arcane"],["head","helm","leather_cap"],["body","body","jerkin"],["feet","boots","trail_boots"],["charm","charm","sprite_lantern"]],inf:["Arcane"],carry:{bread:3,honey:2}},
-    pass:{steps:[["main","s1","oak_staff oak_staff ess:Arcane"],["main","staff","$s1 ess:Fire"],["head","helm","leather_cap pelt"],["body","body","jerkin pelt"],["hands","gloves","wraith_wraps"],["feet","boots","trail_boots"],
-      ["charm","charm","sprite_lantern ess:Arcane"],["","potion","holy_water spring_water"]],inf:["Arcane","Fire"],carry:{bread:3,potion:2}},
-    hollow:{steps:[["main","s1","oak_staff oak_staff ess:Arcane"],["main","staff","$s1 phoenix ess:Arcane"],["head","helm","leather_cap shroud"],["body","body","jerkin shroud ess:Arcane"],["hands","gloves","wraith_wraps"],["feet","boots","ember_treads"],
+  staff:{ // Magic-heavy staff caster: Arcane stacked into the staff, a shield, lighter armor
+    woods:{steps:[["main","s1","oak_staff oak_staff ess:Arcane"],["main","staff","$s1 ess:Arcane ess:Arcane"],["off","shield","wood_shield boar_hide"],["head","helm","leather_cap"],["body","body","jerkin"],["feet","boots","trail_boots"],["charm","charm","sprite_lantern"]],inf:["Arcane"],carry:{bread:3,honey:2}},
+    pass:{steps:[["main","s1","oak_staff oak_staff ess:Arcane"],["main","s2","$s1 ess:Arcane ess:Arcane"],["main","staff","$s2 ess:Arcane ess:Arcane"],["off","shield","wood_shield pelt"],["head","helm","iron_helmet pelt"],["body","body","stone_plate pelt"],["hands","gloves","wraith_wraps"],["feet","boots","trail_boots"],
+      ["charm","charm","sprite_lantern ess:Arcane"],["","potion","holy_water spring_water"]],inf:["Arcane","Arcane"],carry:{bread:3,potion:2}},
+    hollow:{steps:[["main","s1","oak_staff oak_staff ess:Arcane"],["main","s2","$s1 phoenix ess:Arcane"],["main","staff","$s2 ess:Arcane ess:Arcane"],["off","shield","wood_shield golem_core"],["head","helm","leather_cap shroud"],["body","body","jerkin shroud ess:Arcane"],["hands","gloves","wraith_wraps"],["feet","boots","ember_treads"],
       ["charm","charm","witch_eye"],["","potion","holy_water spring_water ess:Nourishing"]],inf:["Arcane","Fire","Holy"],carry:{potion:3,bread:2}},
-    spire:{steps:[["main","s1","oak_staff rune_shard ess:Arcane"],["main","s2","$s1 phoenix ess:Arcane:4"],["main","staff","$s2 star_heart ess:Arcane ess:Holy"],["head","helm","leather_cap void_crystal"],["body","body","void_robe"],
+    spire:{steps:[["main","s1","oak_staff rune_shard ess:Arcane"],["main","s2","$s1 phoenix ess:Arcane:4"],["main","s3","$s2 star_heart ess:Arcane ess:Holy"],["main","staff","$s3 ess:Arcane ess:Arcane"],["off","shield","sentinel_aegis"],["head","helm","leather_cap void_crystal"],["body","body","void_robe"],
       ["hands","gloves","wraith_wraps rune_shard ess:Arcane"],["feet","boots","gale_boots"],["charm","charm","witch_eye void_crystal ess:Arcane"],["","potion","holy_water spring_water ess:Nourishing"]],inf:["Arcane","Arcane","Fire","Holy"],carry:{potion:3,storm_draught:1}}},
   stacked:{ // min-max: one trait hammered into each piece (item + essences, again and again) plus infusions, to see how far stacking runs away
     woods:{steps:[["main","s1","iron_sword gnarl_tusk ess:Sharp"],["main","s2","$s1 ess:Sharp ess:Sharp"],["main","sword","$s2 ess:Sharp ess:Sharp"],["body","b1","jerkin boar_hide ess:Iron"],["body","body","$b1 ess:Iron ess:Iron"],["feet","boots","trail_boots ess:Swift ess:Swift"],["off","shield","wood_shield boar_hide ess:Iron"]],inf:["Sharp"],carry:{bread:3}},
@@ -93,7 +93,7 @@ function setup(){ // runs inside the game page; everything here uses the real ga
     passive:()=>attack(),
     basic:B=>{const sp=isSpecial(B)?foeOf(B).sp:null;if(sp&&sp.kind!=="heal"&&!B.frozen&&!B.stun&&!(B.off>0))guard();else attack()},
     smart:B=>{const sp=isSpecial(B)?foeOf(B).sp:null,P=pstats();
-      if(sp&&!B.frozen&&!B.stun&&!(B.off>0))return parry(); // the telegraph is reliable, so parrying a special is always a perfect parry (and breaks a heal)
+      if(sp&&!B.frozen&&!B.stun&&!(B.off>0))return parry(); // the telegraph is reliable, so the bot always parries a special; the game itself rolls PARRY_CH in enemyTurn, so a parry misses one time in five (and a hit parry breaks a heal)
       if(S.hp<P.maxHp*.35){const hs=Object.keys(S.inv).filter(id=>S.inv[id]>0&&grp(S.items[id])==="consumable"&&medHeal(S.items[id])>0).sort((a,b)=>medHeal(S.items[b])-medHeal(S.items[a]));if(hs.length)return useItem(hs[0])}
       const ready=abKeys(P).find(a=>!(B.cd&&B.cd[a]>0));if(ready)return ability(ready);
       attack()}
@@ -105,6 +105,10 @@ function setup(){ // runs inside the game page; everything here uses the real ga
     const B=S.battle;let g=0;while(S.battle===B&&!B.over&&B.turn<150&&g++<600)POL[pol](B);
     const won=B.over==="won";return{w:won?1:0,t:B.turn,hp:won?S.hp/pstats().maxHp:0};
   };
+  // --trace: one fight with its battle log (your HP after each line's turn is not tracked; the final line is the result)
+  SIM.trace=(snap,id,heat,pol,o)=>{useSeed(o.seed,"trace"+id+heat+pol);S=JSON.parse(snap);const E=ENEMIES[id];S.zone=id==="mimic"?o.zone:E.zone;S.hp=pstats().maxHp;S.maps[S.zone]=genMap({heat});S.run=null;
+    startBattle(id,{row:E.boss||id==="mimic"?0:o.row,up:false,elite:false});const B=S.battle,hps=[];let g=0;while(S.battle===B&&!B.over&&B.turn<150&&g++<600){const t=B.turn,n=B.log.length;POL[pol](B);hps.push(`T${t} you ${S.hp}/${pstats().maxHp} foe ${Math.max(0,B.hp)}/${B.max}`)}
+    return{log:B.log.map(l=>l.t),hps,over:B.over,turns:B.turn}};
   // run a list of cells [{k,e,h,p}] n times each, deterministic per cell if seeded
   SIM.cells=(cells,n,o)=>cells.map(c=>{
     const kit=SIM.kits[c.k];useSeed(o.seed,[c.k,c.e,c.h,c.p,c.mz,o.elite].join());let w=0,t=0,hp=0;
@@ -191,6 +195,8 @@ async function main(){
     console.log(`${k.name.padEnd(17)} Lv${s.lv} HP${String(s.hp).padEnd(3)} ATK${String(s.atk).padEnd(3)} MAG${String(s.mag).padEnd(3)} DEF${String(s.def).padEnd(3)}(${s.red}%) SPD${String(s.spd).padEnd(2)} crit${s.crit}% | ${s.main||"fists"} [${s.abil.join(",")||"-"}] | ward${s.ward} thorn${s.thorns}% dr${s.dr} dodge${s.dodge}% regen${s.regen} root${s.root} cl${s.cleanse} res${JSON.stringify(s.res)} inf${JSON.stringify(s.infuse)} ess${s.ess}${over?"(!)":""} refine${s.refine}emb | ${s.crafts} crafts ~${s.tries} tries (~${s.fizz} fizzles)`);
     if(s.warn.length){warns+=s.warn.length;console.log(`   WARN: ${s.warn.join("; ")}`)}}
   console.log(`kit warnings: ${warns}`);
+  if(has("trace")){for(const k of kits)for(const e of enemies)for(const h of HEATS)for(const p of POLS){const r=await P0.evaluate(([n,e,h,p,o])=>SIM.trace(SIM.kits[n].snap,e,h,p,o),[k.name,e.id,h,p,{seed:SEED,row:ROW,zone:k.arr||k.on}]);console.log(`\n--- ${k.name} vs ${e.id} H${h} ${p}: ${r.over} in ${r.turns} turns ---\n${r.log.join("\n")}\n${r.hps.join("\n")}`)}
+    await browser.close();return}
   const result={args:{n:N,seed:SEED,row:ROW,heats:HEATS,policies:POLS,elite:has("elite"),mastered},kits:sums,cells:[],attr:[],econ:[]};
   const E=Object.fromEntries(enemiesAll.map(e=>[e.id,e])),K=Object.fromEntries(kits.map(k=>[k.name,k]));
   if(!has("econ-only")){
