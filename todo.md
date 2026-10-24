@@ -19,5 +19,8 @@ Ideas discussed but not yet scheduled.
 - **Trait stacking soft cap.** The min-max `stacked` kit still breezes through Heat 5 (spire/Archon 100% smart, 82% HP left). A cap on stat-from-trait would rescale every existing item, so it needs a decision.
 - **Starter sword vs Gnarlhorn.** Without the tutorial's Fire weapon, basic play wins about 8%. The tutorial forges a Fire weapon first (100% win), so it was left alone; easing Gnarlhorn slightly would fix it.
 
+- **Affix balance leftovers (from A1).** Staff kits are weakest against affixed foes: rare at Heat 3 is 83% for staff/pass and 59% for staff/hollow, and magic Volatile/Warded/Burning are 74-76% on staff kits. Defensive kits against rares at Heat 5 run about 31 turns (SLOG line 30). The starter kit loses to magic and rare enemies.
+- **New essence sources.** Wood, Heavy, Runic, Light and Steam only come from affix drops and salvage, never from the peddler, chests or shrines. Decide whether that's intended.
+
 ## Housekeeping
 - Delete the merged local `feat/*` and `fix/*` branches.
