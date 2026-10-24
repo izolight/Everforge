@@ -21,7 +21,7 @@ function effects(it){
     if(v("Arcane"))out.push(`${Math.round(Math.min(ARC_CAP,v("Arcane")*ARC_PER))}% chance a hit ignores elemental resistance`);
     if(v("Tempered"))out.push(`Each hit cracks enemy armor, up to -${Math.round(Math.min(SHRED_CAP,v("Tempered")*SHRED_PER))} DEF`)}
   const ab=g==="weapon"?ABILITIES[it.form]:it.form==="shield"?ABILITIES.shield:null;
-  if(ab)out.push(`Ability, ${ab.name}: ${ab.desc} Cooldown ${ab.cd}.`);
+  if(ab)out.push(`${g==="weapon"?"Ability (main hand)":"Ability"}, ${ab.name}: ${ab.desc} Cooldown ${ab.cd}.`);
   if(isGear(it)){
     if(st.heal>0)out.push(`Mends about ${Math.max(1,Math.round(st.heal*.2+v("Medicine")*MED_REGEN))} HP per battle turn`);
     if(v("Steam"))out.push(`Enemies miss you ${Math.round(Math.min(40,8*v("Steam")))}% of the time`);

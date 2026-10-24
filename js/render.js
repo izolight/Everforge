@@ -64,7 +64,7 @@ function youHud(){
   const P=pstats(),B=S.battle,guarding=B&&!B.over&&B.guard;
   return `<div class="you" id="youHud">${glyph(P.main,"fists")}<div class="fname">You<em>${P.main?P.main.name:"Bare fists"}</em></div>
     <div class="hpline">${hpBar(S.hp,P.maxHp)}<span class="hpnum">${S.hp}<small>/${P.maxHp}</small></span></div>
-    <div class="fsub"><span>ATK ${P.atk}</span><span>DEF ${Math.round(P.red*100)}%</span>${P.regen?`<span>+${P.regen}/turn</span>`:""}${Object.keys(S.infuse).length?`<span>${Object.keys(S.infuse).join(" · ")}</span>`:""}${guarding?"<span>Guarding</span>":""}${B&&!B.over&&B.off>0?"<span>Off balance</span>":""}${B&&!B.over&&B.open?"<span>Exposed +25%</span>":""}${B&&!B.over&&P.rs[B.el]?`<span>Resists ${B.el} ${P.rs[B.el]}%</span>`:""}${B&&!B.over&&B.ward>0?`<span>Ward ${B.ward}</span>`:""}${B&&!B.over?Object.entries(B.you||{}).map(([s,x])=>`<span class="st ${s}" title="${STATUS[s].tip}">${STATUS[s].n}${x.n>1?" x"+x.n:""} ${x.t}t</span>`).join(""):""}</div></div>`;
+    <div class="fsub"><span>ATK ${P.atk}</span><span>DEF ${Math.round(P.red*100)}%</span>${P.regen?`<span>+${P.regen}/turn</span>`:""}${Object.keys(S.infuse).length?`<span>${Object.keys(S.infuse).join(" · ")}</span>`:""}${guarding?"<span>Guarding</span>":""}${B&&!B.over&&B.off>0?"<span>Off balance</span>":""}${B&&!B.over&&P.rs[B.el]?`<span>Resists ${B.el} ${P.rs[B.el]}%</span>`:""}${B&&!B.over&&B.ward>0?`<span>Ward ${B.ward}</span>`:""}${B&&!B.over?Object.entries(B.you||{}).map(([s,x])=>`<span class="st ${s}" title="${STATUS[s].tip}">${STATUS[s].n}${x.n>1?" x"+x.n:""} ${x.t}t</span>`).join(""):""}</div></div>`;
 }
 function campbar(){
   const P=pstats(),low=S.hp/P.maxHp<.35;
@@ -76,8 +76,8 @@ function foeStage(B){
   const E=ENEMIES[B.id],K=cx(B.id),kn=know(B.id),eliteF=B.elite?TRAITS[B.elite].f:null;
   const kw=B.weak.filter(f=>K.weak.includes(f)),kr=B.resist.filter(f=>K.resist.includes(f)||f===eliteF);
   const unknown=E.weak.length+E.resist.length-K.weak.length-K.resist.length;
-  const st=[B.burn&&`<span class="chip" style="color:${FAM.fire}">Burning ${B.burn.d}</span>`,B.poison&&`<span class="chip" style="color:${FAM.poison}">Poison ${B.poison}</span>`,B.frozen&&`<span class="chip" style="color:${FAM.ice}">Frozen</span>`,B.bleed&&`<span class="chip" style="color:var(--bad)">Bleed ${B.bleed.d*B.bleed.n}</span>`,B.stun&&`<span class="chip">Stunned</span>`].filter(Boolean).join("");
-  const winding=!B.over&&!B.frozen&&!B.stun&&isSpecial(B)&&E.sp.kind!=="heal";
+  const st=[B.burn&&`<span class="chip" style="color:${FAM.fire}">Burning ${B.burn.d}</span>`,B.poison&&`<span class="chip" style="color:${FAM.poison}">Poison ${B.poison}</span>`,B.frozen&&`<span class="chip" style="color:${FAM.ice}">Frozen</span>`,B.bleed&&`<span class="chip" style="color:var(--bad)">Bleed ${B.bleed.d*B.bleed.n}</span>`].filter(Boolean).join("");
+  const winding=!B.over&&!B.frozen&&isSpecial(B)&&E.sp.kind!=="heal";
   const cls=`portrait${B.over==="won"?" down":""}${winding?" winding":""}`;
   return `<div class="stage" id="enemyHud" style="--el:${FAM[B.el]}">
     <button class="${cls}" id="foeArt" data-codex="${B.id}" aria-label="${B.name}. Open codex entry">${portrait(B.id,{el:B.el,elite:B.elite,frozen:B.frozen,burn:!!B.burn&&!B.over,poison:B.poison>0&&!B.over})}</button>
@@ -108,7 +108,7 @@ function renderBattle(){
   if(!B.over){
     const P=pstats(),sp=isSpecial(B)?E.sp:null,est=foeHit(B,P,sp?sp.x:1,1)*(sp&&sp.kind==="multi"?sp.n:1);
     const dmgTxt=K.stats?` About ${est} damage${B.ward>0?` (ward absorbs ${Math.min(B.ward,est)})`:""}.`:"";
-    const intent=B.frozen||B.stun?`<div class="intent"><b>NEXT</b><span>${B.frozen?"Frozen":"Stunned"}. It will lose its turn.</span></div>`
+    const intent=B.frozen?`<div class="intent"><b>NEXT</b><span>Frozen. It will lose its turn.</span></div>`
       :sp?`<div class="intent special"><b>NEXT</b><span>It's ${sp.tell}. ${K.sp?`${sp.name} is coming.`:"Something big is coming."}${sp.kind==="heal"?" Parry to interrupt it.":`${dmgTxt} Guard, or Parry to turn it back!`}</span></div>`
       :`<div class="intent"><b>NEXT</b><span>A normal attack.${dmgTxt} Parrying now would backfire.</span></div>`;
     const cons=Object.keys(S.inv).filter(id=>S.inv[id]>0&&grp(S.items[id])==="consumable");
