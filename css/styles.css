@@ -384,3 +384,19 @@ textarea.code{width:100%;min-height:72px;background:#120f0c;color:var(--fg);bord
 .shop{display:grid;gap:6px;text-align:left}
 .shoprow{display:flex;align-items:center;justify-content:space-between;gap:8px}
 .shoprow .btn svg{width:14px;height:14px;vertical-align:-2px;margin-right:3px;fill:currentColor;fill-opacity:.35}
+/* crafting skills + forge odds */
+.cline{background:#17130f;border:1px solid var(--line);border-radius:10px;padding:10px 12px;display:grid;gap:6px;margin-top:8px}
+.cline.blocked{border-color:var(--down)}
+.cl1{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:.92rem}
+.cl1>span:first-child{display:flex;align-items:center;gap:6px;font-weight:600}
+.odds{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:.88rem}
+.odds .mis{color:var(--accent)}
+.ski{width:18px;height:18px;flex:none;color:var(--accent)}
+#skd>summary{cursor:pointer;padding:2px 0}
+#skd[open]>summary{margin-bottom:8px}
+#skills{display:grid;gap:10px;margin-top:10px}
+.sk{display:flex;gap:10px;align-items:flex-start}
+.sk .ski{width:26px;height:26px;margin-top:2px}
+.skb{display:grid;gap:3px;flex:1;min-width:0}
+.skb .bar{height:8px;flex:none}
+.result.fizzle .rname{color:var(--down)}

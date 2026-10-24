@@ -7,6 +7,10 @@ const pick=a=>a[Math.floor(Math.random()*a.length)];
 const $=id=>document.getElementById(id);
 const reduced=()=>window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches;
 function level(){let l=1;XP_LV.forEach((t,i)=>{if(S.xp>=t)l=i+1});return l}
+const skXp=k=>S.skills[k]||0;
+function skLv(k){let l=1;SK_LV.forEach((t,i)=>{if(skXp(k)>=t)l=i+1});return l}
+const skMsg=k=>(sfx("level",.6),`${SKILLS[k].name} Lv ${skLv(k)}! Tier ${SK_CAP[skLv(k)-1]} is within reach.`);
+const blockText=b=>`Your ${SKILLS[b.skill].name} (Lv ${b.lv}) can't reach tier ${b.tier} yet. It needs Lv ${b.need}.`;
 const lvMsg=()=>(sfx("level",.6),`Smith level ${level()}! ${LV_PERK[level()]||"Your mixtures grow steadier."}`);
 const maxInputs=()=>2+INPUT_LV.filter(l=>level()>=l).length;
 const infSlots=()=>INF_SLOTS+(level()>=9?1:0);

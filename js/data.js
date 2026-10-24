@@ -206,7 +206,16 @@ const CURES={Medicine:["burn","chill","poison","curse"],Holy:["curse","poison"],
 const RARITY=[["Common","#b3aa9e"],["Uncommon","#88d7a1"],["Rare","#7cb6f2"],["Epic","#c39cf7"],["Mythic","#ff8a50"]];
 const XP_LV=[0,60,160,320,560,900,1400,2100,3000,4200];
 // smith level perks: level-up toast text (lvMsg) and what maxInputs, infSlots and traitSlots read
-const LV_PERK={2:"Third crucible slot unlocked.",3:"Another trait slot, and you can appraise a forge.",5:"Another trait slot and steadier mixtures.",7:"Another trait slot and steadier mixtures.",8:"Fourth crucible slot unlocked.",9:"Fourth infusion slot unlocked.",10:"Master smith: an eighth trait slot."},INPUT_LV=[2,8],MIMIC_HP=[1,1.9,2.8,3.7],MIMIC_ATK=[1,1.6,2.1,2.6];
+const LV_PERK={2:"Third crucible slot unlocked.",3:"Another trait slot, and you can appraise a forge.",5:"Another trait slot.",7:"Another trait slot.",8:"Fourth crucible slot unlocked.",9:"Fourth infusion slot unlocked.",10:"Master smith: an eighth trait slot."},INPUT_LV=[2,8],MIMIC_HP=[1,1.9,2.8,3.7],MIMIC_ATK=[1,1.6,2.1,2.6];
+// Crafting skills (S.skills[key]=xp): every category of thing levels on its own. A craft trains the result's skill (SK_XP.self of the craft's XP) and each other input category (SK_XP.input); a fizzle teaches SK_XP.fizzle of the base XP. Levels 1-10 come from SK_LV; SK_CAP[lv-1] is the highest result tier that skill can reach (the craft is blocked above it).
+const SKILLS={weapon:{name:"Weaponsmithing",g:"blade",forms:["blade","spear","staff","lance","spellblade","warstaff","claws"],cats:"all weapons"},shield:{name:"Shieldwright",g:"shield",forms:["shield"],cats:"shields"},helm:{name:"Helmsmithing",g:"helm",forms:["helm"],cats:"head armor"},
+  body:{name:"Armorsmithing",g:"chest",forms:["chest","bulwark"],cats:"body armor, bulwarks"},gloves:{name:"Glovemaking",g:"gloves",forms:["gloves"],cats:"gloves"},boots:{name:"Bootmaking",g:"boots",forms:["boots"],cats:"boots"},
+  trinket:{name:"Trinketry",g:"charm",forms:["charm"],cats:"trinkets"},cooking:{name:"Cooking",g:"food",forms:["food"],cats:"food"},brewing:{name:"Brewing",g:"potion",forms:["potion","elixir"],cats:"potions, elixirs"},
+  alchemy:{name:"Alchemy",g:"shard",forms:["material"],cats:"essences, materials"}};
+const skillOf=it=>Object.keys(SKILLS).find(k=>SKILLS[k].forms.includes(it.form));
+const SK_LV=[0,30,80,160,280,450,680,980,1350,1800],SK_CAP=[3,4,5,6,7,8,9,9,9,9],SK_XP={self:1,input:.3,fizzle:.5};
+// Difficulty of a recipe, in skill levels: CRAFT.base + CRAFT.tier per result tier above 1 + the raw instability (conflicts, reactions, extra inputs) / CRAFT.inst + CRAFT.up per tier above CRAFT.upFrom of a crafted input of the result's own form (upgrading again). The failure chance is FAIL.base + FAIL.slope x (difficulty - skill level), kept between FAIL.min and FAIL.max, and the share of failures that fizzle (lose everything, FIZ.refund of the ingredients' worth back in embers) instead of becoming a mishap is FIZ.base + FIZ.slope x the gap (FIZ.min..FIZ.max). Trait merges gain half as much above SOFT.
+const CRAFT={base:1,tier:.8,inst:12,up:.5,upFrom:3},FAIL={base:10,slope:10,min:3,max:85},FIZ={base:.05,slope:.2,min:.05,max:.85,refund:.25},SOFT=8;
 const STAT_NAMES={atk:"Attack",def:"Defense",mag:"Magic",heal:"Heal",spd:"Speed"};
 const DECAY=[1,.5,.3,.2,.15,.1,.1,.1];
 const ESS_VALUE=2.5;

@@ -31,15 +31,16 @@ function refine(t){
   const b="ess_"+t;if(inBattle()||avail(b)<REFINE_N||S.embers<EMB.refine)return;
   S.inv[b]-=REFINE_N;trimBench();spendEmbers(EMB.refine);S.stats.refined++;const r=refined(t);addItem(r);sfx("loot");save();render();toast(`${REFINE_N} ${t} Essences refined into a ${S.items[r].name}.`);
 }
-// Reforge: pay embers to strip every mishap (Cursed, Brittle, Rust, and a Weakened flag, which restores the traits from before the fizzle) from a crafted or tempered piece. Like the old forge's tempering it makes a new c_ item, keeps the legendary flag and bonus, and takes over the equip slot.
+// Reforge: pay embers to strip every mishap (Cursed, Brittle, Rust, and a Weakened flag, which restores the traits from before the fizzle) from a crafted or tempered piece. Like the old forge's tempering it makes a new c_ item (a flawed craft turns back into its clean recipe item), keeps the legendary flag and bonus, and takes over the equip slot.
 const mishapsOf=it=>!it.crafted?[]:[...MISHAP_TRAITS.filter(t=>it.traits[t]>0),...it.mishap==="Weakened"?["Weakened"]:[]],reforgeCost=it=>EMB.reforge[0]+EMB.reforge[1]*it.tier;
 function reforge(id){
   const it=S.items[id],ms=it?mishapsOf(it):[],cost=ms.length&&reforgeCost(it);if(!ms.length||inBattle()||!S.inv[id]||S.embers<cost)return;
-  const nid="c_"+hash(id+":reforge").toString(36);
+  const back=it.clean&&!it.temper&&ms.length===1&&!(it.recipeIds||[]).some(r=>MISHAP_TRAITS.some(t=>S.items[r]?.traits[t]>0)),nid=back?it.clean:"c_"+hash(id+":reforge").toString(36); // a mended mishap turns back into the clean recipe item, so it stacks with copies forged cleanly
   if(!S.items[nid]){let tr={...it.traits},name=it.name;
     ms.forEach(m=>{if(m!=="Weakened"){delete tr[m];name=name.replace(TRAITS[m].adj+" ","")}});
     if(ms.includes("Weakened"))tr=it.unweak?{...it.unweak}:Object.fromEntries(Object.entries(tr).map(([t,v])=>[t,r1(v/.7)])); // old Weakened items without a snapshot fall back to undoing the 30%
-    S.items[nid]={...it,id:nid,recipe:undefined,recipeIds:undefined,mishap:undefined,unweak:undefined,traits:tr,name}}
+    S.items[nid]={...it,id:nid,...back?{}:{recipe:undefined,recipeIds:undefined},clean:undefined,mishap:undefined,unweak:undefined,traits:tr,name}}
+  if(back){const ji=S.journal.findIndex(j=>j.id===id),have=S.journal.some(j=>j.id===nid);if(have){if(ji>=0)S.journal.splice(ji,1)}else if(ji>=0)S.journal[ji]={...S.journal[ji],id:nid,name:S.items[nid].name};else S.journal.push({id:nid,name:S.items[nid].name,legendary:!!S.items[nid].legendary})}
   spendEmbers(cost);sfx("forge");takeOne(id);addItem(nid);
   for(const [s] of SLOTS)if(S.eq[s]===id&&eqCount(id)>(S.inv[id]||0)){S.eq[s]=nid;break}
   clampHp();save();render();closeSheet();toast(`${S.items[nid].name} reforged. ${ms.join(" and ")} gone.`);

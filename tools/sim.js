@@ -8,7 +8,7 @@ const URL="file://"+path.resolve(__dirname,"..","index.html");
 
 // ---------- kit table ----------
 // Smith level/XP per stage. A stage kit is what a player plausibly owns when they finish that zone.
-const STAGES={woods:{label:"woods-end",xp:160},pass:{label:"pass-end",xp:560},hollow:{label:"hollow-end",xp:1400},spire:{label:"spire-end",xp:3200}};
+const STAGES={woods:{label:"woods-end",xp:160,sk:80},pass:{label:"pass-end",xp:560,sk:280},hollow:{label:"hollow-end",xp:1400,sk:680},spire:{label:"spire-end",xp:3200,sk:1350}}; // sk = XP in every crafting skill (Lv 3 / 5 / 7 / 9): what a focused player has by then
 // Each step crafts with the real combine(): [slot or "", label, "input input input"] (a single input is a raw drop, equipped as is). Inputs: a base item id, "ess:Trait" (plain essence), "ess:Trait:2" (refined),
 // or "$label" for an earlier step. The crafted item is equipped in the slot (consumables have no slot). inf = traits to infuse (repeat a trait for rank II/III),
 // carry = spare consumables (base id: count; crafted labels work too). Essences and base items are simply granted, so the "ess" count printed is what the kit assumes you salvaged.
@@ -66,8 +66,8 @@ function setup(){ // runs inside the game page; everything here uses the real ga
   const ref=s=>s.startsWith("ess:")?(s.endsWith(":2")?refined(s.split(":")[1]):essence(s.split(":")[1])):s;
   const SIM=window.SIM={kits:{}};
   // craft a kit with combine(), equip it, infuse. Returns the save snapshot and a summary
-  SIM.build=(k,stage,xp,mast)=>{ // mast = highest zone index whose enemies the player has mastered in the codex (-1: none)
-    S=freshState();S.xp=xp;S.unlocked=ZONES.map(z=>z[0]);S.zone=stage;const out={},warn=[];let ess=0,refs=0;
+  SIM.build=(k,stage,xp,mast,sk)=>{ // mast = highest zone index whose enemies the player has mastered in the codex (-1: none)
+    S=freshState();S.xp=xp;Object.keys(SKILLS).forEach(x=>S.skills[x]=sk);let tries=0,fizz=0,nc=0;S.unlocked=ZONES.map(z=>z[0]);S.zone=stage;const out={},warn=[];let ess=0,refs=0;
     const need=id=>{if(id.startsWith("ess:")){ess+=id.endsWith(":2")?3:1;if(id.endsWith(":2"))refs++;const r=ref(id);addItem(r);return r}if(!S.items[id])warn.push("unknown "+id);return id};
     k.steps.forEach(([slot,as,ins])=>{
       const ids=ins.split(" ").map(i=>i[0]==="$"?out[i.slice(1)]:need(i));
@@ -75,7 +75,8 @@ function setup(){ // runs inside the game page; everything here uses the real ga
       if(ids.length>maxInputs())warn.push(`${as}: ${ids.length} inputs at Smith Lv ${level()} (max ${maxInputs()})`);
       ids.forEach(i=>{if(i[0]!=="$"&&!S.inv[i])addItem(i)});
       const mx=checkMix(ids.map(i=>S.items[i]));if(!mx.ok)warn.push(`${as}: impossible mix (${mx.reason})`);
-      const c=combine(ids.map(i=>S.items[i]));if(c.mishap)warn.push(`${as}: ${c.mishap}`);if(c.log.some(l=>l.k==="Lost"))warn.push(`${as}: lost ${c.log.find(l=>l.k==="Lost").t}`);
+      const c=combine(ids.map(i=>S.items[i]),{roll:100,full:1}); // the sim builds the clean result; a player needs 1/(1-fail) attempts on average
+      if(c.blocked)warn.push(`${as}: ${blockText(c.blocked)}`);nc++;tries+=1/(1-c.fail/100);fizz+=c.fiz/100/(1-c.fail/100);if(c.fail>=25)warn.push(`${as}: ${c.fail}% to fail (${c.fiz}% fizzle)`);if(c.log.some(l=>l.k==="Lost"))warn.push(`${as}: lost ${c.log.find(l=>l.k==="Lost").t}`);
       S.items[c.item.id]=c.item;addItem(c.item.id);out[as]=c.item.id;if(slot)equip(c.item.id,slot)});
     (k.inf||[]).forEach(t=>{addItem(essence(t),3);ess+=3;if(!infusable().includes(t))warn.push("cannot infuse "+t);infuse(t)});
     Object.entries(k.carry||{}).forEach(([id,n])=>{if(out[id])addItem(out[id],n-(S.inv[out[id]]||0)>0?n-(S.inv[out[id]]||0):0);else if(n)addItem(id,n)});
@@ -84,7 +85,7 @@ function setup(){ // runs inside the game page; everything here uses the real ga
     S.hp=pstats().maxHp;const P=pstats(),st=id=>statsOf(S.items[id]);
     const gear=SLOTS.map(([s])=>{const it=gearOf(s);return it&&`${s}:${it.name}`}).filter(Boolean);
     const sum={lv:level(),atk:P.atk,mag:P.mag,def:P.def,red:Math.round(P.red*100),hp:P.maxHp,spd:P.spd,regen:P.regen,ward:P.ward,thorns:P.thorns,dr:P.dr,dodge:P.dodge,root:P.root,cleanse:P.cleanse,res:P.rs,
-      crit:Math.round(Math.min(CRIT_CAP,5+(P.main?withInnate(P.main.traits).Sharp||0:0)*3)),abil:abKeys(P),main:P.main&&P.main.name,form:P.main&&P.main.form,shield:!!P.shield,infuse:{...S.infuse},ess,refine:refs*EMB.refine,warn,gear,heals:Object.keys(S.inv).filter(id=>grp(S.items[id])==="consumable").map(id=>`${S.items[id].name} x${S.inv[id]} (${medHeal(S.items[id])})`)};
+      crit:Math.round(Math.min(CRIT_CAP,5+(P.main?withInnate(P.main.traits).Sharp||0:0)*3)),abil:abKeys(P),main:P.main&&P.main.name,form:P.main&&P.main.form,shield:!!P.shield,infuse:{...S.infuse},ess,refine:refs*EMB.refine,tries:Math.round(tries*10)/10,crafts:nc,fizz:Math.round(fizz*10)/10,warn,gear,heals:Object.keys(S.inv).filter(id=>grp(S.items[id])==="consumable").map(id=>`${S.items[id].name} x${S.inv[id]} (${medHeal(S.items[id])})`)};
     return {snap:JSON.stringify(S),sum};
   };
   const POL={
@@ -172,16 +173,16 @@ async function main(){
   const enemiesAll=await P0.evaluate(()=>Object.entries(ENEMIES).map(([id,e])=>({id,zone:e.zone,boss:!!e.boss,name:e.name})));
   const eSel=list("enemy",null),enemies=enemiesAll.filter(e=>(eSel?eSel.includes(e.id):(e.zone==="any"||zones.includes(e.zone))));
   // kits: each stage kit has an on-stage zone and an arrival zone (the next one); the starter kit only arrives (at the woods). --zone keeps kits whose on-stage or arrival zone is listed
-  const defs=[...Object.entries(KITS).flatMap(([type,by])=>Object.entries(by).map(([z,def])=>({name:kitName(type,z),type,zone:z,on:z,arr:ZN[ZN.indexOf(z)+1]||null,xp:STAGES[z].xp,mast:mastered?ZN.indexOf(z):-1,def}))),
+  const defs=[...Object.entries(KITS).flatMap(([type,by])=>Object.entries(by).map(([z,def])=>({name:kitName(type,z),type,zone:z,on:z,arr:ZN[ZN.indexOf(z)+1]||null,xp:STAGES[z].xp,sk:STAGES[z].sk,mast:mastered?ZN.indexOf(z):-1,def}))),
     {name:"starter/start",type:"starter",zone:"woods",on:null,arr:"woods",xp:0,mast:-1,def:STARTER}];
   const kits=defs.filter(k=>(!kitSel||kitSel.some(x=>k.name.includes(x)||(STAGES[k.zone]&&STAGES[k.zone].label===x)))&&(!has("zone")||zones.includes(k.on)||zones.includes(k.arr)));
   const sums={};
-  for(const k of kits){const b=await P0.evaluate(([d,z,xp,m])=>SIM.build(d,z,xp,m),[k.def,k.zone,k.xp,k.mast]);sums[k.name]=b.sum;
+  for(const k of kits){const b=await P0.evaluate(([d,z,xp,m,sk])=>SIM.build(d,z,xp,m,sk),[k.def,k.zone,k.xp,k.mast,k.sk]);sums[k.name]=b.sum;
     await Promise.all(pages.map(p=>p.evaluate(([n,z,s])=>{SIM.kits[n]={snap:s,zone:z}},[k.name,k.zone,b.snap])))}
   console.log(`== Kits (${kits.length}); codex mastery ${mastered?"on for the kit's zone and earlier":"off"} ==`);
   let warns=0;
   for(const k of kits){const s=sums[k.name],over=k.type!=="stacked"&&s.ess>(ESS_BUDGET[k.zone]||12);
-    console.log(`${k.name.padEnd(17)} Lv${s.lv} HP${String(s.hp).padEnd(3)} ATK${String(s.atk).padEnd(3)} MAG${String(s.mag).padEnd(3)} DEF${String(s.def).padEnd(3)}(${s.red}%) SPD${String(s.spd).padEnd(2)} crit${s.crit}% | ${s.main||"fists"} [${s.abil.join(",")||"-"}] | ward${s.ward} thorn${s.thorns}% dr${s.dr} dodge${s.dodge}% regen${s.regen} root${s.root} cl${s.cleanse} res${JSON.stringify(s.res)} inf${JSON.stringify(s.infuse)} ess${s.ess}${over?"(!)":""} refine${s.refine}emb`);
+    console.log(`${k.name.padEnd(17)} Lv${s.lv} HP${String(s.hp).padEnd(3)} ATK${String(s.atk).padEnd(3)} MAG${String(s.mag).padEnd(3)} DEF${String(s.def).padEnd(3)}(${s.red}%) SPD${String(s.spd).padEnd(2)} crit${s.crit}% | ${s.main||"fists"} [${s.abil.join(",")||"-"}] | ward${s.ward} thorn${s.thorns}% dr${s.dr} dodge${s.dodge}% regen${s.regen} root${s.root} cl${s.cleanse} res${JSON.stringify(s.res)} inf${JSON.stringify(s.infuse)} ess${s.ess}${over?"(!)":""} refine${s.refine}emb | ${s.crafts} crafts ~${s.tries} tries (~${s.fizz} fizzles)`);
     if(s.warn.length){warns+=s.warn.length;console.log(`   WARN: ${s.warn.join("; ")}`)}}
   console.log(`kit warnings: ${warns}`);
   const result={args:{n:N,seed:SEED,row:ROW,heats:HEATS,policies:POLS,elite:has("elite"),mastered},kits:sums,cells:[],attr:[],econ:[]};
