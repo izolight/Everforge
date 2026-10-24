@@ -45,6 +45,10 @@ async function run(label,setup){
     // Visit the other views, forge something, salvage, infuse.
     async function chores(){
       for(const v of VIEWS){go(v);out.views++}
+      if(Math.random()<.5){ // wield a weapon of a random form (and a shield) so signature abilities get exercised
+        const f=pick(Object.keys(FORMS).filter(k=>FORMS[k].g==="weapon")),id="t_"+f,tr=pick([{Fire:2,Sharp:2},{Ice:3,Arcane:1},{Poison:2,Heavy:1},{Holy:2,Tempered:2},{Shadow:2}]);
+        S.items[id]={id,name:"Test "+FORMS[f].label,form:f,noun:FORMS[f].label,traits:tr,tier:1,crafted:true};addItem(id);equip(id,"main");
+        if(Math.random()<.6){addItem("wood_shield");equip("wood_shield","off")}}
       go("forge");S.bench=[];
       const can=qa("#finv [data-can='1']");
       for(const c of can.slice(0,1+Math.floor(Math.random()*2)))click(c);

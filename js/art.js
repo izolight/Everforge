@@ -171,6 +171,14 @@ const NODE_G={
   guard:'<path d="M12 2 L20 5 V11 C20 16 16 20 12 22 C8 20 4 16 4 11 V5 Z"/>',
   study:'<circle cx="10" cy="10" r="6"/><path d="M14.5 14.5 L21 21"/>',
   flee:'<path d="M4 12 H16 M11 7 L16 12 L11 17"/><path d="M20 5 V19"/>',
+  flurry:'<path d="M4 18 L16 6 M8 20 L20 8 M14 4 H20 V10"/>',
+  lunge:'<path d="M3 21 L19 5 M13 4 H20 V11 M7 15 L9 17"/>',
+  channel:'<circle cx="12" cy="12" r="3"/><path d="M12 2 V6 M12 18 V22 M2 12 H6 M18 12 H22 M5 5 L8 8 M16 16 L19 19 M19 5 L16 8 M5 19 L8 16"/>',
+  charge:'<path d="M4 20 L20 4 M15 4 H20 V9 M3 12 H8 M5 8 H9 M8 16 H12"/>',
+  arcslash:'<path d="M4 18 Q8 4 20 6 M4 18 L9 16 M20 6 L17 11 M13 14 L19 20"/>',
+  sweep:'<path d="M4 8 Q12 2 20 8 M4 14 Q12 8 20 14 M16 18 L20 14 L16 10"/>',
+  rend:'<path d="M5 3 L9 21 M11 3 L15 21 M17 3 L21 21"/>',
+  bash:'<path d="M12 3 L20 6 V12 C20 17 16 20 12 22 C8 20 4 17 4 12 V6 Z"/><path d="M9 11 H15 M12 8 V14"/>',
   attack:'<path d="M5 19 L17 7 M14 4 H20 V10 M4 16 L8 20"/>'
 };
 const icon=t=>`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true">${NODE_G[t]}</svg>`;
