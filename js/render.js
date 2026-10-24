@@ -53,16 +53,18 @@ function renderGoal(){
   const g=goal(),el=$("goal"),st=g.step.replace(/^Step (\d+) of (\d+)/,"$1/$2");
   el.hidden=inBattle();
   el.className="goal"+(g.done?" done":"");
-  el.innerHTML=`<div class="gt" ${tt(g.step+(g.prog?` · ${g.prog}`:""),g.text)}><small>${st}</small> ${g.text}${g.prog?` <em>${g.prog}</em>`:""}</div>
-    ${g.done?`<button class="btn primary sm" id="claim">Claim: ${rewardText(g.reward)}</button>`:S.view!==g.tab?`<button class="btn sm" id="goGoal">Go to ${cap(g.tab)}</button>`:""}`;
+  el.innerHTML=`<div class="gt" ${tt(g.step+(g.prog?` · ${g.prog}`:""),g.text,g.done?`Reward: ${rewardText(g.reward)}`:"")}><small>${st}</small> ${g.text}${g.prog?` <em>${g.prog}</em>`:""}</div>
+    ${g.done?`<button class="btn primary sm" id="claim">Claim</button>`:S.view!==g.tab?`<button class="btn sm" id="goGoal">Go to ${cap(g.tab)}</button>`:""}`;
 }
-const itemTip=(it,...x)=>tt(it.name,`${rarity(it)[0]} · ${labelOf(it)}${isGear(it)?` · PWR ${power(it)}`:""}`,statLine(shown(it)),topTraits(it.traits).slice(0,4).map(([t,v])=>`${t} ${v}`).join(", "),...x);
+const itemLines=it=>[it.name,`${rarity(it)[0]} · ${labelOf(it)}${isGear(it)?` · PWR ${power(it)}`:""}`,statLine(shown(it)),topTraits(it.traits).slice(0,4).map(([t,v])=>`${t} ${v}`).join(", ")];
+const itemTip=(it,...x)=>tt(...itemLines(it),...x),itemAria=it=>esc(itemLines(it).slice(1).filter(Boolean).join(". ")); // the tip text also goes in aria-label, for screen readers
+const ROMAN=["","I","II","III","IV","V"];
 const rcol=it=>`--rc:${rarity(it)[1]}${it.grade?`;--gc:${GRADES[it.grade-1][1]}`:""}`; // rarity stripe + grade frame colours
 function renderGear(){
   const P=pstats();P.floor=atFloor(P);
   $("ghp").className="bar"+(S.hp/P.maxHp<.3?" low":"");$("ghp").firstElementChild.style.width=`${S.hp/P.maxHp*100}%`;$("ghptxt").textContent=`${S.hp}/${P.maxHp}`;
   $("gear").innerHTML=SLOTS.map(([s,l])=>{const it=gearOf(s);
-    return `<button class="sq gs${it?"":" none"}${it&&it.legendary?" legend":""}${it&&it.grade?" gr":""}"${it?` style="${rcol(it)}"`:""} data-gear="${s}" aria-label="${l}: ${it?it.name:"empty"}" ${it?itemTip(it,l):tt(l,s==="main"?"Bare fists. Tap to choose a weapon.":"Empty. Tap to choose an item for it.")}>${glyph(it,SLOT_GLYPH[s])}</button>`}).join("");
+    return `<button class="sq gs${it?"":" none"}${it&&it.legendary?" legend":""}${it&&it.grade?" gr":""}"${it?` style="${rcol(it)}"`:""} data-gear="${s}" aria-label="${l}: ${it?`${it.name}. ${itemAria(it)}`:"empty"}" ${it?itemTip(it,l):tt(l,s==="main"?"Bare fists. Tap to choose a weapon.":"Empty. Tap to choose an item for it.")}>${glyph(it,SLOT_GLYPH[s])}</button>`}).join("");
   const sp=Math.min(35,P.spd*3),rd=Math.round(P.red*100);
   $("pstats").innerHTML=[["atk","Attack",P.atk,P.offW?`+${P.offPow}`:"",`Strike power of your main hand${P.offW?`. Your off hand adds a weaker second strike of ${P.offPow}`:""}.`],["mag","Magic",P.mag,"",`Counts ${MAG_W} times as much as Attack in your strikes.`],
     ["def","Defense",P.def,`${rd}%`,`Cuts the damage you take by ${rd}%, with diminishing returns.`],["spd","Speed",P.spd,"",`${sp}% chance each turn of a swift follow-up strike (up to 35%).`]]
@@ -74,7 +76,7 @@ function renderGear(){
     P.dr&&rc("var(--muted)",ic("dr","s"),`-${P.dr}`,`-${P.dr} per hit`,"Stone takes this much off every hit you take."),
     P.floor&&rc("var(--down)",ic("floor","s"),`${Math.round(HIT_MIN*100)}%`,`Hits at floor (${Math.round(HIT_MIN*100)}%)`,"Defense, resists and Stone together can't cut a hit below this share of its raw damage. More armor won't help against it."),
     P.dodge&&rc(FAM.swift,famIc("swift","s"),`${P.dodge}%`,`Dodge ${P.dodge}%`,"Chance to dodge a hit."),
-    P.root&&rc(FAM.wood,famIc("wood","s"),`+${P.root}`,`Roots +${P.root}`,"HP healed each turn while you are below half health."),
+    P.root&&rc(FAM.wood,ic("root","s"),`+${P.root}`,`Roots +${P.root}`,"HP healed each turn while you are below half health."),
     P.cleanse&&rc(FAM.heal,ic("cleanse","s"),`${Math.round(Math.min(CLEANSE_CAP,P.cleanse*CLEANSE_PER))}%`,`Cleanse ${Math.round(Math.min(CLEANSE_CAP,P.cleanse*CLEANSE_PER))}%`,"Chance each turn to shake off a status (burn, chill, poison, curse).")].filter(Boolean);
   $("cfx").innerHTML=cf.join("");
   const inf=Object.entries(S.infuse),can=infusable(),R=["I","II","III"];
@@ -259,7 +261,7 @@ function renderResult(fresh){
 }
 const TABS=[["all","All"],["weapon","Weapons"],["armor","Armor"],["charm","Trinkets"],["consumable","Consumables"],["material","Materials"]];
 const baseName=it=>(S.items[baseIdOf(it.id)]||it).name; // graded items sort next to their Plain kin, by grade
-const TAB_IC={all:()=>ic("bag"),weapon:()=>gIc("blade"),armor:()=>gIc("chest"),charm:()=>gIc("charm"),consumable:()=>gIc("potion"),material:()=>gIc("ore")};
+const TAB_IC={all:()=>ic("bag"),weapon:()=>gIc("blade"),armor:()=>gIc("chest"),charm:()=>ic("amulet"),consumable:()=>gIc("potion"),material:()=>gIc("ore")};
 const tabBtn=(attr,k,l,on)=>`<button class="tab ti" data-${attr}="${k}" aria-pressed="${on}" aria-label="${l}" ${tt(l)}>${TAB_IC[k]()}${on?`<span>${l}</span>`:""}</button>`; // icon filter chip: the active one shows its name, the rest have a tip
 function satchel(mode){
   const tabs=TABS.map(([k,l])=>tabBtn("tab",k,l,S.tab===k)).join("");
@@ -269,8 +271,8 @@ function satchel(mode){
   const tiles=list.length?list.map(it=>{const eq=eqCount(it.id)>0,left=avail(it.id),isNew=freshShown.has(it.id)||S.fresh.includes(it.id);
     let note="",no=false;
     if(mode==="forge"){if(left<=0){no=true;note="All in the crucible."}else if(full){no=true;note="The crucible is full."}else if(!checkMix([...benchItems,it]).ok){no=true;note="Won't mix with what is in the crucible."}}
-    return `<button class="sq${it.legendary?" legend":""}${it.grade?" gr":""}${eq?" eq":""}${no?" no":""}" style="${rcol(it)}" data-id="${it.id}" data-can="${no?0:1}" aria-label="${it.name}${left!==1?`, ${left}`:""}${eq?", worn":""}${isNew?", new":""}${note?`, ${note}`:""}" ${itemTip(it,left>1?`You hold ${left}.`:"",eq?"Worn.":"",note)}>
-      ${glyph(it)}${left!==1?`<span class="sq-n">${left}</span>`:""}${eq?`<span class="sq-w">${ic("equip","xs")}</span>`:""}${isNew?'<i class="sq-d"></i>':""}</button>`}).join("")
+    return `<button class="sq${it.legendary?" legend":""}${it.grade?" gr":""}${eq?" eq":""}${no?" no":""}" style="${rcol(it)}" data-id="${it.id}" data-can="${no?0:1}" aria-label="${it.name}${left!==1?`, ${left}`:""}${eq?", worn":""}${isNew?", new":""}${note?`, ${note}`:""}. ${itemAria(it)}" ${itemTip(it,left>1?`You hold ${left}.`:"",eq?"Worn.":"",note)}>
+      ${glyph(it)}${left!==1?`<span class="sq-n">${left}</span>`:""}${eq?`<span class="sq-w">${ic("equip","xs")}</span>`:""}${isGear(it)||it.grade?`<span class="sq-p"${it.grade?` style="color:var(--gc)"`:""}>${isGear(it)?power(it):ROMAN[it.grade]}</span>`:""}${isNew?'<i class="sq-d"></i>':""}</button>`}).join("")
     :`<p class="empty">Nothing here yet.</p>`;
   return [tabs,tiles];
 }

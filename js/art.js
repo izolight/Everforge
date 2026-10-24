@@ -226,7 +226,7 @@ const icon=t=>`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke
 // UI icon set (24x24 line icons, currentColor): stats, one per trait family, resources, actions. ic(name,size) adds the sizing class (s 12px, default 16px, l 22px); gIc(form) draws an item glyph as a flat icon.
 Object.assign(NODE_G,{
   st_atk:NODE_G.attack,st_def:NODE_G.guard,st_mag:'<path d="M12 3 L14 10 L21 12 L14 14 L12 21 L10 14 L3 12 L10 10 Z"/>',
-  st_spd:'<path d="M13 2 L5 13 H11 L10 22 L19 10 H13 Z"/>',st_hp:'<path d="M12 20 C4 14 3 9 6 6 C8.5 4 11 5.5 12 8 C13 5.5 15.5 4 18 6 C21 9 20 14 12 20 Z"/>',
+  st_spd:'<path d="M13 2 L5 13 H11 L10 22 L19 10 H13 Z"/>',
   st_heal:'<path d="M9 4 H15 V9 H20 V15 H15 V20 H9 V15 H4 V9 H9 Z"/>',
   f_fire:'<path d="M12 2.5 C15 6 17 8.5 17 12 A5 5 0 0 1 7 12 C7 10 8 9 9 7.5 C9.5 9 10.5 9.5 11 9.5 C10.5 7 11 4.5 12 2.5 Z"/><path d="M12 21 A2.5 2.5 0 0 1 9.5 18.5 C9.5 17 11 16 12 14.5 C13 16 14.5 17 14.5 18.5 A2.5 2.5 0 0 1 12 21 Z"/>',
   f_ice:'<path d="M12 2 V22 M3.5 7 L20.5 17 M20.5 7 L3.5 17 M9.5 4 L12 6.5 L14.5 4 M9.5 20 L12 17.5 L14.5 20"/>',
@@ -234,7 +234,7 @@ Object.assign(NODE_G,{
   f_holy:'<circle cx="12" cy="12" r="4"/><path d="M12 2 V5 M12 19 V22 M2 12 H5 M19 12 H22 M5 5 L7 7 M17 17 L19 19 M19 5 L17 7 M7 17 L5 19"/>',
   f_shadow:'<path d="M19 14 A8 8 0 1 1 10 4 A6.5 6.5 0 0 0 19 14 Z"/>',
   f_wood:'<path d="M5 19 C5 9 11 4 20 4 C20 13 15 19 5 19 Z"/><path d="M5 19 L14 10"/>',
-  f_metal:'<path d="M4 17 L7 8 H17 L20 17 Z"/><path d="M7 8 L9 12 H15 L17 8"/>',
+  f_metal:'<path d="M7 4 H17 L21 12 L17 20 H7 L3 12 Z"/><circle cx="12" cy="12" r="3"/>',
   f_heal:'<path d="M9 4 H15 V9 H20 V15 H15 V20 H9 V15 H4 V9 H9 Z"/>',
   f_arcane:'<path d="M12 2 L21 12 L12 22 L3 12 Z"/><circle cx="12" cy="12" r="2.5"/>',
   f_swift:'<path d="M3 9 H14 A3 3 0 1 0 11 6 M3 14 H18 A3 3 0 1 1 15 17 M3 19 H10"/>',
@@ -242,8 +242,7 @@ Object.assign(NODE_G,{
   f_bad:'<path d="M12 3 L20 7 V14 L12 21 L4 14 V7 Z"/><path d="M9 9 L15 15 M15 9 L9 15"/>',
   renown:'<path d="M12 2 L14.5 8.5 L21 9 L16 13.5 L17.5 20 L12 16.5 L6.5 20 L8 13.5 L3 9 L9.5 8.5 Z"/>',
   smith:NODE_G.forge,hammer:'<path d="M13 3 L21 11 L17 15 L9 7 Z"/><path d="M12 12 L4 20"/>',
-  salvage:'<path d="M4 8 H20 L18 20 H6 Z"/><path d="M9 8 V5 H15 V8"/><path d="M10 12 V16 M14 12 V16"/>',
-  equip:'<path d="M5 12.5 L10 17.5 L19 7"/>',check:'<path d="M5 12.5 L10 17.5 L19 7"/>',
+  equip:'<path d="M5 12.5 L10 17.5 L19 7"/>',amulet:'<path d="M7 3 Q12 9 17 3"/><circle cx="12" cy="15" r="5.5"/><circle cx="12" cy="15" r="1.8"/>',root:'<path d="M12 3 V10 M12 10 C9 11 7 14 6 20 M12 10 C15 11 17 14 18 20 M12 10 V21"/>',
   upgrade:'<path d="M12 20 V5 M6 11 L12 5 L18 11"/><path d="M6 20 H18"/>',
   filter:'<path d="M3 5 H21 L14 13 V20 L10 18 V13 Z"/>',sort:'<path d="M7 4 V20 M3 16 L7 20 L11 16 M17 20 V4 M13 8 L17 4 L21 8"/>',
   ok:'<circle cx="12" cy="12" r="9"/><path d="M8 12.5 L11 15.5 L16.5 9"/>',warn:'<path d="M12 3 L22 20 H2 Z"/><path d="M12 10 V14 M12 17 V17.2"/>',
