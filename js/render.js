@@ -4,6 +4,7 @@ const famChip=(f,pre)=>`<span class="chip fam" style="color:${FAM[f]}">${pre?pre
 const unkChip=t=>`<span class="chip unk">${t}</span>`;
 const nameHtml=it=>`<span style="color:${rarity(it)[1]}">${it.name}</span>`;
 function delta(a,b){const d=a-b;if(!d)return `<em class="d same">±0</em>`;return `<em class="d ${d>0?"up":"down"}">${d>0?"▲":"▼"}${Math.abs(d)}</em>`}
+const shown=it=>{const s=statsOf(it);return grp(it)==="consumable"?{...s,heal:medHeal(it)}:s}; // consumables show the heal they really restore
 function statGrid(st,cmp){
   const h=Object.entries(STAT_NAMES).filter(([k])=>st[k]!==0||(cmp&&cmp[k]!==0))
     .map(([k,l])=>`<div class="stat"><span>${l}</span><b class="${st[k]<0?"neg":""}">${st[k]>0?"+":""}${st[k]}</b>${cmp?delta(st[k],cmp[k]):""}</div>`).join("");
@@ -57,8 +58,7 @@ function renderGear(){
     return `<button class="gslot${it?"":" none"}" data-gear="${s}" aria-label="${l}: ${it?it.name:"empty"}">${glyph(it,SLOT_GLYPH[s])}<small>${l}</small><span>${it?nameHtml(it):s==="main"?"Bare fists":"Empty"}</span></button>`}).join("");
   $("pstats").innerHTML=[["ATK",P.atk,P.offW?`+${P.offPow}`:""],["MAG",P.mag,""],["DEF",P.def,`${Math.round(P.red*100)}%`],["SPD",P.spd,""]]
     .map(([l,v,x])=>`<div class="ps"><span>${l}</span><b>${v}</b>${x?` <small>${x}</small>`:""}</div>`).join("");
-  const rsT=Object.entries(P.rs).map(([k,v])=>`${k} ${v}%`).join(", "),
-    cf=[rsT&&`Resists ${rsT}`,P.ward&&`Ward ${P.ward}`,P.thorns&&`Thorns ${P.thorns}%`,P.dr&&`-${P.dr}/hit`,P.dodge&&`Dodge ${P.dodge}%`,P.root&&`Roots +${P.root}`,P.cleanse&&`Cleanse ${Math.round(Math.min(CLEANSE_CAP,P.cleanse*CLEANSE_PER))}%`].filter(Boolean);
+  const cf=[...Object.entries(P.rs).map(([k,v])=>`Resists ${k} ${v}%`),P.ward&&`Ward ${P.ward}`,P.thorns&&`Thorns ${P.thorns}%`,P.dr&&`-${P.dr}/hit`,P.dodge&&`Dodge ${P.dodge}%`,P.root&&`Roots +${P.root}`,P.cleanse&&`Cleanse ${Math.round(Math.min(CLEANSE_CAP,P.cleanse*CLEANSE_PER))}%`].filter(Boolean);
   $("cfx").innerHTML=cf.length?cf.map(x=>`<span>${x}</span>`).join(""):"";
   const inf=Object.entries(S.infuse);
   $("inflabel").textContent=`Infusions · ${inf.length}/${infSlots()} slots`;
@@ -145,7 +145,7 @@ function renderBattle(){
   let body="";
   if(!B.over){
     const P=pstats(),sp=isSpecial(B)?foeOf(B).sp:null,est=foeHit(B,P,sp?sp.x:1,1)*(sp&&sp.kind==="multi"?sp.n:1);
-    const dmgTxt=K.stats?` About ${est} damage${B.ward>0?` (ward absorbs ${Math.min(B.ward,est)})`:""}.`:"";
+    const dmgTxt=K.stats?B.ward>=est?" No damage expected (ward absorbs it).":` About ${est} damage${B.ward>0?` (ward absorbs ${B.ward})`:""}.`:"";
     const intent=B.frozen?`<div class="intent"><b>NEXT</b><span>Frozen. It will lose its turn.</span></div>`
       :sp?`<div class="intent special"><b>NEXT</b><span>It's ${sp.tell}. ${(B.phased?K.sp2:K.sp)?`${sp.name} is coming.`:"Something big is coming."}${sp.kind==="heal"?" Parry to interrupt it.":`${dmgTxt} Guard, or Parry to turn it back!`}</span></div>`
       :`<div class="intent"><b>NEXT</b><span>A normal attack.${dmgTxt} Parrying now would backfire.</span></div>`;
@@ -168,7 +168,7 @@ function renderBench(){
   const max=maxInputs(),parts=[],items=S.bench.map(id=>S.items[id]),chk=checkMix(items);
   for(let i=0;i<(level()>=2?4:3);i++){
     if(i>0)parts.push('<span class="plus" aria-hidden="true">+</span>');
-    if(i>=max){parts.push(`<div class="slot locked">Smith Lv ${INPUT_LV[i-2]}</div>`);continue}
+    if(i>=max){parts.push(`<div class="slot locked" title="Unlocks at Smith Lv ${INPUT_LV[i-2]}">Lv ${INPUT_LV[i-2]}</div>`);continue}
     const it=items[i];
     parts.push(it?`<button class="slot full${!chk.ok&&chk.bad?.id===it.id?" bad":""}" data-slot="${i}" aria-label="Remove ${it.name}">${glyph(it)}<span>${it.name}</span></button>`:`<div class="slot">Empty</div>`);
   }
@@ -183,7 +183,7 @@ function renderBench(){
       const ts=targetSlot(known),eqIt=ts&&gearOf(ts),showEq=eqIt&&eqIt.id!==known.id&&eqIt.id!==base.id;
       hint=`<div class="preview"><span class="label">Known recipe · you'll get</span>
         <div class="rhead sm">${glyph(known)}<div><div class="rform">${rarity(known)[0]} · ${labelOf(known)}</div><b>${nameHtml(known)}</b></div></div>
-        <div class="chips">${chips(known.traits)}</div>${statGrid(statsOf(known),statsOf(base))}
+        <div class="chips">${chips(known.traits)}</div>${statGrid(shown(known),shown(base))}
         ${cmpBlock(known,base,"Compared to")}${showEq?cmpBlock(known,eqIt,"Versus equipped"):""}</div>`}
     else{
       const knownR=new Set(S.knownR),kr=r.rxKeys.filter(k=>knownR.has(k)),ur=r.rxKeys.filter(k=>!knownR.has(k));
@@ -206,7 +206,7 @@ function renderResult(fresh){
   el.innerHTML=`<div class="rhead">${glyph(it)}<div><div class="rform">${rn} · ${labelOf(it)} · Tier ${it.tier}</div>
     <h2 class="rname">${nameHtml(it)}${r.isNew?`<span class="badge${it.legendary?" gold":""}">${it.legendary?"Legendary":"New"}</span>`:""}</h2></div></div>
     <div class="chips">${chips(it.traits)}</div>
-    ${base?cmpBlock(it,base,"Compared to"):""}${statGrid(statsOf(it),base?statsOf(base):null)}
+    ${base?cmpBlock(it,base,"Compared to"):""}${statGrid(shown(it),base?shown(base):null)}
     ${showEq?cmpBlock(it,eqIt,"Versus equipped"):""}
     <ul class="log"><li><strong>Recipe</strong> ${it.recipe.join(" + ")}</li>${r.log.map(l=>`<li class="${l.warn?"warn":""}"><strong>${l.k}</strong> ${l.t}</li>`).join("")}</ul>
     <p class="foot">Instability ${r.inst}%${r.mishap?"":" · held together"} · +${r.xpGain} smith XP</p>

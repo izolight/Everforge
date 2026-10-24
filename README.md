@@ -53,3 +53,16 @@ js/
 ## Testing
 
 `node tools/smoke.js [steps]` plays the game headlessly through the real UI (Playwright + Chromium) and fails on any page error or if the run gets stuck. It also replays every save in `tools/fixtures/` to check that old saves still migrate. When you bump the save version, run `node tools/smoke.js 400 --write-fixture` once to add a fixture for the new version.
+
+### Balance simulator
+
+`node tools/sim.js` runs the real combat and map code (`startBattle`, `attack`, `parry`, `ability`, `useItem`, `pstats()`, `visit()`...) headlessly in Chromium, with `render`/`save`/`fx`/`sfx`/`toast` stubbed. It builds player kits by actually crafting with `combine()` (the kit table at the top of `tools/sim.js`: balanced `melee`, `defensive`, `staff` and a min-maxed `stacked` kit, each at woods/pass/hollow/spire "end" with a matching Smith level and infusions) and prints each kit's `pstats()`. Then it fights every enemy at each Heat with three bot policies: `passive` (attack only), `basic` (attack, guard on a telegraphed special) and `smart` (parry telegraphed specials, use the ability when ready, heal below 35% HP). Output: one row per enemy, kit and policy (win%, mean turns, mean HP left% per Heat; on-stage rows are marked `>`), win% grids, a kit-strength summary and flags: `TOO_EASY` (on-stage kit wins 100% with over 90% HP left at Heat 0), `TOO_HARD` (wins under 50% at Heat 0) and `SLOG` (mean turns over 30, or 50 for a boss). An economy section then plays whole expeditions through `visit()` and reports embers, essences and items per expedition and the peddler's price range.
+
+```
+node tools/sim.js                                  # full matrix, 40 fights per cell, about 15 s
+node tools/sim.js --n 100 --seed 7 --out sim.json  # more fights, reproducible, JSON results too
+node tools/sim.js --kit stacked --zone spire --heat 0,5 --policy smart
+node tools/sim.js --enemy archon,phoenix --elite   # --elite adds an elite variant (*) of each regular enemy
+```
+
+Flags: `--n` fights per cell, `--zone`/`--enemy`/`--kit`/`--heat`/`--policy` (comma lists; `--kit` matches names like `melee`, `spire`, `staff/pass`), `--seed` (seeds `Math.random` per cell, so results are reproducible), `--row` (map row 0-5 used to scale regular enemies, default 3), `--all` (also print off-stage rows), `--jobs` (browser pages in parallel), `--exped` (expeditions per zone), `--no-econ` / `--econ-only`, `--out` (JSON path). Change the numbers in `data.js`, rerun with the same `--seed` and compare.

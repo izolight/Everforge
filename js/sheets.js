@@ -14,7 +14,7 @@ function openSheet(id,refresh,preview){
       slots.forEach(s=>{const on=S.eq[s]===id,lab=SLOTS.find(x=>x[0]===s)[1];
         btns.push(on?`<button class="btn grow" data-act="unequip" data-slot="${s}" ${locked?"disabled":""}>Unequip ${lab.toLowerCase()}</button>`
           :`<button class="btn primary grow" data-act="equip" data-slot="${s}" ${locked||(eqCount(id)>=S.inv[id]&&!slots.some(x=>S.eq[x]===id))?"disabled":""}>${slots.length>1?`Equip in ${lab.toLowerCase()}`:"Equip"}</button>`)})}
-    if(g==="consumable"&&statsOf(it).heal>0&&!locked)btns.push(`<button class="btn primary grow" data-act="eat" ${S.hp>=P.maxHp?"disabled":""}>${S.hp>=P.maxHp?"Already at full HP":`Use now (+${Math.min(statsOf(it).heal,P.maxHp-S.hp)} HP)`}</button>`);
+    if(g==="consumable"&&statsOf(it).heal>0&&!locked)btns.push(`<button class="btn primary grow" data-act="eat" ${S.hp>=P.maxHp?"disabled":""}>${S.hp>=P.maxHp?"Already at full HP":`Use now (+${Math.min(medHeal(it),P.maxHp-S.hp)} HP)`}</button>`);
     btns.push(`<button class="btn grow" data-act="add" ${left<=0||full||locked||!mix.ok?"disabled":""}>${locked?"Finish the fight to forge":full?"Crucible full":left<=0?"All in crucible":!mix.ok?"Won't mix with the crucible":"Add to crucible"}</button>`);
     const ys=salvageYield(it);
     if(ys.length)btns.push(`<button class="btn ${salvageArmed?"danger":""} grow" data-act="salvage" ${locked||left<=0?"disabled":""}>${salvageArmed?"Tap again to salvage":`Salvage → ${ys.join(" + ")} Essence${salvageEmbers(it)?` + ${salvageEmbers(it)} embers`:""}`}</button>`);
@@ -24,7 +24,7 @@ function openSheet(id,refresh,preview){
   $("sheetIn").innerHTML=`<div class="grab" aria-hidden="true"></div>
     <div class="rhead">${glyph(it)}<div><div class="rform">${rn} · ${labelOf(it)} · Tier ${it.tier}${preview?" · on offer":` · ×${S.inv[id]}`}</div><h2 class="rname">${nameHtml(it)}</h2></div></div>
     <div class="chips">${chips(it.traits)}</div>
-    ${cmp?cmpBlock(it,cmp,"Versus equipped"):""}${statGrid(statsOf(it),cmp?statsOf(cmp):null)}
+    ${cmp?cmpBlock(it,cmp,"Versus equipped"):""}${statGrid(shown(it),cmp?shown(cmp):null)}
     ${!preview&&!mix.ok?`<p class="warn-text">${mix.reason}</p>`:""}
     ${it.mishap==="Weakened"?`<p class="warn-text">Weakened: a fizzled mixture cost every trait 30%.</p>`:""}
     <ul class="fx">${effects(it).map(f=>`<li>${f}</li>`).join("")}</ul>
