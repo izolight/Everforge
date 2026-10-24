@@ -10,7 +10,7 @@ function startBattle(forced,opt){
     burn:null,poison:0,bleed:null,stun:0,open:false,cd:{},you:{},off:0,parry:false,shred:0,ward:null,frozen:false,guard:false,reborn:false,phased:false,elite:null,log:[],over:null,loot:[]};
   if(id==="mimic"){const zi=zoneIdx(S.zone),at=(a,i)=>a[Math.min(i,a.length-1)];B.max=B.hp=Math.round(E.hp*at(MIMIC_HP,zi));B.atk=Math.round(E.atk*at(MIMIC_ATK,zi));B.def=E.def+zi*2}
   B.heat=h;if(opt.pi!=null){B.pi=opt.pi;B.by=opt.by;B.ef=opt.ef} // a map enemy: which one, who moved, where it came from (see slip)
-  if(h){const k=1+HEAT_T.hp;B.max=B.hp=Math.round(B.max*k);B.atk=Math.round(B.atk*k)}
+  if(h){B.max=B.hp=Math.round(B.max*(1+h*HEAT_T.hp));B.atk=Math.round(B.atk*(1+h*HEAT_T.atk))}
   if(h>=4&&E.boss){B.max=B.hp=Math.round(B.max*HEAT_T.boss);if(E.sp)B.spEvery=spEvery(E,h)}
   if(tw==="double")B.atk*=2;
   if(opt.ambush||opt.lunge)B.log.push({t:opt.amsg||"Ambush! Something leaps out at you.",c:"big"});
@@ -20,9 +20,10 @@ function startBattle(forced,opt){
   S.battle=B;S.event=null;S.seen[id]=true;cx(id);
   blog(B.elite?`${E.intro} It crackles with ${B.elite.toLowerCase()}. An elite!`:E.intro,B.elite||E.boss?"big":"");
   if(h)blog(`The heat is on: Heat ${h}, ${HEAT[h-1].name}.`,"foe");
+  if(h>=5)blog(`Its blows bite through ${Math.round(HEAT_T.bite*100)}% of your Defense.`,"foe");
   const P=pstats(),rp=P.rs[B.el];if(rp)blog(`${RES_MSG[B.el]} (-${rp}% damage)`,"good");
   if(P.ward){B.ward=P.ward;blog(`A rune ward flares around you (${P.ward}).`,"good")}
-  if(P.main&&P.main.form==="spear"&&!opt.ambush){blog("Your spear darts out before it can move.","you");strike(P.main,(P.atk+P.mag*.7)*ABILITIES.spear.open,"Opening jab",true);if(B.hp<=0)return enemyDown()}
+  if(P.main&&P.main.form==="spear"&&!opt.ambush){blog("Your spear darts out before it can move.","you");strike(P.main,(P.atk+P.mag*MAG_W)*ABILITIES.spear.open,"Opening jab",true);if(B.hp<=0)return enemyDown()}
   save();render();
 }
 const spEvery=(E,h)=>E.boss&&h>=4?Math.max(2,E.sp.every-1):E.sp.every;
@@ -60,7 +61,7 @@ function strike(W,pow,label,inn,o){
   const B=S.battle,E=foeOf(B),tr=inn?withInnate(W?W.traits:{}):(W?W.traits:{}),v=t=>tr[t]||0,mast=know(B.id).mastered?1.15:1;
   let ef=eff(tr,B);const arc=ef.k==="resist"&&v("Arcane")&&Math.random()*100<Math.min(ARC_CAP,v("Arcane")*ARC_PER);if(arc){ef={m:1};blog("Arcane power cuts through its resistance.","you")}
   const crit=Math.random()*100<Math.min(CRIT_CAP,5+v("Sharp")*3),pierce=Math.min(v("Heavy")?.4:1,1-(o.pen||0));
-  const dmg=Math.max(1,Math.round((pow*.5-Math.max(0,B.def-(B.shred||0))*pierce)*ef.m*mast*(crit?1.75:1)*vary()));
+  const base=pow*.5,arm=Math.max(0,B.def-(B.shred||0))*pierce,dmg=Math.max(1,Math.round(base*base/(base+arm)*ef.m*mast*(crit?1.75:1)*vary())); // armor takes a share of a blow, never all of it
   const st=S.stats;dealt(B,dmg);B.hp-=dmg;if(crit)st.crits++;if(dmg>st.big){st.big=dmg;st.bigW=W?W.name:/bash/.test(label)?"Shield bash":"Fists"}
   fx("enemyHud","-"+dmg,crit?"crit":"");fx("foeArt","","hit");
   const note=ef.k==="weak"?` ${ef.t} cuts deep!`:ef.k==="resist"?` It resists the ${ef.t.toLowerCase()}.`:"";
@@ -78,24 +79,24 @@ function strike(W,pow,label,inn,o){
 }
 function attack(){
   const P=pstats(),B=S.battle;
-  strike(P.main,P.atk+P.mag*.7,P.main?`You strike with ${P.main.name}`:"You punch",true);
-  if(B.hp>0&&!stOf().chill&&Math.random()*100<Math.min(35,P.spd*3))strike(P.main,P.atk+P.mag*.7,"A swift follow-up hits",true);
+  strike(P.main,P.atk+P.mag*MAG_W,P.main?`You strike with ${P.main.name}`:"You punch",true);
+  if(B.hp>0&&!stOf().chill&&Math.random()*100<Math.min(35,P.spd*3))strike(P.main,P.atk+P.mag*MAG_W,"A swift follow-up hits",true);
   if(B.hp>0&&P.offW)strike(P.offW,P.offPow*2,`Your off-hand ${P.offW.name} adds`);
   afterPlayer();
 }
 const abKeys=P=>[P.main&&ABILITIES[P.main.form]&&P.main.form,P.shield&&"shield"].filter(Boolean);
 const ELS={fire:["Fire","Sunfire"],ice:["Ice","Frost"],poison:["Poison","Venomous"],holy:["Holy","Radiant"],shadow:["Shadow","Twilight"]};
 function ability(key){
-  const B=S.battle,P=pstats(),A=ABILITIES[key],boss=ENEMIES[B.id].boss,W=P.main,n=P.atk+P.mag*.7,cd=B.cd||(B.cd={});
+  const B=S.battle,P=pstats(),A=ABILITIES[key],boss=ENEMIES[B.id].boss,W=P.main,n=P.atk+P.mag*MAG_W,cd=B.cd||(B.cd={});
   if(!A||cd[key]>0||!abKeys(P).includes(key))return;
   S.stats.abil++;
   let bonus=0;
   if(key==="blade"){for(let i=0;i<A.hits&&B.hp>0;i++)strike(W,n*A.x,i?"A second cut lands":"Flurry! You cut",true)}
   else if(key==="spear")strike(W,n*A.x,"You lunge",true,{pen:A.pen});
   else if(key==="staff"){const tr=withInnate(W.traits),el=Object.entries(ELS).map(([e,l])=>[e,l.reduce((a,t)=>a+(tr[t]||0),0)]).sort((a,b)=>b[1]-a[1])[0];
-    strike(W,Math.max(n,P.atk*.5+P.mag*1.2)*A.x,el[1]>0?`You channel ${el[0]} through ${W.name}`:"You loose a bolt of raw magic",true,{pen:A.pen,force:el[1]>0?el[0]:""})}
+    strike(W,n*A.x,el[1]>0?`You channel ${el[0]} through ${W.name}`:"You loose a bolt of raw magic",true,{pen:A.pen,force:el[1]>0?el[0]:""})}
   else if(key==="lance"){strike(W,n*A.x,"You charge",true);B.open=true;if(B.hp>0)blog("You're exposed after the charge.","foe")}
-  else if(key==="spellblade"){const r=strike(W,(P.atk+P.mag)*A.x,"Arc Slash tears",true);if(r.crit){bonus=1;blog("The arc sings. Your cooldown eases.","good")}}
+  else if(key==="spellblade"){const r=strike(W,n*A.x,"Arc Slash tears",true);if(r.crit){bonus=1;blog("The arc sings. Your cooldown eases.","good")}}
   else if(key==="warstaff"){strike(W,n*A.x,"Your sweep crashes into it",true);
     if(B.hp>0&&Math.random()<(boss?A.bossStun:A.stun)){B.stun=1;blog(`The ${B.name} is stunned!`,"big")}}
   else if(key==="claws"){strike(W,n*A.x,"You rend",true);
@@ -135,7 +136,10 @@ function flee(){
 }
 function afterPlayer(){if(S.battle.hp<=0)return enemyDown();enemyTurn()}
 // one enemy hit after resist, armor, Stone and guard/parry (vf = damage variance)
-const foeHit=(B,P,mult,vf)=>Math.max(1,Math.round(Math.max(1,Math.round(B.atk*mult*vf*(1-P.red)*(B.guard?.4:1)*(B.open?1+ABILITIES.lance.open:1)*(B.parry?PARRY_FAIL:1)*(1-(P.rs[B.el]||0)/100)))-(P.dr||0)));
+const foeHit=(B,P,mult,vf)=>{const raw=B.atk*mult*vf*(B.guard?.4:1)*(B.open?1+ABILITIES.lance.open:1)*(B.parry?PARRY_FAIL:1),red=B.heat>=5?redOf(P.def*(1-HEAT_T.bite)):P.red;
+  return Math.max(1,Math.round(raw*HIT_MIN),Math.round(raw*(1-(P.rs[B.el]||0)/100)*(1-red)-(P.dr||0)))}; // resist, armor and Stone together never take more than 1-HIT_MIN of a hit; Heat 5 bites through part of your Defense
+// true when this zone's regular enemies (at map row 3) already hit you for the HIT_MIN floor, so more Defense, resist or Stone would change nothing here
+const atFloor=P=>{const es=Object.values(ENEMIES).filter(e=>e.zone===S.zone&&!e.boss);return es.length>0&&es.every(e=>{const a=Math.round(e.atk*1.18);return foeHit({atk:a,heat:0,el:e.el},P,1,1)<=Math.max(1,Math.round(a*HIT_MIN))})};
 // end-of-turn bookkeeping: guard/parry/exposure lapse, off-balance and ability cooldowns tick, next turn
 function endTurn(B){B.guard=false;B.parry=false;B.open=false;if(B.off>0)B.off--;Object.keys(B.cd||{}).forEach(k=>{if(B.cd[k]>0)B.cd[k]--});B.turn++}
 const endShift=B=>{endTurn(B);save();render()};
@@ -148,15 +152,15 @@ function enemyTurn(){
   if(ENEMIES[B.id].phase&&!B.phased&&B.hp<=B.max*ENEMIES[B.id].phase.at){ // second form: it spends the turn changing
     const ph=ENEMIES[B.id].phase;B.phased=true;B.el=ph.to.el;B.weak=[...ph.to.weak];B.resist=[...ph.to.resist];B.stun=0;B.frozen=false;B.guard=false;B.parry=false;B.burn=null;B.poison=0;B.bleed=null;
     B.spEvery=spEvery(foeOf(B),B.heat||0);blog(ph.msg,"big");learn(B.id,"ph",1);return endShift(B)}
-  const E=foeOf(B),sp=isSpecial(B)?E.sp:null;
+  const E=foeOf(B),sp=isSpecial(B)?E.sp:null,pr=B.parry&&sp&&Math.random()<PARRY_CH; // a parry on a telegraphed special can still be mistimed
   if(B.frozen){B.frozen=false;B.stun=0;blog(`The ${B.name} is frozen and can't act.`,"good")}
   else if(B.stun){blog(B.stun===2&&sp?`${sp.name} is cancelled. The ${B.name} can't act.`:`The ${B.name} is stunned and can't act.`,"good");B.stun=0}
-  else if(sp&&sp.kind==="heal"&&B.parry){blog(`You break the ${B.name}'s concentration. ${sp.name} fizzles!`,"good");learn(B.id,B.phased?"sp2":"sp",1)}
-  else if(sp&&sp.kind==="heal"){const h=Math.min(B.max-B.hp,Math.round(B.max*sp.x));B.hp+=h;if(h)fx("enemyHud","+"+h,"heal");blog(`The ${B.name} uses ${sp.name} and recovers ${h} HP.`,"foe");learn(B.id,B.phased?"sp2":"sp",1)}
+  else if(sp&&sp.kind==="heal"&&pr){blog(`You break the ${B.name}'s concentration. ${sp.name} fizzles!`,"good");learn(B.id,B.phased?"sp2":"sp",1)}
+  else if(sp&&sp.kind==="heal"){if(B.parry){blog("Your parry is mistimed! The spell goes off.","foe");B.off=2}const h=Math.min(B.max-B.hp,Math.round(B.max*sp.x));B.hp+=h;if(h)fx("enemyHud","+"+h,"heal");blog(`The ${B.name} uses ${sp.name} and recovers ${h} HP.`,"foe");learn(B.id,B.phased?"sp2":"sp",1)}
   else{
-    const hits=sp&&sp.kind==="multi"?sp.n:1,mult=sp?sp.x:1,perfect=B.parry&&sp,dg=Y.chill?Math.round(P.dodge/2):P.dodge;
+    const hits=sp&&sp.kind==="multi"?sp.n:1,mult=sp?sp.x:1,perfect=pr,dg=Y.chill?Math.round(P.dodge/2):P.dodge;
     if(sp){blog(`The ${B.name} uses ${sp.name}!`,"foe");learn(B.id,B.phased?"sp2":"sp",1)}
-    if(perfect){S.stats.parries++;sfx("parry");blog(`Perfect parry! You turn ${sp.name} aside.`,"big");strike(P.main,(P.atk+P.mag*.7)*PARRY_X,"You riposte",true)}
+    if(perfect){S.stats.parries++;sfx("parry");blog(`Perfect parry! You turn ${sp.name} aside.`,"big");strike(P.main,(P.atk+P.mag*MAG_W)*PARRY_X,"You riposte",true)}
     else if(B.parry){blog("Your parry is mistimed! You're left open.","foe");B.off=2}
     for(let i=0;i<hits&&S.hp>0&&!perfect&&B.hp>0;i++){
       if(P.blind&&Math.random()<Math.min(.4,.08*P.blind)){blog("Steam clouds its eyes. It misses.","good");sfx("dodge");continue}
