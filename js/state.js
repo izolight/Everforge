@@ -1,16 +1,16 @@
 // ================= STATE =================
-const KEY="everforge-v9",OLD_KEYS=["everforge-v8","everforge-v7","everforge-v6","everforge-v5","everforge-v4","everforge-v3"];
+const KEY="everforge-v10",OLD_KEYS=["everforge-v9","everforge-v8","everforge-v7","everforge-v6","everforge-v5","everforge-v4","everforge-v3"];
 function baseItem(id){const [name,form,traits,kind]=BASE[id];return {id,name,form,noun:name.split(" ").pop(),traits,tier:1,crafted:false,...(kind?{kind}:{})}}
 // lifetime counters (S.stats); migrate() merges these into older saves. kills per zone come from S.zoneKills
-const statsDef=()=>({salvaged:0,studied:0,dealt:0,taken:0,big:0,bigW:"",crits:0,parries:0,abil:0,sufd:0,cured:0,elites:0,bosses:0,deaths:0,exped:0,heatBest:{},fast:{},forged:0,legend:0,mishaps:0,earned:0,spent:0,refined:0,dailies:0,dailyWins:0,dBest:null});
+const statsDef=()=>({salvaged:0,studied:0,dealt:0,taken:0,big:0,bigW:"",crits:0,parries:0,abil:0,sufd:0,cured:0,elites:0,bosses:0,deaths:0,exped:0,heatBest:{},fast:{},forged:0,legend:0,mishaps:0,fizzles:0,earned:0,spent:0,refined:0,dailies:0,dailyWins:0,dBest:null});
 function freshState(){
   const items={};Object.keys(BASE).forEach(id=>items[id]=baseItem(id));
-  return {v:9,embers:0,maps:{},heat:{},daily:null,run:null,infuse:{},items,inv:{iron_sword:1},eq:{main:"iron_sword",off:null,head:null,body:null,hands:null,feet:null,charm:null},
+  return {v:10,embers:0,skills:{},maps:{},heat:{},daily:null,run:null,infuse:{},items,inv:{iron_sword:1},eq:{main:"iron_sword",off:null,head:null,body:null,hands:null,feet:null,charm:null},
     hp:999,camp:2,campProg:0,xp:0,journal:[],knownR:[],hints:[0,1,2],bench:[],last:null,tab:"all",rtab:"all",view:"battle",zone:"woods",
     wins:0,kills:{},seen:{},codex:{},unlocked:["woods"],zoneKills:{},quest:0,bounty:null,stats:statsDef(),fresh:[],battle:null,event:null};
 }
 const isObj=v=>!!v&&typeof v==="object"&&!Array.isArray(v);
-const DEFAULTED=["maps","infuse","eq","kills","seen","codex","zoneKills","stats","journal","knownR","bench","unlocked","fresh","hp","xp","zone","heat","daily","run","hints","embers"];
+const DEFAULTED=["maps","infuse","eq","kills","seen","codex","zoneKills","stats","journal","knownR","bench","unlocked","fresh","hp","xp","zone","heat","daily","run","hints","embers","skills"];
 // Shape check for loaded or imported saves, so a malformed one is rejected instead of breaking every render.
 function sane(s){
   return ["maps","heat","infuse","items","inv","eq","kills","seen","codex","zoneKills","stats"].every(k=>isObj(s[k]))
@@ -40,13 +40,17 @@ function migrate(s){
   if(s.v===6){s.v=7;s.heat={};s.daily=null;s.run=null;ZONES.forEach(z=>{if((s.kills?.[z[2]]||0)>0)s.heat[z[0]]={max:1,sel:0}})}
   if(s.v===7){s.v=8;s.hints=[0,1,2]} // the three original rumors stay visible
   if(s.v===8){s.v=9;s.embers=Math.min(60,2*(s.wins|0))} // a small grant for progress made before embers existed
-  if(s.v!==9||!isObj(s.items)||!isObj(s.inv))return null;
+  if(s.v===9){s.v=10;s.skills={}; // veterans keep their craft: each crafted piece in the journal trains its category, refining trains alchemy
+    if(isObj(s.items)&&Array.isArray(s.journal))s.journal.forEach(j=>{const it=isObj(s.items[j.id])&&s.items[j.id],k=it&&FORMS[it.form]&&skillOf(it);if(k){const n=20+10*(it.tier|0)+(it.legendary?40:0);s.skills[k]=(s.skills[k]||0)+n;if(k!=="alchemy")s.skills.alchemy=(s.skills.alchemy||0)+Math.round(n*SK_XP.input)}});
+    if(isObj(s.stats))s.skills.alchemy=(s.skills.alchemy||0)+10*(s.stats.refined|0)}
+  if(s.v!==10||!isObj(s.items)||!isObj(s.inv))return null;
   const dflt=freshState();DEFAULTED.forEach(k=>{if(s[k]===undefined)s[k]=dflt[k]});
   Object.keys(BASE).forEach(id=>s.items[id]=baseItem(id));
   if(!sane(s))return null;
   ZONES.forEach((z,i)=>{if(i&&(s.kills[ZONES[i-1][2]]||0)>0&&!s.unlocked.includes(z[0]))s.unlocked.push(z[0])}); // zones added later open for saves that already beat the boss before them
   Object.values(s.items).forEach(it=>{const m=it.id.match(/^ess_([A-Za-z]+)(_2)?$/);if(m){it.kind="essence";it.traits={[m[1]]:m[2]?REFINE_VALUE:ESS_VALUE}}}); // plain and refined essences are reset to their fixed values
   s.embers=Math.max(0,Math.floor(Number(s.embers))||0);
+  s.skills=Object.fromEntries(Object.keys(SKILLS).map(k=>[k,isObj(s.skills)?Math.max(0,Math.floor(Number(s.skills[k]))||0):0]));
   const st0=s.stats,sd=statsDef(),had=k=>st0[k]!==undefined;
   const dv={forged:s.journal.length,legend:s.journal.filter(j=>j.legendary).length,bosses:ZONES.reduce((n,z)=>n+(s.kills[z[2]]|0),0),
     heatBest:Object.fromEntries(ZONES.filter(z=>s.kills[z[2]]>0).map(z=>[z[0],Math.max(0,((s.heat[z[0]]||{}).max|0)-1)])),dailies:s.daily&&s.daily.result?1:0,dailyWins:s.daily&&s.daily.result&&s.daily.result.boss?1:0,exped:Math.max(0,ZONES.reduce((n,z)=>n+(s.kills[z[2]]|0),0)-(s.daily&&s.daily.result&&s.daily.result.boss?1:0)),dBest:s.daily&&s.daily.result?{...s.daily.result,boss:!!s.daily.result.boss}:null}; // old saves keep what can be derived; the rest start at 0. Derived heatBest is a lower bound at the Heat cap
