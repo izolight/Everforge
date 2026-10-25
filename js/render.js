@@ -1,5 +1,14 @@
 // ================= SMALL RENDER HELPERS =================
-const chips=(tr,full)=>topTraits(tr).map(([t,v])=>`<span class="chip tc" style="color:${tColor(t)}" ${tt(`${trn(t)} ${v}`,tx("{fam} trait",{fam:famN(TRAITS[t].f)}))}>${famIc(TRAITS[t].f,"s")}${full?`${trn(t)} `:""}<b>${v}</b></span>`).join(""); // icon + number; full adds the name (item sheet)
+const chips=(tr,full)=>topTraits(tr).map(([t,v])=>`<span class="chip tc" style="color:${tColor(t)}" ${traitTip(t,v)}>${traitIc(t,"s")}${full?`${trn(t)} `:""}<b>${v}</b></span>`).join(""); // distinct trait symbols; names remain on the item sheet
+function effectBadges(it){
+  const fx=effects(it),badge=e=>{
+    const extra=e.key.startsWith("resist_")?ic("resist","s"):e.statuses?e.statuses.map(s=>famIc(STATUS[s].el,"s")).join(""):"";
+    const unit=e.unit?`<span class="fx-unit" aria-hidden="true">${e.unit==="cooldown"?"":"/"}${ic(e.unit==="hit"?"hit":e.unit,"s")}</span>`:"";
+    return `<span class="chip fx-badge" data-effect="${e.key}" style="color:${e.color}" ${tt(e.name,e.text)}>${ic(e.icon)}${extra}${e.value==null?"":`<b>${e.value}</b>`}${unit}${e.key==="mix"?`<span>${tx("Mixing")}</span>`:""}</span>`;
+  };
+  const active=fx.filter(e=>!e.meta),meta=fx.filter(e=>e.meta);
+  return `<div class="item-effects"><div class="effect-heading"><span class="label">${tx("Effects")}</span>${helpBtn(tx("Reading effects"),tx("Hover, focus or tap an icon for its full effect. Percentages show chances or damage shares; a circular arrow means each turn, a burst means each hit, and a clock means ability cooldown."))}</div>${active.length?`<div class="chips effect-chips">${active.map(badge).join("")}</div>`:""}<div class="chips item-meta">${meta.map(badge).join("")}</div></div>`;
+}
 const statLine=st=>Object.entries(STAT_NAMES).filter(([k])=>st[k]).map(([k,l])=>`${l} ${st[k]>0?"+":""}${st[k]}`).join(" · ");
 const famChip=(f,pre)=>`<span class="chip fam" style="color:${FAM[f]}">${pre?pre+" ":""}${famN(f)}</span>`;
 const unkChip=t=>`<span class="chip unk">${t}</span>`;
@@ -90,9 +99,9 @@ function renderGear(){
   $("inflabel").innerHTML=`<p class="label">${ic("infuse","s")} ${tx("Infusions")} · ${inf.length}/${infSlots()}</p>${helpBtn(tx("Infusions"),tx("Essences worth {n} plain ones (a Greater counts as 3, a Pure as 9, a Lesser as ⅓) infuse a trait into you; as many again deepen it, up to III. Infused traits act as if they were on your weapon.",{n:INF_COST}),can.length?"":inf.length>=infSlots()?tx("All slots used. You can still deepen an infusion with more of its essence."):tx("Collect essences of one trait worth {n} plain ones (salvage, elites, bounties) to infuse it.",{n:INF_COST}))}`;
   $("inf").innerHTML=Array.from({length:infSlots()},(_,k)=>{const e=inf[k];if(!e)return `<div class="islot" ${tt(tx("Empty infusion slot"),tx("Collect {n} plain essences of one kind to fill it.",{n:INF_COST}))}>${ic("plus","l")}</div>`;
     const [t,r]=e,st=innateStats(t),bits=Object.entries(st).filter(([,v])=>v);
-    return `<div class="islot on" style="border-color:${tColor(t)};color:${tColor(t)}" ${tt(`${trn(t)} ${R[r-1]}`,bits.map(([s,v])=>`${v>0?"+":""}${v} ${STAT_NAMES[s]}`).join(", ")||tx("Effect on hit"),tx("Rank {r} of {m}",{r,m:INF_MAX}))}>${famIc(TRAITS[t].f,"l")}<b>${trn(t)} ${R[r-1]}</b><span class="ib">${bits.map(([s,v])=>`<span>${stIc(s,"xs")}${v>0?"+":""}${v}</span>`).join("")||`<span>${tx("on hit")}</span>`}</span></div>`}).join("");
+    return `<div class="islot on" style="border-color:${tColor(t)};color:${tColor(t)}" ${tt(`${trn(t)} ${R[r-1]}`,bits.map(([s,v])=>`${v>0?"+":""}${v} ${STAT_NAMES[s]}`).join(", ")||tx("Effect on hit"),tx("Rank {r} of {m}",{r,m:INF_MAX}))}>${traitIc(t,"l")}<b>${trn(t)} ${R[r-1]}</b><span class="ib">${bits.map(([s,v])=>`<span>${stIc(s,"xs")}${v>0?"+":""}${v}</span>`).join("")||`<span>${tx("on hit")}</span>`}</span></div>`}).join("");
   const cr=S.infCredit?`<p class="foot" style="flex-basis:100%">${tx("Credit: {n} plain, spent first on your next infusion.",{n:creditTxt(S.infCredit)})}</p>`:"";
-  $("infbtns").innerHTML=can.map(t=>`<button class="btn sm" data-infuse="${t}" style="border-color:${tColor(t)}">${famIc(TRAITS[t].f,"s")} ${S.infuse[t]?tx("Deepen {trait} → {rank}",{trait:trn(t),rank:R[S.infuse[t]]}):tx("Infuse {trait}",{trait:trn(t)})} · ${payText(infPay(t,Math.max(0,INF_NEED-S.infCredit)))||tx("credit")}</button>`).join("")+cr;
+  $("infbtns").innerHTML=can.map(t=>`<button class="btn sm" data-infuse="${t}" style="border-color:${tColor(t)}">${traitIc(t,"s")} ${S.infuse[t]?tx("Deepen {trait} → {rank}",{trait:trn(t),rank:R[S.infuse[t]]}):tx("Infuse {trait}",{trait:trn(t)})} · ${payText(infPay(t,Math.max(0,INF_NEED-S.infCredit)))||tx("credit")}</button>`).join("")+cr;
 }
 const lockAct=id=>`<button class="btn act lk" id="${id}" aria-disabled="true" data-tap aria-label="${esc(tx("{name}, locked. {txt}",{name:tx(UNL[id].name),txt:tx(UNL[id].txt)}))}" ${tt(tx("{name} (locked)",{name:tx(UNL[id].name)}),tx(UNL[id].txt))}>${ic("lock")}<span>${tx(UNL[id].name)}</span></button>`; // an action-grid button that is not open yet
 const introIn=c=>`<span class="ii" aria-hidden="true">${ic(c.ic,"l")}</span><div class="it"><b>${c.t}</b>${c.l.map(x=>`<p>${x}</p>`).join("")}</div><button class="btn sm" id="introOk" data-intro="${c.id}">${tx("Got it")}</button>`; // a one-time intro card (non-modal; Got it marks it read)
@@ -111,7 +120,7 @@ function youHud(){ // compact: weapon, HP bar, then icon chips (words in tips)
   const c=[ci("var(--fg)",stIc("atk","s"),P.atk,`${STAT_NAMES.atk} ${P.atk}`,tx("Strike power of your main hand.")),
     ci("var(--fg)",stIc("def","s"),`${red}%`,`${STAT_NAMES.def} ${P.def}`,tx("Cuts the damage you take by {p}%.",{p:red})+(bite?" "+tx("Heat 5 bites through {p}% of your Defense.",{p:Math.round(HEAT_T.bite*100)}):"")),
     P.regen&&ci("var(--up)",stIc("heal","s"),`+${P.regen}`,tx("Regen +{n}",{n:P.regen}),tx("HP you mend each turn.")),
-    ...Object.entries(S.infuse).map(([t,r])=>ci(tColor(t),famIc(TRAITS[t].f,"s"),["I","II","III"][r-1],tx("Infused {trait} {rank}",{trait:trn(t),rank:["I","II","III"][r-1]}),tx("Acts as if it were on your weapon."))),
+    ...Object.entries(S.infuse).map(([t,r])=>ci(tColor(t),traitIc(t,"s"),["I","II","III"][r-1],tx("Infused {trait} {rank}",{trait:trn(t),rank:["I","II","III"][r-1]}),tx("Acts as if it were on your weapon."))),
     live&&B.guard&&ci("var(--verd)",ic("guard","s"),"",tx("Guarding"),tx("Cuts every hit in the enemy's action by {p}% and blocks new statuses.",{p:pcn(GUARD_T.cut)})),
     live&&B.braced&&ci("var(--verd)",ic("guard","s"),`+${pcn(GUARD_T.braced)}%`,tx("Braced"),tx("Your next Attack or ability deals {p}% more damage, including follow-up and off-hand strikes. Does not stack.",{p:pcn(GUARD_T.braced)})),
     live&&B.off>0&&ci("var(--down)",ic("warn","s"),"",tx("Off balance"),tx("A mistimed parry cost you your guard.")),
@@ -263,7 +272,7 @@ function renderBench(){
     if(known){
       const ts=targetSlot(known),eqIt=ts&&gearOf(ts),showEq=eqIt&&eqIt.id!==known.id&&eqIt.id!==base.id;
       hint=`<div class="preview"><div class="rhead sm">${glyph(known)}<div><div class="rform">${ic("ok","s")} ${tx("Known recipe")} · ${rarity(known)[0]} · ${labelOf(known)}</div><b>${nameHtml(known)}</b></div></div>
-        <div class="chips">${chips(known.traits)}</div>${statGrid(shown(known),shown(base))}
+        <div class="chips">${chips(known.traits)}</div>${statGrid(shown(known),shown(base))}${effectBadges(known)}
         ${cmpBlock(known,base,"Compared to")}${showEq?cmpBlock(known,eqIt,"Versus equipped"):""}</div>`}
     else{
       const knownR=new Set(S.knownR),kr=r.rxKeys.filter(k=>knownR.has(k)),ur=r.rxKeys.filter(k=>!knownR.has(k));
@@ -297,6 +306,7 @@ function renderResult(fresh){
     <div class="chips">${chips(it.traits)}</div>
     ${statGrid(shown(it),base?shown(base):null)}${base?cmpBlock(it,base,"Compared to"):""}
     ${showEq?cmpBlock(it,eqIt,"Versus equipped"):""}
+    ${effectBadges(it)}
     <ul class="log"><li><strong>${tx("Recipe")}</strong> ${recipeNames(r.id?it:r)}</li>${r.log.map(logLi).join("")}</ul>
     ${gains}${ch(r.mishap?"var(--accent)":"var(--up)",ic(r.mishap?"warn":"ok","s"),`${r.inst}%`,r.mishap?tx("Flawed"):tx("Held together"),tx("{n}% was the chance to fail.",{n:r.inst}))}</div>
     ${S.inv[it.id]>0?`<div class="actions"><button class="btn${isGear(it)&&!eqCount(it.id)?" primary":""}" data-open="${it.id}">${isGear(it)&&!eqCount(it.id)?tx("Equip or inspect"):tx("Inspect")}</button></div>`:""}`;
@@ -344,7 +354,7 @@ function renderRecipes(){
   $("fusions").innerHTML=FUSIONS.map(([a,b,f])=>`<span class="fu" ${tt(tx("{a} + {b} → {c}",{a:cap(formName(a)),b:formName(b),c:txc("noun",FORMS[f].noun)}),tx("A fusion: two kinds that merge into a new one."))}>${gIc(a)}<i>+</i>${gIc(b)}<i>→</i><b>${gIc(f)}</b></span>`).join("");
   const known=new Set(S.knownR),rd=REACTIONS.filter(([a,b])=>known.has(a+"+"+b));
   $("rxlabel").innerHTML=`${ic("infuse","s")} ${tx("Trait reactions")} · ${rd.length}/${REACTIONS.length}${helpBtn(tx("Trait reactions"),tx("Some pairs of traits react when they meet in the crucible and become a new trait. Discover one by forging it."))}`;
-  $("reactions").innerHTML=[...rd.map(([a,b,res,cons])=>`<span class="rx1" ${tt(`${trn(a)} + ${trn(b)} → ${trn(res)}`,cons.length?"":tx("Keeps both traits."))}>${ci(tColor(a),famIc(TRAITS[a].f,"s"))}<i>+</i>${ci(tColor(b),famIc(TRAITS[b].f,"s"))}<i>→</i>${ci(tColor(res),famIc(TRAITS[res].f,"s"))}</span>`),
+  $("reactions").innerHTML=[...rd.map(([a,b,res,cons])=>`<span class="rx1" ${tt(`${trn(a)} + ${trn(b)} → ${trn(res)}`,cons.length?"":tx("Keeps both traits."))}>${ci(tColor(a),traitIc(a,"s"))}<i>+</i>${ci(tColor(b),traitIc(b,"s"))}<i>→</i>${ci(tColor(res),traitIc(res,"s"))}</span>`),
     ...REACTIONS.filter(([a,b])=>!known.has(a+"+"+b)).map(()=>`<span class="rx1 unk" ${tt(tx("Undiscovered reaction"),tx("Forge the right pair of traits to find it."))}>?</span>`)].join("");
   const fd=SECRETS.filter(found).length;
   $("seclabel").innerHTML=`${ic("renown","s")} ${tx("Legendary secrets")} · ${fd}/${SECRETS.length}${helpBtn(tx("Legendary secrets"),tx("Hint scrolls from chests, shrines, riddles, bosses, bounties and the daily reveal a rumor, then its ingredients."))}`;
@@ -373,7 +383,7 @@ function renderStats(){
 function renderAfx(){ // the Codex list of affixes: an entry opens when you first meet an enemy that carries it
   const ids=Object.keys(AFX),n=ids.filter(a=>(S.afx[a]||{}).s>0).length;
   $("aflabel").innerHTML=`${ic("elite","s")} ${tx("Affixes")} · ${n}/${ids.length}${helpBtn(tx("Affixes"),tx("Magic enemies carry one affix, rare ones two (three from Heat 4). Each affix changes how the fight plays and drops its own essence when you win, better grades than usual (a rare more reliably than a magic one)."),tx("Meet an enemy that carries an affix to record it here."))}`;
-  const row=a=>{const o=S.afx[a],A=AFX[a];return `<li class="af" style="--ac:${afxCol(a)}"><span class="afi">${afxIc(a)}</span><div><b>${tx(A.n)}</b><small>${tx("met {s}, beaten {b}",{s:o.s,b:o.b})}</small><p>${A.d()}</p><p class="drop">${famIc(TRAITS[A.tr].f,"s")} ${tx("{trait} Essence",{trait:trn(A.tr)})}</p></div></li>`},
+  const row=a=>{const o=S.afx[a],A=AFX[a];return `<li class="af" style="--ac:${afxCol(a)}"><span class="afi">${afxIc(a)}</span><div><b>${tx(A.n)}</b><small>${tx("met {s}, beaten {b}",{s:o.s,b:o.b})}</small><p>${A.d()}</p><p class="drop">${traitIc(A.tr,"s")} ${tx("{trait} Essence",{trait:trn(A.tr)})}</p></div></li>`},
     lock=ids.filter(a=>!(S.afx[a]&&S.afx[a].s>0));
   $("aflist").innerHTML=`${n?`<ul class="afl">${ids.filter(a=>!lock.includes(a)).map(row).join("")}</ul>`:""}${lock.length?`<div class="chips aflock">${lock.map(()=>`<span class="chip unk" ${tt(tx("Unknown affix"),tx("Meet a magic or rare enemy that carries it."))}>${ic("lock","s")}<b>???</b></span>`).join("")}</div>`:""}`}
 function renderGuide(){ // every unlocked intro, to read again; what is still locked sits in a collapsed list

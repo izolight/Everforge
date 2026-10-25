@@ -201,7 +201,16 @@ details.legend .lg-fog i{width:12px;height:12px;border-radius:3px;background:#0a
 .d.up{color:var(--up)}.d.down{color:var(--down)}.d.same{color:var(--muted)}
 .verdict{font-weight:700}
 .verdict.up{color:var(--up)}.verdict.down{color:var(--down)}.verdict.same{color:var(--muted)}
-.fx{margin:0;padding:0 0 0 18px;font-size:.9rem;color:var(--muted);display:grid;gap:2px}
+.item-effects{display:grid;gap:7px;min-width:0}
+.effect-heading{display:flex;align-items:center;gap:6px}
+.effect-heading .label{margin:0}
+.effect-chips .fx-badge,.item-meta .fx-badge{min-width:44px;min-height:44px;justify-content:center;padding:6px 10px;gap:6px;border-color:color-mix(in srgb,currentColor 40%,transparent);border-radius:9px}
+.effect-chips .fx-badge>.ic{width:21px;height:21px}
+.fx-badge b{font-size:.85rem;font-variant-numeric:tabular-nums}
+.fx-unit{display:inline-flex;align-items:center;gap:2px;color:var(--muted);font-size:.7rem}
+.item-meta{padding-top:5px;border-top:1px solid var(--line)}
+.sheet .tc{min-height:36px;padding:5px 8px;gap:5px}
+.sheet .tc>.ic{width:18px;height:18px}
 .log{margin:0;padding:0;list-style:none;font-size:.9rem;display:grid;gap:4px}
 .log li{color:var(--muted)}
 .log li strong{color:var(--fg);font-weight:500}
