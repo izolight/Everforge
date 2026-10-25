@@ -76,9 +76,9 @@ const viewName=v=>v==="battle"?tx("Explore"):tx(cap(v));
 function renderNav(){
   $("nav").innerHTML=VIEWS.filter(v=>v!=="settings").map(v=>{
     let badge="";
-    if(v==="battle"&&inBattle()&&S.view!=="battle")badge=`<i class="badge-dot pulse" aria-label="${esc(tx("battle in progress"))}"></i>`;
-    if(v==="gear"&&S.fresh.length&&S.view!=="gear"&&S.view!=="forge")badge=`<i class="badge-dot" aria-label="${esc(tx("{n} new items",{n:S.fresh.length}))}">${S.fresh.length}</i>`;
-    if(!badge&&S.view!==v&&!inBattle()&&pendingIntros().some(c=>c.ctx!=="battle"&&c.tab===v))badge=`<i class="badge-dot pulse" aria-label="${esc(tx("new introduction"))}"></i>`;
+    if(v==="battle"&&inBattle()&&S.view!=="battle")badge=`<i class="badge-dot pulse" role="img" aria-label="${esc(tx("battle in progress"))}"></i>`;
+    if(v==="gear"&&S.fresh.length&&S.view!=="gear"&&S.view!=="forge")badge=`<i class="badge-dot" role="img" aria-label="${esc(tx("{n} new items",{n:S.fresh.length}))}">${S.fresh.length}</i>`;
+    if(!badge&&S.view!==v&&!inBattle()&&pendingIntros().some(c=>c.ctx!=="battle"&&c.tab===v))badge=`<i class="badge-dot pulse" role="img" aria-label="${esc(tx("new introduction"))}"></i>`;
     return `<button data-view="${v}" aria-current="${S.view===v?"page":"false"}">${icon(v)}<span>${viewName(v)}</span>${badge}</button>`}).join("");
   VIEWS.forEach(v=>$("v-"+v).hidden=S.view!==v);
 }
@@ -86,8 +86,10 @@ function renderGoal(){
   const g=goal(),el=$("goal"),st=g.short||g.step;
   el.hidden=inBattle();
   el.className="goal"+(g.done?" done":"");
-  el.innerHTML=`<div class="gt" ${tt(g.step+(g.prog?` · ${g.prog}`:""),g.text,g.done?tx("Reward: {list}",{list:rewardText(g.reward)}):"")}><small>${st}</small> ${g.text}${g.prog?` <em>${g.prog}</em>`:""}</div>
-    ${g.choose?`<button class="btn sm" id="chooseBounty">${tx("Choose bounty")}</button>`:g.done?`<button class="btn primary sm" id="claim">${tx("Claim")}</button>`:S.view!==g.tab?`<button class="btn sm" id="goGoal">${tx("Go to {tab}",{tab:viewName(g.tab)})}</button>`:""}`;
+  const btn=g.choose?`<button class="btn sm" id="chooseBounty">${tx("Choose bounty")}</button>`:g.done?`<button class="btn primary sm" id="claim">${tx("Claim")}</button>`:S.view!==g.tab?`<button class="btn sm" id="goGoal">${tx("Go to {tab}",{tab:viewName(g.tab)})}</button>`:"";
+  const html=`<div class="gt" ${tt(g.step+(g.prog?` · ${g.prog}`:""),g.text,g.done?tx("Reward: {list}",{list:rewardText(g.reward)}):"")}><small>${st}</small> ${g.text}${g.prog?` <em>${g.prog}</em>`:""}</div>${btn}`;
+  const sig=st+g.text+(g.prog||"")+(g.done?tx("Reward: {list}",{list:rewardText(g.reward)}):"")+btn;
+  if(el.dataset.sig!==sig){el.dataset.sig=sig;el.innerHTML=html} // the live region is only rewritten when its text changes, like the intro card
 }
 const itemLines=it=>[iname(it),`${rarity(it)[0]} · ${labelOf(it)}${isGear(it)?` · ${tx("PWR {n}",{n:power(it)})}`:""}`,grp(it)==="consumable"?useHint(it):isGear(it)?statLine(shown(it)):tx("Crafting ingredient"),topTraits(it.traits).slice(0,4).map(([t,v])=>`${trn(t)} ${v}`).join(", ")];
 const itemTip=(it,...x)=>tt(...itemLines(it),...x),itemAria=it=>esc(itemLines(it).slice(1).filter(Boolean).join(". ")); // the tip text also goes in aria-label, for screen readers
@@ -294,7 +296,7 @@ function renderBench(){
     if(i>0)parts.push('<span class="plus" aria-hidden="true">+</span>');
     if(i>=max){parts.push(`<div class="slot locked" ${tt(tx("Slot {n}",{n:i+1}),tx("Unlocks at Smith Lv {n}",{n:INPUT_LV[i-2]}))}>${ic("lock")}<small>${tx("Lv {n}",{n:INPUT_LV[i-2]})}</small></div>`);continue}
     const it=items[i];
-    parts.push(it?`<button class="slot full${!chk.ok&&chk.bad?.id===it.id?" bad":""}" style="${rcol(it)}" data-slot="${i}" aria-label="${esc(tx("Remove {item}",{item:iname(it)}))}" ${itemTip(it,tx("Tap to take it out."))}>${glyph(it)}</button>`:`<div class="slot" aria-label="${esc(tx("Empty slot"))}">${ic("plus","l")}</div>`);
+    parts.push(it?`<button class="slot full${!chk.ok&&chk.bad?.id===it.id?" bad":""}" style="${rcol(it)}" data-slot="${i}" aria-label="${esc(tx("Remove {item}",{item:iname(it)}))}" ${itemTip(it,tx("Tap to take it out."))}>${glyph(it)}</button>`:`<div class="slot" role="img" aria-label="${esc(tx("Empty slot"))}">${ic("plus","l")}</div>`);
   }
   $("slots").className=level()>=2?"slots s4":"slots";$("slots").innerHTML=parts.join("");
   let hint="",crafting=null;const miss=chk.ok&&items.length>1?craftMiss(items):[]; // techniques this craft needs and you lack
@@ -348,7 +350,7 @@ function renderPatterns(){
   if(!k){$("patbody").innerHTML=`<p class="foot">${Object.keys(S.inv).some(id=>isBaseMat(id)&&S.inv[id]>0)?tx("Pick a pattern to forge."):tx("Pick a pattern to forge. Deconstruct raw finds in the Gear tab to get base materials.")}</p>`;return}
   const slots=patSlots(k,bp),its=patSel.m.map(id=>id&&S.items[id]);
   const parts=slots.map((t,i)=>{const it=its[i];return (i?'<span class="plus" aria-hidden="true">+</span>':"")+(it?`<button class="slot full${it.grade?" gr":""}" style="${rcol(it)}" data-pslot="${i}" aria-label="${esc(tx("Remove {item}",{item:iname(it)}))}" ${itemTip(it,tx("Tap to take it out."))}>${glyph(it)}</button>`
-    :`<div class="slot ps" aria-label="${esc(tx("Empty slot: {types}",{types:slotTxt(t)}))}" ${tt(tx("Empty slot"),slotTxt(t))}>${ic("plus")}<small>${slotTxt(t)}</small></div>`)}).join("");
+    :`<div class="slot pslot" role="img" aria-label="${esc(tx("Empty slot: {types}",{types:slotTxt(t)}))}" ${tt(tx("Empty slot"),slotTxt(t))}>${ic("plus")}<small>${slotTxt(t)}</small></div>`)}).join("");
   const r=its.every(Boolean)?shapeResult(k,patSel.m,bp):null;
   const fit=Object.keys(S.inv).filter(id=>isBaseMat(id)&&patLeft(id)>0&&slots.some((_,i)=>!patSel.m[i]&&patFits(k,bp,i,id))).sort((a,b)=>baseName(S.items[a]).localeCompare(baseName(S.items[b]))||gradeOf(a)-gradeOf(b));
   const tiles=fit.map(id=>{const it=S.items[id],n=patLeft(id);return `<button class="sq${it.grade?" gr":""}" style="${rcol(it)}" data-pm="${id}" aria-label="${esc(iname(it)+(n!==1?`, ${n}`:""))}" ${itemTip(it,tx("You hold {n}.",{n}))}>${glyph(it)}${n!==1?`<span class="sq-n">${n}</span>`:""}${it.grade?`<span class="sq-p" style="color:var(--gc)">${ROMAN[it.grade]}</span>`:""}</button>`}).join("");
@@ -483,8 +485,36 @@ function renderCodex(){
       :`<span class="cxt sil" ${tp}>${portrait(id,{lite:1})}</span>`}).join("")+`</div>`).join("");
 }
 let lastIntro=null;
+// ---- keep the keyboard focus across a re-render: the nav, the arena and the zone chips are rebuilt every time
+const FOCUS_ATTRS=["data-view","data-zone","data-item","data-id","data-use","data-ability","data-act","data-slot","data-heat","data-choice","data-load","data-tech","data-study","data-upgrade","data-infuse","data-pat","data-pslot","data-pm","data-tab","data-rtab","data-codex","data-tile","data-pin-rumor","data-pin-recipe","data-bulk","data-open","data-source-zone","data-goal-tab","data-gores","data-intro","data-result-equip"];
+const focusPath=el=>{ // no id and no data attribute: the place in the tree is the key
+  const parts=[];let n=el;
+  while(n&&n.nodeType===1&&n!==document.body){
+    if(n.id){parts.unshift("#"+n.id);break}
+    const p=n.parentElement;if(!p||!p.children.length)break;
+    parts.unshift(`${n.tagName.toLowerCase()}:nth-child(${[...p.children].indexOf(n)+1})`);
+    n=p;
+  }
+  return parts.length?parts.join(">"):null;
+};
+const focusKey=el=>{
+  if(!el||el===document.body||el===document.documentElement||el.nodeType!==1)return null;
+  if(el.id)return "#"+el.id;
+  const a=FOCUS_ATTRS.filter(x=>el.hasAttribute(x));
+  if(a.length)return a.map(x=>`[${x}=${JSON.stringify(el.getAttribute(x))}]`).join("");
+  return focusPath(el);
+};
+const restoreFocus=key=>{
+  if(!key)return; // nothing in the app was focused: do not steal it
+  let el=null;try{el=document.querySelector(key)}catch(e){return}
+  if(!el||!el.getClientRects().length)return;
+  el.focus({preventScroll:true});
+  if(document.activeElement!==el)queueMicrotask(()=>{ // a tip-only element gets its tabindex a tick later (tip.js watches the DOM)
+    if(el.isConnected&&el.getClientRects().length&&document.activeElement!==el)el.focus({preventScroll:true});
+  });
+};
 function render(fresh){
-  const motion=captureMotion();
+  const motion=captureMotion(),focus=focusKey(document.activeElement);
   if(checkUnl())save();
   renderHeader();renderNav();renderGoal();renderPinnedGoal();renderIntro();
   if(S.view==="battle")renderBattle();
@@ -497,6 +527,8 @@ function render(fresh){
   animateRender(motion);flushFx();syncMusic();
   applyNudge();placeIntro();const cur=curIntro(inBattle());if(cur&&cur.id!==lastIntro)nudge(cur.sel);lastIntro=cur?cur.id:null; // a new card pulses what it points at
   rpFlush();
+  restoreFocus(focus);
+  if(S.view==="battle")holdHint();
 }
 
 function buildMomentHtml(B){

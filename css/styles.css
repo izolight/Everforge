@@ -23,7 +23,7 @@ body{font-family:var(--body);font-size:16px;line-height:1.45;
 .wrap{position:relative;z-index:1;max-width:720px;margin:0 auto;display:grid;gap:14px}
 .view{display:grid;gap:14px}
 button{font:inherit;color:inherit;cursor:pointer}
-button:focus-visible,summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+button:focus-visible,summary:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 h1,h2,h3{margin:0}
 .top{display:flex;align-items:center;justify-content:space-between;gap:8px 14px;flex-wrap:wrap}
 h1{font-family:var(--display);font-weight:700;font-size:2.1rem;line-height:1;color:var(--accent);text-shadow:0 0 18px rgb(255 120 40 / .35)}
@@ -742,9 +742,9 @@ select.lang{width:100%;margin-top:8px;background:#120f0c;color:var(--fg);border:
 .pats{align-items:center}
 .pats .tab.ti>svg:not(.ic){width:24px;height:24px;flex:none}
 .pats .bpn{margin-left:auto;display:inline-flex;align-items:center;gap:4px}
-.slot.ps{gap:2px;align-content:center;text-align:center}
-.slot.ps>svg.ic{width:18px;height:18px}
-.slot.ps small{font-size:.58rem;line-height:1.1;color:var(--muted)}
+.slot.pslot{gap:2px;align-content:center;text-align:center}
+.slot.pslot>svg.ic{width:18px;height:18px}
+.slot.pslot small{font-size:.58rem;line-height:1.1;color:var(--muted)}
 
 /* Keep the working ingredients beside the crucible; history never separates them. */
 .forge-workbench{position:sticky;top:8px;z-index:6;max-height:48dvh;overflow:auto}
