@@ -14,7 +14,7 @@ Ideas discussed but not yet scheduled.
 - **Starter sword vs Gnarlhorn.** Without the tutorial's Fire weapon, basic play wins about 8%. The tutorial forges a Fire weapon first (100% win), so it was left alone; easing Gnarlhorn slightly would fix it.
 
 - **Affix balance leftovers (from A1).** Staff kits are weakest against affixed foes: rare at Heat 3 is 83% for staff/pass and 59% for staff/hollow, and magic Volatile/Warded/Burning are 74-76% on staff kits. Defensive kits against rares at Heat 5 run about 31 turns (SLOG line 30). The starter kit loses to magic and rare enemies.
-- **New essence sources.** Wood, Heavy, Runic, Light and Steam only come from affix drops and salvage, never from the peddler, chests or shrines. Decide whether that's intended.
+- **New essence sources.** Wood, Heavy, Runic, Light and Steam now also come from deconstructing (Heavy: hides and golem cores; Runic: Sentinel Plate; Light: Sprite Dust), but still never from the peddler, chests or shrines. Decide whether that's intended.
 
 ## Research (from G2)
 - **RP pacing (done in G2 review).** A career bot over 20 expeditions found 7 of 9 techniques affordable on expedition 1 and income gone by expedition 5, so salvage RP was dropped, forms pay 2, bosses 4/8/12/16 by region, Smith levels 2-9 and skill levels 3/5/7/9 pay 2 each, and costs rose (Layering 6 ... Precision I 20). Watch it in play; move `RP` and the `TECHS` costs, not the code.
@@ -23,3 +23,10 @@ Ideas discussed but not yet scheduled.
 
 ## Housekeeping
 - Delete the merged local `feat/*` and `fix/*` branches.
+
+## Drops and crafting rework (save v17)
+- **Essence income.** With `FRAG={step:2,ch:.2,cap:.75}` the sim (`--econ-only`, seeds 7 and 11) puts essences 0-35% under the old salvage values depending on zone and seed (Spire lost the most with its gear drops; Hollow can run above), embers within about 5%. Tune `FRAG` and the raw drop chances if it feels slow in play.
+- **Material coverage.** The Pass has no Timber (Stone Golems drop some Scrap Iron), and the Hollow and Spire have no Leather of their own; older zones' materials cover them. Add zone variants if every region should have every type.
+- **Other essence sources.** Shrines, altars, the alchemist, chests and the peddler still hand out essences directly. Possible change: shrines boost your next deconstructs instead.
+- **Pattern skill.** Pattern forging never fails and gives a flat `SHAPE` XP. It could use the crafting skills' failure odds for higher-grade materials.
+

@@ -133,7 +133,7 @@ async function veteran(browser){
   const {key,save}=JSON.parse(fs.readFileSync(path.join(FIX,"save-v13.json"),"utf8"));
   const p=await open(browser,390,new Function(`localStorage.clear();localStorage.setItem(${JSON.stringify(key)},${JSON.stringify(save)})`));
   const r=await p.evaluate(()=>({v:S.v,missing:UNLOCKS.filter(u=>!S.unl[u.id]).map(u=>u.id),pend:pendingIntros().length,card:!$("intro").hidden,emb:!$("emb").hidden,ab:S.seen["a:blade"]}));
-  ok(r.v===15&&!r.missing.length,"v13 fixture migrates to v15 with everything unlocked ("+r.missing+")");ok(!r.pend&&!r.card,"... and no intro waiting");ok(r.emb,"... embers visible");
+  ok(r.v===17&&!r.missing.length,"v13 fixture migrates to v17 with everything unlocked ("+r.missing+")");ok(!r.pend&&!r.card,"... and no intro waiting");ok(r.emb,"... embers visible");
   // partial players keep what they used, get the rest gradually, and keep their maps (an untouched one is redrawn)
   const q=await p.evaluate(()=>{const mk=(wins,quest,xp)=>{const s=JSON.parse(JSON.stringify(S));s.v=13;delete s.unl;s.wins=wins;s.journal=[];s.stats={...s.stats,forged:0,exped:0,deaths:0,bosses:0,dailies:0,elites:0,abil:0,studied:wins?1:0,spent:0,refined:0};s.daily=null;s.heat={};s.kills={};s.afx={};s.embers=wins*3;s.infuse={};s.infCredit=0;s.xp=xp;s.skills={};s.quest=quest;s.seen={};
       s.maps={woods:genMapAll()};const t=migrate(s);return{unl:Object.keys(t.unl),seen:Object.keys(t.seen),maps:Object.keys(t.maps).length,q:t.quest}};

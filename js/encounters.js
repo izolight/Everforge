@@ -44,7 +44,7 @@ const ENC={
       if(c==="rob"){const p=zonePool(S.zone),got=[dropNow(at(p,ev.rv[0]),ev.rv[4]),dropNow(at(p,ev.rv[1]),ev.rv[5]),essNow(at(ESS_POOL,ev.rv[2]),ev.rv[6])];got.forEach(id=>addItem(id));curMap().amb=true;
         return endEv("traveller",tx("Ill-gotten gains"),tx("You take his pack while he's too weak to stop you. Somewhere behind you, a whistle. If your next stop is a fight, it starts with an ambush."),got)}
       if(!ev.give||!spare(ev.give)||!S.inv[ev.give]){toast(tx("You no longer have that item."));return endEv("traveller",tx("The traveller sighs"),tx("He closes his eyes."))}
-      const nm=iname(S.items[ev.give]),rare=zoneRare(S.zone),got=[rare.length?at(rare,ev.rv[0]):at(zonePool(S.zone),ev.rv[0])];takeOne(ev.give);got.forEach(id=>addItem(id));
+      const nm=iname(S.items[ev.give]),f=rareFind(S.zone,heatNow(),ev.rv[0],ev.rv[3],ev.rv[4]),got=[f||dropNow(at(zonePool(S.zone),ev.rv[0]),ev.rv[4])];takeOne(ev.give);got.forEach(id=>addItem(id));
       endEv("traveller",tx("Kindness repaid"),tx("He drinks your {item}, and the colour returns to his face. \"The road remembers.\" He presses something into your hands.",{item:nm}),got,giveHint(ev.rv[1]))}},
   forge:{make:rv=>{const sl=[["main",gearOf("main")],...["off","head","body","hands","feet","charm"].map(s=>[s,gearOf(s)])].filter(([,it])=>it&&it.tier<9).slice(0,2),n=Math.round(pstats().maxHp*.15);
       return evt("forge","forge",tx("An old forge"),tx("A roofless forge, its coals still glowing. Whoever built it left the tongs."),

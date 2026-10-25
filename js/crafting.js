@@ -90,8 +90,58 @@ function statParts(item){
 function power(it){const s=statsOf(it);return Math.round(s.atk+s.def+s.mag+s.spd*1.5+s.heal*.5)}
 // essences that went into a crafted item: stored as `ei` when it was forged (temper and reforge spread the item, so it survives them); older items count through recipeIds, and an older tempered piece with neither counts 1
 const essIn=(it,d=0)=>!it||!it.crafted||d>8?0:it.ei!=null?it.ei:it.recipeIds?it.recipeIds.reduce((n,r)=>n+(isEss(r)?1:essIn(S.items[r],d+1)),0):1;
-// up to two essences from the item's top traits, but a crafted item never gives back more essences than were put into it (a raw drop is free, a forged-with-essence piece is not a mint)
-function salvageYield(it){if(it.id.startsWith("ess_"))return[];const ys=topTraits(it.grade?baseItem(baseIdOf(it.id)).traits:it.traits).filter(([t])=>TRAITS[t].f!=="bad").slice(0,2).filter(([,v],i)=>i===0||v>=2).map(([t])=>t),n=essIn(it);return n?ys.slice(0,n):ys}
+// Salvaging gear or a crafted piece: up to two essences from its top traits, but never more than were put into it (essIn), so plain gear gives none and forging is never a mint; the materials come back from salvageMats.
+function salvageYield(it){if(!it.crafted||isEss(it.id))return[];const ys=topTraits(it.traits).filter(([t])=>TRAITS[t].f!=="bad").slice(0,2).filter(([,v],i)=>i===0||v>=2).map(([t])=>t);return ys.slice(0,essIn(it))}
+
+// ================= MATERIALS: DECONSTRUCT AND PATTERNS =================
+// Anything that is not gear, crafted, an essence or a base material deconstructs (economy.js: deconstruct); gear and crafted pieces salvage instead.
+const canDecon=it=>!!it&&!isGear(it)&&!it.crafted&&!isEss(it.id)&&!isBaseMat(it.id)&&!!BASE[plainId(it.id)];
+const canSalvage=it=>!!it&&(isGear(it)||it.crafted)&&!isEss(it.id);
+// What deconstructing gives: mat = [base material id, n] (an affixed raw gives the affixed material), frag = [[trait, n, grade]] fragments it always gives, ch = [[trait, chance, grade]] a full essence each. Counted from the Plain traits, so a grade changes the fragments' grade, not their number.
+function deconYield(it){
+  const p=plainId(it.id),d=DECON[p],g=gradeOf(it.id),a=afxOfId(it.id),A=a&&AFX[a],fg=Math.max(1,g-FRAG.step),skip=d?MAT_T[MATS[d[0]]].tr:null,frag=[],ch=[];
+  Object.entries(BASE[p][2]).forEach(([t,v])=>{if(t===skip||TRAITS[t].f==="bad")return;const n=Math.round(v);if(n>0){frag.push([t,n,fg]);ch.push([t,Math.min(FRAG.cap,Math.round(FRAG.ch*v*100)/100),g])}});
+  if(A){const f=frag.find(x=>x[0]===A.tr);if(f)f[1]+=FRAG.afx;else frag.push([A.tr,FRAG.afx,fg]);ch.push([A.tr,FRAG.afxCh,g])}
+  return{mat:d?[gradedId(a?d[0]+"~"+a:d[0],g),d[1]]:null,frag,ch};
+}
+// The materials a piece of gear was shaped from: a pattern piece keeps them (recipeIds), a plain BASE item uses its standard recipe or blueprint (at its own grade), a crucible craft those of its gear and material inputs.
+function stdMats(p){for(const k in PATTERNS)for(const [m,r] of PATTERNS[k].std)if(r===p)return m;return BLUEPRINTS[p]?BLUEPRINTS[p].m:null}
+function matsOf(it,d=0){
+  if(!it||d>8)return[];
+  if(!it.crafted){const m=isGear(it)&&stdMats(plainId(it.id));return m?m.map(x=>gradedId(x,gradeOf(it.id))):[]}
+  if(it.pat)return(it.recipeIds||[]).slice();
+  return(it.recipeIds||[]).flatMap(r=>isBaseMat(r)?[r]:matsOf(S.items[r],d+1));
+}
+// salvaging gives back half of them (rounded down, at least one), the first slots first
+const salvageMats=it=>{if(!it||!(isGear(it)||it.crafted))return[];const m=matsOf(it);return m.slice(0,m.length?Math.max(1,Math.floor(m.length/2)):0)};
+// Patterns: mats = material ids in slot order. A blueprint (bp) or a standard recipe makes its named BASE item at the lowest grade among the materials, with the first affix among them; anything else makes a new piece from the weighted material traits.
+const patSlots=(key,bp)=>bp?BLUEPRINTS[key].slots:PATTERNS[key].slots.map(s=>s[0]);
+const patFits=(key,bp,i,id)=>!!id&&patSlots(key,bp)[i]&&patSlots(key,bp)[i].includes(MATS[plainId(id)]);
+function shapeResult(key,mats,bp){
+  const slots=patSlots(key,bp);if(mats.length!==slots.length||!mats.every((m,i)=>patFits(key,bp,i,m)))return null;
+  const g=Math.min(...mats.map(gradeOf)),a=mats.map(afxOfId).find(Boolean),P=bp?null:PATTERNS[key];
+  const named=bp?key:(P.std.find(([m])=>m.join()===mats.map(plainId).join())||[])[1];
+  if(named){const b=a?named+"~"+a:named,id=gradedId(b,g);return{id,base:b,g,named:true,item:S.items[id]||mkGraded(b,g)}}
+  const its=mats.map(id=>S.items[id]),tr={};
+  its.forEach((it,i)=>Object.entries(it.traits).forEach(([t,v])=>{if(TRAITS[t].f!=="bad")tr[t]=(tr[t]||0)+v*P.slots[i][1]}));
+  Object.entries(P.tr).forEach(([t,v])=>tr[t]=(tr[t]||0)+v);
+  const traits=Object.fromEntries(topTraits(tr).filter(([,v])=>v>=PAT_MIN).slice(0,traitSlots()).map(([t,v])=>[t,r1(v)]));
+  const t0=MATS[plainId(mats[0])],noun=typeof P.noun==="string"?P.noun:P.noun[t0]||P.noun._;
+  const adj=topTraits(traits).map(([t,v])=>[t,v+(t in P.tr?0:2)]).sort((x,y)=>y[1]-x[1]).map(([t])=>TRAITS[t].adj).filter(x=>x.toLowerCase()!==noun.toLowerCase()).slice(0,2).reverse(); // the materials name it before the pattern does
+  const id="c_"+hash("pat:"+key+"|"+mats.join("+")).toString(36);
+  return{id,named:false,item:{id,name:[...adj,noun].join(" "),form:P.form,noun,traits,tier:1,crafted:true,pat:key,recipe:its.map(i=>i.name),recipeIds:mats.slice(),ei:0,...g!==3?{sg:g}:{}}};
+}
+// Forge from a pattern for real: the materials go, the piece comes (equipped into a free slot), with a little smith and skill XP. It never fails.
+function shapeIt(key,mats,bp){
+  const r=shapeResult(key,mats,bp);if(!r||!mats.every(id=>avail(id)>=mats.filter(x=>x===id).length))return null;
+  const lv0=level(),sk=skillOf(r.item),l0=skLv(sk);
+  mats.forEach(id=>S.inv[id]--);trimBench();
+  const id=r.named?gradedItem(r.base,r.g):r.id;if(!S.items[id])S.items[id]=r.item;
+  addItem(id);settleGear(S.items[id]);S.stats.shaped++;
+  S.xp+=SHAPE.xp;S.skills[sk]=skXp(sk)+SHAPE.sk;
+  save();
+  return{id,lv:level()>lv0,sk,up:skLv(sk)>l0?l0:0};
+}
 // Forge for real: ingredients out, the result in, smith XP and skills, research points and insights. The caller announces it (render, toasts, the animation).
 function forgeIt(items){
   const lvBefore=level(),sk0=Object.fromEntries(Object.keys(SKILLS).map(k=>[k,skLv(k)])),r=combine(items),{item,log,inst,mishap,fizzle,cleanId,skill,diff,baseId,rxKeys}=r;

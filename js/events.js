@@ -44,6 +44,7 @@ $("gear").addEventListener("click",e=>{const b=e.target.closest("[data-gear]");i
   toast(s==="off"?tx("Equip a second weapon or a shield in your off hand."):tx("Tap a {slot} item below to equip it.",{slot:lc(tx(SLOTS.find(x=>x[0]===s)[1]))}))});
 document.querySelectorAll("#gtabs,#ftabs").forEach(el=>el.addEventListener("click",e=>{const b=e.target.closest("[data-tab]");if(!b)return;S.tab=b.dataset.tab;save();renderSatchels()}));
 $("ginv").addEventListener("click",e=>{const b=e.target.closest("[data-id]");if(b){if(salvageMode){toggleSalvage(b.dataset.id);return}openSheet(b.dataset.id)}});
+$("gdecon").addEventListener("click",e=>{if(!e.target.closest("#deconAll"))return;if(!deconArmed){deconArmed=true;renderSatchels();setTimeout(()=>{deconArmed=false;if(S.view==="gear")renderSatchels()},3500);return}deconArmed=false;deconAll()});
 function openResearch(id){techSel=id;$("resd").open=true;go("forge");$("resp").scrollIntoView({block:"start"})}
 $("mixhint").addEventListener("click",e=>{const b=e.target.closest("[data-gores]");if(b)openResearch(b.dataset.gores)});
 $("restree").addEventListener("click",e=>{const b=e.target.closest("[data-tech],[data-study],#learn");if(!b)return;
@@ -59,6 +60,17 @@ $("rlist").addEventListener("click",e=>{const b=e.target.closest("[data-load]");
   S.bench=[...it.recipeIds];go("forge");toast(tx("Loaded the recipe for {item}.",{item:iname(it)}))});
 $("cxlist").addEventListener("click",e=>{const b=e.target.closest("[data-codex]");if(b&&!b.disabled)openCodex(b.dataset.codex)});
 $("clear").onclick=()=>{S.bench=[];save();render()};
+$("pats").addEventListener("click",e=>{const b=e.target.closest("[data-pat]");if(!b)return;const k=b.dataset.pat,bp=b.dataset.bp==="1";
+  patSel=patSel.k===k&&patSel.bp===bp?{k:null,bp:false,m:[]}:{k,bp,m:[]};patFix();if(!inBattle())patFill();renderPatterns()});
+$("patbody").addEventListener("click",e=>{const b=e.target.closest("[data-pslot],[data-pm],#shape,#pfill,#pclear");if(!b)return;
+  if(b.dataset.pslot!=null){patSel.m[+b.dataset.pslot]=null;return renderPatterns()}
+  if(b.dataset.pm){const id=b.dataset.pm,i=patSel.m.findIndex((x,i)=>!x&&patFits(patSel.k,patSel.bp,i,id));if(i>=0&&patLeft(id)>0)patSel.m[i]=id;return renderPatterns()}
+  if(b.id==="pfill"){patFill();return renderPatterns()}
+  if(b.id==="pclear"){patSel.m=patSel.m.map(()=>null);return renderPatterns()}
+  if(inBattle())return toast(tx("Finish the fight first."));
+  const items=patSel.m.map(id=>S.items[id]),r=shapeIt(patSel.k,patSel.m,patSel.bp);if(!r)return;
+  patSel.m=patSel.m.map(()=>null);const it=S.items[r.id];
+  playForge(items,it,()=>{render(true);toast([tx("Forged {item}.",{item:iname(it)}),r.lv?lvMsg():"",r.up?skMsg(r.sk,r.up):""].filter(Boolean).join(" "))})});
 $("scrim").onclick=closeSheet;
 document.addEventListener("keydown",e=>{if(e.key==="Escape"&&sheet.mode)closeSheet()});
 $("sheet").addEventListener("click",e=>{const b=e.target.closest("[data-act]");if(!b)return;const id=sheet.id,it=S.items[id],a=b.dataset.act;
@@ -72,7 +84,10 @@ $("sheet").addEventListener("click",e=>{const b=e.target.closest("[data-act]");i
   if(a==="add"){S.bench.push(id);closeSheet();go("forge");toast(tx("{item} added to the crucible.",{item:iname(it)}));return}
   if(a==="salvage"){
     if(!salvageArmed){salvageArmed=true;return openSheet(id,true)}
-    const {ys,sg,em}=salvageItem(id);closeSheet();{const list=ys.map(t=>iname(S.items[gradedId("ess_"+t,sg)])).join(tx(" and "));toast(em&&isUnl("peddler")?tx("Salvaged into {list} and {n} embers.",{list,n:em}):tx("Salvaged into {list}.",{list}))}}
+    if(canDecon(it)){const got=deconstruct(id);closeSheet();if(!got)return;const luck=got.filter(g=>g[2]);sfx("loot");
+      toast(tx("Deconstructed into {list}.",{list:gotText(got.filter(g=>!g[2]))})+(luck.length?" "+tx("Lucky: {list}!",{list:gotText(luck)}):"")+(got.em&&isUnl("peddler")?" "+tx("+{n} embers.",{n:got.em}):""))}
+    else{const r=salvageItem(id);closeSheet();if(!r)return;const {ys,sg,em,ms}=r;const list=[...ms.map(m=>iname(S.items[m])),...ys.map(t=>iname(S.items[gradedId("ess_"+t,sg)]))].join(tx(" and "));
+      toast(!list?tx("Salvaged for {n} embers.",{n:em}):em&&isUnl("peddler")?tx("Salvaged into {list} and {n} embers.",{list,n:em}):tx("Salvaged into {list}.",{list}))}}
   if(a==="reforge")return reforge(id);
   save();render()});
 $("combine").onclick=()=>{

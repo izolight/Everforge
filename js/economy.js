@@ -2,7 +2,9 @@
 // Embers (S.embers) come from fights, salvage and selling; they buy peddler stock, upgrade essence grades and reforge mishaps. Tunables live in EMB (data.js).
 const worth=it=>Math.round((3+power(it)*.6+2*(it.tier-1))*GRADE_W[(it.grade||3)-1]);
 const plainEq=g=>INF_W[g-1]/INF_W[2],salvGrade=it=>it.grade||it.sg||3; // plain essences a grade is worth; the grade of essence an item salvages into
-const buyPrice=id=>{if(isEss(id))return Math.max(1,Math.round(EMB.ess*plainEq(gradeOf(id))));const it=S.items[id];return Math.max(Math.round(worth(it)*EMB.buy),Math.ceil(EMB.floor*(salvageYield(it).length*EMB.val*plainEq(salvGrade(it))+salvageEmbers(it))))},sellPrice=id=>Math.max(1,Math.round(worth(S.items[id])*EMB.sell));
+// expected plain essences from breaking an item down: deconstructing (fragments plus the chances) or salvaging
+const breakEss=it=>canDecon(it)?(y=>y.frag.reduce((n,[,k,g])=>n+k*plainEq(g),0)+y.ch.reduce((n,[,p,g])=>n+p*plainEq(g),0))(deconYield(it)):salvageYield(it).length*plainEq(salvGrade(it));
+const buyPrice=id=>{if(isEss(id))return Math.max(1,Math.round(EMB.ess*plainEq(gradeOf(id))));const it=S.items[id];return Math.max(Math.round(worth(it)*EMB.buy),Math.ceil(EMB.floor*(breakEss(it)*EMB.val+salvageEmbers(it))))},sellPrice=id=>Math.max(1,Math.round(worth(S.items[id])*EMB.sell));
 const salvageEmbers=it=>isEss(it.id)?0:Math.max(1,Math.round(worth(it)*EMB.salv));
 function spendEmbers(n){S.embers-=n;S.stats.spent+=n}
 function gainEmbers(n){if(n>0){S.embers+=n;S.stats.earned+=n;if(isUnl("peddler"))fx("emb","+"+n,"ember")}return n}
@@ -56,10 +58,30 @@ function reforge(id){
   for(const [s] of SLOTS)if(S.eq[s]===id&&eqCount(id)>(S.inv[id]||0)){S.eq[s]=nid;break}
   clampHp();save();render();closeSheet();toast(tx("{item} reforged. {list} gone.",{item:iname(S.items[nid]),list:ms.map(trn).join(tx(" and "))}));
 }
-// Salvage one: it breaks into essences (and embers).
+// Salvage one piece of gear or a crafted item: half its materials back, the essences bound into it (never more) and embers.
 function salvageItem(id){
-  if(itemLocked(id)||!(S.inv[id]>0)||!salvageYield(S.items[id]).length)return null;
-  const it=S.items[id],ys=salvageYield(it),sg=salvGrade(it);S.inv[id]--;trimBench();settleGear(null);S.stats.salvaged++;
-  ys.forEach(t=>addItem(essG(t,sg)));const em=gainEmbers(salvageEmbers(it));
-  return{ys,sg,em};
+  if(itemLocked(id)||!(S.inv[id]>0)||!canSalvage(S.items[id]))return null;
+  const it=S.items[id],ys=salvageYield(it),sg=salvGrade(it),ms=salvageMats(it);S.inv[id]--;trimBench();settleGear(null);S.stats.salvaged++;
+  ys.forEach(t=>addItem(essG(t,sg)));ms.forEach(m=>addItem(gradedItem(baseIdOf(m),gradeOf(m))));const em=gainEmbers(salvageEmbers(it));
+  return{ys,sg,em,ms};
+}
+// Deconstruct one raw find, food, potion, herb or relic (deconYield): its base material, Faint essence fragments and a chance of a full essence per trait. R is the roll source. Returns [[id, n, lucky]] (null for a locked item).
+function deconstruct(id,R=Math.random){
+  if(itemLocked(id)||!(S.inv[id]>0)||!canDecon(S.items[id]))return null;
+  const y=deconYield(S.items[id]),got=[];S.inv[id]--;trimBench();settleGear(null);S.stats.salvaged++;
+  const give=(b,g,n,luck)=>{const x=gradedItem(b,g);addItem(x,n);const o=got.find(e=>e[0]===x&&!e[2]===!luck);if(o)o[1]+=n;else got.push([x,n,!!luck])};
+  if(y.mat)give(baseIdOf(y.mat[0]),gradeOf(y.mat[0]),y.mat[1]);
+  y.frag.forEach(([t,n,g])=>give("ess_"+t,g,n));
+  y.ch.forEach(([t,p,g])=>{if(R()<p)give("ess_"+t,g,1,true)});
+  got.em=gainEmbers(salvageEmbers(S.items[id])); // embers as salvage pays them
+  return got;
+}
+const gotText=got=>got.map(([id,n])=>(n>1?n+"× ":"")+iname(S.items[id])).join(", ");
+// Every raw find in the satchel at once (never the crucible's, never what a secret still wants)
+const deconList=()=>Object.keys(S.inv).filter(id=>!itemLocked(id)&&avail(id)>0&&canDecon(S.items[id])&&DECON[plainId(id)]&&!wanted(id));
+function deconAll(){
+  if(inBattle())return;const ids=deconList();if(!ids.length)return;let all=[];
+  let em=0;ids.forEach(id=>{for(let n=avail(id);n>0;n--){const g=deconstruct(id);em+=g.em;all.push(...g)}});
+  const sum=[];all.forEach(([x,n,l])=>{const o=sum.find(e=>e[0]===x&&e[2]===l);if(o)o[1]+=n;else sum.push([x,n,l])});
+  sfx("loot");save();render();toast(tx("Deconstructed into {list}.",{list:gotText(sum)})+(em&&isUnl("peddler")?" "+tx("+{n} embers.",{n:em}):""));
 }
