@@ -11,16 +11,16 @@ function learn(id,type,val){
   else if(type==="weak"||type==="resist"||type==="drops"){if(!K[type].includes(val)){K[type].push(val);fresh=true}}
   else if(!K[type]){K[type]=true;fresh=true}
   if(!fresh)return false;
-  if(type==="weak")text=`Codex: ${nm} is weak to ${val}.`;
-  else if(type==="resist")text=`Codex: ${nm} resists ${val}.`;
-  else if(type==="sp")text=`Codex: you learned ${nm}'s special move, ${(S.battle&&S.battle.id===id?foeOf(S.battle):ENEMIES[id]).sp.name}.`;
-  else if(type==="inf")text=`Codex: ${nm} can inflict ${STATUS[val].n.toLowerCase()}.`;
-  else if(type==="sp2")text=`Codex: you learned ${nm}'s second-form special, ${foeOf(S.battle).sp.name}.`;
-  else if(type==="ph")text=`Codex: ${nm} changes form below half health.`;
-  else if(type==="stats")text=`Codex: ${nm}'s strength is now recorded.`;
-  else text=`Codex: ${nm} can drop ${S.items[val].name}.`;
+  if(type==="weak")text=tx("Codex: {nm} is weak to {fam}.",{nm,fam:famL(val)});
+  else if(type==="resist")text=tx("Codex: {nm} resists {fam}.",{nm,fam:famL(val)});
+  else if(type==="sp")text=tx("Codex: you learned {nm}'s special move, {sp}.",{nm,sp:tx((S.battle&&S.battle.id===id?foeOf(S.battle):ENEMIES[id]).sp.name)});
+  else if(type==="inf")text=tx("Codex: {nm} can inflict {status}.",{nm,status:lc(STATUS[val].n)});
+  else if(type==="sp2")text=tx("Codex: you learned {nm}'s second-form special, {sp}.",{nm,sp:tx(foeOf(S.battle).sp.name)});
+  else if(type==="ph")text=tx("Codex: {nm} changes form below half health.",{nm});
+  else if(type==="stats")text=tx("Codex: {nm}'s strength is now recorded.",{nm});
+  else text=tx("Codex: {nm} can drop {item}.",{nm,item:iname(S.items[val])});
   if(S.battle&&S.battle.id===id)blog(text,"lore");
-  if(!was&&know(id).mastered)setTimeout(()=>toast(`${nm} mastered! You deal 15% more damage to it.`),50);
+  if(!was&&know(id).mastered)setTimeout(()=>toast(tx("{nm} mastered! You deal 15% more damage to it.",{nm})),50);
   return true;
 }
 function unknownFacts(id){const E=S.battle&&S.battle.id===id?foeOf(S.battle):ENEMIES[id],K=cx(id),out=[];

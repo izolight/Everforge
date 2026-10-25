@@ -10,9 +10,9 @@ const skXp=k=>S.skills[k]||0;
 function skLv(k){let l=1;SK_LV.forEach((t,i)=>{if(skXp(k)>=t)l=i+1});return l}
 // skill XP fades when a recipe is easy for the skill: full from difficulty lv-1, down to a 10% floor at lv-4
 const skFactor=(d,l)=>Math.max(.1,Math.min(1,(d-l+4)/3));
-const skMsg=(k,l0)=>(sfx("level",.6),`${SKILLS[k].name} Lv ${skLv(k)}! ${SK_CAP[skLv(k)-1]>SK_CAP[l0-1]?`Tier ${SK_CAP[skLv(k)-1]} is within reach.`:"Your forges fail less often."}`);
-const blockText=b=>`Your ${SKILLS[b.skill].name} (Lv ${b.lv}) can't reach tier ${b.tier} yet. It needs Lv ${b.need}.`;
-const lvMsg=()=>(sfx("level",.6),`Smith level ${level()}! ${LV_PERK[level()]||"Your mixtures grow steadier."}`);
+const skMsg=(k,l0)=>(sfx("level",.6),SK_CAP[skLv(k)-1]>SK_CAP[l0-1]?tx("{skill} Lv {lv}! Tier {tier} is within reach.",{skill:SKILLS[k].name,lv:skLv(k),tier:SK_CAP[skLv(k)-1]}):tx("{skill} Lv {lv}! Your forges fail less often.",{skill:SKILLS[k].name,lv:skLv(k)}));
+const blockText=b=>tx("Your {skill} (Lv {lv}) can't reach tier {tier} yet. It needs Lv {need}.",{skill:SKILLS[b.skill].name,lv:b.lv,tier:b.tier,need:b.need});
+const lvMsg=()=>(sfx("level",.6),tx("Smith level {lv}! {perk}",{lv:level(),perk:tx(LV_PERK[level()]||"Your mixtures grow steadier.")}));
 const maxInputs=()=>2+INPUT_LV.filter(l=>level()>=l).length;
 const infSlots=()=>INF_SLOTS+(level()>=9?1:0);
 const traitSlots=()=>Math.min(7,4+Math.floor((level()-1)/2))+(level()>=10?1:0);
@@ -24,11 +24,12 @@ const benchCount=id=>S.bench.filter(x=>x===id).length;
 const avail=id=>(S.inv[id]||0)-benchCount(id);
 const eqCount=id=>Object.values(S.eq).filter(x=>x===id).length;
 const inBattle=()=>!!(S.battle&&!S.battle.over);
-const rarity=it=>it.grade||(!it.crafted&&gradable(baseIdOf(it.id)))?GRADES[(it.grade||3)-1]:it.legendary?["Legendary","#f2a54a"]:RARITY[Math.min(4,it.tier-1)]; // graded essences and materials show their grade instead
-const formName=f=>FORMS[f].label.toLowerCase();
-const shortName=id=>ENEMIES[id].short||ENEMIES[id].name;
+const rarity0=it=>it.grade||(!it.crafted&&gradable(baseIdOf(it.id)))?GRADES[(it.grade||3)-1]:it.legendary?["Legendary","#f2a54a"]:RARITY[Math.min(4,it.tier-1)]; // graded essences and materials show their grade instead
+const rarity=it=>{const r=rarity0(it);return[tx(r[0]),r[1]]},gradeN=g=>tx(GRADES[g-1][0]);
+const formEn=f=>FORMS[f].label.toLowerCase(),formName=f=>lc(txc("form",FORMS[f].label)); // formEn is for logic, formName is shown
+const shortName=id=>tx(ENEMIES[id].short||ENEMIES[id].name);
 function kindOf(it){const g=grp(it);if(g==="material")return it.kind||"ore";if(g==="consumable")return it.form==="food"?"food":"potion";return g}
-function labelOf(it){return grp(it)==="material"?cap(kindOf(it)):(grp(it)==="weapon"?"Weapon · ":"")+FORMS[it.form].label}
+function labelOf(it){return grp(it)==="material"?txc("kind",cap(kindOf(it))):(grp(it)==="weapon"?tx("Weapon")+" · ":"")+txc("form",FORMS[it.form].label)}
 // Graded items (see GRADES in data.js): gradedItem makes the item for base id b at grade g in S.items on demand; essence(t) is the Plain one
 function gradedItem(b,g){const id=gradedId(b,g);if(g!==3)gradedItem(b,3);if(!S.items[id])S.items[id]=mkGraded(b,g);return id}
 const essence=trait=>gradedItem("ess_"+trait,3),essG=(trait,g)=>gradedItem("ess_"+trait,g);
@@ -43,8 +44,9 @@ const dropNow=(id,x)=>gdrop(id,S.zone,heatNow(),x),essNow=(t,x)=>gess(t,S.zone,h
 function addItem(id,n){S.inv[id]=(S.inv[id]||0)+(n||1);if(!S.fresh.includes(id))S.fresh.push(id)}
 const sortInputs=raw=>raw.slice().sort((a,b)=>FORMS[b.form].p-FORMS[a.form].p||b.tier-a.tier||(a.id<b.id?-1:1));
 const isFusion=(a,b)=>FUSIONS.some(([x,y])=>(x===a&&y===b)||(x===b&&y===a));
+const recipeNames=it=>it.recipeIds&&it.recipeIds.length&&it.recipeIds.every(id=>S.items[id])?it.recipeIds.map(id=>iname(S.items[id])).join(" + "):(it.recipe||[]).map(n=>tx(n)).join(" + "); // a crafted item's ingredients, in the shown language
 const zoneIdx=z=>ZONES.findIndex(x=>x[0]===z);
-const zoneName=z=>z==="any"?"Anywhere":ZONES[zoneIdx(z)][1];
+const zoneName=z=>tx(z==="any"?"Anywhere":ZONES[zoneIdx(z)][1]);
 const zonePool=z=>Object.values(ENEMIES).filter(e=>e.zone===z&&!e.boss).flatMap(e=>e.drops.map(d=>d[0]));
 function shade(h,a){const n=parseInt(h.slice(1),16);let r=n>>16,g=n>>8&255,b=n&255;const t=a<0?0:255,p=Math.abs(a);
   r=Math.round(r+(t-r)*p);g=Math.round(g+(t-g)*p);b=Math.round(b+(t-b)*p);return "#"+((1<<24)+(r<<16)+(g<<8)+b).toString(16).slice(1)}
