@@ -110,6 +110,7 @@ function forgeIt(items){
     else if(mishap&&firstLeg)S.journal.push({id:item.id,name:item.name,legendary:true}); // a flawed secret still counts as found
     S.inv[item.id]=(S.inv[item.id]||0)+1;recordPickup(item.id);S.knownR.push(...newRx);
     settleGear(S.items[item.id]);
+    if(S.onboarding===2&&grp(item)==="weapon")S.onboarding=3;
     rpGain("form:"+item.form,RP.form,tx("a new form ({form})",{form:formName(item.form)}));if(isNew&&rpCount("rec:")<RP.recCap)rpGain("rec:"+cleanId,RP.rec,tx("a new recipe"));
     newRx.forEach(k=>rpGain("rx:"+k,RP.rx,tx("a new reaction")));if(firstLeg)rpGain("leg:"+item.name,RP.leg,tx("a legendary"));
     log.push(...insights(items,r.key,r.mw));

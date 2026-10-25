@@ -194,7 +194,7 @@ function mapHead(){
     <p class="foot">${hz.sel?tx("Heat {n}, {name}: {desc} In all: {tot}.",{n:hz.sel,name:HEAT[hz.sel-1].name,desc:HEAT[hz.sel-1].desc,tot:heatTot(hz.sel)}):tx("New expeditions: normal difficulty.")}${hz.sel!==h&&!m.cleared?" "+tx("This map is Heat {n}; the choice applies to your next expedition here.",{n:h}):""}</p></div>`:"";
   return `<div class="mhead"><div class="mr"><span class="yg" ${tt(tx("You"),P.main?iname(P.main):tx("Bare fists"))}>${heroMini()}</span><div class="hpline" id="youHud" ${tt(`${tx("HP")} ${S.hp}/${P.maxHp}`)}>${hpBar(S.hp,P.maxHp)}<span class="hpnum">${S.hp}<small>/${P.maxHp}</small></span></div>
     ${ci("var(--fg)",stIc("atk","s"),P.atk,`${STAT_NAMES.atk} ${P.atk}`,tx("Strike power of your main hand."))}${ci("var(--fg)",stIc("def","s"),`${Math.round(P.red*100)}%`,`${STAT_NAMES.def} ${P.def}`,tx("Cuts the damage you take by {p}%.",{p:Math.round(P.red*100)}))}</div>
-    <div class="mr">${torch}${amb}${badges}${campBtn()}${ab}${help}</div>${sel}<p class="mnow${m.ls===m.steps&&m.steps?" mnew":""}">${(m.log||[]).slice(-1)[0]||tx("Tap a glowing tile next to you to set out.")}</p></div>`;
+    <div class="mr">${torch}${amb}${badges}${campBtn()}${ab}${help}</div>${sel}<p class="mnow${m.ls===m.steps&&m.steps?" mnew":""}">${S.onboarding===3?tx("Step onto an empty tile to try your enchanted weapon."):S.onboarding===2?tx("Salvage the Ember Coal, then bind its Fire essence into your sword."):(m.log||[]).slice(-1)[0]||tx("Tap a glowing tile next to you to set out.")}</p></div>`;
 }
 function riftCard(){ // the Rift: the region you stand in, its depth and your record
   if(S.zone!==RIFT_ZONE)return "";
@@ -264,7 +264,7 @@ function renderBattle(){
     const loot=B.over==="won"?`<div class="loot"><span class="label" ${tt(tx("Loot"),tx("Tap an item to inspect it."))}>${ic("bag")}</span>${lootChips(B.loot)}${B.emb&&isUnl("peddler")?`<span class="chip emb">${icon("ember")}+${B.emb}</span>`:""}</div>`:"";
     body=`${loot}${youHud()}<div class="actions"><button class="btn primary grow" id="cont">${tx("Back to the map")}</button>${B.over==="won"?`<button class="btn grow" id="toforge">${tx("Go to the forge")}</button>`:""}</div>${logBlock(B)}`;
   }
-  a.innerHTML=`${foeStage(B)}${body}`;
+  a.innerHTML=`${B.opening===2&&!B.over?`<p class="combat-advice">${tx("Try your new weapon. Watch its effects after each strike.")}</p>`:""}${foeStage(B)}${body}`;
   const bl=$("blog");if(bl)bl.scrollTop=bl.scrollHeight;
 }
 function useHint(it){const st=statsOf(it),p=[];if(st.heal>0)p.push(tx("+{n} HP",{n:medHeal(it)}));const d=Math.round((st.atk+st.mag)*.6);if(d>=3)p.push(tx("{n} dmg",{n:d}));const c=cures(it.traits);if(c.length)p.push(tx("cures {list}",{list:c.map(s=>lc(STATUS[s].n)).join(", ")}));return p.join(" · ")||tx("no effect")}

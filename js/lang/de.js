@@ -498,3 +498,14 @@ Object.assign(DICT.de, {
   "Back to game": "Zurück zum Spiel",
   "Explore": "Erkunden"
 });
+
+Object.assign(DICT.de, {
+  "Salvage the Ember Coal, then bind its Fire essence into your sword.": "Zerlege die Glutkohle und binde ihre Feueressenz in dein Schwert.",
+  "Your first enchanted weapon has proved itself. The Woods are yours to explore.": "Deine erste verzauberte Waffe hat sich bewährt. Erkunde nun die Wälder.",
+  "Forge your first enchanted weapon": "Schmiede deine erste verzauberte Waffe",
+  "Prepare for the first boss": "Bereite dich auf den ersten Boss vor",
+  "Master your combat style": "Meistere deinen Kampfstil",
+  "Beyond the Woods": "Jenseits der Wälder",
+  "Try your new weapon. Watch its effects after each strike.": "Probiere deine neue Waffe aus. Beobachte ihre Effekte nach jedem Schlag.",
+  "Step onto an empty tile to try your enchanted weapon.": "Betritt ein leeres Feld, um deine verzauberte Waffe auszuprobieren."
+});

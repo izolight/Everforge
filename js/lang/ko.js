@@ -495,3 +495,14 @@ Object.assign(DICT.ko, {
   "Back to game": "게임으로 돌아가기",
   "Explore": "탐험"
 });
+
+Object.assign(DICT.ko, {
+  "Salvage the Ember Coal, then bind its Fire essence into your sword.": "잉걸탄을 분해한 다음 불의 정수를 검에 결합하세요.",
+  "Your first enchanted weapon has proved itself. The Woods are yours to explore.": "첫 마법 무기의 위력을 확인했습니다. 이제 숲을 탐험하세요.",
+  "Forge your first enchanted weapon": "첫 마법 무기 제작",
+  "Prepare for the first boss": "첫 우두머리 준비",
+  "Master your combat style": "전투 방식 익히기",
+  "Beyond the Woods": "숲 너머로",
+  "Try your new weapon. Watch its effects after each strike.": "새 무기를 사용하고 공격 후 효과를 확인하세요.",
+  "Step onto an empty tile to try your enchanted weapon.": "빈 칸으로 이동하여 마법 무기를 시험하세요."
+});

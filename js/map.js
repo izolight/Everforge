@@ -76,7 +76,13 @@ function step(x,y){
   sfx("step");m.prev=m.pos;m.pos={x,y};m.steps++;m.dp=Math.max(m.dp,depthOf(m,x,y));S.battle=null;S.event=null;
   const was=m.torch>0;m.torch=Math.max(0,m.torch-drain(m));reveal(m);
   if(was&&m.torch<=0)toast(tx("Your torch gutters out. The dark presses close."));
-  const nd=poiAt(m,x,y);if(nd&&!nd.done)return enter(nd);
+  const nd=poiAt(m,x,y);
+  if(S.run!=="daily"&&S.zone==="woods"&&(!nd||nd.done)&&(S.onboarding===0||S.onboarding===3)){
+    const opening=S.onboarding===0?1:2;S.onboarding=opening===1?1:4;
+    if(opening===1)S.hp=pstats().maxHp;
+    return startBattle(opening===1?"sprite":"boar",{row:0,rar:"normal",afx:[],opening});
+  }
+  if(nd&&!nd.done)return enter(nd);
   if(m.torch<=0){const ra=m.sd?rng(hash(m.seed+":a:"+m.steps)):Math.random; // a seeded map rolls the dark's ambush by step number, so the same path meets the same things
     if(ra()<TORCH.amb){const e=pickEnemy(S.zone,ra),sa=speciesAfx(ENEMIES[e]),f=sa||rollFoe(ra,{elite:twistNow()==="elites",heat:m.heat||0,row:depthOf(m,x,y),mv:ENEMIES[e].mv});return startBattle(null,{row:depthOf(m,x,y),ambush:true,amsg:tx("Ambush! Something finds you in the dark."),e,...f})}}
   if(foesAct(m))return;

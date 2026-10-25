@@ -6,7 +6,7 @@ function pickEnemy(zone,R=Math.random){const pool=Object.entries(ENEMIES).filter
   for(const [id,e] of pool){r-=e.w;if(r<=0)return id}return pool[0][0]}
 function startBattle(forced,opt){
   opt=opt||{};const id=forced||opt.e||pickEnemy(S.zone),E=ENEMIES[id],sc=1+.06*(opt.row||0),h=heatNow(),tw=twistNow();
-  const B={id,name:E.name,el:E.el,hp:Math.round(E.hp*sc),max:Math.round(E.hp*sc),atk:Math.round(E.atk*sc),def:E.def,weak:[...E.weak],resist:[...E.resist],turn:1,
+  const B={opening:opt.opening||0,id,name:E.name,el:E.el,hp:Math.round(E.hp*sc),max:Math.round(E.hp*sc),atk:Math.round(E.atk*sc),def:E.def,weak:[...E.weak],resist:[...E.resist],turn:1,
     burn:null,poison:0,bleed:null,stun:0,open:false,cd:{},you:{},off:0,parry:false,shred:0,ward:null,frozen:false,guard:false,reborn:false,phased:false,rar:"normal",afx:[],intr:false,title:"",log:[],over:null,loot:[]};
   if(id==="mimic"){const zi=zoneIdx(S.zone),at=(a,i)=>a[Math.min(i,a.length-1)];B.max=B.hp=Math.round(E.hp*at(MIMIC_HP,zi));B.atk=Math.round(E.atk*at(MIMIC_ATK,zi));B.def=E.def+zi*2}
   B.heat=h;if(opt.pi!=null){B.pi=opt.pi;B.by=opt.by;B.ef=opt.ef} // a map enemy: which one, who moved, where it came from (see slip)
@@ -150,7 +150,7 @@ function useItem(id){
 function flee(){
   const B=S.battle;
   if(ENEMIES[B.id].boss&&Math.random()<.5){blog(tx("There's no escaping it!"),"foe");return enemyTurn()}
-  if(Math.random()<.7){B.over="fled";if(S.run==="daily")S.daily.turns+=B.turn;blog(tx("You slip away into cover."));
+  if(Math.random()<.7){B.over="fled";if(B.opening)S.onboarding=B.opening===1?0:3;if(S.run==="daily")S.daily.turns+=B.turn;blog(tx("You slip away into cover."));
     if(ENEMIES[B.id].boss){fallBack(curMap());blog(tx("You fall back from the lair. The way to the boss is still open."),"good")}else if(B.pi!=null)slip(B);
     save();return render()}
   blog(tx("You try to run, but it cuts you off."));enemyTurn();
@@ -226,6 +226,8 @@ function enemyDown(){
   const gh=h+(E.boss?GRADE_BOSS:0),gz=E.zone==="any"?S.zone:E.zone; // finds roll a grade for the zone and Heat (bosses a little hotter)
   if(B.id==="mimic"){const p=zonePool(S.zone);got=[gdrop(pick(p),gz,gh),gdrop(pick(p),gz,gh),gess(pick(ESS_POOL),gz,gh)]}
   else{got=E.drops.filter(([,p])=>Math.random()<p*mult).map(([id])=>id);if(!got.length)got=[E.drops[0][0]];got=got.map(id=>gdrop(id,gz,gh))}
+  if(B.opening===1){got=["coal","bread"];S.onboarding=2;blog(tx("Salvage the Ember Coal, then bind its Fire essence into your sword."),"good")}
+  if(B.opening===2){S.onboarding=5;blog(tx("Your first enchanted weapon has proved itself. The Woods are yours to explore."),"good")}
   if(twistNow()==="double")got=[...got,...got];
   if(!B.intr)B.afx.forEach(a=>got.push(gess(AFX[a].tr,gz,gh,undefined,RARITIES[B.rar].gs))); // each affix drops its essence, a grade or two better by rarity (a wild creature's own affixes drop none)
   blog(tx("The {name} falls.",{name:bname(B)})+(P.lure?" "+tx("Your Lure gear draws in extra scraps."):""),"good");
@@ -245,7 +247,7 @@ function enemyDown(){
   save();render();if(msg)toast(msg);
 }
 function youFall(){
-  const B=S.battle,P=pstats();S.hp=0;B.over="lost";S.stats.deaths++;sfx("lose",.25);
+  const B=S.battle,P=pstats();if(B.opening)S.onboarding=B.opening===1?0:3;S.hp=0;B.over="lost";S.stats.deaths++;sfx("lose",.25);
   const pool=[];Object.keys(S.inv).forEach(id=>{const free=(S.inv[id]||0)-eqCount(id);for(let i=0;i<free;i++)pool.push(id)});
   let lost=null;if(pool.length){lost=pick(pool);S.inv[lost]--;trimBench()}
   S.hp=Math.round(P.maxHp*.3);const dl=S.run==="daily",zn=zoneName(S.zone);

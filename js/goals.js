@@ -20,7 +20,7 @@ function goal(){
   if(S.quest<TUTORIAL.length){const q=TUTORIAL[S.quest];
     let prog="";if(S.quest===6&&!S.kills.gnarlhorn){const m=S.maps.woods;prog=tx("map depth {a}/{b}",{a:m&&m.steps?m.dp+1:0,b:MAP_ROWS})}
     const wait=q.need&&!S.unl[q.need]?UNL[q.need].txt:q.ok&&!q.ok(S)?q.wait:""; // a step whose system is not open yet says how to open it
-    return{step:tx("Step {n} of {t}",{n:S.quest+1,t:TUTORIAL.length}),short:`${S.quest+1}/${TUTORIAL.length}`,text:wait?tx("Next: {step}",{step:tx(wait)}):tx(q.text),tab:wait?"battle":q.tab,done:!wait&&q.done(S),reward:q.reward,prog}}
+    return{step:tx("Step {n} of {t}",{n:S.quest+1,t:TUTORIAL.length}),short:questChapter(),text:wait?tx("Next: {step}",{step:tx(wait)}):tx(q.text),tab:wait?"battle":q.tab,done:!wait&&q.done(S),reward:q.reward,prog}}
   if(!S.bounty){S.bounty=newBounty();save()}
   const b=S.bounty;
   if(b.kind==="hunt"){const n=Math.min(b.need,(S.kills[b.enemy]||0)-b.base),E=ENEMIES[b.enemy];
@@ -34,4 +34,11 @@ function claimGoal(){
   const hm=g.reward.hint?giveHint():"";
   if(S.quest<TUTORIAL.length)S.quest++;else S.bounty=null;
   save();render();toast(tx("Reward: {list}.",{list:[rewardText(g.reward),hm?tx("a hint scroll"):""].filter(Boolean).join(", ")})+(hm?" "+hm:""));
+}
+
+function questChapter(){
+  if(S.quest<3)return tx("Forge your first enchanted weapon");
+  if(S.quest<7)return tx("Prepare for the first boss");
+  if(S.quest<10)return tx("Master your combat style");
+  return tx("Beyond the Woods");
 }

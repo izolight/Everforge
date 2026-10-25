@@ -42,6 +42,17 @@ const {chromium}=require('playwright'),path=require('path'),assert=require('node
  await page.evaluate(()=>{setLang('en');go('gear');openSheet('iron_sword')});await page.locator('[data-act="close"]').focus();await page.keyboard.press('Tab');
  assert(await page.evaluate(()=>$('sheet').contains(document.activeElement)));await page.keyboard.press('Escape');if(await page.locator('#sheet').isVisible())await page.keyboard.press('Escape');assert(!await page.locator('#sheet').isVisible());
  console.log('ok Settings navigation, readable layouts in three languages and keyboard dialog focus');
+ await page.evaluate(()=>{S=freshState();go('battle');const [x,y]=adjTiles(curMap())[0];step(x,y)});
+ assert.equal(await page.evaluate(()=>S.battle.id),'sprite');
+ await page.evaluate(()=>{for(let i=0;i<20&&!S.battle.over;i++)attack()});
+ assert(await page.evaluate(()=>S.battle.over==='won'&&S.inv.coal===1&&S.onboarding===2));
+ await page.evaluate(()=>{salvageItem('coal');const id=essG('Fire',3);S.bench=['iron_sword',id];go('forge')});await page.locator('#combine').click();
+ assert(await page.evaluate(()=>S.onboarding===3&&gearOf('main').traits.Fire>0));
+ await page.evaluate(()=>{S.battle=null;go('battle');const m=curMap(),[x,y]=adjTiles(m).find(([x,y])=>!poiAt(m,x,y));step(x,y)});
+ assert.equal(await page.evaluate(()=>S.battle.id),'boar');await page.locator('#atk').click();
+ assert(await page.evaluate(()=>S.battle.log.some(l=>/fire|Flames/.test(l.t))));
+ assert(await page.evaluate(()=>{const old=JSON.parse(JSON.stringify(freshState()));delete old.onboarding;return migrate(old).onboarding===null}));
+ console.log('ok fresh opening reliably teaches loot, salvage, a guaranteed fire forge and its effect; old saves opt out');
  // Additional review regressions are added here.
  assert.deepEqual(errors,[]);console.log('USABILITY CHECK OK');
  }finally{await browser.close()}})().catch(e=>{console.error(e);process.exit(1)});
