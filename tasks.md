@@ -10,7 +10,7 @@ Backlog for monster coverage, biome variety and related balance/tooling work.
 - **M-01** — `Implement`
 - **M-02** — `Implement`
 - **M-03** — `In Progress`
-- **M-04** — `In Progress`
+- **M-04** — `Done`
 - Everything else — `Planned`
 
 ---
@@ -29,9 +29,10 @@ Backlog for monster coverage, biome variety and related balance/tooling work.
   Woods lacks authored fire/poison/swift; Pass lacks arcane; Hollow lacks metal. Swap duplicates or add enemies, with art, drops, lore and translations.
   **Done:** each campaign roster covers its biome element pool (or documents exceptions); `node tools/i18n-check.js` and `node tools/sim.js` pass.
 
-- [ ] **M-04 · Add wild creatures and Rift masters to the simulator** — `Status: In Progress` · `Size: M` · `tools/sim.js`
+- [x] **M-04 · Add wild creatures and Rift masters to the simulator** — `Status: Done` · `Size: M` · `tools/sim.js`
   Add `--wild` (or include `w_*` automatically) and run all 40 wild creatures plus seeded Rift masters through normal/magic/rare and existing policies.
   **Done:** wild creatures appear in sim output; win rates reported per region/biome; README/sim docs updated.
+  The regular tables hold the hand-made enemies only now (the `w_*` creatures have their own section, with native and forced rarity rows and a Δ against the regulars of the same zone); the Rift section rolls one seed per biome by default and shows the master with and without its affixes (the game gives bosses none). `--rarity` no longer includes `w_*`; `--wild` has their rarity rows. The forced `normal` row puts a wild creature back on its region band (its stored stats multiplied by its own rarity), so the forced rows compare like with like.
 
 - [ ] **M-05 · Give each Rift-only biome a signature identity** — `Status: Planned` · `Size: L` · `js/monsters.js`, `js/battle.js`, `js/data.js` · `Depends: V-11`
   Give fen/ash/bone/deep 2–3 thematic specials, an element/drop bias, and one signature trait each instead of only shared `GEN_SP` and Rift drops.
@@ -52,10 +53,20 @@ Backlog for monster coverage, biome variety and related balance/tooling work.
 - [ ] **M-09 · Rebalance affixed foes and staff kits** — `Status: Planned` · `Size: M` · `js/data.js`, `js/affix.js`
   Use `node tools/sim.js --rarity`. Staff kits are weakest against affixed foes; rare fights can slog past 30 turns.
   **Done:** stage kits beat rares >85% at Heat 0–3 with smart play; no `SLOG` above the stated turn limit; rarity table updated.
+  Note: `--rarity` covers the hand-made regulars only since M-04; the wild creatures' rarity rows are in `node tools/sim.js --wild`.
 
 - [ ] **M-10 · Tune the starter kit against magic/rare enemies** — `Status: Planned` · `Size: S` · `js/data.js`, tutorial/forge flow
   A starter without the tutorial Fire weapon wins ~8% vs Gnarlhorn and loses to magic/rare foes. Decide whether that is intended.
   **Done:** `node tools/sim.js --fresh --exped 6` shows an intentional win curve; README/todo notes the decision.
+  Measured in M-04: the starter kit also loses more to the wild creatures than to the hand-made regulars of the woods (Δ −4 / −16 / −20 points at Heat 0 / 3 / 5, `node tools/sim.js --wild`); a wild creature is the starter's real first test.
+
+- [ ] **M-11 · Fix the Rift master's affixes and stat band** — `Status: Planned` · `Size: S` · `js/battle.js`, `js/monsters.js`
+  `startBattle` skips the affix block for every boss (`js/battle.js:17`), so the Rift master — rolled as a rare with three affixes and its stats already divided by the rare multiplier — fights with no affixes at about 1.2× the region's HP band. Measured in M-04 (`node tools/sim.js --wild`): a `*/spire` kit wins 100% in ~4 turns at every biome and both depths (`TOO_EASY`), while the master's own affixes (the forced rows) turn it into a real fight (a passive `defensive/spire` drops to 60% at depth 3). Either let a boss with `gen` apply its own affixes, or keep bosses affix-free and stop dividing their stats by the rare multiplier.
+  **Done:** the master is a real fight (`node tools/sim.js --wild`: no `TOO_EASY` at depth 1 with a `*/spire` kit, smart play wins over 90%); the master's stats and affixes match the roll it was built from; the sim's native row agrees with the forced rows.
+
+- [ ] **M-12 · Give the wild creatures a fight of their own** — `Status: Planned` · `Size: M` · `js/monsters.js`
+  The wild creatures are meant to be a fight, not a free win, but they are not one: with their own region's kit every one of them wins 100% at Heat 0 (9 of the 10 in the woods are `TOO_EASY`, and the mean is exactly the hand-made regulars' — Δ 0 in every region), while against a kit one stage behind the spire's wild creatures cost −3 / −19 points at Heat 3 / 5. `GEN_T` and the 30% rare share leave a wild creature weaker than a regular of the same zone. Raise the band or the affix load, or give part of the roster a mini-boss profile (see V-16).
+  **Done:** `node tools/sim.js --wild` shows the wild creatures as a real fight with a stage kit (at most a third of a region's roster `TOO_EASY`) and the Δ against the regulars is not 0; the region's economy does not move (a wild creature's affixes still drop no essence).
 
 ## Data-only variety
 
@@ -157,6 +168,7 @@ Backlog for monster coverage, biome variety and related balance/tooling work.
 | **Tooling** | M-04 | `tools/sim.js` |
 | **Authored content** | M-03 | `js/data.js` (enemies only), `js/art/`, `lang/` |
 | **Balance research** | M-09, M-10 (measure first; code changes touch `data.js`/`affix.js`) | `js/affix.js`, balance tables |
+| **Rift master** | M-11 (the `js/battle.js` half only) | `js/battle.js` |
 
 ### Second wave
 
@@ -165,6 +177,7 @@ Backlog for monster coverage, biome variety and related balance/tooling work.
 - **V-05 … V-09** — five new biomes; same file, so one owner or one at a time.
 - **V-14** — new special kinds; touches `battle.js`, `monsters.js`, `data.js`, `lang/`.
 - **M-08** — essence sources; `data.js` + `map.js` + `encounters.js`.
+- **M-12** — the wild creatures' band; `js/monsters.js`, so it rides with the world-data lane.
 
 ### Third wave / dependent
 
@@ -181,15 +194,15 @@ Backlog for monster coverage, biome variety and related balance/tooling work.
 
 ### Must be serialized
 
-- **All `js/monsters.js` changes** — M-01, M-02, V-01/V-02/V-03/V-04, V-05–V-09, V-10–V-13, V-16, V-19, V-20, plus parts of M-05/M-06/M-08/V-14/V-17/V-21.
+- **All `js/monsters.js` changes** — M-01, M-02, V-01/V-02/V-03/V-04, V-05–V-09, V-10–V-13, V-16, V-19, V-20, plus parts of M-05/M-06/M-08/M-11/M-12/V-14/V-17/V-21.
 - **All `js/data.js` changes** — or assign one data steward and split by clearly separate sections (enemies vs balance vs biomes).
 - **Save-version/fixture changes** — M-06 and V-18 (and V-20 if it adds save fields) must not run concurrently. Only one branch should run `node tools/smoke.js 400 --write-fixture`.
 - **V-18 multi-enemy packs** — effectively a solo lane; it rewrites the core battle shape.
 
 ### Practical parallel plan
 
-1. **Worker A:** M-01 → M-02 → V-01 → V-03 → V-04 → V-12 → V-02
-2. **Worker B:** M-04 → M-09 → M-10
+1. **Worker A:** M-01 → M-02 → V-01 → V-03 → V-04 → V-12 → V-02 (and M-12, once the monsters.js lane is free)
+2. **Worker B:** M-04 → M-09 → M-10 → M-11 (the `js/battle.js` fix; the `js/monsters.js` half waits for the monsters.js lane)
 3. **Worker C:** M-03 → M-08 (data content only)
 4. **Worker D:** V-14 → V-15 → V-21 (combat mechanics)
 
