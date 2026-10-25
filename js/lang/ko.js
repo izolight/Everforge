@@ -272,6 +272,7 @@ DICT.ko=Object.assign(DICT.ko||{},{
 "The peddler pockets your {give} and hands over the {get}. \"Anything else?\"":"행상인이 {give|을|를} 주머니에 넣고 {get|을|를} 건네준다. \"더 필요한 건?\"",
 "Grade":"등급",
 "Your hero":"나의 영웅",
+"Expedition map":"원정 지도","Swipe to explore the map.":"지도를 탐험하려면 화면을 밀어 보세요.",
 "Equipped items shape your appearance. Tap a slot to inspect or change gear.":"착용한 장비가 외형에 반영됩니다. 슬롯을 탭해 장비를 살펴보거나 바꾸세요.",
 // Guard, Braced and trained parries.
 "Cuts every hit in the enemy's action by {p}% and blocks new statuses.":"적의 행동 중 모든 타격의 피해를 {p}% 줄이고 새 상태 이상을 막습니다.",

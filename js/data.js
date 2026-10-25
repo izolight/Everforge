@@ -223,7 +223,7 @@ const TUTORIAL=[
   {text:"Play the daily expedition, under the map.",tab:"battle",need:"daily",done:s=>s.stats.dailies>=1,reward:{items:["ess:Holy@4","ess:Stone"],xp:60}}
 ];
 // the map is a GRID.w x GRID.h tile grid; MAP_ROWS is its depth scale (0..5 by distance from the start, 6 = the lair) that sets enemy scaling and the daily's "depth reached"
-const MAP_ROWS=7,GRID={w:9,h:13},POI_N={fight:[5,3],elite:[1,2],chest:2,shrine:2,peddler:1,mystery:3}; // [min,spread]: fights 5-7, elites 1-2 (doubled at Heat 2+)
+const MAP_ROWS=7,GRID={w:13,h:17},POI_N={fight:[5,3],elite:[1,2],chest:2,shrine:2,peddler:1,mystery:3}; // larger branching maps; [min,spread]: fights 5-7, elites 1-2 (doubled at Heat 2+)
 // torchlight: the torch drains 1 per step (Heat 5: h5 per step); at 0 light drops to dim and every step risks an ambush (amb); shrine/rest refill
 const TORCH={max:40,rad:2,dim:1,amb:.3,shrine:20,rest:15,h5:1.5,nocamp:20};
 // roaming enemies: aw = path steps at which a chaser notices you (dark = torch out, heat = extra at Heat 3+, elite = elites), lose = steps at which it loses you, daze = steps a fled-from enemy stays idle, stay = a wanderer's chance to hold still
