@@ -6,7 +6,6 @@ Ideas discussed but not yet scheduled.
 - **Composable monster art + more base monsters.** Every enemy is a hand-drawn inline SVG. Option A: hand-draw more (3 → ~6 regulars per zone). Option B (preferred): composable art — a body per family (beast, undead, construct, elemental, humanoid) tinted by affix colour plus overlays (horns, auras, armour), so new variety is nearly free.
 - **Endless Rift (infinite maps).** Unlocks after the Spire. Procedural regions: biome templates (palette, terrain mix, monster families) rotating by depth; HP/attack curve past depth 4 tuned with `tools/sim.js`. Item tiers cap at 9 and smith level at 10, so treat it as a score mode: best-depth record, renown, rising grade odds rather than rising tiers. Needs a save bump.
 - **New hand-made regions.** Each region is about one piece: 3–4 enemies, a boss with phases, palette, terrain mix, essences.
-- **Hollow third enemy.** Cinder Hollow has only two regular enemies, so none stand still.
 - **Earlier mystery reveal** on the map (optional idea from P11).
 
 ## Balance
