@@ -156,12 +156,12 @@ let fails=0;const ok=(c,m)=>{if(!c){fails++;console.log("FAIL",m)}else console.l
   const mp=sv.maps.pass;const fi=mp.pois.findIndex(q=>q.t==="fight"),ei=mp.pois.findIndex(q=>q.t==="elite");mp.pois[fi].up=true;mp.pois[fi].af=3;mp.pois[ei].af=4;
   const pg=await b.newPage({viewport:{width:390,height:844}});const perrs=[];pg.on("pageerror",e=>perrs.push(e.message));
   await pg.goto(URL);await pg.evaluate(([k,s])=>{localStorage.clear();localStorage.setItem("everforge-v12",s)},[fx.key,JSON.stringify(sv)]);await pg.reload();
-  r=await pg.evaluate(([fi,ei])=>{const m=S.maps.pass;const f=m.pois[fi],e=m.pois[ei];const B=S.battle;const out={v:S.v,key:KEY,afxState:typeof S.afx,fo:[f.rar,f.afx,f.up,f.af],el:[e.rar,e.afx,e.up,e.af],b:[B.rar,B.afx,B.elite],stored:!!localStorage.getItem("everforge-v13")||true};
+  r=await pg.evaluate(([fi,ei])=>{const m=S.maps.pass;const f=m.pois[fi],e=m.pois[ei];const B=S.battle;const out={v:S.v,cur:freshState().v,key:KEY,afxState:typeof S.afx,fo:[f.rar,f.afx,f.up,f.af],el:[e.rar,e.afx,e.up,e.af],b:[B.rar,B.afx,B.elite],stored:!!localStorage.getItem("everforge-v13")||true};
     // the old battle finishes
     let g=0;R=(v,fn)=>{const r=Math.random;Math.random=()=>v;try{return fn()}finally{Math.random=r}};R(.5,()=>{while(S.battle===B&&!B.over&&g++<100){S.hp=pstats().maxHp;attack()}});
     out.met=!!(S.afx.shadow&&S.afx.shadow.s>0&&S.afx.shadow.b>0);out.over=B.over;out.ess=B.loot.filter(isEss);out.emb=B.emb;out.hud=null;render();
     const bad=Object.values(S.maps).some(m=>m.pois.some(p=>p.up!==undefined||p.af!==undefined));out.bad=bad;return out},[fi,ei]);
-  ok(r.v===14&&r.key==="everforge-v14","migration: v12 -> v14 (through v13)");
+  ok(r.v===r.cur&&r.key==="everforge-v"+r.cur,"migration: v12 -> current (through v13)");
   ok(r.fo[0]==="magic"&&r.fo[1][0]==="holy"&&r.fo[2]===undefined&&r.fo[3]===undefined,`migration: fight up:true af:3 -> magic ${r.fo[1]}`);
   ok(r.el[0]==="magic"&&r.el[1][0]==="shadow","migration: elite af:4 -> magic Umbral (shadow)");
   ok(r.b[0]==="magic"&&r.b[1][0]==="shadow"&&r.b[2]===undefined,"migration: the open elite battle keeps its affix");
@@ -169,8 +169,8 @@ let fails=0;const ok=(c,m)=>{if(!c){fails++;console.log("FAIL",m)}else console.l
   ok(perrs.length===0,"migration: no page errors "+perrs.join("|"));
   // plain v12 fixture loads too
   const pg2=await b.newPage();const e2=[];pg2.on("pageerror",e=>e2.push(e.message));await pg2.goto(URL);await pg2.evaluate(([k,s])=>{localStorage.clear();localStorage.setItem(k,s)},[fx.key,fx.save]);await pg2.reload();
-  r=await pg2.evaluate(()=>({v:S.v,afx:S.afx,pois:Object.values(S.maps).reduce((n,m)=>n+m.pois.length,0)}));
-  ok(r.v===14&&typeof r.afx==="object"&&e2.length===0,"migration: the v12 fixture loads (S.afx ready)");
+  r=await pg2.evaluate(()=>({v:S.v,cur:freshState().v,afx:S.afx,pois:Object.values(S.maps).reduce((n,m)=>n+m.pois.length,0)}));
+  ok(r.v===r.cur&&typeof r.afx==="object"&&e2.length===0,"migration: the v12 fixture loads (S.afx ready)");
   ok(errs.length===0,"no page errors in the main page: "+errs.join("|"));
   await b.close();
   console.log(fails?`${fails} FAILED`:"ALL OK");process.exit(fails?1:0);

@@ -23,7 +23,7 @@ Ideas discussed but not yet scheduled.
 - **New essence sources.** Wood, Heavy, Runic, Light and Steam only come from affix drops and salvage, never from the peddler, chests or shrines. Decide whether that's intended.
 
 ## Research (from G2)
-- **Tune RP after a playtest.** `sim.js --fresh` shows a first expedition that earns about 25-30 RP (first-time sources all pay at once: families, salvaged forms, the first boss) and 2-4 per expedition after, so Precision II and Masterwork wait on reactions, mastery and bosses. Move `RP` and the `TECHS` costs, not the code.
+- **RP pacing (done in G2 review).** A career bot over 20 expeditions found 7 of 9 techniques affordable on expedition 1 and income gone by expedition 5, so salvage RP was dropped, forms pay 2, bosses 4/8/12/16 by region, Smith levels 2-9 and skill levels 3/5/7/9 pay 2 each, and costs rose (Layering 6 ... Precision I 20). Watch it in play; move `RP` and the `TECHS` costs, not the code.
 - **More to spend RP on.** Everything in the tree is a gate. Ideas: a second tier past Masterwork (a fifth trait-slot technique, grade 5 refining), a Study upgrade, naming recipes.
 - **Recipes tab and tech gates.** Loading a recipe in the crucible does not check techniques (a veteran knows them all, a newcomer only has recipes they forged); an imported save could show it.
 

@@ -42,7 +42,7 @@ function grantTechs(s){
   if(vet)return;
   const add=(k,n)=>{if(!s.rpd[k]){s.rpd[k]=1;s.rp+=n}},cs=crafts(s);
   cs.forEach(it=>add("form:"+it.form,RP.form));s.journal.slice(0,RP.recCap).forEach(j=>add("rec:"+j.id,RP.rec));s.journal.forEach(j=>{if(j.legendary)add("leg:"+j.name,RP.leg)});
-  s.knownR.forEach(k=>add("rx:"+k,RP.rx));ZONES.forEach(z=>{if(s.kills[z[2]]>0)add("boss:"+z[2],RP.boss)});Object.keys(s.afx).forEach(a=>{if(s.afx[a].s>0)add("afx:"+a,RP.afx)});
+  s.knownR.forEach(k=>add("rx:"+k,RP.rx));ZONES.forEach((z,i)=>{if(s.kills[z[2]]>0)add("boss:"+z[2],RP.boss[i])});Object.keys(s.afx).forEach(a=>{if(s.afx[a].s>0)add("afx:"+a,RP.afx)});
   s.rp=Math.max(0,s.rp-TECHS.reduce((n,t)=>n+(has[t.id]?t.cost:0),0));
 }
 function migrate(s){
@@ -119,7 +119,7 @@ function migrate(s){
     Object.values(isObj(s.maps)?s.maps:{}).forEach(conv);if(isObj(s.daily))conv(s.daily.map);
     const b=s.battle;if(isObj(b)&&b.afx===undefined){const a=b.elite&&AFX_EL.find(x=>AFX[x].tr===b.elite);b.rar=a?"magic":"normal";b.afx=a?[a]:[];delete b.elite;if(a){if(!isObj(s.afx))s.afx={};s.afx[a]=s.afx[a]||{s:1,b:0}}}} // an open elite battle counts as met
   if(s.v===13){s.v=14;up14=true} // grandfather() fills s.unl once the save is sanitized
-  if(s.v===14){s.v=15;up15=true;if(Number.isInteger(s.quest)&&s.quest>=3&&(!up14||s.quest<7))s.quest++} // v14 -> v15: a goal step ("Learn a technique") now sits at 3; a v13 save past its 7 steps becomes the end of the chain below
+  if(s.v===14){s.v=15;up15=true;if(Number.isInteger(s.quest)){if(up14&&s.quest>=7)s.quest=TUTORIAL.length;else if(s.quest>=3)s.quest++}} // v14 -> v15: a goal step ("Learn a technique") now sits at 3, so quests from 3 move up one; a v13 save past its 7 steps was at the end of that chain
   if(s.v!==15||!isObj(s.items)||!isObj(s.inv))return null;
   const dflt=freshState();DEFAULTED.forEach(k=>{if(s[k]===undefined)s[k]=dflt[k]});if(!isObj(s.afx))s.afx={};
   Object.keys(BASE).forEach(id=>s.items[id]=baseItem(id));
@@ -149,12 +149,11 @@ function migrate(s){
   s.rxh=Object.fromEntries(Object.entries(isObj(s.rxh)?s.rxh:{}).filter(([k,v])=>REACTIONS.some(r=>r[0]+"+"+r[1]===k)&&Array.isArray(v)).map(([k,v])=>[k,v.filter(t=>k.split("+").includes(t))]));
   if(up15)grantTechs(s);
   if(up14){ // v13 -> v14
-    if(s.quest>=7)s.quest=TUTORIAL.length; // the old goal chain was 7 steps; the new steps are for newcomers
     s.unl={};if(!grandfather(s))Object.keys(s.maps).forEach(z=>{if(!s.maps[z].steps)delete s.maps[z]}); // an untouched map made before the gates is redrawn under them
   }else if(up15){ // v14 -> v15: the new systems open for what the save has reached or used (a veteran: all); grade upgrades now wait for Refining
     const ids=["research",...TECHS.filter(t=>t.i).map(t=>"t:"+t.id)];
     if(!grandfather(s,ids))ids.forEach(id=>{if(!UNL[id].used(s))delete s.seen["i:"+id]}); // a veteran has read them all; otherwise only what the save used (a new system it merely qualifies for still gets its card)
-    if(!s.techs.refine){delete s.unl.upgrade;delete s.seen["i:upgrade"]}
+    if(!s.techs.refine&&s.unl.upgrade){delete s.unl.upgrade;delete s.seen["i:upgrade"];s.seen["m:upg"]=true} // m:upg: the Research card says why
   }
   return s;
 }

@@ -141,7 +141,7 @@ function setup(){ // runs inside the game page; everything here uses the real ga
     Object.keys(S.inv).filter(id=>S.inv[id]-eqCount(id)>0&&!isEss(id)&&salvageYield(S.items[id]).length).forEach(id=>{while(S.inv[id]-eqCount(id)>0)salvageItem(id)});
     const sw=S.inv.iron_sword>0?"iron_sword":null;
     if(sw)for(const f of [...new Set(Object.keys(S.inv).filter(id=>isEss(id)&&S.inv[id]>0).map(essTrait))].slice(0,2)){const id=studyPool(f)[0];if(!id)continue;S.bench=[sw,id];if(!craftMiss(S.bench.map(i=>S.items[i])).length&&checkMix(S.bench.map(i=>S.items[i])).ok)forgeIt(S.bench.map(i=>S.items[i]));S.bench=[]}
-    checkUnl(true);
+    checkUnl(true);rpSweep();
     if(isUnl("research")){[...new Set(Object.keys(S.inv).filter(id=>isEss(id)&&S.inv[id]>0).map(essTrait))].filter(canStudy).slice(0,3).forEach(studyFam);
       for(let k=0;k<10;k++){const t=TECHS.filter(t=>techState(t)==="avail"&&S.rp>=t.cost).sort((a,b)=>a.cost-b.cost)[0];if(!t)break;learnTech(t.id);learned.push(t.name)}}
     rpQ=[];return{gain:rpEarned()-rp0,learned}};
