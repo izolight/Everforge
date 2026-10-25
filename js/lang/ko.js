@@ -440,3 +440,9 @@ Object.assign(DICT.ko,{
 Object.assign(DICT.ko, {
   "Last forge": "최근 제작"
 });
+
+Object.assign(DICT.ko, {
+  "Compared with {item}: {changes}.": "{item} 대비: {changes}.",
+  "Core stats unchanged": "기본 능력치 변화 없음",
+  "Equipped automatically": "자동으로 장착됨"
+});

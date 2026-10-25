@@ -49,7 +49,7 @@ $("infbtns").addEventListener("click",e=>{const b=e.target.closest("[data-infuse
 $("finv").addEventListener("click",e=>{const b=e.target.closest("[data-id]");if(!b)return;
   if(b.dataset.can==="1"&&!inBattle()){S.bench.push(b.dataset.id);$("resultPanel").open=false;save();render()}else openSheet(b.dataset.id)});
 $("slots").addEventListener("click",e=>{const b=e.target.closest("[data-slot]");if(!b)return;S.bench.splice(+b.dataset.slot,1);save();render()});
-$("result").addEventListener("click",e=>{const b=e.target.closest("[data-open]");if(b)openSheet(b.dataset.open)});
+$("result").addEventListener("click",e=>{const eq=e.target.closest("[data-result-equip]");if(eq&&!inBattle()){const id=eq.dataset.resultEquip;if(S.inv[id]>0){equip(id,targetSlot(S.items[id]));save();render()}return}const b=e.target.closest("[data-open]");if(b)openSheet(b.dataset.open)});
 $("rtabs").addEventListener("click",e=>{const b=e.target.closest("[data-rtab]");if(!b)return;S.rtab=b.dataset.rtab;save();renderRecipes()});
 $("rlist").addEventListener("click",e=>{const b=e.target.closest("[data-load]");if(!b)return;const it=S.items[b.dataset.load];
   S.bench=[...it.recipeIds];go("forge");toast(tx("Loaded the recipe for {item}.",{item:iname(it)}))});

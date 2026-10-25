@@ -443,3 +443,9 @@ Object.assign(DICT.de,{
 Object.assign(DICT.de, {
   "Last forge": "Letzte Schmiedearbeit"
 });
+
+Object.assign(DICT.de, {
+  "Compared with {item}: {changes}.": "Verglichen mit {item}: {changes}.",
+  "Core stats unchanged": "Grundwerte unverändert",
+  "Equipped automatically": "Automatisch ausgerüstet"
+});

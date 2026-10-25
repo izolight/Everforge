@@ -751,3 +751,7 @@ select.lang{width:100%;margin-top:8px;background:#120f0c;color:var(--fg);border:
   #v-forge>.forge-inventory{grid-column:2;grid-row:1 / span 5}
   #v-forge>.panel:not(.forge-workbench),#v-forge>.forge-history{grid-column:1}
 }
+
+.upgrade-summary{margin:0;padding:10px;border-left:3px solid var(--verd);background:#151c16;font-size:1rem;line-height:1.5}
+.effect-chips .fx-badge{flex:1 1 220px;max-width:100%;flex-wrap:wrap;white-space:normal;align-items:center}
+.fx-description{flex-basis:100%;font-family:var(--body);font-size:.92rem;line-height:1.4;color:var(--fg)}
