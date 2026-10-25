@@ -763,3 +763,15 @@ select.lang{width:100%;margin-top:8px;background:#120f0c;color:var(--fg);border:
 .map-tools b{font-size:1.5rem;color:var(--accent)}
 .tl.seen{filter:brightness(.78) saturate(.8)}
 .tl.rumor{color:var(--muted);font:1.1rem var(--mono);background:#181814;border:1px dashed #635746}
+.inventory-tools{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin-bottom:8px}
+.inventory-tools label{font-size:.8rem;color:var(--muted);min-width:0}
+.inventory-tools select{display:block;width:100%;min-width:0;min-height:44px;background:var(--panel2);color:var(--fg);border:1px solid var(--line2);border-radius:8px;font:inherit;font-size:.95rem}
+.sq.inventory-item{min-width:0}
+.sq.selected{outline:3px solid var(--accent);outline-offset:-3px}
+.item-lock{position:absolute;right:3px;bottom:3px;background:var(--panel);border-radius:4px;color:var(--accent);z-index:2}
+.item-lock svg{width:16px;height:16px}
+.sqg.inventory-list{grid-template-columns:minmax(0,1fr)}
+.inventory-list .sq{aspect-ratio:auto;grid-template-columns:48px minmax(0,1fr);gap:12px;min-height:74px;padding:10px 28px 10px 10px;text-align:left}
+.inventory-list .sq>svg{width:48px;height:48px}
+.item-caption{display:grid;gap:4px;min-width:0;font-size:1rem;overflow-wrap:anywhere}
+.item-caption small{font-size:.85rem;color:var(--muted)}

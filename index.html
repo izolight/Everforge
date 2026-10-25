@@ -57,7 +57,7 @@
     <section style="display:grid;gap:10px">
       <div class="lrow"><p class="label" data-t>Satchel</p><button type="button" class="qm" data-tap data-ta="data-tip aria-label" data-tip="Satchel&#10;Tap an item to open it: equip, use, add to the crucible or salvage it.&#10;Long-press or hover for its name and stats. The frame colour is its grade (Faint, Lesser, Plain, Greater, Pure), a tick means worn, a dot means new, a number is how many you hold." aria-label="Help: Satchel">?</button></div>
       <div class="tabs" id="gtabs"></div>
-      <div class="sqg" id="ginv"></div>
+      <div id="gtools"></div><div class="sqg" id="ginv"></div>
     </section>
   </div>
 
@@ -74,7 +74,7 @@
     <section class="forge-inventory" style="display:grid;gap:10px">
       <div class="lrow"><p class="label" data-t>Satchel</p><button type="button" class="qm" data-tap data-ta="data-tip aria-label" data-tip="Satchel&#10;Tap an item to add it to the crucible. Dimmed items won't mix with what is already in; tap one to inspect it.&#10;Long-press or hover for its name and stats. The frame colour is its grade (Faint, Lesser, Plain, Greater, Pure), a tick means worn, a dot means new, a number is how many you hold." aria-label="Help: Satchel">?</button></div>
       <div class="tabs" id="ftabs"></div>
-      <div class="sqg" id="finv"></div>
+      <div id="ftools"></div><div class="sqg" id="finv"></div>
     </section>
     <section class="panel" id="resp" aria-label="Research" data-ta="aria-label">
       <div id="reslock" hidden></div>
@@ -242,6 +242,7 @@
 <script src="js/sheets.js"></script>
 <script src="js/forgefx.js"></script>
 <script src="js/embers.js"></script>
+<script src="js/inventory.js"></script>
 <script src="js/events.js"></script>
 </body>
 </html>

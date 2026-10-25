@@ -46,7 +46,7 @@ function learnTech(id){
 }
 // ---- material study: spend one essence of a family to learn about a reaction it takes part in. S.rxh[key] lists the traits of that reaction you know: first the family, then (a second study) its partner
 const rxKey=r=>r[0]+"+"+r[1],rxHint=k=>S.rxh[k]||[];
-const studyPool=f=>Object.keys(S.inv).filter(id=>isEss(id)&&essTrait(id)===f&&avail(id)>0).sort((a,b)=>gradeOf(a)-gradeOf(b));
+const studyPool=f=>Object.keys(S.inv).filter(id=>isEss(id)&&!itemLocked(id)&&essTrait(id)===f&&avail(id)>0).sort((a,b)=>gradeOf(a)-gradeOf(b));
 function studyStep(f){ // the next thing studying f would reveal: [reaction, trait to show] or null
   const open=REACTIONS.filter(r=>r[0]===f||r[1]===f).filter(r=>!S.knownR.includes(rxKey(r)));
   const half=open.find(r=>rxHint(rxKey(r)).includes(f)&&rxHint(rxKey(r)).length<2);if(half)return[half,half[0]===f?half[1]:half[0]];

@@ -8,7 +8,7 @@ function mkGraded(b,g){ // the item for base id b at grade g (pure: migrate rebu
 const statsDef=()=>({salvaged:0,studied:0,dealt:0,taken:0,big:0,bigW:"",crits:0,parries:0,abil:0,sufd:0,cured:0,elites:0,bosses:0,deaths:0,exped:0,heatBest:{},fast:{},forged:0,legend:0,mishaps:0,fizzles:0,earned:0,spent:0,refined:0,dailies:0,dailyWins:0,dBest:null});
 function freshState(){
   const items={};Object.keys(BASE).forEach(id=>items[id]=baseItem(id));
-  return {v:16,embers:0,afx:{},unl:{},rp:0,techs:{bind:1},rpd:{},rxh:{},infCredit:0,skills:{},maps:{},heat:{},daily:null,run:null,infuse:{},items,inv:{iron_sword:1},eq:{main:"iron_sword",off:null,head:null,body:null,hands:null,feet:null,charm:null},
+  return {v:16,locked:[],recent:[],inventory:{layout:"grid",filter:"all",sort:"type"},embers:0,afx:{},unl:{},rp:0,techs:{bind:1},rpd:{},rxh:{},infCredit:0,skills:{},maps:{},heat:{},daily:null,run:null,infuse:{},items,inv:{iron_sword:1},eq:{main:"iron_sword",off:null,head:null,body:null,hands:null,feet:null,charm:null},
     hp:999,camp:2,campProg:0,xp:0,journal:[],knownR:[],hints:[0,1,2],bench:[],last:null,tab:"all",rtab:"all",view:"battle",zone:"woods",rift:{depth:1,best:0,seed:0,biome:"",name:"",pal:null,cleared:0},
     wins:0,kills:{},seen:{},codex:{},unlocked:["woods"],zoneKills:{},quest:0,bounty:null,stats:statsDef(),fresh:[],battle:null,event:null};
 }
@@ -165,6 +165,10 @@ function migrate(s){
     if(!grandfather(s,ids))ids.forEach(id=>{if(!UNL[id].used(s))delete s.seen["i:"+id]}); // a veteran has read them all; otherwise only what the save used (a new system it merely qualifies for still gets its card)
     if(!s.techs.refine&&s.unl.upgrade){delete s.unl.upgrade;delete s.seen["i:upgrade"];s.seen["m:upg"]=true} // m:upg: the Research card says why
   }
+  s.locked=Array.isArray(s.locked)?[...new Set(s.locked.filter(id=>s.items[id]))]:[];
+  s.recent=Array.isArray(s.recent)?[...new Set(s.recent.filter(id=>s.items[id]))]:[];
+  const ip=isObj(s.inventory)?s.inventory:{};
+  s.inventory={layout:ip.layout==="list"?"list":"grid",filter:["all","new","equipped","craftable"].includes(ip.filter)?ip.filter:"all",sort:["type","recent","grade"].includes(ip.sort)?ip.sort:"type"};
   return s;
 }
 let migNote=false,S=null; // migNote: a migration redrew the maps (shown once as a toast after load)

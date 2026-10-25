@@ -30,9 +30,9 @@ function shopPick(c,ev){
 }
 // Upgrading: UP.n of a graded essence or material + embers -> 1 of the next grade (see UP in data.js). A miss costs the embers and 1 of the UP.n, never all.
 const upChance=tg=>Math.max(UP.min,Math.min(UP.max,UP.base+UP.slope*(skLv("alchemy")-GRADE_LV[tg-1])));
-const upgradable=()=>Object.keys(S.inv).filter(id=>gradable(baseIdOf(id))&&gradeOf(id)<5&&avail(id)>=UP.n).sort((a,b)=>(S.items[baseIdOf(a)].name<S.items[baseIdOf(b)].name?-1:S.items[baseIdOf(a)].name>S.items[baseIdOf(b)].name?1:0)||gradeOf(a)-gradeOf(b));
+const upgradable=()=>Object.keys(S.inv).filter(id=>!itemLocked(id)&&gradable(baseIdOf(id))&&gradeOf(id)<5&&avail(id)>=UP.n).sort((a,b)=>(S.items[baseIdOf(a)].name<S.items[baseIdOf(b)].name?-1:S.items[baseIdOf(a)].name>S.items[baseIdOf(b)].name?1:0)||gradeOf(a)-gradeOf(b));
 function upgrade(id){
-  const g=gradeOf(id),tg=g+1,b=baseIdOf(id);if(inBattle()||!gradable(b)||g>=5||avail(id)<UP.n||S.embers<UP.emb[g-1])return;
+  const g=gradeOf(id),tg=g+1,b=baseIdOf(id);if(itemLocked(id)||inBattle()||!gradable(b)||g>=5||avail(id)<UP.n||S.embers<UP.emb[g-1])return;
   if(!hasTech("refine"))return toast(techWhy(["refine"]));
   const lv=skLv("alchemy"),need=GRADE_LV[tg-1];if(lv<need)return toast(tx("{grade} needs Alchemy Lv {need}. You are Lv {lv}.",{grade:gradeN(tg),need,lv}));
   const ok=Math.random()*100<upChance(tg);spendEmbers(UP.emb[g-1]);S.inv[id]-=ok?UP.n:1;trimBench();
@@ -44,7 +44,7 @@ function upgrade(id){
 // Reforge: pay embers to strip every mishap (Cursed, Brittle, Rust, and a Weakened flag, which restores the traits from before the fizzle) from a crafted or tempered piece. Like the old forge's tempering it makes a new c_ item (a flawed craft turns back into its clean recipe item), keeps the legendary flag and bonus, and takes over the equip slot.
 const mishapsOf=it=>!it.crafted?[]:[...MISHAP_TRAITS.filter(t=>it.traits[t]>0),...it.mishap==="Weakened"?["Weakened"]:[]],reforgeCost=it=>EMB.reforge[0]+EMB.reforge[1]*it.tier;
 function reforge(id){
-  const it=S.items[id],ms=it?mishapsOf(it):[],cost=ms.length&&reforgeCost(it);if(!ms.length||inBattle()||!S.inv[id]||S.embers<cost)return;
+  const it=S.items[id],ms=it?mishapsOf(it):[],cost=ms.length&&reforgeCost(it);if(itemLocked(id)||!ms.length||inBattle()||!S.inv[id]||S.embers<cost)return;
   if(!hasTech("mend"))return toast(techWhy(["mend"]));
   const back=it.clean&&!it.temper&&ms.length===1&&!(it.recipeIds||[]).some(r=>MISHAP_TRAITS.some(t=>S.items[r]?.traits[t]>0)),nid=back?it.clean:"c_"+hash(id+":reforge").toString(36); // a mended mishap turns back into the clean recipe item, so it stacks with copies forged cleanly
   if(!S.items[nid]){let tr={...it.traits},name=it.name;
@@ -58,6 +58,7 @@ function reforge(id){
 }
 // Salvage one: it breaks into essences (and embers).
 function salvageItem(id){
+  if(itemLocked(id)||!(S.inv[id]>0)||!salvageYield(S.items[id]).length)return null;
   const it=S.items[id],ys=salvageYield(it),sg=salvGrade(it);S.inv[id]--;trimBench();settleGear(null);S.stats.salvaged++;
   ys.forEach(t=>addItem(essG(t,sg)));const em=gainEmbers(salvageEmbers(it));
   return{ys,sg,em};

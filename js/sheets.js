@@ -9,22 +9,23 @@ function openSheet(id,refresh,preview){
   const ts=targetSlot(it),eqIt=ts&&gearOf(ts),cmp=eqIt&&eqIt.id!==id?eqIt:null;
   const mix=S.bench.length?checkMix([...S.bench.map(b=>S.items[b]),it]):{ok:true};
   const btns=[];
+  if(!preview)btns.push(`<button class="btn" data-act="lock" aria-pressed="${itemLocked(id)}">${tx(itemLocked(id)?"Unlock item":"Lock item")}</button>`);
   if(!preview){
     if(isGear(it)){const slots=FORMS[it.form].slots;
       slots.forEach(s=>{const on=S.eq[s]===id,lab=lc(tx(SLOTS.find(x=>x[0]===s)[1]));
         btns.push(on?`<button class="btn grow" data-act="unequip" data-slot="${s}" ${locked?"disabled":""}>${tx("Unequip {slot}",{slot:lab})}</button>`
           :`<button class="btn primary grow" data-act="equip" data-slot="${s}" ${locked||(eqCount(id)>=S.inv[id]&&!slots.some(x=>S.eq[x]===id))?"disabled":""}>${slots.length>1?tx("Equip in {slot}",{slot:lab}):tx("Equip")}</button>`)})}
     if(g==="consumable"&&statsOf(it).heal>0&&!locked)btns.push(`<button class="btn primary grow" data-act="eat" ${S.hp>=P.maxHp?"disabled":""}>${S.hp>=P.maxHp?tx("Already at full HP"):tx("Use now (+{n} HP)",{n:Math.min(medHeal(it),P.maxHp-S.hp)})}</button>`);
-    btns.push(`<button class="btn grow" data-act="add" ${left<=0||full||locked||!mix.ok?"disabled":""}>${locked?tx("Finish the fight to forge"):full?tx("Crucible full"):left<=0?tx("All in crucible"):!mix.ok?tx("Won't mix with the crucible"):tx("Add to crucible")}</button>`);
+    btns.push(`<button class="btn grow" data-act="add" ${itemLocked(id)||left<=0||full||locked||!mix.ok?"disabled":""}>${locked?tx("Finish the fight to forge"):full?tx("Crucible full"):left<=0?tx("All in crucible"):!mix.ok?tx("Won't mix with the crucible"):tx("Add to crucible")}</button>`);
     const ys=salvageYield(it);
-    if(ys.length)btns.push(`<button class="btn ${salvageArmed?"danger":""} grow" data-act="salvage" ${locked||left<=0?"disabled":""}>${salvageArmed?tx("Tap again to salvage"):tx("Salvage → {list}",{list:ys.map(t=>iname(S.items[gradedItem("ess_"+t,salvGrade(it))])).join(" + ")})+(salvageEmbers(it)&&isUnl("peddler")?tx(" + {n} embers",{n:salvageEmbers(it)}):"")}</button>`);
+    if(ys.length)btns.push(`<button class="btn ${salvageArmed?"danger":""} grow" data-act="salvage" ${itemLocked(id)||locked||left<=0?"disabled":""}>${salvageArmed?tx("Tap again to salvage"):tx("Salvage → {list}",{list:ys.map(t=>iname(S.items[gradedItem("ess_"+t,salvGrade(it))])).join(" + ")})+(salvageEmbers(it)&&isUnl("peddler")?tx(" + {n} embers",{n:salvageEmbers(it)}):"")}</button>`);
     const mh=mishapsOf(it);if(mh.length&&isUnl("peddler")&&!hasTech("mend"))btns.push(`<button class="btn grow" aria-disabled="true" data-tap ${tt(tx("Reforge"),techWhy(["mend"]))}>${tx("Reforge: needs Mending")}</button>`);
-    else if(mh.length&&isUnl("peddler"))btns.push(`<button class="btn grow" data-act="reforge" ${locked||S.embers<reforgeCost(it)?"disabled":""}>${tx("Reforge — {list} ({n} embers)",{list:mh.map(m=>m==="Weakened"?tx("restore {m}",{m:trn(m)}):tx("remove {m}",{m:trn(m)})).join(tx(" and ")),n:reforgeCost(it)})}</button>`);
+    else if(mh.length&&isUnl("peddler"))btns.push(`<button class="btn grow" data-act="reforge" ${itemLocked(id)||locked||S.embers<reforgeCost(it)?"disabled":""}>${tx("Reforge — {list} ({n} embers)",{list:mh.map(m=>m==="Weakened"?tx("restore {m}",{m:trn(m)}):tx("remove {m}",{m:trn(m)})).join(tx(" and ")),n:reforgeCost(it)})}</button>`);
   }
   btns.push(`<button class="btn" data-act="close">${tx("Close")}</button>`);
   $("sheetIn").innerHTML=`<div class="grab" aria-hidden="true"></div>
     <div class="rhead">${glyph(it)}<div><div class="rform">${rn} · ${labelOf(it)} · ${tx("Tier {n}",{n:it.tier})}${preview?" · "+tx("on offer"):` · ×${S.inv[id]}`}</div><h2 class="rname">${nameHtml(it)}</h2></div></div>
-    ${itemProperties(it,cmp,true,"Versus equipped")}
+    ${itemLocked(id)?`<p class="ok-text">${tx("Protected from crafting, salvage and selling.")}</p>`:""}${itemProperties(it,cmp,true,"Versus equipped")}
     ${!preview&&!mix.ok?`<p class="warn-text">${mix.reason}</p>`:""}
     ${it.mishap==="Weakened"?`<p class="warn-text">${tx("Weakened: a fizzled mixture cost every trait 30%.")}</p>`:""}
     ${it.recipe?`<p class="empty">${tx("Forged from {list}.",{list:recipeNames(it)})}</p>`:""}

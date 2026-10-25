@@ -4,6 +4,7 @@ function toast(m,later){ // later: wait behind a toast that is still showing (un
   const t=$("toast");if(later&&t.classList.contains("show")){toastQ.push(m);return}
   t.textContent=m;t.classList.add("show");clearTimeout(toastT);toastT=setTimeout(()=>{t.classList.remove("show");if(toastQ.length)setTimeout(()=>toast(toastQ.shift(),1),350)},3000)}
 function go(view){
+  salvageMode=false;salvageSelection.clear();
   if(view==="gear"||view==="forge"){freshShown=new Set([...freshShown,...S.fresh]);S.fresh=[]}else freshShown=new Set();
   S.view=view;save();render();window.scrollTo({top:0});
 }
@@ -39,7 +40,7 @@ $("gear").addEventListener("click",e=>{const b=e.target.closest("[data-gear]");i
   S.tab=s==="main"?"weapon":s==="charm"?"charm":s==="off"?"all":"armor";save();render();
   toast(s==="off"?tx("Equip a second weapon or a shield in your off hand."):tx("Tap a {slot} item below to equip it.",{slot:lc(tx(SLOTS.find(x=>x[0]===s)[1]))}))});
 document.querySelectorAll("#gtabs,#ftabs").forEach(el=>el.addEventListener("click",e=>{const b=e.target.closest("[data-tab]");if(!b)return;S.tab=b.dataset.tab;save();renderSatchels()}));
-$("ginv").addEventListener("click",e=>{const b=e.target.closest("[data-id]");if(b)openSheet(b.dataset.id)});
+$("ginv").addEventListener("click",e=>{const b=e.target.closest("[data-id]");if(b){if(salvageMode){toggleSalvage(b.dataset.id);return}openSheet(b.dataset.id)}});
 function openResearch(id){techSel=id;$("resd").open=true;go("forge");$("resp").scrollIntoView({block:"start"})}
 $("mixhint").addEventListener("click",e=>{const b=e.target.closest("[data-gores]");if(b)openResearch(b.dataset.gores)});
 $("restree").addEventListener("click",e=>{const b=e.target.closest("[data-tech],[data-study],#learn");if(!b)return;
@@ -47,7 +48,7 @@ $("restree").addEventListener("click",e=>{const b=e.target.closest("[data-tech],
 $("upgrows").addEventListener("click",e=>{const b=e.target.closest("[data-upgrade]");if(b)upgrade(b.dataset.upgrade)});
 $("infbtns").addEventListener("click",e=>{const b=e.target.closest("[data-infuse]");if(b&&!inBattle())infuse(b.dataset.infuse)});
 $("finv").addEventListener("click",e=>{const b=e.target.closest("[data-id]");if(!b)return;
-  if(b.dataset.can==="1"&&!inBattle()){S.bench.push(b.dataset.id);$("resultPanel").open=false;save();render()}else openSheet(b.dataset.id)});
+  if(b.dataset.can==="1"&&!itemLocked(b.dataset.id)&&!inBattle()){S.bench.push(b.dataset.id);$("resultPanel").open=false;save();render()}else openSheet(b.dataset.id)});
 $("slots").addEventListener("click",e=>{const b=e.target.closest("[data-slot]");if(!b)return;S.bench.splice(+b.dataset.slot,1);save();render()});
 $("result").addEventListener("click",e=>{const eq=e.target.closest("[data-result-equip]");if(eq&&!inBattle()){const id=eq.dataset.resultEquip;if(S.inv[id]>0){equip(id,targetSlot(S.items[id]));save();render()}return}const b=e.target.closest("[data-open]");if(b)openSheet(b.dataset.open)});
 $("rtabs").addEventListener("click",e=>{const b=e.target.closest("[data-rtab]");if(!b)return;S.rtab=b.dataset.rtab;save();renderRecipes()});
@@ -59,6 +60,9 @@ $("scrim").onclick=closeSheet;
 document.addEventListener("keydown",e=>{if(e.key==="Escape"&&sheet.mode)closeSheet()});
 $("sheet").addEventListener("click",e=>{const b=e.target.closest("[data-act]");if(!b)return;const id=sheet.id,it=S.items[id],a=b.dataset.act;
   if(a==="close")return closeSheet();
+  if(a==="bulk-confirm")return confirmSalvage();
+  if(a==="lock"){S.locked=itemLocked(id)?S.locked.filter(x=>x!==id):[...(S.locked||[]),id];if(itemLocked(id))S.bench=S.bench.filter(x=>x!==id);salvageSelection.delete(id);save();render();return}
+  if(itemLocked(id)&&["add","salvage","reforge"].includes(a))return;
   if(a==="equip"){equip(id,b.dataset.slot);toast(tx("{item} equipped.",{item:iname(it)}))}
   if(a==="unequip"){S.eq[b.dataset.slot]=null;clampHp();toast(tx("{item} unequipped.",{item:iname(it)}))}
   if(a==="eat"){S.inv[id]--;trimBench();const g=healYou(medHeal(it));toast(tx("You use {item} and recover {n} HP.",{item:iname(it),n:g}))}
@@ -70,6 +74,7 @@ $("sheet").addEventListener("click",e=>{const b=e.target.closest("[data-act]");i
   save();render()});
 $("combine").onclick=()=>{
   const items=S.bench.map(id=>S.items[id]),chk=checkMix(items);
+  if(items.some(it=>itemLocked(it.id)))return toast(tx("Unlock these items before crafting."));
   if(items.length<2)return;if(!chk.ok){toast(chk.reason);return}
   if(inBattle()){toast(tx("Finish the fight first."));return}
   const miss=craftMiss(items);if(miss.length){toast(techWhy(miss));return}

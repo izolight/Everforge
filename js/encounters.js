@@ -5,7 +5,7 @@
 const evt=(type,icon,title,text,choices,x)=>({type,icon,title,text,loot:[],choices,sc:"",...x});
 const endEv=(icon,title,text,loot,sc)=>{if(loot&&loot.length)sfx("loot");S.event={type:"done",icon,title,text,loot:loot||[],choices:[],sc:sc||""}};
 const at=(a,x)=>a[Math.floor(x*a.length)];
-const spare=id=>avail(id)-eqCount(id)>0&&!S.items[id].legendary;
+const spare=id=>!itemLocked(id)&&avail(id)-eqCount(id)>0&&!S.items[id].legendary;
 const cheapest=ids=>ids.slice().sort((a,b)=>power(S.items[a])-power(S.items[b])||(a<b?-1:1))[0];
 const wanted=id=>SECRETS.some(s=>!found(s)&&s.ids.includes(id)),spareList=()=>Object.keys(S.inv).filter(id=>spare(id)&&!isEss(id)&&!wanted(id)).sort((a,b)=>power(S.items[a])-power(S.items[b])||(a<b?-1:1)),spareGoods=()=>spareList()[0];
 const takeOne=id=>{S.inv[id]--;trimBench()};

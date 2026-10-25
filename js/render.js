@@ -353,17 +353,19 @@ const tabBtn=(attr,k,l,on)=>`<button class="tab ti" data-${attr}="${k}" aria-pre
 function satchel(mode){
   const tabs=TABS.map(([k,l])=>tabBtn("tab",k,l,S.tab===k)).join("");
   const list=Object.keys(S.inv).filter(id=>S.inv[id]>0).map(id=>S.items[id]).filter(it=>S.tab==="all"||grp(it)===S.tab)
-    .sort((a,b)=>FORMS[b.form].p-FORMS[a.form].p||b.tier-a.tier||baseName(a).localeCompare(baseName(b))||gradeOf(a.id)-gradeOf(b.id)||a.name.localeCompare(b.name));
+    .filter(it=>inventoryMatch(it,mode))
+    .sort((a,b)=>inventorySort(a,b));
   const benchItems=S.bench.map(id=>S.items[id]),full=S.bench.length>=maxInputs();
   const tiles=list.length?list.map(it=>{const eq=eqCount(it.id)>0,left=avail(it.id),isNew=freshShown.has(it.id)||S.fresh.includes(it.id);
     let note="",no=false;
-    if(mode==="forge"){if(left<=0){no=true;note=tx("All in the crucible.")}else if(full){no=true;note=tx("The crucible is full.")}else if(!checkMix([...benchItems,it]).ok){no=true;note=tx("Won't mix with what is in the crucible.")}}
-    return `<button class="sq${it.legendary?" legend":""}${it.grade?" gr":""}${eq?" eq":""}${no?" no":""}" style="${rcol(it)}" data-id="${it.id}" data-can="${no?0:1}" aria-label="${esc(iname(it)+(left!==1?`, ${left}`:"")+(eq?", "+tx("worn"):"")+(isNew?", "+tx("new"):"")+(note?`, ${note}`:""))}. ${itemAria(it)}" ${itemTip(it,left>1?tx("You hold {n}.",{n:left}):"",eq?tx("Worn."):"",note)}>
-      ${glyph(it)}${left!==1?`<span class="sq-n">${left}</span>`:""}${eq?`<span class="sq-w">${ic("equip","xs")}</span>`:""}${isGear(it)||it.grade?`<span class="sq-p"${it.grade?` style="color:var(--gc)"`:""}>${isGear(it)?power(it):ROMAN[it.grade]}</span>`:""}${isNew?'<i class="sq-d"></i>':""}</button>`}).join("")
+    if(mode==="forge"){if(itemLocked(it.id)){no=true;note=tx("Unlock these items before crafting.")}else if(left<=0){no=true;note=tx("All in the crucible.")}else if(full){no=true;note=tx("The crucible is full.")}else if(!checkMix([...benchItems,it]).ok){no=true;note=tx("Won't mix with what is in the crucible.")}}
+    return `<button class="sq${salvageMode&&mode==="gear"&&salvageSelection.has(it.id)?" selected":""}${it.legendary?" legend":""}${it.grade?" gr":""}${eq?" eq":""}${no?" no":""}" style="${rcol(it)}" data-id="${it.id}" data-can="${no?0:1}" aria-label="${esc(iname(it)+(left!==1?`, ${left}`:"")+(eq?", "+tx("worn"):"")+(isNew?", "+tx("new"):"")+(note?`, ${note}`:""))}. ${itemAria(it)}" ${itemTip(it,left>1?tx("You hold {n}.",{n:left}):"",eq?tx("Worn."):"",note)}>
+      ${glyph(it)}${itemLocked(it.id)?`<span class="item-lock">${ic("lock","xs")}</span>`:""}${S.inventory?.layout==="list"?`<span class="item-caption"><b>${iname(it)}</b><small>${itemLines(it)[2]}</small></span>`:""}${left!==1?`<span class="sq-n">${left}</span>`:""}${eq?`<span class="sq-w">${ic("equip","xs")}</span>`:""}${isGear(it)||it.grade?`<span class="sq-p"${it.grade?` style="color:var(--gc)"`:""}>${isGear(it)?power(it):ROMAN[it.grade]}</span>`:""}${isNew?'<i class="sq-d"></i>':""}</button>`}).join("")
     :`<p class="empty">${tx("Nothing here yet.")}</p>`;
   return [tabs,tiles];
 }
 function renderSatchels(){
+  renderInventoryTools();
   if(S.view==="gear"){const [t,i]=satchel("gear");$("gtabs").innerHTML=t;$("ginv").innerHTML=i}
   if(S.view==="forge"){const [t,i]=satchel("forge");$("ftabs").innerHTML=t;$("finv").innerHTML=i}
 }

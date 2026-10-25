@@ -466,3 +466,29 @@ Object.assign(DICT.de, {
   "Recenter": "Zentrieren",
   "Unexplored landmark": "Unentdeckter Ort"
 });
+
+Object.assign(DICT.de, {
+  "Unlock these items before crafting.": "Entsperre diese Gegenstände vor dem Schmieden.",
+  "Unlock item": "Gegenstand entsperren",
+  "Lock item": "Gegenstand sperren",
+  "Protected from crafting, salvage and selling.": "Vor Schmieden, Zerlegen und Verkauf geschützt.",
+  "Inventory layout": "Inventaransicht",
+  "Grid": "Raster",
+  "List": "Liste",
+  "Inventory filter": "Inventarfilter",
+  "Equipped": "Ausgerüstet",
+  "Craftable": "Verarbeitbar",
+  "Inventory order": "Inventarreihenfolge",
+  "Type": "Typ",
+  "Recent": "Zuletzt erhalten",
+  "Grade": "Güte",
+  "Select salvage": "Zum Zerlegen wählen",
+  "Cancel selection": "Auswahl abbrechen",
+  "Review salvage ({n})": "Zerlegen prüfen ({n})",
+  "Salvage preview": "Zerlegen: Vorschau",
+  "You will receive": "Du erhältst",
+  "Salvage selected items": "Ausgewählte Gegenstände zerlegen",
+  "Equipped, locked and legendary items are protected. Items in the crucible are reserved.": "Ausgerüstete, gesperrte und legendäre Gegenstände sind geschützt. Zutaten im Schmelztiegel bleiben reserviert.",
+  "Choose spare items to salvage.": "Wähle überzählige Gegenstände zum Zerlegen.",
+  "Salvaged {n} items.": "{n} Gegenstände zerlegt."
+});

@@ -463,3 +463,29 @@ Object.assign(DICT.ko, {
   "Recenter": "내 위치로",
   "Unexplored landmark": "미탐험 지점"
 });
+
+Object.assign(DICT.ko, {
+  "Unlock these items before crafting.": "제작 전에 아이템 잠금을 해제하세요.",
+  "Unlock item": "잠금 해제",
+  "Lock item": "아이템 잠금",
+  "Protected from crafting, salvage and selling.": "제작, 분해, 판매로부터 보호됩니다.",
+  "Inventory layout": "가방 보기",
+  "Grid": "격자",
+  "List": "목록",
+  "Inventory filter": "가방 필터",
+  "Equipped": "장착 중",
+  "Craftable": "제작 가능",
+  "Inventory order": "가방 정렬",
+  "Type": "종류",
+  "Recent": "최근 획득",
+  "Grade": "등급",
+  "Select salvage": "분해 선택",
+  "Cancel selection": "선택 취소",
+  "Review salvage ({n})": "분해 검토 ({n})",
+  "Salvage preview": "분해 미리보기",
+  "You will receive": "획득 예정",
+  "Salvage selected items": "선택한 아이템 분해",
+  "Equipped, locked and legendary items are protected. Items in the crucible are reserved.": "장착 중이거나 잠긴 아이템과 전설 아이템은 보호됩니다. 도가니의 재료는 보존됩니다.",
+  "Choose spare items to salvage.": "분해할 여분 아이템을 선택하세요.",
+  "Salvaged {n} items.": "아이템 {n}개를 분해했습니다."
+});
