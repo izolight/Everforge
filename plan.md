@@ -21,6 +21,8 @@ Where an existing creature's theme fits a missing element, **swap a duplicate's 
 
 **Leave `BIOMES` alone.** `genRoster` seeds the wild creatures from `"wild:"+zone`. Changing an `els` list would change which element each roll picks and shift everything rolled after it, so every save's existing wild creatures would change.
 
+**Both rules above no longer hold.** Saves are latest-only: a save of another version is not loaded, so a content change (a new `BIOMES` element list, a deleted enemy id) breaks no save — it only needs a fresh sim measurement.
+
 ### Woods: 2 swaps + 1 new
 1. **Briarling → poison.** Thorny brambles with stinging sap fit poison. `el:"poison"`; it keeps `weak:["fire"]` and `resist:["wood","poison"]`. Change the art accent toward the poison family (`FAM.poison` green), rewrite the lore line to mention the sap, and keep the drops.
 2. **Mossback Stag → swift.** A fleet stag still fits its theme. `el:"swift"`, `weak:["stone","fire"]` (it keeps fire so the Woods stays friendly to the starter Fire), `resist:["swift"]`. Rewrite the lore line to add speed and keep the drops. Stone damage is already available in the Woods through Heavy (boar_hide and wood_shield).
