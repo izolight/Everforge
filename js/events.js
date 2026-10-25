@@ -3,7 +3,11 @@ let toastT,toastQ=[];
 function toast(m,later){ // later: wait behind a toast that is still showing (unlock notices), instead of replacing it
   const t=$("toast");if(later&&t.classList.contains("show")){toastQ.push(m);return}
   t.textContent=m;t.classList.add("show");clearTimeout(toastT);toastT=setTimeout(()=>{t.classList.remove("show");if(toastQ.length)setTimeout(()=>toast(toastQ.shift(),1),350)},3000)}
+let settingsReturn="battle";
+$("settingsBtn").onclick=()=>{if(S.view!=="settings")settingsReturn=S.view;go("settings")};
+$("settingsBack").onclick=()=>go(settingsReturn);
 function go(view){
+  salvageMode=false;salvageSelection.clear();
   if(view==="gear"||view==="forge"){freshShown=new Set([...freshShown,...S.fresh]);S.fresh=[]}else freshShown=new Set();
   S.view=view;save();render();window.scrollTo({top:0});
 }
@@ -28,7 +32,7 @@ $("arena").addEventListener("click",e=>{
   if(t.id==="heatBtn"){heatOpen=!heatOpen;return render()}
   if(t.dataset.tile){const [x,y]=t.dataset.tile.split(",").map(Number);return step(x,y)}
   if(t.dataset.zone){S.zone=t.dataset.zone;S.battle=null;S.event=null;save();render();return window.scrollTo({top:0})}
-  ({rest,atk:attack,guard,parry,study,flee,again:newExpedition,dailyStart:startDaily,dailyAbandon:abandonDaily,toforge:()=>go("forge"),
+  ({recenter:heroView,rest,atk:attack,guard,parry,study,flee,again:newExpedition,dailyStart:startDaily,dailyAbandon:abandonDaily,riftNext:riftDescend,toforge:()=>go("forge"),
     cont:()=>{S.battle=null;S.event=null;logOpen=false;save();render()}})[t.id]?.();
 });
 $("arena").addEventListener("toggle",e=>{if(e.target.id==="legend")legendOpen=e.target.open;
@@ -39,7 +43,7 @@ $("gear").addEventListener("click",e=>{const b=e.target.closest("[data-gear]");i
   S.tab=s==="main"?"weapon":s==="charm"?"charm":s==="off"?"all":"armor";save();render();
   toast(s==="off"?tx("Equip a second weapon or a shield in your off hand."):tx("Tap a {slot} item below to equip it.",{slot:lc(tx(SLOTS.find(x=>x[0]===s)[1]))}))});
 document.querySelectorAll("#gtabs,#ftabs").forEach(el=>el.addEventListener("click",e=>{const b=e.target.closest("[data-tab]");if(!b)return;S.tab=b.dataset.tab;save();renderSatchels()}));
-$("ginv").addEventListener("click",e=>{const b=e.target.closest("[data-id]");if(b)openSheet(b.dataset.id)});
+$("ginv").addEventListener("click",e=>{const b=e.target.closest("[data-id]");if(b){if(salvageMode){toggleSalvage(b.dataset.id);return}openSheet(b.dataset.id)}});
 $("gdecon").addEventListener("click",e=>{if(!e.target.closest("#deconAll"))return;if(!deconArmed){deconArmed=true;renderSatchels();setTimeout(()=>{deconArmed=false;if(S.view==="gear")renderSatchels()},3500);return}deconArmed=false;deconAll()});
 function openResearch(id){techSel=id;$("resd").open=true;go("forge");$("resp").scrollIntoView({block:"start"})}
 $("mixhint").addEventListener("click",e=>{const b=e.target.closest("[data-gores]");if(b)openResearch(b.dataset.gores)});
@@ -48,9 +52,9 @@ $("restree").addEventListener("click",e=>{const b=e.target.closest("[data-tech],
 $("upgrows").addEventListener("click",e=>{const b=e.target.closest("[data-upgrade]");if(b)upgrade(b.dataset.upgrade)});
 $("infbtns").addEventListener("click",e=>{const b=e.target.closest("[data-infuse]");if(b&&!inBattle())infuse(b.dataset.infuse)});
 $("finv").addEventListener("click",e=>{const b=e.target.closest("[data-id]");if(!b)return;
-  if(b.dataset.can==="1"&&!inBattle()){S.bench.push(b.dataset.id);save();render()}else openSheet(b.dataset.id)});
+  if(b.dataset.can==="1"&&!itemLocked(b.dataset.id)&&!inBattle()){S.bench.push(b.dataset.id);$("resultPanel").open=false;save();render()}else openSheet(b.dataset.id)});
 $("slots").addEventListener("click",e=>{const b=e.target.closest("[data-slot]");if(!b)return;S.bench.splice(+b.dataset.slot,1);save();render()});
-$("result").addEventListener("click",e=>{const b=e.target.closest("[data-open]");if(b)openSheet(b.dataset.open)});
+$("result").addEventListener("click",e=>{const eq=e.target.closest("[data-result-equip]");if(eq&&!inBattle()){const id=eq.dataset.resultEquip;if(S.inv[id]>0){equip(id,targetSlot(S.items[id]));save();render()}return}const b=e.target.closest("[data-open]");if(b)openSheet(b.dataset.open)});
 $("rtabs").addEventListener("click",e=>{const b=e.target.closest("[data-rtab]");if(!b)return;S.rtab=b.dataset.rtab;save();renderRecipes()});
 $("rlist").addEventListener("click",e=>{const b=e.target.closest("[data-load]");if(!b)return;const it=S.items[b.dataset.load];
   S.bench=[...it.recipeIds];go("forge");toast(tx("Loaded the recipe for {item}.",{item:iname(it)}))});
@@ -71,25 +75,29 @@ $("scrim").onclick=closeSheet;
 document.addEventListener("keydown",e=>{if(e.key==="Escape"&&sheet.mode)closeSheet()});
 $("sheet").addEventListener("click",e=>{const b=e.target.closest("[data-act]");if(!b)return;const id=sheet.id,it=S.items[id],a=b.dataset.act;
   if(a==="close")return closeSheet();
+  if(a==="bulk-confirm")return confirmSalvage();
+  if(a==="lock"){S.locked=itemLocked(id)?S.locked.filter(x=>x!==id):[...(S.locked||[]),id];if(itemLocked(id))S.bench=S.bench.filter(x=>x!==id);salvageSelection.delete(id);save();render();return}
+  if(itemLocked(id)&&["add","salvage","reforge"].includes(a))return;
   if(a==="equip"){equip(id,b.dataset.slot);toast(tx("{item} equipped.",{item:iname(it)}))}
   if(a==="unequip"){S.eq[b.dataset.slot]=null;clampHp();toast(tx("{item} unequipped.",{item:iname(it)}))}
   if(a==="eat"){S.inv[id]--;trimBench();const g=healYou(medHeal(it));toast(tx("You use {item} and recover {n} HP.",{item:iname(it),n:g}))}
   if(a==="add"){S.bench.push(id);closeSheet();go("forge");toast(tx("{item} added to the crucible.",{item:iname(it)}));return}
   if(a==="salvage"){
     if(!salvageArmed){salvageArmed=true;return openSheet(id,true)}
-    if(canDecon(it)){const got=deconstruct(id);closeSheet();const luck=got.filter(g=>g[2]);sfx("loot");
+    if(canDecon(it)){const got=deconstruct(id);closeSheet();if(!got)return;const luck=got.filter(g=>g[2]);sfx("loot");
       toast(tx("Deconstructed into {list}.",{list:gotText(got.filter(g=>!g[2]))})+(luck.length?" "+tx("Lucky: {list}!",{list:gotText(luck)}):"")+(got.em&&isUnl("peddler")?" "+tx("+{n} embers.",{n:got.em}):""))}
-    else{const {ys,sg,em,ms}=salvageItem(id);closeSheet();const list=[...ms.map(m=>iname(S.items[m])),...ys.map(t=>iname(S.items[gradedId("ess_"+t,sg)]))].join(tx(" and "));
+    else{const r=salvageItem(id);closeSheet();if(!r)return;const {ys,sg,em,ms}=r;const list=[...ms.map(m=>iname(S.items[m])),...ys.map(t=>iname(S.items[gradedId("ess_"+t,sg)]))].join(tx(" and "));
       toast(!list?tx("Salvaged for {n} embers.",{n:em}):em&&isUnl("peddler")?tx("Salvaged into {list} and {n} embers.",{list,n:em}):tx("Salvaged into {list}.",{list}))}}
   if(a==="reforge")return reforge(id);
   save();render()});
 $("combine").onclick=()=>{
   const items=S.bench.map(id=>S.items[id]),chk=checkMix(items);
+  if(items.some(it=>itemLocked(it.id)))return toast(tx("Unlock these items before crafting."));
   if(items.length<2)return;if(!chk.ok){toast(chk.reason);return}
   if(inBattle()){toast(tx("Finish the fight first."));return}
   const miss=craftMiss(items);if(miss.length){toast(techWhy(miss));return}
   const pre=combine(items,{roll:100}),bl=pre.blocked;if(bl){toast(blockText(bl));return}
-  if((equippedRisk(items).length||pre.mw>=0)&&forgeArmed!==S.bench.join()){forgeArmed=S.bench.join();renderBench();setTimeout(()=>{forgeArmed="";if(S.view==="forge")renderBench()},3500);return} // a fizzle would destroy something you wear, or a secret would come out ordinary: tap twice
+  if(((pre.fiz>0&&equippedRisk(items).length)||pre.mw>=0)&&forgeArmed!==S.bench.join()){forgeArmed=S.bench.join();renderBench();setTimeout(()=>{forgeArmed="";if(S.view==="forge")renderBench()},3500);return} // a fizzle would destroy something you wear, or a secret would come out ordinary: tap twice
   forgeArmed="";
   const {lvBefore,ups,sk0,newRx,item,fizzle}=forgeIt(items);
   const after=()=>{

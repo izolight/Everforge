@@ -12,7 +12,6 @@ DICT.ko=Object.assign(DICT.ko||{},{
 "Satchel\nTap an item to add it to the crucible. Dimmed items won't mix with what is already in; tap one to inspect it.\nLong-press or hover for its name and stats. The frame colour is its grade (Faint, Lesser, Plain, Greater, Pure), a tick means worn, a dot means new, a number is how many you hold.":"가방\n아이템을 탭하면 도가니에 넣습니다. 흐리게 표시된 아이템은 이미 들어 있는 것과 섞이지 않습니다. 탭하면 살펴볼 수 있습니다.\n길게 누르거나 마우스를 올리면 이름과 능력치가 보입니다. 테두리 색은 등급(희미한, 하급, 보통, 상급, 순수)이고, 체크는 착용 중, 점은 새 아이템, 숫자는 보유 수량입니다.",
 "Crucible\nTap gear or a material in the satchel to add it. Tap a filled slot to take it out again.\nDimmed satchel items won't mix with what is already in. Essences mix with everything. The Recipes tab has the full table.\nMore slots unlock as your Smith level rises.":"도가니\n가방의 장비나 재료를 탭하면 넣습니다. 채워진 칸을 탭하면 다시 뺍니다.\n흐리게 표시된 가방 아이템은 이미 들어 있는 것과 섞이지 않습니다. 정수는 무엇과도 섞입니다. 전체 표는 레시피 탭에 있습니다.\n대장장이 레벨이 오르면 칸이 더 열립니다.",
 // ---- how to play (ids)
-
 "howto.map":"<b>지도.</b> 각 지역은 타일 격자입니다. 바로 옆의 빛나는 타일을 탭해 한 걸음 이동합니다. 주변 몇 칸만 보이고, 이미 탐험한 땅은 어둡게 표시됩니다. 전투와 상자 위로 걸어가면 만나게 됩니다<span data-unl=\"elite\">. 엘리트(마법 또는 희귀: 더 강하고, 전투를 바꾸며 정수를 떨어뜨리는 접사를 지님)도 있습니다</span><span data-unl=\"shrine\">. 제단</span><span data-unl=\"peddler\">, 행상인</span><span data-unl=\"mystery\">, 수수께끼 타일(?)도 있습니다</span>. 보스는 야영지 너머 맨 위의 소굴에서 기다립니다. 패배하면 새 지도로 돌아가고, 클리어한 지역은 다시 탐험할 수 있습니다.",
 "howto.torch":"<b>횃불.</b> 횃불은 한 걸음마다 줄어듭니다. 다 타면 주변 한 칸만 보이고, 걸음마다 기습을 당할 위험이 생깁니다. 야영지, 제단 기도, 모닥불 휴식으로 다시 밝힐 수 있습니다.",
 "howto.health":"<b>체력.</b> HP는 전투 사이에도 이어집니다. 음식을 먹거나, 모닥불에서 쉬거나(승리 3번마다 1회), 야영지<span data-unl=\"shrine\"> 그리고 제단</span>에서 회복하세요. 장비의 치유 특성은 매 턴 체력을 회복시킵니다.",
@@ -411,7 +410,25 @@ Object.assign(DICT.ko,{
 "Spend one to learn about its reactions.":"하나를 써서 반응에 대해 알아봅니다.",
 "It has none left to find, but you may learn its nature once.":"더 찾을 반응은 없지만, 그 본성은 한 번 알아볼 수 있습니다.",
 "There is nothing more to learn from it.":"더 이상 알아낼 것이 없습니다.",
-
+// ---- 균열 (무작위 지역)
+"Descend deeper":"더 깊이 내려가기",
+"Region: {name}":"지역: {name}",
+"Depth {n}":"깊이 {n}",
+"Best {n}":"최고 {n}",
+"Every expedition rolls a new region: a biome, ten wild creatures and a master.":"매 출정마다 새 지역이 무작위로 정해집니다: 생물권 하나, 야생 생물 열 마리, 지배자 한 마리.",
+"Wild creatures carry affixes of their own, and the master carries three.":"야생 생물은 각자 접사를 지니고, 지배자는 셋을 지닙니다.",
+"Beat the master to go one depth deeper.":"지배자를 쓰러뜨리면 한 층 더 깊이 내려갑니다.",
+"A new region every time: ten wild creatures and a master. Beat the master, then descend.":"매번 새 지역: 야생 생물 열 마리와 지배자 한 마리. 지배자를 쓰러뜨린 뒤 내려가세요.",
+"The master of {name} falls. Go deeper when you are ready.":"{name}의 지배자가 쓰러졌습니다. 준비되면 더 내려가세요.",
+"You descend to depth {n}: {name}.":"깊이 {n}로 내려갑니다: {name}.",
+"unknown":"알 수 없음",
+"the region":"이 지역",
+"Defeat the Starfallen Archon.":"별에 떨어진 아콘을 쓰러뜨리세요.",
+"A crack in the world waits past the Spire.":"탑 너머에 세계의 균열이 기다립니다.",
+"Past the Spire the world frays. Every expedition there is a new region, rolled at random: a biome, ten wild creatures and a master.":"탑 너머로는 세계가 풀거립니다. 그곳의 모든 출정은 무작위로 정해지는 새 지역입니다: 생물권 하나, 야생 생물 열 마리, 지배자 한 마리.",
+"Wild creatures carry affixes of their own, and the master carries three. Beat it to go one depth deeper.":"야생 생물은 각자 접사를 지니고, 지배자는 셋을 지닙니다. 지배자를 쓰러뜨리면 한 층 더 깊이 내려갑니다.",
+"Your deepest run is your record.":"가장 깊이 내려간 기록이 당신의 기록입니다.",
+"Best Rift depth":"균열 최고 깊이",
 "Reforge":"재단조",
 "Reforge: needs Mending":"재단조: 수선 필요",
 "You have already gathered {n} research point.":"이미 연구 점수 {n}점을 모았습니다.",
@@ -464,7 +481,66 @@ Object.assign(DICT.ko,{
 "Stone":"석재",
 "Crystal":"수정",
 "Satchel\nTap an item to open it: equip, use, add to the crucible, deconstruct or salvage it.\nLong-press or hover for its name and stats. The frame colour is its grade (Faint, Lesser, Plain, Greater, Pure), a tick means worn, a dot means new, a number is how many you hold.":"가방\n아이템을 탭하면 열립니다: 장착, 사용, 도가니에 넣기, 가공, 분해.\n길게 누르거나 마우스를 올리면 이름과 능력치가 보입니다. 테두리 색은 등급(희미한, 하급, 보통, 상급, 순수)이고, 체크는 착용 중, 점은 새 아이템, 숫자는 보유 수량입니다.",
-"howto.loop":"<b>진행 방식.</b> 각 지역의 지도를 가로질러 싸우며 원재료를 모으세요. 원재료를 기본 재료와 정수로 가공하고, 도안으로 장비를 단조해 정수를 결속하세요. 지도 끝의 보스를 쓰러뜨리면 다음 지역이 열립니다.",
+"howto.loop":"<b>진행 방식.</b> 각 지역의 지도를 가로질러 싸우며 원재료를 모으세요. 원재료를 기본 재료와 정수로 가공하고, 도안으로 장비를 단조해 정수를 결속하세요. 지도 끝의 보스를 쓰러뜨리면 다음 지역이 열립니다.<span data-unl=\"rift\"> 탑 너머에는 방랑자의 균열이 기다립니다. 그곳의 모든 출정은 무작위 지역이며, 매번 한 층 더 깊습니다.</span>",
 "howto.mixing":"<b>섞기.</b> 도안은 기본 재료를 장비로 바꿉니다. 도가니에서는 말이 되는 조합만 가능하며, 표는 레시피 탭에 있습니다. 원재료를 가공하면 무엇과도 섞이는 정수가 나옵니다. 장비를 분해하면 재료의 절반이 돌아옵니다.",
 "+{n} embers.":"불씨 +{n}."
+});
+
+Object.assign(DICT.ko, {
+  "Last forge": "최근 제작"
+});
+
+Object.assign(DICT.ko, {
+  "Compared with {item}: {changes}.": "{item} 대비: {changes}.",
+  "Core stats unchanged": "기본 능력치 변화 없음",
+  "Equipped automatically": "자동으로 장착됨"
+});
+
+Object.assign(DICT.ko, {
+  "Before Guard; ongoing status damage is separate.": "방어 적용 전이며 지속 상태 피해는 별도입니다.",
+  "−{cut}% hit · +{boost}% next": "피격 −{cut}% · 다음 공격 +{boost}%",
+  "Wrong timing": "지금은 부적절",
+  "Fail: +25% damage": "실패: 피해 +25%",
+  "Learn · uses a turn": "학습 · 한 턴 소모",
+  "Escape may fail": "도주 실패 가능",
+  "Empowered: +{p}% damage": "강화: 피해 +{p}%",
+  "Strike with your weapon": "무기로 공격"
+});
+
+Object.assign(DICT.ko, {
+  "Boss direction": "우두머리 방향",
+  "Recenter": "내 위치로",
+  "Unexplored landmark": "미탐험 지점"
+});
+
+Object.assign(DICT.ko, {
+  "Unlock these items before crafting.": "제작 전에 아이템 잠금을 해제하세요.",
+  "Unlock item": "잠금 해제",
+  "Lock item": "아이템 잠금",
+  "Protected from crafting, salvage and selling.": "제작, 분해, 판매로부터 보호됩니다.",
+  "Inventory layout": "가방 보기",
+  "Grid": "격자",
+  "List": "목록",
+  "Inventory filter": "가방 필터",
+  "Equipped": "장착 중",
+  "Craftable": "제작 가능",
+  "Inventory order": "가방 정렬",
+  "Type": "종류",
+  "Recent": "최근 획득",
+  "Grade": "등급",
+  "Select salvage": "분해 선택",
+  "Cancel selection": "선택 취소",
+  "Review salvage ({n})": "분해 검토 ({n})",
+  "Salvage preview": "분해 미리보기",
+  "You will receive": "획득 예정",
+  "Salvage selected items": "선택한 아이템 분해",
+  "Equipped, locked and legendary items are protected. Items in the crucible are reserved.": "장착 중이거나 잠긴 아이템과 전설 아이템은 보호됩니다. 도가니의 재료는 보존됩니다.",
+  "Choose spare items to salvage.": "분해할 여분 아이템을 선택하세요.",
+  "Salvaged {n} items.": "아이템 {n}개를 분해했습니다."
+});
+
+Object.assign(DICT.ko, {
+  "Settings": "설정",
+  "Back to game": "게임으로 돌아가기",
+  "Explore": "탐험"
 });

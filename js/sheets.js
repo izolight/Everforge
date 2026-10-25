@@ -1,6 +1,6 @@
 // ================= SHEETS =================
-const sheet={mode:null,id:null,preview:false};let salvageArmed=false;
-function showSheet(){$("scrim").hidden=false;$("sheet").hidden=false;$("sheet").querySelector("button:not(:disabled)")?.focus()}
+const sheet={mode:null,id:null,preview:false};let salvageArmed=false,sheetReturn=null;
+function showSheet(){if($("sheet").hidden)sheetReturn=document.activeElement;$("scrim").hidden=false;$("sheet").hidden=false;$("sheet").querySelector("button:not(:disabled)")?.focus()}
 function openSheet(id,refresh,preview){
   if(!preview&&!S.inv[id]){closeSheet();return}
   if(!refresh)salvageArmed=false;
@@ -9,24 +9,25 @@ function openSheet(id,refresh,preview){
   const ts=targetSlot(it),eqIt=ts&&gearOf(ts),cmp=eqIt&&eqIt.id!==id?eqIt:null;
   const mix=S.bench.length?checkMix([...S.bench.map(b=>S.items[b]),it]):{ok:true};
   const btns=[];
+  if(!preview)btns.push(`<button class="btn" data-act="lock" aria-pressed="${itemLocked(id)}">${tx(itemLocked(id)?"Unlock item":"Lock item")}</button>`);
   if(!preview){
     if(isGear(it)){const slots=FORMS[it.form].slots;
       slots.forEach(s=>{const on=S.eq[s]===id,lab=lc(tx(SLOTS.find(x=>x[0]===s)[1]));
         btns.push(on?`<button class="btn grow" data-act="unequip" data-slot="${s}" ${locked?"disabled":""}>${tx("Unequip {slot}",{slot:lab})}</button>`
           :`<button class="btn primary grow" data-act="equip" data-slot="${s}" ${locked||(eqCount(id)>=S.inv[id]&&!slots.some(x=>S.eq[x]===id))?"disabled":""}>${slots.length>1?tx("Equip in {slot}",{slot:lab}):tx("Equip")}</button>`)})}
     if(g==="consumable"&&statsOf(it).heal>0&&!locked)btns.push(`<button class="btn primary grow" data-act="eat" ${S.hp>=P.maxHp?"disabled":""}>${S.hp>=P.maxHp?tx("Already at full HP"):tx("Use now (+{n} HP)",{n:Math.min(medHeal(it),P.maxHp-S.hp)})}</button>`);
-    btns.push(`<button class="btn grow" data-act="add" ${left<=0||full||locked||!mix.ok?"disabled":""}>${locked?tx("Finish the fight to forge"):full?tx("Crucible full"):left<=0?tx("All in crucible"):!mix.ok?tx("Won't mix with the crucible"):tx("Add to crucible")}</button>`);
+    btns.push(`<button class="btn grow" data-act="add" ${itemLocked(id)||left<=0||full||locked||!mix.ok?"disabled":""}>${locked?tx("Finish the fight to forge"):full?tx("Crucible full"):left<=0?tx("All in crucible"):!mix.ok?tx("Won't mix with the crucible"):tx("Add to crucible")}</button>`);
     if(canDecon(it)){const y=deconYield(it),nm=(id,n)=>`${n}× ${iname(S.items[gradedItem(baseIdOf(id),gradeOf(id))])}`;
-      btns.push(`<button class="btn ${salvageArmed?"danger":""} grow" data-act="salvage" ${locked||left<=0?"disabled":""}>${salvageArmed?tx("Tap again to deconstruct"):tx("Deconstruct → {list}",{list:[...y.mat?[nm(...y.mat)]:[],...y.frag.map(([t,n,g])=>nm(gradedId("ess_"+t,g),n))].join(" + ")})+(salvageEmbers(it)&&isUnl("peddler")?tx(" + {n} embers",{n:salvageEmbers(it)}):"")}</button>`)}
+      btns.push(`<button class="btn ${salvageArmed?"danger":""} grow" data-act="salvage" ${itemLocked(id)||locked||left<=0?"disabled":""}>${salvageArmed?tx("Tap again to deconstruct"):tx("Deconstruct → {list}",{list:[...y.mat?[nm(...y.mat)]:[],...y.frag.map(([t,n,g])=>nm(gradedId("ess_"+t,g),n))].join(" + ")})+(salvageEmbers(it)&&isUnl("peddler")?tx(" + {n} embers",{n:salvageEmbers(it)}):"")}</button>`)}
     else if(canSalvage(it)){const ys=salvageYield(it),ms=salvageMats(it),list=[...ms.map(m=>iname(S.items[gradedItem(baseIdOf(m),gradeOf(m))])),...ys.map(t=>iname(S.items[gradedItem("ess_"+t,salvGrade(it))]))];
-      btns.push(`<button class="btn ${salvageArmed?"danger":""} grow" data-act="salvage" ${locked||left<=0?"disabled":""}>${salvageArmed?tx("Tap again to salvage"):!list.length?tx("Salvage for {n} embers",{n:salvageEmbers(it)}):tx("Salvage → {list}",{list:list.join(" + ")})+(salvageEmbers(it)&&isUnl("peddler")?tx(" + {n} embers",{n:salvageEmbers(it)}):"")}</button>`)}
+      btns.push(`<button class="btn ${salvageArmed?"danger":""} grow" data-act="salvage" ${itemLocked(id)||locked||left<=0?"disabled":""}>${salvageArmed?tx("Tap again to salvage"):!list.length?tx("Salvage for {n} embers",{n:salvageEmbers(it)}):tx("Salvage → {list}",{list:list.join(" + ")})+(salvageEmbers(it)&&isUnl("peddler")?tx(" + {n} embers",{n:salvageEmbers(it)}):"")}</button>`)}
     const mh=mishapsOf(it);if(mh.length&&isUnl("peddler")&&!hasTech("mend"))btns.push(`<button class="btn grow" aria-disabled="true" data-tap ${tt(tx("Reforge"),techWhy(["mend"]))}>${tx("Reforge: needs Mending")}</button>`);
-    else if(mh.length&&isUnl("peddler"))btns.push(`<button class="btn grow" data-act="reforge" ${locked||S.embers<reforgeCost(it)?"disabled":""}>${tx("Reforge — {list} ({n} embers)",{list:mh.map(m=>m==="Weakened"?tx("restore {m}",{m:trn(m)}):tx("remove {m}",{m:trn(m)})).join(tx(" and ")),n:reforgeCost(it)})}</button>`);
+    else if(mh.length&&isUnl("peddler"))btns.push(`<button class="btn grow" data-act="reforge" ${itemLocked(id)||locked||S.embers<reforgeCost(it)?"disabled":""}>${tx("Reforge — {list} ({n} embers)",{list:mh.map(m=>m==="Weakened"?tx("restore {m}",{m:trn(m)}):tx("remove {m}",{m:trn(m)})).join(tx(" and ")),n:reforgeCost(it)})}</button>`);
   }
   btns.push(`<button class="btn" data-act="close">${tx("Close")}</button>`);
   $("sheetIn").innerHTML=`<div class="grab" aria-hidden="true"></div>
     <div class="rhead">${glyph(it)}<div><div class="rform">${rn} · ${labelOf(it)} · ${tx("Tier {n}",{n:it.tier})}${preview?" · "+tx("on offer"):` · ×${S.inv[id]}`}</div><h2 class="rname">${nameHtml(it)}</h2></div></div>
-    ${itemProperties(it,cmp,true,"Versus equipped")}
+    ${itemLocked(id)?`<p class="ok-text">${tx("Protected from crafting, salvage and selling.")}</p>`:""}${itemProperties(it,cmp,true,"Versus equipped")}
     ${!preview&&!mix.ok?`<p class="warn-text">${mix.reason}</p>`:""}
     ${it.mishap==="Weakened"?`<p class="warn-text">${tx("Weakened: a fizzled mixture cost every trait 30%.")}</p>`:""}
     ${it.recipe?`<p class="empty">${tx("Forged from {list}.",{list:recipeNames(it)})}</p>`:""}
@@ -64,4 +65,12 @@ function openCodex(id,refresh){
     <div class="actions"><button class="btn" data-act="close">${tx("Close")}</button></div>`;
   if(!refresh)showSheet();
 }
-function closeSheet(){$("scrim").hidden=true;$("sheet").hidden=true;Object.assign(sheet,{mode:null,id:null,preview:false});salvageArmed=false}
+function closeSheet(){$("scrim").hidden=true;$("sheet").hidden=true;Object.assign(sheet,{mode:null,id:null,preview:false});salvageArmed=false;if(sheetReturn?.isConnected)sheetReturn.focus({preventScroll:true});else document.querySelector("#nav [aria-current=page]")?.focus({preventScroll:true});sheetReturn=null}
+
+document.addEventListener("keydown",e=>{
+  if(e.key!=="Tab"||$("sheet").hidden)return;
+  const nodes=[...$("sheet").querySelectorAll('button:not(:disabled),summary,input,select,textarea,[tabindex="0"]')].filter(el=>el.getClientRects().length),first=nodes[0],last=nodes.at(-1);
+  if(!first)return;
+  if(e.shiftKey&&(document.activeElement===first||!$("sheet").contains(document.activeElement))){e.preventDefault();last.focus()}
+  else if(!e.shiftKey&&(document.activeElement===last||!$("sheet").contains(document.activeElement))){e.preventDefault();first.focus()}
+});

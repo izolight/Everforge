@@ -41,7 +41,9 @@ function rollGrade(zone,heat,x,up){const h=Math.max(0,heat|0),o=GRADE_ODDS[zone]
   return g}
 const gdrop=(id,zone,heat,x)=>gradable(id)?gradedItem(id,rollGrade(zone,heat,x)):id,gess=(t,zone,heat,x,up)=>essG(t,rollGrade(zone,heat,x,up));
 const dropNow=(id,x)=>gdrop(id,S.zone,heatNow(),x),essNow=(t,x)=>gess(t,S.zone,heatNow(),x); // map finds and rewards in the zone you are in
-function addItem(id,n){S.inv[id]=(S.inv[id]||0)+(n||1);if(!S.fresh.includes(id))S.fresh.push(id);if(isEss(id))rpGain("fam:"+essTrait(id),RP.fam,tx("a new essence ({t})",{t:trn(essTrait(id))}))}
+const itemLocked=id=>(S.locked||[]).includes(id);
+function recordPickup(id){S.recent=[id,...(S.recent||[]).filter(x=>x!==id)]}
+function addItem(id,n){recordPickup(id);S.inv[id]=(S.inv[id]||0)+(n||1);if(!S.fresh.includes(id))S.fresh.push(id);if(isEss(id))rpGain("fam:"+essTrait(id),RP.fam,tx("a new essence ({t})",{t:trn(essTrait(id))}))}
 const sortInputs=raw=>raw.slice().sort((a,b)=>FORMS[b.form].p-FORMS[a.form].p||b.tier-a.tier||(a.id<b.id?-1:1));
 const isFusion=(a,b)=>FUSIONS.some(([x,y])=>(x===a&&y===b)||(x===b&&y===a));
 const recipeNames=it=>it.recipeIds&&it.recipeIds.length&&it.recipeIds.every(id=>S.items[id])?it.recipeIds.map(id=>iname(S.items[id])).join(" + "):(it.recipe||[]).map(n=>tx(n)).join(" + "); // a crafted item's ingredients, in the shown language

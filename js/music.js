@@ -1,22 +1,48 @@
 // ================= GENERATED SCORE =================
-// "Embers on the Road": an original D-minor theme, composed in the browser.
-// Eight-bar harmony, four answering motifs and restrained phrase variations keep
-// it musical without an audio download, an external service or an endless drone.
-const MUSIC_CHORDS=[[0,3,7,14],[-4,0,3,7],[-9,-5,0,7],[-2,2,5,12],[0,3,7,10],[-9,-5,0,7],[-7,-4,0,7],[-5,2,7,14]];
-const MUSIC_MELODY=[
-  [7,null,12,14,15,null,14,12],
-  [10,null,7,null,3,7,null,10],
-  [12,null,7,5,null,7,3,null],
-  [2,null,5,7,14,null,12,null],
-];
+// An original score composed in the browser: every region, the forge, battles
+// and bosses have their own eight-bar piece with its own key, harmony, melody,
+// instrument and texture, so travelling changes the music, not just its tone.
+// Chords are semitones from the root (four voices); melody steps are eighth
+// notes from root+12, null is a rest, and lines cycle by bar.
 const MUSIC_SCENES={
-  woods:{bpm:80,root:50,pad:1450,lead:"flute",space:1},
-  pass:{bpm:76,root:50,pad:1000,lead:"bell",space:1},
-  hollow:{bpm:80,root:45,pad:780,lead:"pluck",space:2},
-  spire:{bpm:84,root:50,pad:2000,lead:"bell",space:1},
-  forge:{bpm:84,root:50,pad:1250,lead:"pluck",space:1},
-  battle:{bpm:108,root:50,pad:1650,lead:"pluck",space:1,drums:true},
-  boss:{bpm:116,root:50,pad:2200,lead:"bell",space:1,drums:true,boss:true},
+  // "Embers on the Road": D minor, pastoral flute over a gently moving harp.
+  woods:{bpm:80,root:50,pad:1450,lead:"flute",space:1,
+    chords:[[0,3,7,14],[-4,0,3,7],[-9,-5,0,7],[-2,2,5,12],[0,3,7,10],[-9,-5,0,7],[-7,-4,0,7],[-5,2,7,14]],
+    melody:[[7,null,12,14,15,null,14,12],[10,null,7,null,3,7,null,10],[12,null,7,5,null,7,3,null],[2,null,5,7,14,null,12,null]]},
+  // "Rime and Silence": E minor, slow open-fifth chords, sparse bells and wind.
+  pass:{bpm:66,root:52,pad:1000,lead:"bell",space:2,wind:true,
+    chords:[[0,7,14,19],[-4,0,3,7],[-2,5,10,12],[-5,0,2,7],[0,3,7,14],[-7,-4,0,7],[-9,-5,-2,3],[-5,-1,2,7]],
+    melody:[[7,null,12,null,14,null,null,null],[12,null,7,null,8,null,null,null],[10,null,12,null,10,null,null,null],[7,null,null,null,2,null,null,null]]},
+  // "Ashen Hymn": A Phrygian, low smoky horn, the Bb-A sigh and ember crackle.
+  hollow:{bpm:72,root:45,pad:780,lead:"horn",space:1,harp:true,embers:true,
+    chords:[[0,3,7,12],[1,5,8,13],[0,7,12,15],[-2,1,5,10],[-4,0,3,8],[1,5,8,12],[5,8,12,17],[-5,0,2,7]],
+    melody:[[12,null,13,12,null,7,null,null],[8,null,5,null,1,null,5,null],[7,null,8,7,null,3,null,0],[5,null,null,1,null,-2,null,null],
+      [12,null,13,15,null,12,null,8],[13,null,12,null,8,null,5,null],[12,null,8,null,5,null,null,null],[7,null,12,null,null,null,null,null]]},
+  // "Falling Light": F Lydian, bright glass tones descending like falling stars.
+  spire:{bpm:88,root:53,pad:2000,lead:"glass",space:1,
+    chords:[[0,4,7,11],[2,6,9,14],[4,7,11,14],[-1,2,6,11],[-3,0,4,9],[-5,-1,2,9],[0,4,6,11],[2,6,9,16]],
+    melody:[[12,null,11,null,7,null,4,null],[6,null,9,null,14,null,null,null],[16,null,14,null,11,null,7,null],[11,null,null,6,null,2,null,null],
+      [9,null,12,null,16,null,12,null],[14,null,11,null,7,null,9,null],[18,null,16,null,11,null,null,null],[14,null,9,null,null,null,null,null]]},
+  // "Hammer and Hearth": C Mixolydian, sturdy plucked tune with a tuned anvil.
+  forge:{bpm:84,root:48,pad:1250,lead:"pluck",space:1,harp:true,anvil:true,
+    chords:[[0,4,7,12],[-2,2,5,10],[5,9,12,17],[0,7,12,16],[-3,0,4,9],[5,9,12,16],[7,10,14,17],[-2,2,5,9]],
+    melody:[[7,null,7,4,null,7,9,null],[10,null,9,null,5,null,2,null],[9,null,12,null,9,7,5,null],[4,null,null,7,null,0,null,null],
+      [12,null,12,9,null,12,14,null],[16,null,14,null,12,null,9,null],[14,null,10,null,7,null,5,null],[5,null,2,null,null,null,null,null]]},
+  // "Steel Drawn": C minor, driving ostinato and percussion.
+  battle:{bpm:108,root:48,pad:1650,lead:"pluck",space:1,drums:true,
+    chords:[[0,3,7,12],[-4,0,3,8],[-2,2,5,10],[0,3,7,15],[5,8,12,17],[-4,3,8,12],[-5,-1,2,7],[-5,-1,5,7]],
+    melody:[[12,null,10,null,7,null,3,null],[8,null,7,null,3,null,0,null],[2,null,5,null,10,null,14,null],[15,null,null,null,12,null,null,null],
+      [17,null,15,null,12,null,8,null],[15,null,12,null,8,null,7,null],[14,null,11,null,7,null,11,null],[14,null,17,null,null,null,null,null]]},
+  // "The Warden Wakes": D harmonic minor, Neapolitan and diminished menace.
+  boss:{bpm:116,root:50,pad:2200,lead:"bell",space:1,drums:true,boss:true,
+    chords:[[0,3,7,12],[-4,0,3,8],[5,8,12,17],[7,11,14,19],[0,3,7,15],[1,5,8,13],[-1,2,5,8],[-5,-1,2,5]],
+    melody:[[7,null,12,null,15,null,14,null],[12,null,8,null,3,null,8,null],[5,null,8,null,12,null,17,null],[19,null,null,null,11,null,null,null],
+      [12,null,15,null,19,null,15,null],[13,null,null,null,8,null,5,null],[11,null,8,null,5,null,2,null],[7,null,11,null,null,null,null,null]]},
+  // "The Fraying": A whole-tone drift, glass and bells, no ground: a place that is being unmade.
+  rift:{bpm:76,root:47,pad:2600,lead:"glass",space:2,wind:true,
+    chords:[[0,2,6,8],[-2,0,4,6],[4,6,10,12],[6,8,12,14],[0,2,6,8],[-4,-2,2,4],[-6,-4,0,2],[-2,0,4,6]],
+    melody:[[8,null,null,null,10,null,12,null],[14,null,12,null,10,null,null,null],[6,null,null,null,8,null,6,null],[4,null,null,null,null,null,null,null],
+      [8,null,10,null,12,null,14,null],[16,null,14,null,12,null,10,null],[12,null,10,null,8,null,6,null],[4,null,null,null,null,null,null,null]]},
 };
 const musicState={timer:null,next:0,step:0,bar:0,scene:"",wanted:"",seed:0x3a8f27b1};
 function musicRand(){let x=musicState.seed;x^=x<<13;x^=x>>>17;x^=x<<5;musicState.seed=x;return(x>>>0)/4294967296}
@@ -42,6 +68,12 @@ function musicLead(n,t,d,p,pan=0){
   }else if(p.lead==="flute"){
     musicTone(n,t,d,.095,{a:.065,hold:d*.3,pan});musicTone(n+12,t,d*.75,.012,{a:.06,pan});
     noise(d*.65,{time:t,bus:musicBus,g:.009,a:.06,f:"bandpass",hz:midiHz(n)*2,pan});
+  }else if(p.lead==="glass"){
+    musicTone(n,t,d*2,.06,{pan});musicTone(n+12,t,d*1.6,.016,{pan:-pan,detune:-6});
+    musicTone(n+19,t+.012,d*1.3,.009,{pan:-pan,detune:5});
+  }else if(p.lead==="horn"){
+    musicTone(n,t,d*1.1,.045,{type:"sawtooth",f:"lowpass",hz:900,fto:480,a:.09,hold:d*.35,pan});
+    musicTone(n-12,t,d,.03,{type:"triangle",a:.08,pan:-pan});
   }else{
     musicTone(n,t,d,.09,{type:"triangle",a:.005,f:"lowpass",hz:2500,fto:650,pan});
     musicTone(n+12,t,d*.5,.018,{pan:-pan});
@@ -52,11 +84,11 @@ function musicBeat(t,p,k,chord,bar){
   if(k===0)musicPad(chord,t,beat*4,p);
   // A quiet, moving harp sits between the lead phrases; alternate eight-bar
   // phrases leave more air. Combat introduces an eighth-note string ostinato.
-  if(p.drums||p.lead==="pluck"||((k%2===1)&&phrase%2===1)){
+  if(p.drums||p.harp||((k%2===1)&&phrase%2===1)){
     const n=chord[[0,2,1,2,0,3,2,1][k]];
     musicTone(root+n+12,t,half*1.8,p.drums?.055:.032,{type:"triangle",f:"lowpass",hz:p.drums?1900:1500,fto:550,pan:k%2?.3:-.3});
   }
-  const motif=MUSIC_MELODY[bar%4],mel=motif[k],rest=bar%8===7&&k>3;
+  const motif=p.melody[bar%p.melody.length],mel=motif[k],rest=bar%8===7&&k>3;
   if(mel!==null&&!rest&&k%p.space===0&&(!p.drums||k%2===0)){
     const variation=phrase%3===2&&bar%4===2?12:0;
     musicLead(root+12+mel+variation,t+.008+musicRand()*.012,beat*(p.drums?.8:1.2),p,(musicRand()-.5)*.4);
@@ -68,11 +100,14 @@ function musicBeat(t,p,k,chord,bar){
     if(k===2||k===6){noise(.13,{time:t,bus:musicBus,f:"bandpass",hz:1300,fto:650,g:.08,pan:.15});musicTone(root-5,t,.16,.06,{type:"triangle"})}
     if(k%2===1)noise(.045,{time:t,bus:musicBus,f:"highpass",hz:5200,g:p.boss?.033:.02,pan:-.25});
     if(k===0||k===4)musicTone(root+chord[0]-12,t,beat*1.7,.05,{type:"triangle",f:"lowpass",hz:500});
-  }else if(p===MUSIC_SCENES.forge&&(k===0||k===4)){
+  }else if(p.anvil&&(k===0||k===4)){
     // A distant, tuned anvil and soft low pulse tie the workshop to its score.
     musicTone(root+19,t,.65,.023);osc(midiHz(root+19)*2.137,.28,{time:t,bus:musicBus,g:.008,pan:-.35});
     musicTone(root-12,t,.18,.065,{to:midiHz(root-24)});
   }
+  // Regional textures: a cold gust every other bar, sparse embers popping.
+  if(p.wind&&k===0&&bar%2===0)noise(beat*3.2,{time:t,bus:musicBus,f:"bandpass",hz:700+musicRand()*500,fto:300,q:2.5,a:beat*1.2,g:.022,pan:(musicRand()-.5)*.8});
+  if(p.embers&&musicRand()<.22)noise(.025,{time:t+musicRand()*half,bus:musicBus,f:"highpass",hz:3200+musicRand()*2400,g:.018,pan:(musicRand()-.5)*.9});
 }
 function scheduleMusic(){
   if(!AC||AC.state!=="running"||document.hidden||!snd.music){stopMusic();return}
@@ -81,7 +116,7 @@ function scheduleMusic(){
   while(m.next<now+.22){
     // Scene changes land on a bar line, keeping harmony and percussion together.
     if(m.step===0&&m.scene!==m.wanted){stopVoices(musicBus,.28);m.scene=m.wanted;m.bar=0}
-    const p=MUSIC_SCENES[m.scene],chord=MUSIC_CHORDS[m.bar%8];
+    const p=MUSIC_SCENES[m.scene],chord=p.chords[m.bar%p.chords.length];
     musicBeat(m.next,p,m.step,chord,m.bar);m.next+=30/p.bpm;
     if(++m.step===8){m.step=0;m.bar++}
   }

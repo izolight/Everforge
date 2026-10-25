@@ -21,7 +21,7 @@ function pendingIntros(){
   return l;
 }
 // the one intro on show: in a fight only battle ones (above the action grid), otherwise those for the tab you are on
-const curIntro=inFight=>pendingIntros().find(c=>inFight?c.ctx==="battle":c.ctx!=="battle"&&c.tab===S.view)||null;
+const curIntro=inFight=>pendingIntros().find(c=>inFight?c.ctx==="battle"&&(c.id!=="parry"||(S.battle&&!S.battle.over&&!S.battle.frozen&&isSpecial(S.battle))):c.ctx!=="battle"&&c.tab===S.view)||null;
 const abOn=k=>S.unl.ability&&!!S.seen["a:"+k]; // a weapon's ability button only shows once its form has been introduced
 function dismissIntro(id){
   S.seen[introKey(id)]=true;

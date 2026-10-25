@@ -12,7 +12,6 @@ DICT.de=Object.assign(DICT.de||{},{
 "Satchel\nTap an item to add it to the crucible. Dimmed items won't mix with what is already in; tap one to inspect it.\nLong-press or hover for its name and stats. The frame colour is its grade (Faint, Lesser, Plain, Greater, Pure), a tick means worn, a dot means new, a number is how many you hold.":"Beutel\nTippe auf einen Gegenstand, um ihn in den Tiegel zu legen. Abgedunkelte Gegenstände lassen sich nicht mit dem Inhalt mischen; tippe darauf, um sie anzusehen.\nLangdrücken oder Darüberfahren zeigt Namen und Werte. Die Rahmenfarbe ist die Güte (Schwach, Gering, Gewöhnlich, Hoch, Rein), ein Haken heißt getragen, ein Punkt neu, eine Zahl wie viele du besitzt.",
 "Crucible\nTap gear or a material in the satchel to add it. Tap a filled slot to take it out again.\nDimmed satchel items won't mix with what is already in. Essences mix with everything. The Recipes tab has the full table.\nMore slots unlock as your Smith level rises.":"Tiegel\nTippe auf Ausrüstung oder ein Material im Beutel, um es hinzuzufügen. Tippe auf einen belegten Platz, um es wieder herauszunehmen.\nAbgedunkelte Beutel-Gegenstände lassen sich nicht mit dem Inhalt mischen. Essenzen mischen sich mit allem. Die Rezepte-Ansicht zeigt die ganze Tabelle.\nMit steigender Schmiedestufe schalten sich weitere Plätze frei.",
 // ---- how to play (ids)
-
 "howto.map":"<b>Die Karte.</b> Jede Region ist ein Raster aus Feldern. Tippe auf ein leuchtendes Feld neben dir, um einen Schritt zu machen; du siehst nur ein paar Felder um dich herum, und erkundeter Boden bleibt gedimmt. Laufe auf Kämpfe und Truhen zu, um ihnen zu begegnen<span data-unl=\"elite\">, auf Elite-Gegner (magisch oder selten: stärker, mit Affixen, die den Kampf verändern und Essenzen fallen lassen)</span><span data-unl=\"shrine\">, auf Schreine</span><span data-unl=\"peddler\"> und Hausierer</span><span data-unl=\"mystery\"> und auf Rätselfelder (?)</span>. Der Boss wartet oben in seinem Bau, hinter einem Lager. Eine Niederlage schickt dich auf eine frische Karte zurück; abgeschlossene Regionen kannst du erneut erkunden.",
 "howto.torch":"<b>Fackellicht.</b> Deine Fackel brennt Schritt für Schritt herunter. Ist sie erloschen, siehst du nur noch ein Feld um dich herum, und jeder Schritt riskiert einen Hinterhalt. Lager, Schrein-Gebete und Rast am Lagerfeuer entzünden sie neu.",
 "howto.health":"<b>Gesundheit.</b> LP bleiben zwischen Kämpfen erhalten. Heile dich durch Essen, Rast am Lagerfeuer (eine Ladung pro drei Siege), Lager<span data-unl=\"shrine\"> und Schreine</span>. Heilende Eigenschaften auf der Ausrüstung heilen dich jede Runde.",
@@ -414,7 +413,25 @@ Object.assign(DICT.de,{
 "Spend one to learn about its reactions.":"Gib eine aus, um etwas über ihre Reaktionen zu lernen.",
 "It has none left to find, but you may learn its nature once.":"Es gibt nichts mehr zu finden, aber du kannst einmal ihr Wesen ergründen.",
 "There is nothing more to learn from it.":"Daraus gibt es nichts mehr zu lernen.",
-
+// ---- der Riss (zufällige Regionen)
+"Descend deeper":"Tiefer hinabsteigen",
+"Region: {name}":"Region: {name}",
+"Depth {n}":"Tiefe {n}",
+"Best {n}":"Bestwert {n}",
+"Every expedition rolls a new region: a biome, ten wild creatures and a master.":"Jeder Ausflug würfelt eine neue Region: ein Biom, zehn wilde Kreaturen und ein Meister.",
+"Wild creatures carry affixes of their own, and the master carries three.":"Wilde Kreaturen tragen eigene Affixe, der Meister drei.",
+"Beat the master to go one depth deeper.":"Besiege den Meister, um eine Ebene tiefer zu gehen.",
+"A new region every time: ten wild creatures and a master. Beat the master, then descend.":"Jedes Mal eine neue Region: zehn wilde Kreaturen und ein Meister. Besiege den Meister, dann steig tiefer.",
+"The master of {name} falls. Go deeper when you are ready.":"Der Meister von {name} fällt. Steig tiefer, wenn du bereit bist.",
+"You descend to depth {n}: {name}.":"Du steigst hinab bis Tiefe {n}: {name}.",
+"unknown":"unbekannt",
+"the region":"die Region",
+"Defeat the Starfallen Archon.":"Besiege den gestürzten Archon.",
+"A crack in the world waits past the Spire.":"Ein Riss in der Welt wartet hinter dem Turm.",
+"Past the Spire the world frays. Every expedition there is a new region, rolled at random: a biome, ten wild creatures and a master.":"Hinter dem Turm franst die Welt aus. Jeder Auszug dort ist eine neue Region, zufällig gewürfelt: ein Biom, zehn wilde Kreaturen und ein Meister.",
+"Wild creatures carry affixes of their own, and the master carries three. Beat it to go one depth deeper.":"Wilde Kreaturen tragen eigene Affixe, der Meister drei. Besiege ihn, um eine Ebene tiefer zu gehen.",
+"Your deepest run is your record.":"Dein tiefster Lauf ist dein Rekord.",
+"Best Rift depth":"Tiefe im Riss (Rekord)",
 "Reforge":"Neu schmieden",
 "Reforge: needs Mending":"Neu schmieden: braucht Ausbesserung",
 "You have already gathered {n} research point.":"Du hast bereits {n} Forschungspunkt gesammelt.¦Du hast bereits {n} Forschungspunkte gesammelt.",
@@ -467,7 +484,66 @@ Object.assign(DICT.de,{
 "Stone":"Stein",
 "Crystal":"Kristall",
 "Satchel\nTap an item to open it: equip, use, add to the crucible, deconstruct or salvage it.\nLong-press or hover for its name and stats. The frame colour is its grade (Faint, Lesser, Plain, Greater, Pure), a tick means worn, a dot means new, a number is how many you hold.":"Beutel\nTippe auf einen Gegenstand, um ihn zu öffnen: ausrüsten, benutzen, in den Tiegel legen, aufbereiten oder zerlegen.\nLangdrücken oder Darüberfahren zeigt Namen und Werte. Die Rahmenfarbe ist die Güte (Schwach, Gering, Gewöhnlich, Hoch, Rein), ein Haken heißt getragen, ein Punkt neu, eine Zahl wie viele du besitzt.",
-"howto.loop":"<b>Der Ablauf.</b> Durchquere die Karte jeder Region und kämpfe um Rohfunde. Bereite sie zu Grundmaterialien und Essenzen auf, schmiede Ausrüstung aus Mustern, binde Essenzen hinein und besiege am Ende der Karte den Boss, um die nächste Region zu öffnen.",
+"howto.loop":"<b>Der Ablauf.</b> Durchquere die Karte jeder Region und kämpfe um Rohfunde. Bereite sie zu Grundmaterialien und Essenzen auf, schmiede Ausrüstung aus Mustern, binde Essenzen hinein und besiege am Ende der Karte den Boss, um die nächste Region zu öffnen.<span data-unl=\"rift\"> Hinter dem Turm wartet der Wandernde Riss: jeder Auszug dort ist eine zufällige Region, und jede ist tiefer als die letzte.</span>",
 "howto.mixing":"<b>Mischen.</b> Muster machen aus Grundmaterialien Ausrüstung. Im Tiegel funktionieren nur sinnvolle Kombinationen; die Rezepte-Ansicht zeigt die Tabelle. Aufbereitete Rohfunde geben Essenzen, die sich mit allem mischen. Zerlegte Ausrüstung gibt die Hälfte ihrer Materialien zurück.",
 "+{n} embers.":"+{n} Glut."
+});
+
+Object.assign(DICT.de, {
+  "Last forge": "Letzte Schmiedearbeit"
+});
+
+Object.assign(DICT.de, {
+  "Compared with {item}: {changes}.": "Verglichen mit {item}: {changes}.",
+  "Core stats unchanged": "Grundwerte unverändert",
+  "Equipped automatically": "Automatisch ausgerüstet"
+});
+
+Object.assign(DICT.de, {
+  "Before Guard; ongoing status damage is separate.": "Vor Blocken; laufender Statusschaden kommt hinzu.",
+  "−{cut}% hit · +{boost}% next": "−{cut}% Treffer · +{boost}% danach",
+  "Wrong timing": "Falscher Zeitpunkt",
+  "Fail: +25% damage": "Fehlschlag: +25% Schaden",
+  "Learn · uses a turn": "Lernen · kostet einen Zug",
+  "Escape may fail": "Flucht kann scheitern",
+  "Empowered: +{p}% damage": "Verstärkt: +{p}% Schaden",
+  "Strike with your weapon": "Mit deiner Waffe zuschlagen"
+});
+
+Object.assign(DICT.de, {
+  "Boss direction": "Richtung zum Boss",
+  "Recenter": "Zentrieren",
+  "Unexplored landmark": "Unentdeckter Ort"
+});
+
+Object.assign(DICT.de, {
+  "Unlock these items before crafting.": "Entsperre diese Gegenstände vor dem Schmieden.",
+  "Unlock item": "Gegenstand entsperren",
+  "Lock item": "Gegenstand sperren",
+  "Protected from crafting, salvage and selling.": "Vor Schmieden, Zerlegen und Verkauf geschützt.",
+  "Inventory layout": "Inventaransicht",
+  "Grid": "Raster",
+  "List": "Liste",
+  "Inventory filter": "Inventarfilter",
+  "Equipped": "Ausgerüstet",
+  "Craftable": "Verarbeitbar",
+  "Inventory order": "Inventarreihenfolge",
+  "Type": "Typ",
+  "Recent": "Zuletzt erhalten",
+  "Grade": "Güte",
+  "Select salvage": "Zum Zerlegen wählen",
+  "Cancel selection": "Auswahl abbrechen",
+  "Review salvage ({n})": "Zerlegen prüfen ({n})",
+  "Salvage preview": "Zerlegen: Vorschau",
+  "You will receive": "Du erhältst",
+  "Salvage selected items": "Ausgewählte Gegenstände zerlegen",
+  "Equipped, locked and legendary items are protected. Items in the crucible are reserved.": "Ausgerüstete, gesperrte und legendäre Gegenstände sind geschützt. Zutaten im Schmelztiegel bleiben reserviert.",
+  "Choose spare items to salvage.": "Wähle überzählige Gegenstände zum Zerlegen.",
+  "Salvaged {n} items.": "{n} Gegenstände zerlegt."
+});
+
+Object.assign(DICT.de, {
+  "Settings": "Einstellungen",
+  "Back to game": "Zurück zum Spiel",
+  "Explore": "Erkunden"
 });

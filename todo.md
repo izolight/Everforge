@@ -3,8 +3,9 @@
 Ideas discussed but not yet scheduled.
 
 ## World and monsters
-- **Composable monster art + more base monsters.** Every enemy is a hand-drawn inline SVG. Option A: hand-draw more (3 → ~6 regulars per zone). Option B (preferred): composable art — a body per family (beast, undead, construct, elemental, humanoid) tinted by affix colour plus overlays (horns, auras, armour), so new variety is nearly free.
-- **Endless Rift (infinite maps).** Unlocks after the Spire. Procedural regions: biome templates (palette, terrain mix, monster families) rotating by depth; HP/attack curve past depth 4 tuned with `tools/sim.js`. Item tiers cap at 9 and smith level at 10, so treat it as a score mode: best-depth record, renown, rising grade odds rather than rising tiers. Needs a save bump.
+- **Composable monster art + more base monsters (done).** Bodies per family with overlay parts and affix marks (`BODY`/`PART`/`AFX_ART` in `js/art/`); 12 new regular enemies, six per region. Follow-ups: every new creature can be mastered for `RP.mast`, so 24 more RP is available over a career; watch the research pace. Staff kits are weakest against the Fallen Seraph and Orrery Construct at Heat 5 (78% win arriving at the Spire), in line with the staff note under Balance.
+- **Wild creatures per region (done).** Every region has ten creatures rolled from its biome (`js/monsters.js`): a body and parts from the theme, an element, a name from the biome's words, and one or two affixes of their own. They are rare-grade (so they show a frame on the map) but their affixes are their own: no extra essence, no elite embers, so a region's economy does not move, and their stats land on the region's band. Follow-ups: they are about 40% of a region's encounters, so re-run `tools/sim.js` for every region (the wild creatures are not in the enemy's list; pick them by hand or add a `--wild` flag). Their names are English only (no dictionary entry per name): a translation pass would need a rule per biome instead of a line per creature.
+- **The Wanderer's Rift (done).** A random region past the Spire: a biome, a palette, a name, ten wild creatures and a master with three affixes, rolled from one seed that lives in the save (a reload shows the same region). Descending goes one depth deeper (18% HP and 12% Attack per depth); the best depth is the record. Follow-ups: the Rift is a score mode, so the tiers cap at 9 and the Smith level at 10; it has no Heat, no daily and no renown of its own yet. A save bump (v16) came with it.
 - **New hand-made regions.** Each region is about one piece: 3–4 enemies, a boss with phases, palette, terrain mix, essences.
 - **Earlier mystery reveal** on the map (optional idea from P11).
 
@@ -23,7 +24,7 @@ Ideas discussed but not yet scheduled.
 ## Housekeeping
 - Delete the merged local `feat/*` and `fix/*` branches.
 
-## Drops and crafting rework (save v16)
+## Drops and crafting rework (save v17)
 - **Essence income.** With `FRAG={step:2,ch:.2,cap:.75}` the sim (`--econ-only`, seeds 7 and 11) puts essences 0-35% under the old salvage values depending on zone and seed (Spire lost the most with its gear drops; Hollow can run above), embers within about 5%. Tune `FRAG` and the raw drop chances if it feels slow in play.
 - **Material coverage.** The Pass has no Timber (Stone Golems drop some Scrap Iron), and the Hollow and Spire have no Leather of their own; older zones' materials cover them. Add zone variants if every region should have every type.
 - **Other essence sources.** Shrines, altars, the alchemist, chests and the peddler still hand out essences directly. Possible change: shrines boost your next deconstructs instead.

@@ -29,7 +29,7 @@ function pstats(){
 }
 function clampHp(){const m=pstats().maxHp;if(S.hp>m)S.hp=m}
 // Infusion: an essence counts INF_W ninths of a plain one; a trait needs INF_COST plain ones' worth (INF_NEED ninths), paid with the cheapest essences that cover it
-const INF_NEED=INF_COST*INF_W[2],essIds=t=>Object.keys(S.items).filter(id=>isEss(id)&&essTrait(id)===t&&avail(id)>0);
+const INF_NEED=INF_COST*INF_W[2],essIds=t=>Object.keys(S.items).filter(id=>isEss(id)&&!itemLocked(id)&&essTrait(id)===t&&avail(id)>0);
 const infHave=t=>essIds(t).reduce((n,id)=>n+avail(id)*INF_W[gradeOf(id)-1],0);
 function infPay(t,need=INF_NEED){
   const p=[];let sum=0;

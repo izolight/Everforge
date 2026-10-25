@@ -1,6 +1,9 @@
 // ================= AFFIXES =================
 // Rarity tiers and affixes (tables in data.js: RARITIES, RAR_CH, AFX, AFX_T). A map enemy is normal, magic (1 affix) or rare (2, or 3 from Heat RAR_CH.k3). A battle stores B.rar and B.afx (affix ids); the hooks run from battle.js (strike, enemyTurn, enemyDown, study, useItem) and map.js (foesAct) and call the helpers below. A Splitting remnant (B.split) has no live affixes, but keeps B.rar/B.afx for the rewards.
 const afxOn=B=>B.split?[]:B.afx||[],hasAfx=(B,a)=>afxOn(B).includes(a),rarOf=B=>B.split?"normal":B.rar||"normal";
+// a wild creature (monsters.js) carries affixes of its own: the map never rolls more for it, and its affixes are
+// part of the creature, so they drop no extra essence and pay no elite embers (a region's economy does not move).
+const speciesAfx=E=>E&&E.afx&&E.afx.length?{rar:E.rar||"magic",afx:E.afx}:null;
 const rareCh=(h,row)=>Math.min(RAR_CH.rare.cap,RAR_CH.rare.base+RAR_CH.rare.heat*h+RAR_CH.rare.row*row),magicCh=h=>h>=RAR_CH.magic.from?RAR_CH.magic.base+RAR_CH.magic.heat*(h-RAR_CH.magic.from):0;
 // two affixes combine unless they share a group (one elemental; one of Warded/Regenerating/Elusive; one of Vampiric/Regenerating/Warded; one of Splitting/Volatile) or drop the same essence
 const grpOf=a=>(AFX[a].g||"").split(" ").filter(Boolean),afxOk=(a,b)=>!grpOf(a).some(g=>grpOf(b).includes(g))&&AFX[a].tr!==AFX[b].tr;

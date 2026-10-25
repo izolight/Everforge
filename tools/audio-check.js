@@ -31,6 +31,16 @@ const ok=(v,m)=>{assert.ok(v,m);console.log("ok  "+m)};
     await page.evaluate(()=>startBattle(ZONES[0][2],{rar:"normal",afx:[]}));
     await page.waitForFunction(()=>musicState.scene==="boss");
     ok(true,"forge, region, battle and boss arrangements switch during playback");
+    for(const zone of await page.evaluate(()=>ZONES.map(z=>z[0]))){
+      await page.evaluate(z=>{S.battle=null;S.view="battle";S.zone=z;syncMusic()},zone);
+      await page.waitForFunction(z=>musicState.scene===z,zone);
+    }
+    ok(true,"travelling between regions switches to each region's own track");
+    ok(await page.evaluate(()=>{
+      const scenes=Object.values(MUSIC_SCENES),pieces=scenes.map(p=>JSON.stringify([p.chords,p.melody]));
+      return ZONES.every(([z])=>MUSIC_SCENES[z])&&new Set(pieces).size===scenes.length&&
+        scenes.every(p=>p.chords.length===8&&p.chords.every(c=>c.length===4)&&8%p.melody.length===0&&p.melody.every(m=>m.length===8));
+    }),"every region, the forge, battles and bosses have their own eight-bar composition");
     const timer=await page.evaluate(()=>{const timer=musicState.timer;for(let i=0;i<20;i++)syncMusic();return timer===musicState.timer});
     ok(timer,"repeated renders keep a single scheduler");
     await page.evaluate(()=>{Object.defineProperty(document,"hidden",{configurable:true,value:true});document.dispatchEvent(new Event("visibilitychange"))});
@@ -75,14 +85,15 @@ const ok=(v,m)=>{assert.ok(v,m);console.log("ok  "+m)};
     // Effects must not perturb any seeded/unseeded gameplay randomness.
     await page.evaluate(()=>{
       const random=Math.random;Math.random=()=>{throw Error("audio consumed a game roll")};
-      try{gesture=true;actx();SND.hit();SND.step();musicBeat(AC.currentTime+.1,MUSIC_SCENES.woods,0,MUSIC_CHORDS[0],0)}finally{Math.random=random}
+      try{gesture=true;actx();SND.hit();SND.step();Object.values(MUSIC_SCENES).forEach(p=>{for(let k=0;k<8;k++)musicBeat(AC.currentTime+.1,p,k,p.chords[0],0)})}finally{Math.random=random}
     });
     ok(true,"audio synthesis does not use gameplay's Math.random");
     const cues=await page.evaluate(()=>{
-      const original=sfx,seen=[];sfx=n=>seen.push(n);
-      try{fxQ=[];fx("enemyHud","miss","");fx("enemyHud","ward","");flushFx();return seen}finally{sfx=original}
+      const original=sfx,seen=[];sfx=(n,d,o)=>seen.push({n,d,o});
+      try{fxQ=[];fx("enemyHud","-5","",{el:"fire",form:"staff"});fx("enemyHud","miss","");fx("enemyHud","ward","");fx("youHud","","shake",{el:"ice"});flushFx();return seen}finally{sfx=original}
     });
-    ok(cues.join(",")==="dodge,block","misses and wards play their own cues");
+    ok(cues.map(c=>c.n).join(",")==="hit,dodge,block,ouch","strikes, misses, wards and hits on you play their own cues");
+    ok(cues[0].o?.el==="fire"&&cues[0].o?.form==="staff"&&cues[3].o?.el==="ice","strike and hurt cues carry their weapon form and element");
     await page.close();
 
     const unsupported=await browser.newPage();unsupported.on("pageerror",e=>errors.push(e.message));
@@ -104,22 +115,32 @@ const ok=(v,m)=>{assert.ok(v,m);console.log("ok  "+m)};
         for(let ch=0;ch<2;ch++){const d=b.getChannelData(ch);for(let i=0;i<d.length;i++)v.setInt16(44+i*4+ch*2,Math.round(Math.max(-1,Math.min(1,d[i]))*32767),true)}
         let s="";const bytes=new Uint8Array(data);for(let i=0;i<bytes.length;i+=8192)s+=String.fromCharCode(...bytes.subarray(i,i+8192));return btoa(s);
       }
-      async function render(name,scene){
+      async function render(name,scene,opt,label){
         const p=MUSIC_SCENES[name],bar=p?240/p.bpm:0,seconds=scene?bar*8+3:4;
         window.AudioContext=function(){return new OfflineAudioContext(2,Math.ceil(rate*seconds),rate)};
         AC=null;audioVoices.clear();base=.05;actx();const ctx=AC,pauses=[];
         if(scene){
-          const schedule=b=>{for(let k=0;k<8;k++)musicBeat(.05+b*bar+k*bar/8,p,k,MUSIC_CHORDS[b],b)};
+          const schedule=b=>{for(let k=0;k<8;k++)musicBeat(.05+b*bar+k*bar/8,p,k,p.chords[b%p.chords.length],b)};
           schedule(0);
           for(let b=1;b<8;b++)pauses.push(ctx.suspend(b*bar-.05).then(()=>{schedule(b);return ctx.resume()}));
-        }else SND[name]();
+        }else SND[name](opt);
         const result=ctx.startRendering();await Promise.all(pauses);const b=await result;
         let peak=0,energy=0,tail=0,finite=true,stereo=0;
         for(let ch=0;ch<2;ch++){const d=b.getChannelData(ch);for(let i=0;i<d.length;i++){finite=finite&&Number.isFinite(d[i]);peak=Math.max(peak,Math.abs(d[i]));energy+=d[i]*d[i];if(i>d.length-rate*.1)tail+=d[i]*d[i]}}
         const left=b.getChannelData(0),right=b.getChannelData(1);for(let i=0;i<b.length;i++)stereo+=Math.abs(left[i]-right[i]);
-        out.push({name:(scene?"music-":"sfx-")+name,peak,rms:Math.sqrt(energy/(b.length*2)),tail:Math.sqrt(tail/(rate*.2)),finite,stereo:stereo/b.length,voices:audioVoices.size,wav:wantWav?wav(b):null});
+        out.push({name:(scene?"music-":"sfx-")+(label||name),peak,rms:Math.sqrt(energy/(b.length*2)),tail:Math.sqrt(tail/(rate*.2)),finite,stereo:stereo/b.length,voices:audioVoices.size,wav:wantWav?wav(b):null});
       }
       for(const name of Object.keys(SND))await render(name,false);
+      for(const form of ["blade","spear","staff","lance","spellblade","warstaff","claws","shield"])await render("ability",false,{form},"ability-"+form);
+      for(const el of ["fire","ice","poison","holy","shadow","arcane"]){
+        await render("hit",false,{el,form:"staff"},"hit-"+el);
+        await render("crit",false,{el,form:"claws"},"crit-"+el);
+        await render("status",false,{el},"status-"+el);
+      }
+      for(const el of ["fire","ice","poison","holy","shadow","arcane","wood","metal","stone","swift"]){
+        await render("ouch",false,{el},"ouch-"+el);
+        await render("tick",false,{el},"tick-"+el);
+      }
       for(const name of Object.keys(MUSIC_SCENES))await render(name,true);
       return out;
     },!!preview);

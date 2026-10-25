@@ -37,10 +37,16 @@ function combatFx(target,kind,color){
   });
   if(a)a.finished.then(()=>mark.remove(),()=>mark.remove());else mark.remove();
 }
+const strikeFamily=tr=>{
+  const sums={},els=["fire","ice","poison","holy","shadow","arcane"];
+  Object.entries(tr).forEach(([n,v])=>{const f=TRAITS[n].f;if(v>0&&els.includes(f))sums[f]=(sums[f]||0)+v});
+  const best=els.reduce((b,f)=>(sums[f]||0)>(sums[b]||0)?f:b,"");
+  return sums[best]?best:"";
+};
 function strikeFx(W,tr){
   const form=W&&W.form,kind=form==="claws"?"claws":["staff","spellblade"].includes(form)?"arc":["spear","lance"].includes(form)?"thrust":"slash";
-  const trait=topTraits(tr).find(([t])=>["fire","ice","poison","holy","shadow","arcane"].includes(TRAITS[t].f));
-  vfx("foeArt",kind,trait?FAM[TRAITS[trait[0]].f]:undefined);
+  const fam=strikeFamily(tr);
+  vfx("foeArt",kind,fam?FAM[fam]:undefined);
 }
 function captureMotion(){
   if(reduced())return null;

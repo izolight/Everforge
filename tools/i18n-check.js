@@ -45,8 +45,12 @@ function args(src,i){ // the top-level arguments of the call whose "(" is at src
 const used=new Map(); // key -> where
 const note=(k,where)=>{if(!used.has(k))used.set(k,where)};
 const plural=new Set();
-for(const f of fs.readdirSync(path.join(ROOT,"js")).filter(f=>f.endsWith(".js")&&f!=="i18n.js")){
-  const src=fs.readFileSync(path.join(ROOT,"js",f),"utf8"),re=/(?<![\w$.])(tx|txn)\(/g;let m;
+// every .js under js/ (the art lives in js/art/), except the dictionaries in js/lang and i18n.js itself
+function jsFiles(dir){const out=[];for(const e of fs.readdirSync(dir,{withFileTypes:true})){
+  if(e.isDirectory()){if(e.name!=="lang")out.push(...jsFiles(path.join(dir,e.name)))}
+  else if(e.name.endsWith(".js")&&e.name!=="i18n.js")out.push(path.join(dir,e.name))}return out}
+for(const f of jsFiles(path.join(ROOT,"js"))){
+  const src=fs.readFileSync(f,"utf8"),re=/(?<![\w$.])(tx|txn)\(/g;let m;
   while((m=re.exec(src))){
     const a=args(src,m.index+m[0].length-1);
     literals(a[0]||"").forEach(k=>note(k,f));
@@ -64,6 +68,7 @@ for(const m of html.matchAll(/<[a-z0-9]+\b[^>]*\bdata-ta="([^"]*)"[^>]*>/g)){
 function dataKeys(G){
   const k=new Set(),add=(...s)=>s.forEach(x=>{if(x)k.add(x)}),ctx=new Set();
   Object.values(G.ENEMIES).forEach(E=>{
+    if(E.gen){if(E.sp)add(E.sp.name,E.sp.tell);ctx.add("hit|"+E.verb);return} // a procedural creature: its name and lore have no dictionary entry (they are rolled)
     add(E.name,E.plural,E.short,E.intro,E.lore);if(E.sp)add(E.sp.name,E.sp.tell);ctx.add("hit|"+E.verb);
     if(E.phase){add(E.phase.label,E.phase.msg);if(E.phase.to.sp)add(E.phase.to.sp.name,E.phase.to.sp.tell);if(E.phase.to.verb)ctx.add("hit|"+E.phase.to.verb)}});
   G.BASE.forEach(b=>add(b));Object.values(G.SECRETS).forEach(s=>add(s.name,s.hint));
@@ -102,7 +107,7 @@ function dataKeys(G){
       [HEAT,DAILY_TWISTS,ABILITIES,STATUS,SKILLS,RARITIES,NODE_INFO,STAT_NAMES].forEach(o=>(Array.isArray(o)?o:Object.values(o)).forEach(v=>{if(v&&typeof v==="object")Object.keys(v).forEach(k=>v[k])}));
       Object.values(AFX).forEach(a=>a.d());Object.keys(STAT_NAMES).forEach(k=>STAT_NAMES[k]);elTxt("Fire");
     },l);
-    tourKeys[l]=new Set(await page.evaluate(()=>[...window.__miss]));
+    tourKeys[l]=new Set((await page.evaluate(()=>[...window.__miss])).filter(k=>!(typeof PROC!=="undefined"&&PROC.has(k)))); // a procedural creature's own strings stay English
   }
   // ---- a scripted tour of every screen
   if(process.argv.includes("--tour")){
@@ -110,9 +115,11 @@ function dataKeys(G){
       await page.evaluate(l=>{localStorage.setItem("everforge-lang",l)},l);await page.reload();await page.waitForFunction(()=>typeof S==="object"&&S);
       await page.evaluate(async()=>{
         window.__miss=new Set();window.__txt=new Set();
+        const proc=(typeof PROC!=="undefined"?PROC:new Set()); // a procedural creature's own strings stay English
+        const hit=t=>{for(const p of proc)if(p&&t.includes(p))return true;return false};
         const grab=()=>{document.querySelectorAll("body *").forEach(e=>{if(e.id==="embers"||e.closest("svg"))return;
-            if(!e.children.length&&e.textContent.trim())window.__txt.add(e.textContent.trim());
-            ["data-tip","aria-label","placeholder"].forEach(a=>{const v=e.getAttribute(a);if(v)v.split("\n").forEach(x=>window.__txt.add(x))})})};
+            if(!e.children.length&&e.textContent.trim()&&!hit(e.textContent.trim()))window.__txt.add(e.textContent.trim());
+            ["data-tip","aria-label","placeholder"].forEach(a=>{const v=e.getAttribute(a);if(v)v.split("\n").forEach(x=>{if(!hit(x))window.__txt.add(x)})})})};
         const r0=render;render=function(f){r0(f);grab()};const t0=toast;toast=function(m,l){window.__txt.add(m);return t0(m,l)};
         S.unl=Object.fromEntries(UNLOCKS.map((u,i)=>[u.id,i+1]));UNLOCKS.forEach(u=>S.seen["i:"+u.id]=false);S.quest=TUTORIAL.length;S.embers=500;S.xp=5000;S.unlocked=ZONES.map(z=>z[0]);S.camp=3;
         ZONES.forEach(z=>S.heat[z[0]]={max:5,sel:2});Object.keys(ENEMIES).forEach(id=>{S.seen[id]=true;S.kills[id]=2;S.codex[id]={weak:[...ENEMIES[id].weak],resist:[...ENEMIES[id].resist],sp:true,sp2:true,ph:true,stats:true,inf:["burn","chill","poison","curse"],drops:ENEMIES[id].drops.map(d=>d[0])}});
@@ -166,7 +173,7 @@ function dataKeys(G){
         const dailyP=dailyPlan(today());tryit(()=>{startDaily&&0;dailyResult({boss:false,rows:3,turns:5});dailyResult({boss:true,rows:6,turns:9})});
         tryit(()=>{S.battle=null;S.event=null;S.run=null;S.daily=null;S.kills.gnarlhorn=1;render()});
       });
-      tourKeys[l]=new Set([...tourKeys[l],...await page.evaluate(()=>[...window.__miss])]);
+      tourKeys[l]=new Set([...tourKeys[l],...(await page.evaluate(()=>[...window.__miss])).filter(k=>!(typeof PROC!=="undefined"&&PROC.has(k)))]); // a procedural creature's own strings stay English
       const txt=await page.evaluate(()=>[...window.__txt]);
       const IGN=new Set(["Everforge","English","Deutsch","Language · Sprache · 언어"]),eng0=l==="ko"?(t=>/[A-Za-z]{4,}/.test(t.replace(/\b(HP|XP|Lv|UTC|ATK|DEF|PWR|NEXT|DEF\/\(DEF\+|x\d|[a-z]\d)\b/g,"").replace(/<[^>]*>/g,""))):(t=>/\b(the|your|you|and|with|for|from|its|this|that|are|will|has|have|not|but|can|each|every)\b/.test(t)),eng=t=>!IGN.has(t)&&eng0(t);
       txt.filter(eng).forEach(t=>bad(`${l}: looks untranslated: ${t.slice(0,140)}`));

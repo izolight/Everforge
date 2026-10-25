@@ -15,7 +15,7 @@
 <div class="wrap">
   <header class="top">
     <h1>Everforge</h1>
-    <div class="audio-controls">
+    <div class="audio-controls"><button class="btn sm" id="settingsBtn" type="button" data-t>Settings</button>
       <button class="snd" id="music" type="button"></button>
       <button class="snd" id="snd" type="button"></button>
     </div>
@@ -58,7 +58,7 @@
       <div class="lrow"><p class="label" data-t>Satchel</p><button type="button" class="qm" data-tap data-ta="data-tip aria-label" data-tip="Satchel&#10;Tap an item to open it: equip, use, add to the crucible, deconstruct or salvage it.&#10;Long-press or hover for its name and stats. The frame colour is its grade (Faint, Lesser, Plain, Greater, Pure), a tick means worn, a dot means new, a number is how many you hold." aria-label="Help: Satchel">?</button></div>
       <div class="tabs" id="gtabs"></div>
       <div class="actions" id="gdecon" hidden></div>
-      <div class="sqg" id="ginv"></div>
+      <div id="gtools"></div><div class="sqg" id="ginv"></div>
     </section>
   </div>
 
@@ -68,7 +68,7 @@
       <div class="tabs pats" id="pats"></div>
       <div id="patbody" style="display:grid;gap:10px"></div>
     </section>
-    <section class="panel" aria-label="Crucible" data-ta="aria-label">
+    <section class="panel forge-workbench" aria-label="Crucible" data-ta="aria-label">
       <div class="lrow"><p class="label" data-t>Crucible</p><button type="button" class="qm" data-tap data-ta="data-tip aria-label" data-tip="Crucible&#10;Tap gear or a material in the satchel to add it. Tap a filled slot to take it out again.&#10;Dimmed satchel items won't mix with what is already in. Essences mix with everything. The Recipes tab has the full table.&#10;More slots unlock as your Smith level rises." aria-label="Help: Crucible">?</button></div>
       <div class="slots" id="slots"></div>
       <div id="mixhint"></div>
@@ -76,6 +76,11 @@
         <button class="btn primary grow" id="combine" disabled data-t>Forge</button>
         <button class="btn" id="clear" data-t>Clear</button>
       </div>
+    </section>
+    <section class="forge-inventory" style="display:grid;gap:10px">
+      <div class="lrow"><p class="label" data-t>Satchel</p><button type="button" class="qm" data-tap data-ta="data-tip aria-label" data-tip="Satchel&#10;Tap an item to add it to the crucible. Dimmed items won't mix with what is already in; tap one to inspect it.&#10;Long-press or hover for its name and stats. The frame colour is its grade (Faint, Lesser, Plain, Greater, Pure), a tick means worn, a dot means new, a number is how many you hold." aria-label="Help: Satchel">?</button></div>
+      <div class="tabs" id="ftabs"></div>
+      <div id="ftools"></div><div class="sqg" id="finv"></div>
     </section>
     <section class="panel" id="resp" aria-label="Research" data-ta="aria-label">
       <div id="reslock" hidden></div>
@@ -89,12 +94,7 @@
       <div id="sklock" hidden></div>
       <details id="skd"><summary class="label" id="sksum"></summary><div id="skills"></div></details>
     </section>
-    <section class="panel result" id="result" aria-live="polite"></section>
-    <section style="display:grid;gap:10px">
-      <div class="lrow"><p class="label" data-t>Satchel</p><button type="button" class="qm" data-tap data-ta="data-tip aria-label" data-tip="Satchel&#10;Tap an item to add it to the crucible. Dimmed items won't mix with what is already in; tap one to inspect it.&#10;Long-press or hover for its name and stats. The frame colour is its grade (Faint, Lesser, Plain, Greater, Pure), a tick means worn, a dot means new, a number is how many you hold." aria-label="Help: Satchel">?</button></div>
-      <div class="tabs" id="ftabs"></div>
-      <div class="sqg" id="finv"></div>
-    </section>
+    <details class="forge-history" id="resultPanel"><summary class="label" data-t>Last forge</summary><section class="panel result" id="result" aria-live="polite"></section></details>
   </div>
 
   <div id="v-recipes" class="view" hidden>
@@ -134,25 +134,10 @@
       <p class="label lrow" id="aflabel" data-t>Affixes</p>
       <div id="aflist"></div>
     </section>
-    <section class="panel">
-      <details id="saved"><summary class="label"><svg class="ic s" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><path d="M5 4 H16 L20 8 V20 H5 Z"/><path d="M8 4 V9 H15 V4 M8 20 V14 H17 V20"/></svg> <span data-t>Your save</span></summary>
-      <div class="sv">
-      <p class="empty" data-t>Your progress lives in this browser. Copy the save code to move it to another device or a local copy of the game.</p>
-      <div class="actions"><button class="btn grow" id="exportBtn" data-t>Copy save code</button></div>
-      <textarea class="code" id="exportBox" readonly hidden aria-label="Save code" data-ta="aria-label"></textarea>
-      <label class="foot" for="importBox" data-t>Paste a save code to load it</label>
-      <textarea class="code" id="importBox" placeholder="Paste a save code here" data-ta="placeholder"></textarea>
-      <div class="actions"><button class="btn grow" id="importBtn" data-t>Load save code</button></div>
-      </div></details>
-    </section>
-    <section class="panel">
-      <p class="label"><label for="lang">Language · Sprache · 언어</label></p>
-      <select class="lang" id="lang"></select>
-    </section>
     <section class="panel" id="howto">
       <p class="label" data-t>How to play</p>
       <details class="howto"><summary><span data-ic="hero"></span> <span data-t>The map</span></summary><div class="rules">
-          <p data-t="howto.loop"><b>The loop.</b> Cross each region's map and fight for raw finds. Deconstruct them into base materials and essences, forge gear from patterns, bind essences into it, and beat the boss at the end of the map to open the next region.</p>
+          <p data-t="howto.loop"><b>The loop.</b> Cross each region's map and fight for raw finds. Deconstruct them into base materials and essences, forge gear from patterns, bind essences into it, and beat the boss at the end of the map to open the next region.<span data-unl="rift"> Past the Spire the Wanderer's Rift waits: every expedition there is a random region, and each one goes deeper than the last.</span></p>
           <p data-t="howto.map"><b>The map.</b> Each region is a grid of tiles. Tap a glowing tile next to you to step; you only see a couple of tiles around you, and explored ground stays dim. Walk onto fights and chests to meet them<span data-unl="elite">, and elites (magic or rare: tougher, with affixes that change the fight and drop essences)</span><span data-unl="shrine">, shrines</span><span data-unl="peddler"> and peddlers</span><span data-unl="mystery"> and mystery tiles (?)</span>. The boss waits in the lair at the top, behind a camp. Losing sends you back to a fresh map; cleared regions can be explored again.</p>
           <p data-t="howto.torch"><b>Torchlight.</b> Your torch burns down one step at a time. When it runs out you only see one tile around you and every step risks an ambush. Camps, shrine prayers and campfire rests relight it.</p>
           <p data-t="howto.health"><b>Health.</b> HP carries over between fights. Heal by eating, resting at a campfire (one charge per three wins), camps<span data-unl="shrine"> and shrines</span>. Healing traits on gear mend you each turn.</p>
@@ -172,9 +157,26 @@
           <p data-unl="infuse" data-t="howto.infusions"><b>Infusions.</b> Pure essences can be infused into yourself in the Gear tab. The trait stays with you whatever you wield.</p>
           <p data-t="howto.previews"><b>Previews.</b> Known recipes show their full result before you forge. New combinations show the form and any reactions you've discovered. Every forge can go wrong: the line under the crucible shows your skill for that kind of item, the odds of a clean result, a mishap or a fizzle (the ingredients are lost, some embers return), and the highest tier that skill can reach. Failing teaches a little, but easy recipes teach less. Merged trait values above 8 grow at half rate, and upgrading a crafted item again is harder each time.  a higher skill and simpler recipes make it rarer. From Smith Lv 3 the forge also appraises the traits to expect.</p>
       </div></details>
-      <div class="actions"><button class="btn danger" id="reset" data-t>Start a new game</button></div>
+
     </section>
   </div>
+  <div id="v-settings" class="view" hidden><div class="lrow"><h2 data-t>Settings</h2><button class="btn" id="settingsBack" data-t>Back to game</button></div>
+    <section class="panel">
+      <details id="saved" open><summary class="label"><svg class="ic s" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><path d="M5 4 H16 L20 8 V20 H5 Z"/><path d="M8 4 V9 H15 V4 M8 20 V14 H17 V20"/></svg> <span data-t>Your save</span></summary>
+      <div class="sv">
+      <p class="empty" data-t>Your progress lives in this browser. Copy the save code to move it to another device or a local copy of the game.</p>
+      <div class="actions"><button class="btn grow" id="exportBtn" data-t>Copy save code</button></div>
+      <textarea class="code" id="exportBox" readonly hidden aria-label="Save code" data-ta="aria-label"></textarea>
+      <label class="foot" for="importBox" data-t>Paste a save code to load it</label>
+      <textarea class="code" id="importBox" placeholder="Paste a save code here" data-ta="placeholder"></textarea>
+      <div class="actions"><button class="btn grow" id="importBtn" data-t>Load save code</button></div>
+      </div></details>
+    </section>
+    <section class="panel">
+      <p class="label"><label for="lang">Language · Sprache · 언어</label></p>
+      <select class="lang" id="lang"></select>
+    </section>
+<section class="panel">      <div class="actions"><button class="btn danger" id="reset" data-t>Start a new game</button></div></section></div>
 </div>
 
 <nav class="tabbar" id="nav" aria-label="Views" data-ta="aria-label"></nav>
@@ -224,18 +226,31 @@
 <script src="js/audio.js"></script>
 <script src="js/music.js"></script>
 <script src="js/affix.js"></script>
+<script src="js/monsters.js"></script>
 <script src="js/map.js"></script>
 <script src="js/encounters.js"></script>
 <script src="js/economy.js"></script>
 <script src="js/battle.js"></script>
 <script src="js/endgame.js"></script>
 <script src="js/gear.js"></script>
-<script src="js/art.js"></script>
+<script src="js/art/util.js"></script>
+<script src="js/art/color.js"></script>
+<script src="js/art/items.js"></script>
+<script src="js/art/portraits.js"></script>
+<script src="js/art/bodies.js"></script>
+<script src="js/art/parts.js"></script>
+<script src="js/art/affixes.js"></script>
+<script src="js/art/patterns.js"></script>
+<script src="js/art/ambience.js"></script>
+<script src="js/art/creature.js"></script>
+<script src="js/art/icons.js"></script>
+<script src="js/art/map.js"></script>
 <script src="js/hero.js"></script>
 <script src="js/render.js"></script>
 <script src="js/sheets.js"></script>
 <script src="js/forgefx.js"></script>
 <script src="js/embers.js"></script>
+<script src="js/inventory.js"></script>
 <script src="js/events.js"></script>
 </body>
 </html>

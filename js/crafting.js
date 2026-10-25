@@ -145,6 +145,7 @@ function shapeIt(key,mats,bp){
 // Forge for real: ingredients out, the result in, smith XP and skills, research points and insights. The caller announces it (render, toasts, the animation).
 function forgeIt(items){
   const lvBefore=level(),sk0=Object.fromEntries(Object.keys(SKILLS).map(k=>[k,skLv(k)])),r=combine(items),{item,log,inst,mishap,fizzle,cleanId,skill,diff,baseId,rxKeys}=r;
+  const eqBefore={...S.eq};
   const worthSum=items.reduce((n,i)=>n+worth(i),0);
   S.bench.forEach(id=>S.inv[id]--);S.bench=[];
   const st=S.stats,known=S.journal.some(j=>j.id===cleanId),isNew=!fizzle&&!mishap&&!known,newRx=fizzle?[]:rxKeys.filter(k=>!S.knownR.includes(k));
@@ -157,7 +158,7 @@ function forgeIt(items){
     const fr=isNew?S.journal.findIndex(j=>S.items[j.id]&&S.items[j.id].clean===cleanId):-1; // a flawed copy was journaled: the clean recipe takes over its row
     if(isNew){if(fr>=0)S.journal[fr]={...S.journal[fr],id:item.id,name:item.name};else S.journal.push({id:item.id,name:item.name,legendary:item.legendary})}
     else if(mishap&&firstLeg)S.journal.push({id:item.id,name:item.name,legendary:true}); // a flawed secret still counts as found
-    S.inv[item.id]=(S.inv[item.id]||0)+1;S.knownR.push(...newRx);
+    S.inv[item.id]=(S.inv[item.id]||0)+1;recordPickup(item.id);S.knownR.push(...newRx);
     settleGear(S.items[item.id]);
     rpGain("form:"+item.form,RP.form,tx("a new form ({form})",{form:formName(item.form)}));if(isNew&&rpCount("rec:")<RP.recCap)rpGain("rec:"+cleanId,RP.rec,tx("a new recipe"));
     newRx.forEach(k=>rpGain("rx:"+k,RP.rx,tx("a new reaction")));if(firstLeg)rpGain("leg:"+item.name,RP.leg,tx("a legendary"));
@@ -169,7 +170,7 @@ function forgeIt(items){
   const scaled=Object.keys(sx).some(k=>skFactor(diff,skLv(k))<1)||known;
   Object.entries(sx).forEach(([k,n])=>S.skills[k]=skXp(k)+n);
   const ups=Object.keys(sx).filter(k=>skLv(k)>sk0[k]);
-  S.last={id:fizzle?null:item.id,item,log:fizzle?log.filter(l=>l.k==="Fizzle"):log,inst,mishap,fizzle,refund,isNew,xpGain:gain,sx,scaled,baseId,recipe:items.map(i=>i.name),recipeIds:items.map(i=>i.id)};
+  S.last={autoEquipped:!fizzle&&SLOTS.some(([s])=>S.eq[s]===item.id&&eqBefore[s]!==item.id),id:fizzle?null:item.id,item,log:fizzle?log.filter(l=>l.k==="Fizzle"):log,inst,mishap,fizzle,refund,isNew,xpGain:gain,sx,scaled,baseId,recipe:items.map(i=>i.name),recipeIds:items.map(i=>i.id)};
   save();
   return{lvBefore,sk0,ups,newRx,item,fizzle};
 }

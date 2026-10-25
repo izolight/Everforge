@@ -6,7 +6,7 @@ function effectBadges(it,part){
     const extra=e.key.startsWith("resist_")?ic("resist","s"):e.statuses?e.statuses.map(s=>famIc(STATUS[s].el,"s")).join(""):"";
     const unit=e.unit?`<span class="fx-unit" aria-hidden="true">${e.unit==="cooldown"?"":"/"}${ic(e.unit==="hit"?"hit":e.unit,"s")}</span>`:"";
     const value=use&&e.key==="heal"?tx("{n} HP",{n:medHeal(it)}):use&&e.key==="damage"?tx("{n} dmg",{n:e.value}):e.value;
-    return `<span class="chip fx-badge" data-effect="${e.key}" style="color:${e.color}" ${tt(e.name,e.text)}>${ic(e.icon)}${extra}${value==null?"":`<b>${value}</b>`}${unit}${e.key==="mix"?`<span>${tx("Mixing")}</span>`:""}</span>`;
+    return `<span class="chip fx-badge" data-effect="${e.key}" style="color:${e.color}" ${tt(e.name,e.text)}>${ic(e.icon)}${extra}${value==null?"":`<b>${value}</b>`}${unit}${!e.meta?`<span class="fx-description">${e.text}</span>`:""}${e.key==="mix"?`<span>${tx("Mixing")}</span>`:""}</span>`;
   };
   const active=fx.filter(e=>!e.meta),meta=fx.filter(e=>e.meta);
   const metaHtml=`<div class="chips item-meta">${meta.map(badge).join("")}</div>`;
@@ -20,9 +20,14 @@ function statBreakdown(it){
   const medicine=use&&s.heal>0&&medHeal(it)!==s.heal?`<p class="foot">${tx("Medicine increases healing from {base} to {total} HP.",{base:s.heal,total:medHeal(it)})}</p>`:"";
   return `<details class="stat-breakdown"><summary>${tx("Stat calculation")}</summary><p class="foot">${tx("Base value × trait strength × priority × item type × tier and legendary bonus. Add contributions, then round each total.")}</p><p class="foot">${tx("Stronger traits contribute first. Positive bonuses use {list}; penalties always apply in full.",{list:DECAY.map(n=>`${Math.round(n*100)}%`).join(", ")})}</p>${rows}<p class="label">${tx("Rounded totals")}</p>${statGrid(s,null,true)}${medicine}${use?`<p class="foot">${tx("Attack and Magic on consumables only determine damage when used in battle. They do not increase your character's stats.")}</p><p class="foot">${tx("Battle damage = (Attack + Magic) × 0.6, rounded; values below 3 deal no damage.")}</p>`:""}</details>`;
 }
+function upgradeSummary(it,other){
+  const a=shown(it),b=shown(other),changes=Object.keys(STAT_NAMES).filter(k=>a[k]!==b[k]).map(k=>`${STAT_NAMES[k]} ${a[k]-b[k]>0?"+":""}${a[k]-b[k]}`);
+  const old=effects(other),added=effects(it).filter(e=>!e.meta&&e.key!=="ability"&&!old.some(o=>o.key===e.key&&o.value===e.value)).slice(0,2).map(e=>e.text);
+  return `<p class="upgrade-summary">${tx("Compared with {item}: {changes}.",{item:iname(other),changes:changes.length?changes.join(", "):tx("Core stats unchanged")})}${added.length?` ${added.join(". ")}.`:""}</p>`;
+}
 function itemProperties(it,other,full,label){
   const gear=isGear(it),title=tx(gear?"Traits":"Crafting traits");
-  return `<div class="item-properties">${gear?statGrid(shown(it),other?shown(other):null,full):""}${gear&&other&&label?cmpBlock(it,other,label):""}${effectBadges(it,"active")}<div class="item-traits"><div class="effect-heading"><span class="label">${title}</span>${helpBtn(title,tx("Numbers measure trait strength, not direct stat bonuses. Item type and trait priority determine the final result."),tx("Tap a trait to see what it does in this item. Forging can change its effect."))}</div><div class="chips">${chips(it,full)}</div></div>${statBreakdown(it)}${effectBadges(it,"meta")}</div>`;
+  return `<div class="item-properties">${gear&&other?upgradeSummary(it,other):""}${gear?statGrid(shown(it),other?shown(other):null,full):""}${gear&&other&&label?cmpBlock(it,other,label):""}${effectBadges(it,"active")}<div class="item-traits"><div class="effect-heading"><span class="label">${title}</span>${helpBtn(title,tx("Numbers measure trait strength, not direct stat bonuses. Item type and trait priority determine the final result."),tx("Tap a trait to see what it does in this item. Forging can change its effect."))}</div><div class="chips">${chips(it,full)}</div></div>${statBreakdown(it)}${effectBadges(it,"meta")}</div>`;
 }
 const statLine=st=>Object.entries(STAT_NAMES).filter(([k])=>st[k]).map(([k,l])=>`${l} ${st[k]>0?"+":""}${st[k]}`).join(" · ");
 const famChip=(f,pre)=>`<span class="chip fam" style="color:${FAM[f]}">${pre?pre+" ":""}${famN(f)}</span>`;
@@ -67,13 +72,14 @@ function renderHeader(){
   $("rp").hidden=!isUnl("research");$("rp").innerHTML=`${ic("research")}${S.rp}`;$("rp").dataset.tip=tx("Research points")+"\n"+tx("Earned by discoveries: a first craft of each kind, a new reaction, a new essence, a studied creature, a boss down, a smith or skill level. Spend them in the Forge on techniques.")+"\n"+tx("You have {n}.",{n:S.rp});
   $("disc").innerHTML=`<span class="mi" ${tt(tx("Renown"),tx("Battles you have won."))}>${ic("renown")}${S.wins}</span><span class="mi" ${tt(tx("Recipes forged"),tx("Different things you have forged. Each is saved in the Recipes tab."))}>${ic("hammer")}${S.journal.length}</span>`;
 }
+const viewName=v=>v==="battle"?tx("Explore"):tx(cap(v));
 function renderNav(){
-  $("nav").innerHTML=VIEWS.map(v=>{
+  $("nav").innerHTML=VIEWS.filter(v=>v!=="settings").map(v=>{
     let badge="";
     if(v==="battle"&&inBattle()&&S.view!=="battle")badge=`<i class="badge-dot pulse" aria-label="${esc(tx("battle in progress"))}"></i>`;
     if(v==="gear"&&S.fresh.length&&S.view!=="gear"&&S.view!=="forge")badge=`<i class="badge-dot" aria-label="${esc(tx("{n} new items",{n:S.fresh.length}))}">${S.fresh.length}</i>`;
     if(!badge&&S.view!==v&&!inBattle()&&pendingIntros().some(c=>c.ctx!=="battle"&&c.tab===v))badge=`<i class="badge-dot pulse" aria-label="${esc(tx("new introduction"))}"></i>`;
-    return `<button data-view="${v}" aria-current="${S.view===v?"page":"false"}">${icon(v)}<span>${tx(cap(v))}</span>${badge}</button>`}).join("");
+    return `<button data-view="${v}" aria-current="${S.view===v?"page":"false"}">${icon(v)}<span>${viewName(v)}</span>${badge}</button>`}).join("");
   VIEWS.forEach(v=>$("v-"+v).hidden=S.view!==v);
 }
 function renderGoal(){
@@ -81,7 +87,7 @@ function renderGoal(){
   el.hidden=inBattle();
   el.className="goal"+(g.done?" done":"");
   el.innerHTML=`<div class="gt" ${tt(g.step+(g.prog?` · ${g.prog}`:""),g.text,g.done?tx("Reward: {list}",{list:rewardText(g.reward)}):"")}><small>${st}</small> ${g.text}${g.prog?` <em>${g.prog}</em>`:""}</div>
-    ${g.done?`<button class="btn primary sm" id="claim">${tx("Claim")}</button>`:S.view!==g.tab?`<button class="btn sm" id="goGoal">${tx("Go to {tab}",{tab:tx(cap(g.tab))})}</button>`:""}`;
+    ${g.done?`<button class="btn primary sm" id="claim">${tx("Claim")}</button>`:S.view!==g.tab?`<button class="btn sm" id="goGoal">${tx("Go to {tab}",{tab:viewName(g.tab)})}</button>`:""}`;
 }
 const itemLines=it=>[iname(it),`${rarity(it)[0]} · ${labelOf(it)}${isGear(it)?` · ${tx("PWR {n}",{n:power(it)})}`:""}`,grp(it)==="consumable"?useHint(it):isGear(it)?statLine(shown(it)):tx("Crafting ingredient"),topTraits(it.traits).slice(0,4).map(([t,v])=>`${trn(t)} ${v}`).join(", ")];
 const itemTip=(it,...x)=>tt(...itemLines(it),...x),itemAria=it=>esc(itemLines(it).slice(1).filter(Boolean).join(". ")); // the tip text also goes in aria-label, for screen readers
@@ -155,15 +161,16 @@ function foeStage(B){
   const bd=[E.boss&&ci("var(--accent)",ic("boss","s"),"",tx("Boss"),tx("Beat it to open the next region.")),B.phased&&ci("var(--bad)",ic("warn","s"),"",tx(E.phase.label),tx("Its second form.")),RC&&ci(RC.col,ic("elite","s"),"",RC.name,txn("{n} affix. Up to {hp}x HP and {atk}x Attack before the affixes' own changes.","{n} affixes. Up to {hp}x HP and {atk}x Attack before the affixes' own changes.",live.length,{hp:RC.hp,atk:RC.atk}),tx("Each affix drops its linked essence, {gs} than usual.",{gs:gsTxt(RC.gs)})),
     B.heat?ci("var(--ember)",ic("heat","s"),B.heat,tx("Heat {n}",{n:B.heat}),HEAT[B.heat-1].name):"",kn.mastered&&ci("var(--verd)",ic("renown","s"),"",tx("Mastered"),tx("You deal 15% more damage to it."))].filter(Boolean).join("");
   return `<div class="stage${RC?" rar":""}" id="enemyHud" style="--el:${FAM[B.el]}${RC?`;--rc:${RC.col}`:""}">
-    <button class="${cls}" id="foeArt" data-codex="${B.id}" aria-label="${esc(fullName(B))}${RC?`, ${esc(lc(RC.name))}, ${esc(live.map(a=>tx(AFX[a].n)).join(", "))}`:""}. ${esc(tx("Open codex entry"))}">${portrait(B.id,{el:B.el,aura:RC&&RC.col,rare:rarOf(B)==="rare",frozen:B.frozen,burn:!!B.burn&&!B.over,poison:B.poison>0&&!B.over,phased:B.phased})}</button>
+    <button class="${cls}" id="foeArt" data-codex="${B.id}" aria-label="${esc(fullName(B))}${RC?`, ${esc(lc(RC.name))}, ${esc(live.map(a=>tx(AFX[a].n)).join(", "))}`:""}. ${esc(tx("Open codex entry"))}">${portrait(B.id,{el:B.el,afx:live,aura:RC&&RC.col,rare:rarOf(B)==="rare",frozen:B.frozen,burn:!!B.burn&&!B.over,poison:B.poison>0&&!B.over,phased:B.phased})}</button>
     <div class="foeinfo"><div class="fname"><span class="fn"${RC?` style="color:${RC.col}"`:""}>${bname(B)}</span>${B.title&&!B.split?`<span class="ti" style="color:${RC.col}">${btitle(B)}</span>`:""}<span class="bd">${bd}</span></div>
       <div class="hpline">${hpBar(B.hp,B.max,"foe")}<span class="hpnum">${Math.max(0,B.hp)}<small>/${B.max}</small></span></div>
       ${live.length?`<div class="chips afx">${live.map(a=>afxChip(a,B)).join("")}</div>`:""}
       <div class="chips">${kw.map(f=>ci(FAM[f],ic("weak","s")+famIc(f,"s"),"",tx("Weak to {fam}",{fam:famN(f)}),tx("Takes 50% more from it."))).join("")}${kr.map(f=>ci(FAM[f],ic("resist","s")+famIc(f,"s"),"",tx("Resists {fam}",{fam:famN(f)}),tx("Takes 40% less from it."))).join("")}${unknown>0?`<span class="chip unk" ${tt(tx("{n} unknown",{n:unknown}),tx("Weaknesses and resistances you have not found yet. Hit it, or Study."))}><b>?</b>${unknown}</span>`:""}${st}</div></div></div>`;
 }
 function logBlock(B){
-  const last=B.log.slice(-2).map(l=>`<span class="ll ${l.c}">${l.t}</span>`).join("");
-  return `<details class="logd" id="logd"${logOpen?" open":""}><summary>${last}<span class="more">${ic("list","s")}</span></summary><ul class="blog" id="blog">${B.log.map(l=>`<li class="ll ${l.c}">${l.t}</li>`).join("")}</ul></details>`;
+  const entry=(l,tag)=>`<${tag} class="ll log-${l.c||"note"}">${ic(({you:"attack",foe:"hit",good:"guard",big:"crit",lore:"study"})[l.c]||"turn","s")}<span>${l.t}</span></${tag}>`;
+  const last=B.log.slice(-2).map(l=>entry(l,"span")).join("");
+  return `<details class="logd" id="logd"${logOpen?" open":""}><summary>${last}<span class="more">${ic("list","s")}</span></summary><ul class="blog" id="blog">${B.log.map(l=>entry(l,"li")).join("")}</ul></details>`;
 }
 // Camp rest: one icon button with the charge count (the text is in its tip)
 function campBtn(){
@@ -189,6 +196,13 @@ function mapHead(){
     ${ci("var(--fg)",stIc("atk","s"),P.atk,`${STAT_NAMES.atk} ${P.atk}`,tx("Strike power of your main hand."))}${ci("var(--fg)",stIc("def","s"),`${Math.round(P.red*100)}%`,`${STAT_NAMES.def} ${P.def}`,tx("Cuts the damage you take by {p}%.",{p:Math.round(P.red*100)}))}</div>
     <div class="mr">${torch}${amb}${badges}${campBtn()}${ab}${help}</div>${sel}<p class="mnow${m.ls===m.steps&&m.steps?" mnew":""}">${(m.log||[]).slice(-1)[0]||tx("Tap a glowing tile next to you to set out.")}</p></div>`;
 }
+function riftCard(){ // the Rift: the region you stand in, its depth and your record
+  if(S.zone!==RIFT_ZONE)return "";
+  const r=S.rift||{},nm=r.name||tx("unknown");
+  return `<div class="dcard rift"><div class="dtop"><b>${ic("mystery")} ${tx("The Wanderer's Rift")}</b><span class="dline"><span>${tx("Region: {name}",{name:nm})}</span><span class="heat">${tx("Depth {n}",{n:r.depth||1})}</span><span class="heat">${tx("Best {n}",{n:r.best||0})}</span></span>
+    ${helpBtn(tx("The Wanderer's Rift"),tx("Every expedition rolls a new region: a biome, ten wild creatures and a master."),tx("Wild creatures carry affixes of their own, and the master carries three."),tx("Beat the master to go one depth deeper."))}</div>
+    <p class="foot">${tx("A new region every time: ten wild creatures and a master. Beat the master, then descend.")}</p>
+    ${r.cleared?`<div class="actions"><button class="btn primary sm grow" id="riftNext">${tx("Descend deeper")}</button></div>`:""}</div>`}
 function dailyCard(){
   if(S.run==="daily")return "";
   if(!dailyReady())return isUnl("heat")?`<div class="dcard">${lockRow("daily")}</div>`:""; // a teaser once the first boss is down
@@ -204,10 +218,14 @@ function zoneFade(){const z=$("zones");z.dataset.l=z.scrollLeft>2?1:0;z.dataset.
 function fitMap(){ // keep 36px touch tiles; wider expeditions pan inside the map, never the page
   const w=document.querySelector(".mapwrap");if(!w||S.view!=="battle")return;const mp=w.firstElementChild,m=curMap(),nav=$("nav").offsetHeight;
   document.documentElement.style.setProperty("--nav",nav+"px");mp.style.setProperty("--mw","");
-  const top=w.getBoundingClientRect().top+scrollY,room=Math.max(260,innerHeight-nav-38-top),min=37*m.w+3,max=Math.max(min,Math.min(680,w.clientWidth-4));
+  const top=w.getBoundingClientRect().top+scrollY,room=Math.max(240,Math.min(380,innerHeight-nav-90-top)),min=45*m.w+3,max=Math.max(min,Math.min(680,w.clientWidth-4));
   mp.style.setProperty("--mw",Math.max(min,Math.min(max,Math.floor(room*m.w/m.h)))+"px");w.style.maxHeight=room+"px";w.dataset.pan=mp.offsetWidth>w.clientWidth||mp.offsetHeight>w.clientHeight?"1":"0";
 }
-const heroView=()=>document.querySelector(".tl.here")?.scrollIntoView({block:"nearest",inline:"nearest"});
+function heroView(){
+  const w=document.querySelector(".mapwrap"),h=w?.querySelector(".tl.here");if(!h)return;
+  const a=w.getBoundingClientRect(),b=h.getBoundingClientRect();
+  w.scrollTo({left:w.scrollLeft+b.left-a.left+(b.width-w.clientWidth)/2,top:w.scrollTop+b.top-a.top+(b.height-w.clientHeight)/2,behavior:"instant"});
+}
 function renderBattle(){
   $("zones").innerHTML=ZONES.map(([id,name,boss],i)=>{const open=zoneOpen(id),cleared=S.kills[boss]>0;
     return `<button class="zone" data-zone="${id}" aria-pressed="${S.zone===id}" ${open&&!busy()&&S.run!=="daily"?"":"disabled"}>${tx(name)}${cleared?" ✓":""}${open?"":` · ${tx("beat {boss}",{boss:shortName(ZONES[i-1][2])})}`}</button>`}).join("");zoneView();
@@ -221,7 +239,7 @@ function renderBattle(){
     const m=curMap(),zi=zoneIdx(S.zone),bossId=ZONES[zi][2],next=ZONES[zi+1];
     const head=m.cleared?`<div class="cleared"><b>${ic("ok")} ${tx("{zone} cleared",{zone:tx(ZONES[zi][1])})}</b>${helpBtn(tx("{boss} has fallen",{boss:shortName(bossId)}),next&&zoneOpen(next[0])?tx("Explore a fresh map here for more loot, or move on to {next}.",{next:tx(next[1])}):tx("Explore a fresh map here for more loot."))}
         <div class="actions"><button class="btn sm grow" id="again">${tx("New expedition")}</button>${next&&zoneOpen(next[0])?`<button class="btn primary sm grow" data-zone="${next[0]}">${tx("Travel to {zone}",{zone:tx(next[1])})}</button>`:""}</div></div>`:"";
-    a.innerHTML=`${mapHead()}${head}${mapHtml()}${dailyCard()}`;fitMap();heroView();return}
+    a.innerHTML=`${mapHead()}${head}${mapHtml()}${riftCard()}${dailyCard()}`;fitMap();heroView();return}
   const K=cx(B.id);
   let body="";
   if(!B.over){
@@ -232,14 +250,14 @@ function renderBattle(){
     const bm=hasAfx(B,"boom")&&B.hp<=B.max*AFX_T.boom.warn?ci("var(--down)",ic("a_boom","s"),`~${blastOf(B)}`,tx("Blast ~{n} when it dies",{n:blastOf(B)}),tx("It is about to burst. Guard cuts the blast by {p}%, but only if it dies on its own turn (burn, poison, bleed). Your rune ward soaks it.",{p:pcn(1-AFX_T.boom.guard)}),S.hp<=blastOf(B)?tx("You would not survive it. Heal first."):""):"";
     const dot=(B.burn?B.burn.d:0)+(B.poison||0)+(B.bleed?B.bleed.d*B.bleed.n:0),fzc=hasAfx(B,"frenzy")&&!B.fz&&dot>0&&B.hp-dot<B.max*AFX_T.frenzy.at&&B.hp>=B.max*AFX_T.frenzy.at?ci("var(--down)",ic("a_frenzy","s"),"",tx("It may frenzy"),tx("Its burn, poison or bleed will take it under {at}% HP this turn. It then hits {p}% harder.",{at:pcn(AFX_T.frenzy.at),p:pcn(AFX_T.frenzy.x-1)})):"";
     const known=(B.phased?K.sp2:K.sp);
-    const intent=B.frozen?`<div class="intent" ${tt(tx("Next"),tx("Frozen. It will lose its turn."))}><b>${tx("NEXT")}</b>${ci(FAM.ice,famIc("ice","s"),tx("Frozen"),tx("Frozen"),tx("It will lose its turn."))}${bm}${fzc}</div>`
-      :sp?`<div class="intent special" ${tt(tx("Next: {name}",{name:known?tx(sp.name):tx("something big")}),tx("It's {tell}.",{tell:tx(sp.tell)}),[dmgTxt,isUnl("parry")?sp.kind==="heal"?tx("Parry ({p}%) to interrupt it.",{p:pc}):tx("Guard, or Parry ({p}%) to turn it back!",{p:pc}):tx("Guard to soften it.")].filter(Boolean).join(" "))}><b>${tx("NEXT")}</b><span class="in">${ic("warn","s")} ${known?tx(sp.name):tx("Something big")}</span>${sp.kind==="heal"?"":dm}${isUnl("parry")?ci("var(--accent)",ic("parry","s"),`${pc}%`,tx("Parry {p}%",{p:pc}),tx("Beat a telegraphed special: negate it and riposte.")):""}${bm}${fzc}</div>`
+    const intent=B.frozen?`<div class="intent frozen" ${tt(tx("Next"),tx("Frozen. It will lose its turn."))}><b>${tx("NEXT")}</b>${ci(FAM.ice,famIc("ice","s"),tx("Frozen"),tx("Frozen"),tx("It will lose its turn."))}${bm}${fzc}</div>`
+      :sp?`<div class="intent special${sp.kind==="heal"?" healing":""}" ${tt(tx("Next: {name}",{name:known?tx(sp.name):tx("something big")}),tx("It's {tell}.",{tell:tx(sp.tell)}),[dmgTxt,isUnl("parry")?sp.kind==="heal"?tx("Parry ({p}%) to interrupt it.",{p:pc}):tx("Guard, or Parry ({p}%) to turn it back!",{p:pc}):tx("Guard to soften it.")].filter(Boolean).join(" "))}><b>${tx("NEXT")}</b><span class="in">${ic(sp.kind==="heal"?"f_heal":"warn","s")} ${known?tx(sp.name):tx("Something big")}</span>${sp.kind==="heal"?"":dm}${isUnl("parry")?ci("var(--accent)",ic("parry","s"),`${pc}%`,tx("Parry {p}%",{p:pc}),tx("Beat a telegraphed special: negate it and riposte.")):""}${bm}${fzc}</div>`
       :`<div class="intent" ${tt(tx("Next: a normal attack"),dmgTxt,tx("Parrying now would backfire."))}><b>${tx("NEXT")}</b><span class="in">${ic("attack","s")} ${tx("Attack")}</span>${dm}${isUnl("parry")?`<span class="chip no">${ic("parry","s")}<b>${tx("no parry")}</b></span>`:""}${bm}${fzc}</div>`;
     const cons=Object.keys(S.inv).filter(id=>S.inv[id]>0&&grp(S.items[id])==="consumable");
-    const canStudy=unknownFacts(B.id).length>0||canTrainParry(B)||(hasAfx(B,"elusive")&&(B.sty||0)<AFX_T.dodge.studyMax),abs=abKeys(P).filter(abOn),abBtn=k=>{const A=ABILITIES[k],c=(B.cd||{})[k]||0;return `<button class="btn act ab" data-ability="${k}" ${c>0?`aria-disabled="true" data-tap`:""} aria-label="${esc(A.name+(c>0?", "+txn("ready in {n} turn","ready in {n} turns",c):"")+". "+A.desc)}" ${tt(A.name,c>0?txn("Ready in {n} turn.","Ready in {n} turns.",c):tx("Cooldown {n} turns.",{n:A.cd}),A.desc)}>${icon(A.icon)}<span>${A.name}</span>${c>0?`<i class="cdb">${c}</i>`:""}</button>`};
-    body=`${intent}${youHud()}${introHtml(curIntro(true))}
-      <div class="acts n${abs.length}"><button class="btn primary act" id="atk" ${tt(tx("Attack"),tx("Strike with your main hand."))}>${icon("attack")}<span>${tx("Attack")}</span></button>${abs.map(abBtn).join("")}<button class="btn act" id="guard" ${tt(tx("Guard"),tx("Cuts every hit in the enemy's action by {p}% and blocks new statuses.",{p:pcn(GUARD_T.cut)}),tx("Gain Braced: your next Attack or ability deals {p}% more damage. Does not stack. Existing statuses still tick.",{p:pcn(GUARD_T.braced)}),B.off>0?tx("A mistimed parry cost you your guard."):"")}>${icon("guard")}<span>${tx("Guard")}</span></button>${isUnl("parry")?`<button class="btn act" id="parry" ${tt(tx("Parry {p}%",{p:pc}),tx("Beat a telegraphed special: negate it and riposte ({p}% to land). Mistimed: +25% damage and a lost guard.",{p:pc}),parryTip,B.off>0?tx("Off balance: you cannot parry this turn."):!sp?tx("Parrying now would backfire."):"")}>${icon("parry")}<span>${tx("Parry")} ${pc}%</span></button>`:lockAct("parry")}
-      ${isUnl("study")?`<button class="btn act" id="study" ${canStudy?"":`aria-disabled="true" data-tap`} ${tt(canStudy?tx("Study"):tx("Known"),canStudy?tx("Learn one fact about it, but it costs your turn."):tx("You know everything it can teach."),tx("Parry training {n}/{max}: Study raises your chance against this form's special by {p}% per rank, across battles.",{n:parryLevel(B),max:PARRY_T.levels,p:pcn(PARRY_T.study)}),hasAfx(B,"elusive")?tx("Also lowers the dodge of an Elusive foe by {p}% ({a} of {b} used).",{p:AFX_T.dodge.study,a:B.sty||0,b:AFX_T.dodge.studyMax}):"")}>${icon("study")}<span>${canStudy?tx("Study"):tx("Known")}</span></button>`:lockAct("study")}<button class="btn act" id="flee" ${tt(tx("Flee"),tx("Try to get away. A creature from the map stays alive and dazed."))}>${icon("flee")}<span>${tx("Flee")}</span></button></div>
+    const canStudy=unknownFacts(B.id).length>0||canTrainParry(B)||(hasAfx(B,"elusive")&&(B.sty||0)<AFX_T.dodge.studyMax),abs=abKeys(P).filter(abOn),abBtn=k=>{const A=ABILITIES[k],c=(B.cd||{})[k]||0;return `<button class="btn act ab" data-ability="${k}" ${c>0?`aria-disabled="true" data-tap`:""} aria-label="${esc(A.name+(c>0?", "+txn("ready in {n} turn","ready in {n} turns",c):"")+". "+A.desc)}" ${tt(A.name,c>0?txn("Ready in {n} turn.","Ready in {n} turns.",c):tx("Cooldown {n} turns.",{n:A.cd}),A.desc)}>${icon(A.icon)}<span>${A.name}</span>${c>0?`<i class="cdb">${ic("cooldown","s")}${c}</i>`:""}</button>`};
+    body=`${intent}${dmgTxt&&!B.frozen&&sp?.kind!=="heal"?`<p class="combat-advice">${dmgTxt} ${tx("Before Guard; ongoing status damage is separate.")}</p>`:""}${youHud()}${introHtml(curIntro(true))}
+      <div class="acts n${abs.length}"><button class="btn primary act" id="atk" ${tt(tx("Attack"),tx("Strike with your main hand."))}>${icon("attack")}<span>${tx("Attack")}</span><small>${B.braced?tx("Empowered: +{p}% damage",{p:pcn(GUARD_T.braced)}):tx("Strike with your weapon")}</small></button>${abs.map(abBtn).join("")}<button class="btn act${B.off>0?" impaired":""}" id="guard" ${tt(tx("Guard"),tx("Cuts every hit in the enemy's action by {p}% and blocks new statuses.",{p:pcn(GUARD_T.cut)}),tx("Gain Braced: your next Attack or ability deals {p}% more damage. Does not stack. Existing statuses still tick.",{p:pcn(GUARD_T.braced)}),B.off>0?tx("A mistimed parry cost you your guard."):"")}>${icon("guard")}<span>${tx("Guard")}</span><small>${B.off>0?tx("Off balance"):tx("−{cut}% hit · +{boost}% next",{cut:pcn(GUARD_T.cut),boost:pcn(GUARD_T.braced)})}</small></button>${isUnl("parry")?`<button class="btn act${sp&&!B.off&&!B.frozen?" opportunity":""}${B.off>0?" impaired":""}" id="parry" ${tt(tx("Parry {p}%",{p:pc}),tx("Beat a telegraphed special: negate it and riposte ({p}% to land). Mistimed: +25% damage and a lost guard.",{p:pc}),parryTip,B.off>0?tx("Off balance: you cannot parry this turn."):!sp?tx("Parrying now would backfire."):"")}>${icon("parry")}<span>${tx("Parry")} ${pc}%</span><small>${B.off>0?tx("Off balance"):!sp||B.frozen?tx("Wrong timing"):tx("Fail: +25% damage")}</small></button>`:lockAct("parry")}
+      ${isUnl("study")?`<button class="btn act" id="study" ${canStudy?"":`aria-disabled="true" data-tap`} ${tt(canStudy?tx("Study"):tx("Known"),canStudy?tx("Learn one fact about it, but it costs your turn."):tx("You know everything it can teach."),tx("Parry training {n}/{max}: Study raises your chance against this form's special by {p}% per rank, across battles.",{n:parryLevel(B),max:PARRY_T.levels,p:pcn(PARRY_T.study)}),hasAfx(B,"elusive")?tx("Also lowers the dodge of an Elusive foe by {p}% ({a} of {b} used).",{p:AFX_T.dodge.study,a:B.sty||0,b:AFX_T.dodge.studyMax}):"")}>${icon("study")}<span>${canStudy?tx("Study"):tx("Known")}</span><small>${tx("Learn · uses a turn")}</small></button>`:lockAct("study")}<button class="btn act" id="flee" ${tt(tx("Flee"),tx("Try to get away. A creature from the map stays alive and dazed."))}>${icon("flee")}<span>${tx("Flee")}</span><small>${tx("Escape may fail")}</small></button></div>
       ${cons.length?`<div class="sqg cons">${cons.map(id=>{const it=S.items[id],hint=useHint(it);return `<button class="sq" style="${rcol(it)}" data-use="${id}" aria-label="${esc(tx("Use {item}",{item:iname(it)})+(S.inv[id]>1?", "+tx("{n} held",{n:S.inv[id]}):"")+". "+hint)}" ${tt(iname(it),hint,tx("You hold {n}.",{n:S.inv[id]}))}>${glyph(it)}${S.inv[id]>1?`<span class="sq-n">${S.inv[id]}</span>`:""}<span class="sq-p">${esc(hint.split(" · ")[0])}</span></button>`}).join("")}</div>`:""}
       ${logBlock(B)}`;
   }else{
@@ -254,7 +272,7 @@ function useHint(it){const st=statsOf(it),p=[];if(st.heal>0)p.push(tx("+{n} HP",
 const equippedRisk=items=>[...new Set(items.map(i=>i.id))].filter(id=>(S.inv[id]||0)-benchCount(id)<eqCount(id)).map(id=>iname(S.items[id]));
 // Forge preview line: the skill that makes this, success / mishap / fizzle odds, and the tier cap
 function craftLine(r,items){
-  const risk=equippedRisk(items),sk=SKILLS[r.skill],cp=SK_CAP[r.lv-1],b=r.blocked,ch=(col,ics,v,...t)=>`<span class="chip" style="color:${col}" ${tt(...t)}>${ics}<b>${v}</b></span>`;
+  const risk=r.fiz>0?equippedRisk(items):[],sk=SKILLS[r.skill],cp=SK_CAP[r.lv-1],b=r.blocked,ch=(col,ics,v,...t)=>`<span class="chip" style="color:${col}" ${tt(...t)}>${ics}<b>${v}</b></span>`;
   return `<div class="cline${b?" blocked":""}"><div class="chips">${isUnl("skills")?ch("var(--accent)",skIcon(r.skill),tx("Lv {n}",{n:r.lv}),tx("{skill} Lv {lv}",{skill:sk.name,lv:r.lv}),tx("The skill that makes this.")):""}${ch("var(--muted)",ic("tier","s"),`${r.item.tier}/${cp}`,tx("Tier {n}, your cap is {c}",{n:r.item.tier,c:cp}),tx("The result's tier against the highest tier your skill can reach."))}
     ${b?"":ch("var(--up)",ic("ok","s"),`${100-r.fail}%`,tx("{n}% clean",{n:100-r.fail}),tx("A clean forge gives exactly the item previewed."))+ch("var(--accent)",ic("warn","s"),`${r.mis}%`,tx("{n}% mishap",{n:r.mis}),tx(isUnl("peddler")?"A mishap gives a flawed copy (Cursed, Brittle, Rust or Weakened) that you can reforge for embers.":"A mishap gives a flawed copy (Cursed, Brittle, Rust or Weakened)."))+ch("var(--down)",ic("smoke","s"),`${r.fiz}%`,tx("{n}% fizzle",{n:r.fiz}),tx(isUnl("peddler")?"A fizzle loses the ingredients but returns some embers.":"A fizzle loses the ingredients."))
       +helpBtn(tx("Forge odds"),S.journal.length?tx("Difficulty {d} against your skill {lv}{reach}. The higher your skill, the fewer mishaps and fizzles.",{d:r.diff,lv:r.lv,reach:r.diff-r.lv>2?tx(", a reach for you"):""})+(r.prec?" "+tx("Precision trims {n} points off the failure chance.",{n:r.prec}):""):tx("Your first forge never fails."))}</div>
@@ -342,6 +360,7 @@ function renderPatterns(){
     <div class="actions"><button class="btn primary grow" id="shape" ${r&&!inBattle()?"":"disabled"}>${inBattle()?tx("Finish the fight to forge"):tx("Forge")}</button><button class="btn" id="pfill" ${its.every(Boolean)?"disabled":""}>${tx("Fill")}</button><button class="btn" id="pclear">${tx("Clear")}</button></div>`;
 }
 function renderResult(fresh){
+  $("resultPanel").hidden=!S.last;if(fresh)$("resultPanel").open=true;
   const el=$("result"),total=Object.values(S.inv).reduce((s,c)=>s+c,0);
   if(!S.last){el.className="panel result";el.innerHTML=`<p class="empty">${total<2?tx("You need at least two items to forge. Win battles to collect loot."):tx("Your sword takes ores, herbs, potions, essences and relics. Deconstruct raw finds in the Gear tab for materials and essences.")}</p>`;return}
   const r=S.last,ch=(col,ics,v,...t)=>`<span class="chip" style="color:${col}" ${tt(...t)}>${ics}<b>${v}</b></span>`;
@@ -360,7 +379,8 @@ function renderResult(fresh){
     ${showEq?cmpBlock(it,eqIt,"Versus equipped"):""}
     <ul class="log"><li><strong>${tx("Recipe")}</strong> ${recipeNames(r.id?it:r)}</li>${r.log.map(logLi).join("")}</ul>
     ${gains}${ch(r.mishap?"var(--accent)":"var(--up)",ic(r.mishap?"warn":"ok","s"),`${r.inst}%`,r.mishap?tx("Flawed"):tx("Held together"),tx("{n}% was the chance to fail.",{n:r.inst}))}</div>
-    ${S.inv[it.id]>0?`<div class="actions"><button class="btn${isGear(it)&&!eqCount(it.id)?" primary":""}" data-open="${it.id}">${isGear(it)&&!eqCount(it.id)?tx("Equip or inspect"):tx("Inspect")}</button></div>`:""}`;
+    ${r.autoEquipped&&eqCount(it.id)?`<p class="ok-text">${tx("Equipped automatically")}</p>`:""}
+    ${S.inv[it.id]>0?`<div class="actions">${isGear(it)&&!eqCount(it.id)?`<button class="btn primary" data-result-equip="${it.id}">${tx("Equip")}</button>`:""}<button class="btn${isGear(it)&&!eqCount(it.id)?" primary":""}" data-open="${it.id}">${isGear(it)&&!eqCount(it.id)?tx("Equip or inspect"):tx("Inspect")}</button></div>`:""}`;
 }
 const TABS=[["all","All"],["weapon","Weapons"],["armor","Armor"],["charm","Trinkets"],["consumable","Consumables"],["material","Materials"]];
 const baseName=it=>(S.items[baseIdOf(it.id)]||it).name; // graded items sort next to their Plain kin, by grade
@@ -369,17 +389,19 @@ const tabBtn=(attr,k,l,on)=>`<button class="tab ti" data-${attr}="${k}" aria-pre
 function satchel(mode){
   const tabs=TABS.map(([k,l])=>tabBtn("tab",k,l,S.tab===k)).join("");
   const list=Object.keys(S.inv).filter(id=>S.inv[id]>0).map(id=>S.items[id]).filter(it=>S.tab==="all"||grp(it)===S.tab)
-    .sort((a,b)=>FORMS[b.form].p-FORMS[a.form].p||b.tier-a.tier||baseName(a).localeCompare(baseName(b))||gradeOf(a.id)-gradeOf(b.id)||a.name.localeCompare(b.name));
+    .filter(it=>inventoryMatch(it,mode))
+    .sort((a,b)=>inventorySort(a,b));
   const benchItems=S.bench.map(id=>S.items[id]),full=S.bench.length>=maxInputs();
   const tiles=list.length?list.map(it=>{const eq=eqCount(it.id)>0,left=avail(it.id),isNew=freshShown.has(it.id)||S.fresh.includes(it.id);
     let note="",no=false;
-    if(mode==="forge"){if(left<=0){no=true;note=tx("All in the crucible.")}else if(full){no=true;note=tx("The crucible is full.")}else if(!checkMix([...benchItems,it]).ok){no=true;note=tx("Won't mix with what is in the crucible.")}}
-    return `<button class="sq${it.legendary?" legend":""}${it.grade?" gr":""}${eq?" eq":""}${no?" no":""}" style="${rcol(it)}" data-id="${it.id}" data-can="${no?0:1}" aria-label="${esc(iname(it)+(left!==1?`, ${left}`:"")+(eq?", "+tx("worn"):"")+(isNew?", "+tx("new"):"")+(note?`, ${note}`:""))}. ${itemAria(it)}" ${itemTip(it,left>1?tx("You hold {n}.",{n:left}):"",eq?tx("Worn."):"",note)}>
-      ${glyph(it)}${left!==1?`<span class="sq-n">${left}</span>`:""}${eq?`<span class="sq-w">${ic("equip","xs")}</span>`:""}${isGear(it)||it.grade?`<span class="sq-p"${it.grade?` style="color:var(--gc)"`:""}>${isGear(it)?power(it):ROMAN[it.grade]}</span>`:""}${isNew?'<i class="sq-d"></i>':""}</button>`}).join("")
+    if(mode==="forge"){if(itemLocked(it.id)){no=true;note=tx("Unlock these items before crafting.")}else if(left<=0){no=true;note=tx("All in the crucible.")}else if(full){no=true;note=tx("The crucible is full.")}else if(!checkMix([...benchItems,it]).ok){no=true;note=tx("Won't mix with what is in the crucible.")}}
+    return `<button class="sq${salvageMode&&mode==="gear"&&salvageSelection.has(it.id)?" selected":""}${it.legendary?" legend":""}${it.grade?" gr":""}${eq?" eq":""}${no?" no":""}" style="${rcol(it)}" data-id="${it.id}" data-can="${no?0:1}" aria-label="${esc(iname(it)+(left!==1?`, ${left}`:"")+(eq?", "+tx("worn"):"")+(isNew?", "+tx("new"):"")+(note?`, ${note}`:""))}. ${itemAria(it)}" ${itemTip(it,left>1?tx("You hold {n}.",{n:left}):"",eq?tx("Worn."):"",note)}>
+      ${glyph(it)}${itemLocked(it.id)?`<span class="item-lock">${ic("lock","xs")}</span>`:""}${S.inventory?.layout==="list"?`<span class="item-caption"><b>${iname(it)}</b><small>${itemLines(it)[2]}</small></span>`:""}${left!==1?`<span class="sq-n">${left}</span>`:""}${eq?`<span class="sq-w">${ic("equip","xs")}</span>`:""}${isGear(it)||it.grade?`<span class="sq-p"${it.grade?` style="color:var(--gc)"`:""}>${isGear(it)?power(it):ROMAN[it.grade]}</span>`:""}${isNew?'<i class="sq-d"></i>':""}</button>`}).join("")
     :`<p class="empty">${tx("Nothing here yet.")}</p>`;
   return [tabs,tiles];
 }
 function renderSatchels(){
+  renderInventoryTools();
   if(S.view==="gear"){const [t,i]=satchel("gear");$("gtabs").innerHTML=t;$("ginv").innerHTML=i;
     const dl=deconList(),n=dl.reduce((a,id)=>a+avail(id),0);$("gdecon").hidden=!n||inBattle();
     if(n)$("gdecon").innerHTML=`<button class="btn sm${deconArmed?" danger":""}" id="deconAll" ${tt(tx("Deconstruct all"),tx("Breaks every raw hide, ore and wood in your satchel into base materials and essence fragments. Food, potions, relics and anything a secret still needs stay."))}>${ic("salvage","s")} ${deconArmed?tx("Tap again to deconstruct {n}",{n}):tx("Deconstruct all raw finds ({n})",{n})}</button>`}
@@ -433,7 +455,7 @@ function renderStats(){
       +`<div class="sc wide"><b>${heat}</b><span>${tx("highest Heat cleared")}</span></div>`)
     +grp(tx("Forge"),cell(st.forged,tx("items forged"))+cell(S.journal.length,tx("recipes found"))+cell(st.legend,tx("legendaries forged"))+cell(st.mishaps,tx("mishaps"))+cell(st.fizzles,tx("fizzles"))+cell(st.salvaged,tx("items broken down"))+cell(st.refined,tx("grades upgraded")))
     +grp(tx("Economy"),cell(sn(st.earned),tx("embers earned"))+cell(sn(st.spent),tx("embers spent"))+cell(S.embers,tx("embers now")))
-    +`<p class="label">${tx("Records")}</p><ul class="rec2">${fast}<li><span>${tx("Dailies played / won")}</span><b>${st.dailies} / ${st.dailyWins}</b></li><li><span>${tx("Best daily")}</span><b>${st.dBest?dailyResult(st.dBest):tx("none yet")}</b></li></ul>`;
+    +`<p class="label">${tx("Records")}</p><ul class="rec2">${fast}<li><span>${tx("Dailies played / won")}</span><b>${st.dailies} / ${st.dailyWins}</b></li><li><span>${tx("Best daily")}</span><b>${st.dBest?dailyResult(st.dBest):tx("none yet")}</b></li><li><span>${tx("Best Rift depth")}</span><b>${(S.rift&&S.rift.best)||0}</b></li></ul>`;
 }
 function renderAfx(){ // the Codex list of affixes: an entry opens when you first meet an enemy that carries it
   const ids=Object.keys(AFX),n=ids.filter(a=>(S.afx[a]||{}).s>0).length;
@@ -456,8 +478,8 @@ function renderCodex(){
   $("cxlist").innerHTML=groups.map(([z,zn])=>`<p class="zonehead">${zn}</p><div class="cxg">`+Object.entries(ENEMIES).filter(([,e])=>e.zone===z).map(([id,E])=>{
     const seen=S.seen[id],k=know(id),pct=Math.round(k.pct*100),tp=tt(seen?tx(E.name):tx("Unknown creature"),seen?(E.boss?tx("Boss.")+" ":"")+tx("Defeated {n}",{n:S.kills[id]||0}):tx("Not yet encountered"),seen?(k.mastered?tx("Mastered: you deal 15% more damage."):tx("Knowledge {a}/{b} ({p}%)",{a:k.have,b:k.tot,p:pct})):"");
     const bd=`${seen&&E.boss?`<span class="sq-w cb" aria-hidden="true">${ic("boss","xs")}</span>`:""}${seen?`<span class="sq-p${k.mastered?" m":""}">${k.mastered?ic("renown","xs"):pct+"%"}</span>`:""}`;
-    return seen?`<button class="cxt${k.mastered?" mst":""}" data-codex="${id}" aria-label="${esc(tx(E.name)+(E.boss?", "+lc(tx("Boss")):"")+". "+(k.mastered?tx("Mastered"):tx("Knowledge {p}%",{p:pct}))+". "+tx("Open its page."))}" ${tp}>${portrait(id)}${bd}</button>`
-      :`<span class="cxt sil" ${tp}>${portrait(id)}</span>`}).join("")+`</div>`).join("");
+    return seen?`<button class="cxt${k.mastered?" mst":""}" data-codex="${id}" aria-label="${esc(tx(E.name)+(E.boss?", "+lc(tx("Boss")):"")+". "+(k.mastered?tx("Mastered"):tx("Knowledge {p}%",{p:pct}))+". "+tx("Open its page."))}" ${tp}>${portrait(id,{lite:1})}${bd}</button>`
+      :`<span class="cxt sil" ${tp}>${portrait(id,{lite:1})}</span>`}).join("")+`</div>`).join("");
 }
 let lastIntro=null;
 function render(fresh){

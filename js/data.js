@@ -151,7 +151,7 @@ const BLUEPRINTS={
   void_robe:{e:"acolyte",slots:[["cloth"],["cloth"],["crystal"]],m:["stormsilk","stormsilk","void_shard"]}
 };
 const bpOf=e=>Object.keys(BLUEPRINTS).filter(id=>BLUEPRINTS[id].e===e);
-const ZONES=[["woods","Whispering Woods","gnarlhorn"],["pass","Frostfang Pass","rimeclaw"],["hollow","Cinder Hollow","phoenix"],["spire","Starfall Spire","archon"]];
+const ZONES=[["woods","Whispering Woods","gnarlhorn"],["pass","Frostfang Pass","rimeclaw"],["hollow","Cinder Hollow","phoenix"],["spire","Starfall Spire","archon"],["rift","The Wanderer's Rift","rift_boss"]];
 const ENEMIES={
   boar:{name:"Thornback Boar",plural:"Thornback Boars",zone:"woods",mv:"chase",el:"wood",hp:30,atk:6,def:2,weak:["fire"],resist:[],w:3,verb:"gores you",intro:"A Thornback Boar bursts out of the brush.",
     lore:"Bristled forest boars that sharpen their tusks on oak bark. They charge when cornered, and often when not.",
@@ -162,6 +162,15 @@ const ENEMIES={
   bandit:{name:"Woods Bandit",plural:"Woods Bandits",zone:"woods",mv:"still",el:"metal",hp:34,atk:7,def:3,weak:["arcane"],resist:[],w:2,verb:"slashes at you",intro:"A Woods Bandit steps onto the path, blade drawn.",
     lore:"Deserters and debtors who work the woods road. They carry whatever they last stole.",
     sp:{every:3,name:"Flurry",kind:"multi",n:3,x:.6,tell:"shifting into a low, quick stance"},drops:[["bread",.55],["scrap_iron",.45],["oak_bough",.3]]},
+  stag:{name:"Mossback Stag",plural:"Mossback Stags",zone:"woods",mv:"wander",el:"wood",hp:34,atk:6,def:2,weak:["fire"],resist:["wood"],w:2,verb:"rakes you",intro:"A Mossback Stag lowers its antlers between the birches.",
+    lore:"Old stags grow moss on their backs and lose their fear with it. Their antlers strip bark like a drawknife.",art:{b:"beast",p:["antlers","tail"],c:"#8f9f5c",a:"#f0dfae",pat:"spots",po:.7},
+    sp:{every:3,name:"Antler Sweep",kind:"multi",n:2,x:.9,tell:"swinging its antlers low"},drops:[["boar_hide",.45],["honey",.4],["oak_bough",.2]]},
+  briar:{name:"Briarling",plural:"Briarlings",zone:"woods",mv:"still",el:"wood",hp:34,atk:5,def:3,weak:["fire"],resist:["wood","poison"],w:2,verb:"lashes you",intro:"The brambles knot themselves into a Briarling and stand up.",
+    lore:"Thickets that learned to walk, then forgot why. They put roots down wherever they are hurt.",art:{b:"elemental",p:["mane","vines"],c:"#5f8a3a",a:"#ff4d6d",pat:"spots",po:.9},
+    sp:{every:3,name:"Take Root",kind:"heal",x:.25,tell:"sinking its roots into the soil"},drops:[["mushroom",.5],["honey",.35],["oak_bough",.35]]},
+  ghoul:{name:"Barrow Ghoul",plural:"Barrow Ghouls",zone:"woods",mv:"chase",el:"shadow",hp:28,atk:7,def:1,weak:["holy","fire"],resist:["shadow"],w:2,verb:"claws you",intro:"A Barrow Ghoul crawls out from under a mossy cairn.",
+    lore:"Old barrows dot the woods, and not all of their sleepers stayed asleep. Slow to die and quick to eat.",art:{b:"undead",p:["mane"],c:"#6f8c7c",a:"#c6e07a",pc:"#3b4a2a",pat:"rot",po:.55},
+    sp:{every:3,name:"Grave Hunger",kind:"drain",x:1.1,tell:"baring its yellow teeth"},drops:[["bread",.4],["scrap_iron",.3]]},
   gnarlhorn:{name:"Gnarlhorn, the Boar King",short:"Gnarlhorn",zone:"woods",el:"wood",boss:true,hp:66,atk:8,def:4,weak:["fire"],resist:["wood"],verb:"tramples you",intro:"The ground shakes. Gnarlhorn, the Boar King, crashes through the trees.",
     lore:"The old king of the boar herds, his hide grown thick as bark. The woods go quiet when he walks.",
     sp:{every:3,name:"Stampede",kind:"heavy",x:2.2,tell:"pawing the ground"},drops:[["gnarl_tusk",1],["boar_hide",.8],["oak_bough",.5]]},
@@ -176,6 +185,17 @@ const ENEMIES={
   golem:{name:"Stone Golem",plural:"Stone Golems",zone:"pass",mv:"still",el:"stone",hp:76,atk:10,def:7,weak:["arcane","ice"],resist:["metal","poison"],w:2,verb:"slams you",intro:"A boulder unfolds into a Stone Golem.",
     lore:"Boulders woken by old runes. Slow to anger and slower to stop.",
     sp:{every:4,name:"Earthquake",kind:"heavy",x:2.5,tell:"raising both fists overhead"},drops:[["golem_core",.85],["scrap_iron",.25]]},
+  bear:{name:"Rimehide Bear",plural:"Rimehide Bears",zone:"pass",mv:"wander",el:"ice",hp:72,atk:10,def:4,weak:["fire"],resist:["ice"],w:2,verb:"mauls you",intro:"A Rimehide Bear shoulders out of a snowdrift.",
+    lore:"Their fur freezes into plates over the winter. They do not hibernate on the pass; they patrol it.",art:{b:"beast",p:["mane","frost"],c:"#b9d6e2",a:"#ffffff",pat:"facets",po:.8},
+    inf:{s:"chill",ch:0.25},
+    sp:{every:3,name:"Crushing Swipe",kind:"heavy",x:2,tell:"rearing up on its hind legs"},drops:[["pelt",.6],["honey",.3]]},
+  raider:{name:"Pass Raider",plural:"Pass Raiders",zone:"pass",mv:"chase",el:"metal",hp:58,atk:11,def:4,weak:["arcane","fire"],resist:["ice"],w:2,verb:"hacks at you",intro:"A Pass Raider drops from a ledge, axe already swinging.",
+    lore:"Mountain clans who tax the pass with axes. They wear horned helms so the snow-blind can still tell who robbed them.",art:{b:"humanoid",p:["horns","armor","axe"],skin:"#c99b78",c:"#b0503a",a:"#f0c05a",pc:"#2a3f6a",pat:"stripes",po:.55},
+    sp:{every:3,name:"Axe Flurry",kind:"multi",n:2,x:.9,tell:"hefting its axe in both hands"},drops:[["bread",.5],["scrap_iron",.4],["oak_bough",.25]]},
+  squall:{name:"Squall Spirit",plural:"Squall Spirits",zone:"pass",mv:"still",el:"swift",hp:62,atk:11,def:3,weak:["stone"],resist:["swift"],w:2,verb:"buffets you",intro:"The wind stops moving and starts watching. A Squall Spirit hangs in the gap.",
+    lore:"Gusts that circled the same crag for so long they grew a face. They hate anything that walks through them.",art:{b:"elemental",p:["orbit"],c:"#5fd6c2",a:"#f4fbff",pat:"swirl",po:.7},
+    inf:{s:"chill",ch:0.3},
+    sp:{every:3,name:"Hailstorm",kind:"multi",n:3,x:.6,tell:"spinning faster and faster"},drops:[["spring_water",.6],["holy_water",.25],["storm_feather",.15]]},
   rimeclaw:{name:"Rimeclaw, the Pack Mother",short:"Rimeclaw",zone:"pass",el:"ice",boss:true,hp:140,atk:14,def:5,weak:["fire"],resist:["ice","shadow"],verb:"mauls you",intro:"A howl splits the air. Rimeclaw, the Pack Mother, blocks the pass.",
     lore:"Mother of every pack on the pass. Her howl turns the air to needles.",
     inf:{s:"chill",ch:0.35},
@@ -191,6 +211,18 @@ const ENEMIES={
   slag:{name:"Slag Sentry",plural:"Slag Sentries",zone:"hollow",mv:"still",el:"stone",hp:104,atk:14,def:6,weak:["ice","arcane"],resist:["fire"],w:2,verb:"hammers you",intro:"A furnace eye opens in a mound of slag. Its iron arms rise.",
     lore:"Abandoned forge guardians fused to the Hollow's floor. A coal still burns behind each iron rib; cold and magic fracture their shells.",
     sp:{every:4,name:"Crucible Hammer",kind:"heavy",x:2.2,tell:"locking its iron arms together overhead"},drops:[["coal",.55],["golem_core",.45],["slag_iron",.4]]},
+  salamander:{name:"Magma Salamander",plural:"Magma Salamanders",zone:"hollow",mv:"chase",el:"fire",hp:92,atk:14,def:5,weak:["ice"],resist:["fire"],w:2,verb:"bites",intro:"A Magma Salamander slides out of a lava seam.",
+    lore:"They swim in molten rock and come out only to hunt. Their skin cools to a crust that cracks when they run.",art:{b:"beast",p:["spikes","tail"],c:"#b8402a",a:"#ffd04a",pat:"cracks",po:1},
+    inf:{s:"burn",ch:0.3},
+    sp:{every:3,name:"Lava Spit",kind:"heavy",x:2,tell:"its throat glowing white-hot"},drops:[["coal",.6],["chili",.4],["slag_iron",.2]]},
+  revenant:{name:"Ash Revenant",plural:"Ash Revenants",zone:"hollow",mv:"wander",el:"shadow",hp:90,atk:15,def:4,weak:["holy","ice"],resist:["shadow","fire"],w:2,verb:"claws you",intro:"Ash gathers into a shape and walks toward you. An Ash Revenant.",
+    lore:"Smiths who died at the Hollow's forges, still bound to the work. The chains were theirs; they forget why.",art:{b:"undead",p:["chains","flames"],c:"#5d5866",a:"#ff8a3d",pat:"cracks",po:.9},
+    inf:{s:"curse",ch:0.3},
+    sp:{every:3,name:"Ashen Grasp",kind:"drain",x:1.3,tell:"reaching out with smouldering fingers"},drops:[["coal",.45],["holy_water",.3],["slag_iron",.25]]},
+  brimstone:{name:"Brimstone Elemental",plural:"Brimstone Elementals",zone:"hollow",mv:"still",el:"poison",hp:100,atk:13,def:6,weak:["ice","holy"],resist:["poison","fire"],w:2,verb:"scalds you",intro:"A vent coughs, and the cloud does not drift away. A Brimstone Elemental.",
+    lore:"Sulphur fumes that pooled in a hollow and woke. Crystals grow on them like frost on a window.",art:{b:"elemental",p:["crystals"],c:"#d6c83a",a:"#9bff6a",pc:"#fff6a0",pat:"spots",po:.6},
+    inf:{s:"poison",ch:0.35},
+    sp:{every:3,name:"Sulphur Burst",kind:"multi",n:3,x:.65,tell:"swelling with yellow fumes"},drops:[["nightshade",.5],["coal",.55]]},
   phoenix:{name:"Cinder Phoenix",short:"the Phoenix",zone:"hollow",el:"fire",boss:true,rebirth:true,hp:150,atk:17,def:7,weak:["ice"],resist:["fire","holy"],verb:"rakes you with burning talons",intro:"The sky ignites. A Cinder Phoenix descends.",
     lore:"The Hollow's heart. It has died many times and seems to have enjoyed none of them.",
     inf:{s:"burn",ch:0.35},
@@ -206,6 +238,15 @@ const ENEMIES={
     lore:"Scholars who read one page too many of what lies between the stars. They feed the emptiness in them with your warmth.",
     inf:{s:"curse",ch:0.4},
     sp:{every:3,name:"Soul Tithe",kind:"drain",x:1.4,tell:"opening its hollow hands"},drops:[["void_crystal",.85],["holy_water",.4]]},
+  seraph:{name:"Fallen Seraph",plural:"Fallen Seraphs",zone:"spire",mv:"wander",el:"holy",hp:120,atk:20,def:5,weak:["shadow","stone"],resist:["holy","swift"],w:2,verb:"smites you",intro:"Feathers fall like snow. A Fallen Seraph turns its blade toward you.",
+    lore:"Guardians of the spire's upper halls who followed the star down. Their halos still burn; their mercy does not.",art:{b:"humanoid",p:["wings","halo","blade"],skin:"#e9e0cf",glow:1,c:"#f0dca8",a:"#8fc2ff",pc:"#f6c64a",pat:"scales",po:.7},
+    sp:{every:3,name:"Judgement",kind:"heavy",x:2.2,tell:"raising its blade toward the sky"},drops:[["holy_water",.5],["storm_feather",.5]]},
+  lynx:{name:"Astral Lynx",plural:"Astral Lynxes",zone:"spire",mv:"chase",el:"arcane",hp:110,atk:22,def:4,weak:["stone","metal"],resist:["arcane"],w:2,verb:"rakes you",intro:"Something with starlight for eyes pads along the stair. An Astral Lynx.",
+    lore:"Cats that slipped through a seam in the sky and came back speckled with stars. They hunt by the light of whatever you are thinking.",art:{b:"beast",p:["crystals","tail"],c:"#4e3a96",a:"#a9f0ff",pat:"stars",po:1},
+    sp:{every:3,name:"Starfall Pounce",kind:"multi",n:3,x:.65,tell:"its eyes going white"},drops:[["rune_shard",.5],["void_crystal",.35]]},
+  orrery:{name:"Orrery Construct",plural:"Orrery Constructs",zone:"spire",mv:"still",el:"metal",hp:140,atk:20,def:7,weak:["fire","arcane"],resist:["stone","swift"],w:2,verb:"strikes you",intro:"Brass rings click into alignment. An Orrery Construct turns its eye on you.",
+    lore:"Star-charts built to walk the spire and correct its course. The stars have moved; the orreries have not forgiven them.",art:{b:"construct",p:["orbit","armor"],c:"#c9a65a",a:"#3f8fe0",pat:"bands",po:.55},
+    sp:{every:4,name:"Recalibrate",kind:"heal",x:.15,tell:"spinning its rings back into line"},drops:[["rune_shard",.55],["golem_core",.4],["sentinel_plate",.3]]},
   archon:{name:"Starfallen Archon",short:"the Archon",zone:"spire",el:"swift",boss:true,hp:260,atk:25,def:9,weak:["stone"],resist:["swift","arcane"],verb:"strikes you with lightning",intro:"Lightning stitches the clouds shut. The Starfallen Archon unfolds above the spire.",
     lore:"A star that fell upward. Hurt enough, it stops being a storm and becomes the dark behind the storm.",
     inf:{s:"chill",ch:0.3},
@@ -338,14 +379,14 @@ const MISHAP_TRAITS=["Cursed","Brittle","Rust"];
 // Infusion: an essence counts INF_W ninths of a plain one (3 of a grade make 1 of the next, so the weights are powers of 3). Drops roll a grade from GRADE_ODDS (weights per zone); each Heat level scales every weight by 1 + GRADE_HEAT, bosses roll as if GRADE_BOSS levels hotter. Salvaged gear gives essences of the lowest grade among the essences and materials it was crafted from (`sg` on the item, Plain if none), never above; a graded material salvages into its own grade.
 // Upgrade: UP.n of a grade + UP.emb[grade-1] embers -> 1 of the next. Making a grade needs Alchemy GRADE_LV[grade-1]. Success = UP.base + UP.slope per Alchemy level above that need (UP.min..UP.max); a miss costs the embers and 1 of the UP.n. Alchemy XP is UP.xp[target-1] (half on a miss), faded by skFactor.
 const GRADES=[["Faint","#948d82"],["Lesser","#7dbd8d"],["Plain","#d2c9bb"],["Greater","#6eb1f0"],["Pure","#f2a54a"]],GRADE_M=[.6,.8,1,1.4,2],GRADE_W=[.5,.75,1,1.6,2.5],INF_W=[1,3,9,27,81];
-const GRADE_ODDS={woods:[40,40,19,1,0],pass:[18,38,38,6,0],hollow:[8,28,50,13,1],spire:[6,18,52,21,3]},GRADE_HEAT=[-.08,-.04,0,.12,.25],GRADE_BOSS=1;
+const GRADE_ODDS={woods:[40,40,19,1,0],pass:[18,38,38,6,0],hollow:[8,28,50,13,1],spire:[6,18,52,21,3],rift:[6,18,52,21,3]},GRADE_HEAT=[-.08,-.04,0,.12,.25],GRADE_BOSS=1;
 const INF_EQ=["⅑","⅓","1","3","9"]; // INF_W as plain essences, for text
 const GRADE_LV=[1,1,1,3,6],UP={n:3,emb:[4,8,12,30],base:80,slope:6,min:80,max:98,xp:[3,4,6,14,30]};
 const gradeOf=id=>{const m=/@([1-5])$/.exec(id);return m?+m[1]:3},baseIdOf=id=>id.replace(/@[1-5]$/,""),gradedId=(b,g)=>g===3?b:`${b}@${g}`; // pure id helpers (migrate needs them before helpers.js loads)
 const gradable=b=>{if(/^ess_[A-Za-z]+$/.test(b))return true;const [p,a,x]=b.split("~"),B=BASE[p];return !!B&&x===undefined&&(!a||!!AFX[a])&&B[1]==="material"&&["ore","hide","herb","timber"].includes(B[3])};
 // an affixed variant (`boar_hide~vamp`, `iron_sword~vamp@4`): afxOfId gives the affix, plainId the BASE id under grade and affix
 const afxOfId=id=>{const m=/~([a-z]+)(@[1-5])?$/.exec(id);return m&&AFX[m[1]]?m[1]:null},plainId=id=>baseIdOf(id).replace(/~[a-z]+$/,""),isBaseMat=id=>!!MATS[plainId(id)];
-const VIEWS=["battle","gear","forge","recipes","codex"];
+const VIEWS=["battle","gear","forge","recipes","codex","settings"];
 // Heat: harder expeditions in a cleared zone, cumulative per level: every level adds hp/atk to all enemies (it ramps, 1.0x at Heat 0), and Heat 5 enemies bite through `bite` of your Defense. Beating the boss at heat h unlocks h+1.
 const HEAT_MAX=5,HEAT_T={hp:.1,atk:.1,bite:.4,elite:2,inf:1.5,boss:1.2,rest:.25,shrine:.5,loot:.15,ess:1,xp:20};
 const heatTot=h=>tx("enemies get +{hp}% HP and +{atk}% Attack",{hp:Math.round(h*HEAT_T.hp*100),atk:Math.round(h*HEAT_T.atk*100)});
@@ -377,7 +418,7 @@ const boss1=s=>(s.kills[ZONES[0][2]]|0)>0,abOf=s=>[s.eq.main,s.eq.off].some(id=>
 // Research points (S.rp) come from discoveries: each source in RP pays once (S.rpd keeps which). They buy techniques (S.techs={id:order}); what you can craft depends on them (craftMiss in research.js).
 // A tech: id, name, ic, cost (RP), pre (techs needed first), rq/ok (a requirement over a state: Smith level or a skill), pos [column, row] in the tree, d (what it is), gate (what it opens, shown in tips), used(s) (migration only: proof an older save already did this) and i (the intro card, queued when learned).
 // Binding is known from the start. Refining is the grade upgrades; Mending is reforging; Precision lowers the failure chance by PREC points each; Masterwork lets legendary secrets succeed.
-const RP={form:2,rec:1,recCap:10,fam:1,rx:4,study:1,mast:2,boss:[4,8,12,16],afx:1,leg:4,lv:2,lvMax:9,sk:2,skLv:[3,5,7,9],bp:2},PREC=[5,5],INSIGHT={ch:35}; // INSIGHT.ch: % chance a craft with one side of an unseen reaction hints at it
+const RP={form:2,rec:1,recCap:10,fam:1,rx:4,study:1,mast:2,boss:[4,8,12,16,20],afx:1,leg:4,lv:2,lvMax:9,sk:2,skLv:[3,5,7,9],bp:2},PREC=[5,5],INSIGHT={ch:35}; // INSIGHT.ch: % chance a craft with one side of an unseen reaction hints at it
 const skLvOf=(s,k)=>SK_LV.filter(t=>((s.skills||{})[k]|0)>=t).length,smLv=n=>({rq:"Smith Lv {l}",rv:{l:n},ok:s=>lvOf(s.xp)>=n});
 const crafts=s=>s.journal.map(j=>s.items[j.id]).filter(it=>it&&it.crafted),rids=it=>it.recipeIds||[],plainIn=it=>rids(it).filter(r=>!/^ess_/.test(r)).length;
 const TECHS=[
@@ -440,6 +481,8 @@ const UNLOCKS=[
     i:{t:"Heat",l:["Pick a Heat level with the flame on the map strip. Enemies grow tougher and loot gets richer.","Beat a region's boss at your highest Heat to unlock the next."],tab:"battle",sel:"#heatBtn"}},
   {id:"daily",name:"Daily expedition",ic:"daily",when:s=>((s.kills[ZONES[1][2]]|0)>0||lvOf(s.xp)>=5)&&has_(s,"shrine","peddler","mystery","elite","roam"),used:s=>!!s.daily||s.stats.dailies>0||boss1(s),txt:"Clear Frostfang Pass or reach Smith Lv 5, after meeting shrines, peddlers and mysteries.",w:"It waits under the map.",
     i:{t:"The daily expedition",l:["One run a day on a map everyone shares. Beat the boss for essences, a rare find and smith XP.","You get a single attempt."],tab:"battle",sel:".dcard"}},
+  {id:"rift",name:"The Wanderer's Rift",ic:"mystery",when:s=>(s.kills[ZONES[3][2]]|0)>0,used:s=>!!(s.rift&&s.rift.seed),txt:"Defeat the Starfallen Archon.",w:"A crack in the world waits past the Spire.",
+    i:{t:"The Wanderer's Rift",l:["Past the Spire the world frays. Every expedition there is a new region, rolled at random: a biome, ten wild creatures and a master.","Wild creatures carry affixes of their own, and the master carries three. Beat it to go one depth deeper.","Your deepest run is your record."],tab:"battle",sel:"#zones"}},
   {id:"bounty",name:"Bounties",ic:"list",when:s=>s.quest>=TUTORIAL.length,used:s=>!!s.bounty,txt:"Finish the goal chain.",w:"The goal bar offers them now.",
     i:{t:"Bounties",l:["With the first steps behind you, the goal bar offers bounties: hunts and forging jobs that pay in essences.","Claim one to get the next."],tab:"battle"}},
   {id:"afx",name:"Affixes",ic:"elite",when:s=>Object.keys(s.afx).length>0,txt:"Meet a magic or rare enemy.",w:"See the Codex tab.",
