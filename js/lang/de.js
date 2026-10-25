@@ -449,3 +449,14 @@ Object.assign(DICT.de, {
   "Core stats unchanged": "Grundwerte unverändert",
   "Equipped automatically": "Automatisch ausgerüstet"
 });
+
+Object.assign(DICT.de, {
+  "Before Guard; ongoing status damage is separate.": "Vor Blocken; laufender Statusschaden kommt hinzu.",
+  "−{cut}% hit · +{boost}% next": "−{cut}% Treffer · +{boost}% danach",
+  "Wrong timing": "Falscher Zeitpunkt",
+  "Fail: +25% damage": "Fehlschlag: +25% Schaden",
+  "Learn · uses a turn": "Lernen · kostet einen Zug",
+  "Escape may fail": "Flucht kann scheitern",
+  "Empowered: +{p}% damage": "Verstärkt: +{p}% Schaden",
+  "Strike with your weapon": "Mit deiner Waffe zuschlagen"
+});

@@ -446,3 +446,14 @@ Object.assign(DICT.ko, {
   "Core stats unchanged": "기본 능력치 변화 없음",
   "Equipped automatically": "자동으로 장착됨"
 });
+
+Object.assign(DICT.ko, {
+  "Before Guard; ongoing status damage is separate.": "방어 적용 전이며 지속 상태 피해는 별도입니다.",
+  "−{cut}% hit · +{boost}% next": "피격 −{cut}% · 다음 공격 +{boost}%",
+  "Wrong timing": "지금은 부적절",
+  "Fail: +25% damage": "실패: 피해 +25%",
+  "Learn · uses a turn": "학습 · 한 턴 소모",
+  "Escape may fail": "도주 실패 가능",
+  "Empowered: +{p}% damage": "강화: 피해 +{p}%",
+  "Strike with your weapon": "무기로 공격"
+});

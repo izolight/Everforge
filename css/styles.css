@@ -755,3 +755,6 @@ select.lang{width:100%;margin-top:8px;background:#120f0c;color:var(--fg);border:
 .upgrade-summary{margin:0;padding:10px;border-left:3px solid var(--verd);background:#151c16;font-size:1rem;line-height:1.5}
 .effect-chips .fx-badge{flex:1 1 220px;max-width:100%;flex-wrap:wrap;white-space:normal;align-items:center}
 .fx-description{flex-basis:100%;font-family:var(--body);font-size:.92rem;line-height:1.4;color:var(--fg)}
+
+.acts .act>small{font-family:var(--body);font-size:.8rem;line-height:1.2;font-weight:400;text-align:center;color:var(--fg);overflow-wrap:anywhere}
+.combat-advice{margin:0;color:var(--fg);font-size:.9rem}
