@@ -420,8 +420,8 @@ function renderCodex(){
   $("cxlist").innerHTML=groups.map(([z,zn])=>`<p class="zonehead">${zn}</p><div class="cxg">`+Object.entries(ENEMIES).filter(([,e])=>e.zone===z).map(([id,E])=>{
     const seen=S.seen[id],k=know(id),pct=Math.round(k.pct*100),tp=tt(seen?tx(E.name):tx("Unknown creature"),seen?(E.boss?tx("Boss.")+" ":"")+tx("Defeated {n}",{n:S.kills[id]||0}):tx("Not yet encountered"),seen?(k.mastered?tx("Mastered: you deal 15% more damage."):tx("Knowledge {a}/{b} ({p}%)",{a:k.have,b:k.tot,p:pct})):"");
     const bd=`${seen&&E.boss?`<span class="sq-w cb" aria-hidden="true">${ic("boss","xs")}</span>`:""}${seen?`<span class="sq-p${k.mastered?" m":""}">${k.mastered?ic("renown","xs"):pct+"%"}</span>`:""}`;
-    return seen?`<button class="cxt${k.mastered?" mst":""}" data-codex="${id}" aria-label="${esc(tx(E.name)+(E.boss?", "+lc(tx("Boss")):"")+". "+(k.mastered?tx("Mastered"):tx("Knowledge {p}%",{p:pct}))+". "+tx("Open its page."))}" ${tp}>${portrait(id)}${bd}</button>`
-      :`<span class="cxt sil" ${tp}>${portrait(id)}</span>`}).join("")+`</div>`).join("");
+    return seen?`<button class="cxt${k.mastered?" mst":""}" data-codex="${id}" aria-label="${esc(tx(E.name)+(E.boss?", "+lc(tx("Boss")):"")+". "+(k.mastered?tx("Mastered"):tx("Knowledge {p}%",{p:pct}))+". "+tx("Open its page."))}" ${tp}>${portrait(id,{lite:1})}${bd}</button>`
+      :`<span class="cxt sil" ${tp}>${portrait(id,{lite:1})}</span>`}).join("")+`</div>`).join("");
 }
 let lastIntro=null;
 function render(fresh){
