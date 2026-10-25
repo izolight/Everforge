@@ -274,6 +274,15 @@ async function newPage(browser){const p=await browser.newPage();p.on("pageerror"
 async function main(){
   const t0=Date.now(),browser=await chromium.launch();
   const pages=await Promise.all(Array.from({length:JOBS},()=>newPage(browser))),P0=pages[0];
+  const enemiesAll=await P0.evaluate(()=>Object.entries(ENEMIES).map(([id,e])=>({id,zone:e.zone,boss:!!e.boss,name:e.name,gen:!!e.gen,rar:e.rar||"",afx:e.afx||[],mv:e.mv||"",biome:(typeof ZONE_BIOME!=="undefined"&&ZONE_BIOME[e.zone])||""})));
+  // coverage guard: every element of a region's biome pool needs an authored (hand-made, non-boss) enemy of that region
+  const EL_EXCEPT={}; // documented exceptions, per region: elements deliberately left uncovered (none at the moment)
+  const cov=await P0.evaluate(()=>Object.entries(ZONE_BIOME).map(([z,bi])=>{const pool=BIOMES[bi].els,
+    els=new Set(Object.values(ENEMIES).filter(e=>!e.gen&&!e.boss&&e.zone===z).map(e=>e.el));
+    return{z,bi,pool,gap:pool.filter(e=>!els.has(e))}}));
+  console.log(`== Element coverage (authored, non-boss): ${cov.map(c=>`${c.z} ${c.pool.length-c.gap.length}/${c.pool.length}`).join(", ")} ==`);
+  const gaps=cov.flatMap(c=>c.gap.filter(e=>!(EL_EXCEPT[c.z]||[]).includes(e)).map(e=>`${c.z}: ${e}`));
+  if(gaps.length){console.error(`FAIL: biome elements with no authored enemy: ${gaps.join(", ")}`);await browser.close();process.exit(1)}
   if(has("fresh")){ // the first expeditions with gating, then done
     const n=+opt("exped",5),rows=await P0.evaluate(([n,p,sd])=>SIM.fresh(n,p,sd),[n,POLS[0],SEED]);
     console.log(`== Fresh save: ${n} expeditions in the Woods with the unlock gates on (starter kit, ${POLS[0]} policy) ==\nColumns: result, steps, fights, wins this run; POIs placed on the map (shown by type); POI types the bot walked into; what opened afterwards (smith Lv / total wins / expeditions finished).`);
@@ -282,7 +291,6 @@ async function main(){
     console.log(`\nResearch: RP earned per expedition: ${rows.map(r=>r.rp.gain).join(", ")} (mean ${f1(rows.reduce((a,r)=>a+r.rp.gain,0)/rows.length)}). The bot deconstructs raw finds, binds essences into the sword, studies up to three families per expedition and learns the cheapest technique it can afford.\nA technique is affordable on the first expedition whose cumulative RP earned reaches its cost (its Smith level or skill requirement may come later):\n${tc.map(t=>{const k=rows.find(r=>r.rp.earned>=t.c);return `  ${t.n.padEnd(13)} ${String(t.c).padStart(2)} RP  ${k?"expedition "+k.e:"not yet"}${t.rq?"  (needs "+t.rq+")":""}`}).join("\n")}`);
     await browser.close();return}
   const zones=list("zone",ZN),kitSel=list("kit",null),mastered=!has("no-mastered");
-  const enemiesAll=await P0.evaluate(()=>Object.entries(ENEMIES).map(([id,e])=>({id,zone:e.zone,boss:!!e.boss,name:e.name,gen:!!e.gen,rar:e.rar||"",afx:e.afx||[],mv:e.mv||"",biome:(typeof ZONE_BIOME!=="undefined"&&ZONE_BIOME[e.zone])||""})));
   const eSel=list("enemy",null),pickE=e=>eSel?eSel.includes(e.id):(e.zone==="any"||zones.includes(e.zone));
   const enemies=enemiesAll.filter(e=>!e.gen&&pickE(e)); // the hand-made regulars (the wild creatures have their own section)
   const wild=enemiesAll.filter(e=>e.gen&&pickE(e)); // the ten wild creatures of every region

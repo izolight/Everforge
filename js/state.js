@@ -140,6 +140,12 @@ function migrate(s){
   s.embers=Math.max(0,Math.floor(Number(s.embers))||0);s.infCredit=Math.max(0,Math.floor(Number(s.infCredit))||0);
   // Additive timing ranks need no save bump; old known specials imply rank I at read time.
   Object.values(s.codex).forEach(k=>{if(isObj(k)&&k.timing!==undefined){const t=isObj(k.timing)?k.timing:{};k.timing=Object.fromEntries(["sp","sp2"].map(key=>[key,Number.isFinite(t[key])?Math.max(0,Math.min(PARRY_T.levels,Math.floor(t[key]))):0]))}});
+  // Codex facts follow the creature: an enemy that changed its element (the Woods' stag and briarling) leaves stale weaknesses behind, and know() counts them, which inflates mastery and shows the wrong weakness. Pruning is idempotent, so no save bump is needed.
+  Object.entries(s.codex).forEach(([id,k])=>{const E=ENEMIES[id];if(!isObj(k)||!E)return;
+    const facts=key=>[...(E[key]||[]),...(E.phase&&E.phase.to?E.phase.to[key]:[])],keep=(key,list)=>{const ok=new Set(list);k[key]=Array.isArray(k[key])?k[key].filter(x=>ok.has(x)):[]};
+    keep("weak",facts("weak"));keep("resist",facts("resist"));
+    const ids=new Set((E.drops||[]).map(d=>d[0]));k.drops=Array.isArray(k.drops)?k.drops.filter(d=>ids.has(d)):[];
+    const infs=new Set([E.inf&&E.inf.s,E.phase&&E.phase.to&&E.phase.to.inf&&E.phase.to.inf.s].filter(Boolean));k.inf=Array.isArray(k.inf)?k.inf.filter(s=>infs.has(s)):[];});
   s.skills=Object.fromEntries(Object.keys(SKILLS).map(k=>[k,isObj(s.skills)?Math.max(0,Math.floor(Number(s.skills[k]))||0):0]));
   if(!isObj(s.rift))s.rift={depth:1,best:0,seed:0,biome:"",name:"",pal:null,cleared:0}; // the Rift: depth, best depth, and the seed of the region (the seed rebuilds its creatures)
   s.rift.depth=Math.max(1,Math.floor(Number(s.rift.depth)||1));s.rift.best=Math.max(0,Math.floor(Number(s.rift.best)||0));s.rift.seed=Math.floor(Number(s.rift.seed)||0);s.rift.cleared=s.rift.cleared?1:0;
