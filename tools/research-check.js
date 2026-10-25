@@ -4,18 +4,10 @@
 // Masterwork gates the legendary secrets (with a near-miss insight before it).
 // Usage: node tools/research-check.js [--shots dir]   (screenshots at 390 and 360: the Research view fresh and mid-progress, a refused craft's tip, Recipes with partial hints, an insight in the log)
 const {chromium}=require("playwright"),path=require("path"),fs=require("fs");
-const URL="file://"+path.resolve(__dirname,"..","index.html");
+const {open}=require("./lib");
 const si=process.argv.indexOf("--shots"),SHOTS=si>0?process.argv[si+1]:null;
 let fails=0;const ok=(c,m)=>{if(!c){fails++;console.error("FAIL: "+m)}else console.log("ok: "+m)};
 
-async function open(browser,w,setup){
-  const page=await browser.newPage({viewport:{width:w,height:844},reducedMotion:"reduce"}),errs=[];
-  page.on("pageerror",e=>errs.push(e.message));page.on("console",m=>{if(m.type()==="error"&&!/fonts\.(googleapis|gstatic)|net::ERR/.test(m.text()))errs.push(m.text())});
-  await page.goto(URL);if(setup){await page.evaluate(setup);await page.reload()}
-  await page.waitForFunction(()=>typeof S==="object"&&S);page.errs=errs;
-  await page.evaluate(()=>{window.__s=[];window.__t=[];const s0=sfx,t0=toast;window.sfx=(n,d)=>{__s.push(n);return s0(n,d)};window.toast=(m,l)=>{__t.push(m);return t0(m,l)}}); // spies: sounds and toasts
-  return page;
-}
 const shot=async(page,w,name,full)=>{if(SHOTS){await page.evaluate(()=>$("toast").classList.remove("show"));fs.mkdirSync(SHOTS,{recursive:true});await page.screenshot({path:path.join(SHOTS,`${name}-${w}.png`),fullPage:!!full})}};
 // put items on the bench by id and re-render
 const bench=(p,ids)=>p.evaluate(ids=>{ids.forEach(id=>{if(!S.items[id]){const m=/^ess_(\w+)$/.exec(id);if(m)essence(m[1])}});ids.forEach(id=>{if(!S.inv[id])addItem(id,3)});S.bench=ids;S.view="forge";render()},ids);

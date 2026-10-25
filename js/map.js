@@ -50,7 +50,7 @@ function genMap(o){
   if(sd)m.pois.forEach(nd=>{if(nd.t==="boss")return;const rn=rng(hash(o.seed+":"+nd.x+","+nd.y));nd.e=pickEnemy(o.zone,rn);if(nd.t==="mystery")nd.my=mystery(rn());
     // pre-rolled so the same day plays out alike: rarity and affixes (their own seeded rng per tile), chest (mimic, loot, scroll), pack loot and four rolls (rv) for choice events and six (sh) for the peddler's stock (the one-for-one offer, what you can sell and satchel-based event choices depend on you, so they vary)
     const zp=zonePool(o.zone),pk=a=>a[Math.floor(rn()*a.length)];
-    nd.ch={m:rn()<.25,l:[pk(zp),pk(zp)],e:rn()<.5?pk(ESS_POOL):null,s:rn()<.15,sx:rn()};nd.pk=[pk(zp),...rn()<.5?[pk(zp)]:[]];nd.rv=[rn(),rn(),rn(),rn()];nd.sh=[rn(),rn(),rn(),rn(),rn(),rn()];nd.gr=Array.from({length:8},rn);nd.ch.g=nd.gr;
+    nd.ch={m:rn()<CHEST_T.mimic,l:[pk(zp),pk(zp)],e:rn()<CHEST_T.ess?pk(ESS_POOL):null,s:rn()<CHEST_T.scroll,sx:rn()};nd.pk=[pk(zp),...rn()<.5?[pk(zp)]:[]];nd.rv=[rn(),rn(),rn(),rn()];nd.sh=[rn(),rn(),rn(),rn(),rn(),rn()];nd.gr=Array.from({length:8},rn);nd.ch.g=nd.gr;
     if(fe(nd.t)||nd.t==="mystery")Object.assign(nd,speciesAfx(ENEMIES[nd.e])||rollFoe(rng(hash(o.seed+":r:"+nd.x+","+nd.y)),{elite:nd.t==="elite"||(o.twist==="elites"&&nd.t==="mystery"),heat:h,row:nd.r,mv:nd.x===bx&&nd.y===1?"still":ENEMIES[nd.e].mv}))}); // gr: grade rolls for chest, pack and event finds
   m.pois.forEach(p=>{if(!fe(p.t))return;if(o.zone&&!p.e)p.e=pickEnemy(o.zone); // each enemy is picked now (so its way of moving is known); the gate guard never moves, elites stalk slowly
     p.mv=!o.zone||(p.x===bx&&p.y===1)?"still":ENEMIES[p.e].mv||"still";
@@ -147,13 +147,9 @@ function enter(nd,by,from){ // the one place a POI is resolved into a battle or 
 }
 function fallBack(m){ // fleeing the boss: back one tile (to where you came from), the lair stays open
   m.pois.forEach(p=>{if(p.t==="boss"){p.done=false;m.mem[p.x+","+p.y]="boss"}});m.pos=m.prev&&!(m.prev.x===m.lair.x&&m.prev.y===m.lair.y)?m.prev:{...m.gate};reveal(m)}
+// the campfire: rest by the fire (heals half, relights the torch)
+function rest(){const P=pstats();if(twistNow()==="nocamp")return toast(tx("No campfires on this expedition."));const m0=curMap();if(S.camp<=0||(S.hp>=P.maxHp&&(m0.cleared||m0.torch>=m0.tmax)))return;S.camp--;const g=healYou(Math.round(P.maxHp*.5)),m=curMap(),lit=m.cleared?0:torchUp(TORCH.rest);save();render();toast(tx("You rest by the fire and recover {n} HP.",{n:g})+(lit?" "+tx("Your torch burns brighter (+{n}).",{n:lit}):""))}
 function newExpedition(){if(S.run==="daily")return;S.maps[S.zone]=newMap(S.zone);S.battle=null;S.event=null;save();render()}
-function makeOffer(){
-  const free=Object.keys(S.inv).filter(id=>(S.inv[id]-eqCount(id)-benchCount(id))>0&&!S.items[id].legendary&&gradeOf(id)<4);if(!free.length)return null;
-  const give=pick(free),zi=zoneIdx(S.zone),next=ZONES[Math.min(zi+1,ZONES.length-1)][0];
-  const get=Math.random()<.3?essNow(pick([...ESS_POOL,"Radiant","Tempered","Frost"])):dropNow(pick([...zonePool(S.zone),...zonePool(next),...zonePool(next)]));
-  return get===give?null:{give,get};
-}
 function eventChoice(c){
   const ev=S.event;
   if(c==="leave"){S.event=null;save();return render()}
@@ -164,9 +160,9 @@ function eventChoice(c){
     if(c==="rest"){const g=healYou(Math.round(pstats().maxHp*campFrac()));S.event={type:"done",icon:"camp",title:tx("Well rested"),text:tx("You sleep by the fire and recover {n} HP.",{n:g}),loot:[],choices:[]}}
     else{const had=S.camp;S.camp=Math.min(3,S.camp+1);S.event={type:"done",icon:"camp",title:tx("Embers banked"),text:S.camp>had?tx("You pack glowing embers for later. One more campfire charge."):tx("Your ember pouch is already full. At least it's warm."),loot:[],choices:[]}}}
   if(ev.type==="chest"&&c==="open"){
-    const pre=ev.pre;if(pre?pre.m:Math.random()<.25){S.event=null;return startBattle("mimic")}
-    const p=zonePool(S.zone),got=(pre?[...pre.l]:[pick(p),pick(p)]).map((id,k)=>dropNow(id,pre&&pre.g?pre.g[k]:undefined));if(pre?pre.e:Math.random()<.5)got.push(essNow(pre?pre.e:pick(ESS_POOL),pre&&pre.g?pre.g[2]:undefined));got.forEach(id=>addItem(id));
-    endEv("chest",tx("Treasure!"),tx("It was just a chest. A very generous chest."),got,(pre?pre.s:Math.random()<.15)?giveHint(pre?pre.sx:undefined):"")}
+    const pre=ev.pre;if(pre?pre.m:Math.random()<CHEST_T.mimic){S.event=null;return startBattle("mimic")}
+    const p=zonePool(S.zone),got=(pre?[...pre.l]:[pick(p),pick(p)]).map((id,k)=>dropNow(id,pre&&pre.g?pre.g[k]:undefined));if(pre?pre.e:Math.random()<CHEST_T.ess)got.push(essNow(pre?pre.e:pick(ESS_POOL),pre&&pre.g?pre.g[2]:undefined));got.forEach(id=>addItem(id));
+    endEv("chest",tx("Treasure!"),tx("It was just a chest. A very generous chest."),got,(pre?pre.s:Math.random()<CHEST_T.scroll)?giveHint(pre?pre.sx:undefined):"")}
   if(ev.type==="merchant"&&c==="trade"){const {give,get}=ev.offer;
     if((S.inv[give]||0)-eqCount(give)<=0){toast(tx("You no longer have that item."));S.event=null}
     else{S.inv[give]--;trimBench();addItem(get);ev.offer=null;ev.choices=[["leave",tx("Move on")]];ev.loot=[get];ev.text=tx('The peddler pockets your {give} and hands over the {get}. "Anything else?"',{give:iname(S.items[give]),get:iname(S.items[get])});ev.sells=sellList().map(x=>({...x}))}}

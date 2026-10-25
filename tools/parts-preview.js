@@ -1,8 +1,8 @@
 // Renders every biome pool part on every body of that biome and writes a PNG sheet.
-// Run: node tools/parts-preview.js [out.png]
+// Run: node tools/parts-preview.js [out.png]   (default: out/parts-preview.png, out/ is git-ignored)
 const {chromium}=require("playwright"),fs=require("fs"),path=require("path");
 (async()=>{
-  const out=process.argv[2]||path.join(__dirname,"..","parts-preview.png");
+  const out=process.argv[2]||path.join(__dirname,"..","out","parts-preview.png");fs.mkdirSync(path.dirname(out),{recursive:true});
   const b=await chromium.launch(),p=await b.newPage({viewport:{width:1400,height:900},deviceScaleFactor:1});
   const errs=[];
   p.on("pageerror",e=>errs.push(String(e)));

@@ -338,8 +338,13 @@ const MAP_ROWS=7,GRID={w:13,h:17},POI_N={fight:[5,3],elite:[1,2],chest:2,shrine:
 const TORCH={max:40,rad:2,dim:1,amb:.3,shrine:20,rest:15,h5:1.5,nocamp:20};
 // roaming enemies: aw = path steps at which a chaser notices you (dark = torch out, heat = extra at Heat 3+, elite = elites), lose = steps at which it loses you, daze = steps a fled-from enemy stays idle, stay = a wanderer's chance to hold still
 const ROAM={aw:4,dark:6,heat:1,elite:2,lose:8,daze:3,stay:.4};
+// the peddler's one-for-one offer, and what a chest holds: a mimic, an extra essence, a hint scroll. The daily map pre-rolls the same chances (map.js genMap), so they live here.
+const OFFER_T={ess:.3},CHEST_T={mimic:.25,ess:.5,scroll:.15};
+// a bounty pays smith XP (a forge job, a hunt) and sometimes a campfire charge
+const BOUNTY_T={forgeXp:20,huntXp:15,camp:.35};
 const INF_SLOTS=3,INF_COST=3,INF_MAX=3,CRIT_CAP=75,FREEZE_CAP=60;
-// damage model: armor cuts a blow by def/(def+DEF_K) (a mild curve, so stacking Defense keeps paying but slowly); an enemy hit never falls below HIT_MIN of its raw damage, whatever Defense, resists or Stone you stack, and armor eats a share arm/(arm+base) of your own blow (base = half your strike power), so a weak strike still gets through. A strike's power is clamped at 0 and the formula never divides by zero, so a blow always lands at least 1 damage (no NaN in a foe's HP). Magic counts MAG_W as much as Attack in every normal strike.
+// mastery = the damage multiplier against a mastered creature (shown as a percentage); weak = the share a weaker second source counts for (an off-hand strike, an item's battle damage)
+const MASTERY_X=1.15,MASTERY_PCT=pcn((MASTERY_X-1)*100),WEAK_X=.6;
 const DEF_K=50,HIT_MIN=.2,MAG_W=1.3,redOf=d=>d/(d+DEF_K);
 // trait combat tunables: res = elemental defense from armor traits, ward = Runic, pierce = Arcane, shred = Tempered
 const RES_PER=5,RES_CAP=40,RES_ALT={Fur:[["ice",1],["wood",1]],Insulated:[["ice",2.5]]},RES_MSG={ice:"Your fur-lined gear blunts the cold.",fire:"Your gear turns aside the heat.",poison:"Your gear keeps the venom at bay.",holy:"Your gear dulls the glare.",shadow:"Your gear holds the gloom back.",wood:"Your gear shrugs off the thorns.",metal:"Your gear turns the blades.",stone:"Your gear absorbs the crushing blows.",arcane:"Your gear scatters the stray magic.",swift:"Your gear slows the flurry."};
@@ -350,6 +355,8 @@ const INF_MSG={burn:"You catch fire",chill:"A numbing chill sets in",poison:"Ven
 const ELITE_INF={Fire:"burn",Ice:"chill",Poison:"poison",Shadow:"curse"},ELITE_INF_CH=.25,POISON_STACK=3,CLEANSE_PER=6,CLEANSE_CAP=50,PARRY_X=1.5,PARRY_FAIL=1.25;
 const GUARD_T={cut:.6,braced:.3}; // all hits in the enemy action; Braced boosts the next Attack or ability, once
 const PARRY_T={base:.65,study:.05,levels:3,spd:.005,spdCap:.05,cap:.9,form:{blade:.05,spellblade:.05,claws:.05,lance:-.05,warstaff:-.05}};
+// battle tunables: follow = the chance of a swift follow-up strike; crit = the base crit chance and the points per Sharp; atk = the attack of a zone's regular enemies, as the damage floor is judged; steam = the chance a Steam-blinded enemy misses; block = the chance a shield blocks; flee = the chance a boss stops you and the chance a flee works
+const FOLLOW_T={cap:35,spd:3},CRIT_T={base:5,sharp:3},ATK_FLOOR=1.18,STEAM_T={cap:40,per:8},BLOCK_T={base:15,per:3},FLEE_T={boss:.5,ok:.7};
 // signature abilities by weapon form (+ shield): cd = turns before reuse, x = power vs a normal attack
 const ABILITIES={
   blade:{get name(){return tx("Flurry")},icon:"flurry",cd:3,hits:2,x:.7,get desc(){return tx("Two quick strikes at 0.7x each. Each can crit.")}},

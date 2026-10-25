@@ -52,7 +52,7 @@ DICT.de=Object.assign(DICT.de||{},{
 "Tap again to salvage":"Nochmal tippen zum Zerlegen","Salvage → {list}":"Zerlegen → {list}"," + {n} embers":" + {n} Glut","Reforge — {list} ({n} embers)":"Neu schmieden — {list} ({n} Glut)","restore {m}":"{m} aufheben","remove {m}":"{m} entfernen",
 "on offer":"im Angebot","Weakened: a fizzled mixture cost every trait 30%.":"Geschwächt: Eine verpuffte Mischung hat jede Eigenschaft 30 % gekostet.","Forged from {list}.":"Geschmiedet aus {list}.",
 "Treasure from the region it lurks in":"Schätze aus der Region, in der sie lauert","heals itself":"heilt sich selbst","{n} quick hits":"{n} schnelle Treffer","steals your HP":"stiehlt deine LP","a heavy hit (×{x})":"ein schwerer Treffer (×{x})",
-"{name}: {what}, every {n} turns.":"{name}: {what}, alle {n} Runden.","defeated {n}":"{n}-mal besiegt","Knowledge":"Wissen","Mastered. You deal 15% more damage to this creature.":"Gemeistert. Du verursachst 15 % mehr Schaden an dieser Kreatur.",
+"{name}: {what}, every {n} turns.":"{name}: {what}, alle {n} Runden.","defeated {n}":"{n}-mal besiegt","Knowledge":"Wissen","Mastered. You deal {p}% more damage to this creature.":"Gemeistert. Du verursachst {p} % mehr Schaden an dieser Kreatur.",
 "Strength":"Stärke","ATK":"ANG","DEF":"VER","Win a fight to learn":"Gewinne einen Kampf, um es zu lernen","Weak to":"Anfällig für","Resists":"Widersteht","On the map":"Auf der Karte","Special":"Spezialzug",
 "Watch for it {tell}.":"Achte darauf: Es {tell}.","Survive it to learn":"Überlebe ihn, um ihn zu lernen","Second form":"Zweite Form","Below half health it turns {el}.":"Unter der halben Gesundheit wird es zu {el}.",
 "Its new special is still a mystery.":"Ihr neuer Spezialzug ist noch ein Rätsel.","Its weak points change too.":"Auch ihre Schwachpunkte ändern sich.","Wound it badly to learn":"Verwunde sie schwer, um es zu lernen","Afflicts":"Verursacht","Survive its special to learn":"Überlebe ihren Spezialzug, um es zu lernen","Drops":"Beute",
@@ -87,7 +87,7 @@ DICT.de=Object.assign(DICT.de||{},{
 // ---- codex learning
 "Codex: {nm} is weak to {fam}.":"Kodex: {nm} ist anfällig für {fam}.","Codex: {nm} resists {fam}.":"Kodex: {nm} widersteht {fam}.","Codex: you learned {nm}'s special move, {sp}.":"Kodex: Du hast den Spezialzug von {nm} gelernt: {sp}.",
 "Codex: {nm} can inflict {status}.":"Kodex: {nm} kann {status} verursachen.","Codex: you learned {nm}'s second-form special, {sp}.":"Kodex: Du hast den Spezialzug der zweiten Form von {nm} gelernt: {sp}.","Codex: {nm} changes form below half health.":"Kodex: {nm} wechselt unter halber Gesundheit die Form.",
-"Codex: {nm}'s strength is now recorded.":"Kodex: Die Stärke von {nm} ist nun verzeichnet.","Codex: {nm} can drop {item}.":"Kodex: {nm} kann {item} fallen lassen.","{nm} mastered! You deal 15% more damage to it.":"{nm} gemeistert! Du verursachst 15 % mehr Schaden an dieser Kreatur.",
+"Codex: {nm}'s strength is now recorded.":"Kodex: Die Stärke von {nm} ist nun verzeichnet.","Codex: {nm} can drop {item}.":"Kodex: {nm} kann {item} fallen lassen.","{nm} mastered! You deal {p}% more damage to it.":"{nm} gemeistert! Du verursachst {p} % mehr Schaden an dieser Kreatur.",
 "Codex: new affix, {name}.":"Kodex: neuer Affix, {name}.",
 // ---- affixes
 "{name} remnant":"{name} (Überrest)","{affix} {name}":"{name} ({affix})","the {title}":"der {title}","one grade better":"eine Güte besser","{n} grades better":"{n} Güten besser","a {p}% chance of one grade better":"{p} % Chance auf eine Güte besser",
@@ -143,7 +143,7 @@ DICT.de=Object.assign(DICT.de||{},{
 "Guard, or Parry ({p}%) to turn it back!":"Blocke, oder pariere ({p} %), um es zurückzuwerfen!","Guard to soften it.":"Blocke, um es abzumildern.","Parry {p}%":"Parade {p} %","Beat a telegraphed special: negate it and riposte.":"Besiege einen angekündigten Spezialzug: verhindere ihn und kontere.",
 "Parrying now would backfire.":"Eine Parade würde jetzt nach hinten losgehen.","no parry":"keine Parade",
 "ready in {n} turn":"bereit in {n} Runde¦bereit in {n} Runden","Ready in {n} turn.":"Bereit in {n} Runde.¦Bereit in {n} Runden.","Cooldown {n} turns.":"Abklingzeit {n} Runden.","Strike with your main hand.":"Schlage mit deiner Haupthand zu.",
-"Take 60% less damage from the next hit.":"Erleide 60 % weniger Schaden vom nächsten Treffer.","Beat a telegraphed special: negate it and riposte ({p}% to land). Mistimed: +25% damage and a lost guard.":"Besiege einen angekündigten Spezialzug: verhindere ihn und kontere ({p} % Trefferchance). Verpatzt: +25 % Schaden und ein verlorener Block.",
+"Take 60% less damage from the next hit.":"Erleide 60 % weniger Schaden vom nächsten Treffer.","Beat a telegraphed special: negate it and riposte ({p}% to land). Mistimed: +{f}% damage and a lost guard.":"Besiege einen angekündigten Spezialzug: verhindere ihn und kontere ({p} % Trefferchance). Verpatzt: +{f} % Schaden und ein verlorener Block.",
 "Learn one fact about it, but it costs your turn.":"Lerne einen Fakt darüber, kostet aber deinen Zug.","You know everything it can teach.":"Du weißt alles, was es dich lehren kann.","Also lowers the dodge of an Elusive foe by {p}% ({a} of {b} used).":"Senkt außerdem das Ausweichen eines flüchtigen Gegners um {p} % ({a} von {b} genutzt).",
 "Try to get away. A creature from the map stays alive and dazed.":"Versuche zu entkommen. Eine Kreatur von der Karte bleibt am Leben und benommen.","Use {item}":"{item} benutzen","Loot":"Beute","Tap an item to inspect it.":"Tippe auf einen Gegenstand, um ihn anzusehen.","Back to the map":"Zurück zur Karte","Go to the forge":"Zur Schmiede",
 "+{n} HP":"+{n} LP","{n} dmg":"{n} Schaden","cures {list}":"heilt {list}","no effect":"keine Wirkung","About {n} damage.":"Etwa {n} Schaden.","About {n} damage (ward absorbs {w}).":"Etwa {n} Schaden (Schutz absorbiert {w}).","No damage expected (ward absorbs it).":"Kein Schaden erwartet (Schutz absorbiert ihn).",
@@ -155,7 +155,7 @@ DICT.de=Object.assign(DICT.de||{},{
 "Cuts the damage you take by {p}%.":"Senkt den erlittenen Schaden um {p} %.","Heat 5 bites through {p}% of your Defense.":"Hitze 5 durchdringt {p} % deiner Verteidigung.",
 "Burning {n}":"Brennt {n}","Takes {n} damage each turn.":"Erleidet {n} Schaden pro Runde.","Poison {n}":"Gift {n}","Frozen":"Gefroren","It loses its next turn.":"Es verliert seine nächste Runde.","Bleed {n}":"Blutung {n}","Damage each turn that ignores armor.":"Schaden jede Runde, der Rüstung ignoriert.",
 "Boss":"Boss","Beat it to open the next region.":"Besiege es, um die nächste Region zu öffnen.","Its second form.":"Seine zweite Form.","{n} affix. Up to {hp}x HP and {atk}x Attack before the affixes' own changes.":"{n} Affix. Bis zu {hp}x LP und {atk}x Angriff vor den eigenen Änderungen der Affixe.¦{n} Affixe. Bis zu {hp}x LP und {atk}x Angriff vor den eigenen Änderungen der Affixe.",
-"Heat {n}":"Hitze {n}","Heat":"Hitze","Mastered":"Gemeistert","You deal 15% more damage to it.":"Du verursachst 15 % mehr Schaden an ihm.","Open codex entry":"Kodex-Eintrag öffnen","Weak to {fam}":"Anfällig für {fam}","Takes 50% more from it.":"Erleidet 50 % mehr davon.",
+"Heat {n}":"Hitze {n}","Heat":"Hitze","Mastered":"Gemeistert","You deal {p}% more damage to it.":"Du verursachst {p} % mehr Schaden an ihm.","Open codex entry":"Kodex-Eintrag öffnen","Weak to {fam}":"Anfällig für {fam}","Takes 50% more from it.":"Erleidet 50 % mehr davon.",
 "Resists {fam}":"Widersteht {fam}","Takes 40% less from it.":"Erleidet 40 % weniger davon.","{n} unknown":"{n} unbekannt","Weaknesses and resistances you have not found yet. Hit it, or Study.":"Schwächen und Resistenzen, die du noch nicht gefunden hast. Triff es, oder studiere es.",
 // ---- map head, camp, torch, daily, heat
 "No campfires":"Keine Lagerfeuer","This expedition has none.":"Diese Expedition hat keine.","Rest at campfire, {n} left":"Am Lagerfeuer rasten, noch {n}","Heals 50% and adds {t} torch.":"Heilt 50 % und fügt {t} Fackel hinzu.",
@@ -251,7 +251,7 @@ DICT.de=Object.assign(DICT.de||{},{
 
 // ---- recipes tab
 "Your recipes":"Deine Rezepte","Every combination you forge is saved here. Tap the anvil to load its ingredients into the crucible.":"Jede Kombination, die du schmiedest, wird hier gespeichert. Tippe auf den Amboss, um ihre Zutaten in den Tiegel zu laden.","Ingredients you don't have are crossed out.":"Zutaten, die du nicht hast, sind durchgestrichen.",
-"Load the ingredients into the crucible.":"Lade die Zutaten in den Tiegel.","Needs Smith Lv {n} for {k} slots.":"Braucht Schmiedestufe {n} für {k} Plätze.","Finish the fight first.":"Beende zuerst den Kampf.","You are missing ingredients.":"Dir fehlen Zutaten.","You have it.":"Du hast es.","You are out of it.":"Du hast keines mehr.",
+"Load the ingredients into the crucible.":"Lade die Zutaten in den Tiegel.","Needs Smith Lv {n} for {k} slots.":"Braucht Schmiedestufe {n} für {k} Plätze.","You are missing ingredients.":"Dir fehlen Zutaten.","You have it.":"Du hast es.","You are out of it.":"Du hast keines mehr.",
 "Load the recipe for {item}":"Rezept für {item} laden","Load":"Laden","Cannot load {item}: {why}":"{item} kann nicht geladen werden: {why}","Needs Lv {n}":"Braucht Stufe {n}","Missing":"Fehlt","No recipes in this category yet.":"Noch keine Rezepte in dieser Kategorie.","Every combination you forge is saved here so you can make it again.":"Jede Kombination, die du schmiedest, wird hier gespeichert, damit du sie wieder herstellen kannst.",
 "What mixes with what":"Was sich womit mischt","What mixes":"Was sich mischt",
 "takes":"nimmt","The same type":"Die gleiche Art","{kind} also take other {kindl}.":"{kind} nehmen auch weitere {kindl} auf.","Only their own kind.":"Nur ihre eigene Art.","Essences":"Essenzen","Everything":"Alles",
@@ -265,7 +265,7 @@ DICT.de=Object.assign(DICT.de||{},{
 "Records":"Rekorde","Dailies played / won":"Tägliche gespielt / gewonnen","Best daily":"Beste tägliche Expedition","Fists":"Fäuste","Shield bash":"Schildschlag","Affixes":"Affixe","Magic enemies carry one affix, rare ones two (three from Heat 4). Each affix changes how the fight plays and drops its own essence when you win, better grades than usual (a rare more reliably than a magic one).":"Magische Gegner tragen einen Affix, seltene zwei (drei ab Hitze 4). Jeder Affix verändert den Kampf und lässt bei einem Sieg seine eigene Essenz fallen, in besserer Güte als üblich (bei einem seltenen zuverlässiger als bei einem magischen).",
 "Meet an enemy that carries an affix to record it here.":"Begegne einem Gegner mit einem Affix, um ihn hier zu verzeichnen.","met {s}, beaten {b}":"{s}-mal begegnet, {b}-mal besiegt","Unknown affix":"Unbekannter Affix","Meet a magic or rare enemy that carries it.":"Begegne einem magischen oder seltenen Gegner, der ihn trägt.",
 "Every introduction you have unlocked, to read again.":"Jede freigeschaltete Einführung zum erneuten Lesen.","New systems open as you play. The locked ones say how to open them.":"Neue Systeme öffnen sich beim Spielen. Die gesperrten sagen, wie man sie öffnet.","Show me":"Zeig es mir","Still locked · {n}":"Noch gesperrt · {n}","Creature codex":"Kreaturen-Kodex","{a} of {b} met, {m} mastered.":"{a} von {b} getroffen, {m} gemeistert.",
-"Fight, study and hunt creatures to fill in their pages. A fully known creature takes 15% more damage from you.":"Kämpfe gegen Kreaturen, studiere und jage sie, um ihre Seiten zu füllen. Eine vollständig bekannte Kreatur erleidet 15 % mehr Schaden von dir.","Tap one to open its page.":"Tippe auf eine, um ihre Seite zu öffnen.","Unknown creature":"Unbekannte Kreatur","Boss.":"Boss.","Defeated {n}":"{n}-mal besiegt","Not yet encountered":"Noch nicht begegnet","Mastered: you deal 15% more damage.":"Gemeistert: Du verursachst 15 % mehr Schaden.",
+"Fight, study and hunt creatures to fill in their pages. A fully known creature takes {p}% more damage from you.":"Kämpfe gegen Kreaturen, studiere und jage sie, um ihre Seiten zu füllen. Eine vollständig bekannte Kreatur erleidet {p} % mehr Schaden von dir.","Tap one to open its page.":"Tippe auf eine, um ihre Seite zu öffnen.","Unknown creature":"Unbekannte Kreatur","Boss.":"Boss.","Defeated {n}":"{n}-mal besiegt","Not yet encountered":"Noch nicht begegnet","Mastered: you deal {p}% more damage.":"Gemeistert: Du verursachst {p} % mehr Schaden.",
 "Knowledge {a}/{b} ({p}%)":"Wissen {a}/{b} ({p} %)","Knowledge {p}%":"Wissen {p} %","Open its page.":"Seite öffnen.",
 // ---- sound, floaters
 "Sound effects: {vol}":"Klangeffekte: {vol}","Music: {vol}":"Musik: {vol}",
@@ -274,7 +274,6 @@ DICT.de=Object.assign(DICT.de||{},{
 "{trait} infused into you. Rank {rank}.":"{trait} in dich infundiert. Rang {rank}.","{grade} {name}":"{name} ({grade})",
 "Your rune ward absorbs {n}.":"Deine Schutzrune absorbiert {n}.","Your rune ward absorbs {n} and shatters.":"Deine Schutzrune absorbiert {n} und zerbricht.","{status}, {t} turns left":"{status}, noch {t} Runden",
 "The peddler pockets your {give} and hands over the {get}. \"Anything else?\"":"Der Hausierer steckt {give} ein und überreicht dir {get}. „Sonst noch etwas?“",
-"Grade":"Güte",
 "Your hero":"Dein Held",
 "Expedition map":"Expeditionskarte","Swipe to explore the map.":"Wische, um die Karte zu erkunden.",
 "Equipped items shape your appearance. Tap a slot to inspect or change gear.":"Deine Ausrüstung bestimmt dein Aussehen. Tippe auf einen Platz, um Ausrüstung anzusehen oder zu wechseln.",
@@ -291,9 +290,7 @@ DICT.de=Object.assign(DICT.de||{},{
 "Study also improves your parry timing against this special, up to three ranks.":"Studieren verbessert auch dein Parade-Timing gegen diesen Spezialzug, bis Rang drei.",
 "Parry a telegraphed special to negate it and riposte. Your chance is shown on the button.":"Pariere einen angekündigten Spezialzug, um ihn zu verhindern und zu kontern. Deine Chance steht auf dem Knopf.",
 "Study, Speed and weapon form improve your odds. Guard blocks new statuses and strengthens your next attack.":"Studieren, Tempo und Waffenform verbessern deine Chancen. Block verhindert neue Zustände und stärkt deinen nächsten Angriff.",
-});
 // Item effect badges and trait explanations.
-Object.assign(DICT.de,{
 "Critical hit":"Kritischer Treffer","Precision":"Präzision","Freeze":"Einfrieren","Healing on hit":"Heilung bei Treffern","Life steal":"Lebensraub",
 "Armor piercing":"Rüstungsdurchdringung","Resistance bypass":"Resistenz umgehen","Armor break":"Rüstungsbruch","Ability":"Fähigkeit","Regeneration":"Regeneration",
 "Blind":"Blendung","Loot bonus":"Beutebonus","Thorns":"Dornen","Damage reduction":"Schadensminderung","Ward":"Schutzschild","Roots":"Wurzeln",
@@ -327,7 +324,7 @@ Object.assign(DICT.de,{
 "Stronger traits contribute first. Positive bonuses use {list}; penalties always apply in full.":"Stärkere Eigenschaften stehen zuerst. Positive Boni zählen zu {list}; Abzüge gelten immer vollständig.",
 "Medicine increases healing from {base} to {total} HP.":"Medizin erhöht die Heilung von {base} auf {total} LP.",
 "Attack and Magic on consumables only determine damage when used in battle. They do not increase your character's stats.":"Angriff und Magie auf Verbrauchsgegenständen bestimmen nur den Schaden beim Einsatz im Kampf. Sie erhöhen nicht die Werte deines Helden.",
-"Battle damage = (Attack + Magic) × 0.6, rounded; values below 3 deal no damage.":"Kampfschaden = (Angriff + Magie) × 0,6, gerundet; Werte unter 3 verursachen keinen Schaden.",
+"Battle damage = (Attack + Magic) × {x}, rounded; values below 3 deal no damage.":"Kampfschaden = (Angriff + Magie) × {x}, gerundet; Werte unter 3 verursachen keinen Schaden.",
 "Numbers measure trait strength, not direct stat bonuses. Item type and trait priority determine the final result.":"Die Zahlen zeigen die Eigenschaftsstärke, keine direkten Werteboni. Gegenstandstyp und Gewichtung der Eigenschaften bestimmen das Ergebnis.",
 "Tap a trait to see what it does in this item. Forging can change its effect.":"Tippe auf eine Eigenschaft, um ihren Effekt auf diesem Gegenstand zu sehen. Schmieden kann den Effekt ändern.",
 "Trait strength {n}. The item type determines what it does.":"Eigenschaftsstärke {n}. Der Gegenstandstyp bestimmt den Effekt.",
@@ -486,37 +483,22 @@ Object.assign(DICT.de,{
 "Satchel\nTap an item to open it: equip, use, add to the crucible, deconstruct or salvage it.\nLong-press or hover for its name and stats. The frame colour is its grade (Faint, Lesser, Plain, Greater, Pure), a tick means worn, a dot means new, a number is how many you hold.":"Beutel\nTippe auf einen Gegenstand, um ihn zu öffnen: ausrüsten, benutzen, in den Tiegel legen, aufbereiten oder zerlegen.\nLangdrücken oder Darüberfahren zeigt Namen und Werte. Die Rahmenfarbe ist die Güte (Schwach, Gering, Gewöhnlich, Hoch, Rein), ein Haken heißt getragen, ein Punkt neu, eine Zahl wie viele du besitzt.",
 "howto.loop":"<b>Der Ablauf.</b> Durchquere die Karte jeder Region und kämpfe um Rohfunde. Bereite sie zu Grundmaterialien und Essenzen auf, schmiede Ausrüstung aus Mustern, binde Essenzen hinein und besiege am Ende der Karte den Boss, um die nächste Region zu öffnen.<span data-unl=\"rift\"> Hinter dem Turm wartet der Wandernde Riss: jeder Auszug dort ist eine zufällige Region, und jede ist tiefer als die letzte.</span>",
 "howto.mixing":"<b>Mischen.</b> Muster machen aus Grundmaterialien Ausrüstung. Im Tiegel funktionieren nur sinnvolle Kombinationen; die Rezepte-Ansicht zeigt die Tabelle. Aufbereitete Rohfunde geben Essenzen, die sich mit allem mischen. Zerlegte Ausrüstung gibt die Hälfte ihrer Materialien zurück.",
-"+{n} embers.":"+{n} Glut."
-});
-
-Object.assign(DICT.de, {
-  "Last forge": "Letzte Schmiedearbeit"
-});
-
-Object.assign(DICT.de, {
+"+{n} embers.":"+{n} Glut.",
+  "Last forge": "Letzte Schmiedearbeit",
   "Compared with {item}: {changes}.": "Verglichen mit {item}: {changes}.",
   "Core stats unchanged": "Grundwerte unverändert",
-  "Equipped automatically": "Automatisch ausgerüstet"
-});
-
-Object.assign(DICT.de, {
+  "Equipped automatically": "Automatisch ausgerüstet",
   "Before Guard; ongoing status damage is separate.": "Vor Blocken; laufender Statusschaden kommt hinzu.",
   "−{cut}% hit · +{boost}% next": "−{cut}% Treffer · +{boost}% danach",
   "Wrong timing": "Falscher Zeitpunkt",
-  "Fail: +25% damage": "Fehlschlag: +25% Schaden",
+  "Fail: +{f}% damage": "Fehlschlag: +{f}% Schaden",
   "Learn · uses a turn": "Lernen · kostet einen Zug",
   "Escape may fail": "Flucht kann scheitern",
   "Empowered: +{p}% damage": "Verstärkt: +{p}% Schaden",
-  "Strike with your weapon": "Mit deiner Waffe zuschlagen"
-});
-
-Object.assign(DICT.de, {
+  "Strike with your weapon": "Mit deiner Waffe zuschlagen",
   "Boss direction": "Richtung zum Boss",
   "Recenter": "Zentrieren",
-  "Unexplored landmark": "Unentdeckter Ort"
-});
-
-Object.assign(DICT.de, {
+  "Unexplored landmark": "Unentdeckter Ort",
   "Unlock these items before crafting.": "Entsperre diese Gegenstände vor dem Schmieden.",
   "Unlock item": "Gegenstand entsperren",
   "Lock item": "Gegenstand sperren",
@@ -539,16 +521,10 @@ Object.assign(DICT.de, {
   "Salvage selected items": "Ausgewählte Gegenstände zerlegen",
   "Equipped, locked and legendary items are protected. Items in the crucible are reserved.": "Ausgerüstete, gesperrte und legendäre Gegenstände sind geschützt. Zutaten im Schmelztiegel bleiben reserviert.",
   "Choose spare items to salvage.": "Wähle überzählige Gegenstände zum Zerlegen.",
-  "Salvaged {n} items.": "{n} Gegenstände zerlegt."
-});
-
-Object.assign(DICT.de, {
+  "Salvaged {n} items.": "{n} Gegenstände zerlegt.",
   "Settings": "Einstellungen",
   "Back to game": "Zurück zum Spiel",
-  "Explore": "Erkunden"
-});
-
-Object.assign(DICT.de, {
+  "Explore": "Erkunden",
   "Deconstruct the Ember Coal, then bind a Fire essence into your sword.": "Zerlege die Glutkohle und binde eine Feueressenz in dein Schwert.",
   "Your first enchanted weapon has proved itself. The Woods are yours to explore.": "Deine erste verzauberte Waffe hat sich bewährt. Erkunde nun die Wälder.",
   "Forge your first enchanted weapon": "Schmiede deine erste verzauberte Waffe",
@@ -556,10 +532,7 @@ Object.assign(DICT.de, {
   "Master your combat style": "Meistere deinen Kampfstil",
   "Beyond the Woods": "Jenseits der Wälder",
   "Try your new weapon. Watch its effects after each strike.": "Probiere deine neue Waffe aus. Beobachte ihre Effekte nach jedem Schlag.",
-  "Step onto an empty tile to try your enchanted weapon.": "Betritt ein leeres Feld, um deine verzauberte Waffe auszuprobieren."
-});
-
-Object.assign(DICT.de, {
+  "Step onto an empty tile to try your enchanted weapon.": "Betritt ein leeres Feld, um deine verzauberte Waffe auszuprobieren.",
   "Choose a bounty to support your build.": "Wähle einen Auftrag, der zu deiner Ausrüstung passt.",
   "Choose bounty": "Auftrag wählen",
   "Progress starts when you accept. Rewards stay the same until you complete a bounty.": "Der Fortschritt zählt ab der Annahme. Die Belohnungen bleiben bis zum Abschluss eines Auftrags gleich.",
@@ -580,12 +553,8 @@ Object.assign(DICT.de, {
   "Guard paid off: your empowered strike dealt +{p}% damage.": "Die Deckung hat sich gelohnt: Dein verstärkter Schlag verursachte +{p}% Schaden.",
   "Your forged Fire is working: {n} extra burn damage this turn.": "Dein geschmiedetes Feuer wirkt: {n} zusätzlicher Brandschaden in diesem Zug.",
   "Guard → {action}: +{p}% damage on your next strike.": "Deckung → {action}: +{p}% Schaden beim nächsten Schlag.",
-  "{trait} → known weakness: +50% strike damage.": "{trait} → bekannte Schwäche: +50% Schlagschaden."
-});
-
-Object.assign(DICT.de, {
+  "{trait} → known weakness: +50% strike damage.": "{trait} → bekannte Schwäche: +50% Schlagschaden.",
   "Study {name} to learn this blueprint.": "Studiere {name}, um diesen Bauplan zu lernen.",
-  "Forge from materials: {items}.": "Schmiede aus Materialien: {items}."
+  "Forge from materials: {items}.": "Schmiede aus Materialien: {items}.",
+"Deconstruct {items} into this material.":"Zerlege {items}, um dieses Material zu erhalten.",
 });
-
-Object.assign(DICT.de, {"Deconstruct {items} into this material.":"Zerlege {items}, um dieses Material zu erhalten."});

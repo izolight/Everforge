@@ -118,7 +118,7 @@ $("combine").onclick=()=>{
   if(fizzle){sfx("clang");after()}else playForge(items,S.items[item.id],after);
 };
 $("exportBtn").onclick=()=>{
-  const code=btoa(unescape(encodeURIComponent(JSON.stringify({...S,battle:null,event:null}))));
+  const code=exportSave();
   const box=$("exportBox");box.value=code;box.hidden=false;
   const done=()=>toast(tx("Save code copied. Keep it somewhere safe."));
   const fallback=()=>{box.focus();box.select();toast(tx("Select the code below and copy it."))};
@@ -128,16 +128,18 @@ let importArmed=false;$("importBtn").onclick=e=>{
   const code=$("importBox").value.trim();if(!code){toast(tx("Paste a save code first."));return}
   if(!importArmed){importArmed=true;e.target.textContent=tx("Tap again to replace your current save");setTimeout(()=>{importArmed=false;e.target.textContent=tx("Load save code")},3500);return}
   importArmed=false;e.target.textContent=tx("Load save code");
-  try{const s=loadSave(JSON.parse(decodeURIComponent(escape(atob(code)))));if(!s)throw 0;S=s;S.battle=null;S.event=null;save();$("importBox").value="";go("battle");toast(tx("Save loaded."))}
+  try{const s=importSave(code);if(!s)throw 0;S=s;S.battle=null;S.event=null;save();$("importBox").value="";go("battle");toast(tx("Save loaded."))}
   catch(err){toast(tx("That code didn't work. Make sure you copied all of it."))}
 };
 let armed=false;$("reset").onclick=e=>{
   if(!armed){armed=true;e.target.textContent=tx("Tap again to erase all progress");setTimeout(()=>{armed=false;e.target.textContent=tx("Start a new game")},3000);return}
   S=freshState();armed=false;e.target.textContent=tx("Start a new game");save();go("battle");toast(tx("A new journey begins."))};
 
-try{const ud=$("upgd");ud.open=localStorage.getItem("everforge-upgopen")==="1";ud.addEventListener("toggle",()=>{try{localStorage.setItem("everforge-upgopen",ud.open?"1":"0")}catch(e){}})}catch(e){}
-try{const rd=$("resd");rd.open=localStorage.getItem("everforge-resopen")==="1";rd.addEventListener("toggle",()=>{try{localStorage.setItem("everforge-resopen",rd.open?"1":"0")}catch(e){}})}catch(e){}
-try{const sd=$("statsd");sd.open=localStorage.getItem("everforge-statsopen")==="1";sd.addEventListener("toggle",()=>{try{localStorage.setItem("everforge-statsopen",sd.open?"1":"0")}catch(e){}})}catch(e){}
+// remember whether a <details> panel was open (the upgrade, research and lifetime-stats panels)
+function rememberOpen(id,key){
+  try{const el=$(id);el.open=localStorage.getItem(key)==="1";el.addEventListener("toggle",()=>{try{localStorage.setItem(key,el.open?"1":"0")}catch(e){}})}catch(e){}
+}
+rememberOpen("upgd","everforge-upgopen");rememberOpen("resd","everforge-resopen");rememberOpen("statsd","everforge-statsopen");
 // static markup: icons in headers, and the numbers in the How to play text (run again after a language change, which rewrites that text)
 function fillStatic(){
   document.querySelectorAll("[data-ic]").forEach(e=>e.innerHTML=ic(e.dataset.ic,"s"));
@@ -150,7 +152,16 @@ function setLang(l){
 }
 $("lang").innerHTML=Object.entries(LANGS).map(([k,n])=>`<option value="${k}">${n}</option>`).join("");$("lang").value=LANG;
 $("lang").addEventListener("change",e=>setLang(e.target.value));
-applyStatic();fillStatic();sndUi();
-try{render()}catch(e){ // a bad stored run should not cost the whole save: drop the transient parts first
-  try{S.daily=null;S.run=null;S.battle=null;S.event=null;render()}catch(e2){S=freshState();save();render()}}
-if(migNote){migNote=false;toast(tx("A map was redrawn. Your expedition there starts fresh."))}
+// ================= BOOT =================
+// The one place that runs once every script has loaded, so the start-up order is explicit:
+// the wild roster and the Rift's region (monsters.js), the reduced-motion listener (motion.js), the sound
+// buttons (audio.js), the static markup and its numbers (i18n.js, events.js), then the first render.
+function boot(){
+  buildRoster();riftEnsure();
+  motionWatch();
+  applyStatic();fillStatic();sndUi();
+  try{render()}catch(e){ // a bad stored run should not cost the whole save: drop the transient parts first
+    try{S.daily=null;S.run=null;S.battle=null;S.event=null;render()}catch(e2){S=freshState();save();render()}}
+  if(migNote){migNote=false;toast(tx("A map was redrawn. Your expedition there starts fresh."))}
+}
+boot();
