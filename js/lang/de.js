@@ -274,6 +274,8 @@ DICT.de=Object.assign(DICT.de||{},{
 "Your rune ward absorbs {n}.":"Deine Schutzrune absorbiert {n}.","Your rune ward absorbs {n} and shatters.":"Deine Schutzrune absorbiert {n} und zerbricht.","{status}, {t} turns left":"{status}, noch {t} Runden",
 "The peddler pockets your {give} and hands over the {get}. \"Anything else?\"":"Der Hausierer steckt {give} ein und überreicht dir {get}. „Sonst noch etwas?“",
 "Grade":"Güte",
+"Your hero":"Dein Held",
+"Equipped items shape your appearance. Tap a slot to inspect or change gear.":"Deine Ausrüstung bestimmt dein Aussehen. Tippe auf einen Platz, um Ausrüstung anzusehen oder zu wechseln.",
 // Guard, Braced and trained parries.
 "Cuts every hit in the enemy's action by {p}% and blocks new statuses.":"Senkt jeden Treffer im gegnerischen Zug um {p} % und verhindert neue Zustände.",
 "Braced":"Standfest",
