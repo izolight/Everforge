@@ -204,9 +204,10 @@ async function loadPage(save,key){
   if(rt2.stats.v!==17)fail(`the reloaded save is not v17 (v${rt2.stats.v}).`);
   if(rt2.stats.battles<3)fail(`the reloaded save played too few battles (${rt2.stats.battles}).`);
   // 4. an older save is not loaded at all: the game starts fresh, without a page error
-  const old=JSON.stringify({v:16,wins:7,journal:[{id:"x",name:"x"}],unl:{start:1,patterns:2},kills:{gnarlhorn:1}});
-  const rj=await loadPage(old,"everforge-v16");
-  if(rj.errors.length)fail(rj.errors.join("\n"));
-  if(rj.st.v!==17||rj.st.wins!==0||rj.st.journal!==0)fail(`a v16 save did not start fresh (v${rj.st.v}, ${rj.st.wins} wins, ${rj.st.journal} journal entries).`);
+  const old=JSON.stringify({...saved,v:16}); // a real save with progress, only its version is old
+  for(const key of [st.key,"everforge-v16"]){ // an old version under the current key (loadSave rejects it), and an old key (never read)
+    const rj=await loadPage(old,key);
+    if(rj.errors.length)fail(rj.errors.join("\n"));
+    if(rj.st.v!==17||rj.st.wins!==0||rj.st.journal!==0)fail(`a v16 save under ${key} did not start fresh (v${rj.st.v}, ${rj.st.wins} wins, ${rj.st.journal} journal entries).`)}
   console.log(failed?"SMOKE FAILED":"SMOKE OK");process.exit(failed?1:0);
 })();
