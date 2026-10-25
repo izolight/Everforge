@@ -13,8 +13,12 @@ function openSheet(id,refresh,preview){
   if(!preview){
     if(isGear(it)){const slots=FORMS[it.form].slots;
       slots.forEach(s=>{const on=S.eq[s]===id,lab=lc(tx(SLOTS.find(x=>x[0]===s)[1]));
-        btns.push(on?`<button class="btn grow" data-act="unequip" data-slot="${s}" ${locked?"disabled":""}>${tx("Unequip {slot}",{slot:lab})}</button>`
-          :`<button class="btn primary grow" data-act="equip" data-slot="${s}" ${locked||(eqCount(id)>=S.inv[id]&&!slots.some(x=>S.eq[x]===id))?"disabled":""}>${slots.length>1?tx("Equip in {slot}",{slot:lab}):tx("Equip")}</button>`)})}
+        const name=on?tx("Unequip {slot}",{slot:lab}):slots.length>1?tx("Equip in {slot}",{slot:lab}):tx("Equip");
+        const worn=eqCount(id)>=S.inv[id]&&!slots.some(x=>S.eq[x]===id);
+        const why=locked?tx("Finish the fight first."):worn?tx("Already equipped."):""; // a refused button says why, and its tip says it too
+        const dis=why?`aria-disabled="true" data-tap ${tt(name,why)}`:"";
+        btns.push(on?`<button class="btn grow" data-act="unequip" data-slot="${s}" ${dis}>${why||name}</button>`
+          :`<button class="btn primary grow" data-act="equip" data-slot="${s}" ${dis}>${why||name}</button>`)})}
     if(g==="consumable"&&statsOf(it).heal>0&&!locked)btns.push(`<button class="btn primary grow" data-act="eat" ${S.hp>=P.maxHp?"disabled":""}>${S.hp>=P.maxHp?tx("Already at full HP"):tx("Use now (+{n} HP)",{n:Math.min(medHeal(it),P.maxHp-S.hp)})}</button>`);
     btns.push(`<button class="btn grow" data-act="add" ${itemLocked(id)||left<=0||full||locked||!mix.ok?"disabled":""}>${locked?tx("Finish the fight to forge"):full?tx("Crucible full"):left<=0?tx("All in crucible"):!mix.ok?tx("Won't mix with the crucible"):tx("Add to crucible")}</button>`);
     if(canDecon(it)){const y=deconYield(it),nm=(id,n)=>`${n}× ${esc(iname(S.items[gradedItem(baseIdOf(id),gradeOf(id))]))}`;

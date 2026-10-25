@@ -19,7 +19,7 @@ $("gdlist").addEventListener("click",e=>{const b=e.target.closest("[data-guide]"
   go(u.i.tab||"battle");nudge(u.i.sel)}); // Show me: open the tab and pulse the thing
 $("zones").addEventListener("scroll",zoneFade);
 addEventListener("scroll",()=>placeIntro(),{passive:true});addEventListener("resize",()=>placeIntro());
-$("zones").addEventListener("click",e=>{const b=e.target.closest("[data-zone]");if(!b||b.disabled)return;S.zone=b.dataset.zone;S.battle=null;S.event=null;save();render()});
+$("zones").addEventListener("click",e=>{const b=e.target.closest("[data-zone]");if(!b||b.disabled||b.getAttribute("aria-disabled")==="true")return;S.zone=b.dataset.zone;S.battle=null;S.event=null;save();render()});
 $("arena").addEventListener("click",e=>{
   const t=e.target.closest("button");if(!t||t.getAttribute("aria-disabled")==="true")return;
   if(t.dataset.intro)return dismissIntro(t.dataset.intro);
@@ -85,7 +85,7 @@ $("patbody").addEventListener("click",e=>{const b=e.target.closest("[data-pslot]
   playForge(items,it,()=>{render(true);toast([tx("Forged {item}.",{item:iname(it)}),r.lv?lvMsg():"",r.up?skMsg(r.sk,r.up):""].filter(Boolean).join(" "))})});
 $("scrim").onclick=closeSheet;
 document.addEventListener("keydown",e=>{if(e.key==="Escape"&&sheet.mode)closeSheet()});
-$("sheet").addEventListener("click",e=>{const b=e.target.closest("[data-act]");if(!b)return;const id=sheet.id,it=S.items[id],a=b.dataset.act;
+$("sheet").addEventListener("click",e=>{const b=e.target.closest("[data-act]");if(!b||b.getAttribute("aria-disabled")==="true")return;const id=sheet.id,it=S.items[id],a=b.dataset.act;
   if(a==="close")return closeSheet();
   if(a==="bounty")return chooseBounty(+b.dataset.index);
   if(a==="bulk-confirm")return confirmSalvage();

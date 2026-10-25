@@ -57,9 +57,11 @@ function renderUpgrade(){
   $("upgp").hidden=!isUnl("upgrade");if(!isUnl("upgrade"))return;
   const lv=skLv("alchemy"),ids=upgradable().sort((a,b)=>topT(a).localeCompare(topT(b))||S.items[baseIdOf(a)].name.localeCompare(S.items[baseIdOf(b)].name)||gradeOf(a)-gradeOf(b));
   $("upgsum").innerHTML=`${ic("upgrade","s")} ${tx("Upgrade grades")}${ids.length?` <b class="rdy">${ids.length}</b>`:""}${helpBtn(tx("Upgrade grades"),tx("{n} essences or materials of one grade and some embers make 1 of the next grade (Faint, Lesser, Plain, Greater, Pure): stronger traits, in a single crucible slot.",{n:UP.n}),tx("A miss costs the embers and one of them."),tx("Greater needs Alchemy Lv {a}, Pure Lv {b}. You are Lv {lv}.",{a:GRADE_LV[3],b:GRADE_LV[4],lv}))}`;
-  $("upgrows").innerHTML=ids.length?ids.map(id=>{const g=gradeOf(id),tg=g+1,it=S.items[id],low=lv<GRADE_LV[tg-1],poor=S.embers<UP.emb[g-1];
-    return `<div class="shoprow up">${glyph(it)}<span class="uname"><span style="color:${GRADES[g-1][1]}">${iname(it)}</span> <small>×${avail(id)}</small></span>
-      <button class="btn sm" data-upgrade="${id}" ${inBattle()||low||poor?"disabled":""} aria-label="${esc(tx("Upgrade {item} to {grade}",{item:iname(it),grade:gradeN(tg)}))}" ${tt(`${iname(it)} → ${gradeN(tg)}`,low?tx("Needs Alchemy Lv {n}",{n:GRADE_LV[tg-1]}):tx("{n} of them and {e} embers make 1. {p}% to succeed.",{n:UP.n,e:UP.emb[g-1],p:upChance(tg)}))}>${low?`${ic("lock","s")} ${tx("Lv {n}",{n:GRADE_LV[tg-1]})}`:`${icon("ember")}${UP.emb[g-1]} · ${gradeN(tg)} · ${upChance(tg)}%`}</button></div>`}).join(""):`<p class="foot">${tx("Collect {n} of the same grade of an essence, ore, hide or herb to upgrade them.",{n:UP.n})}</p>`;
+  $("upgrows").innerHTML=ids.length?ids.map(id=>{const g=gradeOf(id),tg=g+1,it=S.items[id],low=lv<GRADE_LV[tg-1],poor=S.embers<UP.emb[g-1],battle=inBattle();
+    const why=battle?tx("Finish the fight first."):low?tx("Needs Alchemy Lv {n}",{n:GRADE_LV[tg-1]}):poor?tx("Not enough embers."):""; // a refused upgrade says why
+    const cost=`${icon("ember")}${UP.emb[g-1]} · ${gradeN(tg)} · ${upChance(tg)}%`;
+    return `<div class="shoprow up">${glyph(it)}<span class="uname"><span style="color:${GRADES[g-1][1]}">${esc(iname(it))}</span> <small>×${avail(id)}</small></span>
+      <button class="btn sm" data-upgrade="${id}" ${why?`aria-disabled="true" data-tap`:""} aria-label="${esc(tx("Upgrade {item} to {grade}",{item:iname(it),grade:gradeN(tg)}))}" ${tt(`${iname(it)} → ${gradeN(tg)}`,why,tx("{n} of them and {e} embers make 1. {p}% to succeed.",{n:UP.n,e:UP.emb[g-1],p:upChance(tg)}))}>${battle?why:low?`${ic("lock","s")} ${tx("Lv {n}",{n:GRADE_LV[tg-1]})}`:poor?why:cost}</button></div>`}).join(""):`<p class="foot">${tx("Collect {n} of the same grade of an essence, ore, hide or herb to upgrade them.",{n:UP.n})}</p>`;
 }
 // ================= RENDER =================
 let freshShown=new Set(),logOpen=false,heatOpen=false,legendOpen=false;
@@ -230,7 +232,8 @@ function heroView(){
 }
 function renderBattle(){
   $("zones").innerHTML=ZONES.map(([id,name,boss],i)=>{const open=zoneOpen(id),cleared=S.kills[boss]>0;
-    return `<button class="zone" data-zone="${id}" aria-pressed="${S.zone===id}" ${open&&!busy()&&S.run!=="daily"?"":"disabled"}>${tx(name)}${cleared?" ✓":""}${open?"":` · ${tx("beat {boss}",{boss:shortName(ZONES[i-1][2])})}`}</button>`}).join("");zoneView();
+    const held=busy()||S.run==="daily",why=held?(S.run==="daily"?tx("Finish or abandon the daily first."):tx("Finish the fight first.")):""; // a chip you cannot use says why
+    return `<button class="zone" data-zone="${id}" aria-pressed="${S.zone===id}" ${!open?"disabled":held?`aria-disabled="true" data-tap ${tt(tx(name),why)}`:""}>${tx(name)}${cleared?" ✓":""}${open?"":` · ${tx("beat {boss}",{boss:shortName(ZONES[i-1][2])})}`}</button>`}).join("");zoneView();
   const a=$("arena"),B=S.battle,cont=`<div class="actions"><button class="btn primary grow" id="cont">${tx("Back to the map")}</button></div>`;
   if(S.event){const ev=S.event;
     a.innerHTML=`<div class="event">${ev.icon?`<svg class="evart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true">${NODE_G[ev.icon]}</svg>`:""}<h2>${esc(ev.title)}</h2><p class="empty">${esc(ev.text)}</p></div>
