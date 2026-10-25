@@ -271,7 +271,6 @@ DICT.ko=Object.assign(DICT.ko||{},{
 "{trait} infused into you. Rank {rank}.":"{trait|이|가} 몸에 주입되었습니다. {rank}단계.","{grade} {name}":"{grade} {name}",
 "Your rune ward absorbs {n}.":"룬 보호막이 {n} 피해를 흡수한다.","Your rune ward absorbs {n} and shatters.":"룬 보호막이 {n} 피해를 흡수하고 깨진다.","{status}, {t} turns left":"{status}, {t}턴 남음",
 "The peddler pockets your {give} and hands over the {get}. \"Anything else?\"":"행상인이 {give|을|를} 주머니에 넣고 {get|을|를} 건네준다. \"더 필요한 건?\"",
-"Grade":"등급",
 "Your hero":"나의 영웅",
 "Expedition map":"원정 지도","Swipe to explore the map.":"지도를 탐험하려면 화면을 밀어 보세요.",
 "Equipped items shape your appearance. Tap a slot to inspect or change gear.":"착용한 장비가 외형에 반영됩니다. 슬롯을 탭해 장비를 살펴보거나 바꾸세요.",
@@ -288,9 +287,7 @@ DICT.ko=Object.assign(DICT.ko||{},{
 "Study also improves your parry timing against this special, up to three ranks.":"연구는 이 특수 기술에 대한 받아치기 훈련도 최대 3단계까지 높입니다.",
 "Parry a telegraphed special to negate it and riposte. Your chance is shown on the button.":"예고된 특수 기술을 받아치면 무효화하고 반격합니다. 버튼에 성공률이 표시됩니다.",
 "Study, Speed and weapon form improve your odds. Guard blocks new statuses and strengthens your next attack.":"연구, 속도, 무기 형태가 성공률을 높입니다. 막기는 새 상태 이상을 막고 다음 공격을 강화합니다.",
-});
 // Item effect badges and trait explanations.
-Object.assign(DICT.ko,{
 "Critical hit":"치명타","Precision":"명중 보정","Freeze":"빙결","Healing on hit":"적중 시 회복","Life steal":"생명력 흡수",
 "Armor piercing":"방어구 관통","Resistance bypass":"저항 무시","Armor break":"방어구 파괴","Ability":"능력","Regeneration":"재생",
 "Blind":"실명","Loot bonus":"전리품 보너스","Thorns":"가시","Damage reduction":"피해 감소","Ward":"보호막","Roots":"뿌리",
@@ -483,20 +480,11 @@ Object.assign(DICT.ko,{
 "Satchel\nTap an item to open it: equip, use, add to the crucible, deconstruct or salvage it.\nLong-press or hover for its name and stats. The frame colour is its grade (Faint, Lesser, Plain, Greater, Pure), a tick means worn, a dot means new, a number is how many you hold.":"가방\n아이템을 탭하면 열립니다: 장착, 사용, 도가니에 넣기, 가공, 분해.\n길게 누르거나 마우스를 올리면 이름과 능력치가 보입니다. 테두리 색은 등급(희미한, 하급, 보통, 상급, 순수)이고, 체크는 착용 중, 점은 새 아이템, 숫자는 보유 수량입니다.",
 "howto.loop":"<b>진행 방식.</b> 각 지역의 지도를 가로질러 싸우며 원재료를 모으세요. 원재료를 기본 재료와 정수로 가공하고, 도안으로 장비를 단조해 정수를 결속하세요. 지도 끝의 보스를 쓰러뜨리면 다음 지역이 열립니다.<span data-unl=\"rift\"> 탑 너머에는 방랑자의 균열이 기다립니다. 그곳의 모든 출정은 무작위 지역이며, 매번 한 층 더 깊습니다.</span>",
 "howto.mixing":"<b>섞기.</b> 도안은 기본 재료를 장비로 바꿉니다. 도가니에서는 말이 되는 조합만 가능하며, 표는 레시피 탭에 있습니다. 원재료를 가공하면 무엇과도 섞이는 정수가 나옵니다. 장비를 분해하면 재료의 절반이 돌아옵니다.",
-"+{n} embers.":"불씨 +{n}."
-});
-
-Object.assign(DICT.ko, {
-  "Last forge": "최근 제작"
-});
-
-Object.assign(DICT.ko, {
+"+{n} embers.":"불씨 +{n}.",
+  "Last forge": "최근 제작",
   "Compared with {item}: {changes}.": "{item} 대비: {changes}.",
   "Core stats unchanged": "기본 능력치 변화 없음",
-  "Equipped automatically": "자동으로 장착됨"
-});
-
-Object.assign(DICT.ko, {
+  "Equipped automatically": "자동으로 장착됨",
   "Before Guard; ongoing status damage is separate.": "방어 적용 전이며 지속 상태 피해는 별도입니다.",
   "−{cut}% hit · +{boost}% next": "피격 −{cut}% · 다음 공격 +{boost}%",
   "Wrong timing": "지금은 부적절",
@@ -504,16 +492,10 @@ Object.assign(DICT.ko, {
   "Learn · uses a turn": "학습 · 한 턴 소모",
   "Escape may fail": "도주 실패 가능",
   "Empowered: +{p}% damage": "강화: 피해 +{p}%",
-  "Strike with your weapon": "무기로 공격"
-});
-
-Object.assign(DICT.ko, {
+  "Strike with your weapon": "무기로 공격",
   "Boss direction": "우두머리 방향",
   "Recenter": "내 위치로",
-  "Unexplored landmark": "미탐험 지점"
-});
-
-Object.assign(DICT.ko, {
+  "Unexplored landmark": "미탐험 지점",
   "Unlock these items before crafting.": "제작 전에 아이템 잠금을 해제하세요.",
   "Unlock item": "잠금 해제",
   "Lock item": "아이템 잠금",
@@ -536,16 +518,10 @@ Object.assign(DICT.ko, {
   "Salvage selected items": "선택한 아이템 분해",
   "Equipped, locked and legendary items are protected. Items in the crucible are reserved.": "장착 중이거나 잠긴 아이템과 전설 아이템은 보호됩니다. 도가니의 재료는 보존됩니다.",
   "Choose spare items to salvage.": "분해할 여분 아이템을 선택하세요.",
-  "Salvaged {n} items.": "아이템 {n}개를 분해했습니다."
-});
-
-Object.assign(DICT.ko, {
+  "Salvaged {n} items.": "아이템 {n}개를 분해했습니다.",
   "Settings": "설정",
   "Back to game": "게임으로 돌아가기",
-  "Explore": "탐험"
-});
-
-Object.assign(DICT.ko, {
+  "Explore": "탐험",
   "Deconstruct the Ember Coal, then bind a Fire essence into your sword.": "잉걸탄을 분해한 다음 불의 정수를 검에 결합하세요.",
   "Your first enchanted weapon has proved itself. The Woods are yours to explore.": "첫 마법 무기의 위력을 확인했습니다. 이제 숲을 탐험하세요.",
   "Forge your first enchanted weapon": "첫 마법 무기 제작",
@@ -553,10 +529,7 @@ Object.assign(DICT.ko, {
   "Master your combat style": "전투 방식 익히기",
   "Beyond the Woods": "숲 너머로",
   "Try your new weapon. Watch its effects after each strike.": "새 무기를 사용하고 공격 후 효과를 확인하세요.",
-  "Step onto an empty tile to try your enchanted weapon.": "빈 칸으로 이동하여 마법 무기를 시험하세요."
-});
-
-Object.assign(DICT.ko, {
+  "Step onto an empty tile to try your enchanted weapon.": "빈 칸으로 이동하여 마법 무기를 시험하세요.",
   "Choose a bounty to support your build.": "장비 구성에 맞는 의뢰를 선택하세요.",
   "Choose bounty": "의뢰 선택",
   "Progress starts when you accept. Rewards stay the same until you complete a bounty.": "수락한 후부터 진행도가 계산됩니다. 의뢰를 완료할 때까지 보상은 바뀌지 않습니다.",
@@ -577,12 +550,8 @@ Object.assign(DICT.ko, {
   "Guard paid off: your empowered strike dealt +{p}% damage.": "방어 성공! 강화된 공격으로 피해가 {p}% 증가했습니다.",
   "Your forged Fire is working: {n} extra burn damage this turn.": "제작한 불 속성이 발동했습니다. 이번 턴에 추가 화상 피해 {n}.",
   "Guard → {action}: +{p}% damage on your next strike.": "방어 → {action}: 다음 공격 피해 +{p}%.",
-  "{trait} → known weakness: +50% strike damage.": "{trait} → 확인된 약점: 공격 피해 +50%."
-});
-
-Object.assign(DICT.ko, {
+  "{trait} → known weakness: +50% strike damage.": "{trait} → 확인된 약점: 공격 피해 +50%.",
   "Study {name} to learn this blueprint.": "{name} 연구로 이 설계도를 배우세요.",
-  "Forge from materials: {items}.": "제작 재료: {items}."
+  "Forge from materials: {items}.": "제작 재료: {items}.",
+"Deconstruct {items} into this material.":"{items} 분해로 이 재료를 얻으세요.",
 });
-
-Object.assign(DICT.ko, {"Deconstruct {items} into this material.":"{items} 분해로 이 재료를 얻으세요."});

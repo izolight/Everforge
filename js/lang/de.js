@@ -251,7 +251,7 @@ DICT.de=Object.assign(DICT.de||{},{
 
 // ---- recipes tab
 "Your recipes":"Deine Rezepte","Every combination you forge is saved here. Tap the anvil to load its ingredients into the crucible.":"Jede Kombination, die du schmiedest, wird hier gespeichert. Tippe auf den Amboss, um ihre Zutaten in den Tiegel zu laden.","Ingredients you don't have are crossed out.":"Zutaten, die du nicht hast, sind durchgestrichen.",
-"Load the ingredients into the crucible.":"Lade die Zutaten in den Tiegel.","Needs Smith Lv {n} for {k} slots.":"Braucht Schmiedestufe {n} für {k} Plätze.","Finish the fight first.":"Beende zuerst den Kampf.","You are missing ingredients.":"Dir fehlen Zutaten.","You have it.":"Du hast es.","You are out of it.":"Du hast keines mehr.",
+"Load the ingredients into the crucible.":"Lade die Zutaten in den Tiegel.","Needs Smith Lv {n} for {k} slots.":"Braucht Schmiedestufe {n} für {k} Plätze.","You are missing ingredients.":"Dir fehlen Zutaten.","You have it.":"Du hast es.","You are out of it.":"Du hast keines mehr.",
 "Load the recipe for {item}":"Rezept für {item} laden","Load":"Laden","Cannot load {item}: {why}":"{item} kann nicht geladen werden: {why}","Needs Lv {n}":"Braucht Stufe {n}","Missing":"Fehlt","No recipes in this category yet.":"Noch keine Rezepte in dieser Kategorie.","Every combination you forge is saved here so you can make it again.":"Jede Kombination, die du schmiedest, wird hier gespeichert, damit du sie wieder herstellen kannst.",
 "What mixes with what":"Was sich womit mischt","What mixes":"Was sich mischt",
 "takes":"nimmt","The same type":"Die gleiche Art","{kind} also take other {kindl}.":"{kind} nehmen auch weitere {kindl} auf.","Only their own kind.":"Nur ihre eigene Art.","Essences":"Essenzen","Everything":"Alles",
@@ -274,7 +274,6 @@ DICT.de=Object.assign(DICT.de||{},{
 "{trait} infused into you. Rank {rank}.":"{trait} in dich infundiert. Rang {rank}.","{grade} {name}":"{name} ({grade})",
 "Your rune ward absorbs {n}.":"Deine Schutzrune absorbiert {n}.","Your rune ward absorbs {n} and shatters.":"Deine Schutzrune absorbiert {n} und zerbricht.","{status}, {t} turns left":"{status}, noch {t} Runden",
 "The peddler pockets your {give} and hands over the {get}. \"Anything else?\"":"Der Hausierer steckt {give} ein und überreicht dir {get}. „Sonst noch etwas?“",
-"Grade":"Güte",
 "Your hero":"Dein Held",
 "Expedition map":"Expeditionskarte","Swipe to explore the map.":"Wische, um die Karte zu erkunden.",
 "Equipped items shape your appearance. Tap a slot to inspect or change gear.":"Deine Ausrüstung bestimmt dein Aussehen. Tippe auf einen Platz, um Ausrüstung anzusehen oder zu wechseln.",
@@ -291,9 +290,7 @@ DICT.de=Object.assign(DICT.de||{},{
 "Study also improves your parry timing against this special, up to three ranks.":"Studieren verbessert auch dein Parade-Timing gegen diesen Spezialzug, bis Rang drei.",
 "Parry a telegraphed special to negate it and riposte. Your chance is shown on the button.":"Pariere einen angekündigten Spezialzug, um ihn zu verhindern und zu kontern. Deine Chance steht auf dem Knopf.",
 "Study, Speed and weapon form improve your odds. Guard blocks new statuses and strengthens your next attack.":"Studieren, Tempo und Waffenform verbessern deine Chancen. Block verhindert neue Zustände und stärkt deinen nächsten Angriff.",
-});
 // Item effect badges and trait explanations.
-Object.assign(DICT.de,{
 "Critical hit":"Kritischer Treffer","Precision":"Präzision","Freeze":"Einfrieren","Healing on hit":"Heilung bei Treffern","Life steal":"Lebensraub",
 "Armor piercing":"Rüstungsdurchdringung","Resistance bypass":"Resistenz umgehen","Armor break":"Rüstungsbruch","Ability":"Fähigkeit","Regeneration":"Regeneration",
 "Blind":"Blendung","Loot bonus":"Beutebonus","Thorns":"Dornen","Damage reduction":"Schadensminderung","Ward":"Schutzschild","Roots":"Wurzeln",
@@ -486,20 +483,11 @@ Object.assign(DICT.de,{
 "Satchel\nTap an item to open it: equip, use, add to the crucible, deconstruct or salvage it.\nLong-press or hover for its name and stats. The frame colour is its grade (Faint, Lesser, Plain, Greater, Pure), a tick means worn, a dot means new, a number is how many you hold.":"Beutel\nTippe auf einen Gegenstand, um ihn zu öffnen: ausrüsten, benutzen, in den Tiegel legen, aufbereiten oder zerlegen.\nLangdrücken oder Darüberfahren zeigt Namen und Werte. Die Rahmenfarbe ist die Güte (Schwach, Gering, Gewöhnlich, Hoch, Rein), ein Haken heißt getragen, ein Punkt neu, eine Zahl wie viele du besitzt.",
 "howto.loop":"<b>Der Ablauf.</b> Durchquere die Karte jeder Region und kämpfe um Rohfunde. Bereite sie zu Grundmaterialien und Essenzen auf, schmiede Ausrüstung aus Mustern, binde Essenzen hinein und besiege am Ende der Karte den Boss, um die nächste Region zu öffnen.<span data-unl=\"rift\"> Hinter dem Turm wartet der Wandernde Riss: jeder Auszug dort ist eine zufällige Region, und jede ist tiefer als die letzte.</span>",
 "howto.mixing":"<b>Mischen.</b> Muster machen aus Grundmaterialien Ausrüstung. Im Tiegel funktionieren nur sinnvolle Kombinationen; die Rezepte-Ansicht zeigt die Tabelle. Aufbereitete Rohfunde geben Essenzen, die sich mit allem mischen. Zerlegte Ausrüstung gibt die Hälfte ihrer Materialien zurück.",
-"+{n} embers.":"+{n} Glut."
-});
-
-Object.assign(DICT.de, {
-  "Last forge": "Letzte Schmiedearbeit"
-});
-
-Object.assign(DICT.de, {
+"+{n} embers.":"+{n} Glut.",
+  "Last forge": "Letzte Schmiedearbeit",
   "Compared with {item}: {changes}.": "Verglichen mit {item}: {changes}.",
   "Core stats unchanged": "Grundwerte unverändert",
-  "Equipped automatically": "Automatisch ausgerüstet"
-});
-
-Object.assign(DICT.de, {
+  "Equipped automatically": "Automatisch ausgerüstet",
   "Before Guard; ongoing status damage is separate.": "Vor Blocken; laufender Statusschaden kommt hinzu.",
   "−{cut}% hit · +{boost}% next": "−{cut}% Treffer · +{boost}% danach",
   "Wrong timing": "Falscher Zeitpunkt",
@@ -507,16 +495,10 @@ Object.assign(DICT.de, {
   "Learn · uses a turn": "Lernen · kostet einen Zug",
   "Escape may fail": "Flucht kann scheitern",
   "Empowered: +{p}% damage": "Verstärkt: +{p}% Schaden",
-  "Strike with your weapon": "Mit deiner Waffe zuschlagen"
-});
-
-Object.assign(DICT.de, {
+  "Strike with your weapon": "Mit deiner Waffe zuschlagen",
   "Boss direction": "Richtung zum Boss",
   "Recenter": "Zentrieren",
-  "Unexplored landmark": "Unentdeckter Ort"
-});
-
-Object.assign(DICT.de, {
+  "Unexplored landmark": "Unentdeckter Ort",
   "Unlock these items before crafting.": "Entsperre diese Gegenstände vor dem Schmieden.",
   "Unlock item": "Gegenstand entsperren",
   "Lock item": "Gegenstand sperren",
@@ -539,16 +521,10 @@ Object.assign(DICT.de, {
   "Salvage selected items": "Ausgewählte Gegenstände zerlegen",
   "Equipped, locked and legendary items are protected. Items in the crucible are reserved.": "Ausgerüstete, gesperrte und legendäre Gegenstände sind geschützt. Zutaten im Schmelztiegel bleiben reserviert.",
   "Choose spare items to salvage.": "Wähle überzählige Gegenstände zum Zerlegen.",
-  "Salvaged {n} items.": "{n} Gegenstände zerlegt."
-});
-
-Object.assign(DICT.de, {
+  "Salvaged {n} items.": "{n} Gegenstände zerlegt.",
   "Settings": "Einstellungen",
   "Back to game": "Zurück zum Spiel",
-  "Explore": "Erkunden"
-});
-
-Object.assign(DICT.de, {
+  "Explore": "Erkunden",
   "Deconstruct the Ember Coal, then bind a Fire essence into your sword.": "Zerlege die Glutkohle und binde eine Feueressenz in dein Schwert.",
   "Your first enchanted weapon has proved itself. The Woods are yours to explore.": "Deine erste verzauberte Waffe hat sich bewährt. Erkunde nun die Wälder.",
   "Forge your first enchanted weapon": "Schmiede deine erste verzauberte Waffe",
@@ -556,10 +532,7 @@ Object.assign(DICT.de, {
   "Master your combat style": "Meistere deinen Kampfstil",
   "Beyond the Woods": "Jenseits der Wälder",
   "Try your new weapon. Watch its effects after each strike.": "Probiere deine neue Waffe aus. Beobachte ihre Effekte nach jedem Schlag.",
-  "Step onto an empty tile to try your enchanted weapon.": "Betritt ein leeres Feld, um deine verzauberte Waffe auszuprobieren."
-});
-
-Object.assign(DICT.de, {
+  "Step onto an empty tile to try your enchanted weapon.": "Betritt ein leeres Feld, um deine verzauberte Waffe auszuprobieren.",
   "Choose a bounty to support your build.": "Wähle einen Auftrag, der zu deiner Ausrüstung passt.",
   "Choose bounty": "Auftrag wählen",
   "Progress starts when you accept. Rewards stay the same until you complete a bounty.": "Der Fortschritt zählt ab der Annahme. Die Belohnungen bleiben bis zum Abschluss eines Auftrags gleich.",
@@ -580,12 +553,8 @@ Object.assign(DICT.de, {
   "Guard paid off: your empowered strike dealt +{p}% damage.": "Die Deckung hat sich gelohnt: Dein verstärkter Schlag verursachte +{p}% Schaden.",
   "Your forged Fire is working: {n} extra burn damage this turn.": "Dein geschmiedetes Feuer wirkt: {n} zusätzlicher Brandschaden in diesem Zug.",
   "Guard → {action}: +{p}% damage on your next strike.": "Deckung → {action}: +{p}% Schaden beim nächsten Schlag.",
-  "{trait} → known weakness: +50% strike damage.": "{trait} → bekannte Schwäche: +50% Schlagschaden."
-});
-
-Object.assign(DICT.de, {
+  "{trait} → known weakness: +50% strike damage.": "{trait} → bekannte Schwäche: +50% Schlagschaden.",
   "Study {name} to learn this blueprint.": "Studiere {name}, um diesen Bauplan zu lernen.",
-  "Forge from materials: {items}.": "Schmiede aus Materialien: {items}."
+  "Forge from materials: {items}.": "Schmiede aus Materialien: {items}.",
+"Deconstruct {items} into this material.":"Zerlege {items}, um dieses Material zu erhalten.",
 });
-
-Object.assign(DICT.de, {"Deconstruct {items} into this material.":"Zerlege {items}, um dieses Material zu erhalten."});
