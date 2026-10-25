@@ -262,6 +262,7 @@ function setup(){ // runs inside the game page; everything here uses the real ga
 
 // ---------- node side ----------
 const pct=x=>Math.round(x*100),f1=x=>(Math.round(x*10)/10).toFixed(1),median=a=>{const s=[...a].sort((x,y)=>x-y);return s.length?s[Math.floor(s.length/2)]:0};
+const sg=(v,f)=>(v>0?"+":"")+(f?f(v):v); // a signed number with its sign kept ("+5", "-1.9")
 const RK=["","magic","rare"],ZN=["woods","pass","hollow","spire"],kitName=(t,z)=>`${t}/${z}`;
 // Flags use bands, not win% alone. mode "arr" (arrival: the kit of the previous stage meets this zone, or the starter kit meets the woods) is the main pairing; "on" is the kit's own zone.
 const TURN_EASY=4,TURN_EASY_BOSS=10,HP_EASY=.85;
@@ -340,7 +341,8 @@ async function main(){
     const todo=[];
     for(const k of kits)for(const e of enemies){
       const variants=e.id==="mimic"?[k.on&&[k.on,"on"],k.arr&&[k.arr,"arr"]].filter(Boolean):[[null,e.zone===k.arr?"arr":e.zone===k.on?"on":"off"]];
-      for(const [mz,mode] of variants)for(const h of HEATS)for(const p of POLS)for(const el of ELITE&&!e.boss&&e.id!=="mimic"?["","magic","rare"]:[""])todo.push({c:{k:k.name,e:e.id,h,p,mz,mode,rar:el||"normal",nat:!el,el},vr:el||"normal"})}
+      // FORCED (--wild or --elite) also runs the regulars' magic/rare variants: the wild table needs them as the like-for-like baseline
+      for(const [mz,mode] of variants)for(const h of HEATS)for(const p of POLS)for(const el of FORCED&&!e.boss&&e.id!=="mimic"?["","magic","rare"]:[""])todo.push({c:{k:k.name,e:e.id,h,p,mz,mode,rar:el||"normal",nat:!el,el},vr:el||"normal"})}
     res=await runCells(todo,"matrix");
     res.forEach(c=>{c.flags=c.nat?flagsOf(c,c.mode,E[c.e]):[];c.enemy=c.e+({magic:"+",rare:"*"}[c.vr]||"")});
     const MO={arr:0,on:1,off:2};
@@ -411,26 +413,29 @@ async function main(){
     const regions=await P0.evaluate(()=>ZONES.map(z=>z[0]).filter(z=>z!=="rift"));
     const biome=await P0.evaluate(()=>({...ZONE_BIOME}));
     const wc=(e,k,p,h,vr)=>wres.find(x=>x.e===e.id&&x.k===k&&x.p===p&&x.h===h&&x.vr===vr);
-    console.log(`\n== Wild by region/biome: the mean over the region's wild creatures. "Δ vs regulars" is the win% difference from the same zone's hand-made regulars (same kit, policy, Heat), in points; the flags count the region's creatures flagged at Heat 0. ==`);
+    console.log(`\n== Wild by region/biome: the mean over the region's wild creatures. "Δ vs regulars" is the difference from the same zone's hand-made regulars (same kit, policy, Heat): win in points, turns in turns, HP left in points. A forced magic/rare row is compared with the regulars of that same rarity (the --elite rows); without them the Δ is "-". The flags count the region's creatures flagged at Heat 0. ==`);
     for(const region of regions){
       const cs=wild.filter(e=>e.zone===region);
       if(!cs.length)continue;
       const ks=kits.filter(k=>k.arr===region||k.on===region);
       if(!ks.length){console.log(`\n-- ${region} (${biome[region]||"?"}): no kit pairs with this region --`);continue}
       console.log(`\n-- ${region} (${biome[region]||"?"}), ${cs.length} wild creatures --`);
-      console.log(`${"kit".padEnd(17)}${"policy".padEnd(8)}${"rarity".padEnd(8)}${HEATS.map(h=>("H"+h).padEnd(19)).join("")}${"Δ vs regulars".padEnd(20)}flags`);
+      console.log(`${"kit".padEnd(17)}${"policy".padEnd(8)}${"rarity".padEnd(8)}${HEATS.map(h=>("H"+h).padEnd(19)).join("")}${HEATS.map(h=>("ΔH"+h).padEnd(16)).join("")}flags`);
       for(const k of ks)for(const p of POLS)for(const vr of (FORCED?["native","normal","magic","rare"]:["native"])){
+        const base=vr==="magic"?"magic":vr==="rare"?"rare":"normal"; // the regulars of the same rarity: the baseline of a forced row
         const row=HEATS.map(h=>{
           const xs=cs.map(e=>wc(e,k.name,p,h,vr)).filter(Boolean);
-          const rs=res.filter(x=>x.k===k.name&&x.p===p&&x.h===h&&x.nat&&E[x.e]&&E[x.e].zone===region&&!E[x.e].boss);
-          const mw=xs.length?xs.reduce((a,c)=>a+c.win,0)/xs.length:0;
-          const mr=rs.length?rs.reduce((a,c)=>a+c.win,0)/rs.length:null;
-          return{w:mw,t:xs.length?xs.reduce((a,c)=>a+c.turns,0)/xs.length:0,hp:xs.length?xs.reduce((a,c)=>a+c.hp,0)/xs.length:0,d:mr==null?null:Math.round((mw-mr)*100)}});
+          const rs=res.filter(x=>x.k===k.name&&x.p===p&&x.h===h&&x.vr===base&&E[x.e]&&E[x.e].zone===region&&!E[x.e].boss);
+          if(!xs.length)return null; // nothing ran here: the cell is empty, not 0%
+          const mw=xs.reduce((a,c)=>a+c.win,0)/xs.length,mt=xs.reduce((a,c)=>a+c.turns,0)/xs.length,mhp=xs.reduce((a,c)=>a+c.hp,0)/xs.length;
+          if(!rs.length)return{w:mw,t:mt,hp:mhp,d:null};
+          const rw=rs.reduce((a,c)=>a+c.win,0)/rs.length,rt=rs.reduce((a,c)=>a+c.turns,0)/rs.length,rhp=rs.reduce((a,c)=>a+c.hp,0)/rs.length;
+          return{w:mw,t:mt,hp:mhp,d:{win:Math.round((mw-rw)*100),turns:mt-rt,hp:Math.round((mhp-rhp)*100)}}});
         const f0=cs.map(e=>wc(e,k.name,p,0,vr)).filter(Boolean);
         const fl=[["TOO_HARD",f0.filter(c=>c.flags.includes("TOO_HARD")).length],["TOO_EASY",f0.filter(c=>c.flags.includes("TOO_EASY")).length]].filter(x=>x[1]).map(x=>`${x[0]} ${x[1]}`).join(", ");
-        console.log(`${k.name.padEnd(17)}${p.padEnd(8)}${vr.padEnd(8)}${row.map(r=>`${String(pct(r.w)).padStart(3)}% ${f1(r.t).padStart(5)}t ${String(pct(r.hp)).padStart(3)}%`.padEnd(19)).join("")}${row.map(r=>r.d==null?"-":(r.d>0?"+":"")+r.d).join(" / ").padEnd(20)}${fl}`);
+        console.log(`${k.name.padEnd(17)}${p.padEnd(8)}${vr.padEnd(8)}${row.map(r=>r?`${String(pct(r.w)).padStart(3)}% ${f1(r.t).padStart(5)}t ${String(pct(r.hp)).padStart(3)}%`.padEnd(19):"-".padEnd(19)).join("")}${row.map(r=>r&&r.d?`${sg(r.d.win)}/${sg(r.d.turns,f1)}/${sg(r.d.hp)}`.padEnd(16):"-".padEnd(16)).join("")}${fl}`);
         result.wildByRegion.push({region,biome:biome[region]||"",creatures:cs.length,kit:k.name,policy:p,rarity:vr,
-          heats:HEATS.map((h,i)=>({h,win:row[i].w,turns:row[i].t,hp:row[i].hp,delta:row[i].d})),flags:fl})}}
+          heats:HEATS.map((h,i)=>row[i]?{h,win:row[i].w,turns:row[i].t,hp:row[i].hp,delta:row[i].d}:{h,win:null,turns:null,hp:null,delta:null}),flags:fl})}}
     // ---- the Rift: a region rolled from one seed, its master and (with --rift-wild) its own wild creatures
     const seeds=RIFT_SEEDS?await P0.evaluate(ss=>ss.map(s=>({s,seed:hash("sim-rift:"+s)})),RIFT_SEEDS):await P0.evaluate(()=>SIM.riftSeeds(RIFT_BIOMES.length));
     const rk=kits.filter(k=>k.zone==="spire"),rvars=["native","magic","rare"];
