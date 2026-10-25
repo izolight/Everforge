@@ -219,7 +219,7 @@ function enemyDown(){
     if(next&&!S.unlocked.includes(next[0])){S.unlocked.push(next[0]);msg=`${next[1]} is now open!`}
     else if(!next&&hz.max===0)msg="You've conquered the realm. Now turn up the Heat.";
     if(nh>hz.max){S.heat[E.zone]={max:nh,sel:hz.sel};msg=(msg?msg+" ":"")+`Heat ${nh} unlocked in ${zoneName(E.zone)}: ${HEAT[nh-1].name}.`}}
-  if(E.boss&&S.kills[B.id]===1){const hm=giveHint();if(hm){blog(hm,"big");msg=(msg?msg+" ":"")+"A hint scroll joins your Recipes."}}
+  if(E.boss&&S.kills[B.id]===1){rpGain("boss:"+B.id,RP.boss,`${shortName(B.id)} defeated`);const hm=giveHint();if(hm){blog(hm,"big");msg=(msg?msg+" ":"")+"A hint scroll joins your Recipes."}}
   if(level()>lv0)msg=(msg?msg+" ":"")+lvMsg();
   save();render();if(msg)toast(msg);
 }
