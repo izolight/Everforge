@@ -596,12 +596,13 @@ details.howto[open]>summary{margin-bottom:4px}
 .intro .it p{grid-column:1/-1;margin:0}.intro .btn{grid-column:3;grid-row:1;min-height:40px}
 .intro.fl{position:fixed;z-index:19;top:calc(env(safe-area-inset-top,0px) + 8px);left:12px;right:12px;max-width:696px;margin:0 auto}
 .nudge{outline:2px solid var(--accent);outline-offset:2px;border-radius:8px;animation:nudge 1.1s ease-in-out 2}
+.tl.adj.nudge{animation:nudge 1.1s ease-in-out 2}
 @keyframes nudge{50%{box-shadow:0 0 0 6px rgb(242 165 74 / 0),0 0 14px 2px rgb(242 165 74 / .7)}}
 .lockrow{display:flex;align-items:center;gap:6px;flex-wrap:wrap;color:var(--dim);font-size:.82rem;line-height:1.25;padding:6px 8px;border:1px dashed var(--line);border-radius:10px;background:#17130f}
 .lockrow .ic{flex:none}.lockrow b{font-weight:500;color:var(--muted)}.lockrow small{flex:1 1 120px;text-align:right;font-size:.74rem;color:var(--dim)}
 .dcard .lockrow{border:0;background:transparent;padding:0}
 .act.lk{opacity:.55;border-style:dashed}.act.lk .ic{color:var(--dim)}
-.gdl{display:grid;gap:6px}.gdl.lockd{margin-top:8px}
+.gdl{display:grid;gap:6px}.gd.lockd{margin-top:6px}.gd.lockd .gdl{padding:0 8px 8px}.lrow>.lockrow{flex:1}
 .gd{border:1px solid var(--line);border-radius:10px;background:#17130f}
 .gd summary{display:flex;align-items:center;gap:8px;padding:9px 10px;min-height:40px;cursor:pointer;font-size:.92rem}
 .gd .gi{color:var(--accent);display:inline-flex}.gd .rdy{margin-left:auto}

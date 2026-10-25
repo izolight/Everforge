@@ -25,7 +25,7 @@
   </header>
 
   <div class="goal" id="goal" aria-live="polite"></div>
-  <aside class="intro" id="intro" aria-label="Introduction" hidden></aside>
+  <aside class="intro" id="intro" aria-label="Introduction" role="status" aria-live="polite" tabindex="-1" hidden></aside>
 
   <div id="v-battle" class="view">
     <section class="panel">
@@ -41,7 +41,7 @@
       <div class="pstats" id="pstats"></div>
       <div class="cfx" id="cfx"></div>
     </section>
-    <section class="panel" id="infp" aria-label="Infusions">
+    <section class="panel" aria-label="Infusions">
       <div class="lrow" id="inflabel"></div>
       <div class="inf" id="inf"></div>
       <div class="actions" id="infbtns"></div>
@@ -67,7 +67,7 @@
       <details id="upgd"><summary class="label" id="upgsum"></summary>
       <div class="upgrows" id="upgrows"></div></details>
     </section>
-    <section class="panel" id="skp" aria-label="Skills">
+    <section class="panel" aria-label="Skills">
       <div id="sklock" hidden></div>
       <details id="skd"><summary class="label" id="sksum"></summary><div id="skills"></div></details>
     </section>
@@ -131,15 +131,15 @@
       <p class="label">How to play</p>
       <details class="howto"><summary><span data-ic="hero"></span> The map</summary><div class="rules">
           <p><b>The loop.</b> Cross each region's map, fight for loot, salvage it into essences, forge better gear, and beat the boss at the end of the map to open the next region.</p>
-          <p><b>The map.</b> Each region is a grid of tiles. Tap a glowing tile next to you to step; you only see a couple of tiles around you, and explored ground stays dim. Walk onto fights, elites (magic or rare: tougher, with affixes that change the fight and drop essences), chests, shrines, peddlers and mystery tiles (?) to meet them. The boss waits in the lair at the top, behind a camp. Losing sends you back to a fresh map; cleared regions can be explored again.</p>
+          <p><b>The map.</b> Each region is a grid of tiles. Tap a glowing tile next to you to step; you only see a couple of tiles around you, and explored ground stays dim. Walk onto fights and chests to meet them<span data-unl="elite">, and elites (magic or rare: tougher, with affixes that change the fight and drop essences)</span><span data-unl="shrine">, shrines</span><span data-unl="peddler"> and peddlers</span><span data-unl="mystery"> and mystery tiles (?)</span>. The boss waits in the lair at the top, behind a camp. Losing sends you back to a fresh map; cleared regions can be explored again.</p>
           <p><b>Torchlight.</b> Your torch burns down one step at a time. When it runs out you only see one tile around you and every step risks an ambush. Camps, shrine prayers and campfire rests relight it.</p>
-          <p><b>Health.</b> HP carries over between fights. Heal by eating, resting at a campfire (one charge per three wins), camps and shrines. Healing traits on gear mend you each turn.</p>
+          <p><b>Health.</b> HP carries over between fights. Heal by eating, resting at a campfire (one charge per three wins), camps<span data-unl="shrine"> and shrines</span>. Healing traits on gear mend you each turn.</p>
           <p><b>Defeat.</b> You wake at the region's edge with 30% HP, and a scavenger takes one unequipped item.</p>
       </div></details>
       <details class="howto"><summary><span data-ic="battle"></span> Fighting</summary><div class="rules">
-          <p><b>Abilities.</b> A weapon's form gives it one signature move (a spear lunges, a staff channels its element, claws rend) and a shield can bash. They show as extra buttons in battle, take your turn, and then need a few turns to cool down. Inspect the item to see the numbers.</p>
+          <p data-unl="ability"><b>Abilities.</b> A weapon's form gives it one signature move (a spear lunges, a staff channels its element, claws rend) and a shield can bash. They show as extra buttons in battle, take your turn, and then need a few turns to cool down. Inspect the item to see the numbers.</p>
           <p><b>Trait effects.</b> Fire burns, Ice can freeze, Poison stacks, Holy heals you, Shadow drains life, Sharp raises crits, Heavy pierces armor, Swift gives extra strikes, Steam makes enemies miss.</p>
-          <p><b>Enemy moves.</b> Special moves are announced a turn ahead, and the creature glows red. Guard takes 60% less damage. Parry a telegraphed special to negate it and strike back, though a parry can miss (<span data-k="pmiss"></span>% of the time). A mistimed parry, or a parry on a normal attack, costs you 25% more damage and your next guard. Parrying a heal interrupts it.</p>
+          <p data-unl="parry"><b>Enemy moves.</b> Special moves are announced a turn ahead, and the creature glows red. Guard takes 60% less damage. Parry a telegraphed special to negate it and strike back, though a parry can miss (<span data-k="pmiss"></span>% of the time). A mistimed parry, or a parry on a normal attack, costs you 25% more damage and your next guard. Parrying a heal interrupts it.</p>
           <p><b>Armor.</b> Defense cuts the damage you take by DEF/(DEF+<span data-k="defk"></span>), with diminishing returns, and Defense, resists and Stone together never cut a hit by more than <span data-k="hitmax"></span>%. Your own blows lose armor/(armor+half your strike) to the enemy's Defense, so a weak attack still gets through. Magic counts <span data-k="magw"></span> times as much as Attack in your strikes.</p>
           <p><b>Statuses.</b> Some creatures burn, chill, poison or curse you. They tick or hinder you for a few turns and end with the battle. Medicine gear, resist gear and some consumables (Medicine, Holy, Water, Nourishing) shake them off.</p>
           <p><b>Knowledge.</b> You learn a weakness by hitting it, a resistance by being resisted, a special move by surviving it, stats by winning and drops by finding them. Study reveals one fact but costs your turn.</p>
@@ -147,7 +147,7 @@
       <details class="howto"><summary><span data-ic="forge"></span> Gear and forge</summary><div class="rules">
           <p><b>Gear.</b> Seven slots. An off-hand weapon adds a weaker second strike; a shield can block hits.</p>
           <p><b>Mixing.</b> Only sensible combinations work; the Recipes tab has the table. Salvage turns any item into essences, which mix with everything.</p>
-          <p><b>Infusions.</b> Pure essences can be infused into yourself in the Gear tab. The trait stays with you whatever you wield.</p>
+          <p data-unl="infuse"><b>Infusions.</b> Pure essences can be infused into yourself in the Gear tab. The trait stays with you whatever you wield.</p>
           <p><b>Previews.</b> Known recipes show their full result before you forge. New combinations show the form and any reactions you've discovered. Every forge can go wrong: the line under the crucible shows your skill for that kind of item, the odds of a clean result, a mishap or a fizzle (the ingredients are lost, some embers return), and the highest tier that skill can reach. Failing teaches a little, but easy recipes teach less. Merged trait values above 8 grow at half rate, and upgrading a crafted item again is harder each time.  a higher skill and simpler recipes make it rarer. From Smith Lv 3 the forge also appraises the traits to expect.</p>
       </div></details>
       <div class="actions"><button class="btn danger" id="reset">Start a new game</button></div>

@@ -5,7 +5,7 @@ const plainEq=g=>INF_W[g-1]/INF_W[2],salvGrade=it=>it.grade||it.sg||3; // plain 
 const buyPrice=id=>{if(isEss(id))return Math.max(1,Math.round(EMB.ess*plainEq(gradeOf(id))));const it=S.items[id];return Math.max(Math.round(worth(it)*EMB.buy),Math.ceil(EMB.floor*(salvageYield(it).length*EMB.val*plainEq(salvGrade(it))+salvageEmbers(it))))},sellPrice=id=>Math.max(1,Math.round(worth(S.items[id])*EMB.sell));
 const salvageEmbers=it=>isEss(it.id)?0:Math.max(1,Math.round(worth(it)*EMB.salv));
 function spendEmbers(n){S.embers-=n;S.stats.spent+=n}
-function gainEmbers(n){if(n>0){S.embers+=n;S.stats.earned+=n;fx("emb","+"+n,"ember")}return n}
+function gainEmbers(n){if(n>0){S.embers+=n;S.stats.earned+=n;if(isUnl("peddler"))fx("emb","+"+n,"ember")}return n}
 function fightEmbers(E,B){const base=E.boss?EMB.boss:B.id==="mimic"?EMB.elite:EMB.rar[B.rar]||EMB.fight;return gainEmbers(Math.round(base*(1+(B.heat||0)*EMB.heat)))}
 // Peddler stock: EMB.stock items from this zone's and the next zone's drops plus one or two essences. rv = six 0-1 rolls (pre-rolled per POI on the seeded daily map), so the same day shows the same shop.
 function shopStock(rv){

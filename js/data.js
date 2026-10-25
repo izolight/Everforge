@@ -209,15 +209,15 @@ const TUTORIAL=[
   {text:"Equip a piece of armor or a shield.",tab:"gear",done:s=>["off","head","body","hands","feet"].some(k=>s.eq[k]&&s.items[s.eq[k]]&&FORMS[s.items[s.eq[k]].form].g==="armor"),reward:{camp:1}},
   {text:"Cross the Woods map and defeat Gnarlhorn at the end of it.",tab:"battle",done:s=>(s.kills.gnarlhorn||0)>=1,reward:{items:["ess:Swift","ess:Holy"],xp:30}},
   {text:"Infuse an essence into yourself in the Gear tab.",tab:"gear",done:s=>Object.keys(s.infuse||{}).length>0,reward:{camp:1,xp:20}},
-  // steps 8-15 walk through the unlocks (see UNLOCKS): each names a system that opened by now or is about to
+  // steps 8-15 walk through the unlocks (see UNLOCKS). A step with need:"id" (an unlock) or ok(s) waits, showing how to open it (UNLOCKS txt, or wait), until its system is open
   {text:"Parry a telegraphed special: when a creature glows red, tap Parry.",tab:"battle",done:s=>s.stats.parries>=1,reward:{items:["ess:Iron"],xp:15}},
   {text:"Use your weapon's ability in a fight (the extra button by Attack).",tab:"battle",done:s=>s.stats.abil>=1,reward:{items:["ess:Swift"]}},
   {text:"Defeat a magic or rare enemy. A coloured frame marks them on the map.",tab:"battle",done:s=>s.stats.elites>=1,reward:{items:["ess:Arcane","ess:Shadow"],xp:25}},
   {text:"Set the Heat to 1 with the flame on the map strip, then start a new expedition.",tab:"battle",done:s=>Object.values(s.heat||{}).some(h=>h.sel>=1),reward:{camp:1,xp:20}},
   {text:"Train a crafting skill to level 2. Each forge trains the skill of what it makes.",tab:"forge",done:s=>Object.values(s.skills||{}).some(x=>x>=SK_LV[1]),reward:{items:["ess:Water"],xp:25}},
-  {text:"Spend some embers: buy from a peddler on the map, or upgrade a grade in the Forge.",tab:"battle",done:s=>s.stats.spent>=1,reward:{items:["ess:Nourishing"],camp:1}},
-  {text:"Travel to Frostfang Pass and defeat a creature there.",tab:"battle",done:s=>(s.zoneKills.pass||0)>=1,reward:{items:["ess:Ice@4"],xp:40}},
-  {text:"Play the daily expedition. It opens under the map once you clear the Pass or reach Smith Lv 5.",tab:"battle",done:s=>s.stats.dailies>=1,reward:{items:["ess:Holy@4","ess:Stone"],xp:60}}
+  {text:"Travel to Frostfang Pass and defeat a creature there.",tab:"battle",ok:s=>s.unlocked.includes("pass"),wait:"Defeat Gnarlhorn to open Frostfang Pass.",done:s=>(s.zoneKills.pass||0)>=1,reward:{items:["ess:Ice@4"],xp:40}},
+  {text:"Spend some embers: buy from a peddler on the map, or upgrade a grade in the Forge.",tab:"battle",need:"peddler",done:s=>s.stats.spent>=1,reward:{items:["ess:Nourishing"],camp:1}},
+  {text:"Play the daily expedition, under the map.",tab:"battle",need:"daily",done:s=>s.stats.dailies>=1,reward:{items:["ess:Holy@4","ess:Stone"],xp:60}}
 ];
 // the map is a GRID.w x GRID.h tile grid; MAP_ROWS is its depth scale (0..5 by distance from the start, 6 = the lair) that sets enemy scaling and the daily's "depth reached"
 const MAP_ROWS=7,GRID={w:9,h:13},POI_N={fight:[5,3],elite:[1,2],chest:2,shrine:2,peddler:1,mystery:3}; // [min,spread]: fights 5-7, elites 1-2 (doubled at Heat 2+)
@@ -305,7 +305,6 @@ const DAILY_REWARD={ess:3,xp:80};
 // txt (teaser: how to unlock it), w (toast hint), q (quiet: no toast or sound), i ({t,l:[1-3 short lines],tab,sel,ctx}: the one-time intro; tab = where it shows, sel = what gets pulsed, ctx "battle" = shown above the action grid in a fight; omit i for a system with no card).
 // Order matters: it is the order of the Codex Guide. To gate something new add an entry here, test isUnl(id) where it is drawn (lockRow(id) draws the teaser), and add a step to TUTORIAL if it deserves one.
 const lvOf=xp=>XP_LV.filter(t=>xp>=t).length,exps=s=>s.stats.exped+s.stats.deaths,has_=(s,...ids)=>ids.every(i=>s.unl[i]); // exps: finished expeditions (a boss down or a defeat)
-const mapHas=(s,t)=>[...Object.values(s.maps),...s.daily&&s.daily.map?[s.daily.map]:[]].some(m=>m&&Array.isArray(m.pois)&&m.pois.some(p=>p.t===t));
 const boss1=s=>(s.kills[ZONES[0][2]]|0)>0,abOf=s=>[s.eq.main,s.eq.off].some(id=>id&&s.items[id]&&ABILITIES[s.items[id].form]);
 const UNLOCKS=[
   {id:"start",name:"The map",ic:"hero",q:1,when:()=>true,i:{t:"Your first expedition",l:["Tap a glowing tile next to you to step. Fights drop loot, and a camp waits before the boss.","In a fight: Attack, Guard or Flee. Your torch burns down as you walk."],tab:"battle",sel:".tl.adj"}},
@@ -318,20 +317,20 @@ const UNLOCKS=[
   {id:"roam",name:"Roaming enemies",ic:"fight",q:1,when:s=>s.wins>=1},
   {id:"hunt",name:"Hunters",ic:"warn",used:s=>s.wins>=3,txt:"Let a creature catch your scent.",w:"",
     i:{t:"It's hunting you",l:["Some creatures catch your scent and follow, a step behind. A ! marks them.","Fight when you choose, or Flee: it stays behind, dazed, for a few steps."],tab:"battle",sel:".tl.aware"}},
-  {id:"shrine",name:"Shrines",ic:"shrine",when:s=>exps(s)>=1,used:s=>mapHas(s,"shrine"),txt:"Finish your first expedition.",w:"Look for them on your next expedition.",
+  {id:"shrine",name:"Shrines",ic:"shrine",when:s=>exps(s)>=1,txt:"Finish your first expedition.",w:"Look for them on your next expedition.",
     i:{t:"Shrines",l:["Pray to mend yourself and relight your torch, or give the stones something for a hint scroll.","Look for the shrine on the map."],tab:"battle",sel:".tl.p-shrine"}},
-  {id:"peddler",name:"Peddlers and embers",ic:"peddler",when:s=>exps(s)>=2,used:s=>s.stats.spent>0||(s.embers>0&&s.wins>=3)||mapHas(s,"peddler"),txt:"Finish two expeditions.",w:"Look for one on your next expedition.",
-    i:{t:"Peddlers and embers",l:["Fights, salvage and selling earn embers. A peddler on the map trades them for wares, buys your spares or swaps goods.","Embers also pay for grade upgrades and for mending flawed crafts."],tab:"battle",sel:"#emb,.tl.p-peddler"}},
-  {id:"mystery",name:"Mystery events",ic:"mystery",when:s=>exps(s)>=2,used:s=>mapHas(s,"mystery"),txt:"Finish two expeditions.",w:"Look for ? tiles on your next expedition.",
+  {id:"peddler",name:"Peddlers and embers",ic:"peddler",when:s=>exps(s)>=2,used:s=>s.stats.spent>0||(s.embers>0&&s.wins>=3),txt:"Finish two expeditions.",w:"Look for one on your next expedition.",
+    i:{t:"Peddlers and embers",l:["Fights, salvage and selling earn embers. A peddler on the map trades them for wares, buys your spares or swaps goods."],tab:"battle",sel:"#emb,.tl.p-peddler"}},
+  {id:"mystery",name:"Mystery events",ic:"mystery",when:s=>exps(s)>=2,txt:"Finish two expeditions.",w:"Look for ? tiles on your next expedition.",
     i:{t:"Mystery tiles",l:["A ? tile can hold anything: an ambush, a stranger with a bargain, a riddle, an old forge.","Read the choices. Walking away is always allowed."],tab:"battle",sel:".tl.p-mystery"}},
-  {id:"elite",name:"Magic and rare foes",ic:"elite",when:s=>lvOf(s.xp)>=3||ZONES.some(z=>s.seen[z[2]]),used:s=>s.stats.elites>0||mapHas(s,"elite"),txt:"Face a region boss, or reach Smith Lv 3.",w:"Tougher foes now roam the map.",
+  {id:"elite",name:"Magic and rare foes",ic:"elite",when:s=>lvOf(s.xp)>=3||ZONES.some(z=>s.seen[z[2]]),used:s=>s.stats.elites>0,txt:"Face a region boss, or reach Smith Lv 3.",w:"They show up on your next expedition.",
     i:{t:"Magic and rare foes",l:["Some creatures carry affixes: tricks that change the fight. A coloured frame marks them on the map.","Each drops essences linked to its affixes, in better grades."],tab:"battle",sel:".tl.p-elite"}},
   {id:"infuse",name:"Infusions",ic:"infuse",when:s=>boss1(s)||s.quest>=6,used:s=>Object.keys(s.infuse).length>0||s.infCredit>0,txt:"Defeat Gnarlhorn.",w:"Open the Gear tab.",
-    i:{t:"Infusions",l:["Essences worth three plain ones can be infused into you. The trait stays whatever you wield.","Feed it the same essence again to deepen it, up to III."],tab:"gear",sel:"#inflabel"}},
+    i:{t:"Infusions",l:[`Essences worth ${INF_COST} plain ones can be infused into you. The trait stays whatever you wield.`,`Feed it the same essence again to deepen it, up to ${["I","II","III"][INF_MAX-1]}.`],tab:"gear",sel:"#inflabel"}},
   {id:"skills",name:"Crafting skills",ic:"hammer",when:s=>s.journal.length>0||s.stats.forged>0,used:s=>Object.values(s.skills).some(x=>x>0),txt:"Forge something.",w:"Open the Forge tab.",
     i:{t:"Crafting skills",l:["Every kind of thing has its own skill, and forging it trains it.","A higher skill reaches higher tiers and fails less often."],tab:"forge",sel:"#skd"}},
   {id:"upgrade",name:"Grade upgrades",ic:"upgrade",when:s=>has_(s,"peddler","skills"),used:s=>s.stats.refined>0,txt:"Unlock embers and crafting skills.",w:"Open the Forge tab.",
-    i:{t:"Grade upgrades",l:["Three essences or materials of one grade and some embers make one of the next grade: stronger traits in one slot.","A miss costs the embers and one of the three."],tab:"forge",sel:"#upgd"}},
+    i:{t:"Grade upgrades",l:[`${UP.n} essences or materials of one grade and some embers make one of the next grade: stronger traits in one slot.`,`A miss costs the embers and one of the ${UP.n}.`],tab:"forge",sel:"#upgd"}},
   {id:"heat",name:"Heat",ic:"heat",when:s=>Object.values(s.heat).some(h=>h.max>0)||boss1(s),used:s=>Object.keys(s.heat).length>0,txt:"Defeat a region boss.",w:"Find the flame on the map strip.",
     i:{t:"Heat",l:["Pick a Heat level with the flame on the map strip. Enemies grow tougher and loot gets richer.","Beat a region's boss at your highest Heat to unlock the next."],tab:"battle",sel:"#heatBtn"}},
   {id:"daily",name:"Daily expedition",ic:"daily",when:s=>((s.kills[ZONES[1][2]]|0)>0||lvOf(s.xp)>=5)&&has_(s,"shrine","peddler","mystery","elite","roam"),used:s=>!!s.daily||s.stats.dailies>0||boss1(s),txt:"Clear Frostfang Pass or reach Smith Lv 5, after meeting shrines, peddlers and mysteries.",w:"It waits under the map.",

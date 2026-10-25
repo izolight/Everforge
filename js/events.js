@@ -14,6 +14,7 @@ $("intro").addEventListener("click",e=>{const b=e.target.closest("[data-intro]")
 $("gdlist").addEventListener("click",e=>{const b=e.target.closest("[data-guide]");if(!b)return;const u=UNL[b.dataset.guide];if(!u.i)return;
   go(u.i.tab||"battle");nudge(u.i.sel)}); // Show me: open the tab and pulse the thing
 $("zones").addEventListener("scroll",zoneFade);
+addEventListener("scroll",()=>placeIntro(),{passive:true});addEventListener("resize",()=>placeIntro());
 $("zones").addEventListener("click",e=>{const b=e.target.closest("[data-zone]");if(!b||b.disabled)return;S.zone=b.dataset.zone;S.battle=null;S.event=null;save();render()});
 $("arena").addEventListener("click",e=>{
   const t=e.target.closest("button");if(!t||t.getAttribute("aria-disabled")==="true")return;
