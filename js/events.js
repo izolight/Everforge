@@ -47,7 +47,7 @@ $("restree").addEventListener("click",e=>{const b=e.target.closest("[data-tech],
 $("upgrows").addEventListener("click",e=>{const b=e.target.closest("[data-upgrade]");if(b)upgrade(b.dataset.upgrade)});
 $("infbtns").addEventListener("click",e=>{const b=e.target.closest("[data-infuse]");if(b&&!inBattle())infuse(b.dataset.infuse)});
 $("finv").addEventListener("click",e=>{const b=e.target.closest("[data-id]");if(!b)return;
-  if(b.dataset.can==="1"&&!inBattle()){S.bench.push(b.dataset.id);save();render()}else openSheet(b.dataset.id)});
+  if(b.dataset.can==="1"&&!inBattle()){S.bench.push(b.dataset.id);$("resultPanel").open=false;save();render()}else openSheet(b.dataset.id)});
 $("slots").addEventListener("click",e=>{const b=e.target.closest("[data-slot]");if(!b)return;S.bench.splice(+b.dataset.slot,1);save();render()});
 $("result").addEventListener("click",e=>{const b=e.target.closest("[data-open]");if(b)openSheet(b.dataset.open)});
 $("rtabs").addEventListener("click",e=>{const b=e.target.closest("[data-rtab]");if(!b)return;S.rtab=b.dataset.rtab;save();renderRecipes()});

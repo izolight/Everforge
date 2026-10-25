@@ -62,7 +62,7 @@
   </div>
 
   <div id="v-forge" class="view" hidden>
-    <section class="panel" aria-label="Crucible" data-ta="aria-label">
+    <section class="panel forge-workbench" aria-label="Crucible" data-ta="aria-label">
       <div class="lrow"><p class="label" data-t>Crucible</p><button type="button" class="qm" data-tap data-ta="data-tip aria-label" data-tip="Crucible&#10;Tap gear or a material in the satchel to add it. Tap a filled slot to take it out again.&#10;Dimmed satchel items won't mix with what is already in. Essences mix with everything. The Recipes tab has the full table.&#10;More slots unlock as your Smith level rises." aria-label="Help: Crucible">?</button></div>
       <div class="slots" id="slots"></div>
       <div id="mixhint"></div>
@@ -70,6 +70,11 @@
         <button class="btn primary grow" id="combine" disabled data-t>Forge</button>
         <button class="btn" id="clear" data-t>Clear</button>
       </div>
+    </section>
+    <section class="forge-inventory" style="display:grid;gap:10px">
+      <div class="lrow"><p class="label" data-t>Satchel</p><button type="button" class="qm" data-tap data-ta="data-tip aria-label" data-tip="Satchel&#10;Tap an item to add it to the crucible. Dimmed items won't mix with what is already in; tap one to inspect it.&#10;Long-press or hover for its name and stats. The frame colour is its grade (Faint, Lesser, Plain, Greater, Pure), a tick means worn, a dot means new, a number is how many you hold." aria-label="Help: Satchel">?</button></div>
+      <div class="tabs" id="ftabs"></div>
+      <div class="sqg" id="finv"></div>
     </section>
     <section class="panel" id="resp" aria-label="Research" data-ta="aria-label">
       <div id="reslock" hidden></div>
@@ -83,12 +88,7 @@
       <div id="sklock" hidden></div>
       <details id="skd"><summary class="label" id="sksum"></summary><div id="skills"></div></details>
     </section>
-    <section class="panel result" id="result" aria-live="polite"></section>
-    <section style="display:grid;gap:10px">
-      <div class="lrow"><p class="label" data-t>Satchel</p><button type="button" class="qm" data-tap data-ta="data-tip aria-label" data-tip="Satchel&#10;Tap an item to add it to the crucible. Dimmed items won't mix with what is already in; tap one to inspect it.&#10;Long-press or hover for its name and stats. The frame colour is its grade (Faint, Lesser, Plain, Greater, Pure), a tick means worn, a dot means new, a number is how many you hold." aria-label="Help: Satchel">?</button></div>
-      <div class="tabs" id="ftabs"></div>
-      <div class="sqg" id="finv"></div>
-    </section>
+    <details class="forge-history" id="resultPanel"><summary class="label" data-t>Last forge</summary><section class="panel result" id="result" aria-live="polite"></section></details>
   </div>
 
   <div id="v-recipes" class="view" hidden>

@@ -50,7 +50,7 @@ function jsFiles(dir){const out=[];for(const e of fs.readdirSync(dir,{withFileTy
   if(e.isDirectory()){if(e.name!=="lang")out.push(...jsFiles(path.join(dir,e.name)))}
   else if(e.name.endsWith(".js")&&e.name!=="i18n.js")out.push(path.join(dir,e.name))}return out}
 for(const f of jsFiles(path.join(ROOT,"js"))){
-  const src=fs.readFileSync(path.join(ROOT,"js",f),"utf8"),re=/(?<![\w$.])(tx|txn)\(/g;let m;
+  const src=fs.readFileSync(f,"utf8"),re=/(?<![\w$.])(tx|txn)\(/g;let m;
   while((m=re.exec(src))){
     const a=args(src,m.index+m[0].length-1);
     literals(a[0]||"").forEach(k=>note(k,f));

@@ -738,3 +738,16 @@ select.lang{width:100%;margin-top:8px;background:#120f0c;color:var(--fg);border:
 :lang(ko) body{word-break:keep-all}
 :lang(de) .label,:lang(de) .tabbar span{letter-spacing:.06em}
 :lang(de) body{hyphens:auto}
+
+/* Keep the working ingredients beside the crucible; history never separates them. */
+.forge-workbench{position:sticky;top:8px;z-index:6;max-height:48dvh;overflow:auto}
+.forge-inventory{align-content:start;scroll-margin-top:45dvh}
+.forge-history{display:grid;gap:10px;min-width:0}
+.forge-history>summary{padding:12px;cursor:pointer}
+@media(min-width:960px){
+  .wrap:has(#v-forge:not([hidden])){max-width:1100px}
+  #v-forge{grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-items:start}
+  #v-forge>.forge-workbench{grid-column:1;grid-row:1;max-height:75dvh}
+  #v-forge>.forge-inventory{grid-column:2;grid-row:1 / span 5}
+  #v-forge>.panel:not(.forge-workbench),#v-forge>.forge-history{grid-column:1}
+}

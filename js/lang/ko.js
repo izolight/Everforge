@@ -436,3 +436,7 @@ Object.assign(DICT.ko,{
 "You have already gathered {n} research point.":"이미 연구 점수 {n}점을 모았습니다.",
 "Grade upgrades now need the Refining technique.":"등급 올리기에는 이제 정제 기술이 필요합니다.",
 });
+
+Object.assign(DICT.ko, {
+  "Last forge": "최근 제작"
+});

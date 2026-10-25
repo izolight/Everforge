@@ -439,3 +439,7 @@ Object.assign(DICT.de,{
 "You have already gathered {n} research point.":"Du hast bereits {n} Forschungspunkt gesammelt.¦Du hast bereits {n} Forschungspunkte gesammelt.",
 "Grade upgrades now need the Refining technique.":"Güteaufwertungen erfordern jetzt die Technik Veredelung.",
 });
+
+Object.assign(DICT.de, {
+  "Last forge": "Letzte Schmiedearbeit"
+});

@@ -315,6 +315,7 @@ function renderBench(){
   $("combine").setAttribute("aria-disabled",miss.length?"true":"false");if(miss.length)$("combine").setAttribute("aria-label",techWhy(miss));else $("combine").removeAttribute("aria-label"); // the reason is the warning above the button (and its label); a bubble on top would cover it
 }
 function renderResult(fresh){
+  $("resultPanel").hidden=!S.last;if(fresh)$("resultPanel").open=true;
   const el=$("result"),total=Object.values(S.inv).reduce((s,c)=>s+c,0);
   if(!S.last){el.className="panel result";el.innerHTML=`<p class="empty">${total<2?tx("You need at least two items to forge. Win battles to collect loot."):tx("Your sword takes ores, herbs, potions, essences and relics. Salvage loot in the Gear tab to turn it into essences.")}</p>`;return}
   const r=S.last,ch=(col,ics,v,...t)=>`<span class="chip" style="color:${col}" ${tt(...t)}>${ics}<b>${v}</b></span>`;
