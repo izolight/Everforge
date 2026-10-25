@@ -74,7 +74,7 @@ $("combine").onclick=()=>{
   if(inBattle()){toast(tx("Finish the fight first."));return}
   const miss=craftMiss(items);if(miss.length){toast(techWhy(miss));return}
   const pre=combine(items,{roll:100}),bl=pre.blocked;if(bl){toast(blockText(bl));return}
-  if((equippedRisk(items).length||pre.mw>=0)&&forgeArmed!==S.bench.join()){forgeArmed=S.bench.join();renderBench();setTimeout(()=>{forgeArmed="";if(S.view==="forge")renderBench()},3500);return} // a fizzle would destroy something you wear, or a secret would come out ordinary: tap twice
+  if(((pre.fiz>0&&equippedRisk(items).length)||pre.mw>=0)&&forgeArmed!==S.bench.join()){forgeArmed=S.bench.join();renderBench();setTimeout(()=>{forgeArmed="";if(S.view==="forge")renderBench()},3500);return} // a fizzle would destroy something you wear, or a secret would come out ordinary: tap twice
   forgeArmed="";
   const {lvBefore,ups,sk0,newRx,item,fizzle}=forgeIt(items);
   const after=()=>{
