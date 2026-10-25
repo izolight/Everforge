@@ -13,7 +13,9 @@ function rollFoe(R,o){ // rarity and affixes of one regular enemy: o {elite (an 
   return{rar,afx:rollAfx(R,rar,{mv:o.mv,heat:h})}}
 const afxCol=a=>AFX[a].col||FAM[TRAITS[AFX[a].tr].f],afxIc=(a,c)=>AFX[a].t==="el"?famIc(TRAITS[AFX[a].tr].f,c):ic(AFX[a].ic,c);
 const elTr=B=>{const a=afxOn(B).find(x=>AFX[x].t==="el");return a?AFX[a].tr:null}; // the trait of its elemental affix, if any
-const fullName=B=>B.name+(B.title&&!B.split?` the ${B.title}`:"");
+const bname=B=>{const E=ENEMIES[B.id];if(B.split)return tx("{name} remnant",{name:tx(E.name)});return B.afx&&B.afx.length?tx("{affix} {name}",{affix:tx(AFX[B.afx[0]].n),name:tx(E.name)}):tx(E.name)}; // the name shown: an affix prefix, a remnant after a split (B.name keeps the English)
+const btitle=B=>B.title&&!B.split?tx("the {title}",{title:tx(B.title)}):"";
+const fullName=B=>bname(B)+(B.title&&!B.split?" "+btitle(B):"");
 // the battle's stats, element, name and ward for a rarity + affix list (startBattle)
 function applyAfx(B,E,rar,afx){
   B.rar=rar;B.afx=afx;if(!afx.length)return;
@@ -27,40 +29,40 @@ function applyAfx(B,E,rar,afx){
 const dodgeOf=(B,tr)=>{const D=AFX_T.dodge;return Math.max(D.min,D.base-Math.min(D.sharpCap,(tr.Sharp||0)*D.sharp)-Math.min(D.studyMax,B.sty||0)*D.study)};
 const dodgeNow=B=>{const P=pstats();return dodgeOf(B,withInnate(P.main?P.main.traits:{}))};
 const blastOf=B=>Math.max(1,Math.round(B.max*AFX_T.boom.x));
-const gsTxt=gs=>gs>=1?`${gs===1?"one grade":gs+" grades"} better`:`a ${pcn(gs)}% chance of one grade better`;
-const dropLine=(a,B)=>`Drops: ${AFX[a].tr} Essence${B?`, ${gsTxt((RARITIES[B.rar]||{gs:1}).gs)} than usual.`:`. Magic enemies: ${gsTxt(RARITIES.magic.gs)}. Rare: ${gsTxt(RARITIES.rare.gs)}.`}`;
-const afxTip=(a,B)=>[AFX[a].n,AFX[a].d(B),dropLine(a,B)];
+const gsTxt=gs=>gs>=1?(gs===1?tx("one grade better"):tx("{n} grades better",{n:gs})):tx("a {p}% chance of one grade better",{p:pcn(gs)});
+const dropLine=(a,B)=>{const ess=tx("{trait} Essence",{trait:trn(AFX[a].tr)});return B?tx("Drops: {ess}, {gs} than usual.",{ess,gs:gsTxt((RARITIES[B.rar]||{gs:1}).gs)}):tx("Drops: {ess}. Magic enemies: {m}. Rare: {r}.",{ess,m:gsTxt(RARITIES.magic.gs),r:gsTxt(RARITIES.rare.gs)})};
+const afxTip=(a,B)=>[tx(AFX[a].n),AFX[a].d(B),dropLine(a,B)];
 function afxVal(a,B){ // the number on an affix chip
   if(!B)return"";
   return{vamp:()=>pcn(AFX_T.vamp)+"%",thorn:()=>pcn(AFX_T.thorn.x)+"%",regen:()=>"+"+pcn(AFX_T.regen)+"%",frenzy:()=>B.fz?"!":"",ward:()=>Math.max(0,B.wd),elusive:()=>dodgeNow(B)+"%",boom:()=>B.hp<=B.max*AFX_T.boom.warn?"~"+blastOf(B):""}[a]?.()??""}
 const afxChip=(a,B)=>ci(afxCol(a),afxIc(a,"s"),afxVal(a,B),...afxTip(a,B));
 // first sight of an affix fills its Codex entry (S.afx[id]={s: fights met in, b: enemies beaten})
-function noteAfx(B,won){(B.afx||[]).forEach(a=>{const o=S.afx[a]||(S.afx[a]={s:0,b:0});if(won){o.b++;o.s=Math.max(o.s,1)}else{if(!o.s){blog(`Codex: new affix, ${AFX[a].n}.`,"lore");rpGain("afx:"+a,RP.afx,"a new affix")}o.s++}})}
+function noteAfx(B,won){(B.afx||[]).forEach(a=>{const o=S.afx[a]||(S.afx[a]={s:0,b:0});if(won){o.b++;o.s=Math.max(o.s,1)}else{if(!o.s){blog(tx("Codex: new affix, {name}.",{name:tx(AFX[a].n)}),"lore");rpGain("afx:"+a,RP.afx,tx("a new affix"))}o.s++}})}
 // ---- hooks (called from the combat flow)
 function wardCut(B,n){const w=hasAfx(B,"ward")?Math.min(B.wd||0,n):0;if(w){B.wd-=w;if(!B.wd)B.wb=B.turn}return w}
-const wardMsg=(B,ab)=>`Its ward absorbs ${ab}${B.wd?"":" and shatters"}.`;
-function frenzy(B){if(hasAfx(B,"frenzy")&&!B.fz&&B.hp>0&&B.hp<B.max*AFX_T.frenzy.at){B.fz=1;B.atk=Math.round(B.atk*AFX_T.frenzy.x);blog(`The ${B.name} flies into a frenzy! (+${pcn(AFX_T.frenzy.x-1)}% Attack)`,"foe")}}
+const wardMsg=(B,ab)=>B.wd?tx("Its ward absorbs {n}.",{n:ab}):tx("Its ward absorbs {n} and shatters.",{n:ab});
+function frenzy(B){if(hasAfx(B,"frenzy")&&!B.fz&&B.hp>0&&B.hp<B.max*AFX_T.frenzy.at){B.fz=1;B.atk=Math.round(B.atk*AFX_T.frenzy.x);blog(tx("The {name} flies into a frenzy! (+{p}% Attack)",{name:bname(B),p:pcn(AFX_T.frenzy.x-1)}),"foe")}}
 function thornBack(B,dealtHp){ // Thorned: part of the blow that landed bites back, but never kills you
   if(!hasAfx(B,"thorn")||dealtHp<=0||S.hp<=1)return;
   const left=Math.max(0,Math.max(1,Math.round(pstats().maxHp*AFX_T.thorn.cap))-(B.thT||0)),t=Math.min(Math.max(1,Math.round(dealtHp*AFX_T.thorn.x)),left,S.hp-1); // the cap is per round (until its turn ends)
-  if(t<=0)return;B.thT=(B.thT||0)+t;S.stats.taken+=t;S.hp-=t;fx("youHud","-"+t,"hurt");blog(`Its thorns bite you back for ${t}.`,"foe")}
+  if(t<=0)return;B.thT=(B.thT||0)+t;S.stats.taken+=t;S.hp-=t;fx("youHud","-"+t,"hurt");blog(tx("Its thorns bite you back for {n}.",{n:t}),"foe")}
 function leech(B,dmg){ // Vampiric
   if(!hasAfx(B,"vamp")||dmg<=0||B.hp<=0)return;const h=Math.min(B.max-B.hp,Math.max(1,Math.round(dmg*AFX_T.vamp)));
-  if(h>0){B.hp+=h;fx("enemyHud","+"+h,"heal");blog(`The ${B.name} drinks in ${h} HP.`,"foe")}}
+  if(h>0){B.hp+=h;fx("enemyHud","+"+h,"heal");blog(tx("The {name} drinks in {n} HP.",{name:bname(B),n:h}),"foe")}}
 function afxTick(B){ // start of its turn: Regenerating mends it, a broken ward comes back, Frenzied checks its health
-  if(hasAfx(B,"regen")&&B.hp<B.max){const h=Math.min(B.max-B.hp,Math.max(1,Math.round(B.max*AFX_T.regen)));B.hp+=h;fx("enemyHud","+"+h,"heal");blog(`The ${B.name} regrows ${h} HP.`,"foe")}
-  if(hasAfx(B,"ward")&&B.wd<=0&&B.wb!=null&&B.turn-B.wb>=AFX_T.ward.every){B.wd=B.wm;B.wb=null;blog(`Its ward flares back (${B.wd}).`,"foe")}
+  if(hasAfx(B,"regen")&&B.hp<B.max){const h=Math.min(B.max-B.hp,Math.max(1,Math.round(B.max*AFX_T.regen)));B.hp+=h;fx("enemyHud","+"+h,"heal");blog(tx("The {name} regrows {n} HP.",{name:bname(B),n:h}),"foe")}
+  if(hasAfx(B,"ward")&&B.wd<=0&&B.wb!=null&&B.turn-B.wb>=AFX_T.ward.every){B.wd=B.wm;B.wb=null;blog(tx("Its ward flares back ({n}).",{n:B.wd}),"foe")}
   frenzy(B)}
 function blast(B){ // Volatile: it bursts as it dies. Guard cuts the blast, your rune ward soaks it. Returns false if it kills you
   const raw=Math.max(1,Math.round(blastOf(B)*(B.guard?AFX_T.boom.guard:1))),ab=Math.min(B.ward||0,raw),n=raw-ab;
   B.ward=(B.ward||0)-ab;S.stats.taken+=Math.min(n,S.hp);S.hp-=n;
-  blog(`The ${B.name} bursts apart! The blast hits you for ${raw}${B.guard?" through your guard":""}.`,"foe");
-  if(ab)blog(`Your rune ward absorbs ${ab}${B.ward?"":" and shatters"}.`,"good");
+  blog(B.guard?tx("The {name} bursts apart! The blast hits you for {n} through your guard.",{name:bname(B),n:raw}):tx("The {name} bursts apart! The blast hits you for {n}.",{name:bname(B),n:raw}),"foe");
+  if(ab)blog(B.ward?tx("Your rune ward absorbs {n}.",{n:ab}):tx("Your rune ward absorbs {n} and shatters.",{n:ab}),"good");
   fx("youHud",n?"-"+n:"","hurt");fx("youHud","","shake");fx("vig","","on");
-  if(S.hp<=0)blog("The blast tears through you.","foe");
+  if(S.hp<=0)blog(tx("The blast tears through you."),"foe");
   return S.hp>0}
 function splitFoe(B,E){ // Splitting: its first death leaves a weaker remnant with no affixes; B.split makes it happen once
-  const T=AFX_T.split,was=B.name;B.split=1;B.name=`${E.name} remnant`;B.title="";
+  const T=AFX_T.split,was=bname(B);B.split=1;B.name=`${E.name} remnant`;B.title="";
   B.max=B.hp=Math.max(1,Math.round(B.max*T.hp));B.atk=Math.max(1,Math.round((B.a0||B.atk)*T.atk));B.fz=0;B.def=E.def;B.el=E.el;B.weak=[...E.weak];B.resist=[...E.resist];
   B.burn=null;B.poison=0;B.bleed=null;B.stun=0;B.frozen=false;B.wd=0;B.wm=0;
-  blog(`The ${was} splits in two! A weaker ${E.name} lunges out of it.`,"big")}
+  blog(tx("The {was} splits in two! A weaker {name} lunges out of it.",{was,name:tx(E.name)}),"big")}

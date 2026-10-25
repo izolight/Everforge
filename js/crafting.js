@@ -5,25 +5,25 @@ function checkMix(items){
   if(grp(base)==="material"){
     const free=k=>k==="essence"||k==="relic";const core=sorted.find(x=>!free(kindOf(x)));
     const bad=core&&sorted.find(x=>!free(kindOf(x))&&kindOf(x)!==kindOf(core));
-    return bad?{ok:false,bad,reason:`${bad.name} won't blend with ${core.name}. Materials only mix with their own kind, essences and relics.`}:{ok:true};
+    return bad?{ok:false,bad,reason:tx("{bad} won't blend with {core}. Materials only mix with their own kind, essences and relics.",{bad:iname(bad),core:iname(core)})}:{ok:true};
   }
   for(const x of sorted.slice(1)){
     if(x.form===base.form||isFusion(base.form,x.form))continue;
     const k=kindOf(x),bk=kindOf(base);
     if((ACCEPTS[bk]||[]).includes(k))continue;
     return{ok:false,bad:x,reason:k===bk
-      ?`${x.name} and ${base.name} are different ${KIND_LABEL[k]}. Only the same type${hasTech("alloy")?" or a fusion partner":""} can merge. Salvage it into essences instead.`
-      :`${x.name} doesn't go into ${base.name}. Salvage it into essences, which mix with anything.`};
+      ?tx(hasTech("alloy")?"{x} and {base} are different {kind}. Only the same type or a fusion partner can merge. Salvage it into essences instead.":"{x} and {base} are different {kind}. Only the same type can merge. Salvage it into essences instead.",{x:iname(x),base:iname(base),kind:txc("kind",KIND_LABEL[k])})
+      :tx("{x} doesn't go into {base}. Salvage it into essences, which mix with anything.",{x:iname(x),base:iname(base)})};
   }
   return{ok:true};
 }
 function acceptsText(it){
   const k=kindOf(it);
-  if(grp(it)==="material")return `${KIND_LABEL[k]==="essences"?"anything":`other ${KIND_LABEL[k]}`}, essences and relics`;
+  if(grp(it)==="material")return KIND_LABEL[k]==="essences"?tx("anything, essences and relics"):tx("other {kind}, essences and relics",{kind:txc("kind",KIND_LABEL[k])});
   const mass=f=>["gloves","boots","food","body armor","head armor","claws"].includes(f);
-  const fus=!hasTech("alloy")?[]:FUSIONS.filter(f=>f.slice(0,2).includes(it.form)).map(f=>formName(f[0]===it.form?f[1]:f[0])).map(f=>mass(f)?f:`a ${f}`);
-  const own=ACCEPTS[k].includes(k)?[]:[`${mass(formName(it.form))?"other":"another"} ${formName(it.form)}`];
-  return [...ACCEPTS[k].map(a=>KIND_LABEL[a]),...own,...(fus.length?[`${fus.join(" or ")} (fusion)`]:[])].join(", ");
+  const fus=!hasTech("alloy")?[]:FUSIONS.filter(f=>f.slice(0,2).includes(it.form)).map(f=>f[0]===it.form?f[1]:f[0]).map(f=>mass(formEn(f))?formName(f):tx("a {form}",{form:formName(f)}));
+  const own=ACCEPTS[k].includes(k)?[]:[mass(formEn(it.form))?tx("other {form}",{form:formName(it.form)}):tx("another {form}",{form:formName(it.form)})];
+  return [...ACCEPTS[k].map(a=>txc("kind",KIND_LABEL[a])),...own,...(fus.length?[tx("{list} (fusion)",{list:fus.join(tx(" or "))})]:[])].join(", ");
 }
 
 // ================= COMBINE =================
@@ -32,24 +32,24 @@ function combine(raw,o={}){
   const inputs=sortInputs(raw);
   const key=inputs.map(i=>i.id).sort().join("+"),log=[];
   const base=inputs[0],forms=inputs.map(i=>i.form);let form=base.form;
-  for(const [a,b,f] of FUSIONS){if(forms.includes(a)&&forms.includes(b)){form=f;log.push({k:"Fusion",t:`${cap(a)} + ${cap(b)} → ${FORMS[f].noun}`});break}}
+  for(const [a,b,f] of FUSIONS){if(forms.includes(a)&&forms.includes(b)){form=f;log.push({k:"Fusion",t:tx("{a} + {b} → {c}",{a:LANG==="en"?cap(a):txc("form",FORMS[a].label),b:LANG==="en"?cap(b):txc("form",FORMS[b].label),c:txc("noun",FORMS[f].noun)})});break}}
   const vals={};inputs.forEach(i=>Object.entries(i.traits).forEach(([t,v])=>(vals[t]=vals[t]||[]).push(v)));
-  let tr={};Object.entries(vals).forEach(([t,vs])=>{const mx=Math.max(...vs),sum=vs.reduce((a,b)=>a+b,0);const g=.25*(sum-mx),lo=Math.max(0,Math.min(g,SOFT-mx));tr[t]=r1(mx+lo+(g-lo)/2);if(g>lo+.05)log.push({k:"Limit",t:`${t} is near its limit; gains above ${SOFT} are halved.`})}); // merge gains above SOFT count half
+  let tr={};Object.entries(vals).forEach(([t,vs])=>{const mx=Math.max(...vs),sum=vs.reduce((a,b)=>a+b,0);const g=.25*(sum-mx),lo=Math.max(0,Math.min(g,SOFT-mx));tr[t]=r1(mx+lo+(g-lo)/2);if(g>lo+.05)log.push({k:"Limit",t:tx("{t} is near its limit; gains above {soft} are halved.",{t:trn(t),soft:SOFT})})}); // merge gains above SOFT count half
   let inst=0;CONFLICTS.forEach(([a,b])=>{if(tr[a]&&tr[b])inst+=Math.min(tr[a],tr[b])*7});
   const used=new Set(),reacted=new Set(),rxKeys=[];
   for(let pass=0;pass<3;pass++){let any=false;
     for(const [a,b,res,cons] of REACTIONS){const k=a+"+"+b;if(used.has(k)||!tr[a]||!tr[b])continue;
       used.add(k);any=true;rxKeys.push(k);const v=r1((tr[a]+tr[b])/2);
       cons.forEach(c=>delete tr[c]);tr[res]=r1(Math.max(tr[res]||0,v));reacted.add(res);
-      log.push({k:"Reaction",t:`${a} + ${b} → ${res}`,warn:TRAITS[res].f==="bad"});inst+=3}
+      log.push({k:"Reaction",t:tx("{a} + {b} → {c}",{a:trn(a),b:trn(b),c:trn(res)}),warn:TRAITS[res].f==="bad"});inst+=3}
     if(!any)break}
   let secret=SECRETS.find(s=>s.ids.slice().sort().join("+")===key),mw=-1;
   if(secret&&!hasTech("master")){mw=SECRETS.indexOf(secret);secret=null} // without Masterwork the right ingredients make an ordinary piece (and an insight, see insights()); it gets its own id so the legendary can still be forged later
-  if(!secret&&inputs.some(i=>gradeOf(i.id)!==3)){const sk=inputs.map(i=>baseIdOf(i.id)).sort().join("+");if(SECRETS.some(s=>s.ids.slice().sort().join("+")===sk))log.push({k:"Grade",t:"A graded ingredient throws this secret off. Secrets want Plain ones."})}
+  if(!secret&&inputs.some(i=>gradeOf(i.id)!==3)){const sk=inputs.map(i=>baseIdOf(i.id)).sort().join("+");if(SECRETS.some(s=>s.ids.slice().sort().join("+")===sk))log.push({k:"Grade",t:tx("A graded ingredient throws this secret off. Secrets want Plain ones.")})}
   let bon=null; // the secret's bonus always keeps a slot
-  if(secret&&secret.bonus){const {trait:bt,v:bv}=secret.bonus;bon=[bt,r1((tr[bt]||0)+bv)];delete tr[bt];log.push({k:"Legendary",t:`The secret lends it +${bv} ${bt}.`})}
+  if(secret&&secret.bonus){const {trait:bt,v:bv}=secret.bonus;bon=[bt,r1((tr[bt]||0)+bv)];delete tr[bt];log.push({k:"Legendary",t:tx("The secret lends it +{v} {trait}.",{v:bv,trait:trn(bt)})})}
   const slots=traitSlots()-(bon?1:0),sorted=topTraits(tr);
-  if(sorted.length>slots)log.push({k:"Lost",t:`${sorted.slice(slots).map(x=>x[0]).join(", ")} (only ${traitSlots()} trait slots)`});
+  if(sorted.length>slots)log.push({k:"Lost",t:tx("{list} (only {n} trait slots)",{list:sorted.slice(slots).map(x=>trn(x[0])).join(", "),n:traitSlots()})});
   tr=Object.fromEntries(sorted.slice(0,slots));if(bon)tr[bon[0]]=bon[1];
   inst+=(inputs.length-2)*6;
   const tier=Math.min(9,Math.max(...inputs.map(i=>i.tier))+1),sk=skillOf({form}),lv=skLv(sk),ck=mw>=0?key+"|plain":key,cleanId="c_"+hash(ck).toString(36);
@@ -59,10 +59,10 @@ function combine(raw,o={}){
   const fiz=Math.round(fail*Math.max(FIZ.min,Math.min(FIZ.max,FIZ.base+FIZ.slope*gap))),mis=fail-fiz;
   const need=SK_CAP.findIndex(c=>c>=tier)+1,blocked=tier>SK_CAP[lv-1]?{skill:sk,lv,need,tier}:null;
   const roll=o.roll??Math.random()*100;let mishap=null,unweak=null,fizzle=false;
-  if(roll<fiz){fizzle=true;log.push({k:"Fizzle",t:"The mixture collapsed into ash. The ingredients are gone.",warn:true})}
+  if(roll<fiz){fizzle=true;log.push({k:"Fizzle",t:tx("The mixture collapsed into ash. The ingredients are gone."),warn:true})}
   else if(roll<fail){mishap=["Cursed","Weakened","Brittle"][Math.floor(Math.random()*3)];
     if(mishap==="Weakened"){unweak={...tr};Object.keys(tr).forEach(t=>tr[t]=r1(tr[t]*.7))}else tr[mishap]=2;
-    log.push({k:"Mishap",t:mishap==="Weakened"?"The mixture fizzled. Every trait lost 30%.":`The mixture turned unstable and became ${mishap}.`,warn:true})}
+    log.push({k:"Mishap",t:mishap==="Weakened"?tx("The mixture fizzled. Every trait lost 30%."):tx("The mixture turned unstable and became {mishap}.",{mishap:trn(mishap)}),warn:true})}
   const noun=FORMS[form].noun||base.noun;
   const score=([t,v])=>v+(t in base.traits?0:3)+(reacted.has(t)?1:0);
   const ranked=Object.entries(tr).filter(([t])=>TRAITS[t].adj.toLowerCase()!==noun.toLowerCase()).sort((a,b)=>score(b)-score(a)).map(x=>x[0]);
@@ -78,6 +78,14 @@ function statsOf(item){
   const scale=(1+.03*(item.tier-1))*(item.legendary?1.2:1);
   Object.keys(out).forEach(s=>out[s]=Math.round(out[s]*m[s]*scale));
   return out;
+}
+// Unrounded contributions for the optional UI breakdown; combat still uses statsOf().
+function statParts(item){
+  const form=FORMS[item.form].m,scale=(1+.03*(item.tier-1))*(item.legendary?1.2:1);
+  return topTraits(item.traits).map(([t,v],rank)=>({t,v,stats:Object.entries(TRAITS[t].s).map(([k,base])=>{
+    const priority=base<0?1:(DECAY[rank]??.1);
+    return {k,base,priority,form:form[k],scale,value:base*v*priority*form[k]*scale};
+  })}));
 }
 function power(it){const s=statsOf(it);return Math.round(s.atk+s.def+s.mag+s.spd*1.5+s.heal*.5)}
 // essences that went into a crafted item: stored as `ei` when it was forged (temper and reforge spread the item, so it survives them); older items count through recipeIds, and an older tempered piece with neither counts 1
@@ -101,8 +109,8 @@ function forgeIt(items){
     else if(mishap&&firstLeg)S.journal.push({id:item.id,name:item.name,legendary:true}); // a flawed secret still counts as found
     S.inv[item.id]=(S.inv[item.id]||0)+1;S.knownR.push(...newRx);
     settleGear(S.items[item.id]);
-    rpGain("form:"+item.form,RP.form,`a new form (${formName(item.form)})`);if(isNew&&rpCount("rec:")<RP.recCap)rpGain("rec:"+cleanId,RP.rec,"a new recipe");
-    newRx.forEach(k=>rpGain("rx:"+k,RP.rx,"a new reaction"));if(firstLeg)rpGain("leg:"+item.name,RP.leg,"a legendary");
+    rpGain("form:"+item.form,RP.form,tx("a new form ({form})",{form:formName(item.form)}));if(isNew&&rpCount("rec:")<RP.recCap)rpGain("rec:"+cleanId,RP.rec,tx("a new recipe"));
+    newRx.forEach(k=>rpGain("rx:"+k,RP.rx,tx("a new reaction")));if(firstLeg)rpGain("leg:"+item.name,RP.leg,tx("a legendary"));
     log.push(...insights(items,r.key,r.mw));
     gain+=(isNew?25:0)+(firstLeg?100:0)+newRx.length*10}
   S.xp+=gain; // smith XP is not scaled by difficulty: it only gates slots, the skills gate tiers
@@ -111,7 +119,7 @@ function forgeIt(items){
   const scaled=Object.keys(sx).some(k=>skFactor(diff,skLv(k))<1)||known;
   Object.entries(sx).forEach(([k,n])=>S.skills[k]=skXp(k)+n);
   const ups=Object.keys(sx).filter(k=>skLv(k)>sk0[k]);
-  S.last={id:fizzle?null:item.id,item,log:fizzle?log.filter(l=>l.k==="Fizzle"):log,inst,mishap,fizzle,refund,isNew,xpGain:gain,sx,scaled,baseId,recipe:items.map(i=>i.name)};
+  S.last={id:fizzle?null:item.id,item,log:fizzle?log.filter(l=>l.k==="Fizzle"):log,inst,mishap,fizzle,refund,isNew,xpGain:gain,sx,scaled,baseId,recipe:items.map(i=>i.name),recipeIds:items.map(i=>i.id)};
   save();
   return{lvBefore,sk0,ups,newRx,item,fizzle};
 }

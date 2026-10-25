@@ -4,7 +4,7 @@
 // A [data-tap] element (helpBtn, the "?") toggles on a plain tap even though it is a button. Outside tap, scroll or Escape dismisses it.
 const esc=s=>String(s).replace(/&/g,"&amp;").replace(/"/g,"&quot;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
 const tt=(...l)=>`data-tip="${esc(l.filter(Boolean).join("\n"))}"`;
-const helpBtn=(...l)=>`<button type="button" class="qm" data-tap ${tt(...l)} aria-label="Help: ${esc(l[0])}">?</button>`;
+const helpBtn=(...l)=>`<button type="button" class="qm" data-tap ${tt(...l)} aria-label="${esc(tx("Help: {topic}",{topic:l[0]}))}">?</button>`;
 (()=>{
   const el=document.createElement("div");el.id="tip";el.setAttribute("role","tooltip");el.hidden=true;document.body.appendChild(el);
   let cur=null,hold=0,hov=0,lp=false,sx=0,sy=0,pt="",byHover=false; // pt: type of the last pointer; byHover: the open tip came from hovering

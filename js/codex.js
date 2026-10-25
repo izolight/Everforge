@@ -1,5 +1,10 @@
 // ================= CODEX =================
 function cx(id){return S.codex[id]||(S.codex[id]={weak:[],resist:[],sp:false,stats:false,drops:[]})}
+// Timing is optional on old saves. Seeing a special gives rank I; Study trains it to III.
+// A phase-changing boss has separate timing for each form.
+const parryKey=B=>B.phased?"sp2":"sp";
+function parryLevel(B){const K=S.codex[B.id]||{},n=K.timing&&K.timing[parryKey(B)];return Math.max(K[parryKey(B)]?1:0,Math.min(PARRY_T.levels,Number.isFinite(n)?Math.max(0,Math.floor(n)):0))}
+const canTrainParry=B=>!!foeOf(B).sp&&parryLevel(B)<PARRY_T.levels;
 // every weak/resist family a creature can show, across its forms
 const allFacts=(E,k)=>[...new Set([...E[k],...(E.phase?E.phase.to[k]:[])])];
 function know(id){const E=ENEMIES[id],K=S.codex[id]||{weak:[],resist:[],drops:[]};
@@ -11,18 +16,19 @@ function learn(id,type,val){
   else if(type==="weak"||type==="resist"||type==="drops"){if(!K[type].includes(val)){K[type].push(val);fresh=true}}
   else if(!K[type]){K[type]=true;fresh=true}
   if(!fresh)return false;
-  if(type==="weak")text=`Codex: ${nm} is weak to ${val}.`;
-  else if(type==="resist")text=`Codex: ${nm} resists ${val}.`;
-  else if(type==="sp")text=`Codex: you learned ${nm}'s special move, ${(S.battle&&S.battle.id===id?foeOf(S.battle):ENEMIES[id]).sp.name}.`;
-  else if(type==="inf")text=`Codex: ${nm} can inflict ${STATUS[val].n.toLowerCase()}.`;
-  else if(type==="sp2")text=`Codex: you learned ${nm}'s second-form special, ${foeOf(S.battle).sp.name}.`;
-  else if(type==="ph")text=`Codex: ${nm} changes form below half health.`;
-  else if(type==="stats")text=`Codex: ${nm}'s strength is now recorded.`;
-  else text=`Codex: ${nm} can drop ${S.items[val].name}.`;
+  if(type==="weak")text=tx("Codex: {nm} is weak to {fam}.",{nm,fam:famL(val)});
+  else if(type==="resist")text=tx("Codex: {nm} resists {fam}.",{nm,fam:famL(val)});
+  else if(type==="sp")text=tx("Codex: you learned {nm}'s special move, {sp}.",{nm,sp:tx((S.battle&&S.battle.id===id?foeOf(S.battle):ENEMIES[id]).sp.name)});
+  else if(type==="inf")text=tx("Codex: {nm} can inflict {status}.",{nm,status:lc(STATUS[val].n)});
+  else if(type==="sp2")text=tx("Codex: you learned {nm}'s second-form special, {sp}.",{nm,sp:tx(foeOf(S.battle).sp.name)});
+  else if(type==="ph")text=tx("Codex: {nm} changes form below half health.",{nm});
+  else if(type==="stats")text=tx("Codex: {nm}'s strength is now recorded.",{nm});
+  else text=tx("Codex: {nm} can drop {item}.",{nm,item:iname(S.items[val])});
   if(S.battle&&S.battle.id===id)blog(text,"lore");
-  if(!was&&know(id).mastered){setTimeout(()=>toast(`${nm} mastered! You deal 15% more damage to it.`),50);rpGain("mast:"+id,RP.mast,`${nm} mastered`)}
+  if(!was&&know(id).mastered){setTimeout(()=>toast(tx("{nm} mastered! You deal 15% more damage to it.",{nm})),50);rpGain("mast:"+id,RP.mast,tx("{nm} mastered",{nm}))}
   return true;
 }
 function unknownFacts(id){const E=S.battle&&S.battle.id===id?foeOf(S.battle):ENEMIES[id],K=cx(id),out=[];
   E.weak.filter(f=>!K.weak.includes(f)).forEach(f=>out.push(["weak",f]));E.resist.filter(f=>!K.resist.includes(f)).forEach(f=>out.push(["resist",f]));
-  if(!K.sp)out.push(["sp",1]);if(!K.stats)out.push(["stats",1]);return out}
+  const sk=S.battle&&S.battle.id===id?parryKey(S.battle):"sp";
+  if(E.sp&&!K[sk])out.push([sk,1]);if(!K.stats)out.push(["stats",1]);return out}
