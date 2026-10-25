@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Balance simulator: plays battles and whole expeditions in the real game code (startBattle, attack, parry, ability, useItem, visit, pstats...)
-// in headless Chromium, with render/save/fx/sfx/toast stubbed. Kits are crafted with the real combine().
+// in headless Chromium, with render/save/floatFx/sfx/toast stubbed. Kits are crafted with the real combine().
 // Usage: node tools/sim.js [--n 40] [--zone woods,pass] [--enemy wolf,archon] [--kit melee,spire-end] [--heat 0,3,5] [--policy smart,basic,passive,guard,parry]
 //        [--fresh (the first expeditions with the unlock gates on, --exped 5)] [--seed 7] [--trace (prints one battle log per cell, then exits)] [--elite (adds magic + and rare * variants)] [--rarity (the rarity table only)] [--row 3] [--all] [--attrition] [--no-mastered] [--jobs 4] [--out sim.json] [--econ-only | --no-econ] [--exped 30]
 //        [--wild (only the wild and Rift sections, with the forced rarity variants)] [--no-wild (skip them)] [--rift-seeds 1,2,3] [--rift-depth 1,3] [--rift-wild (the Rift's own wild creatures too)] [--force rare (the forced variants to trace)]
@@ -68,7 +68,7 @@ const RUN_MATRIX=!ONLY_ECON&&!RARITY&&!WILD_ONLY,RUN_WILD=!ONLY_ECON&&!RARITY&&!
 
 // ---------- in-page simulator ----------
 function setup(){ // runs inside the game page; everything here uses the real game functions
-  ["render","save","fx","sfx","toast","closeSheet","flushFx"].forEach(f=>window[f]=()=>{});
+  ["render","save","floatFx","sfx","toast","closeSheet","flushFx"].forEach(f=>window[f]=()=>{});
   const mulberry=a=>()=>{a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296};
   const realRandom=Math.random,seedFor=(seed,key)=>seed==null?null:mulberry(hash(seed+"|"+key));
   const useSeed=(seed,key)=>{Math.random=seed==null?realRandom:seedFor(seed,key)};

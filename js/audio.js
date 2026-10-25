@@ -5,7 +5,7 @@ const SND_KEY="everforge-sound",VOLS=[.35,.65,1],VOL_N=["Off","Low","Medium","Hi
 let snd={on:true,vol:1,music:true,musicVol:0};
 try{const o=JSON.parse(localStorage.getItem(SND_KEY)||"null");if(isObj(o))snd={on:o.on!==false,vol:Math.max(0,Math.min(2,o.vol|0)),music:typeof o.music==="boolean"?o.music:o.on!==false,musicVol:Math.max(0,Math.min(2,o.musicVol|0))}}catch(e){}
 function sndSave(){try{localStorage.setItem(SND_KEY,JSON.stringify(snd))}catch(e){}}
-let AC=null,master=null,fxBus=null,musicBus=null,musicDuck=null,noiseBuf=null,base=0,gesture=false;
+let AC=null,master=null,fxBus=null,musicBus=null,musicDuck=null,noiseBuf=null,audioBase=0,gesture=false;
 const lastAt={},audioVoices=new Set();
 let audioSeed=0x6e624eb7;
 function audioRand(){audioSeed^=audioSeed<<13;audioSeed^=audioSeed>>>17;audioSeed^=audioSeed<<5;return(audioSeed>>>0)/4294967296}
@@ -35,7 +35,7 @@ function actx(){
 // times let the music scheduler share these instruments without moving SFX time.
 function voice(d,o,src){
   const bus=o.bus||fxBus;if(audioVoices.size>=128){src.disconnect();return}
-  const t=o.time??AC.currentTime+base+(o.at||0),g=AC.createGain(),nodes=[src,g];let n=src;
+  const t=o.time??AC.currentTime+audioBase+(o.at||0),g=AC.createGain(),nodes=[src,g];let n=src;
   if(o.f){const f=AC.createBiquadFilter();f.type=o.f;f.frequency.setValueAtTime(o.hz,t);f.Q.value=o.q??.7;if(o.fto)f.frequency.exponentialRampToValueAtTime(o.fto,t+d);n.connect(f);n=f;nodes.push(f)}
   if(o.pan&&AC.createStereoPanner){const p=AC.createStereoPanner();p.pan.value=o.pan;n.connect(p);n=p;nodes.push(p)}
   const a=Math.min(o.a??.004,d*.45),peak=o.g??.2;
@@ -48,7 +48,7 @@ function voice(d,o,src){
   if(src.buffer)src.start(t,audioRand()*.8);else src.start(t);src.stop(t+d+.03);
 }
 function osc(fr,d,o={}){
-  const s=AC.createOscillator(),t=o.time??AC.currentTime+base+(o.at||0);s.type=o.type||"sine";s.frequency.setValueAtTime(fr,t);
+  const s=AC.createOscillator(),t=o.time??AC.currentTime+audioBase+(o.at||0);s.type=o.type||"sine";s.frequency.setValueAtTime(fr,t);
   if(o.detune)s.detune.value=o.detune;if(o.to)s.frequency.exponentialRampToValueAtTime(o.to,t+d);voice(d,o,s);
 }
 function noise(d,o={}){const s=AC.createBufferSource();s.buffer=noiseBuf;s.loop=true;voice(d,{f:"lowpass",hz:1000,...o},s)}
@@ -130,7 +130,7 @@ const GAP={research:.5,tech:.6,unlock:.6,tick:.12,tap:.05,step:.1,warn:.5,forge:
 function sfx(n,dl,opt){
   if(!snd.on||!SND[n]||document.hidden)return;
   try{const a=actx();if(!a)return;if(a.state!=="running")wakeAudio();
-    base=Math.max(0,Number(dl)||0)+.012;const w=a.currentTime+base;if(w<(lastAt[n]??-Infinity)+(GAP[n]||.06))return;lastAt[n]=w;SND[n](opt);
+    audioBase=Math.max(0,Number(dl)||0)+.012;const w=a.currentTime+audioBase;if(w<(lastAt[n]??-Infinity)+(GAP[n]||.06))return;lastAt[n]=w;SND[n](opt);
     if(["forge","legend","win","lose","warn"].includes(n)&&musicDuck){const g=musicDuck.gain;g.cancelScheduledValues(w);g.setTargetAtTime(.5,w,.025);g.setTargetAtTime(1,w+(n==="forge"?1.8:.8),.25)}
   }catch(e){}
 }

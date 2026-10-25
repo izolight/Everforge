@@ -51,12 +51,12 @@ function frenzy(B){if(hasAfx(B,"frenzy")&&!B.fz&&B.hp>0&&B.hp<B.max*AFX_T.frenzy
 function thornBack(B,dealtHp){ // Thorned: part of the blow that landed bites back, but never kills you
   if(!hasAfx(B,"thorn")||dealtHp<=0||S.hp<=1)return;
   const left=Math.max(0,Math.max(1,Math.round(pstats().maxHp*AFX_T.thorn.cap))-(B.thT||0)),t=Math.min(Math.max(1,Math.round(dealtHp*AFX_T.thorn.x)),left,S.hp-1); // the cap is per round (until its turn ends)
-  if(t<=0)return;B.thT=(B.thT||0)+t;S.stats.taken+=t;S.hp-=t;fx("youHud","-"+t,"hurt");blog(tx("Its thorns bite you back for {n}.",{n:t}),"foe")}
+  if(t<=0)return;B.thT=(B.thT||0)+t;S.stats.taken+=t;S.hp-=t;floatFx("youHud","-"+t,"hurt");blog(tx("Its thorns bite you back for {n}.",{n:t}),"foe")}
 function leech(B,dmg){ // Vampiric
   if(!hasAfx(B,"vamp")||dmg<=0||B.hp<=0)return;const h=Math.min(B.max-B.hp,Math.max(1,Math.round(dmg*AFX_T.vamp)));
-  if(h>0){B.hp+=h;fx("enemyHud","+"+h,"heal");blog(tx("The {name} drinks in {n} HP.",{name:bname(B),n:h}),"foe")}}
+  if(h>0){B.hp+=h;floatFx("enemyHud","+"+h,"heal");blog(tx("The {name} drinks in {n} HP.",{name:bname(B),n:h}),"foe")}}
 function afxTick(B){ // start of its turn: Regenerating mends it, a broken ward comes back, Frenzied checks its health
-  if(hasAfx(B,"regen")&&B.hp<B.max){const h=Math.min(B.max-B.hp,Math.max(1,Math.round(B.max*AFX_T.regen)));B.hp+=h;fx("enemyHud","+"+h,"heal");blog(tx("The {name} regrows {n} HP.",{name:bname(B),n:h}),"foe")}
+  if(hasAfx(B,"regen")&&B.hp<B.max){const h=Math.min(B.max-B.hp,Math.max(1,Math.round(B.max*AFX_T.regen)));B.hp+=h;floatFx("enemyHud","+"+h,"heal");blog(tx("The {name} regrows {n} HP.",{name:bname(B),n:h}),"foe")}
   if(hasAfx(B,"ward")&&B.wd<=0&&B.wb!=null&&B.turn-B.wb>=AFX_T.ward.every){B.wd=B.wm;B.wb=null;blog(tx("Its ward flares back ({n}).",{n:B.wd}),"foe")}
   frenzy(B)}
 function blast(B){ // Volatile: it bursts as it dies. Guard cuts the blast, your rune ward soaks it. Returns false if it kills you
@@ -64,7 +64,7 @@ function blast(B){ // Volatile: it bursts as it dies. Guard cuts the blast, your
   B.ward=(B.ward||0)-ab;S.stats.taken+=Math.min(n,S.hp);S.hp-=n;
   blog(B.guard?tx("The {name} bursts apart! The blast hits you for {n} through your guard.",{name:bname(B),n:raw}):tx("The {name} bursts apart! The blast hits you for {n}.",{name:bname(B),n:raw}),"foe");
   if(ab)blog(B.ward?tx("Your rune ward absorbs {n}.",{n:ab}):tx("Your rune ward absorbs {n} and shatters.",{n:ab}),"good");
-  fx("youHud",n?"-"+n:"","hurt");fx("youHud","","shake");fx("vig","","on");
+  floatFx("youHud",n?"-"+n:"","hurt");floatFx("youHud","","shake");floatFx("vig","","on");
   if(S.hp<=0)blog(tx("The blast tears through you."),"foe");
   return S.hp>0}
 function splitFoe(B,E){ // Splitting: its first death leaves a weaker remnant with no affixes; B.split makes it happen once

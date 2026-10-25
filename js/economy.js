@@ -7,7 +7,7 @@ const breakEss=it=>canDecon(it)?(y=>y.frag.reduce((n,[,k,g])=>n+k*plainEq(g),0)+
 const buyPrice=id=>{if(isEss(id))return Math.max(1,Math.round(EMB.ess*plainEq(gradeOf(id))));const it=S.items[id];return Math.max(Math.round(worth(it)*EMB.buy),Math.ceil(EMB.floor*(breakEss(it)*EMB.val+salvageEmbers(it))))},sellPrice=id=>Math.max(1,Math.round(worth(S.items[id])*EMB.sell));
 const salvageEmbers=it=>isEss(it.id)?0:Math.max(1,Math.round(worth(it)*EMB.salv));
 function spendEmbers(n){S.embers-=n;S.stats.spent+=n}
-function gainEmbers(n){if(n>0){S.embers+=n;S.stats.earned+=n;if(isUnl("peddler"))fx("emb","+"+n,"ember")}return n}
+function gainEmbers(n){if(n>0){S.embers+=n;S.stats.earned+=n;if(isUnl("peddler"))floatFx("emb","+"+n,"ember")}return n}
 function fightEmbers(E,B){const base=E.boss?EMB.boss:B.id==="mimic"?EMB.elite:B.intr?EMB.fight:EMB.rar[B.rar]||EMB.fight;return gainEmbers(Math.round(base*(1+(B.heat||0)*EMB.heat)))}
 // The peddler's one-for-one offer: one of your spares for something of theirs.
 function makeOffer(){

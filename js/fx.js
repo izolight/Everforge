@@ -1,7 +1,7 @@
 // ================= FX QUEUE =================
 let fxQ=[];
-function fx(target,text,cls,detail){fxQ.push({target,text,cls,detail})}
-function vfx(target,kind,color){fx(target,"","visual",{kind,color})}
+function floatFx(target,text,cls,detail){fxQ.push({target,text,cls,detail})}
+function vfx(target,kind,color){floatFx(target,"","visual",{kind,color})}
 function flushFx(){
   const counts={},sk=fxQ.some(f=>f.cls==="shake");let k=0,ky=0;
   fxQ.forEach(f=>{const y=f.target==="youHud",s=f.text==="miss"?"dodge":f.text==="ward"?"block":f.cls==="crit"?"crit":f.cls==="ember"?"ember":f.cls==="shake"?"ouch":f.cls==="heal"?(y?"heal":""):f.cls==="hurt"?(y&&sk?"":"tick"):f.target==="enemyHud"&&f.text?"hit":"";

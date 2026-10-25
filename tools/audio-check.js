@@ -90,7 +90,7 @@ const ok=(v,m)=>{assert.ok(v,m);console.log("ok  "+m)};
     ok(true,"audio synthesis does not use gameplay's Math.random");
     const cues=await page.evaluate(()=>{
       const original=sfx,seen=[];sfx=(n,d,o)=>seen.push({n,d,o});
-      try{fxQ=[];fx("enemyHud","-5","",{el:"fire",form:"staff"});fx("enemyHud","miss","");fx("enemyHud","ward","");fx("youHud","","shake",{el:"ice"});flushFx();return seen}finally{sfx=original}
+      try{fxQ=[];floatFx("enemyHud","-5","",{el:"fire",form:"staff"});floatFx("enemyHud","miss","");floatFx("enemyHud","ward","");floatFx("youHud","","shake",{el:"ice"});flushFx();return seen}finally{sfx=original}
     });
     ok(cues.map(c=>c.n).join(",")==="hit,dodge,block,ouch","strikes, misses, wards and hits on you play their own cues");
     ok(cues[0].o?.el==="fire"&&cues[0].o?.form==="staff"&&cues[3].o?.el==="ice","strike and hurt cues carry their weapon form and element");
@@ -118,7 +118,7 @@ const ok=(v,m)=>{assert.ok(v,m);console.log("ok  "+m)};
       async function render(name,scene,opt,label){
         const p=MUSIC_SCENES[name],bar=p?240/p.bpm:0,seconds=scene?bar*8+3:4;
         window.AudioContext=function(){return new OfflineAudioContext(2,Math.ceil(rate*seconds),rate)};
-        AC=null;audioVoices.clear();base=.05;actx();const ctx=AC,pauses=[];
+        AC=null;audioVoices.clear();audioBase=.05;actx();const ctx=AC,pauses=[];
         if(scene){
           const schedule=b=>{for(let k=0;k<8;k++)musicBeat(.05+b*bar+k*bar/8,p,k,p.chords[b%p.chords.length],b)};
           schedule(0);
