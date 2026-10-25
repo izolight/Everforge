@@ -219,6 +219,15 @@ details.legend .lg-fog i{width:12px;height:12px;border-radius:3px;background:#0a
 .item-meta{padding-top:5px;border-top:1px solid var(--line)}
 .sheet .tc{min-height:36px;padding:5px 8px;gap:5px}
 .sheet .tc>.ic{width:18px;height:18px}
+.item-properties,.item-traits{display:grid;gap:9px;min-width:0}
+.stat-breakdown{min-width:0;border:1px solid var(--line);border-radius:9px;padding:8px 10px}
+.stat-breakdown>summary{cursor:pointer;font-size:.8rem;color:var(--muted);min-height:28px;align-content:center}
+.stat-breakdown .foot{margin:7px 0;font-size:.78rem}
+.trait-calculation{display:grid;gap:4px;padding:8px 0;border-top:1px solid var(--line)}
+.trait-calculation>b{font-size:.78rem;font-weight:500}
+.calculation{display:flex;flex-wrap:wrap;gap:3px 8px;font-size:.72rem;color:var(--muted)}
+.calculation>span{min-width:55px}
+.calculation code{font:inherit;font-family:var(--mono);overflow-wrap:anywhere}
 .log{margin:0;padding:0;list-style:none;font-size:.9rem;display:grid;gap:4px}
 .log li{color:var(--muted)}
 .log li strong{color:var(--fg);font-weight:500}

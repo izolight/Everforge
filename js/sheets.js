@@ -23,11 +23,9 @@ function openSheet(id,refresh,preview){
   btns.push(`<button class="btn" data-act="close">${tx("Close")}</button>`);
   $("sheetIn").innerHTML=`<div class="grab" aria-hidden="true"></div>
     <div class="rhead">${glyph(it)}<div><div class="rform">${rn} · ${labelOf(it)} · ${tx("Tier {n}",{n:it.tier})}${preview?" · "+tx("on offer"):` · ×${S.inv[id]}`}</div><h2 class="rname">${nameHtml(it)}</h2></div></div>
-    <div class="chips">${chips(it.traits,1)}</div>
-    ${statGrid(shown(it),cmp?shown(cmp):null,1)}${cmp?cmpBlock(it,cmp,"Versus equipped"):""}
+    ${itemProperties(it,cmp,true,"Versus equipped")}
     ${!preview&&!mix.ok?`<p class="warn-text">${mix.reason}</p>`:""}
     ${it.mishap==="Weakened"?`<p class="warn-text">${tx("Weakened: a fizzled mixture cost every trait 30%.")}</p>`:""}
-    ${effectBadges(it)}
     ${it.recipe?`<p class="empty">${tx("Forged from {list}.",{list:recipeNames(it)})}</p>`:""}
     <div class="actions">${btns.join("")}</div>`;
   if(!refresh)showSheet();
