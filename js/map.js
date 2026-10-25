@@ -59,7 +59,8 @@ function genMap(o){
   return m;
 }
 const heatOf=z=>S.heat[z]||{max:0,sel:0},newMap=z=>{if(z===RIFT_ZONE)riftEnsure();return (checkUnl(),genMap({heat:heatOf(z).sel,zone:z}))}; // unlocks are checked first, so a defeat or a boss kill opens its POIs on the very next map
-const curMap=()=>S.run==="daily"&&S.daily?S.daily.map:S.maps[S.zone]||(S.maps[S.zone]=newMap(S.zone));
+const curMap=()=>{if(S.run==="daily"&&S.daily)return S.daily.map;let m=S.maps[S.zone];if(!m){m=newMap(S.zone);S.maps[S.zone]=m;save()} // a new map is saved at once, so a reload does not reroll it
+  return m};
 const heatNow=()=>curMap().heat||0,twistNow=()=>S.run==="daily"&&S.daily?S.daily.twist:null,campFrac=()=>heatNow()>=5?HEAT_T.rest:.4;
 function setHeat(n){ // pick the heat for new expeditions here; an untouched map is rerolled at once
   const hz=heatOf(S.zone);if(busy()||S.run==="daily"||!(n>=0&&n<=hz.max))return;

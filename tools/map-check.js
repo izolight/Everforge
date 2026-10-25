@@ -60,6 +60,12 @@ const ROOT=path.resolve(__dirname,".."),URL="file://"+path.join(ROOT,"index.html
       assert(r.noOverflow&&r.tile>=36&&r.hero&&r.pan&&r.hint,JSON.stringify({width,...r}));
     }
     console.log("ok 36px touch targets, contained panning, pan hint and automatic hero visibility at 320/360/720px");
+    // a map made on the spot is saved at once: a reload keeps it instead of drawing a new one
+    await p.evaluate(()=>{S=freshState();S.zone="woods";S.unlocked=ZONES.map(z=>z[0]);S.maps={};curMap()});
+    const drawn=await p.evaluate(()=>JSON.stringify(curMap()));
+    await p.reload();
+    assert.equal(await p.evaluate(()=>JSON.stringify(curMap())),drawn);
+    console.log("ok a map drawn on the spot is saved at once and survives a reload");
     if(shots){
       await p.setViewportSize({width:360,height:844});await p.evaluate(()=>{render();heroView()});await p.screenshot({path:path.join(shots,"map-fog-360.png"),fullPage:true});
       await p.setViewportSize({width:720,height:1100});
