@@ -100,6 +100,27 @@ h1{font-family:var(--display);font-weight:700;font-size:2.1rem;line-height:1;col
 .flick{animation:flick .5s ease-in-out infinite alternate;transform-box:fill-box;transform-origin:50% 100%}
 @keyframes flick{to{transform:scaleY(1.15) skewX(3deg)}}
 .flt{animation:flt 2.4s ease-in-out infinite;transform-box:fill-box}
+/* portrait ambience (art.js AMB/portrait): particles carry their own duration and phase inline */
+.amb-rise{animation:ambRise 3s linear infinite}
+@keyframes ambRise{0%{transform:translateY(0);opacity:0}15%{opacity:1}100%{transform:translateY(-52px);opacity:0}}
+.amb-fall{animation:ambFall 6s linear infinite;transform-box:fill-box;transform-origin:center}
+@keyframes ambFall{0%{transform:translate(0,-6px) rotate(0);opacity:0}12%{opacity:1}85%{opacity:1}100%{transform:translate(10px,64px) rotate(200deg);opacity:0}}
+.amb-tw{animation:ambTw 2s ease-in-out infinite;transform-box:fill-box;transform-origin:center}
+@keyframes ambTw{0%,100%{opacity:.1;transform:scale(.4)}50%{opacity:1;transform:scale(1)}}
+.amb-drift{animation:ambDrift 4s ease-in-out infinite}
+@keyframes ambDrift{0%{transform:translateX(-16px);opacity:0}30%,70%{opacity:.9}100%{transform:translateX(16px);opacity:0}}
+.amb-spin{animation:ambSpin 24s linear infinite;transform-origin:60px 62px}
+@keyframes ambSpin{to{transform:rotate(360deg)}}
+.amb-pulse{animation:ambPulse 2.4s ease-out infinite;transform-origin:60px 62px}
+@keyframes ambPulse{0%{transform:scale(.82);opacity:.9}100%{transform:scale(1.12);opacity:0}}
+.amb-glow{animation:ambGlow 1.8s ease-in-out infinite alternate}
+@keyframes ambGlow{from{opacity:.55}to{opacity:1}}
+.amb-breathe{animation:ambBreathe 3.6s ease-in-out infinite;transform-origin:60px 112px}
+@keyframes ambBreathe{50%{transform:scale(1.015,1.03)}}
+.amb-hover{animation:ambHover 3.2s ease-in-out infinite}
+@keyframes ambHover{50%{transform:translateY(-4px)}}
+.amb-shadow{animation:ambShadow 3.2s ease-in-out infinite;transform-origin:60px 113px}
+@keyframes ambShadow{50%{transform:scale(.85);opacity:.15}}
 .flt:nth-child(2){animation-delay:-.8s}.flt:nth-child(3){animation-delay:-1.6s}
 @keyframes flt{50%{transform:translateY(-5px)}}
 .fname{font-family:var(--display);font-size:1.4rem;line-height:1.05;text-wrap:balance;min-width:0}

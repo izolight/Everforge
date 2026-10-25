@@ -155,7 +155,7 @@ function foeStage(B){
   const bd=[E.boss&&ci("var(--accent)",ic("boss","s"),"",tx("Boss"),tx("Beat it to open the next region.")),B.phased&&ci("var(--bad)",ic("warn","s"),"",tx(E.phase.label),tx("Its second form.")),RC&&ci(RC.col,ic("elite","s"),"",RC.name,txn("{n} affix. Up to {hp}x HP and {atk}x Attack before the affixes' own changes.","{n} affixes. Up to {hp}x HP and {atk}x Attack before the affixes' own changes.",live.length,{hp:RC.hp,atk:RC.atk}),tx("Each affix drops its linked essence, {gs} than usual.",{gs:gsTxt(RC.gs)})),
     B.heat?ci("var(--ember)",ic("heat","s"),B.heat,tx("Heat {n}",{n:B.heat}),HEAT[B.heat-1].name):"",kn.mastered&&ci("var(--verd)",ic("renown","s"),"",tx("Mastered"),tx("You deal 15% more damage to it."))].filter(Boolean).join("");
   return `<div class="stage${RC?" rar":""}" id="enemyHud" style="--el:${FAM[B.el]}${RC?`;--rc:${RC.col}`:""}">
-    <button class="${cls}" id="foeArt" data-codex="${B.id}" aria-label="${esc(fullName(B))}${RC?`, ${esc(lc(RC.name))}, ${esc(live.map(a=>tx(AFX[a].n)).join(", "))}`:""}. ${esc(tx("Open codex entry"))}">${portrait(B.id,{el:B.el,aura:RC&&RC.col,rare:rarOf(B)==="rare",frozen:B.frozen,burn:!!B.burn&&!B.over,poison:B.poison>0&&!B.over,phased:B.phased})}</button>
+    <button class="${cls}" id="foeArt" data-codex="${B.id}" aria-label="${esc(fullName(B))}${RC?`, ${esc(lc(RC.name))}, ${esc(live.map(a=>tx(AFX[a].n)).join(", "))}`:""}. ${esc(tx("Open codex entry"))}">${portrait(B.id,{el:B.el,afx:live,aura:RC&&RC.col,rare:rarOf(B)==="rare",frozen:B.frozen,burn:!!B.burn&&!B.over,poison:B.poison>0&&!B.over,phased:B.phased})}</button>
     <div class="foeinfo"><div class="fname"><span class="fn"${RC?` style="color:${RC.col}"`:""}>${bname(B)}</span>${B.title&&!B.split?`<span class="ti" style="color:${RC.col}">${btitle(B)}</span>`:""}<span class="bd">${bd}</span></div>
       <div class="hpline">${hpBar(B.hp,B.max,"foe")}<span class="hpnum">${Math.max(0,B.hp)}<small>/${B.max}</small></span></div>
       ${live.length?`<div class="chips afx">${live.map(a=>afxChip(a,B)).join("")}</div>`:""}
@@ -420,8 +420,8 @@ function renderCodex(){
   $("cxlist").innerHTML=groups.map(([z,zn])=>`<p class="zonehead">${zn}</p><div class="cxg">`+Object.entries(ENEMIES).filter(([,e])=>e.zone===z).map(([id,E])=>{
     const seen=S.seen[id],k=know(id),pct=Math.round(k.pct*100),tp=tt(seen?tx(E.name):tx("Unknown creature"),seen?(E.boss?tx("Boss.")+" ":"")+tx("Defeated {n}",{n:S.kills[id]||0}):tx("Not yet encountered"),seen?(k.mastered?tx("Mastered: you deal 15% more damage."):tx("Knowledge {a}/{b} ({p}%)",{a:k.have,b:k.tot,p:pct})):"");
     const bd=`${seen&&E.boss?`<span class="sq-w cb" aria-hidden="true">${ic("boss","xs")}</span>`:""}${seen?`<span class="sq-p${k.mastered?" m":""}">${k.mastered?ic("renown","xs"):pct+"%"}</span>`:""}`;
-    return seen?`<button class="cxt${k.mastered?" mst":""}" data-codex="${id}" aria-label="${esc(tx(E.name)+(E.boss?", "+lc(tx("Boss")):"")+". "+(k.mastered?tx("Mastered"):tx("Knowledge {p}%",{p:pct}))+". "+tx("Open its page."))}" ${tp}>${portrait(id)}${bd}</button>`
-      :`<span class="cxt sil" ${tp}>${portrait(id)}</span>`}).join("")+`</div>`).join("");
+    return seen?`<button class="cxt${k.mastered?" mst":""}" data-codex="${id}" aria-label="${esc(tx(E.name)+(E.boss?", "+lc(tx("Boss")):"")+". "+(k.mastered?tx("Mastered"):tx("Knowledge {p}%",{p:pct}))+". "+tx("Open its page."))}" ${tp}>${portrait(id,{lite:1})}${bd}</button>`
+      :`<span class="cxt sil" ${tp}>${portrait(id,{lite:1})}</span>`}).join("")+`</div>`).join("");
 }
 let lastIntro=null;
 function render(fresh){
