@@ -2,26 +2,27 @@
 
 Backlog for monster coverage, biome variety and related balance/tooling work.
 
-**Status values:** `Implement` (specified, ready to implement) · `In Progress` · `Planned`
+**Status values:** `Done` · `Implement` (specified, ready to implement) · `In Progress` · `Planned`
 **Sizes:** `XS` tiny · `S` small · `M` medium · `L` large · `XL` refactor/multi-day
 
 ## Status snapshot
 
-- **M-01** — `Implement`
-- **M-02** — `Implement`
+- **M-01** — `Done`
+- **M-02** — `Done`
 - **M-03** — `In Progress`
 - **M-04** — `In Progress`
+- **V-01** — `Done`
 - Everything else — `Planned`
 
 ---
 
 ## Coverage fixes
 
-- [ ] **M-01 · Fill the missing body type in every biome** — `Status: Implement` · `Size: S` · `js/monsters.js`
+- [x] **M-01 · Fill the missing body type in every biome** — `Status: Done` · `Size: S` · `js/monsters.js`
   Add `construct` to forest/fen, `undead` to tundra/astral/ash, `beast` to ember, `elemental` to bone, `humanoid` to deep.
   **Done:** all 8 `BIOMES` entries list 5 bodies; `node tools/map-check.js` and `node tools/smoke.js` pass; every body renders.
 
-- [ ] **M-02 · Remove the duplicate region name** — `Status: Implement` · `Size: XS` · `js/monsters.js`
+- [x] **M-02 · Remove the duplicate region name** — `Status: Done` · `Size: XS` · `js/monsters.js`
   `BIOMES.ash.n` ("The Cinder Wastes") duplicates a name in `BIOMES.ember.regions`. Rename one.
   **Done:** no duplicate across biome names and region-name lists.
 
@@ -59,9 +60,12 @@ Backlog for monster coverage, biome variety and related balance/tooling work.
 
 ## Data-only variety
 
-- [ ] **V-01 · Expand biome part pools from 6 to 8–10** — `Status: Planned` · `Size: S` · `js/monsters.js`
+- [x] **V-01 · Expand biome part pools from 6 to 8–10** — `Status: Done` · `Size: S` · `js/monsters.js`
   6 parts give 41 distinct 1–3-part sets; 8 give 92, 10 give 175. Add thematic parts per biome.
   **Done:** every biome has 8+ parts; no duplicates; visual spot-check and `smoke` pass.
+  **Done (V-01):** all 8 `BIOMES` pools hold 9 distinct parts (129 possible 1–3-part sets each); no pool pairs `hood` with `halo`; no new `tail`, `blade`, `axe`, `staff` or `tusks` were added.
+  `node tools/part-check.js` renders every biome × body × part (360 renders, 0 problems), `node tools/map-check.js` passes, and the visual sheets (`node tools/parts-preview.js`, `node tools/parts-combos.js`) show the new parts on every body.
+  `node tools/smoke.js` still reports the pre-existing `save-v14/15/16.json` migration failure ("missing rift pending"), which also fails on the base commit and is unrelated to the part pools.
 
 - [ ] **V-02 · Use the four orphan parts** — `Status: Planned` · `Size: S` · `js/monsters.js` · `Depends: V-12`
   `blade`, `axe`, `staff`, `tusks` exist in `js/art/parts.js` but no wild pool uses them. Add them to appropriate biomes.
