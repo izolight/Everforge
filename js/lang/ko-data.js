@@ -192,4 +192,12 @@ DICT.ko=Object.assign(DICT.ko||{},{
 "something keen":"예리한 무언가",
 "something misty":"안개 같은 무언가",
 "something":"무언가",
+// ---- 균열: 지역과 야생 생물의 특수 공격
+"The Wanderer's Rift":"방랑자의 균열",
+"Wild Rush":"야생 돌진","coiling to spring":"도약하기 위해 웅크림",
+"Heavy Slam":"무거운 내려찍기","raising itself to strike":"내려치려 들어올림",
+"knitting itself back together":"자기 몸을 다시 엮음",
+"Soul Drain":"혼의 흡수","reaching for your life":"당신의 목숨을 움켜쥠",
+"Savage Charge":"야수의 돌진","lowering its head":"고개를 숙임",
+"Bolt":"뇌전","drawing power together":"힘을 모은다",
 });

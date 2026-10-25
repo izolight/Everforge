@@ -7,15 +7,17 @@ function pickEnemy(zone,R=Math.random){const pool=Object.entries(ENEMIES).filter
 function startBattle(forced,opt){
   opt=opt||{};const id=forced||opt.e||pickEnemy(S.zone),E=ENEMIES[id],sc=1+.06*(opt.row||0),h=heatNow(),tw=twistNow();
   const B={id,name:E.name,el:E.el,hp:Math.round(E.hp*sc),max:Math.round(E.hp*sc),atk:Math.round(E.atk*sc),def:E.def,weak:[...E.weak],resist:[...E.resist],turn:1,
-    burn:null,poison:0,bleed:null,stun:0,open:false,cd:{},you:{},off:0,parry:false,shred:0,ward:null,frozen:false,guard:false,reborn:false,phased:false,rar:"normal",afx:[],title:"",log:[],over:null,loot:[]};
+    burn:null,poison:0,bleed:null,stun:0,open:false,cd:{},you:{},off:0,parry:false,shred:0,ward:null,frozen:false,guard:false,reborn:false,phased:false,rar:"normal",afx:[],intr:false,title:"",log:[],over:null,loot:[]};
   if(id==="mimic"){const zi=zoneIdx(S.zone),at=(a,i)=>a[Math.min(i,a.length-1)];B.max=B.hp=Math.round(E.hp*at(MIMIC_HP,zi));B.atk=Math.round(E.atk*at(MIMIC_ATK,zi));B.def=E.def+zi*2}
   B.heat=h;if(opt.pi!=null){B.pi=opt.pi;B.by=opt.by;B.ef=opt.ef} // a map enemy: which one, who moved, where it came from (see slip)
   if(h){B.max=B.hp=Math.round(B.max*(1+h*HEAT_T.hp));B.atk=Math.round(B.atk*(1+h*HEAT_T.atk))}
   if(h>=4&&E.boss){B.max=B.hp=Math.round(B.max*HEAT_T.boss);if(E.sp)B.spEvery=spEvery(E,h)}
   if(tw==="double")B.atk*=2;
   if(opt.ambush||opt.lunge)B.log.push({t:opt.amsg||tx("Ambush! Something leaps out at you."),c:"big"});
-  if(!E.boss&&id!=="mimic"){ // a map enemy brings its rolled rarity and affixes; anything else rolls them now
-    const f=opt.rar!=null?{rar:opt.rar,afx:opt.afx||rollAfx(Math.random,opt.rar,{mv:E.mv,heat:h})}:rollFoe(Math.random,{elite:opt.elite||tw==="elites",heat:h,row:opt.row,mv:E.mv});applyAfx(B,E,f.rar,f.afx)}
+  if(!E.boss&&id!=="mimic"){ // a map enemy brings its rolled rarity and affixes; a wild creature brings its own
+    const sa=speciesAfx(E);
+    const f=sa||(opt.rar!=null?{rar:opt.rar,afx:opt.afx||rollAfx(Math.random,opt.rar,{mv:E.mv,heat:h})}:rollFoe(Math.random,{elite:opt.elite||tw==="elites",heat:h,row:opt.row,mv:E.mv}));
+    applyAfx(B,E,f.rar,f.afx);B.intr=!!sa}
   S.battle=B;S.event=null;S.seen[id]=true;cx(id);
   blog(tx(E.intro),E.boss||B.afx.length?"big":"");
   if(B.afx.length){blog(tx("{rarity}: {name}.",{rarity:RARITIES[B.rar].name,name:fullName(B)}),"big");noteAfx(B);if(B.wd)blog(tx("A ward shimmers around it ({n}).",{n:B.wd}),"foe")}
@@ -216,7 +218,7 @@ function enemyDown(){
   if(hasAfx(B,"boom")&&!B.boom){B.boom=1;if(!blast(B))return youFall()} // Volatile: you can die to the blast (a defeat, no loot); if you live the fight is won as usual
   const P=pstats(),dl=S.run==="daily",h=B.heat||0,lv0=level();
   if(dl)S.daily.turns+=B.turn;
-  const st=S.stats;if(E.boss){st.bosses++;st.fast[B.id]=Math.min(st.fast[B.id]||1e9,B.turn);if(!dl){st.heatBest[E.zone]=Math.max(st.heatBest[E.zone]??-1,h);st.exped++}}else if(B.afx.length){st.elites++;noteAfx(B,true)}
+  const st=S.stats;if(E.boss){st.bosses++;st.fast[B.id]=Math.min(st.fast[B.id]||1e9,B.turn);if(!dl){if(E.zone!==RIFT_ZONE)st.heatBest[E.zone]=Math.max(st.heatBest[E.zone]??-1,h);st.exped++}}else if(B.afx.length){st.elites++;noteAfx(B,true)}
   sfx("win",.3);sfx("loot",.9);
   B.hp=0;B.over="won";S.kills[B.id]=(S.kills[B.id]||0)+1;S.wins+=E.boss?3:1;
   if(!E.boss&&B.id!=="mimic")S.zoneKills[E.zone]=(S.zoneKills[E.zone]||0)+1;
@@ -225,7 +227,7 @@ function enemyDown(){
   if(B.id==="mimic"){const p=zonePool(S.zone);got=[gdrop(pick(p),gz,gh),gdrop(pick(p),gz,gh),gess(pick(ESS_POOL),gz,gh)]}
   else{got=E.drops.filter(([,p])=>Math.random()<p*mult).map(([id])=>id);if(!got.length)got=[E.drops[0][0]];got=got.map(id=>gdrop(id,gz,gh))}
   if(twistNow()==="double")got=[...got,...got];
-  B.afx.forEach(a=>got.push(gess(AFX[a].tr,gz,gh,undefined,RARITIES[B.rar].gs))); // each affix drops its essence, a grade or two better by rarity
+  if(!B.intr)B.afx.forEach(a=>got.push(gess(AFX[a].tr,gz,gh,undefined,RARITIES[B.rar].gs))); // each affix drops its essence, a grade or two better by rarity (a wild creature's own affixes drop none)
   blog(tx("The {name} falls.",{name:bname(B)})+(P.lure?" "+tx("Your Lure gear draws in extra scraps."):""),"good");
   if(E.boss&&h&&!dl){const n=h*HEAT_T.ess,xp=h*HEAT_T.xp;for(let i=0;i<n;i++)got.push(gess(pick(ESS_POOL),gz,gh));S.xp+=xp;blog(txn("Heat {h} spoils: {n} extra essence and {xp} smith XP.","Heat {h} spoils: {n} extra essences and {xp} smith XP.",n,{h,xp}),"good")}
   if(E.boss&&dl)dailyBundle(got);
@@ -234,9 +236,10 @@ function enemyDown(){
   S.campProg++;let msg="";if(S.campProg>=3){S.campProg=0;if(S.camp<3){S.camp++;msg=tx("You earned a campfire charge.")}}
   if(E.boss&&dl){finishDaily(MAP_ROWS,true);const next=ZONES[zoneIdx(E.zone)+1];if(next&&!S.unlocked.includes(next[0])){S.unlocked.push(next[0]);msg=tx("{zone} is now open!",{zone:tx(next[1])})}} // a daily boss kill unlocks like a normal one, matching the load-time fix-up in migrate
   else if(E.boss){const next=ZONES[zoneIdx(E.zone)+1],nh=Math.min(HEAT_MAX,h+1),hz=heatOf(E.zone);if(S.maps[E.zone])S.maps[E.zone].cleared=true;
-    if(next&&!S.unlocked.includes(next[0])){S.unlocked.push(next[0]);msg=tx("{zone} is now open!",{zone:tx(next[1])})}
+    if(E.zone===RIFT_ZONE){const r=S.rift;r.cleared=1;r.best=Math.max(r.best||0,r.depth||1);msg=tx("The master of {name} falls. Go deeper when you are ready.",{name:r.name||tx("the region")})}
+    else if(next&&!S.unlocked.includes(next[0])){S.unlocked.push(next[0]);msg=tx("{zone} is now open!",{zone:tx(next[1])})}
     else if(!next&&hz.max===0)msg=tx("You've conquered the realm. Now turn up the Heat.");
-    if(nh>hz.max){S.heat[E.zone]={max:nh,sel:hz.sel};msg=(msg?msg+" ":"")+tx("Heat {h} unlocked in {zone}: {name}.",{h:nh,zone:zoneName(E.zone),name:HEAT[nh-1].name})}}
+    if(E.zone!==RIFT_ZONE&&nh>hz.max){S.heat[E.zone]={max:nh,sel:hz.sel};msg=(msg?msg+" ":"")+tx("Heat {h} unlocked in {zone}: {name}.",{h:nh,zone:zoneName(E.zone),name:HEAT[nh-1].name})}}
   if(E.boss&&S.kills[B.id]===1){rpGain("boss:"+B.id,RP.boss[Math.max(0,zoneIdx(E.zone))]||RP.boss[0],tx("{name} defeated",{name:shortName(B.id)}));const hm=giveHint();if(hm){blog(hm,"big");msg=(msg?msg+" ":"")+tx("A hint scroll joins your Recipes.")}}
   if(level()>lv0)msg=(msg?msg+" ":"")+lvMsg();
   save();render();if(msg)toast(msg);

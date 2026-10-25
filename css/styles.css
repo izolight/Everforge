@@ -176,6 +176,8 @@ button.chip{cursor:pointer}
 .mapwrap{margin:0 -29px;position:relative;border-radius:12px;overflow:hidden;background:#120f0c;border:1px solid var(--line)}
 .map{position:relative;width:100%;max-width:440px;margin:0 auto;--tf:#2a2118;--tl:#3a2e22;--tb:#6b5a46}
 .map.z-woods{--tf:#1c2b1f;--tl:#27402b;--tb:#3f6b48}.map.z-pass{--tf:#222c34;--tl:#34444f;--tb:#6c8ea0}.map.z-hollow{--tf:#2b1a14;--tl:#43251a;--tb:#a84a22}.map.z-spire{--tf:#1d1a33;--tl:#2d2a52;--tb:#7468b8}
+/* the Rift is a random region: its palette is set inline, rolled with the region */
+.map.z-rift{--tf:#1d1a33;--tl:#2d2a52;--tb:#7468b8}
 .map svg.terrain{position:absolute;inset:0;width:100%;height:100%;opacity:.5}
 .tls{position:relative;display:grid;grid-template-columns:repeat(var(--w),1fr);gap:1px;padding:1px}
 .tl{position:relative;aspect-ratio:1;display:grid;place-items:center;padding:0;border:0;border-radius:4px;background:color-mix(in srgb,var(--tf) 82%,transparent);color:var(--muted);overflow:hidden}

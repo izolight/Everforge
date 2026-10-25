@@ -194,4 +194,12 @@ DICT.de=Object.assign(DICT.de||{},{
 "something keen":"etwas Scharfes",
 "something misty":"etwas Dunstiges",
 "something":"etwas",
+// ---- der Riss: die Region und die Spezialzüge der wilden Kreaturen
+"The Wanderer's Rift":"Der Wandernde Riss",
+"Wild Rush":"Wilder Ansturm","coiling to spring":"spannt sich zum Sprung",
+"Heavy Slam":"Schwerer Schlag","raising itself to strike":"hebt sich zum Schlag",
+"knitting itself back together":"flickt sich wieder zusammen",
+"Soul Drain":"Seelenentzug","reaching for your life":"greift nach deinem Leben",
+"Savage Charge":"Wilde Ladung","lowering its head":"senkt den Kopf",
+"Bolt":"Blitz","drawing power together":"sammelt die Kraft",
 });

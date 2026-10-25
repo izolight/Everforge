@@ -139,11 +139,13 @@ async function run(label,setup,nat){
       go("battle");if(!qa("#arena [data-tile]").length)q("#again")?.click();
     }
     await sleep(500);
-    out.miss=window.__miss?[...window.__miss]:[];out.unl=Object.keys(S.unl);out.techs=Object.keys(S.techs).length;out.rp=S.rp;out.pending=pendingIntros().length;out.zones=[...out.zones];out.afx=[...out.afx];out.save=localStorage.getItem(KEY);out.key=KEY;out.v=S.v;
+    out.miss=window.__miss?[...window.__miss]:[];out.proc=typeof PROC!=="undefined"?[...PROC]:[]; // a procedural creature's own strings stay English
+    out.unl=Object.keys(S.unl);out.techs=Object.keys(S.techs).length;out.rp=S.rp;out.pending=pendingIntros().length;out.zones=[...out.zones];out.afx=[...out.afx];out.save=localStorage.getItem(KEY);out.key=KEY;out.v=S.v;
     return out;
   },{steps:STEPS,nat});
   await browser.close();
-  const miss=stats.miss.filter(k=>!/Test |^[ab]$|noun\|Blade/.test(k)); // the bot's own throwaway items ("Test Blade", recipe "a"+"b") have no translations
+  const proc=new Set(stats.proc||[]);
+  const miss=stats.miss.filter(k=>!/Test |^[ab]$|noun\|Blade/.test(k)&&!proc.has(k)); // the bot's own throwaway items ("Test Blade", recipe "a"+"b") have no translations, and a procedural creature's name is English by nature
   if(process.env.I18N_LANG&&miss.length)errors.push("no translation for: "+miss.slice(0,12).join(" | "));
   const {save,miss:_m,...rest}=stats;
   console.log(`[${label}]`,JSON.stringify(rest));

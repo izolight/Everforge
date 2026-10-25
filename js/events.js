@@ -28,7 +28,7 @@ $("arena").addEventListener("click",e=>{
   if(t.id==="heatBtn"){heatOpen=!heatOpen;return render()}
   if(t.dataset.tile){const [x,y]=t.dataset.tile.split(",").map(Number);return step(x,y)}
   if(t.dataset.zone){S.zone=t.dataset.zone;S.battle=null;S.event=null;save();render();return window.scrollTo({top:0})}
-  ({rest,atk:attack,guard,parry,study,flee,again:newExpedition,dailyStart:startDaily,dailyAbandon:abandonDaily,toforge:()=>go("forge"),
+  ({rest,atk:attack,guard,parry,study,flee,again:newExpedition,dailyStart:startDaily,dailyAbandon:abandonDaily,riftNext:riftDescend,toforge:()=>go("forge"),
     cont:()=>{S.battle=null;S.event=null;logOpen=false;save();render()}})[t.id]?.();
 });
 $("arena").addEventListener("toggle",e=>{if(e.target.id==="legend")legendOpen=e.target.open;

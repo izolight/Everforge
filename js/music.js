@@ -38,6 +38,11 @@ const MUSIC_SCENES={
     chords:[[0,3,7,12],[-4,0,3,8],[5,8,12,17],[7,11,14,19],[0,3,7,15],[1,5,8,13],[-1,2,5,8],[-5,-1,2,5]],
     melody:[[7,null,12,null,15,null,14,null],[12,null,8,null,3,null,8,null],[5,null,8,null,12,null,17,null],[19,null,null,null,11,null,null,null],
       [12,null,15,null,19,null,15,null],[13,null,null,null,8,null,5,null],[11,null,8,null,5,null,2,null],[7,null,11,null,null,null,null,null]]},
+  // "The Fraying": A whole-tone drift, glass and bells, no ground: a place that is being unmade.
+  rift:{bpm:76,root:47,pad:2600,lead:"glass",space:2,wind:true,
+    chords:[[0,2,6,8],[-2,0,4,6],[4,6,10,12],[6,8,12,14],[0,2,6,8],[-4,-2,2,4],[-6,-4,0,2],[-2,0,4,6]],
+    melody:[[8,null,null,null,10,null,12,null],[14,null,12,null,10,null,null,null],[6,null,null,null,8,null,6,null],[4,null,null,null,null,null,null,null],
+      [8,null,10,null,12,null,14,null],[16,null,14,null,12,null,10,null],[12,null,10,null,8,null,6,null],[4,null,null,null,null,null,null,null]]},
 };
 const musicState={timer:null,next:0,step:0,bar:0,scene:"",wanted:"",seed:0x3a8f27b1};
 function musicRand(){let x=musicState.seed;x^=x<<13;x^=x>>>17;x^=x<<5;musicState.seed=x;return(x>>>0)/4294967296}

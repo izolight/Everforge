@@ -25,7 +25,7 @@ function learn(id,type,val){
   else if(type==="stats")text=tx("Codex: {nm}'s strength is now recorded.",{nm});
   else text=tx("Codex: {nm} can drop {item}.",{nm,item:iname(S.items[val])});
   if(S.battle&&S.battle.id===id)blog(text,"lore");
-  if(!was&&know(id).mastered){setTimeout(()=>toast(tx("{nm} mastered! You deal 15% more damage to it.",{nm})),50);rpGain("mast:"+id,RP.mast,tx("{nm} mastered",{nm}))}
+  if(!was&&know(id).mastered){setTimeout(()=>toast(tx("{nm} mastered! You deal 15% more damage to it.",{nm})),50);rpGain("mast:"+id,ENEMIES[id]&&ENEMIES[id].gen?1:RP.mast,tx("{nm} mastered",{nm}))} // a wild creature is worth one point, not two (there are many of them)
   return true;
 }
 function unknownFacts(id){const E=S.battle&&S.battle.id===id?foeOf(S.battle):ENEMIES[id],K=cx(id),out=[];

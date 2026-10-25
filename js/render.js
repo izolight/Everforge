@@ -190,6 +190,13 @@ function mapHead(){
     ${ci("var(--fg)",stIc("atk","s"),P.atk,`${STAT_NAMES.atk} ${P.atk}`,tx("Strike power of your main hand."))}${ci("var(--fg)",stIc("def","s"),`${Math.round(P.red*100)}%`,`${STAT_NAMES.def} ${P.def}`,tx("Cuts the damage you take by {p}%.",{p:Math.round(P.red*100)}))}</div>
     <div class="mr">${torch}${amb}${badges}${campBtn()}${ab}${help}</div>${sel}<p class="mnow${m.ls===m.steps&&m.steps?" mnew":""}">${(m.log||[]).slice(-1)[0]||tx("Tap a glowing tile next to you to set out.")}</p></div>`;
 }
+function riftCard(){ // the Rift: the region you stand in, its depth and your record
+  if(S.zone!==RIFT_ZONE)return "";
+  const r=S.rift||{},nm=r.name||tx("unknown");
+  return `<div class="dcard rift"><div class="dtop"><b>${ic("mystery")} ${tx("The Wanderer's Rift")}</b><span class="dline"><span>${tx("Region: {name}",{name:nm})}</span><span class="heat">${tx("Depth {n}",{n:r.depth||1})}</span><span class="heat">${tx("Best {n}",{n:r.best||0})}</span></span>
+    ${helpBtn(tx("The Wanderer's Rift"),tx("Every expedition rolls a new region: a biome, ten wild creatures and a master."),tx("Wild creatures carry affixes of their own, and the master carries three."),tx("Beat the master to go one depth deeper."))}</div>
+    <p class="foot">${tx("A new region every time: ten wild creatures and a master. Beat the master, then descend.")}</p>
+    ${r.cleared?`<div class="actions"><button class="btn primary sm grow" id="riftNext">${tx("Descend deeper")}</button></div>`:""}</div>`}
 function dailyCard(){
   if(S.run==="daily")return "";
   if(!dailyReady())return isUnl("heat")?`<div class="dcard">${lockRow("daily")}</div>`:""; // a teaser once the first boss is down
@@ -222,7 +229,7 @@ function renderBattle(){
     const m=curMap(),zi=zoneIdx(S.zone),bossId=ZONES[zi][2],next=ZONES[zi+1];
     const head=m.cleared?`<div class="cleared"><b>${ic("ok")} ${tx("{zone} cleared",{zone:tx(ZONES[zi][1])})}</b>${helpBtn(tx("{boss} has fallen",{boss:shortName(bossId)}),next&&zoneOpen(next[0])?tx("Explore a fresh map here for more loot, or move on to {next}.",{next:tx(next[1])}):tx("Explore a fresh map here for more loot."))}
         <div class="actions"><button class="btn sm grow" id="again">${tx("New expedition")}</button>${next&&zoneOpen(next[0])?`<button class="btn primary sm grow" data-zone="${next[0]}">${tx("Travel to {zone}",{zone:tx(next[1])})}</button>`:""}</div></div>`:"";
-    a.innerHTML=`${mapHead()}${head}${mapHtml()}${dailyCard()}`;fitMap();heroView();return}
+    a.innerHTML=`${mapHead()}${head}${mapHtml()}${riftCard()}${dailyCard()}`;fitMap();heroView();return}
   const K=cx(B.id);
   let body="";
   if(!B.over){
@@ -397,7 +404,7 @@ function renderStats(){
       +`<div class="sc wide"><b>${heat}</b><span>${tx("highest Heat cleared")}</span></div>`)
     +grp(tx("Forge"),cell(st.forged,tx("items forged"))+cell(S.journal.length,tx("recipes found"))+cell(st.legend,tx("legendaries forged"))+cell(st.mishaps,tx("mishaps"))+cell(st.fizzles,tx("fizzles"))+cell(st.salvaged,tx("items salvaged"))+cell(st.refined,tx("grades upgraded")))
     +grp(tx("Economy"),cell(sn(st.earned),tx("embers earned"))+cell(sn(st.spent),tx("embers spent"))+cell(S.embers,tx("embers now")))
-    +`<p class="label">${tx("Records")}</p><ul class="rec2">${fast}<li><span>${tx("Dailies played / won")}</span><b>${st.dailies} / ${st.dailyWins}</b></li><li><span>${tx("Best daily")}</span><b>${st.dBest?dailyResult(st.dBest):tx("none yet")}</b></li></ul>`;
+    +`<p class="label">${tx("Records")}</p><ul class="rec2">${fast}<li><span>${tx("Dailies played / won")}</span><b>${st.dailies} / ${st.dailyWins}</b></li><li><span>${tx("Best daily")}</span><b>${st.dBest?dailyResult(st.dBest):tx("none yet")}</b></li><li><span>${tx("Best Rift depth")}</span><b>${(S.rift&&S.rift.best)||0}</b></li></ul>`;
 }
 function renderAfx(){ // the Codex list of affixes: an entry opens when you first meet an enemy that carries it
   const ids=Object.keys(AFX),n=ids.filter(a=>(S.afx[a]||{}).s>0).length;
