@@ -228,6 +228,15 @@ async function newPage(browser){const p=await browser.newPage();p.on("pageerror"
 async function main(){
   const t0=Date.now(),browser=await chromium.launch();
   const pages=await Promise.all(Array.from({length:JOBS},()=>newPage(browser))),P0=pages[0];
+  const enemiesAll=await P0.evaluate(()=>Object.entries(ENEMIES).map(([id,e])=>({id,zone:e.zone,boss:!!e.boss,name:e.name})));
+  // coverage guard: every element of a region's biome pool needs an authored (hand-made, non-boss) enemy of that region
+  const EL_EXCEPT={}; // documented exceptions, per region: elements deliberately left uncovered (none at the moment)
+  const cov=await P0.evaluate(()=>Object.entries(ZONE_BIOME).map(([z,bi])=>{const pool=BIOMES[bi].els,
+    els=new Set(Object.values(ENEMIES).filter(e=>!e.gen&&!e.boss&&e.zone===z).map(e=>e.el));
+    return{z,bi,pool,gap:pool.filter(e=>!els.has(e))}}));
+  console.log(`== Element coverage (authored, non-boss): ${cov.map(c=>`${c.z} ${c.pool.length-c.gap.length}/${c.pool.length}`).join(", ")} ==`);
+  const gaps=cov.flatMap(c=>c.gap.filter(e=>!(EL_EXCEPT[c.z]||[]).includes(e)).map(e=>`${c.z}: ${e}`));
+  if(gaps.length){console.error(`FAIL: biome elements with no authored enemy: ${gaps.join(", ")}`);await browser.close();process.exit(1)}
   if(has("fresh")){ // the first expeditions with gating, then done
     const n=+opt("exped",5),rows=await P0.evaluate(([n,p,sd])=>SIM.fresh(n,p,sd),[n,POLS[0],SEED]);
     console.log(`== Fresh save: ${n} expeditions in the Woods with the unlock gates on (starter kit, ${POLS[0]} policy) ==\nColumns: result, steps, fights, wins this run; POIs placed on the map (shown by type); POI types the bot walked into; what opened afterwards (smith Lv / total wins / expeditions finished).`);
@@ -236,7 +245,6 @@ async function main(){
     console.log(`\nResearch: RP earned per expedition: ${rows.map(r=>r.rp.gain).join(", ")} (mean ${f1(rows.reduce((a,r)=>a+r.rp.gain,0)/rows.length)}). The bot salvages spare gear, binds essences into the sword, studies up to three families per expedition and learns the cheapest technique it can afford.\nA technique is affordable on the first expedition whose cumulative RP earned reaches its cost (its Smith level or skill requirement may come later):\n${tc.map(t=>{const k=rows.find(r=>r.rp.earned>=t.c);return `  ${t.n.padEnd(13)} ${String(t.c).padStart(2)} RP  ${k?"expedition "+k.e:"not yet"}${t.rq?"  (needs "+t.rq+")":""}`}).join("\n")}`);
     await browser.close();return}
   const zones=list("zone",ZN),kitSel=list("kit",null),mastered=!has("no-mastered");
-  const enemiesAll=await P0.evaluate(()=>Object.entries(ENEMIES).map(([id,e])=>({id,zone:e.zone,boss:!!e.boss,name:e.name})));
   const eSel=list("enemy",null),enemies=enemiesAll.filter(e=>(eSel?eSel.includes(e.id):(e.zone==="any"||zones.includes(e.zone))));
   // kits: each stage kit has an on-stage zone and an arrival zone (the next one); the starter kit only arrives (at the woods). --zone keeps kits whose on-stage or arrival zone is listed
   const defs=[...Object.entries(KITS).flatMap(([type,by])=>Object.entries(by).map(([z,def])=>({name:kitName(type,z),type,zone:z,on:z,arr:ZN[ZN.indexOf(z)+1]||null,xp:STAGES[z].xp,sk:STAGES[z].sk,mast:mastered?ZN.indexOf(z):-1,def}))),

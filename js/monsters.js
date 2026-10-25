@@ -43,6 +43,7 @@ deep:{n:"The Weeping Deep",els:["arcane","ice","shadow","poison"],bodies:["eleme
 const EL_NAT={fire:{w:["ice"],r:["fire"],i:"burn"},ice:{w:["fire"],r:["ice"],i:"chill"},poison:{w:["fire"],r:["poison"],i:"poison"},holy:{w:["shadow"],r:["holy"],i:null},
   shadow:{w:["holy"],r:["shadow"],i:"curse"},wood:{w:["fire"],r:["wood"],i:null},metal:{w:["arcane"],r:["metal"],i:null},arcane:{w:["holy"],r:["arcane"],i:null},
   swift:{w:["stone"],r:["swift"],i:null},stone:{w:["arcane"],r:["stone"],i:null}};
+// the biome of each hand-made region, and its element pool: every element of the pool needs an authored (non-boss) enemy of that region, or a documented exception (tools/sim.js checks it). The enemies outside their pool are additions, not gaps: Woods holy (Glowcap Sprite) and shadow (Barrow Ghoul), Pass and Hollow shadow (Ice Wraith, Ash Revenant), Spire metal (Orrery Construct).
 const ZONE_BIOME={woods:"forest",pass:"tundra",hollow:"ember",spire:"astral"},GEN_N=10,RIFT_N=10,RIFT_ZONE="rift";
 // the stat band of a region's wild creatures (the rarity multiplier is put back when they are rolled)
 const GEN_T={woods:{hp:30,atk:6,def:2},pass:{hp:58,atk:11,def:4},hollow:{hp:92,atk:14,def:5},spire:{hp:120,atk:21,def:6}};
