@@ -94,7 +94,13 @@ function renderGear(){
 const lockAct=id=>`<button class="btn act lk" id="${id}" aria-disabled="true" data-tap aria-label="${UNL[id].name}, locked. ${esc(UNL[id].txt)}" ${tt(`${UNL[id].name} (locked)`,UNL[id].txt)}>${ic("lock")}<span>${UNL[id].name}</span></button>`; // an action-grid button that is not open yet
 const introIn=c=>`<span class="ii" aria-hidden="true">${ic(c.ic,"l")}</span><div class="it"><b>${c.t}</b>${c.l.map(x=>`<p>${x}</p>`).join("")}</div><button class="btn sm" id="introOk" data-intro="${c.id}">Got it</button>`; // a one-time intro card (non-modal; Got it marks it read)
 const introHtml=c=>c?`<div class="intro">${introIn(c)}</div>`:"";
-function renderIntro(){const el=$("intro"),c=inBattle()?null:curIntro(false);el.hidden=!c;el.className="intro"+(S.view==="battle"?" fl":"");el.innerHTML=c?introIn(c):""} // the card at the top of a tab; over the map it floats, so the map never shifts (a fight shows its own above the action grid)
+function renderIntro(){const el=$("intro"),c=inBattle()?null:curIntro(false),id=c?c.id:"";el.hidden=!c;el.className="intro"+(S.view==="battle"?" fl":"");
+  if(el.dataset.cid!==id){el.dataset.cid=id;el.innerHTML=c?introIn(c):""} // rewritten only when the card changes, so the live region does not announce it again
+  placeIntro()}
+function placeIntro(){ // the floating card sits under the goal bar (so Claim stays tappable) and moves to the bottom if it would cover you on the map
+  const el=$("intro");el.style.top=el.style.bottom="";if(el.hidden||!el.classList.contains("fl"))return;
+  const g=$("goal");el.style.top=Math.max(8,g.hidden?0:g.getBoundingClientRect().bottom+6)+"px";
+  const h=document.querySelector(".tl.here");if(h){const a=el.getBoundingClientRect(),b=h.getBoundingClientRect();if(a.bottom>b.top&&a.top<b.bottom&&a.right>b.left&&a.left<b.right){el.style.top="auto";el.style.bottom=$("nav").offsetHeight+8+"px"}}} // the card at the top of a tab; over the map it floats, so the map never shifts (a fight shows its own above the action grid)
 const ci=(col,ics,v,...t)=>`<span class="chip" style="color:${col}" ${tt(...t)}>${ics}${v==null||v===""?"":`<b>${v}</b>`}</span>`; // icon chip: icon + value, words in the tip
 const stChip=(s,x)=>ci(FAM[STATUS[s].el]||"var(--bad)",famIc(STATUS[s].el,"s"),`${x.n>1?x.n+"x ":""}${x.t}t`,`${STATUS[s].n}${x.n>1?` x${x.n}`:""}, ${x.t} turns left`,cap(STATUS[s].tip)+".");
 function youHud(){ // compact: weapon, HP bar, then icon chips (words in tips)
@@ -216,8 +222,8 @@ const equippedRisk=items=>[...new Set(items.map(i=>i.id))].filter(id=>(S.inv[id]
 // Forge preview line: the skill that makes this, success / mishap / fizzle odds, and the tier cap
 function craftLine(r,items){
   const risk=equippedRisk(items),sk=SKILLS[r.skill],cp=SK_CAP[r.lv-1],b=r.blocked,ch=(col,ics,v,...t)=>`<span class="chip" style="color:${col}" ${tt(...t)}>${ics}<b>${v}</b></span>`;
-  return `<div class="cline${b?" blocked":""}"><div class="chips">${ch("var(--accent)",skIcon(r.skill),`Lv ${r.lv}`,`${sk.name} Lv ${r.lv}`,"The skill that makes this.")}${ch("var(--muted)",ic("tier","s"),`${r.item.tier}/${cp}`,`Tier ${r.item.tier}, your cap is ${cp}`,"The result's tier against the highest tier your skill can reach.")}
-    ${b?"":ch("var(--up)",ic("ok","s"),`${100-r.fail}%`,`${100-r.fail}% clean`,"A clean forge gives exactly the item previewed.")+ch("var(--accent)",ic("warn","s"),`${r.mis}%`,`${r.mis}% mishap`,"A mishap gives a flawed copy (Cursed, Brittle, Rust or Weakened) that you can reforge for embers.")+ch("var(--down)",ic("smoke","s"),`${r.fiz}%`,`${r.fiz}% fizzle`,"A fizzle loses the ingredients but returns some embers.")
+  return `<div class="cline${b?" blocked":""}"><div class="chips">${isUnl("skills")?ch("var(--accent)",skIcon(r.skill),`Lv ${r.lv}`,`${sk.name} Lv ${r.lv}`,"The skill that makes this."):""}${ch("var(--muted)",ic("tier","s"),`${r.item.tier}/${cp}`,`Tier ${r.item.tier}, your cap is ${cp}`,"The result's tier against the highest tier your skill can reach.")}
+    ${b?"":ch("var(--up)",ic("ok","s"),`${100-r.fail}%`,`${100-r.fail}% clean`,"A clean forge gives exactly the item previewed.")+ch("var(--accent)",ic("warn","s"),`${r.mis}%`,`${r.mis}% mishap`,`A mishap gives a flawed copy (Cursed, Brittle, Rust or Weakened)${isUnl("peddler")?" that you can reforge for embers":""}.`)+ch("var(--down)",ic("smoke","s"),`${r.fiz}%`,`${r.fiz}% fizzle`,`A fizzle loses the ingredients${isUnl("peddler")?" but returns some embers":""}.`)
       +helpBtn("Forge odds",S.journal.length?`Difficulty ${r.diff} against your skill ${r.lv}${r.diff-r.lv>2?", a reach for you":""}. The higher your skill, the fewer mishaps and fizzles.`:"Your first forge never fails.")}</div>
     ${b?`<p class="warn-text">${blockText(b)}</p>`:""}
     ${risk.length?`<p class="warn-text">${risk.join(" and ")} ${risk.length>1?"are":"is"} equipped. A fizzle would destroy ${risk.length>1?"them":"it"}; tap Forge twice to confirm.</p>`:""}</div>`;
@@ -359,12 +365,13 @@ function renderAfx(){ // the Codex list of affixes: an entry opens when you firs
   const row=a=>{const o=S.afx[a],A=AFX[a];return `<li class="af" style="--ac:${afxCol(a)}"><span class="afi">${afxIc(a)}</span><div><b>${A.n}</b><small>met ${o.s}, beaten ${o.b}</small><p>${A.d()}</p><p class="drop">${famIc(TRAITS[A.tr].f,"s")} ${A.tr} Essence</p></div></li>`},
     lock=ids.filter(a=>!(S.afx[a]&&S.afx[a].s>0));
   $("aflist").innerHTML=`${n?`<ul class="afl">${ids.filter(a=>!lock.includes(a)).map(row).join("")}</ul>`:""}${lock.length?`<div class="chips aflock">${lock.map(()=>`<span class="chip unk" ${tt("Unknown affix","Meet a magic or rare enemy that carries it.")}>${ic("lock","s")}<b>???</b></span>`).join("")}</div>`:""}`}
-function renderGuide(){ // every unlocked intro, to read again, then what is still locked
-  const op=UNLOCKS.filter(u=>u.i&&S.unl[u.id]),shut=UNLOCKS.filter(u=>u.txt&&!S.unl[u.id]);
-  $("gdlabel").innerHTML=`${ic("list","s")} Guide · ${op.length}/${UNLOCKS.filter(u=>u.i).length}${helpBtn("Guide","Every introduction you have unlocked, to read again. Tap the arrow to be shown where it is.","New systems open as you play. The locked ones say how to open them.")}`;
-  $("gdlist").innerHTML=`<div class="gdl">${op.map(u=>`<details class="gd"><summary><span class="gi">${ic(u.ic,"s")}</span>${u.i.t}${S.seen["i:"+u.id]?"":` <b class="rdy">new</b>`}</summary><div class="gdb">${u.i.l.map(x=>`<p>${x}</p>`).join("")}<button class="btn sm" data-guide="${u.id}">${ic("hero","s")} Show me</button></div></details>`).join("")}</div>${shut.length?`<div class="gdl lockd">${shut.map(u=>`<div class="lockrow" ${tt(`${u.name} (locked)`,u.txt)}>${ic("lock","s")}<b>${u.name}</b><small>${u.txt}</small></div>`).join("")}</div>`:""}`;
+function renderGuide(){ // every unlocked intro, to read again; what is still locked sits in a collapsed list
+  const op=UNLOCKS.filter(u=>u.i&&S.unl[u.id]),shut=UNLOCKS.filter(u=>u.txt&&!S.unl[u.id]),pt=u=>!u.i.ctx&&u.i.sel&&!/^\.tl/.test(u.i.sel); // Show me only where there is something to point at
+  $("gdlabel").innerHTML=`${ic("list","s")} Guide · ${op.length}/${UNLOCKS.filter(u=>u.i).length}${helpBtn("Guide","Every introduction you have unlocked, to read again.","New systems open as you play. The locked ones say how to open them.")}`;
+  $("gdlist").innerHTML=`<div class="gdl">${op.map(u=>`<details class="gd"><summary><span class="gi">${ic(u.ic,"s")}</span>${u.i.t}${S.seen["i:"+u.id]?"":` <b class="rdy">new</b>`}</summary><div class="gdb">${u.i.l.map(x=>`<p>${x}</p>`).join("")}${pt(u)?`<button class="btn sm" data-guide="${u.id}">${ic("hero","s")} Show me</button>`:""}</div></details>`).join("")}</div>${shut.length?`<details class="gd lockd"><summary><span class="gi">${ic("lock","s")}</span>Still locked · ${shut.length}</summary><div class="gdl">${shut.map(u=>lockRow(u.id)).join("")}</div></details>`:""}`;
 }
 function renderCodex(){
+  document.querySelectorAll("[data-unl]").forEach(e=>e.hidden=!isUnl(e.dataset.unl)); // How to play: only what is open
   renderGuide();$("stp").hidden=!isUnl("stats");$("afp").hidden=!isUnl("afx");
   if(isUnl("stats"))renderStats();if(isUnl("afx"))renderAfx();
   const ids=Object.keys(ENEMIES),seenN=ids.filter(id=>S.seen[id]).length,mast=ids.filter(id=>S.seen[id]&&know(id).mastered).length;
@@ -388,5 +395,5 @@ function render(fresh){
   if(S.view==="codex")renderCodex();
   if(sheet.mode==="item"&&sheet.id)openSheet(sheet.id,true,sheet.preview);else if(sheet.mode==="codex")openCodex(sheet.id,true);
   flushFx();
-  const ci_=curIntro(inBattle());if(ci_&&ci_.id!==lastIntro)nudge(ci_.sel);lastIntro=ci_?ci_.id:null; // a new card pulses what it points at
+  applyNudge();placeIntro();const cur=curIntro(inBattle());if(cur&&cur.id!==lastIntro)nudge(cur.sel);lastIntro=cur?cur.id:null; // a new card pulses what it points at
 }

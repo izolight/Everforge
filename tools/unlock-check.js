@@ -31,7 +31,7 @@ async function flow(browser,w){
   ok(r.inf&&r.btns,"gear: infusions is a teaser");await shot(p,w,"3-fresh-gear");
   await p.click("#inflabel .lockrow");r=await p.evaluate(()=>({tip:!$("tip").hidden,t:$("tip").textContent}));
   ok(r.tip&&/Defeat Gnarlhorn/.test(r.t),"the locked teaser's tip says how to unlock it ("+r.t+")");await shot(p,w,"4-teaser-tip");
-  await p.evaluate(()=>go("codex"));r=await p.evaluate(()=>({st:$("stp").hidden,af:$("afp").hidden,gd:$("gdlist").querySelectorAll("details.gd").length}));
+  await p.evaluate(()=>go("codex"));r=await p.evaluate(()=>({st:$("stp").hidden,af:$("afp").hidden,gd:$("gdlist").querySelectorAll("details.gd:not(.lockd)").length}));
   ok(r.st&&r.af,"codex: stats and affixes are hidden");ok(r.gd===1,"codex: the Guide lists the one intro so far");
   // --- the first fight: Study and Parry are teasers, abilities are hidden, the parry intro comes when a special winds up
   await p.evaluate(()=>{go("battle");S.seen["i:start"]=true;startBattle("boar")});
@@ -86,28 +86,71 @@ async function flow(browser,w){
   r=await p.evaluate(()=>({t:(document.querySelector("#intro b")||{}).textContent,fl:$("intro").classList.contains("fl")}));
   ok(r.t==="Peddlers and embers"&&r.fl,"the peddler intro floats over the map ("+r.t+")");await shot(p,w,"6-map-intro");
   // --- Guide
-  await p.evaluate(()=>go("codex"));r=await p.evaluate(()=>({n:$("gdlist").querySelectorAll("details.gd").length,want:UNLOCKS.filter(u=>u.i&&S.unl[u.id]).length,lock:$("gdlist").querySelectorAll(".lockrow").length}));
+  await p.evaluate(()=>go("codex"));r=await p.evaluate(()=>({n:$("gdlist").querySelectorAll("details.gd:not(.lockd)").length,want:UNLOCKS.filter(u=>u.i&&S.unl[u.id]).length,lock:$("gdlist").querySelectorAll(".lockrow").length}));
   ok(r.n===r.want&&r.n>=5,"the Guide lists every unlocked intro ("+r.n+") and the locked ones as teasers ("+r.lock+")");
   await p.click("#gdlist details.gd:nth-child(2) summary");await shot(p,w,"7-guide");
   ok(!p.errs.length,"no page errors ("+p.errs.join("; ")+")");
   await p.close();
 }
 
+// the goal bar's Claim stays tappable and the hero uncovered with a card up; leaks of locked systems; focus and the live region
+async function overlay(browser,w){
+  const p=await open(browser,w);
+  await p.evaluate(()=>{S.wins=1;S.battle=null;go("battle")});
+  let r=await p.evaluate(()=>{heroView();dispatchEvent(new Event("scroll"));const c=$("claim"),b=c.getBoundingClientRect(),hit=document.elementFromPoint(b.left+b.width/2,b.top+b.height/2),h=document.querySelector(".tl.here").getBoundingClientRect(),hh=document.elementFromPoint(h.left+h.width/2,h.top+h.height/2);
+    return{card:!$("intro").hidden,claim:hit===c||c.contains(hit),hero:!!hh.closest(".tl.here"),live:$("intro").getAttribute("aria-live")}});
+  ok(r.card&&r.claim,`w${w}: Claim is tappable with an intro card up`);ok(r.hero,`w${w}: the hero is not covered`);ok(r.live==="polite","the intro is a polite live region");
+  await shot(p,w,"8-claim-with-card");
+  r=await p.evaluate(()=>{const n=$("intro").firstElementChild;render();return{same:$("intro").firstElementChild===n}});ok(r.same,"a re-render does not rewrite the card (no re-announce)");
+  await p.click("#introOk");r=await p.evaluate(()=>({f:document.activeElement&&document.activeElement.id||document.activeElement.tagName,hidden:$("intro").hidden}));
+  ok(r.hidden&&r.f!=="BODY","focus stays in the page after Got it ("+r.f+")");
+  // leaks while embers, skills and abilities are locked
+  r=await p.evaluate(()=>{S.items.t_c={id:"t_c",name:"Cursed Blade",form:"blade",noun:"Blade",traits:{Fire:2,Cursed:2},tier:2,crafted:true,recipe:["a","b"],recipeIds:[]};addItem("t_c");
+    openSheet("t_c");const sh=$("sheetIn").textContent;closeSheet();openSheet("iron_sword");const sw=$("sheetIn").textContent;closeSheet();
+    go("forge");S.bench=["iron_sword","iron_sword"];render();const cl=($("mixhint").textContent+[...document.querySelectorAll(".cline [data-tip]")].map(e=>e.dataset.tip).join("|"));
+    go("codex");const vis=[...document.querySelectorAll("#howto [data-unl]")].filter(e=>!e.hidden).length;
+    return{reforge:/Reforge/.test(sh),ability:/Flurry/.test(sw),emb:/embers/i.test(cl),skillChip:/Weaponsmithing/.test(cl),howto:vis,fx:(gainEmbers(3),document.querySelectorAll(".floater").length)}});
+  ok(!r.reforge,"the Reforge button waits for embers");ok(!r.ability,"the sword's sheet does not name its ability yet");ok(!r.emb&&!r.skillChip,"forge tips mention neither embers nor the skill chip");ok(r.howto===0,"How to play hides locked systems");
+  await p.evaluate(()=>{S.stats.exped=2;checkUnl(true);S.seen["i:peddler"]=false;S.seen["i:start"]=S.seen["i:shrine"]=true;go("battle")});
+  r=await p.evaluate(()=>document.querySelector("#intro").textContent);ok(/collecting embers all along: \d+/.test(r)&&!/upgrade|mend/.test(r),"the peddler intro counts the embers and names only what is open");
+  await p.close();
+}
+// every goal step is achievable when it shows: its system is open, or the bar says how to open it
+async function steps(browser){
+  const p=await open(browser,390);
+  const r=await p.evaluate(()=>TUTORIAL.map((q,i)=>{S=freshState();S.quest=i;S.zone="woods";S.unl={};const g0=goal();
+    const need=q.need?q.need:null,waits=(q.need||q.ok)?/^Next: /.test(g0.text):false;
+    if(q.need){S.unl[q.need]=1;if(q.need==="peddler")S.unl.skills=S.unl.upgrade=1}if(q.ok)S.unlocked=["woods","pass"];
+    const g1=goal();return{i:i+1,gated:!!(q.need||q.ok),waits,open:!/^Next: /.test(g1.text),doneable:typeof q.done==="function"}}));
+  r.forEach(x=>{ok(!x.gated||(x.waits&&x.open),`step ${x.i}: shows its wait text until the system is open, then the task`)});
+  ok(r.every(x=>x.doneable),"every step has a done test");
+  // the unlocks the steps rely on can be reached from play (a when, or a hook)
+  const hooks=await p.evaluate(()=>TUTORIAL.filter(q=>q.need).map(q=>[q.need,!!UNL[q.need].when]));
+  ok(hooks.every(([,w])=>w),"steps only wait on unlocks with a condition ("+hooks.map(h=>h[0])+")");
+  await p.close();
+}
 async function veteran(browser){
   const {key,save}=JSON.parse(fs.readFileSync(path.join(FIX,"save-v13.json"),"utf8"));
   const p=await open(browser,390,new Function(`localStorage.clear();localStorage.setItem(${JSON.stringify(key)},${JSON.stringify(save)})`));
   const r=await p.evaluate(()=>({v:S.v,missing:UNLOCKS.filter(u=>!S.unl[u.id]).map(u=>u.id),pend:pendingIntros().length,card:!$("intro").hidden,emb:!$("emb").hidden,ab:S.seen["a:blade"]}));
   ok(r.v===14&&!r.missing.length,"v13 fixture migrates to v14 with everything unlocked ("+r.missing+")");ok(!r.pend&&!r.card,"... and no intro waiting");ok(r.emb,"... embers visible");
-  // a partial player: a v13 save with 2 wins keeps what it used and still gets the rest gradually
-  const q=await p.evaluate(()=>{const s=JSON.parse(JSON.stringify(S));s.v=13;delete s.unl;s.wins=2;s.journal=[];s.stats.forged=0;s.stats.exped=0;s.stats.deaths=0;s.stats.bosses=0;s.daily=null;s.heat={};s.kills={};s.stats={...s.stats,dailies:0,elites:0,abil:0,studied:1,spent:0,refined:0};s.afx={};s.embers=0;s.infuse={};s.infCredit=0;s.maps={};s.xp=10;s.skills={};s.quest=2;
-    const t=migrate(s);return{unl:Object.keys(t.unl),seen:Object.keys(t.seen).filter(k=>k[1]===":")}});
-  ok(q.unl.includes("study")&&q.unl.includes("roam")&&!q.unl.includes("peddler")&&!q.unl.includes("daily")&&!q.unl.includes("skills"),"a 2-win save keeps Study and roaming but not the late systems ("+q.unl+")");
+  // partial players keep what they used, get the rest gradually, and keep their maps (an untouched one is redrawn)
+  const q=await p.evaluate(()=>{const mk=(wins,quest,xp)=>{const s=JSON.parse(JSON.stringify(S));s.v=13;delete s.unl;s.wins=wins;s.journal=[];s.stats={...s.stats,forged:0,exped:0,deaths:0,bosses:0,dailies:0,elites:0,abil:0,studied:wins?1:0,spent:0,refined:0};s.daily=null;s.heat={};s.kills={};s.afx={};s.embers=wins*3;s.infuse={};s.infCredit=0;s.xp=xp;s.skills={};s.quest=quest;s.seen={};
+      s.maps={woods:genMapAll()};const t=migrate(s);return{unl:Object.keys(t.unl),seen:Object.keys(t.seen),maps:Object.keys(t.maps).length,q:t.quest}};
+    window.genMapAll=()=>{const keep=S.unl;S.unl=Object.fromEntries(UNLOCKS.map(u=>[u.id,1]));const m=genMap({heat:0,zone:"woods"});S.unl=keep;return m};
+    return{a:mk(0,0,0),b:mk(2,3,10),c:mk(1,1,10)}});
+  const late=["shrine","peddler","mystery","elite","daily","infuse","skills","upgrade"];
+  ok(late.every(k=>!q.a.unl.includes(k))&&q.a.unl.includes("start"),"0 wins with maps: nothing late opens ("+q.a.unl+")");ok(q.a.maps===0,"... and the untouched map is redrawn");
+  ok(late.every(k=>!q.b.unl.includes(k))&&q.b.unl.includes("study")&&q.b.q===3,"2 wins, quest 3: Study and roaming only ("+q.b.unl+")");
+  ok(late.every(k=>!q.c.unl.includes(k))&&q.c.unl.includes("study")&&q.c.unl.includes("roam"),"1 win, quest 1: Study and roaming only ("+q.c.unl+")");
+  ok(!q.a.seen.includes("i:peddler")&&!q.b.seen.includes("i:shrine"),"... and their intros stay unread for later");
   await p.close();
 }
 
 (async()=>{
   const browser=await chromium.launch();
   for(const w of SHOTS?[390,360]:[390])await flow(browser,w);
-  await veteran(browser);await browser.close();
+  for(const w of SHOTS?[390,360]:[390])await overlay(browser,w);
+  await steps(browser);await veteran(browser);await browser.close();
   console.log(fails?`UNLOCK CHECK FAILED (${fails})`:"UNLOCK CHECK OK");process.exit(fails?1:0);
 })();

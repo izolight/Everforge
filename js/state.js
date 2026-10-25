@@ -23,13 +23,14 @@ function sane(s){
     &&s.bench.every(id=>isObj(s.items[id]))&&s.journal.every(j=>isObj(j)&&isObj(s.items[j.id]));
 }
 // v13 -> v14: a save keeps every system it already reached or used (UNLOCKS: `when` holds, or `used` finds proof), and those intros count as read. Runs last, on a sanitized save.
-function grandfather(s){
-  if(s.quest>=7)s.quest=TUTORIAL.length; // the old goal chain was 7 steps; the new steps are for newcomers
-  s.unl={};let n=0,ch=true;
-  const vet=boss1(s)||s.wins>=10||s.journal.length>=3||!!s.daily||s.stats.dailies>0; // someone who has really played the old game, where everything was open from the start, keeps all of it
-  while(ch){ch=false;UNLOCKS.forEach(u=>{if(!s.unl[u.id]&&(vet||(u.when&&u.when(s))||(u.used&&u.used(s)))){s.unl[u.id]=++n;ch=true}})}
-  UNLOCKS.forEach(u=>{if(s.unl[u.id])s.seen["i:"+u.id]=true});
+// Reusable: grandfather(s) opens every UNLOCKS entry the save already reached or used; grandfather(s,ids) only those ids (a later migration that adds entries passes its new ids). Map exposure is not proof (every old map held every POI type).
+function grandfather(s,ids){
+  if(!isObj(s.unl))s.unl={};let n=Math.max(0,...Object.values(s.unl)),ch=true;
+  const list=UNLOCKS.filter(u=>!ids||ids.includes(u.id)),vet=boss1(s)||s.wins>=10||s.journal.length>=3||!!s.daily||s.stats.dailies>0; // someone who has really played the old game, where everything was open from the start, keeps all of it
+  while(ch){ch=false;list.forEach(u=>{if(!s.unl[u.id]&&(vet||(u.when&&u.when(s))||(u.used&&u.used(s)))){s.unl[u.id]=++n;ch=true}})}
+  list.forEach(u=>{if(s.unl[u.id])s.seen["i:"+u.id]=true});
   if(s.unl.ability)Object.keys(ABILITIES).forEach(k=>s.seen["a:"+k]=true);
+  return vet;
 }
 function migrate(s){
   if(!isObj(s))return null;
@@ -129,7 +130,10 @@ function migrate(s){
   if(s.run!=="daily"||!s.daily||s.daily.state!=="run")s.run=null;else s.zone=s.daily.zone;
   s.hints=Array.isArray(s.hints)?s.hints.filter(i=>Number.isInteger(i)&&SECRETS[i]):[0,1,2];
   if(!VIEWS.includes(s.view))s.view="battle";
-  if(up14)grandfather(s);
+  if(up14){ // v13 -> v14
+    if(s.quest>=7)s.quest=TUTORIAL.length; // the old goal chain was 7 steps; the new steps are for newcomers
+    s.unl={};if(!grandfather(s))Object.keys(s.maps).forEach(z=>{if(!s.maps[z].steps)delete s.maps[z]}); // an untouched map made before the gates is redrawn under them
+  }
   return s;
 }
 let migNote=false,S=null; // migNote: a migration redrew the maps (shown once as a toast after load)

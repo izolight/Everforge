@@ -18,7 +18,7 @@ function openSheet(id,refresh,preview){
     btns.push(`<button class="btn grow" data-act="add" ${left<=0||full||locked||!mix.ok?"disabled":""}>${locked?"Finish the fight to forge":full?"Crucible full":left<=0?"All in crucible":!mix.ok?"Won't mix with the crucible":"Add to crucible"}</button>`);
     const ys=salvageYield(it);
     if(ys.length)btns.push(`<button class="btn ${salvageArmed?"danger":""} grow" data-act="salvage" ${locked||left<=0?"disabled":""}>${salvageArmed?"Tap again to salvage":`Salvage → ${ys.join(" + ")} ${salvGrade(it)===3?"":GRADES[salvGrade(it)-1][0]+" "}Essence${salvageEmbers(it)&&isUnl("peddler")?` + ${salvageEmbers(it)} embers`:""}`}</button>`);
-    const mh=mishapsOf(it);if(mh.length)btns.push(`<button class="btn grow" data-act="reforge" ${locked||S.embers<reforgeCost(it)?"disabled":""}>Reforge — ${mh.map(m=>m==="Weakened"?"restore Weakened":"remove "+m).join(" and ")} (${reforgeCost(it)} embers)</button>`);
+    const mh=mishapsOf(it);if(mh.length&&isUnl("peddler"))btns.push(`<button class="btn grow" data-act="reforge" ${locked||S.embers<reforgeCost(it)?"disabled":""}>Reforge — ${mh.map(m=>m==="Weakened"?"restore Weakened":"remove "+m).join(" and ")} (${reforgeCost(it)} embers)</button>`);
   }
   btns.push(`<button class="btn" data-act="close">Close</button>`);
   $("sheetIn").innerHTML=`<div class="grab" aria-hidden="true"></div>
