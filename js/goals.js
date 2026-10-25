@@ -49,7 +49,7 @@ function showBounties(){
   if(S.bountyChoices?.some(b=>b.kind==="hunt"&&!ENEMIES[b.enemy]))S.bountyChoices=[];
   if(!S.bountyChoices?.length){const hunt=newBounty("hunt");S.bountyChoices=[hunt,newBounty("forge"),newBounty("hunt",[ENEMIES[hunt.enemy].name])];save()}
   sheet.mode="bounties";sheet.id=null;
-  $("sheetIn").innerHTML=`<h2>${tx("Choose bounty")}</h2><p>${tx("Progress starts when you accept. Rewards stay the same until you complete a bounty.")}</p><div class="bounty-options">${S.bountyChoices.map((b,i)=>`<section><h3>${b.kind==="forge"?tx("Forge {n} new recipes.",{n:b.need}):tx("Defeat {n} {name} in {zone}.",{n:b.need,name:tx(ENEMIES[b.enemy].plural),zone:zoneName(ENEMIES[b.enemy].zone)})}</h3><p>${tx("Reward: {list}",{list:rewardText(b.reward)})}${b.reward.hint?" · "+tx("a hint scroll"):""}</p><button class="btn" data-act="bounty" data-index="${i}">${tx("Accept bounty")}</button></section>`).join("")}</div><button class="btn" data-act="close">${tx("Close")}</button>`;
+  $("sheetIn").innerHTML=`<h2>${tx("Choose bounty")}</h2><p>${tx("Progress starts when you accept. Rewards stay the same until you complete a bounty.")}</p><div class="bounty-options">${S.bountyChoices.map((b,i)=>`<section><h3>${b.kind==="forge"?tx("Forge {n} new recipes.",{n:b.need}):tx("Defeat {n} {name} in {zone}.",{n:b.need,name:tx(ENEMIES[b.enemy].plural),zone:zoneName(ENEMIES[b.enemy].zone)})}</h3><p>${tx("Reward: {list}",{list:esc(rewardText(b.reward))})}${b.reward.hint?" · "+tx("a hint scroll"):""}</p><button class="btn" data-act="bounty" data-index="${i}">${tx("Accept bounty")}</button></section>`).join("")}</div><button class="btn" data-act="close">${tx("Close")}</button>`;
   showSheet();
 }
 function chooseBounty(i){

@@ -28,10 +28,10 @@ function openSheet(id,refresh,preview){
   $("sheetIn").innerHTML=`<div class="grab" aria-hidden="true"></div>
     <div class="rhead">${glyph(it)}<div><div class="rform">${rn} · ${labelOf(it)} · ${tx("Tier {n}",{n:it.tier})}${preview?" · "+tx("on offer"):` · ×${S.inv[id]}`}</div><h2 class="rname">${nameHtml(it)}</h2></div></div>
     ${itemLocked(id)?`<p class="ok-text">${tx("Protected from crafting, salvage and selling.")}</p>`:""}${itemProperties(it,cmp,true,"Versus equipped")}
-    ${!preview&&!mix.ok?`<p class="warn-text">${mix.reason}</p>`:""}
+    ${!preview&&!mix.ok?`<p class="warn-text">${esc(mix.reason)}</p>`:""}
     ${it.mishap==="Weakened"?`<p class="warn-text">${tx("Weakened: a fizzled mixture cost every trait 30%.")}</p>`:""}
-    ${it.recipe?`<p class="empty">${tx("Forged from {list}.",{list:recipeNames(it)})}</p>`:""}
-    ${!preview&&canDecon(it)?`<p class="foot">${deconYield(it).ch.map(([t,p,g])=>tx("{p}% chance of a {ess}.",{p:pcn(p),ess:iname(S.items[essG(t,g)])})).join(" ")}</p>`:""}
+    ${it.recipe?`<p class="empty">${tx("Forged from {list}.",{list:esc(recipeNames(it))})}</p>`:""}
+    ${!preview&&canDecon(it)?`<p class="foot">${deconYield(it).ch.map(([t,p,g])=>tx("{p}% chance of a {ess}.",{p:pcn(p),ess:esc(iname(S.items[essG(t,g)]))})).join(" ")}</p>`:""}
     ${isBaseMat(id)?`<p class="foot">${tx("{type}: forge it into gear with a pattern in the Forge.",{type:tx(MAT_T[MATS[plainId(id)]].label)})}</p>`:""}
     <div class="actions">${btns.join("")}</div>`;
   if(!refresh)showSheet();
@@ -41,7 +41,7 @@ function openCodex(id,refresh){
   const E=ENEMIES[id],K=cx(id),k=know(id);
   const weak=[...K.weak.map(f=>famChip(f)),...Array(allFacts(E,"weak").length-K.weak.length).fill(unkChip("???"))].join("")||`<span class="foot">${tx("None")}</span>`;
   const res=[...K.resist.map(f=>famChip(f)),...Array(allFacts(E,"resist").length-K.resist.length).fill(unkChip("???"))].join("")||`<span class="foot">${tx("None")}</span>`;
-  const drops=E.drops.length?E.drops.map(([d])=>K.drops.includes(d)?`<span class="chip" style="color:var(--accent)">${iname(S.items[d])}</span>`:unkChip("???")).join(""):`<span class="foot">${tx("Treasure from the region it lurks in")}</span>`;
+  const drops=E.drops.length?E.drops.map(([d])=>K.drops.includes(d)?`<span class="chip" style="color:var(--accent)">${esc(iname(S.items[d]))}</span>`:unkChip("???")).join(""):`<span class="foot">${tx("Treasure from the region it lurks in")}</span>`;
   const hn=E.zone===S.zone?heatNow():(S.heat[E.zone]?.sel||0),ph=E.phase&&K.ph?E.phase.to:null;
   const spText=sp=>sp.kind==="heal"?tx("heals itself"):sp.kind==="multi"?tx("{n} quick hits",{n:sp.n}):sp.kind==="drain"?tx("steals your HP"):tx("a heavy hit (×{x})",{x:sp.x});
   const spLine=sp=>tx("{name}: {what}, every {n} turns.",{name:tx(sp.name),what:spText(sp),n:spEvery(sp===E.sp?E:{...E,...ph},hn)});
@@ -60,7 +60,7 @@ function openCodex(id,refresh){
       ${E.phase?`<dt>${tx("Second form")}</dt><dd>${ph?`<span>${tx("Below half health it turns {el}.",{el:famL(ph.el)})} ${K.sp2?spLine(ph.sp)+" ":tx("Its new special is still a mystery.")+" "}${tx("Its weak points change too.")}</span>`:unkChip(tx("Wound it badly to learn"))}</dd>`:""}
       ${E.inf||(K.inf||[]).length?`<dt>${tx("Afflicts")}</dt><dd>${[...new Set(K.inf||[])].map(s=>`<span class="chip" style="color:var(--bad)">${STATUS[s].n}</span> <span class="foot">${STATUS[s].tip}</span>`).join("")||unkChip(tx("Survive its special to learn"))}</dd>`:""}
       <dt>${tx("Drops")}</dt><dd>${drops}</dd>
-      ${bpOf(id).length?`<dt>${tx("Blueprints")}</dt><dd>${bpOf(id).map(b=>(K.bp||[]).includes(b)?`<span class="chip" style="color:var(--accent)">${iname(S.items[b])}</span>`:unkChip(tx("Study it to learn"))).join("")}</dd>`:""}
+      ${bpOf(id).length?`<dt>${tx("Blueprints")}</dt><dd>${bpOf(id).map(b=>(K.bp||[]).includes(b)?`<span class="chip" style="color:var(--accent)">${esc(iname(S.items[b]))}</span>`:unkChip(tx("Study it to learn"))).join("")}</dd>`:""}
     </dl>
     <div class="actions"><button class="btn" data-act="close">${tx("Close")}</button></div>`;
   if(!refresh)showSheet();
