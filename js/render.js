@@ -72,13 +72,14 @@ function renderHeader(){
   $("rp").hidden=!isUnl("research");$("rp").innerHTML=`${ic("research")}${S.rp}`;$("rp").dataset.tip=tx("Research points")+"\n"+tx("Earned by discoveries: a first craft of each kind, a new reaction, a new essence, a studied creature, a boss down, a smith or skill level. Spend them in the Forge on techniques.")+"\n"+tx("You have {n}.",{n:S.rp});
   $("disc").innerHTML=`<span class="mi" ${tt(tx("Renown"),tx("Battles you have won."))}>${ic("renown")}${S.wins}</span><span class="mi" ${tt(tx("Recipes forged"),tx("Different things you have forged. Each is saved in the Recipes tab."))}>${ic("hammer")}${S.journal.length}</span>`;
 }
+const viewName=v=>v==="battle"?tx("Explore"):tx(cap(v));
 function renderNav(){
-  $("nav").innerHTML=VIEWS.map(v=>{
+  $("nav").innerHTML=VIEWS.filter(v=>v!=="settings").map(v=>{
     let badge="";
     if(v==="battle"&&inBattle()&&S.view!=="battle")badge=`<i class="badge-dot pulse" aria-label="${esc(tx("battle in progress"))}"></i>`;
     if(v==="gear"&&S.fresh.length&&S.view!=="gear"&&S.view!=="forge")badge=`<i class="badge-dot" aria-label="${esc(tx("{n} new items",{n:S.fresh.length}))}">${S.fresh.length}</i>`;
     if(!badge&&S.view!==v&&!inBattle()&&pendingIntros().some(c=>c.ctx!=="battle"&&c.tab===v))badge=`<i class="badge-dot pulse" aria-label="${esc(tx("new introduction"))}"></i>`;
-    return `<button data-view="${v}" aria-current="${S.view===v?"page":"false"}">${icon(v)}<span>${tx(cap(v))}</span>${badge}</button>`}).join("");
+    return `<button data-view="${v}" aria-current="${S.view===v?"page":"false"}">${icon(v)}<span>${viewName(v)}</span>${badge}</button>`}).join("");
   VIEWS.forEach(v=>$("v-"+v).hidden=S.view!==v);
 }
 function renderGoal(){
@@ -86,7 +87,7 @@ function renderGoal(){
   el.hidden=inBattle();
   el.className="goal"+(g.done?" done":"");
   el.innerHTML=`<div class="gt" ${tt(g.step+(g.prog?` · ${g.prog}`:""),g.text,g.done?tx("Reward: {list}",{list:rewardText(g.reward)}):"")}><small>${st}</small> ${g.text}${g.prog?` <em>${g.prog}</em>`:""}</div>
-    ${g.done?`<button class="btn primary sm" id="claim">${tx("Claim")}</button>`:S.view!==g.tab?`<button class="btn sm" id="goGoal">${tx("Go to {tab}",{tab:tx(cap(g.tab))})}</button>`:""}`;
+    ${g.done?`<button class="btn primary sm" id="claim">${tx("Claim")}</button>`:S.view!==g.tab?`<button class="btn sm" id="goGoal">${tx("Go to {tab}",{tab:viewName(g.tab)})}</button>`:""}`;
 }
 const itemLines=it=>[iname(it),`${rarity(it)[0]} · ${labelOf(it)}${isGear(it)?` · ${tx("PWR {n}",{n:power(it)})}`:""}`,grp(it)==="consumable"?useHint(it):isGear(it)?statLine(shown(it)):tx("Crafting ingredient"),topTraits(it.traits).slice(0,4).map(([t,v])=>`${trn(t)} ${v}`).join(", ")];
 const itemTip=(it,...x)=>tt(...itemLines(it),...x),itemAria=it=>esc(itemLines(it).slice(1).filter(Boolean).join(". ")); // the tip text also goes in aria-label, for screen readers

@@ -775,3 +775,17 @@ select.lang{width:100%;margin-top:8px;background:#120f0c;color:var(--fg);border:
 .inventory-list .sq>svg{width:48px;height:48px}
 .item-caption{display:grid;gap:4px;min-width:0;font-size:1rem;overflow-wrap:anywhere}
 .item-caption small{font-size:.85rem;color:var(--muted)}
+
+/* Readable secondary text without losing the forge palette. */
+:root{--dim:#a89b8c}
+.label{font-size:.78rem;letter-spacing:.08em}
+.foot{font-family:var(--body);font-size:.9rem;line-height:1.45}
+.meta{font-size:.8rem}
+.tabbar span{font-size:.75rem;letter-spacing:.025em}
+.tabbar button{min-height:52px}
+.goal .gt small{font-size:.75rem;letter-spacing:.04em}
+.map-pan{font-size:.8rem}
+.qm{min-width:32px;min-height:32px}
+#settingsBtn{font-size:.85rem;padding:6px 8px;min-height:36px}
+#v-settings{scroll-margin-top:12px}
+@media(min-width:960px){.tabbar{padding-left:max(10px,calc((100vw - 1100px)/2));padding-right:max(10px,calc((100vw - 1100px)/2))}}

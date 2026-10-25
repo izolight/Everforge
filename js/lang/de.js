@@ -492,3 +492,9 @@ Object.assign(DICT.de, {
   "Choose spare items to salvage.": "Wähle überzählige Gegenstände zum Zerlegen.",
   "Salvaged {n} items.": "{n} Gegenstände zerlegt."
 });
+
+Object.assign(DICT.de, {
+  "Settings": "Einstellungen",
+  "Back to game": "Zurück zum Spiel",
+  "Explore": "Erkunden"
+});

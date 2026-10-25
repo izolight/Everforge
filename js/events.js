@@ -3,6 +3,9 @@ let toastT,toastQ=[];
 function toast(m,later){ // later: wait behind a toast that is still showing (unlock notices), instead of replacing it
   const t=$("toast");if(later&&t.classList.contains("show")){toastQ.push(m);return}
   t.textContent=m;t.classList.add("show");clearTimeout(toastT);toastT=setTimeout(()=>{t.classList.remove("show");if(toastQ.length)setTimeout(()=>toast(toastQ.shift(),1),350)},3000)}
+let settingsReturn="battle";
+$("settingsBtn").onclick=()=>{if(S.view!=="settings")settingsReturn=S.view;go("settings")};
+$("settingsBack").onclick=()=>go(settingsReturn);
 function go(view){
   salvageMode=false;salvageSelection.clear();
   if(view==="gear"||view==="forge"){freshShown=new Set([...freshShown,...S.fresh]);S.fresh=[]}else freshShown=new Set();

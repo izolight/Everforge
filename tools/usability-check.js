@@ -35,6 +35,13 @@ const {chromium}=require('playwright'),path=require('path'),assert=require('node
  await page.evaluate(()=>go('gear'));await page.locator('#ginv [data-id="oak_staff"]').click();
  await page.locator('[data-act="lock"]').click();assert(!await page.evaluate(()=>itemLocked('oak_staff')));await page.locator('[data-act="close"]').click();
  console.log('ok list/filter preferences, item locking, reserved ingredients and bulk salvage preview survive reload');
+ await page.locator('#settingsBtn').click();assert(await page.locator('#v-settings').isVisible());assert(await page.locator('#exportBtn').isVisible());
+ await page.locator('#settingsBack').click();assert(await page.locator('#v-gear').isVisible());
+ assert.equal(await page.locator('#nav button').count(),5);assert.equal(await page.locator('#nav [data-view="battle"] span').textContent(),'Explore');
+ for(const width of [320,390,1200]){await page.setViewportSize({width,height:900});for(const lang of ['en','de','ko']){await page.evaluate(lang=>{setLang(lang);go('forge')},lang);assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),`overflow ${width} ${lang}`)}}
+ await page.evaluate(()=>{setLang('en');go('gear');openSheet('iron_sword')});await page.locator('[data-act="close"]').focus();await page.keyboard.press('Tab');
+ assert(await page.evaluate(()=>$('sheet').contains(document.activeElement)));await page.keyboard.press('Escape');if(await page.locator('#sheet').isVisible())await page.keyboard.press('Escape');assert(!await page.locator('#sheet').isVisible());
+ console.log('ok Settings navigation, readable layouts in three languages and keyboard dialog focus');
  // Additional review regressions are added here.
  assert.deepEqual(errors,[]);console.log('USABILITY CHECK OK');
  }finally{await browser.close()}})().catch(e=>{console.error(e);process.exit(1)});

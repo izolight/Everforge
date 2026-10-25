@@ -489,3 +489,9 @@ Object.assign(DICT.ko, {
   "Choose spare items to salvage.": "분해할 여분 아이템을 선택하세요.",
   "Salvaged {n} items.": "아이템 {n}개를 분해했습니다."
 });
+
+Object.assign(DICT.ko, {
+  "Settings": "설정",
+  "Back to game": "게임으로 돌아가기",
+  "Explore": "탐험"
+});

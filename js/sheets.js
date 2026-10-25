@@ -1,6 +1,6 @@
 // ================= SHEETS =================
-const sheet={mode:null,id:null,preview:false};let salvageArmed=false;
-function showSheet(){$("scrim").hidden=false;$("sheet").hidden=false;$("sheet").querySelector("button:not(:disabled)")?.focus()}
+const sheet={mode:null,id:null,preview:false};let salvageArmed=false,sheetReturn=null;
+function showSheet(){if($("sheet").hidden)sheetReturn=document.activeElement;$("scrim").hidden=false;$("sheet").hidden=false;$("sheet").querySelector("button:not(:disabled)")?.focus()}
 function openSheet(id,refresh,preview){
   if(!preview&&!S.inv[id]){closeSheet();return}
   if(!refresh)salvageArmed=false;
@@ -60,4 +60,12 @@ function openCodex(id,refresh){
     <div class="actions"><button class="btn" data-act="close">${tx("Close")}</button></div>`;
   if(!refresh)showSheet();
 }
-function closeSheet(){$("scrim").hidden=true;$("sheet").hidden=true;Object.assign(sheet,{mode:null,id:null,preview:false});salvageArmed=false}
+function closeSheet(){$("scrim").hidden=true;$("sheet").hidden=true;Object.assign(sheet,{mode:null,id:null,preview:false});salvageArmed=false;if(sheetReturn?.isConnected)sheetReturn.focus({preventScroll:true});else document.querySelector("#nav [aria-current=page]")?.focus({preventScroll:true});sheetReturn=null}
+
+document.addEventListener("keydown",e=>{
+  if(e.key!=="Tab"||$("sheet").hidden)return;
+  const nodes=[...$("sheet").querySelectorAll('button:not(:disabled),summary,input,select,textarea,[tabindex="0"]')].filter(el=>el.getClientRects().length),first=nodes[0],last=nodes.at(-1);
+  if(!first)return;
+  if(e.shiftKey&&(document.activeElement===first||!$("sheet").contains(document.activeElement))){e.preventDefault();last.focus()}
+  else if(!e.shiftKey&&(document.activeElement===last||!$("sheet").contains(document.activeElement))){e.preventDefault();first.focus()}
+});

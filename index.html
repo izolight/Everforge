@@ -15,7 +15,7 @@
 <div class="wrap">
   <header class="top">
     <h1>Everforge</h1>
-    <div class="audio-controls">
+    <div class="audio-controls"><button class="btn sm" id="settingsBtn" type="button" data-t>Settings</button>
       <button class="snd" id="music" type="button"></button>
       <button class="snd" id="snd" type="button"></button>
     </div>
@@ -128,21 +128,6 @@
       <p class="label lrow" id="aflabel" data-t>Affixes</p>
       <div id="aflist"></div>
     </section>
-    <section class="panel">
-      <details id="saved"><summary class="label"><svg class="ic s" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><path d="M5 4 H16 L20 8 V20 H5 Z"/><path d="M8 4 V9 H15 V4 M8 20 V14 H17 V20"/></svg> <span data-t>Your save</span></summary>
-      <div class="sv">
-      <p class="empty" data-t>Your progress lives in this browser. Copy the save code to move it to another device or a local copy of the game.</p>
-      <div class="actions"><button class="btn grow" id="exportBtn" data-t>Copy save code</button></div>
-      <textarea class="code" id="exportBox" readonly hidden aria-label="Save code" data-ta="aria-label"></textarea>
-      <label class="foot" for="importBox" data-t>Paste a save code to load it</label>
-      <textarea class="code" id="importBox" placeholder="Paste a save code here" data-ta="placeholder"></textarea>
-      <div class="actions"><button class="btn grow" id="importBtn" data-t>Load save code</button></div>
-      </div></details>
-    </section>
-    <section class="panel">
-      <p class="label"><label for="lang">Language · Sprache · 언어</label></p>
-      <select class="lang" id="lang"></select>
-    </section>
     <section class="panel" id="howto">
       <p class="label" data-t>How to play</p>
       <details class="howto"><summary><span data-ic="hero"></span> <span data-t>The map</span></summary><div class="rules">
@@ -166,9 +151,26 @@
           <p data-unl="infuse" data-t="howto.infusions"><b>Infusions.</b> Pure essences can be infused into yourself in the Gear tab. The trait stays with you whatever you wield.</p>
           <p data-t="howto.previews"><b>Previews.</b> Known recipes show their full result before you forge. New combinations show the form and any reactions you've discovered. Every forge can go wrong: the line under the crucible shows your skill for that kind of item, the odds of a clean result, a mishap or a fizzle (the ingredients are lost, some embers return), and the highest tier that skill can reach. Failing teaches a little, but easy recipes teach less. Merged trait values above 8 grow at half rate, and upgrading a crafted item again is harder each time.  a higher skill and simpler recipes make it rarer. From Smith Lv 3 the forge also appraises the traits to expect.</p>
       </div></details>
-      <div class="actions"><button class="btn danger" id="reset" data-t>Start a new game</button></div>
+
     </section>
   </div>
+  <div id="v-settings" class="view" hidden><div class="lrow"><h2 data-t>Settings</h2><button class="btn" id="settingsBack" data-t>Back to game</button></div>
+    <section class="panel">
+      <details id="saved" open><summary class="label"><svg class="ic s" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><path d="M5 4 H16 L20 8 V20 H5 Z"/><path d="M8 4 V9 H15 V4 M8 20 V14 H17 V20"/></svg> <span data-t>Your save</span></summary>
+      <div class="sv">
+      <p class="empty" data-t>Your progress lives in this browser. Copy the save code to move it to another device or a local copy of the game.</p>
+      <div class="actions"><button class="btn grow" id="exportBtn" data-t>Copy save code</button></div>
+      <textarea class="code" id="exportBox" readonly hidden aria-label="Save code" data-ta="aria-label"></textarea>
+      <label class="foot" for="importBox" data-t>Paste a save code to load it</label>
+      <textarea class="code" id="importBox" placeholder="Paste a save code here" data-ta="placeholder"></textarea>
+      <div class="actions"><button class="btn grow" id="importBtn" data-t>Load save code</button></div>
+      </div></details>
+    </section>
+    <section class="panel">
+      <p class="label"><label for="lang">Language · Sprache · 언어</label></p>
+      <select class="lang" id="lang"></select>
+    </section>
+<section class="panel">      <div class="actions"><button class="btn danger" id="reset" data-t>Start a new game</button></div></section></div>
 </div>
 
 <nav class="tabbar" id="nav" aria-label="Views" data-ta="aria-label"></nav>
