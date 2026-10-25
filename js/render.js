@@ -487,6 +487,14 @@ function renderCodex(){
     return seen?`<button class="cxt${k.mastered?" mst":""}" data-codex="${id}" aria-label="${esc(tx(E.name)+(E.boss?", "+lc(tx("Boss")):"")+". "+(k.mastered?tx("Mastered"):tx("Knowledge {p}%",{p:pct}))+". "+tx("Open its page."))}" ${tp}>${portrait(id,{lite:1})}${bd}</button>`
       :`<span class="cxt sil" ${tp}>${portrait(id,{lite:1})}</span>`}).join("")+`</div>`).join("");
 }
+// ---- one-time hint: on a touch screen a tip opens on a long press, which nothing says
+const HOLD_KEY="everforge-holdhint";
+const touchOnly=()=>!!(window.matchMedia&&matchMedia("(hover: none) and (pointer: coarse)").matches);
+function holdHint(){
+  if(!touchOnly())return;
+  try{if(localStorage.getItem(HOLD_KEY))return;localStorage.setItem(HOLD_KEY,"1")}catch(e){return}
+  setTimeout(()=>toast(tx("Hold any button for details")),900);
+}
 let lastIntro=null;
 // ---- keep the keyboard focus across a re-render: the nav, the arena and the zone chips are rebuilt every time
 const FOCUS_ATTRS=["data-view","data-zone","data-item","data-id","data-use","data-ability","data-act","data-slot","data-heat","data-choice","data-load","data-tech","data-study","data-upgrade","data-infuse","data-pat","data-pslot","data-pm","data-tab","data-rtab","data-codex","data-tile","data-pin-rumor","data-pin-recipe","data-bulk","data-open","data-source-zone","data-goal-tab","data-gores","data-intro","data-result-equip"];
