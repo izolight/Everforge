@@ -29,8 +29,11 @@ function applyAfx(B,E,rar,afx){
 const dodgeOf=(B,tr)=>{const D=AFX_T.dodge;return Math.max(D.min,D.base-Math.min(D.sharpCap,(tr.Sharp||0)*D.sharp)-Math.min(D.studyMax,B.sty||0)*D.study)};
 const dodgeNow=B=>{const P=pstats();return dodgeOf(B,withInnate(P.main?P.main.traits:{}))};
 const blastOf=B=>Math.max(1,Math.round(B.max*AFX_T.boom.x));
+// an affixed enemy drops its first raw material (DECON) carrying each affix: deconstructing it always gives that affix's essence (FRAG.afx fragments and an FRAG.afxCh chance of a full one). One without such a raw drops the essence itself.
+const afxRawOf=E=>E.drops.map(d=>d[0]).find(id=>DECON[id]);
+function afxDrop(E,a,zone,heat,up){const raw=afxRawOf(E);return raw?gradedItem(raw+"~"+a,rollGrade(zone,heat,undefined,up)):gess(AFX[a].tr,zone,heat,undefined,up)}
 const gsTxt=gs=>gs>=1?(gs===1?tx("one grade better"):tx("{n} grades better",{n:gs})):tx("a {p}% chance of one grade better",{p:pcn(gs)});
-const dropLine=(a,B)=>{const ess=tx("{trait} Essence",{trait:trn(AFX[a].tr)});return B?tx("Drops: {ess}, {gs} than usual.",{ess,gs:gsTxt((RARITIES[B.rar]||{gs:1}).gs)}):tx("Drops: {ess}. Magic enemies: {m}. Rare: {r}.",{ess,m:gsTxt(RARITIES.magic.gs),r:gsTxt(RARITIES.rare.gs)})};
+const dropLine=(a,B)=>{const ess=tx("{trait} Essence",{trait:trn(AFX[a].tr)});return B?tx("Drops an affixed material that deconstructs into {ess}, {gs} than usual.",{ess,gs:gsTxt((RARITIES[B.rar]||{gs:1}).gs)}):tx("Drops an affixed material that deconstructs into {ess}. Magic enemies: {m}. Rare: {r}.",{ess,m:gsTxt(RARITIES.magic.gs),r:gsTxt(RARITIES.rare.gs)})};
 const afxTip=(a,B)=>[tx(AFX[a].n),AFX[a].d(B),dropLine(a,B)];
 function afxVal(a,B){ // the number on an affix chip
   if(!B)return"";

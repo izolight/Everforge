@@ -26,12 +26,14 @@ function abandonDaily(){
   if(!dArmed){dArmed=true;render();setTimeout(()=>{dArmed=false;render()},3000);return}
   dArmed=false;const m=S.daily.map;finishDaily(m.steps?m.dp:0,false);toast(tx("You abandon the expedition. Tomorrow brings another."));save();render();
 }
-const zoneRare=z=>[...new Set(Object.values(ENEMIES).filter(e=>e.zone===z&&!e.boss).flatMap(e=>e.drops.filter(d=>d[1]<=.2).map(d=>d[0])))];
+// a rare find (the daily boss, the grateful traveller): one of the region's raws with an affix, a grade better than usual. x, y, g are 0-1 rolls (the creature, the affix, the grade) so seeded runs agree
+const zoneRare=z=>Object.keys(ENEMIES).filter(e=>ENEMIES[e].zone===z&&!ENEMIES[e].boss&&afxRawOf(ENEMIES[e]));
+function rareFind(z,heat,x,y,g){const r=zoneRare(z);if(!r.length)return null;const ax=Object.keys(AFX);return gradedItem(afxRawOf(ENEMIES[at(r,x)])+"~"+at(ax,y),rollGrade(z,heat,g,1))}
 function dailyBundle(got){ // boss kill: essences + one rare drop (same for everyone) + smith XP
-  const d=S.daily,R=rng(d.seed^0x5bd1e995),rare=zoneRare(d.zone);
+  const d=S.daily,R=rng(d.seed^0x5bd1e995);
   const gh=d.heat+GRADE_BOSS; // grades come from the seeded stream too, so the reward is the same for everyone
   for(let i=0;i<DAILY_REWARD.ess;i++){const t=ESS_POOL[Math.floor(R()*ESS_POOL.length)];got.push(gess(t,d.zone,gh,R()))}
-  if(rare.length){const r=rare[Math.floor(R()*rare.length)];got.push(gdrop(r,d.zone,gh,R()))}
+  {const f=rareFind(d.zone,gh,R(),R(),R());if(f)got.push(f)}
   const hm=giveHint(R());S.xp+=DAILY_REWARD.xp;blog(hm?tx("Daily reward: {n} essences, a rare find, a hint scroll and {xp} smith XP.",{n:DAILY_REWARD.ess,xp:DAILY_REWARD.xp}):tx("Daily reward: {n} essences, a rare find and {xp} smith XP.",{n:DAILY_REWARD.ess,xp:DAILY_REWARD.xp}),"big");if(hm)blog(hm,"good");
 }
 const dailyResult=r=>`${r.boss?tx("Boss beaten"):tx("Fell at depth {n} of {m}",{n:r.rows,m:MAP_ROWS-1})} · ${tx("{n} turns",{n:r.turns})}`;

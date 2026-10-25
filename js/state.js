@@ -1,14 +1,15 @@
 // ================= STATE =================
-const KEY="everforge-v15",OLD_KEYS=["everforge-v14","everforge-v13","everforge-v12","everforge-v11","everforge-v10","everforge-v9","everforge-v8","everforge-v7","everforge-v6","everforge-v5","everforge-v4","everforge-v3"];
-function baseItem(id){const [name,form,traits,kind]=BASE[id];return {id,name,form,noun:name.split(" ").pop(),traits,tier:1,crafted:false,...(kind?{kind}:{})}}
+const KEY="everforge-v16",OLD_KEYS=["everforge-v15","everforge-v14","everforge-v13","everforge-v12","everforge-v11","everforge-v10","everforge-v9","everforge-v8","everforge-v7","everforge-v6","everforge-v5","everforge-v4","everforge-v3"];
+function baseItem(id){const [b,a]=id.split("~"),[name,form,traits,kind]=BASE[b],A=a&&AFX[a],it={id,name,form,noun:name.split(" ").pop(),traits,tier:1,crafted:false,...(kind?{kind}:{})};
+  return A?{...it,name:`${A.n} ${name}`,traits:{...traits,[A.tr]:Math.round(((traits[A.tr]||0)+AFX_RAW)*10)/10},afx:a}:it} // an affixed variant (boar_hide~vamp) carries its affix's trait on top
 function mkGraded(b,g){ // the item for base id b at grade g (pure: migrate rebuilds graded items with it)
   const es=/^ess_([A-Za-z]+)$/.exec(b),it=es?{id:b,name:`${es[1]} Essence`,form:"material",kind:"essence",noun:"Essence",traits:{[es[1]]:ESS_VALUE},tier:1,crafted:false}:baseItem(b);
   return g===3?it:{...it,id:gradedId(b,g),name:`${GRADES[g-1][0]} ${it.name}`,traits:Object.fromEntries(Object.entries(it.traits).map(([t,v])=>[t,Math.round(v*GRADE_M[g-1]*10)/10])),grade:g}}
 // lifetime counters (S.stats); migrate() merges these into older saves. kills per zone come from S.zoneKills
-const statsDef=()=>({salvaged:0,studied:0,dealt:0,taken:0,big:0,bigW:"",crits:0,parries:0,abil:0,sufd:0,cured:0,elites:0,bosses:0,deaths:0,exped:0,heatBest:{},fast:{},forged:0,legend:0,mishaps:0,fizzles:0,earned:0,spent:0,refined:0,dailies:0,dailyWins:0,dBest:null});
+const statsDef=()=>({salvaged:0,studied:0,dealt:0,taken:0,big:0,bigW:"",crits:0,parries:0,abil:0,sufd:0,cured:0,elites:0,bosses:0,deaths:0,exped:0,heatBest:{},fast:{},forged:0,legend:0,mishaps:0,fizzles:0,earned:0,spent:0,refined:0,shaped:0,dailies:0,dailyWins:0,dBest:null});
 function freshState(){
   const items={};Object.keys(BASE).forEach(id=>items[id]=baseItem(id));
-  return {v:15,embers:0,afx:{},unl:{},rp:0,techs:{bind:1},rpd:{},rxh:{},infCredit:0,skills:{},maps:{},heat:{},daily:null,run:null,infuse:{},items,inv:{iron_sword:1},eq:{main:"iron_sword",off:null,head:null,body:null,hands:null,feet:null,charm:null},
+  return {v:16,embers:0,afx:{},unl:{},rp:0,techs:{bind:1},rpd:{},rxh:{},infCredit:0,skills:{},maps:{},heat:{},daily:null,run:null,infuse:{},items,inv:{iron_sword:1},eq:{main:"iron_sword",off:null,head:null,body:null,hands:null,feet:null,charm:null},
     hp:999,camp:2,campProg:0,xp:0,journal:[],knownR:[],hints:[0,1,2],bench:[],last:null,tab:"all",rtab:"all",view:"battle",zone:"woods",
     wins:0,kills:{},seen:{},codex:{},unlocked:["woods"],zoneKills:{},quest:0,bounty:null,stats:statsDef(),fresh:[],battle:null,event:null};
 }
@@ -45,9 +46,17 @@ function grantTechs(s){
   s.knownR.forEach(k=>add("rx:"+k,RP.rx));ZONES.forEach((z,i)=>{if(s.kills[z[2]]>0)add("boss:"+z[2],RP.boss[i])});Object.keys(s.afx).forEach(a=>{if(s.afx[a].s>0)add("afx:"+a,RP.afx)});
   s.rp=Math.max(0,s.rp-TECHS.reduce((n,t)=>n+(has[t.id]?t.cost:0),0));
 }
+// v15 -> v16: gear stopped dropping. A save keeps the blueprints of the named gear it already holds or forged with, and of every creature it has fully known; Codex drop facts for gear that no longer drops are dropped.
+function grantBp(s){
+  const own=new Set([...Object.keys(s.inv).filter(id=>s.inv[id]>0),...Object.values(s.eq).filter(Boolean),...Object.values(s.items).flatMap(it=>isObj(it)&&Array.isArray(it.recipeIds)?it.recipeIds:[])].map(id=>String(id).replace(/@[1-5]$/,"")));
+  Object.entries(BLUEPRINTS).forEach(([b,x])=>{const E=ENEMIES[x.e],K=isObj(s.codex[x.e])?s.codex[x.e]:null;
+    const full=K&&Array.isArray(K.weak)&&Array.isArray(K.resist)&&Array.isArray(K.drops)&&[...new Set([...E.weak,...(E.phase?E.phase.to.weak:[])])].every(f=>K.weak.includes(f))&&[...new Set([...E.resist,...(E.phase?E.phase.to.resist:[])])].every(f=>K.resist.includes(f))&&K.stats&&(!E.sp||K.sp);
+    if(own.has(b)||full){const k=s.codex[x.e]=isObj(s.codex[x.e])?s.codex[x.e]:{weak:[],resist:[],sp:false,stats:false,drops:[]};k.bp=[...new Set([...(Array.isArray(k.bp)?k.bp:[]),b])]}});
+  Object.entries(s.codex).forEach(([id,k])=>{const E=ENEMIES[id];if(E&&isObj(k)&&Array.isArray(k.drops))k.drops=k.drops.filter(d=>E.drops.some(x=>x[0]===d))});
+}
 function migrate(s){
   if(!isObj(s))return null;
-  let up14=false,up15=false;
+  let up14=false,up15=false,up16=false;
   if(s.v===3){
     s.v=4;s.knownR=[];s.rtab="all";
     const byName=n=>Object.values(s.items).find(i=>i.name===n);
@@ -120,7 +129,8 @@ function migrate(s){
     const b=s.battle;if(isObj(b)&&b.afx===undefined){const a=b.elite&&AFX_EL.find(x=>AFX[x].tr===b.elite);b.rar=a?"magic":"normal";b.afx=a?[a]:[];delete b.elite;if(a){if(!isObj(s.afx))s.afx={};s.afx[a]=s.afx[a]||{s:1,b:0}}}} // an open elite battle counts as met
   if(s.v===13){s.v=14;up14=true} // grandfather() fills s.unl once the save is sanitized
   if(s.v===14){s.v=15;up15=true;if(Number.isInteger(s.quest)){if(up14&&s.quest>=7)s.quest=TUTORIAL.length;else if(s.quest>=3)s.quest++}} // v14 -> v15: a goal step ("Learn a technique") now sits at 3, so quests from 3 move up one; a v13 save past its 7 steps was at the end of that chain
-  if(s.v!==15||!isObj(s.items)||!isObj(s.inv))return null;
+  if(s.v===15){s.v=16;up16=true} // v15 -> v16: gear no longer drops (patterns and blueprints), see grantBp
+  if(s.v!==16||!isObj(s.items)||!isObj(s.inv))return null;
   const dflt=freshState();DEFAULTED.forEach(k=>{if(s[k]===undefined)s[k]=dflt[k]});if(!isObj(s.afx))s.afx={};
   Object.keys(BASE).forEach(id=>s.items[id]=baseItem(id));
   if(!sane(s))return null;
@@ -154,10 +164,11 @@ function migrate(s){
   {const tk=isObj(s.techs)?s.techs:{};s.techs=Object.fromEntries(TECHS.filter(t=>t.id==="bind"||Number.isFinite(tk[t.id])).map(t=>[t.id,Number.isFinite(tk[t.id])?tk[t.id]:1]))}
   s.rxh=Object.fromEntries(Object.entries(isObj(s.rxh)?s.rxh:{}).filter(([k,v])=>REACTIONS.some(r=>r[0]+"+"+r[1]===k)&&Array.isArray(v)).map(([k,v])=>[k,v.filter(t=>k.split("+").includes(t))]));
   if(up15)grantTechs(s);
+  if(up16)grantBp(s);
   if(up14){ // v13 -> v14
     s.unl={};if(!grandfather(s))Object.keys(s.maps).forEach(z=>{if(!s.maps[z].steps)delete s.maps[z]}); // an untouched map made before the gates is redrawn under them
-  }else if(up15){ // v14 -> v15: the new systems open for what the save has reached or used (a veteran: all); grade upgrades now wait for Refining
-    const ids=["research",...TECHS.filter(t=>t.i).map(t=>"t:"+t.id)];
+  }else if(up15||up16){ // v14 -> v15, v15 -> v16: the new systems open for what the save has reached or used (a veteran: all); grade upgrades now wait for Refining
+    const ids=[...up15?["research",...TECHS.filter(t=>t.i).map(t=>"t:"+t.id)]:[],"patterns","blueprints"];
     if(!grandfather(s,ids))ids.forEach(id=>{if(!UNL[id].used(s))delete s.seen["i:"+id]}); // a veteran has read them all; otherwise only what the save used (a new system it merely qualifies for still gets its card)
     if(!s.techs.refine&&s.unl.upgrade){delete s.unl.upgrade;delete s.seen["i:upgrade"];s.seen["m:upg"]=true} // m:upg: the Research card says why
   }

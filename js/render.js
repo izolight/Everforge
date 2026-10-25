@@ -57,7 +57,7 @@ function renderUpgrade(){
       <button class="btn sm" data-upgrade="${id}" ${inBattle()||low||poor?"disabled":""} aria-label="${esc(tx("Upgrade {item} to {grade}",{item:iname(it),grade:gradeN(tg)}))}" ${tt(`${iname(it)} → ${gradeN(tg)}`,low?tx("Needs Alchemy Lv {n}",{n:GRADE_LV[tg-1]}):tx("{n} of them and {e} embers make 1. {p}% to succeed.",{n:UP.n,e:UP.emb[g-1],p:upChance(tg)}))}>${low?`${ic("lock","s")} ${tx("Lv {n}",{n:GRADE_LV[tg-1]})}`:`${icon("ember")}${UP.emb[g-1]} · ${gradeN(tg)} · ${upChance(tg)}%`}</button></div>`}).join(""):`<p class="foot">${tx("Collect {n} of the same grade of an essence, ore, hide or herb to upgrade them.",{n:UP.n})}</p>`;
 }
 // ================= RENDER =================
-let forgeArmed="",freshShown=new Set(),logOpen=false,heatOpen=false,legendOpen=false;
+let deconArmed=false,forgeArmed="",freshShown=new Set(),logOpen=false,heatOpen=false,legendOpen=false;
 function renderHeader(){
   const l=level(),cur=XP_LV[l-1],nxt=XP_LV[l];clampHp();
   const lt=`${tx("Smith Lv {l}",{l})}\n${nxt?tx("{a}/{b} XP to Lv {n}.",{a:S.xp-cur,b:nxt-cur,n:l+1}):tx("Highest level reached.")}${LV_PERK[l]?` ${tx(LV_PERK[l])}`:""}\n${tx("Smith XP comes from forging and unlocks crucible slots, trait slots and appraisal.")}`;
@@ -112,7 +112,7 @@ function renderGear(){
   const iu=isUnl("infuse");$("inf").hidden=$("infbtns").hidden=!iu;
   if(!iu){$("inflabel").innerHTML=lockRow("infuse");return}
   const inf=Object.entries(S.infuse),can=infusable(),R=["I","II","III"];
-  $("inflabel").innerHTML=`<p class="label">${ic("infuse","s")} ${tx("Infusions")} · ${inf.length}/${infSlots()}</p>${helpBtn(tx("Infusions"),tx("Essences worth {n} plain ones (a Greater counts as 3, a Pure as 9, a Lesser as ⅓) infuse a trait into you; as many again deepen it, up to III. Infused traits act as if they were on your weapon.",{n:INF_COST}),can.length?"":inf.length>=infSlots()?tx("All slots used. You can still deepen an infusion with more of its essence."):tx("Collect essences of one trait worth {n} plain ones (salvage, elites, bounties) to infuse it.",{n:INF_COST}))}`;
+  $("inflabel").innerHTML=`<p class="label">${ic("infuse","s")} ${tx("Infusions")} · ${inf.length}/${infSlots()}</p>${helpBtn(tx("Infusions"),tx("Essences worth {n} plain ones (a Greater counts as 3, a Pure as 9, a Lesser as ⅓) infuse a trait into you; as many again deepen it, up to III. Infused traits act as if they were on your weapon.",{n:INF_COST}),can.length?"":inf.length>=infSlots()?tx("All slots used. You can still deepen an infusion with more of its essence."):tx("Collect essences of one trait worth {n} plain ones (deconstructing, elites, bounties) to infuse it.",{n:INF_COST}))}`;
   $("inf").innerHTML=Array.from({length:infSlots()},(_,k)=>{const e=inf[k];if(!e)return `<div class="islot" ${tt(tx("Empty infusion slot"),tx("Collect {n} plain essences of one kind to fill it.",{n:INF_COST}))}>${ic("plus","l")}</div>`;
     const [t,r]=e,st=innateStats(t),bits=Object.entries(st).filter(([,v])=>v);
     return `<div class="islot on" style="border-color:${tColor(t)};color:${tColor(t)}" ${tt(`${trn(t)} ${R[r-1]}`,bits.map(([s,v])=>`${v>0?"+":""}${v} ${STAT_NAMES[s]}`).join(", ")||tx("Effect on hit"),tx("Rank {r} of {m}",{r,m:INF_MAX}))}>${traitIc(t,"l")}<b>${trn(t)} ${R[r-1]}</b><span class="ib">${bits.map(([s,v])=>`<span>${stIc(s,"xs")}${v>0?"+":""}${v}</span>`).join("")||`<span>${tx("on hit")}</span>`}</span></div>`}).join("");
@@ -306,9 +306,44 @@ function renderBench(){
   $("combine").disabled=items.length<2||!chk.ok||!!crafting?.blocked;
   $("combine").setAttribute("aria-disabled",miss.length?"true":"false");if(miss.length)$("combine").setAttribute("aria-label",techWhy(miss));else $("combine").removeAttribute("aria-label"); // the reason is the warning above the button (and its label); a bubble on top would cover it
 }
+// Patterns: pick a pattern (or a learned blueprint), fill its slots with base materials, forge. patSel is UI state, not saved; render() drops any material the satchel no longer holds.
+let patSel={k:null,bp:false,m:[]};
+const patLabel=(k,bp)=>bp?iname(S.items[k]):txc("form",FORMS[PATTERNS[k].form].label);
+const slotTxt=types=>types.map(t=>tx(MAT_T[t].label)).join(tx(" or "));
+const patUsed=id=>patSel.m.filter(x=>x===id).length,patLeft=id=>avail(id)-patUsed(id);
+function patFix(){
+  if(!patSel.k)return;const n=patSlots(patSel.k,patSel.bp).length;if(patSel.m.length!==n)patSel.m=Array(n).fill(null);
+  const seen={};patSel.m=patSel.m.map(id=>{if(!id)return null;seen[id]=(seen[id]||0)+1;return seen[id]<=avail(id)?id:null});
+}
+function patFill(){ // empty slots take the standard (or blueprint) materials when you have them, else what fits: lowest grade first, then what you hold most of
+  if(!patSel.k)return;const k=patSel.k,bp=patSel.bp,std=bp?BLUEPRINTS[k].m:PATTERNS[k].std[0][0],mats=Object.keys(S.inv).filter(id=>isBaseMat(id)&&avail(id)>0);
+  patSel.m.forEach((id,i)=>{if(id)return;const fits=mats.filter(x=>patFits(k,bp,i,x)&&patLeft(x)>0).sort((a,b)=>(b===std[i])-(a===std[i])||gradeOf(a)-gradeOf(b)||patLeft(b)-patLeft(a));patSel.m[i]=fits[0]||null});
+}
+function renderPatterns(){
+  if(!isUnl("patterns")){$("patlabel").innerHTML=lockRow("patterns");$("pats").innerHTML=$("patbody").innerHTML="";return}
+  patFix();const bps=knownBp(),k=patSel.k,bp=patSel.bp;
+  $("patlabel").innerHTML=`<p class="label">${ic("pattern","s")} ${tx("Patterns")}</p>${helpBtn(tx("Patterns"),tx("Pick what to forge, then fill its slots with base materials. Deconstruct hides, ores and wood in the Gear tab to get them."),tx("The standard materials make the familiar piece; anything else makes a new one from the materials' traits. Better grades make stronger gear."),tx("Blueprints for named gear come from studying creatures in a fight."))}`;
+  const btn=(key,isBp)=>{const on=key===k&&!!isBp===bp,nm=patLabel(key,isBp);
+    return `<button class="tab ti${isBp?" bpb":""}" data-pat="${key}" data-bp="${isBp?1:0}" aria-pressed="${on}" aria-label="${esc(nm)}" ${tt(nm,isBp?tx("Blueprint"):tx("Pattern"),patSlots(key,isBp).map(slotTxt).join(" + "))}>${isBp?glyph(S.items[key]):gIc(PATTERNS[key].form)}${on?`<span>${nm}</span>`:""}</button>`};
+  $("pats").innerHTML=Object.keys(PATTERNS).map(x=>btn(x,false)).join("")+bps.map(x=>btn(x,true)).join("")
+    +`<span class="foot bpn" ${tt(tx("Blueprints"),tx("Study a creature in a fight to learn the blueprint of the named gear it carries. Mastering it teaches them too."))}>${ic("scroll","xs")} ${bps.length}/${Object.keys(BLUEPRINTS).length}</span>`;
+  if(!k){$("patbody").innerHTML=`<p class="foot">${Object.keys(S.inv).some(id=>isBaseMat(id)&&S.inv[id]>0)?tx("Pick a pattern to forge."):tx("Pick a pattern to forge. Deconstruct raw finds in the Gear tab to get base materials.")}</p>`;return}
+  const slots=patSlots(k,bp),its=patSel.m.map(id=>id&&S.items[id]);
+  const parts=slots.map((t,i)=>{const it=its[i];return (i?'<span class="plus" aria-hidden="true">+</span>':"")+(it?`<button class="slot full${it.grade?" gr":""}" style="${rcol(it)}" data-pslot="${i}" aria-label="${esc(tx("Remove {item}",{item:iname(it)}))}" ${itemTip(it,tx("Tap to take it out."))}>${glyph(it)}</button>`
+    :`<div class="slot ps" aria-label="${esc(tx("Empty slot: {types}",{types:slotTxt(t)}))}" ${tt(tx("Empty slot"),slotTxt(t))}>${ic("plus")}<small>${slotTxt(t)}</small></div>`)}).join("");
+  const r=its.every(Boolean)?shapeResult(k,patSel.m,bp):null;
+  const fit=Object.keys(S.inv).filter(id=>isBaseMat(id)&&patLeft(id)>0&&slots.some((_,i)=>!patSel.m[i]&&patFits(k,bp,i,id))).sort((a,b)=>baseName(S.items[a]).localeCompare(baseName(S.items[b]))||gradeOf(a)-gradeOf(b));
+  const tiles=fit.map(id=>{const it=S.items[id],n=patLeft(id);return `<button class="sq${it.grade?" gr":""}" style="${rcol(it)}" data-pm="${id}" aria-label="${esc(iname(it)+(n!==1?`, ${n}`:""))}" ${itemTip(it,tx("You hold {n}.",{n}))}>${glyph(it)}${n!==1?`<span class="sq-n">${n}</span>`:""}${it.grade?`<span class="sq-p" style="color:var(--gc)">${ROMAN[it.grade]}</span>`:""}</button>`}).join("");
+  let pv="";
+  if(r){const ts=targetSlot(r.item),eqIt=ts&&gearOf(ts);
+    pv=`<div class="preview"><div class="rhead sm">${glyph(r.item)}<div><div class="rform">${r.named?(bp?tx("Blueprint"):tx("Standard recipe")):tx("New piece")} · ${labelOf(r.item)}</div><b>${nameHtml(r.item)}</b></div></div>${itemProperties(r.item,eqIt&&eqIt.id!==r.id?eqIt:null,false,"Versus equipped")}</div>`}
+  else if(!fit.length&&!its.every(Boolean))pv=`<p class="foot">${tx("You have no {types} for the empty slots. Deconstruct raw finds in the Gear tab.",{types:[...new Set(slots.filter((_,i)=>!patSel.m[i]).flat())].map(t=>tx(MAT_T[t].label)).join(tx(" or "))})}</p>`;
+  $("patbody").innerHTML=`<div class="slots pslots">${parts}</div>${pv}${tiles?`<div class="sqg">${tiles}</div>`:""}
+    <div class="actions"><button class="btn primary grow" id="shape" ${r&&!inBattle()?"":"disabled"}>${inBattle()?tx("Finish the fight to forge"):tx("Forge")}</button><button class="btn" id="pfill" ${its.every(Boolean)?"disabled":""}>${tx("Fill")}</button><button class="btn" id="pclear">${tx("Clear")}</button></div>`;
+}
 function renderResult(fresh){
   const el=$("result"),total=Object.values(S.inv).reduce((s,c)=>s+c,0);
-  if(!S.last){el.className="panel result";el.innerHTML=`<p class="empty">${total<2?tx("You need at least two items to forge. Win battles to collect loot."):tx("Your sword takes ores, herbs, potions, essences and relics. Salvage loot in the Gear tab to turn it into essences.")}</p>`;return}
+  if(!S.last){el.className="panel result";el.innerHTML=`<p class="empty">${total<2?tx("You need at least two items to forge. Win battles to collect loot."):tx("Your sword takes ores, herbs, potions, essences and relics. Deconstruct raw finds in the Gear tab for materials and essences.")}</p>`;return}
   const r=S.last,ch=(col,ics,v,...t)=>`<span class="chip" style="color:${col}" ${tt(...t)}>${ics}<b>${v}</b></span>`;
   const gains=`<div class="chips">${ch("var(--accent)",ic("xp","s"),`+${r.xpGain}`,tx("Smith XP"),tx("+{n} smith XP. It raises your smith level, which opens crucible slots and trait slots.",{n:r.xpGain}))}${Object.entries(r.sx||{}).map(([k,n])=>ch("var(--fg)",skIcon(k),`+${n}`,`${SKILLS[k].name} +${n}`,r.scaled?tx("Easy or known recipes teach less."):tx("Crafting trains the skill of what you make."))).join("")}`; // the tail (fail chip) is added per branch
   const logLi=l=>`<li class="${l.warn?"warn":""}"><strong>${tx(l.k)}</strong> ${l.t}</li>`;
@@ -345,11 +380,13 @@ function satchel(mode){
   return [tabs,tiles];
 }
 function renderSatchels(){
-  if(S.view==="gear"){const [t,i]=satchel("gear");$("gtabs").innerHTML=t;$("ginv").innerHTML=i}
+  if(S.view==="gear"){const [t,i]=satchel("gear");$("gtabs").innerHTML=t;$("ginv").innerHTML=i;
+    const dl=deconList(),n=dl.reduce((a,id)=>a+avail(id),0);$("gdecon").hidden=!n||inBattle();
+    if(n)$("gdecon").innerHTML=`<button class="btn sm${deconArmed?" danger":""}" id="deconAll" ${tt(tx("Deconstruct all"),tx("Breaks every raw hide, ore and wood in your satchel into base materials and essence fragments. Food, potions, relics and anything a secret still needs stay."))}>${ic("salvage","s")} ${deconArmed?tx("Tap again to deconstruct {n}",{n}):tx("Deconstruct all raw finds ({n})",{n})}</button>`}
   if(S.view==="forge"){const [t,i]=satchel("forge");$("ftabs").innerHTML=t;$("finv").innerHTML=i}
 }
 function haveFor(ids){const need={};ids.forEach(id=>need[id]=(need[id]||0)+1);return ids.map(id=>(S.inv[id]||0)>=need[id])}
-const REC_IC={weapon:"blade",armor:"chest",charm:"charm",food:"food",potion:"potion",hide:"hide",ore:"ore",herb:"herb",essence:"essence",relic:"relic"};
+const REC_IC={weapon:"blade",armor:"chest",charm:"charm",food:"food",potion:"potion",hide:"hide",ore:"ore",timber:"timber",herb:"herb",essence:"essence",relic:"relic"};
 const kic=(k,tip)=>`<span class="kic" ${tt(...tip)}>${gIc(REC_IC[k]||k,"")}</span>`;
 const kindCap=a=>LANG==="en"?cap(KIND_LABEL[a]):txc("kind",KIND_LABEL[a]);
 function renderRecipes(){
@@ -362,11 +399,11 @@ function renderRecipes(){
       ${all?`<button class="ibt load" data-load="${it.id}" aria-label="${esc(tx("Load the recipe for {item}",{item:iname(it)}))}" ${tt(tx("Load"),why)}>${icon("forge")}</button>`
         :`<button class="ibt load off" data-tap aria-label="${esc(tx("Cannot load {item}: {why}",{item:iname(it),why}))}" ${tt(lv?tx("Needs Lv {n}",{n:INPUT_LV[ids.length-3]}):tx("Missing"),why)}>${lv?ic("lock"):ic("bag")}</button>`}</div>`}).join("")
     :`<p class="empty">${S.journal.length?tx("No recipes in this category yet."):tx("Every combination you forge is saved here so you can make it again.")}</p>`;
-  $("mixsum").innerHTML=`${ic("filter","s")} ${tx("What mixes with what")}${helpBtn(tx("What mixes"),tx("Each row lists what that kind of item takes, besides its own type. Essences mix with everything; salvage any item to get them."))}`;
+  $("mixsum").innerHTML=`${ic("filter","s")} ${tx("What mixes with what")}${helpBtn(tx("What mixes"),tx("Each row lists what that kind of item takes, besides its own type. Essences mix with everything; deconstruct raw finds to get them."))}`;
   $("mixrules").innerHTML=[["weapon","Weapons"],["armor","Armor"],["charm","Trinkets"],["food","Food"],["potion","Potions"]]
     .map(([k,l0])=>{const l=tx(l0);return `<div class="mx">${kic(k,[l])}<span class="ar">${tx("takes")}</span>${ACCEPTS[k].map(a=>kic(a,[kindCap(a)])).join("")}<span class="kic same" ${tt(tx("The same type"),tx("{kind} also take other {kindl}.",{kind:l,kindl:lc(l)}))}>${ic("plus","s")}</span></div>`}).join("")
-    +`<div class="mx">${kic("ore",[tx("Materials"),tx("Hides, ores and herbs.")])}<span class="ar">${tx("takes")}</span>${["hide","ore","herb","essence","relic"].map(a=>kic(a,[kindCap(a),a==="hide"||a==="ore"||a==="herb"?tx("Only their own kind."):""])).join("")}</div>
-      <div class="mx">${kic("essence",[tx("Essences")])}<span class="ar">${tx("takes")}</span><span class="kic" ${tt(tx("Everything"),tx("Salvage any item to get essences."))}>${ic("bag")}</span></div>`;
+    +`<div class="mx">${kic("ore",[tx("Materials"),tx("Hides, ores, timber and herbs.")])}<span class="ar">${tx("takes")}</span>${["hide","ore","timber","herb","essence","relic"].map(a=>kic(a,[kindCap(a),a==="hide"||a==="ore"||a==="timber"||a==="herb"?tx("Only their own kind."):""])).join("")}</div>
+      <div class="mx">${kic("essence",[tx("Essences")])}<span class="ar">${tx("takes")}</span><span class="kic" ${tt(tx("Everything"),tx("Deconstruct raw finds to get essences."))}>${ic("bag")}</span></div>`;
   $("fusions").innerHTML=!hasTech("alloy")?`<div class="lockrow" ${tt(tx("Alloying (locked)"),isUnl("research")?tx("Learn Alloying in Research (the Forge tab) to merge two kinds of gear."):tx("Something to learn later."))}>${ic("lock","s")}<b>${tx("Alloying")}</b><small>${isUnl("research")?tx("Learn it in Research."):tx("Not yet known.")}</small></div>`:FUSIONS.map(([a,b,f])=>`<span class="fu" ${tt(tx("{a} + {b} → {c}",{a:cap(formName(a)),b:formName(b),c:txc("noun",FORMS[f].noun)}),tx("A fusion: two kinds that merge into a new one."))}>${gIc(a)}<i>+</i>${gIc(b)}<i>→</i><b>${gIc(f)}</b></span>`).join("");
   const known=new Set(S.knownR),rd=REACTIONS.filter(([a,b])=>known.has(a+"+"+b));
   $("rxlabel").innerHTML=`${ic("infuse","s")} ${tx("Trait reactions")} · ${rd.length}/${REACTIONS.length}${helpBtn(tx("Trait reactions"),tx("Some pairs of traits react when they meet in the crucible and become a new trait. Discover one by forging it."),...isUnl("research")?[tx("Studying a material in Research, or an insight while forging, shows part of a reaction first.")]:[])}`;
@@ -394,7 +431,7 @@ function renderStats(){
     +grp(tx("Exploration"),cell(kz.reduce((a,b)=>a+b,0),tx("creatures slain"))+cell(st.elites,tx("magic & rare slain"))+cell(st.bosses,tx("bosses slain"))+cell(st.exped,tx("expeditions done"))
       +`<div class="sc wide"><b>${kz.join(" / ")}</b><span>${tx("kills by region ({list})",{list:ZONES.map(z=>zn[z[0]].split(" ").pop()).join(" / ")})}</span></div>`
       +`<div class="sc wide"><b>${heat}</b><span>${tx("highest Heat cleared")}</span></div>`)
-    +grp(tx("Forge"),cell(st.forged,tx("items forged"))+cell(S.journal.length,tx("recipes found"))+cell(st.legend,tx("legendaries forged"))+cell(st.mishaps,tx("mishaps"))+cell(st.fizzles,tx("fizzles"))+cell(st.salvaged,tx("items salvaged"))+cell(st.refined,tx("grades upgraded")))
+    +grp(tx("Forge"),cell(st.forged,tx("items forged"))+cell(S.journal.length,tx("recipes found"))+cell(st.legend,tx("legendaries forged"))+cell(st.mishaps,tx("mishaps"))+cell(st.fizzles,tx("fizzles"))+cell(st.salvaged,tx("items broken down"))+cell(st.refined,tx("grades upgraded")))
     +grp(tx("Economy"),cell(sn(st.earned),tx("embers earned"))+cell(sn(st.spent),tx("embers spent"))+cell(S.embers,tx("embers now")))
     +`<p class="label">${tx("Records")}</p><ul class="rec2">${fast}<li><span>${tx("Dailies played / won")}</span><b>${st.dailies} / ${st.dailyWins}</b></li><li><span>${tx("Best daily")}</span><b>${st.dBest?dailyResult(st.dBest):tx("none yet")}</b></li></ul>`;
 }
@@ -429,7 +466,7 @@ function render(fresh){
   renderHeader();renderNav();renderGoal();renderIntro();
   if(S.view==="battle")renderBattle();
   if(S.view==="gear")renderGear();
-  if(S.view==="forge"){renderBench();renderResearch();renderUpgrade();renderSkills();renderResult(fresh)}
+  if(S.view==="forge"){renderPatterns();renderBench();renderResearch();renderUpgrade();renderSkills();renderResult(fresh)}
   renderSatchels();
   if(S.view==="recipes")renderRecipes();
   if(S.view==="codex")renderCodex();

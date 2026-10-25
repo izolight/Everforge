@@ -25,7 +25,7 @@ const forge=p=>p.evaluate(()=>{const n=S.journal.length,f=S.stats.forged;Math.ra
 async function flow(browser,w){
   const p=await open(browser,w);
   let r=await p.evaluate(()=>({techs:Object.keys(S.techs),rp:S.rp,res:isUnl("research"),hdr:$("rp").hidden,lock:!!$("reslock").querySelector(".lockrow")||(go("forge"),!!$("reslock").querySelector(".lockrow")),v:S.v}));
-  ok(r.techs.join()==="bind"&&r.rp===0&&r.v===15,"fresh: only Binding is known, no research points (v"+r.v+")");ok(!r.res&&r.hdr&&r.lock,"fresh: Research is a teaser and the counter is hidden");
+  ok(r.techs.join()==="bind"&&r.rp===0&&r.v===16,"fresh: only Binding is known, no research points (v"+r.v+")");ok(!r.res&&r.hdr&&r.lock,"fresh: Research is a teaser and the counter is hidden");
   // Binding: an item and one essence is allowed; everything else is refused, with a reason that does not name the locked system
   await bench(p,["iron_sword","ess_Fire"]);r=await mix(p);ok(!r.miss.length&&r.dis==="false"&&!r.off,"Binding: a sword and one essence forge");
   await bench(p,["iron_sword","coal"]);r=await mix(p);ok(r.miss.join()==="compound"&&r.dis==="true"&&/Start simple/.test(r.tip)&&!/Research/.test(r.tip+r.hint),"before Research opens a gated forge says to start simple, naming no locked system ("+r.tip.replace(/\n/g," | ")+")");
@@ -189,7 +189,7 @@ async function migration(browser){
   const {key,save}=JSON.parse(fs.readFileSync(path.join(FIX,"save-v14.json"),"utf8"));
   const p=await open(browser,390,new Function(`localStorage.clear();localStorage.setItem(${JSON.stringify(key)},${JSON.stringify(save)})`));
   let r=await p.evaluate(()=>({v:S.v,techs:TECHS.every(t=>S.techs[t.id]),unl:UNLOCKS.every(u=>S.unl[u.id]),pend:pendingIntros().length,card:!$("intro").hidden,rp:!$("rp").hidden,key:KEY}));
-  ok(r.v===15&&r.techs&&r.unl&&!r.pend&&!r.card,"the v14 fixture migrates as a veteran: every technique and unlock, no intro pending");ok(r.rp,"... with the research counter showing");
+  ok(r.v===16&&r.techs&&r.unl&&!r.pend&&!r.card,"the v14 fixture migrates as a veteran: every technique and unlock, no intro pending");ok(r.rp,"... with the research counter showing");
   const m=await p.evaluate(()=>{
     const clone=()=>{const s=freshState();s.v=14;["rp","techs","rpd","rxh"].forEach(k=>delete s[k]);s.unl=Object.fromEntries(UNLOCKS.filter(u=>u.id!=="research"&&!u.id.startsWith("t:")).map((u,i)=>[u.id,i+1]));UNLOCKS.forEach(u=>{if(s.unl[u.id])s.seen["i:"+u.id]=true});return s};
     const craft=(s,id,rec,form,ex)=>{s.items[id]={id,name:id,form:form||"blade",noun:"Sword",traits:{Fire:3},tier:2,crafted:true,recipeIds:rec,recipe:rec,...ex};s.journal.push({id,name:id});s.inv[id]=1};
@@ -210,7 +210,7 @@ async function migration(browser){
   ok(m.qs.join()==="0,2,4,5,16"&&m.o13===6&&m.o13b===m.len,"the goal step inserted at 3 shifts quests 3 and above ("+m.qs+"; a v13 save at 5 -> "+m.o13+", past its chain -> "+m.o13b+")");
   await p.close();
   // every older fixture loads as a veteran with everything (smoke.js plays them; this checks the migration only)
-  for(const f of fs.readdirSync(FIX).filter(f=>f.endsWith(".json")&&f!=="save-v15.json").sort()){
+  for(const f of fs.readdirSync(FIX).filter(f=>f.endsWith(".json")&&f!=="save-v16.json").sort()){
     const {key:k2,save:s2}=JSON.parse(fs.readFileSync(path.join(FIX,f),"utf8"));
     const q=await open(browser,390,new Function(`localStorage.clear();localStorage.setItem(${JSON.stringify(k2)},${JSON.stringify(s2)})`));
     const x=await q.evaluate(()=>({t:TECHS.every(t=>S.techs[t.id]),u:UNLOCKS.every(u=>S.unl[u.id]),p:pendingIntros().length}));
