@@ -47,7 +47,17 @@ function effects(it){
   add("mix","forge",null,tx("Mixing"),tx("Mixes with {list}",{list:acceptsText(it)}),"var(--muted)",true);
   return out;
 }
-function traitTip(t,v){
+function traitEffects(it,t){
+  const s=TRAITS[t].s,sources={crit:["Sharp"],aim:["Sharp"],burn:["Fire","Sunfire"],freeze:["Ice","Frost"],poison:["Poison","Venomous"],onheal:["Holy","Radiant"],drain:["Shadow","Twilight"],pierce:["Heavy"],arcane:["Arcane"],shred:["Tempered"],blind:["Steam"],loot:["Lure"],thorns:["Iron"],dr:["Stone"],ward:["Runic"],root:["Wood"],dodge:["Swift"],cleanse:["Medicine"],block:["Heavy"]};
+  return effects(it).filter(e=>{
+    if(e.key.startsWith("resist_"))return !!resRaw({[t]:it.traits[t]})[e.key.slice(7)];
+    if(e.key==="regen"||e.key==="heal")return !!s.heal||t==="Medicine";
+    if(e.key==="damage")return !!s.atk||!!s.mag;
+    if(e.key==="cure")return !!CURES[t];
+    return sources[e.key]?.includes(t);
+  }).map(e=>e.key==="cure"?{...e,text:tx("Cures {list} when used in battle",{list:e.statuses.filter(s=>CURES[t].includes(s)).map(s=>lc(STATUS[s].n)).join(", ")})}:e);
+}
+function traitTip(t,v,it){
   const tr=TRAITS[t],st=Object.entries(tr.s).map(([k,n])=>`${n>0?"+":""}${n} ${STAT_NAMES[k]}`).join(", ");
   const notes=[];
   if(t==="Sharp")notes.push(tx("On weapons, each point adds 3 percentage points to critical-hit chance (up to {cap}%) and reduces Elusive dodge by {n} points (up to {max}).",{cap:CRIT_CAP,n:AFX_T.dodge.sharp,max:AFX_T.dodge.sharpCap}));
@@ -70,5 +80,13 @@ function traitTip(t,v){
   const res=Object.keys(resRaw({[t]:v}));
   if(res.length)notes.push(tx("On armor and trinkets, grants resistance to {list}.",{list:res.map(famL).join(", ")}));
   if(CURES[t])notes.push(tx("On consumables, cures {list}.",{list:CURES[t].map(s=>lc(STATUS[s].n)).join(", ")}));
-  return tt(`${trn(t)} ${v}`,tx("Base stats per point: {stats}.",{stats:st}),tx("Form, tier and trait order scale the final stats."),...notes);
+  const strength=tx("Trait strength {n}. The item type determines what it does.",{n:v});
+  if(it){
+    const g=grp(it),fx=traitEffects(it,t).map(e=>e.text);
+    if(g==="consumable")return tt(`${trn(t)} ${v}`,strength,fx.length?tx("Helps determine these use effects:"):tx("No direct effect when this item is used."),...fx,tx("Forging can give this trait a different effect."));
+    if(g==="material")return tt(`${trn(t)} ${v}`,strength,tx(notes.length?"Crafting ingredient. Possible effects after forging:":"Crafting ingredient. Its traits shape the item you forge."),...notes);
+    const contribution=statParts(it).find(p=>p.t===t).stats.map(p=>`${p.value>0?"+":""}${Number(p.value.toFixed(3))} ${STAT_NAMES[p.k]}`).join(", ");
+    return tt(`${trn(t)} ${v}`,strength,tx("In this item, before rounding: {stats}.",{stats:contribution}),...fx);
+  }
+  return tt(`${trn(t)} ${v}`,strength,tx("Base stats per point: {stats}.",{stats:st}),tx("Form, tier and trait order scale the final stats."),...notes);
 }

@@ -1,13 +1,28 @@
 // ================= SMALL RENDER HELPERS =================
-const chips=(tr,full)=>topTraits(tr).map(([t,v])=>`<span class="chip tc" style="color:${tColor(t)}" ${traitTip(t,v)}>${traitIc(t,"s")}${full?`${trn(t)} `:""}<b>${v}</b></span>`).join(""); // distinct trait symbols; names remain on the item sheet
-function effectBadges(it){
-  const fx=effects(it),badge=e=>{
+const chips=(it,full)=>topTraits(it.traits).map(([t,v])=>`<span class="chip tc" style="color:${tColor(t)}" ${traitTip(t,v,it)}>${traitIc(t,"s")}${full?`${trn(t)} `:""}<b>${v}</b></span>`).join("");
+function effectBadges(it,part){
+  const use=grp(it)==="consumable",fx=effects(it),badge=e=>{
+    if(use&&e.key==="cure")return e.statuses.map(s=>`<span class="chip fx-badge" data-effect="cure" data-cure="${s}" style="color:${e.color}" ${tt(tx("Cures {status}",{status:lc(STATUS[s].n)}),tx("Cures {list} when used in battle",{list:lc(STATUS[s].n)}))}>${ic(e.icon)}<span>${tx("Cures {status}",{status:lc(STATUS[s].n)})}</span></span>`).join("");
     const extra=e.key.startsWith("resist_")?ic("resist","s"):e.statuses?e.statuses.map(s=>famIc(STATUS[s].el,"s")).join(""):"";
     const unit=e.unit?`<span class="fx-unit" aria-hidden="true">${e.unit==="cooldown"?"":"/"}${ic(e.unit==="hit"?"hit":e.unit,"s")}</span>`:"";
-    return `<span class="chip fx-badge" data-effect="${e.key}" style="color:${e.color}" ${tt(e.name,e.text)}>${ic(e.icon)}${extra}${e.value==null?"":`<b>${e.value}</b>`}${unit}${e.key==="mix"?`<span>${tx("Mixing")}</span>`:""}</span>`;
+    const value=use&&e.key==="heal"?tx("{n} HP",{n:medHeal(it)}):use&&e.key==="damage"?tx("{n} dmg",{n:e.value}):e.value;
+    return `<span class="chip fx-badge" data-effect="${e.key}" style="color:${e.color}" ${tt(e.name,e.text)}>${ic(e.icon)}${extra}${value==null?"":`<b>${value}</b>`}${unit}${e.key==="mix"?`<span>${tx("Mixing")}</span>`:""}</span>`;
   };
   const active=fx.filter(e=>!e.meta),meta=fx.filter(e=>e.meta);
-  return `<div class="item-effects"><div class="effect-heading"><span class="label">${tx("Effects")}</span>${helpBtn(tx("Reading effects"),tx("Hover, focus or tap an icon for its full effect. Percentages show chances or damage shares; a circular arrow means each turn, a burst means each hit, and a clock means ability cooldown."))}</div>${active.length?`<div class="chips effect-chips">${active.map(badge).join("")}</div>`:""}<div class="chips item-meta">${meta.map(badge).join("")}</div></div>`;
+  const metaHtml=`<div class="chips item-meta">${meta.map(badge).join("")}</div>`;
+  if(part==="meta")return metaHtml;
+  if(!active.length&&!use)return part==="active"?"":metaHtml;
+  return `<div class="item-effects"><div class="effect-heading"><span class="label">${tx(use?"When used":"Effects")}</span>${helpBtn(tx("Reading effects"),tx("Hover, focus or tap an icon for its full effect. Percentages show chances or damage shares; a circular arrow means each turn, a burst means each hit, and a clock means ability cooldown."))}</div>${active.length?`<div class="chips effect-chips">${active.map(badge).join("")}</div>`:`<p class="foot">${tx("No effect when used. You can still forge with its traits.")}</p>`}${part==="active"?"":metaHtml}</div>`;
+}
+function statBreakdown(it){
+  const num=n=>String(Number(n.toFixed(4))),s=statsOf(it),use=grp(it)==="consumable";
+  const rows=statParts(it).map(p=>`<div class="trait-calculation"><b style="color:${tColor(p.t)}">${traitIc(p.t,"s")} ${trn(p.t)} ${p.v}</b><div>${p.stats.map(x=>`<div class="calculation"><span>${STAT_NAMES[x.k]}</span><code>${num(x.base)} × ${p.v} × ${num(x.priority)} × ${num(x.form)} × ${num(x.scale)} = ${num(x.value)}</code></div>`).join("")}</div></div>`).join("");
+  const medicine=use&&s.heal>0&&medHeal(it)!==s.heal?`<p class="foot">${tx("Medicine increases healing from {base} to {total} HP.",{base:s.heal,total:medHeal(it)})}</p>`:"";
+  return `<details class="stat-breakdown"><summary>${tx("Stat calculation")}</summary><p class="foot">${tx("Base value × trait strength × priority × item type × tier and legendary bonus. Add contributions, then round each total.")}</p><p class="foot">${tx("Stronger traits contribute first. Positive bonuses use {list}; penalties always apply in full.",{list:DECAY.map(n=>`${Math.round(n*100)}%`).join(", ")})}</p>${rows}<p class="label">${tx("Rounded totals")}</p>${statGrid(s,null,true)}${medicine}${use?`<p class="foot">${tx("Attack and Magic on consumables only determine damage when used in battle. They do not increase your character's stats.")}</p><p class="foot">${tx("Battle damage = (Attack + Magic) × 0.6, rounded; values below 3 deal no damage.")}</p>`:""}</details>`;
+}
+function itemProperties(it,other,full,label){
+  const gear=isGear(it),title=tx(gear?"Traits":"Crafting traits");
+  return `<div class="item-properties">${gear?statGrid(shown(it),other?shown(other):null,full):""}${gear&&other&&label?cmpBlock(it,other,label):""}${effectBadges(it,"active")}<div class="item-traits"><div class="effect-heading"><span class="label">${title}</span>${helpBtn(title,tx("Numbers measure trait strength, not direct stat bonuses. Item type and trait priority determine the final result."),tx("Tap a trait to see what it does in this item. Forging can change its effect."))}</div><div class="chips">${chips(it,full)}</div></div>${statBreakdown(it)}${effectBadges(it,"meta")}</div>`;
 }
 const statLine=st=>Object.entries(STAT_NAMES).filter(([k])=>st[k]).map(([k,l])=>`${l} ${st[k]>0?"+":""}${st[k]}`).join(" · ");
 const famChip=(f,pre)=>`<span class="chip fam" style="color:${FAM[f]}">${pre?pre+" ":""}${famN(f)}</span>`;
@@ -67,7 +82,7 @@ function renderGoal(){
   el.innerHTML=`<div class="gt" ${tt(g.step+(g.prog?` · ${g.prog}`:""),g.text,g.done?tx("Reward: {list}",{list:rewardText(g.reward)}):"")}><small>${st}</small> ${g.text}${g.prog?` <em>${g.prog}</em>`:""}</div>
     ${g.done?`<button class="btn primary sm" id="claim">${tx("Claim")}</button>`:S.view!==g.tab?`<button class="btn sm" id="goGoal">${tx("Go to {tab}",{tab:tx(cap(g.tab))})}</button>`:""}`;
 }
-const itemLines=it=>[iname(it),`${rarity(it)[0]} · ${labelOf(it)}${isGear(it)?` · ${tx("PWR {n}",{n:power(it)})}`:""}`,statLine(shown(it)),topTraits(it.traits).slice(0,4).map(([t,v])=>`${trn(t)} ${v}`).join(", ")];
+const itemLines=it=>[iname(it),`${rarity(it)[0]} · ${labelOf(it)}${isGear(it)?` · ${tx("PWR {n}",{n:power(it)})}`:""}`,grp(it)==="consumable"?useHint(it):isGear(it)?statLine(shown(it)):tx("Crafting ingredient"),topTraits(it.traits).slice(0,4).map(([t,v])=>`${trn(t)} ${v}`).join(", ")];
 const itemTip=(it,...x)=>tt(...itemLines(it),...x),itemAria=it=>esc(itemLines(it).slice(1).filter(Boolean).join(". ")); // the tip text also goes in aria-label, for screen readers
 const ROMAN=["","I","II","III","IV","V"];
 const rcol=it=>`--rc:${rarity(it)[1]}${it.grade?`;--gc:${GRADES[it.grade-1][1]}`:""}`; // rarity stripe + grade frame colours
@@ -272,8 +287,7 @@ function renderBench(){
     if(known){
       const ts=targetSlot(known),eqIt=ts&&gearOf(ts),showEq=eqIt&&eqIt.id!==known.id&&eqIt.id!==base.id;
       hint=`<div class="preview"><div class="rhead sm">${glyph(known)}<div><div class="rform">${ic("ok","s")} ${tx("Known recipe")} · ${rarity(known)[0]} · ${labelOf(known)}</div><b>${nameHtml(known)}</b></div></div>
-        <div class="chips">${chips(known.traits)}</div>${statGrid(shown(known),shown(base))}${effectBadges(known)}
-        ${cmpBlock(known,base,"Compared to")}${showEq?cmpBlock(known,eqIt,"Versus equipped"):""}</div>`}
+        ${itemProperties(known,base,false,"Compared to")}${showEq?cmpBlock(known,eqIt,"Versus equipped"):""}</div>`}
     else{
       const knownR=new Set(S.knownR),kr=r.rxKeys.filter(k=>knownR.has(k)),ur=r.rxKeys.filter(k=>!knownR.has(k));
       const hidden=new Set(REACTIONS.filter(([a,b])=>ur.includes(a+"+"+b)).map(x=>x[2]));
@@ -303,10 +317,8 @@ function renderResult(fresh){
   el.className="panel result"+(it.legendary?" legend":"")+(fresh?" fresh":"");
   el.innerHTML=`<div class="rhead">${glyph(it)}<div><div class="rform">${rn} · ${labelOf(it)} · ${tx("Tier {n}",{n:it.tier})}</div>
     <h2 class="rname">${nameHtml(it)}${r.isNew?`<span class="badge${it.legendary?" gold":""}">${it.legendary?tx("Legendary"):tx("New")}</span>`:""}</h2></div></div>
-    <div class="chips">${chips(it.traits)}</div>
-    ${statGrid(shown(it),base?shown(base):null)}${base?cmpBlock(it,base,"Compared to"):""}
+    ${itemProperties(it,base,false,"Compared to")}
     ${showEq?cmpBlock(it,eqIt,"Versus equipped"):""}
-    ${effectBadges(it)}
     <ul class="log"><li><strong>${tx("Recipe")}</strong> ${recipeNames(r.id?it:r)}</li>${r.log.map(logLi).join("")}</ul>
     ${gains}${ch(r.mishap?"var(--accent)":"var(--up)",ic(r.mishap?"warn":"ok","s"),`${r.inst}%`,r.mishap?tx("Flawed"):tx("Held together"),tx("{n}% was the chance to fail.",{n:r.inst}))}</div>
     ${S.inv[it.id]>0?`<div class="actions"><button class="btn${isGear(it)&&!eqCount(it.id)?" primary":""}" data-open="${it.id}">${isGear(it)&&!eqCount(it.id)?tx("Equip or inspect"):tx("Inspect")}</button></div>`:""}`;

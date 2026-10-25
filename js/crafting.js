@@ -78,6 +78,14 @@ function statsOf(item){
   Object.keys(out).forEach(s=>out[s]=Math.round(out[s]*m[s]*scale));
   return out;
 }
+// Unrounded contributions for the optional UI breakdown; combat still uses statsOf().
+function statParts(item){
+  const form=FORMS[item.form].m,scale=(1+.03*(item.tier-1))*(item.legendary?1.2:1);
+  return topTraits(item.traits).map(([t,v],rank)=>({t,v,stats:Object.entries(TRAITS[t].s).map(([k,base])=>{
+    const priority=base<0?1:(DECAY[rank]??.1);
+    return {k,base,priority,form:form[k],scale,value:base*v*priority*form[k]*scale};
+  })}));
+}
 function power(it){const s=statsOf(it);return Math.round(s.atk+s.def+s.mag+s.spd*1.5+s.heal*.5)}
 // essences that went into a crafted item: stored as `ei` when it was forged (temper and reforge spread the item, so it survives them); older items count through recipeIds, and an older tempered piece with neither counts 1
 const essIn=(it,d=0)=>!it||!it.crafted||d>8?0:it.ei!=null?it.ei:it.recipeIds?it.recipeIds.reduce((n,r)=>n+(isEss(r)?1:essIn(S.items[r],d+1)),0):1;
