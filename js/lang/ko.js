@@ -19,7 +19,7 @@ DICT.ko=Object.assign(DICT.ko||{},{
 "howto.defeat":"<b>패배.</b> HP 30%로 지역 가장자리에서 깨어나며, 약탈자가 착용하지 않은 아이템 하나를 가져갑니다.",
 "howto.abilities":"<b>능력.</b> 무기 형태마다 고유 기술이 하나 있고(창은 찌르기, 지팡이는 속성 집중, 발톱은 찢기), 방패는 강타할 수 있습니다. 전투에서 추가 버튼으로 나타나며, 한 턴을 소모하고 이후 몇 턴의 재사용 대기가 필요합니다. 아이템을 살펴보면 수치를 볼 수 있습니다.",
 "howto.traits":"<b>특성 효과.</b> 화염은 불태우고, 냉기는 얼릴 수 있으며, 독은 중첩되고, 신성은 당신을 치유하고, 그림자는 생명력을 흡수하고, 예리함은 치명타를 높이고, 무거움은 방어구를 꿰뚫고, 신속은 추가 공격을 주고, 증기는 적이 빗나가게 합니다.",
-"howto.moves":"<b>적의 행동.</b> 특수 기술은 한 턴 전에 예고되며 생물이 붉게 빛납니다. 막기는 받는 피해를 60% 줄입니다. 예고된 특수 기술을 받아치기하면 막아내고 반격하지만, 받아치기가 빗나갈 수도 있습니다(<span data-k=\"pmiss\"></span>%의 확률). 타이밍을 놓친 받아치기나 일반 공격에 대한 받아치기는 피해를 25% 더 받고 다음 막기를 잃습니다. 회복 기술에 받아치기하면 끊어냅니다.",
+"howto.moves":"<b>적의 행동.</b> 특수 기술은 한 턴 전에 예고됩니다. 막기는 적의 행동 중 모든 타격의 피해를 <span data-k=\"gcut\"></span>% 줄이고 새 상태 이상을 막으며, 태세를 부여합니다. 다음 공격 또는 능력의 피해가 <span data-k=\"braced\"></span>% 증가합니다. 태세는 중첩되지 않으며 기존 상태 이상은 계속 적용됩니다. 받아치기는 예고된 특수 기술을 무효화하고 반격하거나 회복을 끊습니다. 성공률은 <span data-k=\"pbase\"></span>%에서 시작하여 특수 기술 훈련, 속도, 무기 형태에 따라 증가하며 최대 <span data-k=\"pcap\"></span>%입니다. 버튼에 현재 성공률이 표시됩니다. 연구로 훈련을 <span data-k=\"pranks\"></span>단계까지 높일 수 있습니다. 실패하거나 타이밍을 놓치면 피해를 25% 더 받고 다음 막기를 잃습니다.",
 "howto.armor":"<b>방어구.</b> 방어력은 받는 피해를 DEF/(DEF+<span data-k=\"defk\"></span>)만큼 줄이며 수확 체감이 있습니다. 방어력, 저항, 돌이 합쳐져도 한 번의 공격을 <span data-k=\"hitmax\"></span>% 넘게 줄일 수는 없습니다. 내 공격은 적의 방어력에 방어구/(방어구+공격의 절반)만큼 깎이므로 약한 공격도 통합니다. 마력은 공격에서 공격력의 <span data-k=\"magw\"></span>배로 계산됩니다.",
 "howto.statuses":"<b>상태 이상.</b> 일부 생물은 당신을 태우고, 얼리고, 중독시키거나 저주합니다. 몇 턴 동안 피해를 주거나 방해하며 전투가 끝나면 사라집니다. 의술 장비, 저항 장비, 일부 소모품(의술, 신성, 물, 영양)이 이를 떨쳐냅니다.",
 "howto.knowledge":"<b>지식.</b> 약점은 때려서, 저항은 막혀서, 특수 기술은 살아남아서, 능력치는 승리해서, 전리품은 발견해서 알게 됩니다. 연구는 사실 하나를 알려 주지만 한 턴을 소모합니다.",
@@ -182,6 +182,8 @@ DICT.ko=Object.assign(DICT.ko||{},{
 "A map was redrawn. Your expedition there starts fresh.":"지도가 새로 그려졌습니다. 그곳의 원정은 처음부터 시작합니다.","Heat {n} starts with your next expedition here.":"열기 {n}은(는) 이곳의 다음 원정부터 시작됩니다.","Your torch gutters out. The dark presses close.":"횃불이 꺼진다. 어둠이 가까이 밀려온다.",
 // ---- map
 "Fight":"전투","Elite":"엘리트","Chest":"상자","Shrine":"제단","Peddler":"행상인","Camp":"야영지","Mystery":"수수께끼","Anywhere":"어디든","hunter":"추격자","Last seen: ":"마지막 목격: ","hunting":"추격 중","dazed":"멍함","Unseen":"미확인","seen":"목격",
+"Stationary enemy":"대기하는 적","Wandering enemy":"배회하는 적","Chasing enemy":"추격하는 적",
+"Waits on its tile.":"자기 칸에서 기다립니다.","Roams between nearby tiles.":"근처 칸을 배회합니다.","Follows you after noticing you.":"당신을 발견하면 따라옵니다.",
 "Map key":"지도 범례","Step {dir}":"{dir}쪽으로 이동","north":"북","east":"동","south":"남","west":"서",
 "The {nm} catches your scent.":"{nm|이|가} 당신의 냄새를 맡았다.","The {nm} loses you.":"{nm|이|가} 당신을 놓쳤다.","The {nm} lunges out of the dark!":"{nm|이|가} 어둠 속에서 덮쳐 온다!","You slip away. The {name} is dazed and stays put for {n} steps.":"빠져나왔다. {name|은|는} 멍해져서 {n}걸음 동안 제자리에 머문다.",
 "You slip away. The {name} lets you go.":"빠져나왔다. {name|이|가} 당신을 놓아준다.","The {name} is dazed. It will not follow for {n} steps.":"{name|은|는} 멍해졌다. {n}걸음 동안 따라오지 않는다.",
@@ -268,5 +270,18 @@ DICT.ko=Object.assign(DICT.ko||{},{
 "{trait} infused into you. Rank {rank}.":"{trait|이|가} 몸에 주입되었습니다. {rank}단계.","{grade} {name}":"{grade} {name}",
 "Your rune ward absorbs {n}.":"룬 보호막이 {n}을(를) 흡수한다.","Your rune ward absorbs {n} and shatters.":"룬 보호막이 {n}을(를) 흡수하고 깨진다.","{status}, {t} turns left":"{status}, {t}턴 남음",
 "The peddler pockets your {give} and hands over the {get}. \"Anything else?\"":"행상인이 {give|을|를} 주머니에 넣고 {get|을|를} 건네준다. \"더 필요한 건?\"",
-"Grade":"등급"
+"Grade":"등급",
+// Guard, Braced and trained parries.
+"Cuts every hit in the enemy's action by {p}% and blocks new statuses.":"적의 행동 중 모든 타격의 피해를 {p}% 줄이고 새 상태 이상을 막습니다.",
+"Braced":"태세",
+"Your next Attack or ability deals {p}% more damage, including follow-up and off-hand strikes. Does not stack.":"다음 공격 또는 능력의 피해가 {p}% 증가합니다. 추가 공격과 보조 손 공격도 포함되며 중첩되지 않습니다.",
+"Gain Braced: your next Attack or ability deals {p}% more damage. Does not stack. Existing statuses still tick.":"태세를 얻습니다. 다음 공격 또는 능력의 피해가 {p}% 증가합니다. 중첩되지 않으며 기존 상태 이상은 계속 적용됩니다.",
+"Base {base}%; training {n}/{max} (+{study}%); Speed +{spd}%; weapon {form}%; cap {cap}%.":"기본 {base}%; 훈련 {n}/{max}(+{study}%); 속도 +{spd}%; 무기 {form}%; 최대 {cap}%.",
+"Off balance: you cannot parry this turn.":"균형을 잃어 이번 턴에는 받아칠 수 없습니다.",
+"Parry training {n}/{max}: Study raises your chance against this form's special by {p}% per rank, across battles.":"받아치기 훈련 {n}/{max}: 연구는 이 형태의 특수 기술에 대한 성공률을 단계마다 {p}% 높이며 다음 전투에도 유지됩니다.",
+"You brace yourself. Your next attack deals {p}% more damage.":"태세를 갖춥니다. 다음 공격의 피해가 {p}% 증가합니다.",
+"You practise its special. Parry training {n}/{max}.":"특수 기술에 대응하는 연습을 합니다. 받아치기 훈련 {n}/{max}.",
+"Study also improves your parry timing against this special, up to three ranks.":"연구는 이 특수 기술에 대한 받아치기 훈련도 최대 3단계까지 높입니다.",
+"Parry a telegraphed special to negate it and riposte. Your chance is shown on the button.":"예고된 특수 기술을 받아치면 무효화하고 반격합니다. 버튼에 성공률이 표시됩니다.",
+"Study, Speed and weapon form improve your odds. Guard blocks new statuses and strengthens your next attack.":"연구, 속도, 무기 형태가 성공률을 높입니다. 막기는 새 상태 이상을 막고 다음 공격을 강화합니다.",
 });

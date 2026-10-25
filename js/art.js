@@ -187,6 +187,8 @@ function portrait(id,o){
 // ================= ART: MAP + ICONS =================
 const NODE_G={
   fight:'<path d="M4 4 L14 14 M20 4 L10 14 M11 17 L7 13 M13 17 L17 13 M6 18 L8 16 M18 18 L16 16"/>',
+  wander:'<ellipse cx="7" cy="15.5" rx="3" ry="5" transform="rotate(-20 7 15.5)"/><ellipse cx="17" cy="8.5" rx="3" ry="5" transform="rotate(20 17 8.5)"/><path d="M4.5 13 L9.5 11.5 M14.5 11 L19.5 12.5"/>',
+  chase:'<circle cx="17" cy="7" r="4"/><path d="M3 21 L17 7 M10 7 H17 V14 M3 12 H7 M8 21 V17"/>',
   elite:'<path d="M7 10 A5 5 0 0 1 17 10 V13 L15 15 V18 H9 V15 L7 13 Z"/><path d="M7 9 L3 4 M17 9 L21 4"/><circle cx="10" cy="11" r="1"/><circle cx="14" cy="11" r="1"/>',
   boss:'<path d="M3 18 L5 7 L9 12 L12 5 L15 12 L19 7 L21 18 Z"/><path d="M3 21 H21"/>',
   chest:'<rect x="3" y="9" width="18" height="11" rx="1"/><path d="M3 9 Q12 2 21 9 M3 13 H21"/><rect x="10.5" y="11.5" width="3" height="4"/>',
@@ -291,16 +293,25 @@ const TILE_ART={
 };
 const tileSvg=(z,c,x,y)=>`<svg class="tart" viewBox="0 0 24 24" aria-hidden="true">${c==="~"?TILE_ART[z].water:TILE_ART[z].rock}</svg>`;
 const DIR_N=["north","east","south","west"];
+// Read the POI's actual movement (old maps and the gate guard stay still), never the species.
+const mapMove=p=>isUnl("roam")&&(p.mv==="wander"||p.mv==="chase")?p.mv:"still";
+const MOVE_INFO={
+  still:{ic:"fight",get name(){return tx("Stationary enemy")},get tip(){return tx("Waits on its tile.")}},
+  wander:{ic:"wander",get name(){return tx("Wandering enemy")},get tip(){return tx("Roams between nearby tiles.")}},
+  chase:{ic:"chase",get name(){return tx("Chasing enemy")},get tip(){return tx("Follows you after noticing you.")}}
+};
 function mapHtml(){
   const m=curMap(),z=S.zone,adj=busy()?[]:adjTiles(m),H=Math.round(400*m.h/m.w),boss=shortName(ZONES[zoneIdx(z)][2]);
   let cells="";
   for(let y=0;y<m.h;y++)for(let x=0;x<m.w;x++){
     const i=y*m.w+x,c=m.g[y][x],seen=m.sn[i],lit=litAt(m,x,y),here=m.pos.x===x&&m.pos.y===y,p=poiAt(m,x,y),t=!seen?null:lit?(p&&!p.done?p.t:null):m.mem[x+","+y]||null,k=adj.findIndex(a=>a[0]===x&&a[1]===y),en=lit&&p&&!p.done&&isFoe(p)?p:null,gh=!lit&&(t==="fight"||t==="elite"),ra=en&&RARITIES[en.rar]?RARITIES[en.rar]:null; // en: an enemy in the light now; gh: only where one was last seen; ra: its rarity, shown as a frame and affix pips
     const cls=`tl ${!seen?"unk":lit?"lit":"seen"}${c==="#"||c==="~"?" blk":""}${c===","?" brush":""}${t?" p-"+t:""}${here?" here":""}${k>=0?" adj":""}${t==="boss"?" lair":""}${gh?" ghost":""}${en&&en.aw?" aware":""}${en&&en.dz>0?" dazed":""}${en&&en.ms===m.steps?" moved":""}${ra?" r-"+en.rar:""}`;
-    const inner=`${seen&&(c==="#"||c==="~")?tileSvg(z,c):""}${t?icon(t):""}${en&&en.aw?`<b class="bdg bang" aria-hidden="true">!</b>`:""}${en&&en.dz>0?`<b class="bdg zz" aria-hidden="true">z</b>`:""}${ra?`<span class="afp" aria-hidden="true">${en.afx.map(a=>`<i style="background:${afxCol(a)}"></i>`).join("")}</span>`:""}${here?`<span class="hero">${icon("hero")}</span>`:""}`;
-    const lbl=t?`${gh?tx("Last seen: "):""}${ra?ra.name+" ":""}${NODE_INFO[t]}${ra?` (${en.afx.map(a=>tx(AFX[a].n)).join(", ")})`:""}${en&&en.aw?", "+tx("hunting"):""}${en&&en.dz>0?", "+tx("dazed"):""}`:"",tp=ra?" "+tt(`${ra.name} ${lc(NODE_INFO[t])}`,...en.afx.map(a=>`${tx(AFX[a].n)}: ${AFX[a].d()}`),tx("Drops: {list} essence. {rar}: {gs} than usual.",{list:en.afx.map(a=>trn(AFX[a].tr)).join(", "),rar:ra.name,gs:gsTxt(RARITIES[en.rar].gs)})):"";
+    const move=en?MOVE_INFO[mapMove(en)]:null;
+    const inner=`${seen&&(c==="#"||c==="~")?tileSvg(z,c):""}${t?icon(move?move.ic:gh?"fight":t):""}${en&&en.aw?`<b class="bdg bang" aria-hidden="true">!</b>`:""}${en&&en.dz>0?`<b class="bdg zz" aria-hidden="true">z</b>`:""}${ra?`<span class="afp" aria-hidden="true">${en.afx.map(a=>`<i style="background:${afxCol(a)}"></i>`).join("")}</span>`:""}${here?`<span class="hero">${icon("hero")}</span>`:""}`;
+    const lbl=t?`${gh?tx("Last seen: "):""}${ra?ra.name+" ":""}${NODE_INFO[t]}${move?", "+move.name:""}${ra?` (${en.afx.map(a=>tx(AFX[a].n)).join(", ")})`:""}${en&&en.aw?", "+tx("hunting"):""}${en&&en.dz>0?", "+tx("dazed"):""}`:"",tp=move?" "+tt(lbl,move.tip,...ra?[...en.afx.map(a=>`${tx(AFX[a].n)}: ${AFX[a].d()}`),tx("Drops: {list} essence. {rar}: {gs} than usual.",{list:en.afx.map(a=>trn(AFX[a].tr)).join(", "),rar:ra.name,gs:gsTxt(RARITIES[en.rar].gs)})]:[]):"";
     cells+=k>=0?`<button class="${cls}" data-tile="${x},${y}" aria-label="${esc(tx("Step {dir}",{dir:tx(DIR_N[DIRS.findIndex(d=>d[0]===x-m.pos.x&&d[1]===y-m.pos.y)])})+(t?`: ${lbl}${t==="boss"?`, ${boss}`:""}`:""))}"${tp}>${inner}</button>`:`<div class="${cls}"${t?` aria-label="${esc(lbl)}"`:""}${tp}>${inner}</div>`}
-  const legend=Object.entries(NODE_INFO).filter(([t])=>!UNL[t]||isUnl(t)).map(([t,l])=>`<span>${icon(t)}${l}</span>`).join("")+`<span>${icon("hero")}${tx("You")}</span><span class="lg-fog"><i></i>${tx("Unseen")}</span>${isUnl("roam")?`<span><b class="bdg bang">!</b>${tx("hunting")}</span><span><b class="bdg zz">z</b>${tx("dazed")}</span>`:""}${isUnl("elite")?`<span class="lg-r m"><i></i>${RARITIES.magic.name}</span><span class="lg-r r"><i></i>${RARITIES.rare.name}</span>`:""}<span class="lg-gh">${icon("fight")}${tx("seen")}</span>`;
+  const foes=(isUnl("roam")?Object.values(MOVE_INFO):[MOVE_INFO.still]).map(move=>`<span ${tt(move.name,move.tip)}>${icon(move.ic)}${move.name}</span>`).join("");
+  const legend=foes+Object.entries(NODE_INFO).filter(([t])=>t!=="fight"&&t!=="elite"&&(!UNL[t]||isUnl(t))).map(([t,l])=>`<span>${icon(t)}${l}</span>`).join("")+`<span>${icon("hero")}${tx("You")}</span><span class="lg-fog"><i></i>${tx("Unseen")}</span>${isUnl("roam")?`<span><b class="bdg bang">!</b>${tx("hunting")}</span><span><b class="bdg zz">z</b>${tx("dazed")}</span>`:""}${isUnl("elite")?`<span class="lg-r m"><i></i>${RARITIES.magic.name}</span><span class="lg-r r"><i></i>${RARITIES.rare.name}</span>`:""}<span class="lg-gh">${icon("fight")}${tx("seen")}</span>`;
   const ml=(m.log||[]).slice(-3),fresh=m.ls===m.steps,lg=ml.slice(0,-1).map(l=>`<li>${l}</li>`).join(""); // the newest line sits in the status strip; the two before it show here; the screen reader hears the newest
   return `<div class="mapwrap"><div class="map z-${z}" style="--w:${m.w}">${terrain(z,H,m.seed||7)}<div class="tls">${cells}</div></div></div>${lg?`<ul class="mlog">${lg}</ul>${fresh?`<p class="sr" role="status">${ml[ml.length-1]}</p>`:""}`:""}<details class="legend" id="legend"${legendOpen?" open":""}><summary>${ic("list","s")} ${tx("Map key")}</summary><div>${legend}</div></details>`;
 }

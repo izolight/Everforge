@@ -30,6 +30,8 @@ const spEvery=(E,h)=>E.boss&&h>=4?Math.max(2,E.sp.every-1):E.sp.every;
 // the enemy as it fights now: a phased boss swaps in its second form's fields
 const foeOf=B=>{const E=ENEMIES[B.id];return B.phased&&E.phase?{...E,...E.phase.to}:E};
 const isSpecial=B=>{const sp=foeOf(B).sp;return sp&&B.turn%(B.spEvery||sp.every)===0};
+// Keep the displayed percentage and the actual roll identical (whole percentage points).
+const parryChance=(B,P=pstats())=>B.off>0?0:Math.round(Math.min(PARRY_T.cap,Math.max(0,PARRY_T.base+parryLevel(B)*PARRY_T.study+Math.min(PARRY_T.spdCap,P.spd*PARRY_T.spd)+(PARRY_T.form[P.main&&P.main.form]||0)))*100)/100;
 function eff(traits,B){
   const ent=topTraits(traits).filter(([t])=>TRAITS[t].f!=="bad");
   const w=ent.find(([t])=>B.weak.includes(TRAITS[t].f));if(w)return{m:1.5,t:w[0],f:TRAITS[w[0]].f,k:"weak"};
@@ -41,6 +43,7 @@ const dealt=(B,n)=>{S.stats.dealt+=Math.max(0,Math.min(n,B.hp))}; // damage deal
 const stOf=()=>S.battle.you||(S.battle.you={});
 const cures=tr=>[...new Set(Object.keys(tr).filter(t=>tr[t]>0&&CURES[t]).flatMap(t=>CURES[t]))];
 function inflict(B,P,sp){ // enemy hit landed: maybe afflict you; your element resist lowers the odds
+  if(B.guard)return; // Guard prevents new statuses, but does not cleanse existing ones.
   const Y=stOf(),E=foeOf(B);let l=E.inf?[E.inf]:[];const et=elTr(B);if(et&&ELITE_INF[et]&&!(E.inf&&E.inf.s===ELITE_INF[et]))l.push({s:ELITE_INF[et],ch:ELITE_INF_CH});
   const hot=twistNow()==="cinder",hm=B.heat>=3?HEAT_T.inf:1;
   if(hot)l=l.some(x=>x.s==="burn")?l.map(x=>x.s==="burn"?{...x,ch:x.ch*2}:x):[...l,{s:"burn",ch:.3}];
@@ -56,13 +59,18 @@ function tickYou(B,P){
   if(P.cleanse&&live.length&&S.hp>0&&Math.random()*100<Math.min(CLEANSE_CAP,P.cleanse*CLEANSE_PER)){const s=pick(live);delete Y[s];S.stats.cured++;blog(tx("Your gear helps you shake off the {status}.",{status:lc(STATUS[s].n)}),"good")}
   Object.keys(Y).forEach(s=>{if(--Y[s].t<=0){delete Y[s];blog(tx("The {status} fades.",{status:lc(STATUS[s].n)}),"good")}})}
 function healYou(n,why){const P=pstats(),b=S.hp;if(S.battle&&!S.battle.over&&stOf().curse)n=Math.ceil(n/2);S.hp=Math.min(P.maxHp,S.hp+n);const got=S.hp-b;if(got>0){fx("youHud","+"+got,"heal");if(why&&S.battle&&!S.battle.over)blog(tx("{why} (+{n} HP).",{why,n:got}),"good")}return got}
+let strikeBonus=0;
+function bracedAttack(B,fn){ // scoped to this action: all its strikes, never the enemy's turn or a riposte
+  const prev=strikeBonus;strikeBonus=B.braced?GUARD_T.braced:0;B.braced=false;
+  try{return fn()}finally{strikeBonus=prev}
+}
 function strike(W,pow,label,inn,o){
   o=o||{};
   const B=S.battle,E=foeOf(B),tr=inn?withInnate(W?W.traits:{}):(W?W.traits:{}),v=t=>tr[t]||0,mast=know(B.id).mastered?1.15:1;
   if(!o.sure&&hasAfx(B,"elusive")&&Math.random()*100<dodgeOf(B,tr)){blog(tx("It slips aside."),"foe");fx("enemyHud","miss","");return{dmg:0,crit:false,miss:true}} // Elusive: a visible dodge chance (a riposte always lands)
   let ef=eff(tr,B);const arc=ef.k==="resist"&&v("Arcane")&&Math.random()*100<Math.min(ARC_CAP,v("Arcane")*ARC_PER);if(arc){ef={m:1};blog(tx("Arcane power cuts through its resistance."),"you")}
   const crit=Math.random()*100<Math.min(CRIT_CAP,5+v("Sharp")*3),pierce=Math.min(v("Heavy")?.4:1,1-(o.pen||0));
-  const base=pow*.5,arm=Math.max(0,B.def-(B.shred||0))*pierce,dmg=Math.max(1,Math.round(base*base/(base+arm)*ef.m*mast*(crit?1.75:1)*vary())); // armor takes a share of a blow, never all of it
+  const base=pow*.5,arm=Math.max(0,B.def-(B.shred||0))*pierce,dmg=Math.max(1,Math.round(base*base/(base+arm)*ef.m*mast*(crit?1.75:1)*vary()*(1+strikeBonus))); // armor takes a share of a blow, never all of it
   const st=S.stats,ab=wardCut(B,dmg),real=dmg-ab; // a Warded foe's shield soaks the blow first
   dealt(B,real);B.hp-=real;if(crit)st.crits++;if(dmg>st.big){st.big=dmg;st.bigW=W?W.id:o.bw||"Fists"}
   fx("enemyHud",real?"-"+real:"ward",crit?"crit":"");fx("foeArt","","hit");
@@ -82,9 +90,11 @@ function strike(W,pow,label,inn,o){
 }
 function attack(){
   const P=pstats(),B=S.battle;
+  bracedAttack(B,()=>{
   strike(P.main,P.atk+P.mag*MAG_W,P.main?tx("You strike with {weapon}",{weapon:iname(P.main)}):tx("You punch"),true);
   if(B.hp>0&&!stOf().chill&&Math.random()*100<Math.min(35,P.spd*3))strike(P.main,P.atk+P.mag*MAG_W,tx("A swift follow-up hits"),true);
   if(B.hp>0&&P.offW)strike(P.offW,P.offPow*2,tx("Your off-hand {weapon} adds",{weapon:iname(P.offW)}));
+  });
   afterPlayer();
 }
 const abKeys=P=>[P.main&&ABILITIES[P.main.form]&&P.main.form,P.shield&&"shield"].filter(Boolean);
@@ -94,6 +104,7 @@ function ability(key){
   if(!A||cd[key]>0||!abKeys(P).includes(key))return;
   S.stats.abil++;
   let bonus=0;
+  bracedAttack(B,()=>{
   if(key==="blade"){for(let i=0;i<A.hits&&B.hp>0;i++)strike(W,n*A.x,i?tx("A second cut lands"):tx("Flurry! You cut"),true)}
   else if(key==="spear")strike(W,n*A.x,tx("You lunge"),true,{pen:A.pen});
   else if(key==="staff"){const tr=withInnate(W.traits),el=Object.entries(ELS).map(([e,l])=>[e,l.reduce((a,t)=>a+(tr[t]||0),0)]).sort((a,b)=>b[1]-a[1])[0];
@@ -108,14 +119,17 @@ function ability(key){
     if(!r.miss&&B.hp>0){const sp=isSpecial(B)?foeOf(B).sp:null,E0=ENEMIES[B.id],shift=E0.phase&&!B.phased&&B.hp<=B.max*E0.phase.at; // a form change eats the turn anyway
       if(sp&&!shift&&Math.random()<(boss?A.bossInt:A.int)){B.stun=2;blog(tx("The bash throws the {name} off {sp}!",{name:bname(B),sp:tx(sp.name)}),"big");learn(B.id,B.phased?"sp2":"sp",1)}
       else if(!sp&&Math.random()<(boss?A.bossStun:A.stun)){B.stun=1;blog(tx("The {name} is rattled!",{name:bname(B)}),"big")}}}
+  });
   cd[key]=A.cd+1-bonus;afterPlayer();
 }
-function guard(){const B=S.battle;if(B.off>0)blog(tx("You're off balance. Your guard falters."),"foe");else{B.guard=true;blog(tx("You raise your guard."),"you")}enemyTurn()}
+function guard(){const B=S.battle;if(B.off>0)blog(tx("You're off balance. Your guard falters."),"foe");else{B.guard=true;B.braced=true;blog(tx("You raise your guard."),"you");blog(tx("You brace yourself. Your next attack deals {p}% more damage.",{p:Math.round(GUARD_T.braced*100)}),"good")}enemyTurn()}
 function parry(){const B=S.battle;if(B.off>0)blog(tx("You're off balance. Your parry falters."),"foe");else{B.parry=true;blog(tx("You wait for an opening..."),"you")}enemyTurn()}
 function study(){
   const B=S.battle,u=unknownFacts(B.id);S.stats.studied++;
+  const train=canTrainParry(B);
+  if(train){const K=cx(B.id),n=parryLevel(B)+1;K.timing=K.timing||{};K.timing[parryKey(B)]=n;blog(tx("You practise its special. Parry training {n}/{max}.",{n,max:PARRY_T.levels}),"you")}
   if(hasAfx(B,"elusive")&&(B.sty||0)<AFX_T.dodge.studyMax){B.sty=(B.sty||0)+1;blog(tx("You read the {name}'s movements. It slips aside less often ({n}%).",{name:bname(B),n:dodgeNow(B)}),"you")}
-  if(!u.length){blog(tx("You already know everything about it."),"");return enemyTurn()}
+  if(!u.length){if(!train)blog(tx("You already know everything about it."),"");return enemyTurn()}
   const [type,val]=pick(u);blog(tx("You study the {name} closely...",{name:bname(B)}),"you");learn(B.id,type,val);enemyTurn();
 }
 function useItem(id){
@@ -142,7 +156,7 @@ function afterPlayer(){if(S.battle.hp<=0)return enemyDown();enemyTurn()}
 // the line for a plain enemy hit: English splices the species' verb ("gores you"), other languages have one template per verb with {name}, {n} and {g} (the guard note)
 const hitMsg=(B,E,n)=>LANG==="en"?`The ${bname(B)} ${E.verb} for ${n}${B.guard?" through your guard":""}.`:fmt(txc("hit",E.verb),{name:bname(B),n,g:B.guard?" "+tx("through your guard"):""});
 // one enemy hit after resist, armor, Stone and guard/parry (vf = damage variance)
-const foeHit=(B,P,mult,vf)=>{const raw=B.atk*mult*vf*(B.guard?.4:1)*(B.open?1+ABILITIES.lance.open:1)*(B.parry?PARRY_FAIL:1),red=B.heat>=5?redOf(P.def*(1-HEAT_T.bite)):P.red;
+const foeHit=(B,P,mult,vf)=>{const raw=B.atk*mult*vf*(B.guard?1-GUARD_T.cut:1)*(B.open?1+ABILITIES.lance.open:1)*(B.parry?PARRY_FAIL:1),red=B.heat>=5?redOf(P.def*(1-HEAT_T.bite)):P.red;
   return Math.max(1,Math.round(raw*HIT_MIN),Math.round(raw*(1-(P.rs[B.el]||0)/100)*(1-red)-(P.dr||0)))}; // resist, armor and Stone together never take more than 1-HIT_MIN of a hit; Heat 5 bites through part of your Defense
 // true when this zone's regular enemies (at map row 3) already hit you for the HIT_MIN floor, so more Defense, resist or Stone would change nothing here
 const atFloor=P=>{const es=Object.values(ENEMIES).filter(e=>e.zone===S.zone&&!e.boss);return es.length>0&&es.every(e=>{const a=Math.round(e.atk*1.18);return foeHit({atk:a,heat:0,el:e.el},P,1,1)<=Math.max(1,Math.round(a*HIT_MIN))})};
@@ -159,7 +173,7 @@ function enemyTurn(){
   if(ENEMIES[B.id].phase&&!B.phased&&B.hp<=B.max*ENEMIES[B.id].phase.at){ // second form: it spends the turn changing
     const ph=ENEMIES[B.id].phase;B.phased=true;B.el=ph.to.el;B.weak=[...ph.to.weak];B.resist=[...ph.to.resist];B.stun=0;B.frozen=false;B.guard=false;B.parry=false;B.burn=null;B.poison=0;B.bleed=null;
     B.spEvery=spEvery(foeOf(B),B.heat||0);blog(tx(ph.msg),"big");learn(B.id,"ph",1);return endShift(B)}
-  const E=foeOf(B),sp=isSpecial(B)?E.sp:null,pr=B.parry&&sp&&Math.random()<PARRY_CH; // a parry on a telegraphed special can still be mistimed
+  const E=foeOf(B),sp=isSpecial(B)?E.sp:null,pr=B.parry&&sp&&Math.random()<parryChance(B,P); // roll before learning this special, using the chance shown on the button
   if(B.frozen){B.frozen=false;B.stun=0;blog(tx("The {name} is frozen and can't act.",{name:bname(B)}),"good")}
   else if(B.stun){blog(B.stun===2&&sp?tx("{sp} is cancelled. The {name} can't act.",{sp:tx(sp.name),name:bname(B)}):tx("The {name} is stunned and can't act.",{name:bname(B)}),"good");B.stun=0}
   else if(sp&&sp.kind==="heal"&&pr){blog(tx("You break the {name}'s concentration. {sp} fizzles!",{name:bname(B),sp:tx(sp.name)}),"good");learn(B.id,B.phased?"sp2":"sp",1)}

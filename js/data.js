@@ -234,7 +234,9 @@ const ARC_PER=12,ARC_CAP=60,WARD_PER=4,WARD_CAP=40,THORN_PER=4,THORN_CAP=30,STON
 // statuses enemies inflict on you: el = resisting element (P.rs), t = turns; cures = traits on consumables that clear them
 const STATUS={burn:{get n(){return tx("Burn")},el:"fire",t:3,get tip(){return tx("damage each turn")}},chill:{get n(){return tx("Chill")},el:"ice",t:3,get tip(){return tx("no swift follow-ups, half dodge")}},poison:{get n(){return tx("Poison")},el:"poison",t:4,get tip(){return tx("stacking damage each turn")}},curse:{get n(){return tx("Curse")},el:"shadow",t:4,get tip(){return tx("healing you receive is halved")}}};
 const INF_MSG={burn:"You catch fire",chill:"A numbing chill sets in",poison:"Venom seeps into your blood",curse:"A curse withers you"};
-const ELITE_INF={Fire:"burn",Ice:"chill",Poison:"poison",Shadow:"curse"},ELITE_INF_CH=.25,POISON_STACK=3,CLEANSE_PER=6,CLEANSE_CAP=50,PARRY_X=1.5,PARRY_FAIL=1.25,PARRY_CH=.8; // PARRY_CH: chance a parry on a telegraphed special lands (a miss leaves you open)
+const ELITE_INF={Fire:"burn",Ice:"chill",Poison:"poison",Shadow:"curse"},ELITE_INF_CH=.25,POISON_STACK=3,CLEANSE_PER=6,CLEANSE_CAP=50,PARRY_X=1.5,PARRY_FAIL=1.25;
+const GUARD_T={cut:.6,braced:.3}; // all hits in the enemy action; Braced boosts the next Attack or ability, once
+const PARRY_T={base:.65,study:.05,levels:3,spd:.005,spdCap:.05,cap:.9,form:{blade:.05,spellblade:.05,claws:.05,lance:-.05,warstaff:-.05}};
 // signature abilities by weapon form (+ shield): cd = turns before reuse, x = power vs a normal attack
 const ABILITIES={
   blade:{get name(){return tx("Flurry")},icon:"flurry",cd:3,hits:2,x:.7,get desc(){return tx("Two quick strikes at 0.7x each. Each can crit.")}},
@@ -309,9 +311,9 @@ const boss1=s=>(s.kills[ZONES[0][2]]|0)>0,abOf=s=>[s.eq.main,s.eq.off].some(id=>
 const UNLOCKS=[
   {id:"start",name:"The map",ic:"hero",q:1,when:()=>true,i:{t:"Your first expedition",l:["Tap a glowing tile next to you to step. Fights drop loot, and a camp waits before the boss.","In a fight: Attack, Guard or Flee. Your torch burns down as you walk."],tab:"battle",sel:".tl.adj"}},
   {id:"study",name:"Study",ic:"study",when:s=>s.wins>=1,used:s=>s.stats.studied>0,txt:"Win your first battle.",w:"It joins the action buttons.",
-    i:{t:"Study",l:["Spend a turn to learn one fact about a foe: a weakness, a resistance or its strength.","A weakness you have found makes your blows hit 50% harder."],ctx:"battle",sel:"#study"}},
+    i:{t:"Study",l:["Spend a turn to learn one fact about a foe: a weakness, a resistance or its strength.","Study also improves your parry timing against this special, up to three ranks."],ctx:"battle",sel:"#study"}},
   {id:"parry",name:"Parry",ic:"parry",used:s=>s.stats.parries>0||s.wins>=3,txt:"Meet a creature that winds up a special move.",w:"It joins the action buttons.",
-    i:{t:"It's winding up",l:["Parry to turn it aside. Against a telegraphed special it negates the blow and strikes back.","Mistimed, or against a normal attack, it backfires. Guard is the safe choice."],ctx:"battle",sel:"#parry"}},
+    i:{t:"It's winding up",l:["Parry a telegraphed special to negate it and riposte. Your chance is shown on the button.","Study, Speed and weapon form improve your odds. Guard blocks new statuses and strengthens your next attack."],ctx:"battle",sel:"#parry"}},
   {id:"ability",name:"Weapon abilities",ic:"attack",when:s=>(lvOf(s.xp)>=2||s.wins>=3)&&abOf(s),used:s=>s.stats.abil>0,txt:"Equip a weapon with a signature move at Smith Lv 2, or after 3 wins.",w:"It joins the action buttons in your next fight.",
     i:{t:"Weapon abilities",l:["Every weapon form has one signature move, and a shield can bash.","It takes your turn, then needs a few turns to cool down."],ctx:"battle",sel:".ab"}},
   {id:"roam",name:"Roaming enemies",ic:"fight",q:1,when:s=>s.wins>=1},

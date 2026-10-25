@@ -1,5 +1,10 @@
 // ================= CODEX =================
 function cx(id){return S.codex[id]||(S.codex[id]={weak:[],resist:[],sp:false,stats:false,drops:[]})}
+// Timing is optional on old saves. Seeing a special gives rank I; Study trains it to III.
+// A phase-changing boss has separate timing for each form.
+const parryKey=B=>B.phased?"sp2":"sp";
+function parryLevel(B){const K=S.codex[B.id]||{},n=K.timing&&K.timing[parryKey(B)];return Math.max(K[parryKey(B)]?1:0,Math.min(PARRY_T.levels,Number.isFinite(n)?Math.max(0,Math.floor(n)):0))}
+const canTrainParry=B=>!!foeOf(B).sp&&parryLevel(B)<PARRY_T.levels;
 // every weak/resist family a creature can show, across its forms
 const allFacts=(E,k)=>[...new Set([...E[k],...(E.phase?E.phase.to[k]:[])])];
 function know(id){const E=ENEMIES[id],K=S.codex[id]||{weak:[],resist:[],drops:[]};
@@ -25,4 +30,5 @@ function learn(id,type,val){
 }
 function unknownFacts(id){const E=S.battle&&S.battle.id===id?foeOf(S.battle):ENEMIES[id],K=cx(id),out=[];
   E.weak.filter(f=>!K.weak.includes(f)).forEach(f=>out.push(["weak",f]));E.resist.filter(f=>!K.resist.includes(f)).forEach(f=>out.push(["resist",f]));
-  if(!K.sp)out.push(["sp",1]);if(!K.stats)out.push(["stats",1]);return out}
+  const sk=S.battle&&S.battle.id===id?parryKey(S.battle):"sp";
+  if(E.sp&&!K[sk])out.push([sk,1]);if(!K.stats)out.push(["stats",1]);return out}

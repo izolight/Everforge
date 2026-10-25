@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // Balance simulator: plays battles and whole expeditions in the real game code (startBattle, attack, parry, ability, useItem, visit, pstats...)
 // in headless Chromium, with render/save/fx/sfx/toast stubbed. Kits are crafted with the real combine().
-// Usage: node tools/sim.js [--n 40] [--zone woods,pass] [--enemy wolf,archon] [--kit melee,spire-end] [--heat 0,3,5] [--policy smart,basic,passive]
+// Usage: node tools/sim.js [--n 40] [--zone woods,pass] [--enemy wolf,archon] [--kit melee,spire-end] [--heat 0,3,5] [--policy smart,basic,passive,guard,parry]
 //        [--fresh (the first expeditions with the unlock gates on, --exped 5)] [--seed 7] [--trace (prints one battle log per cell, then exits)] [--elite (adds magic + and rare * variants)] [--rarity (the rarity table only)] [--row 3] [--all] [--attrition] [--no-mastered] [--jobs 4] [--out sim.json] [--econ-only | --no-econ] [--exped 30]
 const {chromium}=require("playwright"),path=require("path"),fs=require("fs"),os=require("os");
 const URL="file://"+path.resolve(__dirname,"..","index.html");
@@ -90,15 +90,34 @@ function setup(){ // runs inside the game page; everything here uses the real ga
       crit:Math.round(Math.min(CRIT_CAP,5+(P.main?withInnate(P.main.traits).Sharp||0:0)*3)),abil:abKeys(P),main:P.main&&P.main.name,form:P.main&&P.main.form,shield:!!P.shield,infuse:{...S.infuse},ess,refine:refs.reduce((n,g)=>n+upCost(g),0),tries:Math.round(tries*10)/10,crafts:nc,fizz:Math.round(fizz*10)/10,warn,gear,heals:Object.keys(S.inv).filter(id=>grp(S.items[id])==="consumable").map(id=>`${S.items[id].name} x${S.inv[id]} (${medHeal(S.items[id])})`)};
     return {snap:JSON.stringify(S),sum};
   };
-  const POL={
-    passive:()=>attack(),
-    basic:B=>{const sp=isSpecial(B)?foeOf(B).sp:null;if(sp&&sp.kind!=="heal"&&!B.frozen&&!B.stun&&!(B.off>0))guard();else attack()},
-    smart:B=>{const sp=isSpecial(B)?foeOf(B).sp:null,P=pstats();
-      if(sp&&!B.frozen&&!B.stun&&!(B.off>0))return parry(); // the telegraph is reliable, so the bot always parries a special; the game itself rolls PARRY_CH in enemyTurn, so a parry misses one time in five (and a hit parry breaks a heal)
+  // guard/parry use the same healing and abilities as smart, changing only the response to a telegraph.
+  const smartTurn=(B,defense="smart")=>{const sp=isSpecial(B)?foeOf(B).sp:null,P=pstats();
+      if(sp&&!B.frozen&&!B.stun&&!(B.off>0)&&!(defense==="guard"&&sp.kind==="heal")){
+        if(defense==="parry")return parry();
+        if(defense==="guard")return guard();
+        if(sp.kind==="heal")return parry(); // Guard cannot interrupt a heal.
+        const hits=sp.kind==="multi"?sp.n:1,ward=B.ward||0,ch=parryChance(B,P);
+        const damage=(guarding,parrying,vf)=>Math.max(0,foeHit({...B,guard:guarding,parry:parrying},P,sp.x,vf)*hits-ward);
+        const fail=damage(false,true,1),safe=damage(true,false,1);
+        // Prefer certainty if a failed parry could kill us but Guard can survive even a high roll.
+        const lethal=damage(false,true,1.15)>=S.hp,guardLives=damage(true,false,1.15)<S.hp;
+        if(lethal)return guardLives?guard():parry();
+        // Expected HP cost minus counterattack value: Guard's non-stacking Braced versus a successful riposte.
+        const pow=(P.atk+P.mag*MAG_W)*.5,hit=pow*pow/(pow+Math.max(0,B.def-(B.shred||0))),braced=B.braced?0:hit*GUARD_T.braced;
+        const parryCost=(1-ch)*fail-ch*hit*PARRY_X,guardCost=safe-braced;
+        // A guarded hit cannot inflict statuses; price the likely extra DOT/healing penalty into the risk.
+        const E=foeOf(B),inf=E.inf,et=elTr(B),statusRisk=inf||et&&ELITE_INF[et]||twistNow()==="cinder";
+        const statusCost=statusRisk?(1-ch)*B.atk*.4:0;
+        return guardCost<=parryCost+statusCost?guard():parry();
+      }
       if(S.hp<P.maxHp*.35){const hs=Object.keys(S.inv).filter(id=>S.inv[id]>0&&grp(S.items[id])==="consumable"&&medHeal(S.items[id])>0).sort((a,b)=>medHeal(S.items[b])-medHeal(S.items[a]));if(hs.length)return useItem(hs[0])}
       if(hasAfx(B,"boom")&&B.hp<=B.max*AFX_T.boom.warn&&S.hp<=blastOf(B)*1.6){const hs=Object.keys(S.inv).filter(id=>S.inv[id]>0&&grp(S.items[id])==="consumable"&&medHeal(S.items[id])>0).sort((a,b)=>medHeal(S.items[b])-medHeal(S.items[a]));if(hs.length)return useItem(hs[0])} // a Volatile foe is about to burst: heal first, as the NEXT row says
       const ready=abKeys(P).find(a=>!(B.cd&&B.cd[a]>0));if(ready)return ability(ready);
-      attack()}
+      attack()};
+  const POL={
+    passive:()=>attack(),
+    basic:B=>{const sp=isSpecial(B)?foeOf(B).sp:null;if(sp&&sp.kind!=="heal"&&!B.frozen&&!B.stun&&!(B.off>0))guard();else attack()},
+    smart:B=>smartTurn(B),guard:B=>smartTurn(B,"guard"),parry:B=>smartTurn(B,"parry")
   };
   // one fight on a fresh copy of the kit's save; returns {w,t,hp}
   // the affixes a magic/rare variant carries: the first cycles through every affix the species can roll (Swift-footed needs a mover), the rest are rolled
