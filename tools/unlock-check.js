@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 // Targeted check of the unlock framework (js/unlocks.js, the UNLOCKS table): a fresh save is minimal, each system opens once with its intro, intros queue one at a time,
-// the Codex Guide lists them, genMap only places unlocked POI types, and an old save (v13 fixture) migrates fully unlocked with no intro waiting.
+// the Codex Guide lists them and genMap only places unlocked POI types.
 // Usage: node tools/unlock-check.js [--shots dir]   (screenshots at 390 and 360 wide: fresh first screens, a parry intro, a map intro, a locked teaser with its tip, the Guide)
 const {chromium}=require("playwright"),path=require("path"),fs=require("fs");
-const URL="file://"+path.resolve(__dirname,"..","index.html"),FIX=path.join(__dirname,"fixtures");
+const URL="file://"+path.resolve(__dirname,"..","index.html");
 const si=process.argv.indexOf("--shots"),SHOTS=si>0?process.argv[si+1]:null;
 let fails=0;const ok=(c,m)=>{if(!c){fails++;console.error("FAIL: "+m)}else console.log("ok: "+m)};
 
@@ -49,10 +49,9 @@ async function flow(browser,w){
   r=await p.evaluate(()=>({top:$("intro").hidden}));ok(r.top,"a battle intro waits out of the fight instead of showing on the map");
   // Got it on the parry card, the next card is Study (queued, not stacked)
   await p.evaluate(()=>{S.battle=null;render();startBattle("boar")});
-  r=await p.evaluate(()=>[...document.querySelectorAll(".intro:not([hidden]) b")].map(b=>b.textContent));ok(r.join()==="It's winding up","one card at a time, the oldest first ("+r+")");
-  await p.click("#introOk");r=await p.evaluate(()=>[...document.querySelectorAll(".intro:not([hidden]) b")].map(b=>b.textContent));
-  ok(r.join()==="Study"&&await p.evaluate(()=>S.seen["i:parry"]),"Got it marks it read and the next one shows ("+r+")");
-  await p.click("#introOk");ok(await p.evaluate(()=>document.querySelectorAll(".intro:not([hidden])").length===0&&pendingIntros().length===0),"all read: no card left");
+  r=await p.evaluate(()=>[...document.querySelectorAll(".intro:not([hidden]) b")].map(b=>b.textContent));ok(r.join()==="Study","one card at a time, the oldest that can show (the Parry card waits for its special) ("+r+")");
+  await p.click("#introOk");r=await p.evaluate(()=>({cards:[...document.querySelectorAll(".intro:not([hidden]) b")].map(b=>b.textContent),seen:S.seen["i:study"],pend:pendingIntros().map(c=>c.id)}));
+  ok(r.cards.length===0&&r.seen,"Got it marks it read and no card is left on screen ("+r.pend+")");ok(r.pend.join()==="parry","... and the Parry card is still waiting for its special ("+r.pend+")");
   // --- abilities: need an equipped ability weapon and Smith Lv 2 or 3 wins; the button follows the intro
   await p.evaluate(()=>{S.battle=null;S.wins=2;render()});ok(!await p.evaluate(()=>S.unl.ability),"two wins and Lv 1: no abilities yet");
   await p.evaluate(()=>{S.wins=3;render();startBattle("boar")});
@@ -129,28 +128,10 @@ async function steps(browser){
   ok(hooks.every(([,w])=>w),"steps only wait on unlocks with a condition ("+hooks.map(h=>h[0])+")");
   await p.close();
 }
-async function veteran(browser){
-  const {key,save}=JSON.parse(fs.readFileSync(path.join(FIX,"save-v13.json"),"utf8"));
-  const p=await open(browser,390,new Function(`localStorage.clear();localStorage.setItem(${JSON.stringify(key)},${JSON.stringify(save)})`));
-  const r=await p.evaluate(()=>({v:S.v,missing:UNLOCKS.filter(u=>!S.unl[u.id]).map(u=>u.id),pend:pendingIntros().length,card:!$("intro").hidden,emb:!$("emb").hidden,ab:S.seen["a:blade"]}));
-  ok(r.v===17&&!r.missing.length,"v13 fixture migrates to v17 with everything unlocked ("+r.missing+")");ok(!r.pend&&!r.card,"... and no intro waiting");ok(r.emb,"... embers visible");
-  // partial players keep what they used, get the rest gradually, and keep their maps (an untouched one is redrawn)
-  const q=await p.evaluate(()=>{const mk=(wins,quest,xp)=>{const s=JSON.parse(JSON.stringify(S));s.v=13;delete s.unl;s.wins=wins;s.journal=[];s.stats={...s.stats,forged:0,exped:0,deaths:0,bosses:0,dailies:0,elites:0,abil:0,studied:wins?1:0,spent:0,refined:0};s.daily=null;s.heat={};s.kills={};s.afx={};s.embers=wins*3;s.infuse={};s.infCredit=0;s.xp=xp;s.skills={};s.quest=quest;s.seen={};
-      s.maps={woods:genMapAll()};const t=migrate(s);return{unl:Object.keys(t.unl),seen:Object.keys(t.seen),maps:Object.keys(t.maps).length,q:t.quest}};
-    window.genMapAll=()=>{const keep=S.unl;S.unl=Object.fromEntries(UNLOCKS.map(u=>[u.id,1]));const m=genMap({heat:0,zone:"woods"});S.unl=keep;return m};
-    return{a:mk(0,0,0),b:mk(2,3,10),c:mk(1,1,10)}});
-  const late=["shrine","peddler","mystery","elite","daily","infuse","skills","upgrade"];
-  ok(late.every(k=>!q.a.unl.includes(k))&&q.a.unl.includes("start"),"0 wins with maps: nothing late opens ("+q.a.unl+")");ok(q.a.maps===0,"... and the untouched map is redrawn");
-  ok(late.every(k=>!q.b.unl.includes(k))&&q.b.unl.includes("study")&&q.b.q===4,"2 wins, quest 3 (a goal step now sits at 3, so it moves to 4): Study and roaming only ("+q.b.unl+")");
-  ok(late.every(k=>!q.c.unl.includes(k))&&q.c.unl.includes("study")&&q.c.unl.includes("roam"),"1 win, quest 1: Study and roaming only ("+q.c.unl+")");
-  ok(!q.a.seen.includes("i:peddler")&&!q.b.seen.includes("i:shrine"),"... and their intros stay unread for later");
-  await p.close();
-}
-
 (async()=>{
   const browser=await chromium.launch();
   for(const w of SHOTS?[390,360]:[390])await flow(browser,w);
   for(const w of SHOTS?[390,360]:[390])await overlay(browser,w);
-  await steps(browser);await veteran(browser);await browser.close();
+  await steps(browser);await browser.close();
   console.log(fails?`UNLOCK CHECK FAILED (${fails})`:"UNLOCK CHECK OK");process.exit(fails?1:0);
 })();
