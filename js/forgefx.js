@@ -6,7 +6,7 @@ function playForge(inputs,item,cb){
   o.className="forgefx";o.hidden=false;o.style.setProperty("--rc",rc);
   $("fxin").innerHTML=inputs.map((it,i)=>`<div style="animation-delay:${i*.12}s">${art(it)}</div>`).join("");
   $("fxres").innerHTML=art(item);$("fxres").style.setProperty("--rc",rc);
-  $("fxname").innerHTML=`<small>${rn}${item.legendary?"":""}</small>${item.name}`;$("fxname").style.color=rc;
+  $("fxname").innerHTML=`<small>${rn}</small>${iname(item)}`;$("fxname").style.color=rc;
   $("fxsparks").innerHTML=Array.from({length:16},()=>`<i style="--dx:${Math.round(Math.random()*180-90)}px;--dy:${Math.round(-40-Math.random()*110)}px;animation-delay:${(Math.random()*.4).toFixed(2)}s"></i>`).join("");
   let done=false;const timers=[];
   const finish=()=>{if(done)return;done=true;timers.forEach(clearTimeout);o.hidden=true;o.onclick=null;cb()};

@@ -19,13 +19,13 @@ function shopStock(rv){
 const sellList=()=>spareList().slice(0,EMB.sells).map(id=>({id,price:sellPrice(id)}));
 function merchant(sh){
   const o=makeOffer(),stock=shopStock(sh||Array.from({length:6},Math.random));
-  return{type:"merchant",icon:"peddler",title:"A travelling peddler",text:`"Fine wares for fine folk. Buy, sell or swap${o?`: I'll take your ${S.items[o.give].name} for this ${S.items[o.get].name}`:""}. Fair's fair."`,offer:o,stock,sells:sellList(),loot:[],
-    choices:[...o?[["trade",`Trade for ${S.items[o.get].name}`],["inspect","Inspect the offer"]]:[],["leave","Move on"]]};
+  return{type:"merchant",icon:"peddler",title:tx("A travelling peddler"),text:o?tx("\"Fine wares for fine folk. Buy, sell or swap: I'll take your {give} for this {get}. Fair's fair.\"",{give:iname(S.items[o.give]),get:iname(S.items[o.get])}):tx("\"Fine wares for fine folk. Buy, sell or swap. Fair's fair.\""),offer:o,stock,sells:sellList(),loot:[],
+    choices:[...o?[["trade",tx("Trade for {item}",{item:iname(S.items[o.get])})],["inspect",tx("Inspect the offer")]]:[],["leave",tx("Move on")]]};
 }
 function shopPick(c,ev){
   const [k,n]=c.split(":"),e=(k==="buy"?ev.stock:ev.sells)[+n];if(!e||e.done)return;
-  if(k==="buy"){if(S.embers<e.price)return toast("Not enough embers.");spendEmbers(e.price);addItem(e.id);toast(`Bought ${S.items[e.id].name} for ${e.price} embers.`)}
-  else{if(!S.inv[e.id]||!spare(e.id)){e.done=true;save();render();return toast("You no longer have that item.")}takeOne(e.id);gainEmbers(e.price);toast(`Sold ${S.items[e.id].name} for ${e.price} embers.`)}
+  if(k==="buy"){if(S.embers<e.price)return toast(tx("Not enough embers."));spendEmbers(e.price);addItem(e.id);toast(tx("Bought {item} for {n} embers.",{item:iname(S.items[e.id]),n:e.price}))}
+  else{if(!S.inv[e.id]||!spare(e.id)){e.done=true;save();render();return toast(tx("You no longer have that item."))}takeOne(e.id);gainEmbers(e.price);toast(tx("Sold {item} for {n} embers.",{item:iname(S.items[e.id]),n:e.price}))}
   e.done=true;save();render();
 }
 // Upgrading: UP.n of a graded essence or material + embers -> 1 of the next grade (see UP in data.js). A miss costs the embers and 1 of the UP.n, never all.
@@ -33,12 +33,12 @@ const upChance=tg=>Math.max(UP.min,Math.min(UP.max,UP.base+UP.slope*(skLv("alche
 const upgradable=()=>Object.keys(S.inv).filter(id=>gradable(baseIdOf(id))&&gradeOf(id)<5&&avail(id)>=UP.n).sort((a,b)=>(S.items[baseIdOf(a)].name<S.items[baseIdOf(b)].name?-1:S.items[baseIdOf(a)].name>S.items[baseIdOf(b)].name?1:0)||gradeOf(a)-gradeOf(b));
 function upgrade(id){
   const g=gradeOf(id),tg=g+1,b=baseIdOf(id);if(inBattle()||!gradable(b)||g>=5||avail(id)<UP.n||S.embers<UP.emb[g-1])return;
-  const lv=skLv("alchemy"),need=GRADE_LV[tg-1];if(lv<need)return toast(`${GRADES[tg-1][0]} needs Alchemy Lv ${need}. You are Lv ${lv}.`);
+  const lv=skLv("alchemy"),need=GRADE_LV[tg-1];if(lv<need)return toast(tx("{grade} needs Alchemy Lv {need}. You are Lv {lv}.",{grade:gradeN(tg),need,lv}));
   const ok=Math.random()*100<upChance(tg);spendEmbers(UP.emb[g-1]);S.inv[id]-=ok?UP.n:1;trimBench();
   const x=Math.max(1,Math.round(UP.xp[tg-1]*(ok?1:.5)*skFactor(need,lv)));S.skills.alchemy=skXp("alchemy")+x;
   const nid=gradedItem(b,tg),nm=S.items[nid].name;if(ok){S.stats.refined++;addItem(nid)}
   sfx(ok?"loot":"clang");const up=skLv("alchemy")>lv;save();render();
-  toast(ok?`${UP.n}× ${S.items[id].name} combine into a ${nm}.${up?" "+skMsg("alchemy",lv):""}`:`The mix slumps. One ${S.items[id].name} is lost; ${UP.n-1} remain.${up?" "+skMsg("alchemy",lv):""}`);
+  toast((ok?tx("{n}× {item} combine into a {result}.",{n:UP.n,item:iname(S.items[id]),result:iname(S.items[nid])}):tx("The mix slumps. One {item} is lost; {n} remain.",{item:iname(S.items[id]),n:UP.n-1}))+(up?" "+skMsg("alchemy",lv):""));
 }
 // Reforge: pay embers to strip every mishap (Cursed, Brittle, Rust, and a Weakened flag, which restores the traits from before the fizzle) from a crafted or tempered piece. Like the old forge's tempering it makes a new c_ item (a flawed craft turns back into its clean recipe item), keeps the legendary flag and bonus, and takes over the equip slot.
 const mishapsOf=it=>!it.crafted?[]:[...MISHAP_TRAITS.filter(t=>it.traits[t]>0),...it.mishap==="Weakened"?["Weakened"]:[]],reforgeCost=it=>EMB.reforge[0]+EMB.reforge[1]*it.tier;
@@ -52,5 +52,5 @@ function reforge(id){
   if(back){const ji=S.journal.findIndex(j=>j.id===id),have=S.journal.some(j=>j.id===nid);if(have){if(ji>=0)S.journal.splice(ji,1)}else if(ji>=0)S.journal[ji]={...S.journal[ji],id:nid,name:S.items[nid].name}}
   spendEmbers(cost);sfx("forge");takeOne(id);addItem(nid);
   for(const [s] of SLOTS)if(S.eq[s]===id&&eqCount(id)>(S.inv[id]||0)){S.eq[s]=nid;break}
-  clampHp();save();render();closeSheet();toast(`${S.items[nid].name} reforged. ${ms.join(" and ")} gone.`);
+  clampHp();save();render();closeSheet();toast(tx("{item} reforged. {list} gone.",{item:iname(S.items[nid]),list:ms.map(trn).join(tx(" and "))}));
 }

@@ -607,3 +607,10 @@ details.howto[open]>summary{margin-bottom:4px}
 .gd summary{display:flex;align-items:center;gap:8px;padding:9px 10px;min-height:40px;cursor:pointer;font-size:.92rem}
 .gd .gi{color:var(--accent);display:inline-flex}.gd .rdy{margin-left:auto}
 .gdb{display:grid;gap:4px;padding:0 10px 10px 34px;font-size:.86rem;color:var(--muted)}.gdb p{margin:0}.gdb .btn{justify-self:start;margin-top:4px}
+/* language picker, and Hangul: the Latin web fonts have no Korean, so the stacks add Noto Sans KR (loaded for ko by applyStatic) and the system Korean fonts; mono labels fall back to it too */
+select.lang{width:100%;margin-top:8px;background:#120f0c;color:var(--fg);border:1px solid var(--line);border-radius:8px;padding:10px;font:inherit}
+:root:lang(ko){--body:"Alegreya Sans","Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif;--mono:"IBM Plex Mono","Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic",ui-monospace,monospace;--display:"Grenze Gotisch","Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic",serif}
+:lang(ko) .label,:lang(ko) .tabbar span,:lang(ko) .goal .gt small{letter-spacing:0;text-transform:none}
+:lang(ko) body{word-break:keep-all}
+:lang(de) .label,:lang(de) .tabbar span{letter-spacing:.06em}
+:lang(de) body{hyphens:auto}

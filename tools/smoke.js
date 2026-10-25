@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 // Headless smoke test: plays the game through the real UI and fails on any page error.
-// Usage: node tools/smoke.js [steps]   (needs Playwright; Chromium is preinstalled in cloud sessions)
+// Usage: node tools/smoke.js [steps]   (needs Playwright; Chromium is preinstalled in cloud sessions; I18N_LANG=de or ko plays it in that language)
 const {chromium}=require("playwright"),path=require("path"),fs=require("fs");
-const STEPS=+process.argv[2]||400,URL="file://"+path.resolve(__dirname,"..","index.html");
+const STEPS=+process.argv[2]||400,URL="file://"+path.resolve(__dirname,"..","index.html")+(process.env.I18N_LANG?"?lang="+process.env.I18N_LANG:""); // I18N_LANG=de|ko plays the same run in another language
 const FIX=path.join(__dirname,"fixtures");
 
 // nat: play the way a newcomer does (no forced unlocks, zones, Heat, daily, peddler or affix fights), so systems open by their own rules and the intro cards get clicked away
@@ -101,7 +101,7 @@ async function run(label,setup,nat){
         const p={t:"fight",x:en[0],y:en[1],r:2,done:false,e:Object.keys(ENEMIES).find(k=>ENEMIES[k].zone===z&&ENEMIES[k].mv==="chase"),mv:"chase",rar:"normal",afx:[],aw:1};m.pois.push(p);
         m.pos={x:pl[0],y:pl[1]};m.prev=null;m.steps=5;reveal(m);
         for(let k=0;k<4&&!S.battle;k++){const d=bfs(m,p.x,p.y),a=adjTiles(m).filter(([x,y])=>!(x===p.x&&y===p.y)&&!m.pois.some(q=>q!==p&&q.x===x&&q.y===y&&!q.done)).sort((u,v)=>d[u[1]*m.w+u[0]]-d[v[1]*m.w+v[0]])[0];step(a[0],a[1])}
-        if(S.battle&&S.battle.by==="it"&&S.battle.log.some(l=>/lunges/.test(l.t))){Math.random=()=>.1;flee();ok=S.battle.over==="fled"&&!p.done&&p.dz===ROAM.daze&&!p.aw}}catch(e){out.bad.push("scripted check threw: "+e.message)}
+        if(S.battle&&S.battle.by==="it"){Math.random=()=>.1;flee();ok=S.battle.over==="fled"&&!p.done&&p.dz===ROAM.daze&&!p.aw}}catch(e){out.bad.push("scripted check threw: "+e.message)}
       Math.random=rr;S=JSON.parse(bk);S.battle=null;save();render();
       if(ok)out.script++;else out.bad.push("scripted chaser check failed")}
     // explore: step towards the nearest unvisited POI (as last seen) or unexplored edge by BFS over seen tiles; the lair once most of the map is done or the bot has walked a while; sometimes a random step
@@ -134,11 +134,13 @@ async function run(label,setup,nat){
       go("battle");if(!qa("#arena [data-tile]").length)q("#again")?.click();
     }
     await sleep(500);
-    out.unl=Object.keys(S.unl);out.pending=pendingIntros().length;out.zones=[...out.zones];out.afx=[...out.afx];out.save=localStorage.getItem(KEY);out.key=KEY;out.v=S.v;
+    out.miss=window.__miss?[...window.__miss]:[];out.unl=Object.keys(S.unl);out.pending=pendingIntros().length;out.zones=[...out.zones];out.afx=[...out.afx];out.save=localStorage.getItem(KEY);out.key=KEY;out.v=S.v;
     return out;
   },{steps:STEPS,nat});
   await browser.close();
-  const {save,...rest}=stats;
+  const miss=stats.miss.filter(k=>!/Test |^[ab]$|noun\|Blade/.test(k)); // the bot's own throwaway items ("Test Blade", recipe "a"+"b") have no translations
+  if(process.env.I18N_LANG&&miss.length)errors.push("no translation for: "+miss.slice(0,12).join(" | "));
+  const {save,miss:_m,...rest}=stats;
   console.log(`[${label}]`,JSON.stringify(rest));
   return {errors,stats};
 }

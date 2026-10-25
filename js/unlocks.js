@@ -5,17 +5,17 @@ const isUnl=id=>!!S.unl[id];
 function unlock(id,quiet){
   const u=UNL[id];if(!u||S.unl[id])return false;
   S.unl[id]=Math.max(0,...Object.values(S.unl))+1;
-  if(!u.q&&!quiet){sfx("unlock");setTimeout(()=>toast(`Unlocked: ${u.name}.${u.w?" "+u.w:""}`,1),0)} // after whatever toast the same action raises
+  if(!u.q&&!quiet){sfx("unlock");setTimeout(()=>toast(tx("Unlocked: {name}.",{name:tx(u.name)})+(u.w?" "+tx(u.w):""),1),0)} // after whatever toast the same action raises
   return true;
 }
 function checkUnl(quiet){let any=false,ch=true;while(ch){ch=false;UNLOCKS.forEach(u=>{if(!S.unl[u.id]&&u.when&&u.when(S)&&unlock(u.id,quiet))ch=any=true})}return any}
 // ---- intros: the unlocked, unread ones in the order they opened, then a card for each weapon ability that has not been introduced. Shown one at a time.
 const introKey=id=>id.startsWith("a:")?id:"i:"+id;
 function pendingIntros(){
-  const l=UNLOCKS.filter(u=>u.i&&S.unl[u.id]&&!S.seen["i:"+u.id]).sort((a,b)=>S.unl[a.id]-S.unl[b.id]).map(u=>({id:u.id,ic:u.ic,tab:"battle",...u.i}));
-  const pd=l.find(c=>c.id==="peddler");if(pd)pd.l=[...pd.l,`You've been collecting embers all along: ${S.embers}.`];
+  const l=UNLOCKS.filter(u=>u.i&&S.unl[u.id]&&!S.seen["i:"+u.id]).sort((a,b)=>S.unl[a.id]-S.unl[b.id]).map(u=>({id:u.id,ic:u.ic,tab:"battle",...u.i,t:tx(u.i.t),l:u.i.l.map(x=>tx(x,u.i.v))}));
+  const pd=l.find(c=>c.id==="peddler");if(pd)pd.l=[...pd.l,tx("You've been collecting embers all along: {n}.",{n:S.embers})];
   const ab=l.find(c=>c.id==="ability");
-  if(ab){const k=abKeys(pstats()),W=pstats().main;if(k.length)ab.l=[`${k[0]==="shield"||!W?"Your shield":`Your ${W.name}`} gives you ${ABILITIES[k[0]].name}.`,...ab.l]}
+  if(ab){const k=abKeys(pstats()),W=pstats().main;if(k.length)ab.l=[k[0]==="shield"||!W?tx("Your shield gives you {ab}.",{ab:ABILITIES[k[0]].name}):tx("Your {weapon} gives you {ab}.",{weapon:iname(W),ab:ABILITIES[k[0]].name}),...ab.l]}
   if(S.unl.ability&&S.seen["i:ability"])abKeys(pstats()).filter(k=>!S.seen["a:"+k]).forEach(k=>l.push({id:"a:"+k,ic:ABILITIES[k].icon,t:ABILITIES[k].name,l:[ABILITIES[k].desc],ctx:"battle",sel:`[data-ability="${k}"]`}));
   return l;
 }
@@ -38,4 +38,4 @@ function applyNudge(){
   if(!nd.t0){nd.t0=1;ndT=setTimeout(()=>{document.querySelectorAll(".nudge").forEach(e=>e.classList.remove("nudge"));nd=null},2600)}
 }
 // a locked system drawn as a small teaser: lock icon, name, how to open it (the same words are in its tip)
-const lockRow=id=>{const u=UNL[id];return `<div class="lockrow" ${tt(`${u.name} (locked)`,u.txt)}>${ic("lock","s")}<b>${u.name}</b><small>${u.txt}</small></div>`};
+const lockRow=id=>{const u=UNL[id];return `<div class="lockrow" ${tt(tx("{name} (locked)",{name:tx(u.name)}),tx(u.txt))}>${ic("lock","s")}<b>${tx(u.name)}</b><small>${tx(u.txt)}</small></div>`};
