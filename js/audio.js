@@ -164,4 +164,4 @@ document.addEventListener("click",e=>{const b=e.target.closest("button");if(!b)r
     setSnd(music?{music:n>0,...(n?{musicVol:n-1}:{})}:{on:n>0,...(n?{vol:n-1}:{})});if(!music&&n)sfx("tap");return}
   if(!b.disabled&&b.getAttribute("aria-disabled")!=="true"&&!b.dataset.tile&&!b.dataset.ability&&!b.dataset.use&&!["atk","combine"].includes(b.id))sfx("tap");
 });
-sndUi();
+// The sound buttons are drawn in boot(), once every script has loaded.

@@ -126,5 +126,5 @@ function riftDescend(){ // one region deeper: the depth goes up, a new region is
   r.depth=(r.depth||1)+1;r.best=Math.max(r.best||0,r.depth);r.cleared=0;r.seed=hash("rift:"+r.depth+":"+Math.floor(Math.random()*1e9));
   riftEnsure();S.maps[RIFT_ZONE]=newMap(RIFT_ZONE);S.battle=null;S.event=null;save();render();
   toast(tx("You descend to depth {n}: {name}.",{n:r.depth,name:r.name||tx("unknown")}))}
-buildRoster(); // the four regions get their wild creatures as the game loads
-riftEnsure();  // a Rift run in progress is rebuilt from its seed
+// The wild roster (buildRoster) and the Rift's region (riftEnsure) are built in boot(), once every script has loaded.
+

@@ -150,7 +150,16 @@ function setLang(l){
 }
 $("lang").innerHTML=Object.entries(LANGS).map(([k,n])=>`<option value="${k}">${n}</option>`).join("");$("lang").value=LANG;
 $("lang").addEventListener("change",e=>setLang(e.target.value));
-applyStatic();fillStatic();sndUi();
-try{render()}catch(e){ // a bad stored run should not cost the whole save: drop the transient parts first
-  try{S.daily=null;S.run=null;S.battle=null;S.event=null;render()}catch(e2){S=freshState();save();render()}}
-if(migNote){migNote=false;toast(tx("A map was redrawn. Your expedition there starts fresh."))}
+// ================= BOOT =================
+// The one place that runs once every script has loaded, so the start-up order is explicit:
+// the wild roster and the Rift's region (monsters.js), the reduced-motion listener (motion.js), the sound
+// buttons (audio.js), the static markup and its numbers (i18n.js, events.js), then the first render.
+function boot(){
+  buildRoster();riftEnsure();
+  motionWatch();
+  applyStatic();fillStatic();sndUi();
+  try{render()}catch(e){ // a bad stored run should not cost the whole save: drop the transient parts first
+    try{S.daily=null;S.run=null;S.battle=null;S.event=null;render()}catch(e2){S=freshState();save();render()}}
+  if(migNote){migNote=false;toast(tx("A map was redrawn. Your expedition there starts fresh."))}
+}
+boot();
