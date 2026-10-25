@@ -40,6 +40,7 @@ function renderHeader(){
   $("lvl").innerHTML=`${ic("smith","l")}<b>${l}</b>`;$("lvl").dataset.tip=lt;$("xpbar").parentNode.dataset.tip=lt;
   $("xpbar").style.width=nxt?`${Math.min(100,(S.xp-cur)/(nxt-cur)*100)}%`:"100%";
   $("emb").hidden=!isUnl("peddler");$("emb").innerHTML=`${icon("ember")}${S.embers}`;$("emb").dataset.tip="Embers\nThe currency of the forge. Fights, salvage and selling earn it; the peddler, grade upgrades and reforging spend it.";
+  $("rp").hidden=!isUnl("research");$("rp").innerHTML=`${ic("research")}${S.rp}`;$("rp").dataset.tip=`Research points\nEarned by discoveries: a first craft of each kind, a new reaction, a new essence, a studied creature, a boss down, a smith or skill level. Spend them in the Forge on techniques.\nYou have ${S.rp}.`;
   $("disc").innerHTML=`<span class="mi" ${tt("Renown","Battles you have won.")}>${ic("renown")}${S.wins}</span><span class="mi" ${tt("Recipes forged","Different things you have forged. Each is saved in the Recipes tab.")}>${ic("hammer")}${S.journal.length}</span>`;
 }
 function renderNav(){
@@ -101,7 +102,7 @@ function placeIntro(){ // the floating card sits under the goal bar (so Claim st
   const el=$("intro");el.style.top=el.style.bottom="";if(el.hidden||!el.classList.contains("fl"))return;
   const g=$("goal");el.style.top=Math.max(8,g.hidden?0:g.getBoundingClientRect().bottom+6)+"px";
   const h=document.querySelector(".tl.here");if(h){const a=el.getBoundingClientRect(),b=h.getBoundingClientRect();if(a.bottom>b.top&&a.top<b.bottom&&a.right>b.left&&a.left<b.right){el.style.top="auto";el.style.bottom=$("nav").offsetHeight+8+"px"}}} // the card at the top of a tab; over the map it floats, so the map never shifts (a fight shows its own above the action grid)
-const ci=(col,ics,v,...t)=>`<span class="chip" style="color:${col}" ${tt(...t)}>${ics}${v==null||v===""?"":`<b>${v}</b>`}</span>`; // icon chip: icon + value, words in the tip
+const ci=(col,ics,v,...t)=>`<span class="chip" style="color:${col}" ${t.length?tt(...t):""}>${ics}${v==null||v===""?"":`<b>${v}</b>`}</span>`; // icon chip: icon + value, words in the tip
 const stChip=(s,x)=>ci(FAM[STATUS[s].el]||"var(--bad)",famIc(STATUS[s].el,"s"),`${x.n>1?x.n+"x ":""}${x.t}t`,`${STATUS[s].n}${x.n>1?` x${x.n}`:""}, ${x.t} turns left`,cap(STATUS[s].tip)+".");
 function youHud(){ // compact: weapon, HP bar, then icon chips (words in tips)
   const P=pstats(),B=S.battle,live=B&&!B.over,bite=live&&B.heat>=5,red=Math.round((bite?redOf(P.def*(1-HEAT_T.bite)):P.red)*100);
@@ -224,7 +225,7 @@ function craftLine(r,items){
   const risk=equippedRisk(items),sk=SKILLS[r.skill],cp=SK_CAP[r.lv-1],b=r.blocked,ch=(col,ics,v,...t)=>`<span class="chip" style="color:${col}" ${tt(...t)}>${ics}<b>${v}</b></span>`;
   return `<div class="cline${b?" blocked":""}"><div class="chips">${isUnl("skills")?ch("var(--accent)",skIcon(r.skill),`Lv ${r.lv}`,`${sk.name} Lv ${r.lv}`,"The skill that makes this."):""}${ch("var(--muted)",ic("tier","s"),`${r.item.tier}/${cp}`,`Tier ${r.item.tier}, your cap is ${cp}`,"The result's tier against the highest tier your skill can reach.")}
     ${b?"":ch("var(--up)",ic("ok","s"),`${100-r.fail}%`,`${100-r.fail}% clean`,"A clean forge gives exactly the item previewed.")+ch("var(--accent)",ic("warn","s"),`${r.mis}%`,`${r.mis}% mishap`,`A mishap gives a flawed copy (Cursed, Brittle, Rust or Weakened)${isUnl("peddler")?" that you can reforge for embers":""}.`)+ch("var(--down)",ic("smoke","s"),`${r.fiz}%`,`${r.fiz}% fizzle`,`A fizzle loses the ingredients${isUnl("peddler")?" but returns some embers":""}.`)
-      +helpBtn("Forge odds",S.journal.length?`Difficulty ${r.diff} against your skill ${r.lv}${r.diff-r.lv>2?", a reach for you":""}. The higher your skill, the fewer mishaps and fizzles.`:"Your first forge never fails.")}</div>
+      +helpBtn("Forge odds",S.journal.length?`Difficulty ${r.diff} against your skill ${r.lv}${r.diff-r.lv>2?", a reach for you":""}. The higher your skill, the fewer mishaps and fizzles.${r.prec?` Precision trims ${r.prec} points off the failure chance.`:""}`:"Your first forge never fails.")}</div>
     ${b?`<p class="warn-text">${blockText(b)}</p>`:""}
     ${risk.length?`<p class="warn-text">${risk.join(" and ")} ${risk.length>1?"are":"is"} equipped. A fizzle would destroy ${risk.length>1?"them":"it"}; tap Forge twice to confirm.</p>`:""}</div>`;
 }
@@ -246,10 +247,11 @@ function renderBench(){
     parts.push(it?`<button class="slot full${!chk.ok&&chk.bad?.id===it.id?" bad":""}" style="${rcol(it)}" data-slot="${i}" aria-label="Remove ${it.name}" ${itemTip(it,"Tap to take it out.")}>${glyph(it)}</button>`:`<div class="slot" aria-label="Empty slot">${ic("plus","l")}</div>`);
   }
   $("slots").className=level()>=2?"slots s4":"slots";$("slots").innerHTML=parts.join("");
-  let hint="",crafting=null;
+  let hint="",crafting=null;const miss=chk.ok&&items.length>1?craftMiss(items):[]; // techniques this craft needs and you lack
   if(!items.length)hint=`<p class="foot" style="text-align:center">Tap items below to add them.</p>`;
   else if(!chk.ok)hint=`<p class="warn-text">${chk.reason}</p>`;
   else if(items.length===1)hint=`<p class="foot">${items[0].name} takes ${acceptsText(items[0])}.</p>`;
+  else if(miss.length)hint=`<p class="warn-text">${ic("lock","s")} ${techWhy(miss)}</p>${isUnl("research")?`<div class="actions"><button class="btn sm" data-gores="${miss[0]}">${ic("research","s")} Open Research</button></div>`:""}`;
   else{
     const r=combine(items,{roll:100}),known=S.items[r.item.id],base=S.items[r.baseId];crafting=r;
     if(known){
@@ -266,10 +268,12 @@ function renderBench(){
         ${ur.length?`<span class="foot" style="color:var(--accent)" ${tt("Unseen reaction","Something in this mix will react in a way you haven't seen yet.")}>${ic("warn","xs")} An unseen reaction</span>`:""}
         ${appraise}</div>`}
     hint+=craftLine(r,items);
+    if(r.mw>=0)hint+=`<p class="warn-text">${ic("warn","s")} ${mwWarn}</p>`;
   }
   $("mixhint").innerHTML=hint;
   $("combine").textContent=forgeArmed&&forgeArmed===S.bench.join()?"Tap again to forge":"Forge";
   $("combine").disabled=items.length<2||!chk.ok||!!crafting?.blocked;
+  $("combine").setAttribute("aria-disabled",miss.length?"true":"false");if(miss.length)$("combine").setAttribute("aria-label",techWhy(miss));else $("combine").removeAttribute("aria-label"); // the reason is the warning above the button (and its label); a bubble on top would cover it
 }
 function renderResult(fresh){
   const el=$("result"),total=Object.values(S.inv).reduce((s,c)=>s+c,0);
@@ -331,11 +335,13 @@ function renderRecipes(){
     .map(([k,l])=>`<div class="mx">${kic(k,[l])}<span class="ar">takes</span>${ACCEPTS[k].map(a=>kic(a,[cap(KIND_LABEL[a])])).join("")}<span class="kic same" ${tt("The same type",`${l} also take other ${l.toLowerCase()}.`)}>${ic("plus","s")}</span></div>`).join("")
     +`<div class="mx">${kic("ore",["Materials","Hides, ores and herbs."])}<span class="ar">takes</span>${["hide","ore","herb","essence","relic"].map(a=>kic(a,[cap(KIND_LABEL[a]),a==="hide"||a==="ore"||a==="herb"?"Only their own kind.":""])).join("")}</div>
       <div class="mx">${kic("essence",["Essences"])}<span class="ar">takes</span><span class="kic" ${tt("Everything","Salvage any item to get essences.")}>${ic("bag")}</span></div>`;
-  $("fusions").innerHTML=FUSIONS.map(([a,b,f])=>`<span class="fu" ${tt(`${cap(formName(a))} + ${formName(b)} → ${FORMS[f].noun}`,"A fusion: two kinds that merge into a new one.")}>${gIc(a)}<i>+</i>${gIc(b)}<i>→</i><b>${gIc(f)}</b></span>`).join("");
+  $("fusions").innerHTML=!hasTech("alloy")?`<div class="lockrow" ${tt("Alloying (locked)",isUnl("research")?"Learn Alloying in Research (the Forge tab) to merge two kinds of gear.":"Something to learn later.")}>${ic("lock","s")}<b>Alloying</b><small>${isUnl("research")?"Learn it in Research.":"Not yet known."}</small></div>`:FUSIONS.map(([a,b,f])=>`<span class="fu" ${tt(`${cap(formName(a))} + ${formName(b)} → ${FORMS[f].noun}`,"A fusion: two kinds that merge into a new one.")}>${gIc(a)}<i>+</i>${gIc(b)}<i>→</i><b>${gIc(f)}</b></span>`).join("");
   const known=new Set(S.knownR),rd=REACTIONS.filter(([a,b])=>known.has(a+"+"+b));
-  $("rxlabel").innerHTML=`${ic("infuse","s")} Trait reactions · ${rd.length}/${REACTIONS.length}${helpBtn("Trait reactions","Some pairs of traits react when they meet in the crucible and become a new trait. Discover one by forging it.")}`;
+  $("rxlabel").innerHTML=`${ic("infuse","s")} Trait reactions · ${rd.length}/${REACTIONS.length}${helpBtn("Trait reactions","Some pairs of traits react when they meet in the crucible and become a new trait. Discover one by forging it.",...isUnl("research")?["Studying a material in Research, or an insight while forging, shows part of a reaction first."]:[])}`;
   $("reactions").innerHTML=[...rd.map(([a,b,res,cons])=>`<span class="rx1" ${tt(`${a} + ${b} → ${res}`,cons.length?"":"Keeps both traits.")}>${ci(tColor(a),famIc(TRAITS[a].f,"s"))}<i>+</i>${ci(tColor(b),famIc(TRAITS[b].f,"s"))}<i>→</i>${ci(tColor(res),famIc(TRAITS[res].f,"s"))}</span>`),
-    ...REACTIONS.filter(([a,b])=>!known.has(a+"+"+b)).map(()=>`<span class="rx1 unk" ${tt("Undiscovered reaction","Forge the right pair of traits to find it.")}>?</span>`)].join("");
+    ...REACTIONS.filter(r=>!known.has(rxKey(r))&&rxHint(rxKey(r)).length).map(r=>{const k=rxKey(r),hs=rxHint(k),side=t=>hs.includes(t)?ci(tColor(t),famIc(TRAITS[t].f,"s"),t):`<span class="chip unk"><b>?</b></span>`,one=hs.length<2?hs[0]:null;
+      return `<span class="rx1 part" ${tt(`${hs.includes(r[0])?r[0]:"???"} + ${hs.includes(r[1])?r[1]:"???"} → ???`,one?`A hint: ${one} reacts with ${VAGUE[one===r[0]?r[1]:r[0]]||"something"}.`:"You know both sides. Forge them together to see what they make.")}>${side(r[0])}<i>+</i>${side(r[1])}<i>→</i><span class="chip unk"><b>?</b></span></span>`}),
+    ...REACTIONS.filter(r=>!known.has(rxKey(r))&&!rxHint(rxKey(r)).length).map(()=>`<span class="rx1 unk" ${tt("Undiscovered reaction",`Forge the right pair of traits to find it${isUnl("research")?", or study a material and keep an eye out for insights":""}.`)}>?</span>`)].join("");
   const fd=SECRETS.filter(found).length;
   $("seclabel").innerHTML=`${ic("renown","s")} Legendary secrets · ${fd}/${SECRETS.length}${helpBtn("Legendary secrets","Hint scrolls from chests, shrines, riddles, bosses, bounties and the daily reveal a rumor, then its ingredients.")}`;
   $("secrets").innerHTML=SECRETS.map((sc,i)=>{const ok=found(sc),lv=hintLv(i),jr=ok&&S.journal.find(j=>S.items[j.id]?.legendary&&S.items[j.id].name===sc.name);
@@ -367,7 +373,7 @@ function renderAfx(){ // the Codex list of affixes: an entry opens when you firs
   $("aflist").innerHTML=`${n?`<ul class="afl">${ids.filter(a=>!lock.includes(a)).map(row).join("")}</ul>`:""}${lock.length?`<div class="chips aflock">${lock.map(()=>`<span class="chip unk" ${tt("Unknown affix","Meet a magic or rare enemy that carries it.")}>${ic("lock","s")}<b>???</b></span>`).join("")}</div>`:""}`}
 function renderGuide(){ // every unlocked intro, to read again; what is still locked sits in a collapsed list
   const op=UNLOCKS.filter(u=>u.i&&S.unl[u.id]),shut=UNLOCKS.filter(u=>u.txt&&!S.unl[u.id]),pt=u=>!u.i.ctx&&u.i.sel&&!/^\.tl/.test(u.i.sel); // Show me only where there is something to point at
-  $("gdlabel").innerHTML=`${ic("list","s")} Guide · ${op.length}/${UNLOCKS.filter(u=>u.i).length}${helpBtn("Guide","Every introduction you have unlocked, to read again.","New systems open as you play. The locked ones say how to open them.")}`;
+  $("gdlabel").innerHTML=`${ic("list","s")} Guide · ${op.length}/${UNLOCKS.filter(u=>u.i&&(u.txt||S.unl[u.id])).length}${helpBtn("Guide","Every introduction you have unlocked, to read again.","New systems open as you play. The locked ones say how to open them.")}`;
   $("gdlist").innerHTML=`<div class="gdl">${op.map(u=>`<details class="gd"><summary><span class="gi">${ic(u.ic,"s")}</span>${u.i.t}${S.seen["i:"+u.id]?"":` <b class="rdy">new</b>`}</summary><div class="gdb">${u.i.l.map(x=>`<p>${x}</p>`).join("")}${pt(u)?`<button class="btn sm" data-guide="${u.id}">${ic("hero","s")} Show me</button>`:""}</div></details>`).join("")}</div>${shut.length?`<details class="gd lockd"><summary><span class="gi">${ic("lock","s")}</span>Still locked · ${shut.length}</summary><div class="gdl">${shut.map(u=>lockRow(u.id)).join("")}</div></details>`:""}`;
 }
 function renderCodex(){
@@ -389,11 +395,12 @@ function render(fresh){
   renderHeader();renderNav();renderGoal();renderIntro();
   if(S.view==="battle")renderBattle();
   if(S.view==="gear")renderGear();
-  if(S.view==="forge"){renderBench();renderUpgrade();renderSkills();renderResult(fresh)}
+  if(S.view==="forge"){renderBench();renderResearch();renderUpgrade();renderSkills();renderResult(fresh)}
   renderSatchels();
   if(S.view==="recipes")renderRecipes();
   if(S.view==="codex")renderCodex();
   if(sheet.mode==="item"&&sheet.id)openSheet(sheet.id,true,sheet.preview);else if(sheet.mode==="codex")openCodex(sheet.id,true);
   flushFx();
   applyNudge();placeIntro();const cur=curIntro(inBattle());if(cur&&cur.id!==lastIntro)nudge(cur.sel);lastIntro=cur?cur.id:null; // a new card pulses what it points at
+  rpFlush();
 }

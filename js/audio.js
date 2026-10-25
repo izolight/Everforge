@@ -42,12 +42,14 @@ const SND={
   level:()=>[392,523,659].forEach((f,i)=>note(f,i*.1,.35,.1)),
   loot:()=>{ting(880,0,.08);ting(1320,.07,.07)},
   unlock:()=>{ting(660,0,.09);ting(990,.1,.09);ting(1320,.2,.08)},
+  research:()=>{ting(1040,0,.07);ting(1560,.09,.06)},
+  tech:()=>{[523,659,784,1047].forEach((f,i)=>note(f,i*.09,.4,.1,"sine"));ting(2093,.4,.05)},
   ember:()=>{noise(.07,{f:"bandpass",hz:2800,g:.08});osc(1500,.08,{g:.04,at:.02})},
   clang:()=>ting(980,0,.14),
   tap:()=>osc(260,.04,{g:.035}),
   step:()=>{noise(.07,{hz:420,g:.1});osc(95,.08,{g:.1})},
 };
-const GAP={unlock:.6,tick:.12,tap:.05,warn:.5,forge:1.5,legend:1,win:.8,lose:.8};
+const GAP={research:.5,tech:.6,unlock:.6,tick:.12,tap:.05,warn:.5,forge:1.5,legend:1,win:.8,lose:.8};
 // play a sound, dl seconds from now; ignored if muted, locked, unsupported or the same sound played within its gap (stops multi-hit and DoT pile-ups)
 function sfx(n,dl){
   if(!snd.on||!SND[n])return;

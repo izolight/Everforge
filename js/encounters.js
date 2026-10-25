@@ -35,7 +35,7 @@ const ENC={
     pick:(c,ev)=>{if(ev.give&&(!spare(ev.give)||!S.inv[ev.give])){toast("You no longer have that item.");return endEv("alchemist","The alchemist shrugs","\"Come back with something to trade.\"")}
       if(c==="swap"){takeOne(ev.give);const got=[essNow(at(ESS_POOL,ev.rv[1]),ev.rv[4]),essNow(at(ESS_POOL,ev.rv[2]),ev.rv[5])];got.forEach(id=>addItem(id));return endEv("alchemist","A fair swap",`The alchemist pockets your ${S.items[ev.give].name} and counts out two vials.`,got)}
       const unk=REACTIONS.filter(([a,b])=>!S.knownR.includes(a+"+"+b));if(!unk.length)return endEv("alchemist","Nothing left to teach","\"You know all I know. Almost.\"");
-      const [a,b,res,cons]=at(unk,ev.rv[0]);if(ev.give)takeOne(ev.give);S.knownR.push(a+"+"+b);
+      const [a,b,res,cons]=at(unk,ev.rv[0]);if(ev.give)takeOne(ev.give);learnReaction(a+"+"+b);
       endEv("alchemist","A lesson learned",`"Mark this," she says. ${a} and ${b} make ${res}${cons.length?"":", and keep both"}. It's in your recipe book now.`)}},
   traveller:{make:rv=>{const med=cheapest(Object.keys(S.inv).filter(id=>spare(id)&&grp(S.items[id])==="consumable"&&statsOf(S.items[id]).heal>0));
       return evt("traveller","traveller","A wounded traveller","A traveller slumps against a milestone, one hand pressed to his side. \"Please,\" he whispers. \"Anything that heals.\" His pack looks full.",
