@@ -1,5 +1,5 @@
 // ================= STATE =================
-const KEY="everforge-v14",OLD_KEYS=["everforge-v13","everforge-v12","everforge-v11","everforge-v10","everforge-v9","everforge-v8","everforge-v7","everforge-v6","everforge-v5","everforge-v4","everforge-v3"];
+const KEY="everforge-v15",OLD_KEYS=["everforge-v14","everforge-v13","everforge-v12","everforge-v11","everforge-v10","everforge-v9","everforge-v8","everforge-v7","everforge-v6","everforge-v5","everforge-v4","everforge-v3"];
 function baseItem(id){const [name,form,traits,kind]=BASE[id];return {id,name,form,noun:name.split(" ").pop(),traits,tier:1,crafted:false,...(kind?{kind}:{})}}
 function mkGraded(b,g){ // the item for base id b at grade g (pure: migrate rebuilds graded items with it)
   const es=/^ess_([A-Za-z]+)$/.exec(b),it=es?{id:b,name:`${es[1]} Essence`,form:"material",kind:"essence",noun:"Essence",traits:{[es[1]]:ESS_VALUE},tier:1,crafted:false}:baseItem(b);
@@ -8,12 +8,12 @@ function mkGraded(b,g){ // the item for base id b at grade g (pure: migrate rebu
 const statsDef=()=>({salvaged:0,studied:0,dealt:0,taken:0,big:0,bigW:"",crits:0,parries:0,abil:0,sufd:0,cured:0,elites:0,bosses:0,deaths:0,exped:0,heatBest:{},fast:{},forged:0,legend:0,mishaps:0,fizzles:0,earned:0,spent:0,refined:0,dailies:0,dailyWins:0,dBest:null});
 function freshState(){
   const items={};Object.keys(BASE).forEach(id=>items[id]=baseItem(id));
-  return {v:14,embers:0,afx:{},unl:{},infCredit:0,skills:{},maps:{},heat:{},daily:null,run:null,infuse:{},items,inv:{iron_sword:1},eq:{main:"iron_sword",off:null,head:null,body:null,hands:null,feet:null,charm:null},
+  return {v:15,embers:0,afx:{},unl:{},rp:0,techs:{bind:1},rpd:{},rxh:{},infCredit:0,skills:{},maps:{},heat:{},daily:null,run:null,infuse:{},items,inv:{iron_sword:1},eq:{main:"iron_sword",off:null,head:null,body:null,hands:null,feet:null,charm:null},
     hp:999,camp:2,campProg:0,xp:0,journal:[],knownR:[],hints:[0,1,2],bench:[],last:null,tab:"all",rtab:"all",view:"battle",zone:"woods",
     wins:0,kills:{},seen:{},codex:{},unlocked:["woods"],zoneKills:{},quest:0,bounty:null,stats:statsDef(),fresh:[],battle:null,event:null};
 }
 const isObj=v=>!!v&&typeof v==="object"&&!Array.isArray(v);
-const DEFAULTED=["maps","infuse","eq","kills","seen","codex","zoneKills","stats","journal","knownR","bench","unlocked","fresh","hp","xp","zone","heat","daily","run","hints","embers","skills","infCredit","afx","unl"];
+const DEFAULTED=["maps","infuse","eq","kills","seen","codex","zoneKills","stats","journal","knownR","bench","unlocked","fresh","hp","xp","zone","heat","daily","run","hints","embers","skills","infCredit","afx","unl","rp","techs","rpd","rxh"];
 // Shape check for loaded or imported saves, so a malformed one is rejected instead of breaking every render.
 function sane(s){
   return ["maps","heat","infuse","items","inv","eq","kills","seen","codex","zoneKills","stats","unl"].every(k=>isObj(s[k]))
@@ -24,17 +24,30 @@ function sane(s){
 }
 // v13 -> v14: a save keeps every system it already reached or used (UNLOCKS: `when` holds, or `used` finds proof), and those intros count as read. Runs last, on a sanitized save.
 // Reusable: grandfather(s) opens every UNLOCKS entry the save already reached or used; grandfather(s,ids) only those ids (a later migration that adds entries passes its new ids). Map exposure is not proof (every old map held every POI type).
+const isVet=s=>boss1(s)||s.wins>=10||s.journal.length>=3||!!s.daily||s.stats.dailies>0; // someone who has really played the old game, where everything was open from the start, keeps all of it
 function grandfather(s,ids){
   if(!isObj(s.unl))s.unl={};let n=Math.max(0,...Object.values(s.unl)),ch=true;
-  const list=UNLOCKS.filter(u=>!ids||ids.includes(u.id)),vet=boss1(s)||s.wins>=10||s.journal.length>=3||!!s.daily||s.stats.dailies>0; // someone who has really played the old game, where everything was open from the start, keeps all of it
+  const list=UNLOCKS.filter(u=>!ids||ids.includes(u.id)),vet=isVet(s);
   while(ch){ch=false;list.forEach(u=>{if(!s.unl[u.id]&&(vet||(u.when&&u.when(s))||(u.used&&u.used(s)))){s.unl[u.id]=++n;ch=true}})}
   list.forEach(u=>{if(s.unl[u.id])s.seen["i:"+u.id]=true});
   if(s.unl.ability)Object.keys(ABILITIES).forEach(k=>s.seen["a:"+k]=true);
   return vet;
 }
+// v14 -> v15: the techniques an older save has evidently used (TECHS `used`: its journal and stats are the proof), prerequisites included; a veteran knows them all. A save that is not a veteran also gets the research points its past discoveries would have paid (RP sources), less what those techniques cost.
+function grantTechs(s){
+  const vet=isVet(s),has={bind:1};
+  TECHS.forEach(t=>{if(vet||t.used(s))has[t.id]=1});
+  for(let ch=true;ch;){ch=false;TECHS.forEach(t=>{if(has[t.id])t.pre.forEach(p=>{if(!has[p]){has[p]=1;ch=true}})})}
+  s.techs=Object.fromEntries(TECHS.filter(t=>has[t.id]).map((t,i)=>[t.id,i+1]));s.rpd={};s.rxh={};s.rp=0;
+  if(vet)return;
+  const add=(k,n)=>{if(!s.rpd[k]){s.rpd[k]=1;s.rp+=n}},cs=crafts(s);
+  cs.forEach(it=>add("form:"+it.form,RP.form));s.journal.slice(0,RP.recCap).forEach(j=>add("rec:"+j.id,RP.rec));s.journal.forEach(j=>{if(j.legendary)add("leg:"+j.name,RP.leg)});
+  s.knownR.forEach(k=>add("rx:"+k,RP.rx));ZONES.forEach((z,i)=>{if(s.kills[z[2]]>0)add("boss:"+z[2],RP.boss[i])});Object.keys(s.afx).forEach(a=>{if(s.afx[a].s>0)add("afx:"+a,RP.afx)});
+  s.rp=Math.max(0,s.rp-TECHS.reduce((n,t)=>n+(has[t.id]?t.cost:0),0));
+}
 function migrate(s){
   if(!isObj(s))return null;
-  let up14=false;
+  let up14=false,up15=false;
   if(s.v===3){
     s.v=4;s.knownR=[];s.rtab="all";
     const byName=n=>Object.values(s.items).find(i=>i.name===n);
@@ -106,7 +119,8 @@ function migrate(s){
     Object.values(isObj(s.maps)?s.maps:{}).forEach(conv);if(isObj(s.daily))conv(s.daily.map);
     const b=s.battle;if(isObj(b)&&b.afx===undefined){const a=b.elite&&AFX_EL.find(x=>AFX[x].tr===b.elite);b.rar=a?"magic":"normal";b.afx=a?[a]:[];delete b.elite;if(a){if(!isObj(s.afx))s.afx={};s.afx[a]=s.afx[a]||{s:1,b:0}}}} // an open elite battle counts as met
   if(s.v===13){s.v=14;up14=true} // grandfather() fills s.unl once the save is sanitized
-  if(s.v!==14||!isObj(s.items)||!isObj(s.inv))return null;
+  if(s.v===14){s.v=15;up15=true;if(Number.isInteger(s.quest)){if(up14&&s.quest>=7)s.quest=TUTORIAL.length;else if(s.quest>=3)s.quest++}} // v14 -> v15: a goal step ("Learn a technique") now sits at 3, so quests from 3 move up one; a v13 save past its 7 steps was at the end of that chain
+  if(s.v!==15||!isObj(s.items)||!isObj(s.inv))return null;
   const dflt=freshState();DEFAULTED.forEach(k=>{if(s[k]===undefined)s[k]=dflt[k]});if(!isObj(s.afx))s.afx={};
   Object.keys(BASE).forEach(id=>s.items[id]=baseItem(id));
   if(!sane(s))return null;
@@ -130,9 +144,16 @@ function migrate(s){
   if(s.run!=="daily"||!s.daily||s.daily.state!=="run")s.run=null;else s.zone=s.daily.zone;
   s.hints=Array.isArray(s.hints)?s.hints.filter(i=>Number.isInteger(i)&&SECRETS[i]):[0,1,2];
   if(!VIEWS.includes(s.view))s.view="battle";
+  s.rp=Math.max(0,Math.floor(Number(s.rp))||0);if(!isObj(s.rpd))s.rpd={};
+  {const tk=isObj(s.techs)?s.techs:{};s.techs=Object.fromEntries(TECHS.filter(t=>t.id==="bind"||Number.isFinite(tk[t.id])).map(t=>[t.id,Number.isFinite(tk[t.id])?tk[t.id]:1]))}
+  s.rxh=Object.fromEntries(Object.entries(isObj(s.rxh)?s.rxh:{}).filter(([k,v])=>REACTIONS.some(r=>r[0]+"+"+r[1]===k)&&Array.isArray(v)).map(([k,v])=>[k,v.filter(t=>k.split("+").includes(t))]));
+  if(up15)grantTechs(s);
   if(up14){ // v13 -> v14
-    if(s.quest>=7)s.quest=TUTORIAL.length; // the old goal chain was 7 steps; the new steps are for newcomers
     s.unl={};if(!grandfather(s))Object.keys(s.maps).forEach(z=>{if(!s.maps[z].steps)delete s.maps[z]}); // an untouched map made before the gates is redrawn under them
+  }else if(up15){ // v14 -> v15: the new systems open for what the save has reached or used (a veteran: all); grade upgrades now wait for Refining
+    const ids=["research",...TECHS.filter(t=>t.i).map(t=>"t:"+t.id)];
+    if(!grandfather(s,ids))ids.forEach(id=>{if(!UNL[id].used(s))delete s.seen["i:"+id]}); // a veteran has read them all; otherwise only what the save used (a new system it merely qualifies for still gets its card)
+    if(!s.techs.refine&&s.unl.upgrade){delete s.unl.upgrade;delete s.seen["i:upgrade"];s.seen["m:upg"]=true} // m:upg: the Research card says why
   }
   return s;
 }

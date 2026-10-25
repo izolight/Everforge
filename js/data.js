@@ -205,11 +205,12 @@ const TUTORIAL=[
   {text:"Win your first battle.",tab:"battle",done:s=>s.wins>=1,reward:{items:["bread"]}},
   {text:"Salvage a piece of loot into essence. Open Gear and tap an item.",tab:"gear",done:s=>s.stats.salvaged>=1,reward:{items:["spring_water"]}},
   {text:"Forge your sword with an essence in the Forge.",tab:"forge",done:s=>s.journal.length>=1,reward:{xp:20,items:["ess:Fire"]}},
+  {text:"Learn a technique: open Research in the Forge and spend your research points.",tab:"forge",need:"research",done:s=>Object.keys(s.techs).length>1,reward:{items:["ess:Ice"],xp:20}},
   {text:"Use Study during a fight to learn something about an enemy.",tab:"battle",done:s=>s.stats.studied>=1,reward:{items:["ess:Sharp"]}},
   {text:"Equip a piece of armor or a shield.",tab:"gear",done:s=>["off","head","body","hands","feet"].some(k=>s.eq[k]&&s.items[s.eq[k]]&&FORMS[s.items[s.eq[k]].form].g==="armor"),reward:{camp:1}},
   {text:"Cross the Woods map and defeat Gnarlhorn at the end of it.",tab:"battle",done:s=>(s.kills.gnarlhorn||0)>=1,reward:{items:["ess:Swift","ess:Holy"],xp:30}},
   {text:"Infuse an essence into yourself in the Gear tab.",tab:"gear",done:s=>Object.keys(s.infuse||{}).length>0,reward:{camp:1,xp:20}},
-  // steps 8-15 walk through the unlocks (see UNLOCKS). A step with need:"id" (an unlock) or ok(s) waits, showing how to open it (UNLOCKS txt, or wait), until its system is open
+  // steps 9-16 walk through the unlocks (see UNLOCKS). A step with need:"id" (an unlock) or ok(s) waits, showing how to open it (UNLOCKS txt, or wait), until its system is open
   {text:"Parry a telegraphed special: when a creature glows red, tap Parry.",tab:"battle",done:s=>s.stats.parries>=1,reward:{items:["ess:Iron"],xp:15}},
   {text:"Use your weapon's ability in a fight (the extra button by Attack).",tab:"battle",done:s=>s.stats.abil>=1,reward:{items:["ess:Swift"]}},
   {text:"Defeat a magic or rare enemy. A coloured frame marks them on the map.",tab:"battle",done:s=>s.stats.elites>=1,reward:{items:["ess:Arcane","ess:Shadow"],xp:25}},
@@ -306,6 +307,37 @@ const DAILY_REWARD={ess:3,xp:80};
 // Order matters: it is the order of the Codex Guide. To gate something new add an entry here, test isUnl(id) where it is drawn (lockRow(id) draws the teaser), and add a step to TUTORIAL if it deserves one.
 const lvOf=xp=>XP_LV.filter(t=>xp>=t).length,exps=s=>s.stats.exped+s.stats.deaths,has_=(s,...ids)=>ids.every(i=>s.unl[i]); // exps: finished expeditions (a boss down or a defeat)
 const boss1=s=>(s.kills[ZONES[0][2]]|0)>0,abOf=s=>[s.eq.main,s.eq.off].some(id=>id&&s.items[id]&&ABILITIES[s.items[id].form]);
+// ================= RESEARCH =================
+// Research points (S.rp) come from discoveries: each source in RP pays once (S.rpd keeps which). They buy techniques (S.techs={id:order}); what you can craft depends on them (craftMiss in research.js).
+// A tech: id, name, ic, cost (RP), pre (techs needed first), rq/ok (a requirement over a state: Smith level or a skill), pos [column, row] in the tree, d (what it is), gate (what it opens, shown in tips), used(s) (migration only: proof an older save already did this) and i (the intro card, queued when learned).
+// Binding is known from the start. Refining is the grade upgrades; Mending is reforging; Precision lowers the failure chance by PREC points each; Masterwork lets legendary secrets succeed.
+const RP={form:2,rec:1,recCap:10,fam:1,rx:4,study:1,mast:2,boss:[4,8,12,16],afx:1,leg:4,lv:2,lvMax:9,sk:2,skLv:[3,5,7,9]},PREC=[5,5],INSIGHT={ch:35}; // INSIGHT.ch: % chance a craft with one side of an unseen reaction hints at it
+const skLvOf=(s,k)=>SK_LV.filter(t=>((s.skills||{})[k]|0)>=t).length,smLv=n=>({rq:`Smith Lv ${n}`,ok:s=>lvOf(s.xp)>=n});
+const crafts=s=>s.journal.map(j=>s.items[j.id]).filter(it=>it&&it.crafted),rids=it=>it.recipeIds||[],plainIn=it=>rids(it).filter(r=>!/^ess_/.test(r)).length;
+const TECHS=[
+  {id:"bind",name:"Binding",ic:"infuse",cost:0,pre:[],pos:[1.5,0],d:"Bind one essence into an item.",gate:"An item and one essence."},
+  {id:"layer",name:"Layering",ic:"tier",cost:6,pre:["bind"],pos:[0,1],d:"Forge on top of something you already crafted. The traits stack.",gate:"A crafted item as an ingredient.",
+    used:s=>crafts(s).some(it=>rids(it).some(r=>s.items[r]&&s.items[r].crafted)),i:{t:"Layering",l:["You can forge on top of a crafted item: add another essence and the traits stack, up to your trait slots."],tab:"forge",sel:"#slots"}},
+  {id:"compound",name:"Compounding",ic:"bag",cost:10,pre:["bind"],pos:[1,1],d:"Forge with a second item or any ingredient that is not an essence: ores, herbs, hides, potions, relics.",gate:"A second item or non-essence ingredients (item + item, essence + essence).",
+    used:s=>crafts(s).some(it=>{const n=plainIn(it);return n>=2||(!n&&rids(it).length>=2)}),i:{t:"Compounding",l:["A second item or any non-essence ingredient can now go into the crucible: ores, herbs, hides, potions, relics. Until now only essences."],tab:"forge",sel:"#slots"}},
+  {id:"mend",name:"Mending",ic:"cleanse",cost:12,pre:["bind"],pos:[2,1],...smLv(2),d:"Mend a flawed craft (Cursed, Brittle, Rust or Weakened) by reforging it.",gate:"Reforging flawed items.",
+    used:s=>Object.values(s.items).some(it=>it.crafted&&it.id.startsWith("c_")&&!it.recipeIds&&it.temper==null),i:{t:"Mending",l:["Open a flawed item and tap Reforge to strip its flaws. It costs embers, so it shows once you have some."],tab:"forge"}},
+  {id:"refine",name:"Refining",ic:"upgrade",cost:12,pre:["bind"],pos:[3,1],rq:"Alchemy Lv 2",ok:s=>skLvOf(s,"alchemy")>=2,d:"Raise a grade: three essences or materials of one grade become one of the next.",gate:"The grade upgrade panel.",
+    used:s=>s.stats.refined>0,i:{t:"Refining",l:[`${UP.n} essences or materials of one grade, plus some embers, make one of the next grade: stronger traits in one slot.`,"The panel shows in the Forge once you have embers and crafting skills."],tab:"forge"}},
+  {id:"temper",name:"Tempering",ic:"forge",cost:16,pre:["layer"],pos:[0,2],...smLv(2),d:"Forge with three or more ingredients at once.",gate:"Three or more inputs (the crucible slots still come with Smith level).",
+    used:s=>crafts(s).some(it=>rids(it).length>=3),i:{t:"Tempering",l:["Three or more things in one forge, as many as your crucible has slots. More inputs make a forge harder."],tab:"forge",sel:"#slots"}},
+  {id:"alloy",name:"Alloying",ic:"alloy",cost:20,pre:["compound"],pos:[1,2],...smLv(3),d:"Merge two kinds of gear into a new form, like a spear and a shield into a lance.",gate:"Form fusions.",
+    used:s=>crafts(s).some(it=>FUSIONS.some(f=>f[2]===it.form)),i:{t:"Alloying",l:["Two kinds of gear can now merge into a new form, such as a spear and a shield into a lance.","The Recipes tab lists every fusion."],tab:"forge",sel:"#slots"}},
+  {id:"prec1",name:"Precision I",ic:"weak",cost:20,pre:["mend"],pos:[2,2],...smLv(3),d:`A steadier hand: ${PREC[0]} points fewer failures in every forge.`,gate:"Lower failure odds.",
+    i:{t:"Precision I",l:[`Your hand is steadier: every forge fails ${PREC[0]} points less often (never under ${FAIL.min}%).`],tab:"forge",sel:"#combine"}},
+  {id:"prec2",name:"Precision II",ic:"weak",cost:30,pre:["prec1"],pos:[2,3],...smLv(6),d:`Steadier still: another ${PREC[1]} points fewer failures.`,gate:"Lower failure odds.",
+    i:{t:"Precision II",l:[`Another ${PREC[1]} points off every forge's failure chance, ${PREC[0]+PREC[1]} in all (never under ${FAIL.min}%).`],tab:"forge",sel:"#combine"}},
+  {id:"master",name:"Masterwork",ic:"renown",cost:40,pre:["temper","prec1"],pos:[1,3],...smLv(5),d:"Legendary secrets can succeed: the exact ingredients forge a legendary.",gate:"Legendary secrets.",
+    used:s=>s.journal.some(j=>j.legendary),i:{t:"Masterwork",l:["Legendary secrets can succeed now: forge the exact ingredients a rumor names and the result is legendary.","Until now the right ingredients only made an ordinary piece."],tab:"forge"}}
+].map(t=>({ok:()=>true,rq:"",used:()=>false,...t}));
+const TECH=Object.fromEntries(TECHS.map(t=>[t.id,t]));
+// one vague word per trait that takes part in a reaction: an insight says "X reacts with <this>" without naming the partner
+const VAGUE={Fire:"something hot",Ice:"something freezing",Water:"something wet",Poison:"something venomous",Nourishing:"something wholesome",Sweet:"something sweet",Light:"something bright",Holy:"something sacred",Shadow:"something dark",Iron:"something forged",Arcane:"something uncanny",Stone:"something heavy",Fur:"something warm",Sharp:"something keen",Steam:"something misty"};
 const UNLOCKS=[
   {id:"start",name:"The map",ic:"hero",q:1,when:()=>true,i:{t:"Your first expedition",l:["Tap a glowing tile next to you to step. Fights drop loot, and a camp waits before the boss.","In a fight: Attack, Guard or Flee. Your torch burns down as you walk."],tab:"battle",sel:".tl.adj"}},
   {id:"study",name:"Study",ic:"study",when:s=>s.wins>=1,used:s=>s.stats.studied>0,txt:"Win your first battle.",w:"It joins the action buttons.",
@@ -325,11 +357,14 @@ const UNLOCKS=[
     i:{t:"Mystery tiles",l:["A ? tile can hold anything: an ambush, a stranger with a bargain, a riddle, an old forge.","Read the choices. Walking away is always allowed."],tab:"battle",sel:".tl.p-mystery"}},
   {id:"elite",name:"Magic and rare foes",ic:"elite",when:s=>lvOf(s.xp)>=3||ZONES.some(z=>s.seen[z[2]]),used:s=>s.stats.elites>0,txt:"Face a region boss, or reach Smith Lv 3.",w:"They show up on your next expedition.",
     i:{t:"Magic and rare foes",l:["Some creatures carry affixes: tricks that change the fight. A coloured frame marks them on the map.","Each drops essences linked to its affixes, in better grades."],tab:"battle",sel:".tl.p-elite"}},
-  {id:"infuse",name:"Infusions",ic:"infuse",when:s=>boss1(s)||s.quest>=6,used:s=>Object.keys(s.infuse).length>0||s.infCredit>0,txt:"Defeat Gnarlhorn.",w:"Open the Gear tab.",
+  {id:"infuse",name:"Infusions",ic:"infuse",when:s=>boss1(s)||s.quest>=7,used:s=>Object.keys(s.infuse).length>0||s.infCredit>0,txt:"Defeat Gnarlhorn.",w:"Open the Gear tab.",
     i:{t:"Infusions",l:[`Essences worth ${INF_COST} plain ones can be infused into you. The trait stays whatever you wield.`,`Feed it the same essence again to deepen it, up to ${["I","II","III"][INF_MAX-1]}.`],tab:"gear",sel:"#inflabel"}},
   {id:"skills",name:"Crafting skills",ic:"hammer",when:s=>s.journal.length>0||s.stats.forged>0,used:s=>Object.values(s.skills).some(x=>x>0),txt:"Forge something.",w:"Open the Forge tab.",
     i:{t:"Crafting skills",l:["Every kind of thing has its own skill, and forging it trains it.","A higher skill reaches higher tiers and fails less often."],tab:"forge",sel:"#skd"}},
-  {id:"upgrade",name:"Grade upgrades",ic:"upgrade",when:s=>has_(s,"peddler","skills"),used:s=>s.stats.refined>0,txt:"Unlock embers and crafting skills.",w:"Open the Forge tab.",
+  {id:"research",name:"Research",ic:"research",when:s=>s.journal.length>0||s.stats.forged>0||lvOf(s.xp)>=2,used:s=>Object.keys(s.techs).length>1,txt:"Forge something, or reach Smith Lv 2.",w:"Open the Forge tab.",
+    i:{t:"Research",l:["Forging, salvaging, studying and meeting new things teach you something. Each first discovery earns research points, and so do reaching new smith and skill levels and defeating bosses.","Spend them in the Forge on techniques: they decide what you can craft. You know Binding, one essence into an item."],tab:"forge",sel:"#resd"}},
+  ...TECHS.filter(t=>t.i).map(t=>({id:"t:"+t.id,name:t.name,ic:t.ic,q:1,when:s=>!!s.techs[t.id],used:s=>!!s.techs[t.id],i:t.i})), // a technique's intro is queued when it is learned (the toast and sound come from learnTech)
+  {id:"upgrade",name:"Grade upgrades",ic:"upgrade",when:s=>has_(s,"peddler","skills")&&!!s.techs.refine,used:s=>s.stats.refined>0,txt:"Unlock embers and crafting skills, and learn Refining in Research.",w:"Open the Forge tab.",
     i:{t:"Grade upgrades",l:[`${UP.n} essences or materials of one grade and some embers make one of the next grade: stronger traits in one slot.`,`A miss costs the embers and one of the ${UP.n}.`],tab:"forge",sel:"#upgd"}},
   {id:"heat",name:"Heat",ic:"heat",when:s=>Object.values(s.heat).some(h=>h.max>0)||boss1(s),used:s=>Object.keys(s.heat).length>0,txt:"Defeat a region boss.",w:"Find the flame on the map strip.",
     i:{t:"Heat",l:["Pick a Heat level with the flame on the map strip. Enemies grow tougher and loot gets richer.","Beat a region's boss at your highest Heat to unlock the next."],tab:"battle",sel:"#heatBtn"}},

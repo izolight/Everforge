@@ -20,7 +20,7 @@ function learn(id,type,val){
   else if(type==="stats")text=`Codex: ${nm}'s strength is now recorded.`;
   else text=`Codex: ${nm} can drop ${S.items[val].name}.`;
   if(S.battle&&S.battle.id===id)blog(text,"lore");
-  if(!was&&know(id).mastered)setTimeout(()=>toast(`${nm} mastered! You deal 15% more damage to it.`),50);
+  if(!was&&know(id).mastered){setTimeout(()=>toast(`${nm} mastered! You deal 15% more damage to it.`),50);rpGain("mast:"+id,RP.mast,`${nm} mastered`)}
   return true;
 }
 function unknownFacts(id){const E=S.battle&&S.battle.id===id?foeOf(S.battle):ENEMIES[id],K=cx(id),out=[];

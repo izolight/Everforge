@@ -15,8 +15,8 @@ async function run(label,setup,nat){
   if(setup){await page.evaluate(setup);await page.reload()}
   await page.waitForFunction(()=>typeof S==="object"&&S);
   const stats=await page.evaluate(async ({steps,nat})=>{
-    const sleep=ms=>new Promise(r=>setTimeout(r,ms)),out={steps:0,battles:0,won:0,lost:0,forged:0,zones:new Set(),views:0,wields:0,abil:0,tiles:0,outs:0,byfoe:0,fled:0,script:0,intros:0,heat:0,daily:0,aband:0,bought:0,sold:0,upgraded:0,reforged:0,afx:new Set(),split:0,boom:0,rare:0,bad:[]};
-    out.vet0=UNLOCKS.every(u=>S.unl[u.id])&&pendingIntros().length===0?1:`missing ${UNLOCKS.filter(u=>!S.unl[u.id]).map(u=>u.id)} pending ${pendingIntros().map(c=>c.id)}`; // as loaded, before the bot plays
+    const sleep=ms=>new Promise(r=>setTimeout(r,ms)),out={steps:0,battles:0,won:0,lost:0,forged:0,zones:new Set(),views:0,wields:0,abil:0,tiles:0,outs:0,byfoe:0,fled:0,script:0,intros:0,heat:0,daily:0,aband:0,bought:0,sold:0,upgraded:0,reforged:0,learned:0,studied:0,gated:0,afx:new Set(),split:0,boom:0,rare:0,bad:[]};
+    out.vet0=UNLOCKS.every(u=>S.unl[u.id])&&TECHS.every(t=>S.techs[t.id])&&pendingIntros().length===0?1:`missing ${UNLOCKS.filter(u=>!S.unl[u.id]).map(u=>u.id)} pending ${pendingIntros().map(c=>c.id)}`; // as loaded, before the bot plays
     const click=el=>{el.click();return true};let wantZone=null,doChores=false,wantWield=false,wantHeat=false,wantDaily=false,wantAband=false,wantShop=false;
     const q=s=>document.querySelector(s),qa=s=>[...document.querySelectorAll(s)];
     const fin=B=>{ // a finished fight: a won one drops each affix's essence (a lost one never does); count splits and volatile deaths
@@ -120,11 +120,16 @@ async function run(label,setup,nat){
     async function chores(){
       for(const v of VIEWS){go(v);out.views++}
       go("forge");S.bench=[];
-      const can=qa("#finv [data-can='1']");
-      for(const c of can.slice(0,1+Math.floor(Math.random()*2)))click(c);
-      const can2=qa("#finv [data-can='1']");if(can2.length)click(can2[Math.floor(Math.random()*can2.length)]);
-      if(S.bench.length>=2){q("#combine").click();q("#combine").click();await sleep(30);out.forged++;} // twice: the first tap only arms the equipped-item warning
+      const can=qa("#finv [data-can='1']"),isE=b=>isEss(b.dataset.id),bases=can.filter(b=>!isE(b));
+      if(nat&&bases.length&&can.some(isE)&&Math.random()<.8){click(bases[Math.floor(Math.random()*bases.length)]);click(qa("#finv [data-can='1']").find(isE))} // a newcomer binds an essence into an item: the one forge Binding allows
+      else{
+        for(const c of can.slice(0,1+Math.floor(Math.random()*2)))click(c);
+        const can2=qa("#finv [data-can='1']");if(can2.length)click(can2[Math.floor(Math.random()*can2.length)])}
+      if(S.bench.length>=2){const j0=S.stats.forged+S.stats.fizzles;q("#combine").click();q("#combine").click();await sleep(30);out.forged++;if(S.stats.forged+S.stats.fizzles===j0&&craftMiss(S.bench.map(id=>S.items[id])).length)out.gated++} // twice: the first tap only arms the equipped-item warning; a craft that needs a technique you lack is refused
       S.bench=[];save();
+      if(isUnl("research")){go("forge");{const rd=q("#resd");if(rd)rd.open=true}
+        const av=qa("#restree .tn.can");if(av.length){click(av[Math.floor(Math.random()*av.length)]);const lb=q("#learn");if(lb&&lb.getAttribute("aria-disabled")!=="true"){click(lb);out.learned++}}
+        const sb=qa("#restree [data-study]:not(.off)");if(sb.length){click(sb[Math.floor(Math.random()*sb.length)]);out.studied++}}
       S.embers+=40;{const t=pick(ESS_POOL);for(let k=0;k<3;k++)addItem(essG(t,1))}go("forge"); // upgrading a grade (3 Faint, Alchemy Lv 1 is enough), then a mishap to reforge
       const rf=q("#upgrows [data-upgrade]:not([disabled])");if(rf){rf.click();out.upgraded++}
       S.items.t_curse={id:"t_curse",name:"Cursed Test Blade",form:"blade",noun:"Blade",traits:{Fire:2,Cursed:2},tier:2,crafted:true,recipe:["a","b"],recipeIds:[]};addItem("t_curse");
@@ -134,7 +139,7 @@ async function run(label,setup,nat){
       go("battle");if(!qa("#arena [data-tile]").length)q("#again")?.click();
     }
     await sleep(500);
-    out.unl=Object.keys(S.unl);out.pending=pendingIntros().length;out.zones=[...out.zones];out.afx=[...out.afx];out.save=localStorage.getItem(KEY);out.key=KEY;out.v=S.v;
+    out.unl=Object.keys(S.unl);out.techs=Object.keys(S.techs).length;out.rp=S.rp;out.pending=pendingIntros().length;out.zones=[...out.zones];out.afx=[...out.afx];out.save=localStorage.getItem(KEY);out.key=KEY;out.v=S.v;
     return out;
   },{steps:STEPS,nat});
   await browser.close();
@@ -152,8 +157,9 @@ async function run(label,setup,nat){
   if(fs_.battles<3)fail("Too few battles completed; the loop got stuck.");
   if(!fs_.intros||fs_.unl.length<4)fail(`The natural run opened too little (${fs_.unl.length} unlocks, ${fs_.intros} intro cards read).`);
   if(fs_.tiles<30)fail("The bot barely explored the map.");
+  if(!fs_.unl.includes("research")||fs_.techs<2||!fs_.learned)fail(`The natural run did not progress into research and learn a technique (research open: ${fs_.unl.includes("research")}, techniques ${fs_.techs}, learned ${fs_.learned}).`);
   // 2. a save with everything unlocked (a fresh state with every UNLOCKS entry open and read): the feature checks that gating would keep out of a 400-step newcomer run (abilities, Heat, daily, buying, selling, upgrading, reforging, flee, affixes, chasers, tiles)
-  const all=await run("unlocked",new Function(`S.unl=Object.fromEntries(UNLOCKS.map((u,i)=>[u.id,i+1]));UNLOCKS.forEach(u=>S.seen["i:"+u.id]=true);Object.keys(ABILITIES).forEach(k=>S.seen["a:"+k]=true);S.quest=TUTORIAL.length;save()`)),st=all.stats;
+  const all=await run("unlocked",new Function(`S.unl=Object.fromEntries(UNLOCKS.map((u,i)=>[u.id,i+1]));UNLOCKS.forEach(u=>S.seen["i:"+u.id]=true);Object.keys(ABILITIES).forEach(k=>S.seen["a:"+k]=true);S.quest=TUTORIAL.length;S.techs=Object.fromEntries(TECHS.map((t,i)=>[t.id,i+1]));save()`)),st=all.stats;
   if(all.errors.length)fail(all.errors.join("\n"));
   if(st.wields>=7&&!st.abil)fail("No ability buttons were clicked; they may have vanished.");
   if(st.bad.length)fail(st.bad.join("\n"));

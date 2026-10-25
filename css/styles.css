@@ -607,3 +607,26 @@ details.howto[open]>summary{margin-bottom:4px}
 .gd summary{display:flex;align-items:center;gap:8px;padding:9px 10px;min-height:40px;cursor:pointer;font-size:.92rem}
 .gd .gi{color:var(--accent);display:inline-flex}.gd .rdy{margin-left:auto}
 .gdb{display:grid;gap:4px;padding:0 10px 10px 34px;font-size:.86rem;color:var(--muted)}.gdb p{margin:0}.gdb .btn{justify-self:start;margin-top:4px}
+/* research: header counter, the technique tree, the detail strip, material study */
+.meta .rp,.meta .rp .ic{color:var(--verd)}
+.tree{position:relative;height:316px;margin:8px 0 6px}
+.tree svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.tree line{stroke:var(--line2);stroke-width:1.5;stroke-dasharray:3 3;vector-effect:non-scaling-stroke}.tree line.on{stroke:var(--accent);stroke-dasharray:none}
+.tn{position:absolute;transform:translate(-50%,-50%);width:68px;min-height:62px;display:grid;justify-items:center;align-content:center;gap:3px;padding:6px 2px 5px;border:1px solid var(--line2);border-radius:12px;background:#17130f;color:var(--muted);font-size:.66rem;line-height:1.1;text-align:center}
+.tn span{display:block;max-width:100%;overflow-wrap:anywhere}
+.tn .ic{width:22px;height:22px}
+.tn.learned{border-color:var(--accent);color:var(--accent);background:color-mix(in srgb,var(--accent) 10%,#17130f)}
+.tn.avail{border-color:var(--accent);border-style:dashed;color:var(--fg)}.tn.avail.can{border-style:solid;box-shadow:0 0 0 1px var(--accent),0 0 12px rgb(242 165 74 / .35)}
+.tn.locked{opacity:.55;color:var(--dim)}
+.tn.sel{outline:2px solid var(--fg);outline-offset:2px}
+.tb{position:absolute;top:-7px;right:-7px;min-width:19px;height:19px;padding:0 4px;display:inline-flex;align-items:center;justify-content:center;border-radius:99px;border:1px solid var(--line2);background:var(--panel2);color:var(--muted);font:normal 500 .62rem var(--mono)}
+.tn.learned .tb{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}.tn.can .tb{background:var(--ember);border-color:var(--ember);color:#1e0d04}
+.tb .ic{width:11px;height:11px}
+.tdet{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;padding:10px;border:1px solid var(--line);border-radius:10px;background:#17130f}
+.tdet .ti2{color:var(--accent)}.tdet .ti2 .ic{width:26px;height:26px}
+.tdb{display:grid;gap:2px;min-width:0}.tdb b{font-family:var(--display);font-size:1.1rem;font-weight:500;color:var(--accent);line-height:1.1}
+.tdb .foot{font-size:.7rem}.tdb small{font-family:var(--mono);font-size:.7rem;color:var(--muted)}.tdb p{margin:0;font-size:.86rem;color:var(--muted);line-height:1.3}
+.treq{display:flex;flex-wrap:wrap;gap:4px 10px;font-size:.74rem;font-family:var(--mono)}.treq span{display:inline-flex;align-items:center;gap:3px}.treq .ok{color:var(--up)}.treq .no{color:var(--down)}
+.sty{margin:6px 0 2px;gap:6px}.sty1{min-height:36px;padding:3px 8px;cursor:pointer;font-size:.78rem;text-transform:none}.sty1.off{opacity:.5}
+.rx1.part{border:1px dashed var(--line2);cursor:pointer}.rx1 .chip.unk b{color:var(--dim)}
+@media (max-width:380px){.tn{width:64px;font-size:.62rem}}
