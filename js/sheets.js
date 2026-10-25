@@ -27,7 +27,7 @@ function openSheet(id,refresh,preview){
     ${statGrid(shown(it),cmp?shown(cmp):null,1)}${cmp?cmpBlock(it,cmp,"Versus equipped"):""}
     ${!preview&&!mix.ok?`<p class="warn-text">${mix.reason}</p>`:""}
     ${it.mishap==="Weakened"?`<p class="warn-text">${tx("Weakened: a fizzled mixture cost every trait 30%.")}</p>`:""}
-    <ul class="fx">${effects(it).map(f=>`<li>${f}</li>`).join("")}</ul>
+    ${effectBadges(it)}
     ${it.recipe?`<p class="empty">${tx("Forged from {list}.",{list:recipeNames(it)})}</p>`:""}
     <div class="actions">${btns.join("")}</div>`;
   if(!refresh)showSheet();

@@ -272,6 +272,18 @@ Object.assign(NODE_G,{
   dr:'<path d="M12 2 L20 5 V11 C20 16 16 20 12 22 C8 20 4 16 4 11 V5 Z"/><path d="M8.5 12 H15.5"/>',
   floor:'<path d="M3 20 H21 M12 4 V15 M7 11 L12 16 L17 11"/>',
   cleanse:'<path d="M12 3 C16 9 18 12 18 15 A6 6 0 0 1 6 15 C6 12 8 9 12 3 Z"/><path d="M9 15 H15 M12 12 V18"/>',
+  sharp:'<path d="M5 19 L9 15 L7 13 L17 3 H21 V7 L11 17 L9 15 M4 16 L8 20 M3 21 L6 18"/>',
+  heavy:'<circle cx="12" cy="5.5" r="3"/><path d="M7 9 H17 L21 21 H3 Z M12 12 V18 M9 15 L12 18 L15 15"/>',
+  crit:'<path d="M5 19 L17 7 M4 16 L8 20 M14 4 H20 V10 M5 3 V7 M3 5 H7 M18 16 V22 M15 19 H21"/>',
+  pierce:'<path d="M12 3 L20 6 V12 Q20 18 12 22 Q4 18 4 12 V6 Z M2 19 L22 5 M16 5 H22 V11"/>',
+  arc_pierce:'<path d="M12 2 L21 12 L12 22 L3 12 Z M2 19 L22 5 M16 5 H22 V11"/>',
+  armor_break:'<path d="M12 3 L20 6 V12 Q20 18 12 22 Q4 18 4 12 V6 Z M14 4 L10 10 L14 13 L10 20"/>',
+  heal_hit:'<path d="M3 21 L17 7 M4 16 L8 20 M14 4 H20 V10 M16 15 V21 M13 18 H19"/>',
+  turn:'<path d="M20 10 A8 8 0 1 0 18 18 M20 3 V10 H13"/>',
+  cooldown:'<circle cx="12" cy="12" r="9"/><path d="M12 6 V12 L16 15"/>',
+  water:'<path d="M12 2 C16 8 19 12 19 15 A7 7 0 0 1 5 15 C5 12 8 8 12 2 Z"/>',
+  fur:'<path d="M3 7 L7 3 L10 6 H14 L17 3 L21 7 L18 11 L20 15 L16 17 L14 21 L10 18 L6 20 L6 15 L2 12 Z"/>',
+  sweet:'<path d="M8 7 L12 5 L16 7 L18 12 L16 17 L12 19 L8 17 L6 12 Z M6 9 L2 6 V18 L6 15 M18 9 L22 6 V18 L18 15"/>',
   a_vamp:'<path d="M12 3 C16 9 18 12 18 15 A6 6 0 0 1 6 15 C6 12 8 9 12 3 Z"/><path d="M9 14 L10 18 L12 15 L14 18 L15 14"/>',
   a_thorn:'<path d="M4 20 H20 M6 20 L8 8 L10 20 M11 20 L13 4 L15 20 M16 20 L18 10 L20 20"/>',
   a_regen:'<path d="M20 12 A8 8 0 1 1 15 4.6"/><path d="M20 4 V9 H15"/><path d="M12 9 V15 M9 12 H15"/>',
@@ -284,6 +296,8 @@ Object.assign(NODE_G,{
 const ic=(t,c)=>`<svg class="ic${c?" "+c:""}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true">${NODE_G[t]}</svg>`;
 const gIc=(k,c)=>`<svg class="ic${c?" "+c:""}" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">${G[k]}</svg>`;
 const famIc=(f,c)=>ic("f_"+(NODE_G["f_"+f]?f:"stone"),c),stIc=(k,c)=>ic("st_"+k,c);
+const TRAIT_IC={Sharp:"sharp",Heavy:"heavy",Steam:"smoke",Water:"water",Frost:"f_ice",Venomous:"a_vamp",Nourishing:"st_heal",Medicine:"cleanse",Sweet:"sweet",Radiant:"st_mag",Sunfire:"heat",Twilight:"f_shadow",Iron:"resist",Tempered:"armor_break",Wood:"root",Fur:"fur",Insulated:"ward",Runic:"ward",Swift:"f_swift",Lure:"chest",Rust:"armor_break",Cursed:"f_bad",Brittle:"armor_break"};
+const traitIc=(t,c)=>ic(TRAIT_IC[t]||"f_"+TRAITS[t].f,c);
 function terrain(zone,H,seed){
   const R=rng(seed),W=400;let s="";
   if(zone==="woods"){for(let k=0;k<26;k++){const x=R()*W,y=R()*H,sz=8+R()*10;s+=`<path d="M${x} ${y-sz*1.8} L${x-sz} ${y} H${x+sz} Z" fill="#1f3322"/><path d="M${x} ${y-sz*1.2} L${x-sz*.8} ${y+sz*.5} H${x+sz*.8} Z" fill="#26402a"/>`}}
