@@ -183,17 +183,120 @@ function wolfArt(c,big){return `<g stroke="${c.o}" stroke-width="2.5" stroke-lin
   <path d="M39 20 L48 40 L37 44 Z" fill="${c.d}"/><path d="M71 18 L77 42 L66 38 Z" fill="${c.d}"/><ellipse cx="108" cy="74" rx="5.5" ry="4.5" fill="#15110d"/></g>
   <path d="M97 86 l2.5 8 3 -8 M87 87 l2 7 3 -7" fill="#f2ece0"/><path d="M57 54 l15 4 -13 5 Z" fill="${c.e}"${big?' stroke="#fff" stroke-width=".8"':""}/>
   <path d="M28 88 q10 7 22 2 M26 72 q8 5 15 2" stroke="${c.l}" stroke-width="2" fill="none" opacity=".6"/>`}
+// ---- composable creatures: a body per family plus overlay parts, tinted by the element (or an elemental affix).
+// An enemy without a PORTRAITS entry is drawn from ENEMIES[id].art={b:body,p:[parts],c:base colour (optional, used while it fights as its own element),skin}.
+// Each body returns {s:svg,a:anchors}: h=[x,y,r] head, s=[x,y,w] shoulders/back line (w = half width), c=[x,y] chest, k=[x,y] weapon hand, t=[x,y] tail root, side=1 for a side view.
+// Parts are {z:-1 behind the body | 1 in front, f(c,a,o)}; affixes add a part on a composed body (AFX_ART[id].p) or a frame effect anywhere (AFX_ART[id].f).
+const BODY={
+  beast:c=>({a:{h:[26,60,17],s:[70,44,28],c:[70,68],k:[18,86],t:[104,62],side:1},s:`<g stroke="${c.o}" stroke-width="2.5" stroke-linejoin="round">
+    <path d="M80 86 L80 108 H90 L92 86 Z M44 84 L42 106 H52 L56 86 Z" fill="${c.d}"/>
+    <path d="M36 58 Q44 40 70 40 Q104 40 108 64 Q108 90 80 92 Q48 94 38 82 Z" fill="${c.m}"/>
+    <path d="M92 84 L96 110 H106 L104 78 Z M54 86 L56 110 H66 L66 88 Z" fill="${c.d}"/>
+    <path d="M48 54 Q42 38 26 42 Q8 46 6 62 Q6 76 16 80 L34 80 Q48 74 48 54 Z" fill="${c.m}"/>
+    <path d="M30 44 L26 28 L40 42 Z" fill="${c.d}"/><path d="M6 62 Q1 70 8 76 L18 79 Q12 70 6 62 Z" fill="${c.d}"/></g>
+    <path d="M52 50 Q74 44 98 52 M30 70 q6 4 12 0" stroke="${c.l}" stroke-width="2" fill="none" opacity=".5"/>
+    <path d="M11 77 l3 6 3 -5 M19 79 l3 6 3 -5" fill="#f2ece0"/><ellipse cx="24" cy="57" rx="3.6" ry="3.2" fill="${c.e}"/>`}),
+  undead:c=>({a:{h:[60,32,16],s:[60,50,24],c:[60,72],k:[102,94]},s:`<g stroke="${c.o}" stroke-width="2.5" stroke-linejoin="round">
+    <path d="M38 50 Q16 62 14 94 L23 96 Q26 72 44 62 Z M82 50 Q104 62 106 94 L97 96 Q94 72 76 62 Z" fill="${c.d}"/>
+    <path d="M46 94 L42 114 H52 L55 96 Z M74 94 L78 114 H68 L65 96 Z" fill="${c.d}"/>
+    <path d="M38 48 Q60 40 82 48 L86 102 L78 95 L71 104 L64 95 L56 104 L49 95 L40 102 Z" fill="${c.m}"/>
+    <path d="M44 32 Q44 13 60 13 Q76 13 76 32 Q76 42 70 47 V52 H50 V47 Q44 42 44 32 Z" fill="${c.l}"/></g>
+    <path d="M50 60 Q60 64 70 60 M48 68 Q60 72 72 68 M50 76 Q60 80 70 76 M60 55 V86" stroke="${c.d}" stroke-width="2" fill="none"/>
+    <path d="M14 96 l-3 6 M18 97 l0 7 M22 96 l3 6 M106 96 l3 6 M102 97 l0 7 M98 96 l-3 6" stroke="${c.o}" stroke-width="2" stroke-linecap="round"/>
+    <ellipse cx="53" cy="31" rx="5" ry="6" fill="#0b0907"/><ellipse cx="67" cy="31" rx="5" ry="6" fill="#0b0907"/><circle cx="53" cy="32" r="2.2" fill="${c.e}"/><circle cx="67" cy="32" r="2.2" fill="${c.e}"/>
+    <path d="M58 40 L60 37 L62 40 Z" fill="#0b0907"/><path d="M52 47 H68 M55 45 V49 M60 45 V49 M65 45 V49" stroke="#0b0907" stroke-width="1.6"/>`}),
+  construct:c=>({a:{h:[60,26,16],s:[60,44,30],c:[60,68],k:[100,90]},s:`<g stroke="${c.o}" stroke-width="2.5" stroke-linejoin="round">
+    <rect x="38" y="92" width="16" height="20" rx="4" fill="${c.d}"/><rect x="66" y="92" width="16" height="20" rx="4" fill="${c.d}"/>
+    <rect x="10" y="46" width="20" height="34" rx="6" fill="${c.d}"/><rect x="90" y="46" width="20" height="34" rx="6" fill="${c.d}"/>
+    <rect x="7" y="78" width="26" height="18" rx="5" fill="${c.m}"/><rect x="87" y="78" width="26" height="18" rx="5" fill="${c.m}"/>
+    <path d="M28 42 H92 L84 98 H36 Z" fill="${c.m}"/><rect x="52" y="38" width="16" height="6" fill="${c.d}"/><rect x="44" y="10" width="32" height="30" rx="6" fill="${c.m}"/>
+    <rect x="48" y="20" width="24" height="9" rx="3" fill="#0b0907"/></g>
+    <rect x="53" y="23" width="14" height="3.6" rx="1.5" fill="${c.e}"/><circle cx="60" cy="66" r="10" fill="#0b0907" stroke="${c.o}" stroke-width="2"/><circle class="flick" cx="60" cy="66" r="5" fill="${c.e}"/>
+    <path d="M34 54 H86 M38 84 H82" stroke="${c.d}" stroke-width="2"/><g fill="${c.l}"><circle cx="34" cy="48" r="2"/><circle cx="86" cy="48" r="2"/><circle cx="40" cy="92" r="2"/><circle cx="80" cy="92" r="2"/></g>`}),
+  elemental:c=>({a:{h:[60,56,22],s:[60,34,22],c:[60,72],k:[100,58]},s:`<g stroke="${c.o}" stroke-width="2.5" stroke-linejoin="round">
+    <path d="M48 90 Q48 106 62 116 Q60 104 72 94 Z" fill="${c.d}"/>
+    <path class="flt" d="M12 56 L22 46 L30 58 L20 66 Z" fill="${c.d}"/><path class="flt" d="M108 56 L98 46 L90 58 L100 66 Z" fill="${c.d}"/>
+    <path d="M60 12 Q92 30 92 62 Q92 90 60 98 Q28 90 28 62 Q28 30 60 12 Z" fill="${c.m}"/></g>
+    <ellipse cx="60" cy="62" rx="20" ry="25" fill="${c.l}" opacity=".45"/><path d="M60 22 Q74 34 72 46" stroke="${c.l}" stroke-width="2" fill="none" opacity=".7"/>
+    <ellipse cx="52" cy="56" rx="4.2" ry="5.4" fill="${c.e}" stroke="${c.o}" stroke-width="1.6"/><ellipse cx="68" cy="56" rx="4.2" ry="5.4" fill="${c.e}" stroke="${c.o}" stroke-width="1.6"/>
+    <path d="M53 72 Q60 77 67 72" stroke="${c.o}" stroke-width="2" fill="none" stroke-linecap="round"/>
+    <g fill="${c.g}"><circle class="flt" cx="18" cy="90" r="2.6"/><circle class="flt" cx="102" cy="88" r="2.2"/><circle class="flt" cx="96" cy="24" r="1.8"/></g>`}),
+  humanoid:(c,o)=>({a:{h:[60,30,14],s:[60,52,28],c:[60,74],k:[90,88]},s:`<g stroke="${c.o}" stroke-width="2.5" stroke-linejoin="round">
+    <path d="M60 44 Q86 46 88 64 L98 114 H22 L32 64 Q34 46 60 44 Z" fill="${c.d}"/><path d="M46 52 H74 L78 108 H42 Z" fill="${c.m}"/>
+    <path d="M34 58 Q22 74 26 92 L35 92 Q35 76 43 66 Z M86 58 Q98 74 94 90 L85 90 Q85 76 77 66 Z" fill="${c.d}"/>
+    <circle cx="30" cy="94" r="5" fill="${o.skin}"/><circle cx="90" cy="90" r="5" fill="${o.skin}"/><circle cx="60" cy="30" r="14" fill="${o.skin}"/></g>
+    <rect x="44" y="80" width="32" height="5" fill="${c.o}"/><rect x="57" y="79" width="6" height="7" rx="1" fill="${c.l}"/><path d="M50 56 L60 66 L70 56" stroke="${c.l}" stroke-width="2" fill="none" opacity=".6"/>
+    <ellipse cx="55" cy="29" rx="2.4" ry="2" fill="${o.glow?c.e:"#1a120c"}"/><ellipse cx="65" cy="29" rx="2.4" ry="2" fill="${o.glow?c.e:"#1a120c"}"/><path d="M56 37 Q60 39 64 37" stroke="#1a120c" stroke-width="1.6" fill="none"/>`})
+};
+const mir=(x,f)=>f(1,x)+f(-1,x),P2=(...n)=>n.map(v=>+v.toFixed(1)).join(" ");
+const PART={
+  horns:{z:1,f:(c,a)=>{const[x,y,r]=a.h;return `<g fill="#ece0c6" stroke="${c.o}" stroke-width="2" stroke-linejoin="round">${mir(x,(s,x)=>`<path d="M${P2(x+s*r*.35,y-r*.75)} Q${P2(x+s*r*1.3,y-r*1.1)} ${P2(x+s*r*1.15,y-r*2.1)} Q${P2(x+s*r*.85,y-r*1.4)} ${P2(x+s*r*.05,y-r*1)} Z"/>`)}</g>`}},
+  antlers:{z:1,f:(c,a)=>{const[x,y,r]=a.h;return `<g stroke="#d9c39a" stroke-width="3.4" stroke-linecap="round" fill="none"><g stroke="${c.o}" stroke-width="6">${mir(x,(s,x)=>`<path d="M${P2(x+s*r*.3,y-r*.8)} L${P2(x+s*r*1.1,y-r*2.4)} M${P2(x+s*r*.7,y-r*1.6)} L${P2(x+s*r*1.6,y-r*1.7)} M${P2(x+s*r*.95,y-r*2.1)} L${P2(x+s*r*.5,y-r*2.9)}"/>`)}</g>${mir(x,(s,x)=>`<path d="M${P2(x+s*r*.3,y-r*.8)} L${P2(x+s*r*1.1,y-r*2.4)} M${P2(x+s*r*.7,y-r*1.6)} L${P2(x+s*r*1.6,y-r*1.7)} M${P2(x+s*r*.95,y-r*2.1)} L${P2(x+s*r*.5,y-r*2.9)}"/>`)}</g>`}},
+  mane:{z:-1,f:(c,a)=>{const[x,y,r]=a.h,n=11,R=r*1.55;let d="";for(let i=0;i<n*2;i++){const t=Math.PI*2*i/(n*2),q=i%2?R*.72:R;d+=(i?"L":"M")+P2(x+Math.cos(t)*q,y+Math.sin(t)*q)}return `<path d="${d}Z" fill="${c.d}" stroke="${c.o}" stroke-width="2.5" stroke-linejoin="round"/>`}},
+  spikes:{z:-1,f:(c,a)=>{const[x,y,w]=a.s,h=a.side?14:22;let d="";for(let i=0;i<5;i++){const p=x-w+i*w/2,q=y+(a.side?Math.abs(i-2)*1.5:Math.abs(i-2)*4);d+=`M${P2(p-6,q+8)} L${P2(p+(a.side?3:0),q-h+Math.abs(i-2)*2)} L${P2(p+6,q+8)} Z `}return `<path d="${d}" fill="${a.side?c.d:c.l}" stroke="${c.o}" stroke-width="2.2" stroke-linejoin="round"/>`}},
+  armor:{z:1,f:(c,a)=>{const[x,y,w]=a.s,[cx,cy]=a.c,st=`stroke="${c.o}" stroke-width="2.2" stroke-linejoin="round"`;
+    if(a.side)return `<path d="M${P2(x-w*.8,y+4)} Q${P2(x,y-8)} ${P2(x+w*.8,y+4)} L${P2(x+w*.7,y+20)} Q${P2(x,y+12)} ${P2(x-w*.7,y+20)} Z" fill="#8d989c" ${st}/><path d="M${P2(x-w*.6,y+10)} Q${P2(x,y)} ${P2(x+w*.6,y+10)}" stroke="#d6dde0" stroke-width="2" fill="none"/><g fill="#d6dde0"><circle cx="${x-w*.45}" cy="${y+12}" r="1.8"/><circle cx="${x}" cy="${y+6}" r="1.8"/><circle cx="${x+w*.45}" cy="${y+12}" r="1.8"/></g>`;
+    return `${mir(x,(s,x)=>`<path d="M${P2(x+s*w*.45,y)} Q${P2(x+s*w*1.2,y-6)} ${P2(x+s*w*1.15,y+14)} L${P2(x+s*w*.55,y+12)} Z" fill="#8d989c" ${st}/>`)}<path d="M${P2(cx-12,cy-12)} H${P2(cx+12)} L${P2(cx+10,cy+10)} Q${P2(cx,cy+16)} ${P2(cx-10,cy+10)} Z" fill="#a7b1b5" ${st}/><path d="M${P2(cx,cy-10)} V${P2(cy+12)} M${P2(cx-9,cy-2)} H${P2(cx+9)}" stroke="#e1e7e9" stroke-width="1.8"/>`}},
+  crown:{z:1,f:(c,a)=>{const[x,y,r]=a.h,b=y-r*.85,w=r*.8;return `<path d="M${P2(x-w,b)} L${P2(x-w*1.05,b-r*.9)} L${P2(x-w*.5,b-r*.45)} L${P2(x,b-r*1.1)} L${P2(x+w*.5,b-r*.45)} L${P2(x+w*1.05,b-r*.9)} L${P2(x+w,b)} Z" fill="#f0c95a" stroke="${c.o}" stroke-width="2" stroke-linejoin="round"/><circle cx="${x}" cy="${P2(b-r*.35)}" r="2" fill="${c.e}"/>`}},
+  halo:{z:-1,f:(c,a)=>{const[x,y,r]=a.h;return `<ellipse cx="${x}" cy="${P2(y-r*1.2)}" rx="${P2(r*1.1)}" ry="${P2(r*.35)}" fill="none" stroke="#f6e7a6" stroke-width="3.2" opacity=".95"/><ellipse class="flt" cx="${x}" cy="${P2(y-r*1.2)}" rx="${P2(r*1.4)}" ry="${P2(r*.5)}" fill="none" stroke="#fff6cf" stroke-width="1" opacity=".5"/>`}},
+  wings:{z:-1,f:(c,a)=>{const[x,y,w]=a.s,W=w+24;return `<g stroke="${c.o}" stroke-width="2.5" stroke-linejoin="round">${mir(x,(s,x)=>`<path d="M${P2(x+s*w*.4,y+6)} Q${P2(x+s*(W-10),y-44)} ${P2(x+s*W,y-40)} Q${P2(x+s*(W-6),y-22)} ${P2(x+s*(W+2),y-14)} Q${P2(x+s*(W-10),y-6)} ${P2(x+s*(W-4),y+8)} Q${P2(x+s*(W-16),y+6)} ${P2(x+s*w*.5,y+24)} Z" fill="${c.d}"/><path d="M${P2(x+s*w*.6,y+8)} Q${P2(x+s*(W-14),y-26)} ${P2(x+s*(W-2),y-34)}" stroke="${c.l}" stroke-width="1.6" fill="none" opacity=".6"/>`)}</g>`}},
+  tail:{z:-1,f:(c,a)=>{if(!a.t)return "";const[x,y]=a.t;return `<path d="M${P2(x-6,y)} Q${P2(x+14,y-4)} ${P2(x+10,y-22)} Q${P2(x+8,y-30)} ${P2(x+2,y-30)}" stroke="${c.o}" stroke-width="7" fill="none" stroke-linecap="round"/><path d="M${P2(x-6,y)} Q${P2(x+14,y-4)} ${P2(x+10,y-22)} Q${P2(x+8,y-30)} ${P2(x+2,y-30)}" stroke="${c.d}" stroke-width="3.5" fill="none" stroke-linecap="round"/>`}},
+  flames:{z:1,f:(c,a)=>{const[x,y,r]=a.h,[sx,sy,w]=a.s,fl=(px,py,k)=>`<path class="flick" d="M${P2(px,py)} q${P2(-5*k,-8*k)} ${P2(0,-16*k)} q${P2(2*k,6*k)} ${P2(6*k,5*k)} q${P2(1*k,-6*k)} ${P2(-1*k,-11*k)} q${P2(9*k,8*k)} ${P2(4*k,22*k)} Z"/>`;
+    return `<g fill="#ffb347" stroke="${c.o}" stroke-width="1.6" stroke-linejoin="round">${fl(x-3,y-r*.8,1)}${fl(sx-w*.8,sy+2,.6)}${fl(sx+w*.8,sy+2,.6)}</g>`}},
+  frost:{z:1,f:(c,a)=>{const[x,y,w]=a.s;return `<g fill="#e3f7ff" stroke="${c.o}" stroke-width="2" stroke-linejoin="round">${mir(x,(s,x)=>`<path d="M${P2(x+s*w*.5,y+4)} L${P2(x+s*w*.75,y-16)} L${P2(x+s*w*.85,y+4)} Z"/><path d="M${P2(x+s*w*.85,y+6)} L${P2(x+s*w*1.15,y-8)} L${P2(x+s*w*1.05,y+10)} Z"/>`)}</g>`}},
+  crystals:{z:1,f:(c,a)=>{const[x,y,w]=a.s;return `<g fill="${c.l}" stroke="${c.o}" stroke-width="2.2" stroke-linejoin="round"><path d="M${P2(x-w*.6,y+10)} L${P2(x-w*.75,y-12)} L${P2(x-w*.45,y-22)} L${P2(x-w*.3,y+8)} Z"/><path d="M${P2(x-8,y+6)} L${P2(x-4,y-30)} L${P2(x+4,y-36)} L${P2(x+8,y+6)} Z"/><path d="M${P2(x+w*.35,y+8)} L${P2(x+w*.5,y-18)} L${P2(x+w*.75,y-10)} L${P2(x+w*.6,y+10)} Z"/></g><path d="M${P2(x-1,y-26)} L${P2(x+2,y-6)}" stroke="${c.e}" stroke-width="1.6" opacity=".8"/>`}},
+  vines:{z:1,f:(c,a)=>{const[x,y,w]=a.s,[cx,cy]=a.c;return `<path d="M${P2(x-w,y+4)} Q${P2(cx-4,cy-14)} ${P2(cx+8,cy+2)} T${P2(cx+w*.6,cy+18)}" stroke="#4f7a34" stroke-width="3.2" fill="none" stroke-linecap="round"/><g fill="#7fb35a" stroke="${c.o}" stroke-width="1.4"><path d="M${P2(cx-10,cy-6)} q-8 -4 -10 4 q8 2 10 -4 Z"/><path d="M${P2(cx+8,cy+2)} q4 -9 12 -6 q-3 8 -12 6 Z"/><path d="M${P2(x-w*.6,y+2)} q-2 -9 6 -10 q1 8 -6 10 Z"/></g>`}},
+  runes:{z:1,f:(c,a)=>{const[cx,cy]=a.c;return `<path class="flick" d="M${P2(cx-10,cy-8)} l5 -6 l5 6 M${P2(cx,cy-10)} V${P2(cy+10)} M${P2(cx-8,cy+4)} H${P2(cx+8)} M${P2(cx+6,cy+12)} l4 -6" stroke="${c.e}" stroke-width="2.2" fill="none" stroke-linecap="round"/>`}},
+  hood:{z:1,f:(c,a)=>{const[x,y,r]=a.h;return `<path d="M${P2(x-r*1.5,y+r*1.4)} Q${P2(x-r*1.6,y-r*1.7)} ${P2(x,y-r*1.7)} Q${P2(x+r*1.6,y-r*1.7)} ${P2(x+r*1.5,y+r*1.4)} Q${P2(x,y+r*.9)} ${P2(x-r*1.5,y+r*1.4)} Z" fill="${c.d}" stroke="${c.o}" stroke-width="2.5" stroke-linejoin="round"/><ellipse cx="${x}" cy="${P2(y+1)}" rx="${P2(r*.9)}" ry="${P2(r*.95)}" fill="#0b0907"/><ellipse cx="${x-5}" cy="${y}" rx="2.6" ry="3.2" fill="${c.e}"/><ellipse cx="${x+5}" cy="${y}" rx="2.6" ry="3.2" fill="${c.e}"/>`}},
+  blade:{z:1,f:(c,a)=>{const[x,y]=a.k;return `<g stroke="${c.o}" stroke-width="2.2" stroke-linejoin="round"><path d="M${P2(x-2,y+4)} L${P2(x+16,y-34)} L${P2(x+22,y-38)} L${P2(x+20,y-30)} L${P2(x+3,y+7)} Z" fill="#d9e0e3"/><path d="M${P2(x-7,y)} L${P2(x+7,y+8)}" stroke-width="5" stroke="#6b4a2b"/></g>`}},
+  axe:{z:1,f:(c,a)=>{const[x,y]=a.k;return `<g stroke="${c.o}" stroke-width="2.2" stroke-linejoin="round"><path d="M${P2(x-4,y+14)} L${P2(x+10,y-34)}" stroke-width="6" stroke="#6b4a2b"/><path d="M${P2(x+6,y-24)} Q${P2(x+28,y-36)} ${P2(x+24,y-14)} Q${P2(x+18,y-20)} ${P2(x+3,y-14)} Z" fill="#c9d1d4"/></g>`}},
+  staff:{z:1,f:(c,a)=>{const[x,y]=a.k;return `<path d="M${P2(x+2,y+24)} L${P2(x+8,y-50)}" stroke="${c.o}" stroke-width="6" stroke-linecap="round"/><path d="M${P2(x+2,y+24)} L${P2(x+8,y-50)}" stroke="#7a5634" stroke-width="3" stroke-linecap="round"/><circle cx="${P2(x+8.5)}" cy="${P2(y-56)}" r="7" fill="${c.e}" stroke="${c.o}" stroke-width="2"/><circle class="flt" cx="${P2(x+8.5)}" cy="${P2(y-56)}" r="11" fill="none" stroke="${c.g}" stroke-width="1.4" opacity=".7"/>`}},
+  chains:{z:1,f:(c,a)=>{const[cx,cy]=a.c;let d="";for(let i=0;i<6;i++){const px=cx-22+i*9,py=cy-12+i*5;d+=`<ellipse cx="${P2(px)}" cy="${P2(py)}" rx="4.6" ry="3" transform="rotate(30 ${P2(px,py)})"/>`}return `<g fill="none" stroke="#0d0a08" stroke-width="4">${d}</g><g fill="none" stroke="#9aa3a7" stroke-width="2">${d}</g>`}},
+  orbit:{z:1,f:(c,a)=>{const[x,y,r]=a.h;return `<ellipse cx="${x}" cy="${P2(y+r*.4)}" rx="${P2(r*2.4)}" ry="${P2(r*.7)}" fill="none" stroke="${c.l}" stroke-width="1.6" stroke-dasharray="4 5" opacity=".7"/><g fill="${c.e}" stroke="${c.o}" stroke-width="1.4"><circle class="flt" cx="${P2(x-r*2.3)}" cy="${P2(y+r*.4)}" r="3.4"/><circle class="flt" cx="${P2(x+r*2.2)}" cy="${P2(y+r*.2)}" r="2.8"/></g>`}},
+  shell:{z:1,f:(c,a)=>{const[x,y,w]=a.s;return `<path d="M${P2(x-w*.95,y+22)} Q${P2(x-w*.9,y-14)} ${P2(x,y-16)} Q${P2(x+w*.9,y-14)} ${P2(x+w*.95,y+22)} Q${P2(x,y+12)} ${P2(x-w*.95,y+22)} Z" fill="${c.d}" stroke="${c.o}" stroke-width="2.5" stroke-linejoin="round"/><path d="M${P2(x-w*.5,y+12)} L${P2(x-w*.35,y-8)} M${P2(x,y+10)} V${P2(y-12)} M${P2(x+w*.5,y+12)} L${P2(x+w*.35,y-8)}" stroke="${c.l}" stroke-width="2" opacity=".6"/>`}},
+  tusks:{z:1,f:(c,a)=>{const[x,y,r]=a.h;return `<path d="M${P2(x-r*.9,y+r*1.2)} Q${P2(x-r*1.5,y+r*2.1)} ${P2(x-r*.6,y+r*2.3)} M${P2(x-r*.1,y+r*1.3)} Q${P2(x-r*.2,y+r*2.1)} ${P2(x+r*.6,y+r*2.1)}" stroke="#f0e6d2" stroke-width="4" fill="none" stroke-linecap="round"/>`}}
+};
+// what an affix adds: p = a part on a composed body (when the body does not already wear it), f = a frame effect for any portrait (hand-drawn ones, or when the part is taken)
+const AFX_ART={
+  fire:{p:"flames",f:c=>`<g fill="#ffb347"><path class="flick" d="M10 44 q-4 -8 2 -14 q0 6 5 7 q-1 5 -7 7 Z"/><path class="flick" d="M110 40 q4 -8 -2 -14 q0 6 -5 7 q1 5 7 7 Z"/></g>`},
+  ice:{p:"frost",f:c=>`<g stroke="#effbff" stroke-width="2" stroke-linecap="round"><path d="M12 30 v12 M6 36 h12 M8 32 l8 8 M16 32 l-8 8"/><path d="M106 24 v10 M101 29 h10"/></g>`},
+  poison:{f:c=>`<g fill="${FAM.poison}" stroke="#0d0a08" stroke-width="1.4"><path class="flt" d="M14 18 q-6 9 0 13 q6 -4 0 -13 Z"/><path class="flt" d="M104 14 q-6 9 0 13 q6 -4 0 -13 Z"/><path class="flt" d="M110 42 q-4 7 0 10 q4 -3 0 -10 Z"/></g>`},
+  holy:{p:"halo",f:c=>`<ellipse cx="60" cy="8" rx="20" ry="5" fill="none" stroke="#f6e7a6" stroke-width="3" opacity=".9"/>`},
+  shadow:{f:c=>`<g fill="none" stroke="#a385dc" stroke-width="2.2" stroke-linecap="round" opacity=".75"><path class="flt" d="M8 60 q-2 -12 8 -18 q-6 10 2 16"/><path class="flt" d="M112 70 q2 -12 -8 -18 q6 10 -2 16"/><path class="flt" d="M98 14 q8 4 6 12"/></g>`},
+  iron:{p:"armor",f:c=>`<g fill="#8d989c" stroke="#0d0a08" stroke-width="2" stroke-linejoin="round"><path d="M4 92 L14 86 L18 100 L8 108 Z"/><path d="M116 92 L106 86 L102 100 L112 108 Z"/></g><g fill="#d6dde0"><circle cx="11" cy="97" r="1.6"/><circle cx="109" cy="97" r="1.6"/></g>`},
+  swift:{f:c=>`<path d="M2 50 H18 M4 60 H22 M2 70 H16" stroke="${FAM.swift}" stroke-width="2.2" stroke-linecap="round" opacity=".8"/>`},
+  arcane:{p:"runes",f:c=>`<g fill="${FAM.arcane}" stroke="#0d0a08" stroke-width="1.2"><path class="flt" d="M12 22 l4 -6 4 6 -4 6 Z"/><path class="flt" d="M104 30 l4 -6 4 6 -4 6 Z"/></g>`},
+  vamp:{f:c=>`<g fill="#c43c4f" stroke="#0d0a08" stroke-width="1.4"><path class="flt" d="M16 12 q-6 9 0 13 q6 -4 0 -13 Z"/><path class="flt" d="M104 8 q-6 9 0 13 q6 -4 0 -13 Z"/><path class="flt" d="M111 32 q-4 7 0 10 q4 -3 0 -10 Z"/></g>`},
+  thorn:{p:"spikes",f:c=>`<path d="M6 116 L12 100 L18 116 M100 116 L108 98 L114 116 M2 84 L14 88 L4 96 M118 80 L106 86 L116 94" fill="#b8a45a" stroke="#0d0a08" stroke-width="1.8" stroke-linejoin="round"/>`},
+  regen:{p:"vines",f:c=>`<g fill="#7cc47c" stroke="#0d0a08" stroke-width="1.2"><path class="flt" d="M10 96 h4 v-4 h4 v4 h4 v4 h-4 v4 h-4 v-4 h-4 Z"/><path class="flt" d="M98 104 q2 -8 10 -8 q-1 8 -10 8 Z"/></g>`},
+  frenzy:{f:c=>`<g stroke="#e8573b" stroke-width="2.6" stroke-linecap="round"><path d="M98 12 l4 6 M106 10 l0 8 M112 14 l-4 5"/><path d="M8 18 l5 4 M14 12 l2 7"/></g>`},
+  ward:{f:c=>`<path d="M60 4 A58 58 0 0 1 116 50 M60 4 A58 58 0 0 0 4 50" fill="none" stroke="#6fb5c4" stroke-width="3" stroke-dasharray="12 4" opacity=".8"/>`},
+  elusive:{ghost:1},
+  split:{f:c=>`<path d="M74 6 L66 26 L76 34 L62 56 L72 66 L58 92" fill="none" stroke="#0d0a08" stroke-width="3.2" opacity=".75"/><path d="M74 6 L66 26 L76 34 L62 56 L72 66 L58 92" fill="none" stroke="#c39cf7" stroke-width="1.4"/>`},
+  boom:{f:c=>`<g stroke="#ffb142" stroke-width="2" stroke-linecap="round"><path class="flick" d="M100 98 l6 -6 M106 104 l8 0 M100 106 l4 6"/><path class="flick" d="M14 102 l-6 -6 M12 110 l-8 2"/></g><circle class="flick" cx="104" cy="102" r="3" fill="#ffb142"/>`},
+  swiftfoot:{f:c=>`<path d="M2 82 H20 M6 92 H24 M2 102 H18" stroke="#6fd8b6" stroke-width="2.2" stroke-linecap="round" opacity=".8"/>`}
+};
+// one composed creature: body, then its own parts, then parts its affixes add; returns the svg body and the affixes left over for frame effects
+function compose(A,c,afx){
+  const sk=A.skin||"#cfa784",B=BODY[A.b](c,{skin:sk,glow:A.glow}),parts=[...(A.p||[])],rest=[];
+  (afx||[]).forEach(id=>{const X=AFX_ART[id];if(X&&X.p&&!parts.includes(X.p)&&!(X.p==="halo"&&parts.includes("hood")))parts.push(X.p);else rest.push(id)});
+  const L=z=>parts.filter(p=>PART[p]&&PART[p].z===z).map(p=>PART[p].f(c,B.a)).join("");
+  return{s:L(-1)+B.s+L(1),rest};
+}
 function portrait(id,o){
-  o=o||{};const el=o.el||ENEMIES[id].el,base=FAM[el],gidp="p"+(gid++);
+  o=o||{};const E=ENEMIES[id],A=!PORTRAITS[id]&&E.art,el=o.el||E.el,base=A&&A.c&&el===E.el?A.c:FAM[el],gidp="p"+(gid++);
   const eye=el==="ice"?"#d8f6ff":el==="shadow"?"#d6bcff":el==="holy"?"#fff2b8":"#ffcf5c";
   const c={o:"#0d0a08",d:shade(base,-.62),m:shade(base,-.32),l:shade(base,.38),g:base,e:eye,ph:o.phased};
-  let over="";
+  let body,rest=o.afx||[];
+  if(A){const r=compose(A,c,rest);body=r.s;rest=r.rest}else body=PORTRAITS[id](c);
+  let over=rest.map(a=>AFX_ART[a]&&AFX_ART[a].f?AFX_ART[a].f(c):"").join(""); // affix marks the body could not wear
+  const ghost=rest.includes("elusive")?`<g opacity=".32" transform="translate(11 -4)">${body}</g>`:""; // Elusive: an afterimage
   if(o.frozen)over+=`<g><rect x="4" y="4" width="112" height="112" rx="20" fill="#bfeaff" opacity=".22"/><g stroke="#effbff" stroke-width="2.2" stroke-linecap="round"><path d="M16 14 v14 M9 21 h14 M11 16 l10 10 M21 16 l-10 10"/><path d="M98 92 v12 M92 98 h12"/><path d="M100 18 v8 M96 22 h8"/></g></g>`;
   if(o.burn)over+=`<g fill="#ff8a3d" opacity=".9"><path class="flick" d="M14 116 q4 -18 10 -6 q3 -14 8 0 q3 -10 8 2 Z"/><path class="flick" d="M80 116 q4 -16 9 -4 q4 -14 9 0 q3 -10 8 4 Z"/></g>`;
   if(o.poison)over+=`<g fill="${FAM.poison}"><circle class="flt" cx="22" cy="40" r="3"/><circle class="flt" cx="100" cy="56" r="2.5"/><circle class="flt" cx="94" cy="30" r="2"/></g>`;
   const aura=o.aura?`<circle cx="60" cy="62" r="56" fill="none" stroke="${o.aura}" stroke-width="${o.rare?3:2}" stroke-dasharray="${o.rare?"7 3":"3 6"}" opacity=".9"/>`:""; // magic: blue dashes, rare: gold, heavier
   return `<svg viewBox="0 0 120 120" aria-hidden="true"><defs><radialGradient id="${gidp}"><stop offset="0" stop-color="${base}" stop-opacity=".35"/><stop offset="1" stop-color="${base}" stop-opacity="0"/></radialGradient></defs>
-    <circle cx="60" cy="62" r="58" fill="url(#${gidp})"/>${aura}${PORTRAITS[id](c)}${over}</svg>`;
+    <circle cx="60" cy="62" r="58" fill="url(#${gidp})"/>${aura}${ghost}${body}${over}</svg>`;
 }
 
 // ================= ART: MAP + ICONS =================
