@@ -13,7 +13,8 @@ function startBattle(forced,opt){
   if(h){B.max=B.hp=Math.round(B.max*(1+h*HEAT_T.hp));B.atk=Math.round(B.atk*(1+h*HEAT_T.atk))}
   if(h>=4&&E.boss){B.max=B.hp=Math.round(B.max*HEAT_T.boss);if(E.sp)B.spEvery=spEvery(E,h)}
   if(tw==="double")B.atk*=2;
-  if(opt.ambush||opt.lunge)B.log.push({t:opt.amsg||tx("Ambush! Something leaps out at you."),c:"big"});
+  const first=!!(opt.ambush||opt.lunge); // the foe strikes before your first action (an ambush, or a hunter that lunges at you)
+  if(first)B.log.push({t:opt.amsg||tx("Ambush! Something leaps out at you."),c:"big"});
   if(!E.boss&&id!=="mimic"){ // a map enemy brings its rolled rarity and affixes; a wild creature brings its own
     const sa=speciesAfx(E);
     const f=sa||(opt.rar!=null?{rar:opt.rar,afx:opt.afx||rollAfx(Math.random,opt.rar,{mv:E.mv,heat:h})}:rollFoe(Math.random,{elite:opt.elite||tw==="elites",heat:h,row:opt.row,mv:E.mv}));
@@ -25,7 +26,8 @@ function startBattle(forced,opt){
   if(h>=5)blog(tx("Its blows bite through {p}% of your Defense.",{p:Math.round(HEAT_T.bite*100)}),"foe");
   const P=pstats(),rp=P.rs[B.el];if(rp)blog(tx("{msg} (-{p}% damage)",{msg:tx(RES_MSG[B.el]),p:rp}),"good");
   if(P.ward){B.ward=P.ward;blog(tx("A rune ward flares around you ({n}).",{n:P.ward}),"good")}
-  if(P.main&&P.main.form==="spear"&&!opt.ambush){blog(tx("Your spear darts out before it can move."),"you");strike(P.main,(P.atk+P.mag*MAG_W)*ABILITIES.spear.open,tx("Opening jab"),true);if(B.hp<=0)return enemyDown()}
+  if(P.main&&P.main.form==="spear"&&!first){blog(tx("Your spear darts out before it can move."),"you");strike(P.main,(P.atk+P.mag*MAG_W)*ABILITIES.spear.open,tx("Opening jab"),true);if(B.hp<=0)return enemyDown()}
+  if(first){blog(tx("It strikes before you can react!"),"foe");enemyTurn();return} // the ambush: the foe gets a free attack (and a defeat goes through the normal path)
   save();render();
 }
 const spEvery=(E,h)=>E.boss&&h>=4?Math.max(2,E.sp.every-1):E.sp.every;

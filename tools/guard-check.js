@@ -146,6 +146,18 @@ const near=(a,b)=>Math.abs(a-b)<1e-9;
       return{pow,def,atk:P.atk,before,after:B.hp,finite:Number.isFinite(B.hp),logs:B.log.map(l=>l.t)};
     });
     ok(r.pow<=0&&r.finite&&r.after>0&&r.after<r.before,`a brittle shield bash (power ${r.pow}, shield DEF ${r.def}) never makes NaN and still lands a hit (${r.before} -> ${r.after})`);
+    r=await E(()=>{
+      fresh("boar");S.hp=pstats().maxHp;const hp=S.hp;
+      startBattle("boar",{rar:"normal",afx:[],ambush:true});
+      const B=S.battle;return{lost:hp-S.hp,turn:B.turn,logs:B.log.map(l=>l.t)};
+    });
+    ok(r.lost>0&&r.turn===2&&r.logs.some(t=>/before you can react/.test(t)),`an ambush lets the foe strike before your first action (${r.lost} damage)`);
+    r=await E(()=>{
+      fresh("boar");S.hp=pstats().maxHp;const hp=S.hp;
+      startBattle("boar",{rar:"normal",afx:[]});
+      return{lost:hp-S.hp,turn:S.battle.turn};
+    });
+    ok(r.lost===0&&r.turn===1,"a normal fight still starts with your own action");
     ok(errs.length===0,"no page errors: "+errs.join(" | "));
   }finally{await browser.close()}
   console.log(fails?`${fails} FAILED`:"ALL OK");process.exitCode=fails?1:0;

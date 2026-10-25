@@ -104,7 +104,7 @@ DICT.ko=Object.assign(DICT.ko||{},{
 "The {name} bursts apart! The blast hits you for {n} through your guard.":"{name|이|가} 터졌다! 폭발이 막기를 뚫고 {n} 피해를 준다.","The {name} bursts apart! The blast hits you for {n}.":"{name|이|가} 터졌다! 폭발이 {n} 피해를 준다.","The blast tears through you.":"폭발이 당신을 꿰뚫는다.",
 "The {was} splits in two! A weaker {name} lunges out of it.":"{was|이|가} 둘로 갈라졌다! 더 약한 {name|이|가} 튀어나온다.",
 // ---- battle log
-"Ambush! Something leaps out at you.":"기습! 무언가가 덮쳐 온다.","Ambush! Something finds you in the dark.":"기습! 어둠 속에서 무언가가 당신을 찾아냈다.","{rarity}: {name}.":"{rarity}: {name}.","A ward shimmers around it ({n}).":"보호막이 주위에서 빛난다 ({n}).",
+"Ambush! Something leaps out at you.":"기습! 무언가가 덮쳐 온다.","It strikes before you can react!":"당신이 반응하기 전에 먼저 공격한다!","Ambush! Something finds you in the dark.":"기습! 어둠 속에서 무언가가 당신을 찾아냈다.","{rarity}: {name}.":"{rarity}: {name}.","A ward shimmers around it ({n}).":"보호막이 주위에서 빛난다 ({n}).",
 "The heat is on: Heat {h}, {name}.":"열기가 오른다: 열기 {h}, {name}.","Its blows bite through {p}% of your Defense.":"공격이 당신의 방어력 {p}%를 꿰뚫는다.","{msg} (-{p}% damage)":"{msg} (피해 -{p}%)","A rune ward flares around you ({n}).":"룬 보호막이 당신 주위에서 타오른다 ({n}).",
 "Your spear darts out before it can move.":"창이 상대가 움직이기도 전에 튀어나간다.","Opening jab":"선제 찌르기","{msg} ({detail}).":"{msg} ({detail}).","{n} damage per turn":"턴마다 피해 {n}",
 "Flames lick you for {n}.":"불길이 당신을 핥아 {n} 피해를 준다.","Venom burns in your veins for {n}.":"독이 혈관 속에서 타올라 {n} 피해를 준다.","Your gear helps you shake off the {status}.":"장비 덕분에 {status|을|를} 떨쳐냈다.","The {status} fades.":"{status|이|가} 사라졌다.",
