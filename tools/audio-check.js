@@ -31,6 +31,16 @@ const ok=(v,m)=>{assert.ok(v,m);console.log("ok  "+m)};
     await page.evaluate(()=>startBattle(ZONES[0][2],{rar:"normal",afx:[]}));
     await page.waitForFunction(()=>musicState.scene==="boss");
     ok(true,"forge, region, battle and boss arrangements switch during playback");
+    for(const zone of await page.evaluate(()=>ZONES.map(z=>z[0]))){
+      await page.evaluate(z=>{S.battle=null;S.view="battle";S.zone=z;syncMusic()},zone);
+      await page.waitForFunction(z=>musicState.scene===z,zone);
+    }
+    ok(true,"travelling between regions switches to each region's own track");
+    ok(await page.evaluate(()=>{
+      const scenes=Object.values(MUSIC_SCENES),pieces=scenes.map(p=>JSON.stringify([p.chords,p.melody]));
+      return ZONES.every(([z])=>MUSIC_SCENES[z])&&new Set(pieces).size===scenes.length&&
+        scenes.every(p=>p.chords.length===8&&p.chords.every(c=>c.length===4)&&8%p.melody.length===0&&p.melody.every(m=>m.length===8));
+    }),"every region, the forge, battles and bosses have their own eight-bar composition");
     const timer=await page.evaluate(()=>{const timer=musicState.timer;for(let i=0;i<20;i++)syncMusic();return timer===musicState.timer});
     ok(timer,"repeated renders keep a single scheduler");
     await page.evaluate(()=>{Object.defineProperty(document,"hidden",{configurable:true,value:true});document.dispatchEvent(new Event("visibilitychange"))});
@@ -75,7 +85,7 @@ const ok=(v,m)=>{assert.ok(v,m);console.log("ok  "+m)};
     // Effects must not perturb any seeded/unseeded gameplay randomness.
     await page.evaluate(()=>{
       const random=Math.random;Math.random=()=>{throw Error("audio consumed a game roll")};
-      try{gesture=true;actx();SND.hit();SND.step();musicBeat(AC.currentTime+.1,MUSIC_SCENES.woods,0,MUSIC_CHORDS[0],0)}finally{Math.random=random}
+      try{gesture=true;actx();SND.hit();SND.step();Object.values(MUSIC_SCENES).forEach(p=>{for(let k=0;k<8;k++)musicBeat(AC.currentTime+.1,p,k,p.chords[0],0)})}finally{Math.random=random}
     });
     ok(true,"audio synthesis does not use gameplay's Math.random");
     const cues=await page.evaluate(()=>{
@@ -109,7 +119,7 @@ const ok=(v,m)=>{assert.ok(v,m);console.log("ok  "+m)};
         window.AudioContext=function(){return new OfflineAudioContext(2,Math.ceil(rate*seconds),rate)};
         AC=null;audioVoices.clear();base=.05;actx();const ctx=AC,pauses=[];
         if(scene){
-          const schedule=b=>{for(let k=0;k<8;k++)musicBeat(.05+b*bar+k*bar/8,p,k,MUSIC_CHORDS[b],b)};
+          const schedule=b=>{for(let k=0;k<8;k++)musicBeat(.05+b*bar+k*bar/8,p,k,p.chords[b%p.chords.length],b)};
           schedule(0);
           for(let b=1;b<8;b++)pauses.push(ctx.suspend(b*bar-.05).then(()=>{schedule(b);return ctx.resume()}));
         }else SND[name]();
