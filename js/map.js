@@ -45,7 +45,7 @@ function genMap(o){
   const ne=Math.round((POI_N.elite[0]+Math.floor(R()*POI_N.elite[1]))*(h>=2?HEAT_T.elite:1)),nf=POI_N.fight[0]+Math.floor(R()*POI_N.fight[1]);
   if(ok("elite"))for(let i=0;i<ne;i++)place("elite",2);
   if(ok("peddler"))place("peddler",1);if(ok("shrine"))for(let i=0;i<POI_N.shrine;i++)place("shrine",1);for(let i=0;i<POI_N.chest;i++)place("chest",0);if(ok("mystery"))for(let i=0;i<POI_N.mystery;i++)place("mystery",0);for(let i=0;i<nf;i++)place("fight",0);
-  if(o.twist==="elites")m.pois.forEach(p=>{if(p.t==="fight"&&p.r>0)p.t="elite"});
+  if(o.twist==="elites")m.pois.forEach(p=>{if(p.t==="fight")p.t="elite"}); // the twist says every fight: the nearest one included
   if(h>=2&&ok("elite")){const c=m.pois.filter(p=>p.t==="fight"&&p.r>=2&&p.r<MAP_ROWS-2);if(c.length)c[Math.floor(R()*c.length)].t="elite"}
   if(sd)m.pois.forEach(nd=>{if(nd.t==="boss")return;const rn=rng(hash(o.seed+":"+nd.x+","+nd.y));nd.e=pickEnemy(o.zone,rn);if(nd.t==="mystery")nd.my=mystery(rn());
     // pre-rolled so the same day plays out alike: rarity and affixes (their own seeded rng per tile), chest (mimic, loot, scroll), pack loot and four rolls (rv) for choice events and six (sh) for the peddler's stock (the one-for-one offer, what you can sell and satchel-based event choices depend on you, so they vary)

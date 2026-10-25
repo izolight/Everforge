@@ -36,6 +36,17 @@ const ROOT=path.resolve(__dirname,".."),URL="file://"+path.join(ROOT,"index.html
     });
     assert.deepEqual(metrics.bad,[]);assert(metrics.starts>=5&&metrics.bosses>=5);assert(metrics.loops>=20&&metrics.junctions>=40&&metrics.chokes/metrics.D<.18);
     console.log("ok 240 seeds: connected larger regions, safe starts, distinct POIs, reachable camps/bosses, varied entrances and alternate routes",JSON.stringify(metrics));
+    // the daily twist "Elites everywhere": every fight is an elite, the nearest one too
+    const tw=await p.evaluate(()=>{
+      let fights=0,elites=0,near=0;
+      for(const z of ["woods","pass","hollow","spire"])for(let seed=0;seed<100;seed++){
+        const m=genMap({seed,zone:z,heat:0,twist:"elites"});
+        fights+=m.pois.filter(q=>q.t==="fight").length;elites+=m.pois.filter(q=>q.t==="elite").length;
+        near+=m.pois.filter(q=>q.t==="elite"&&Math.max(Math.abs(q.x-m.start.x),Math.abs(q.y-m.start.y))<=3).length;
+      }
+      return{fights,elites,near};
+    });
+    assert(tw.fights===0&&tw.elites>0&&tw.near===0,`the elites twist makes every fight an elite (${tw.elites} elites, ${tw.fights} left) and never puts one next to the start`);
     let r=await p.evaluate(()=>{
       const R=Math.random,run=n=>{Math.random=()=>n;S.unl={};return JSON.stringify(genMap({seed:71225,zone:"hollow",heat:5,twist:"elites"}))};
       try{return run(.01)===run(.99)}finally{Math.random=R}
