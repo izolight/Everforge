@@ -26,7 +26,7 @@ function learn(id,type,val){
   else if(type==="bp"){text=tx("Codex: you learned the blueprint for {item} from {nm}. Forge it from a pattern in the Forge.",{item:iname(S.items[val]),nm});rpGain("bp:"+val,RP.bp,tx("a new blueprint"));if(!S.battle||S.battle.id!==id)toast(text)}
   else text=tx("Codex: {nm} can drop {item}.",{nm,item:iname(S.items[val])});
   if(S.battle&&S.battle.id===id)blog(text,"lore");
-  if(!was&&know(id).mastered){setTimeout(()=>toast(tx("{nm} mastered! You deal 15% more damage to it.",{nm})),50);rpGain("mast:"+id,ENEMIES[id]&&ENEMIES[id].gen?1:RP.mast,tx("{nm} mastered",{nm}));bpOf(id).forEach(b=>learn(id,"bp",b))} // a wild creature is worth one point, not two (there are many of them); mastery teaches its blueprints too
+  if(!was&&know(id).mastered){setTimeout(()=>toast(tx("{nm} mastered! You deal {p}% more damage to it.",{nm,p:MASTERY_PCT})),50);rpGain("mast:"+id,ENEMIES[id]&&ENEMIES[id].gen?1:RP.mast,tx("{nm} mastered",{nm}));bpOf(id).forEach(b=>learn(id,"bp",b))} // a wild creature is worth one point, not two (there are many of them); mastery teaches its blueprints too
   return true;
 }
 function unknownFacts(id){const E=S.battle&&S.battle.id===id?foeOf(S.battle):ENEMIES[id],K=cx(id),out=[];

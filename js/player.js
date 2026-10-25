@@ -20,7 +20,7 @@ function pstats(){
   const med=tsum("Medicine"),def=Math.max(0,Math.round(sum.def+(ms.def+os.def)*.5));
   return {main,offW,shield,def,red:redOf(def),
     atk:Math.max(1,Math.round(4+ms.atk+sum.atk*.5)),mag:Math.max(0,Math.round(ms.mag+sum.mag*.5)),
-    offPow:offW?Math.max(1,Math.round(strikePower(os)*.6)):0,
+    offPow:offW?Math.max(1,Math.round(strikePower(os)*WEAK_X)):0,
     spd:Math.max(0,Math.round(sum.spd+ms.spd+os.spd*.5)),
     regen:Math.max(0,Math.round((sum.heal+ms.heal+os.heal)*.2+med*MED_REGEN)),
     maxHp:50+Math.round(def*.6),lure:tsum("Lure"),blind:tsum("Steam"),rs,

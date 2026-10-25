@@ -15,7 +15,7 @@ function effects(it){
   if(!it.crafted&&gradable(baseIdOf(it.id))){const q=gradeOf(it.id),es=isEss(it.id);
     add("grade","tier",`×${GRADE_M[q-1]}`,gradeN(q),tx(!es?"Grade: {grade}, traits ×{m} (Plain is ×1). Upgrade {n} of a grade into 1 of the next in the Forge tab.":q>3?"Grade: {grade}, trait ×{m} (Plain is ×1). Counts as {eq} plain essences for infusion. Upgrade {n} of a grade into 1 of the next in the Forge tab.":"Grade: {grade}, trait ×{m} (Plain is ×1). Counts as {eq} plain essence for infusion. Upgrade {n} of a grade into 1 of the next in the Forge tab.",{grade:gradeN(q),m:GRADE_M[q-1],eq:INF_EQ[q-1],n:UP.n}),GRADES[q-1][1],true)}
   if(g==="weapon"){const f=v("Fire")+v("Sunfire"),i=v("Ice")+v("Frost"),p=v("Poison")+v("Venomous"),h=v("Holy")+v("Radiant"),s=v("Shadow")+v("Twilight");
-    const crit=Math.round(Math.min(CRIT_CAP,5+v("Sharp")*3)),aim=Math.min(AFX_T.dodge.sharpCap,v("Sharp")*AFX_T.dodge.sharp);
+    const crit=Math.round(Math.min(CRIT_CAP,CRIT_T.base+v("Sharp")*CRIT_T.sharp)),aim=Math.min(AFX_T.dodge.sharpCap,v("Sharp")*AFX_T.dodge.sharp);
     add("crit","crit",`${crit}%`,tx("Critical hit"),tx("{p}% critical hit chance",{p:crit}));
     if(v("Sharp"))add("aim","weak",`−${aim}%`,tx("Precision"),tx("Elusive enemies dodge {p}% less against it",{p:aim}));
     if(f){const n=Math.max(1,Math.round(f*.8));add("burn","f_fire",n,tx("Burn"),tx("Sets enemies on fire for {n} damage per turn",{n}),FAM.fire);out.at(-1).unit="turn"}
@@ -30,7 +30,7 @@ function effects(it){
   if(ab){const open=isUnl("ability");add("ability",open?ab.icon:"lock",open?ab.cd:null,open?ab.name:tx("Ability"),open?tx(g==="weapon"?"Ability (main hand), {name}: {desc} Cooldown {cd}.":"Ability, {name}: {desc} Cooldown {cd}.",{name:ab.name,desc:ab.desc,cd:ab.cd}):tx("Carries an ability you will learn to use later."));if(open)out.at(-1).unit="cooldown"}
   if(isGear(it)){
     if(st.heal>0){const n=Math.max(1,Math.round(st.heal*.2+v("Medicine")*MED_REGEN));add("regen","a_regen",`+${n}`,tx("Regeneration"),tx("Mends about {n} HP per battle turn",{n}),FAM.heal);out.at(-1).unit="turn"}
-    if(v("Steam")){const p=Math.round(Math.min(40,8*v("Steam")));add("blind","smoke",`${p}%`,tx("Blind"),tx("Enemies miss you {p}% of the time",{p}),FAM.ice)}
+    if(v("Steam")){const p=Math.round(Math.min(STEAM_T.cap,STEAM_T.per*v("Steam")));add("blind","smoke",`${p}%`,tx("Blind"),tx("Enemies miss you {p}% of the time",{p}),FAM.ice)}
     if(v("Lure")){const p=Math.round(v("Lure")*15);add("loot","chest",`+${p}%`,tx("Loot bonus"),tx("+{p}% loot drop chance",{p}),FAM.holy)}
     if(g!=="weapon"){const rr=resRaw(tr);Object.keys(rr).forEach(k=>{const p=resPct(rr[k]);if(p)add("resist_"+k,"f_"+k,`${p}%`,tx("Resists {fam} {v}%",{fam:famN(k),v:p}),tx("Resists {fam} attacks by {p}%",{fam:famL(k),p}),FAM[k])})
       if(v("Iron")){const p=thornsVal(v("Iron"));add("thorns","thorns",`${p}%`,tx("Thorns"),tx("Reflects {p}% of damage taken back at the attacker",{p}),FAM.metal)}
@@ -39,11 +39,11 @@ function effects(it){
     if(v("Wood")){const n=Math.round(Math.min(ROOT_CAP,v("Wood")*ROOT_PER));add("root","root",`+${n}`,tx("Roots"),tx("Heals {n} HP per turn while below half health",{n}),FAM.wood);out.at(-1).unit="turn"}
     if(v("Swift")){const p=Math.round(Math.min(DODGE_CAP,v("Swift")*DODGE_PER));add("dodge","a_elusive",`${p}%`,tx("Dodge"),tx("{p}% chance to dodge a hit",{p}),FAM.swift)}
     if(v("Medicine")){const p=Math.round(Math.min(CLEANSE_CAP,v("Medicine")*CLEANSE_PER));add("cleanse","cleanse",`${p}%`,tx("Cleanse"),tx("{p}% chance each turn to shake off a status (burn, chill, poison, curse)",{p}),FAM.heal)}
-    if(it.form==="shield"){const p=Math.round(15+v("Heavy")*3);add("block","guard",`${p}%`,tx("Block"),tx("{p}% chance to block a hit",{p}),FAM.stone)}}
+    if(it.form==="shield"){const p=Math.round(BLOCK_T.base+v("Heavy")*BLOCK_T.per);add("block","guard",`${p}%`,tx("Block"),tx("{p}% chance to block a hit",{p}),FAM.stone)}}
   if(g==="consumable"){
     if(st.heal>0)add("heal","st_heal",`+${medHeal(it)}`,tx("Healing"),tx(v("Medicine")?"Restores {n} HP (Medicine boosts healing)":"Restores {n} HP",{n:medHeal(it)}),FAM.heal);
     const cu=cures(tr);if(cu.length){add("cure","cleanse",null,tx("Cures"),tx("Cures {list} when used in battle",{list:cu.map(s=>lc(STATUS[s].n)).join(", ")}),FAM.heal);out.at(-1).statuses=cu}
-    const d=Math.round((st.atk+st.mag)*.6);if(d>=3)add("damage","hit",d,tx("Damage"),tx("Deals about {n} damage when used in battle",{n:d}),"var(--bad)")}
+    const d=Math.round((st.atk+st.mag)*WEAK_X);if(d>=3)add("damage","hit",d,tx("Damage"),tx("Deals about {n} damage when used in battle",{n:d}),"var(--bad)")}
   add("mix","forge",null,tx("Mixing"),tx("Mixes with {list}",{list:acceptsText(it)}),"var(--muted)",true);
   return out;
 }

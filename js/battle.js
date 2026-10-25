@@ -69,10 +69,10 @@ function bracedAttack(B,fn){ // scoped to this action: all its strikes, never th
 }
 function strike(W,pow,label,inn,o){
   o=o||{};
-  const B=S.battle,E=foeOf(B),tr=inn?withInnate(W?W.traits:{}):(W?W.traits:{}),v=t=>tr[t]||0,mast=know(B.id).mastered?1.15:1;
+  const B=S.battle,E=foeOf(B),tr=inn?withInnate(W?W.traits:{}):(W?W.traits:{}),v=t=>tr[t]||0,mast=know(B.id).mastered?MASTERY_X:1;
   if(!o.sure&&hasAfx(B,"elusive")&&Math.random()*100<dodgeOf(B,tr)){blog(tx("It slips aside."),"foe");fx("enemyHud","miss","");vfx("foeArt","dodge");return{dmg:0,crit:false,miss:true}} // Elusive: a visible dodge chance (a riposte always lands)
   let ef=eff(tr,B);const arc=ef.k==="resist"&&v("Arcane")&&Math.random()*100<Math.min(ARC_CAP,v("Arcane")*ARC_PER);if(arc){ef={m:1};blog(tx("Arcane power cuts through its resistance."),"you")}
-  const crit=Math.random()*100<Math.min(CRIT_CAP,5+v("Sharp")*3),pierce=Math.min(v("Heavy")?.4:1,1-(o.pen||0));
+  const crit=Math.random()*100<Math.min(CRIT_CAP,CRIT_T.base+v("Sharp")*CRIT_T.sharp),pierce=Math.min(v("Heavy")?.4:1,1-(o.pen||0));
   const base=pow*.5,arm=Math.max(0,B.def-(B.shred||0))*pierce,dmg=Math.max(1,Math.round(base*base/(base+arm)*ef.m*mast*(crit?1.75:1)*vary()*(1+strikeBonus))); // armor takes a share of a blow, never all of it
   const st=S.stats,ab=wardCut(B,dmg),real=dmg-ab; // a Warded foe's shield soaks the blow first
   dealt(B,real);B.hp-=real;if(crit)st.crits++;if(dmg>st.big){st.big=dmg;st.bigW=W?W.id:o.bw||"Fists"}
@@ -96,7 +96,7 @@ function attack(){
   const P=pstats(),B=S.battle;
   bracedAttack(B,()=>{
   strike(P.main,strikePower(P),P.main?tx("You strike with {weapon}",{weapon:iname(P.main)}):tx("You punch"),true);
-  if(B.hp>0&&!stOf().chill&&Math.random()*100<Math.min(35,P.spd*3))strike(P.main,strikePower(P),tx("A swift follow-up hits"),true);
+  if(B.hp>0&&!stOf().chill&&Math.random()*100<Math.min(FOLLOW_T.cap,P.spd*FOLLOW_T.spd))strike(P.main,strikePower(P),tx("A swift follow-up hits"),true);
   if(B.hp>0&&P.offW)strike(P.offW,P.offPow*2,tx("Your off-hand {weapon} adds",{weapon:iname(P.offW)}));
   });
   afterPlayer();
@@ -142,7 +142,7 @@ function useItem(id){
   let did=false;const Y=stOf(),cu=cures(it.traits).filter(s=>Y[s]);
   if(cu.length){S.stats.cured+=cu.length;cu.forEach(s=>delete Y[s]);blog(tx("{item} clears your {list}.",{item:iname(it),list:cu.map(s=>lc(STATUS[s].n)).join(tx(" and "))}),"good");did=true}
   if(st.heal>0){healYou(medHeal(it),tx("You use {item}",{item:iname(it)}));did=true}
-  const d=Math.round((st.atk+st.mag)*.6);
+  const d=Math.round((st.atk+st.mag)*WEAK_X);
   if(d>=3){const ef=eff(it.traits,B),dmg=Math.max(1,Math.round(d*ef.m*vary())),st=S.stats,ab=wardCut(B,dmg);dealt(B,dmg-ab);B.hp-=dmg-ab;if(dmg>st.big){st.big=dmg;st.bigW=it.id}fx("enemyHud",dmg-ab?"-"+(dmg-ab):"ward","",{el:strikeFamily(it.traits)});fx("foeArt","","hit");
     blog(tx("{item} bursts against the {name} for {dmg}.",{item:iname(it),name:bname(B),dmg})+(ef.k==="weak"?" "+tx("Super effective!"):""),"you");noteEff(ef);if(ab)blog(wardMsg(B,ab),"you");if(B.hp>0)frenzy(B);did=true}
   if(!did)blog(tx("You use {item}. Nothing happens.",{item:iname(it)}));
@@ -150,8 +150,8 @@ function useItem(id){
 }
 function flee(){
   const B=S.battle;
-  if(ENEMIES[B.id].boss&&Math.random()<.5){blog(tx("There's no escaping it!"),"foe");return enemyTurn()}
-  if(Math.random()<.7){B.over="fled";if(B.opening)S.onboarding=B.opening===1?0:3;if(S.run==="daily")S.daily.turns+=B.turn;blog(tx("You slip away into cover."));
+  if(ENEMIES[B.id].boss&&Math.random()<FLEE_T.boss){blog(tx("There's no escaping it!"),"foe");return enemyTurn()}
+  if(Math.random()<FLEE_T.ok){B.over="fled";if(B.opening)S.onboarding=B.opening===1?0:3;if(S.run==="daily")S.daily.turns+=B.turn;blog(tx("You slip away into cover."));
     if(ENEMIES[B.id].boss){fallBack(curMap());blog(tx("You fall back from the lair. The way to the boss is still open."),"good")}else if(B.pi!=null)slip(B);
     save();return render()}
   blog(tx("You try to run, but it cuts you off."));enemyTurn();
@@ -163,7 +163,7 @@ const hitMsg=(B,E,n)=>LANG==="en"?`The ${bname(B)} ${E.verb} for ${n}${B.guard?"
 const foeHit=(B,P,mult,vf)=>{const raw=B.atk*mult*vf*(B.guard?1-GUARD_T.cut:1)*(B.open?1+ABILITIES.lance.open:1)*(B.parry?PARRY_FAIL:1),red=heatRed(P,B);
   return Math.max(1,Math.round(raw*HIT_MIN),Math.round(raw*(1-(P.rs[B.el]||0)/100)*(1-red)-(P.dr||0)))}; // resist, armor and Stone together never take more than 1-HIT_MIN of a hit; Heat 5 bites through part of your Defense
 // true when this zone's regular enemies (at map row 3) already hit you for the HIT_MIN floor, so more Defense, resist or Stone would change nothing here
-const atFloor=P=>{const es=Object.values(ENEMIES).filter(e=>e.zone===S.zone&&!e.boss);return es.length>0&&es.every(e=>{const a=Math.round(e.atk*1.18);return foeHit({atk:a,heat:0,el:e.el},P,1,1)<=Math.max(1,Math.round(a*HIT_MIN))})};
+const atFloor=P=>{const es=Object.values(ENEMIES).filter(e=>e.zone===S.zone&&!e.boss);return es.length>0&&es.every(e=>{const a=Math.round(e.atk*ATK_FLOOR);return foeHit({atk:a,heat:0,el:e.el},P,1,1)<=Math.max(1,Math.round(a*HIT_MIN))})};
 // end-of-turn bookkeeping: guard/parry/exposure lapse, off-balance and ability cooldowns tick, next turn
 function endTurn(B){B.thT=0;B.guard=false;B.parry=false;B.open=false;if(B.off>0)B.off--;Object.keys(B.cd||{}).forEach(k=>{if(B.cd[k]>0)B.cd[k]--});B.turn++}
 const endShift=B=>{endTurn(B);save();render()};
@@ -190,8 +190,8 @@ function enemyTurn(){
     else if(B.parry){blog(tx("Your parry is mistimed! You're left open."),"foe");B.off=2}
     for(let i=0;i<ml.length&&S.hp>0&&!perfect&&B.hp>0;i++){
       if(i>=hits)blog(tx("The {name} follows up swiftly.",{name:bname(B)}),"foe");
-      if(P.blind&&Math.random()<Math.min(.4,.08*P.blind)){blog(tx("Steam clouds its eyes. It misses."),"good");sfx("dodge");continue}
-      if(P.shield&&!B.guard&&Math.random()<.15+(P.shield.traits.Heavy||0)*.03){blog(tx("You block with {shield}.",{shield:iname(P.shield)}),"good");sfx("block");vfx("youHud","guard");continue}
+      if(P.blind&&Math.random()<Math.min(STEAM_T.cap,STEAM_T.per*P.blind)/100){blog(tx("Steam clouds its eyes. It misses."),"good");sfx("dodge");continue}
+      if(P.shield&&!B.guard&&Math.random()<(BLOCK_T.base+(P.shield.traits.Heavy||0)*BLOCK_T.per)/100){blog(tx("You block with {shield}.",{shield:iname(P.shield)}),"good");sfx("block");vfx("youHud","guard");continue}
       if(dg&&Math.random()*100<dg){blog(tx("You dodge aside. It misses."),"good");sfx("dodge");vfx("youHud","dodge");continue}
       let dmg=foeHit(B,P,ml[i],vary());
       if(B.ward==null)B.ward=0; // battles saved before wards have none

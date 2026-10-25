@@ -50,7 +50,7 @@ function openCodex(id,refresh){
     <div class="rhead">${portrait(id).replace("<svg",'<svg style="width:96px;height:96px;flex:none"')}<div><div class="rform">${zoneName(E.zone)}${E.boss?" · "+tx("Boss"):""} · ${tx("defeated {n}",{n:S.kills[id]||0})}</div><h2 class="rname">${tx(E.name)}</h2></div></div>
     <p class="lore">${tx(E.lore)}</p>
     <div class="hprow"><span>${tx("Knowledge")}</span>${hpBar(k.have,k.tot,"know")}<span>${k.have}/${k.tot}</span></div>
-    ${k.mastered?`<p class="ok-text">${tx("Mastered. You deal 15% more damage to this creature.")}</p>`:""}
+    ${k.mastered?`<p class="ok-text">${tx("Mastered. You deal {p}% more damage to this creature.",{p:MASTERY_PCT})}</p>`:""}
     <dl class="kv">
       <dt>${tx("Strength")}</dt><dd>${K.stats?`<span class="chip">${tx("HP")} ${E.hp}</span><span class="chip">${tx("ATK")} ${E.atk}</span><span class="chip">${tx("DEF")} ${E.def}</span>`:unkChip(tx("Win a fight to learn"))}</dd>
       <dt>${tx("Weak to")}</dt><dd>${weak}</dd>

@@ -11,10 +11,10 @@ function rewardIds(r){return (r.items||[]).map(x=>{if(!x.startsWith("ess:"))retu
 function rewardText(r){const p=rewardIds(r).map(id=>iname(S.items[id]));if(r.xp)p.push(tx("{n} smith XP",{n:r.xp}));if(r.camp)p.push(tx("a campfire charge"));return p.join(", ")}
 function newBounty(kind,exclude=[]){
   const rew=z=>`ess:${pick(ESS_POOL)}@${rollGrade(z)}`,top=S.unlocked.filter(z=>z!==RIFT_ZONE).at(-1); // reward essences roll a grade for the zone the bounty is in
-  if(kind==="forge"||(!kind&&Math.random()<.3))return{kind:"forge",need:2,base:S.journal.length,reward:{items:[rew(top),rew(top)],xp:20,hint:Math.random()<.3?1:0}};
+  if(kind==="forge"||(!kind&&Math.random()<.3))return{kind:"forge",need:2,base:S.journal.length,reward:{items:[rew(top),rew(top)],xp:BOUNTY_T.forgeXp,hint:Math.random()<.3?1:0}};
   const pool=Object.entries(ENEMIES).filter(([,e])=>!e.boss&&e.zone!=="any"&&e.zone!==RIFT_ZONE&&S.unlocked.includes(e.zone)&&!exclude.includes(e.name));
   const [id]=pick(pool),need=2+Math.floor(Math.random()*3);
-  return{kind:"hunt",enemy:id,need,base:S.kills[id]||0,reward:{items:[rew(ENEMIES[id].zone),rew(ENEMIES[id].zone)],xp:15,camp:Math.random()<.35?1:0,hint:Math.random()<.3?1:0}};
+  return{kind:"hunt",enemy:id,need,base:S.kills[id]||0,reward:{items:[rew(ENEMIES[id].zone),rew(ENEMIES[id].zone)],xp:BOUNTY_T.huntXp,camp:Math.random()<BOUNTY_T.camp?1:0,hint:Math.random()<.3?1:0}};
 }
 function goal(){
   if(S.quest<TUTORIAL.length){const q=TUTORIAL[S.quest];
