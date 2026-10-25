@@ -19,7 +19,8 @@ function newBounty(){
 function goal(){
   if(S.quest<TUTORIAL.length){const q=TUTORIAL[S.quest];
     let prog="";if(S.quest===5&&!S.kills.gnarlhorn){const m=S.maps.woods;prog=`map depth ${m&&m.steps?m.dp+1:0}/${MAP_ROWS}`}
-    return{step:`Step ${S.quest+1} of ${TUTORIAL.length}`,text:q.text,tab:q.tab,done:q.done(S),reward:q.reward,prog}}
+    const wait=q.need&&!S.unl[q.need]?UNL[q.need].txt:q.ok&&!q.ok(S)?q.wait:""; // a step whose system is not open yet says how to open it
+    return{step:`Step ${S.quest+1} of ${TUTORIAL.length}`,text:wait?`Next: ${wait}`:q.text,tab:wait?"battle":q.tab,done:!wait&&q.done(S),reward:q.reward,prog}}
   if(!S.bounty){S.bounty=newBounty();save()}
   const b=S.bounty;
   if(b.kind==="hunt"){const n=Math.min(b.need,(S.kills[b.enemy]||0)-b.base),E=ENEMIES[b.enemy];
