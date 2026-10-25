@@ -457,3 +457,9 @@ Object.assign(DICT.ko, {
   "Empowered: +{p}% damage": "강화: 피해 +{p}%",
   "Strike with your weapon": "무기로 공격"
 });
+
+Object.assign(DICT.ko, {
+  "Boss direction": "우두머리 방향",
+  "Recenter": "내 위치로",
+  "Unexplored landmark": "미탐험 지점"
+});

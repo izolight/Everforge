@@ -460,3 +460,9 @@ Object.assign(DICT.de, {
   "Empowered: +{p}% damage": "Verstärkt: +{p}% Schaden",
   "Strike with your weapon": "Mit deiner Waffe zuschlagen"
 });
+
+Object.assign(DICT.de, {
+  "Boss direction": "Richtung zum Boss",
+  "Recenter": "Zentrieren",
+  "Unexplored landmark": "Unentdeckter Ort"
+});

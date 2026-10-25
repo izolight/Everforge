@@ -10,7 +10,7 @@ const ROOT=path.resolve(__dirname,".."),URL="file://"+path.join(ROOT,"index.html
     const p=await browser.newPage({viewport:{width:360,height:800},reducedMotion:"reduce"}),errors=[];
     p.on("pageerror",e=>errors.push(e.message));await p.goto(URL);
     const metrics=await p.evaluate(()=>{
-      S=freshState();S.unl=Object.fromEntries(UNLOCKS.map((u,i)=>[u.id,i+1]));const rows=[],bad=[],starts=new Set(),bosses=new Set();
+      S=freshState();S.rift.seed=42;riftEnsure();S.unl=Object.fromEntries(UNLOCKS.map((u,i)=>[u.id,i+1]));const rows=[],bad=[],starts=new Set(),bosses=new Set();
       for(let seed=0;seed<240;seed++){
         const m=genMap({seed,zone:ZONES[seed%ZONES.length][0],heat:[0,3,5][seed%3],twist:seed%7===0?"nocamp":null}),d=bfs(m,m.start.x,m.start.y),points=[];let edges=0,junctions=0;
         for(let y=0;y<m.h;y++)for(let x=0;x<m.w;x++)if(walk(m,x,y)){points.push([x,y]);const n=DIRS.filter(([dx,dy])=>walk(m,x+dx,y+dy)).length;edges+=n;junctions+=n>=3;if(d[y*m.w+x]<0)bad.push("disconnected "+seed)}

@@ -758,3 +758,8 @@ select.lang{width:100%;margin-top:8px;background:#120f0c;color:var(--fg);border:
 
 .acts .act>small{font-family:var(--body);font-size:.8rem;line-height:1.2;font-weight:400;text-align:center;color:var(--fg);overflow-wrap:anywhere}
 .combat-advice{margin:0;color:var(--fg);font-size:.9rem}
+
+.map-tools{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:.95rem;color:var(--fg)}
+.map-tools b{font-size:1.5rem;color:var(--accent)}
+.tl.seen{filter:brightness(.78) saturate(.8)}
+.tl.rumor{color:var(--muted);font:1.1rem var(--mono);background:#181814;border:1px dashed #635746}

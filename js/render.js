@@ -217,10 +217,14 @@ function zoneFade(){const z=$("zones");z.dataset.l=z.scrollLeft>2?1:0;z.dataset.
 function fitMap(){ // keep 36px touch tiles; wider expeditions pan inside the map, never the page
   const w=document.querySelector(".mapwrap");if(!w||S.view!=="battle")return;const mp=w.firstElementChild,m=curMap(),nav=$("nav").offsetHeight;
   document.documentElement.style.setProperty("--nav",nav+"px");mp.style.setProperty("--mw","");
-  const top=w.getBoundingClientRect().top+scrollY,room=Math.max(260,innerHeight-nav-38-top),min=37*m.w+3,max=Math.max(min,Math.min(680,w.clientWidth-4));
+  const top=w.getBoundingClientRect().top+scrollY,room=Math.max(240,Math.min(380,innerHeight-nav-90-top)),min=45*m.w+3,max=Math.max(min,Math.min(680,w.clientWidth-4));
   mp.style.setProperty("--mw",Math.max(min,Math.min(max,Math.floor(room*m.w/m.h)))+"px");w.style.maxHeight=room+"px";w.dataset.pan=mp.offsetWidth>w.clientWidth||mp.offsetHeight>w.clientHeight?"1":"0";
 }
-const heroView=()=>document.querySelector(".tl.here")?.scrollIntoView({block:"nearest",inline:"nearest"});
+function heroView(){
+  const w=document.querySelector(".mapwrap"),h=w?.querySelector(".tl.here");if(!h)return;
+  const a=w.getBoundingClientRect(),b=h.getBoundingClientRect();
+  w.scrollTo({left:w.scrollLeft+b.left-a.left+(b.width-w.clientWidth)/2,top:w.scrollTop+b.top-a.top+(b.height-w.clientHeight)/2,behavior:"instant"});
+}
 function renderBattle(){
   $("zones").innerHTML=ZONES.map(([id,name,boss],i)=>{const open=zoneOpen(id),cleared=S.kills[boss]>0;
     return `<button class="zone" data-zone="${id}" aria-pressed="${S.zone===id}" ${open&&!busy()&&S.run!=="daily"?"":"disabled"}>${tx(name)}${cleared?" ✓":""}${open?"":` · ${tx("beat {boss}",{boss:shortName(ZONES[i-1][2])})}`}</button>`}).join("");zoneView();
