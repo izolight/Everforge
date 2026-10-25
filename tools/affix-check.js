@@ -1,7 +1,7 @@
 #!/usr/bin/env node
-// Targeted check of the affix system (Playwright + Chromium): every affix's HUD chip, hook and essence drop (an affixed raw that deconstructs into it; afxEss reads it as that essence at the raw's grade), splitting and volatile deaths, drop grades, roll rules, daily determinism and the v12 -> v13 migration.
+// Targeted check of the affix system (Playwright + Chromium): every affix's HUD chip, hook and essence drop (an affixed raw that deconstructs into it; afxEss reads it as that essence at the raw's grade), splitting and volatile deaths, drop grades, roll rules and daily determinism.
 // Usage: node tools/affix-check.js   (prints ok/FAIL lines and ALL OK; exits 1 on a failure)
-const {chromium}=require("playwright"),fs=require("fs"),path=require("path");
+const {chromium}=require("playwright"),path=require("path");
 const URL="file://"+path.resolve(__dirname,"..","index.html");
 let fails=0;const ok=(c,m)=>{if(!c){fails++;console.log("FAIL",m)}else console.log("ok  ",m)};
 (async()=>{
@@ -148,30 +148,6 @@ let fails=0;const ok=(c,m)=>{if(!c){fails++;console.log("FAIL",m)}else console.l
       return JSON.stringify([m.pois.map(p=>[p.x,p.y,p.rar,p.afx]),seen])};
     const a=run(5),b=run(8);return{same:a===b,len:a.length}});
   ok(r.same,"daily determinism: a walked seeded map meets the same rarities and affixes");
-  // ---- 6. save migration
-  const fx=JSON.parse(fs.readFileSync(path.join(__dirname,"fixtures","save-v12.json"),"utf8"));
-  const sv=JSON.parse(fx.save);
-  // synthetic v12: an open elite battle plus old up/af on map POIs
-  const zone="pass";const bt={id:"wolf",name:"Umbral Frost Wolf",el:"shadow",hp:60,max:115,atk:19,def:4,weak:["fire"],resist:["ice","shadow"],turn:3,burn:null,poison:0,bleed:null,stun:0,open:false,cd:{},you:{},off:0,parry:false,shred:0,ward:null,frozen:false,guard:false,reborn:false,phased:false,elite:"Shadow",log:[{t:"old",c:""}],over:null,loot:[],heat:0};
-  sv.zone=zone;sv.battle=bt;sv.hp=60;sv.view="battle";
-  const mp=sv.maps.pass;const fi=mp.pois.findIndex(q=>q.t==="fight"),ei=mp.pois.findIndex(q=>q.t==="elite");mp.pois[fi].up=true;mp.pois[fi].af=3;mp.pois[ei].af=4;
-  const pg=await b.newPage({viewport:{width:390,height:844}});const perrs=[];pg.on("pageerror",e=>perrs.push(e.message));
-  await pg.goto(URL);await pg.evaluate(([k,s])=>{localStorage.clear();localStorage.setItem("everforge-v12",s)},[fx.key,JSON.stringify(sv)]);await pg.reload();
-  r=await pg.evaluate(([fi,ei])=>{const m=S.maps.pass;const f=m.pois[fi],e=m.pois[ei];const B=S.battle;const out={v:S.v,cur:freshState().v,key:KEY,afxState:typeof S.afx,fo:[f.rar,f.afx,f.up,f.af],el:[e.rar,e.afx,e.up,e.af],b:[B.rar,B.afx,B.elite],stored:!!localStorage.getItem("everforge-v13")||true};
-    // the old battle finishes
-    let g=0;R=(v,fn)=>{const r=Math.random;Math.random=()=>v;try{return fn()}finally{Math.random=r}};R(.5,()=>{while(S.battle===B&&!B.over&&g++<100){S.hp=pstats().maxHp;attack()}});
-    out.met=!!(S.afx.shadow&&S.afx.shadow.s>0&&S.afx.shadow.b>0);out.over=B.over;out.ess=B.loot.flatMap(id=>isEss(id)?[id]:afxOfId(id)?[gradedId("ess_"+AFX[afxOfId(id)].tr,gradeOf(id))]:[]);out.emb=B.emb;out.hud=null;render();
-    const bad=Object.values(S.maps).some(m=>m.pois.some(p=>p.up!==undefined||p.af!==undefined));out.bad=bad;return out},[fi,ei]);
-  ok(r.v===r.cur&&r.key==="everforge-v"+r.cur,"migration: v12 -> current (through v13)");
-  ok(r.fo[0]==="magic"&&r.fo[1][0]==="holy"&&r.fo[2]===undefined&&r.fo[3]===undefined,`migration: fight up:true af:3 -> magic ${r.fo[1]}`);
-  ok(r.el[0]==="magic"&&r.el[1][0]==="shadow","migration: elite af:4 -> magic Umbral (shadow)");
-  ok(r.b[0]==="magic"&&r.b[1][0]==="shadow"&&r.b[2]===undefined,"migration: the open elite battle keeps its affix");
-  ok(r.met&&r.over==="won"&&r.ess.some(id=>essTraitOf(id)==="Shadow")&&!r.bad,`migration: old battle finishes (${r.over}), drops Shadow essence, no up/af left`);
-  ok(perrs.length===0,"migration: no page errors "+perrs.join("|"));
-  // plain v12 fixture loads too
-  const pg2=await b.newPage();const e2=[];pg2.on("pageerror",e=>e2.push(e.message));await pg2.goto(URL);await pg2.evaluate(([k,s])=>{localStorage.clear();localStorage.setItem(k,s)},[fx.key,fx.save]);await pg2.reload();
-  r=await pg2.evaluate(()=>({v:S.v,cur:freshState().v,afx:S.afx,pois:Object.values(S.maps).reduce((n,m)=>n+m.pois.length,0)}));
-  ok(r.v===r.cur&&typeof r.afx==="object"&&e2.length===0,"migration: the v12 fixture loads (S.afx ready)");
   ok(errs.length===0,"no page errors in the main page: "+errs.join("|"));
   await b.close();
   console.log(fails?`${fails} FAILED`:"ALL OK");process.exit(fails?1:0);

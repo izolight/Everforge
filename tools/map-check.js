@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Connected branching maps, seeded runs, retained legacy expeditions and scrollable touch tiles.
+// Connected branching maps, seeded runs, saved expeditions and scrollable touch tiles.
 // Usage: node tools/map-check.js [--shots /tmp/map-shots] (Playwright + Chromium).
 const {chromium}=require("playwright"),assert=require("node:assert/strict"),fs=require("fs"),path=require("path");
 const ROOT=path.resolve(__dirname,".."),URL="file://"+path.join(ROOT,"index.html"),si=process.argv.indexOf("--shots"),shots=si<0?null:process.argv[si+1];
@@ -40,23 +40,13 @@ const ROOT=path.resolve(__dirname,".."),URL="file://"+path.join(ROOT,"index.html
       const R=Math.random,run=n=>{Math.random=()=>n;S.unl={};return JSON.stringify(genMap({seed:71225,zone:"hollow",heat:5,twist:"elites"}))};
       try{return run(.01)===run(.99)}finally{Math.random=R}
     });assert(r);console.log("ok every seeded map field is independent of Math.random and unlocks");
-    const legacy=JSON.parse(JSON.parse(fs.readFileSync(path.join(__dirname,"fixtures/save-v14.json"),"utf8")).save);
-    r=await p.evaluate(old=>{
-      const before=JSON.stringify(old.maps),s=migrate(JSON.parse(JSON.stringify(old))),same=before===JSON.stringify(s.maps);S=s;S.run=null;S.zone="woods";
-      const m=S.maps.woods,q=m.pois.find(q=>isFoe(q)&&!q.done)||m.pois.find(isFoe),pi=m.pois.indexOf(q);q.done=true;
-      startBattle(q.e||"boar",{pi,rar:q.rar||"normal",afx:q.afx||[]});const open=migrate(JSON.parse(JSON.stringify(S)));
-      const plan=dailyPlan(today());S.battle=null;S.daily={...plan,zone:"woods",back:"pass",state:"run",turns:11,map:JSON.parse(JSON.stringify(m)),result:null};S.run="daily";
-      const daily=migrate(JSON.parse(JSON.stringify(S)));
-      return{same,dims:Object.values(s.maps).map(m=>[m.w,m.h]),battle:open.battle.pi===pi&&open.maps.woods.pois[pi].done,daily:daily.run==="daily"&&daily.daily.map.w===9&&daily.daily.turns===11};
-    },legacy);
-    assert(r.same&&r.dims.every(([w,h])=>w===9&&h===13)&&r.battle&&r.daily);console.log("ok legacy 9x13 expeditions, open map battles and active daily runs survive migration");
     await p.evaluate(()=>{
       S=freshState();S.zone="woods";S.unlocked=ZONES.map(z=>z[0]);S.unl=Object.fromEntries(UNLOCKS.map((u,i)=>[u.id,i+1]));UNLOCKS.forEach(u=>S.seen["i:"+u.id]=true);
       S.maps.woods=genMap({seed:48,zone:"woods",heat:0});S.hp=pstats().maxHp;save();go("battle");
     });
     const saved=await p.evaluate(()=>JSON.stringify(curMap()));await p.reload();assert.equal(await p.evaluate(()=>JSON.stringify(curMap())),saved);
     r=await p.evaluate(()=>{
-      const m=curMap(),bad=JSON.parse(JSON.stringify(S));bad.maps.woods.pos.x=m.w;const clean=migrate(bad);
+      const m=curMap(),bad=JSON.parse(JSON.stringify(S));bad.maps.woods.pos.x=m.w;const clean=loadSave(bad);
       return !clean.maps.woods&&curMap().w===13;
     });assert(r);console.log("ok new maps persist on reload and out-of-bounds imported maps are rejected");
     for(const width of [320,360,720]){

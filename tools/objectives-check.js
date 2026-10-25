@@ -47,12 +47,12 @@ const {chromium}=require('playwright'),path=require('path'),assert=require('node
  await page.evaluate(()=>{S.battle=null;S.onboarding=4;S.eq.main='iron_sword';save()});await page.reload();
  await page.evaluate(()=>{const [x,y]=adjTiles(curMap()).find(([x,y])=>!poiAt(curMap(),x,y));step(x,y)});
  assert(await page.evaluate(()=>S.onboarding===3&&S.battle?.opening!==2));
- const migrated=await page.evaluate(()=>{const old=JSON.parse(JSON.stringify(freshState()));delete old.pinned;delete old.bountyChoices;delete old.onboarding;const a=migrate(old);return{pin:a.pinned,choices:a.bountyChoices,opening:a.onboarding}});
- assert.deepEqual(migrated,{pin:null,choices:[],opening:null});
- assert(await page.evaluate(()=>{const s=freshState();s.pinned={kind:'rumor',id:999};s.bountyChoices=[{kind:'hunt',need:2,reward:{items:['ess:Missing']}}];const m=migrate(s);return m.pinned===null&&m.bountyChoices.length===0}));
+ const loaded=await page.evaluate(()=>{const old=JSON.parse(JSON.stringify(freshState()));delete old.pinned;delete old.bountyChoices;delete old.onboarding;const a=loadSave(old);return{pin:a.pinned,choices:a.bountyChoices,opening:a.onboarding}});
+ assert.deepEqual(loaded,{pin:null,choices:[],opening:null});
+ assert(await page.evaluate(()=>{const s=freshState();s.pinned={kind:'rumor',id:999};s.bountyChoices=[{kind:'hunt',need:2,reward:{items:['ess:Missing']}}];const m=loadSave(s);return m.pinned===null&&m.bountyChoices.length===0}));
  await page.evaluate(()=>{S=freshState();S.quest=TUTORIAL.length;S.bounty={kind:'forge',need:2,base:0,reward:{items:['ess:Fire'],xp:20}};save()});await page.reload();
  assert(await page.evaluate(()=>S.bounty.kind==='forge'&&goal().prog==='0/2'));
- console.log('ok discarded opening fights recover; the follow-up waits for an equipped fire weapon; older saves opt out');
+ console.log('ok discarded opening fights recover; the follow-up waits for an equipped fire weapon; a save without the field opts out');
  for(const width of [360,390,1200]){await page.setViewportSize({width,height:844});for(const lang of ['en','de','ko']){
    await page.evaluate(lang=>{S=freshState();S.quest=TUTORIAL.length;S.hints=[0,0,0];window.__miss=new Set();setLang(lang);go('recipes');pinGoal('rumor',0)},lang);
    assert(await page.locator('[data-pin-rumor="0"]').evaluate(el=>el.getBoundingClientRect().width>=44&&el.getBoundingClientRect().height>=44));

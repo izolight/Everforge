@@ -51,8 +51,8 @@ const {chromium}=require('playwright'),path=require('path'),assert=require('node
  await page.evaluate(()=>{S.battle=null;go('battle');const m=curMap(),[x,y]=adjTiles(m).find(([x,y])=>!poiAt(m,x,y));step(x,y)});
  assert.equal(await page.evaluate(()=>S.battle.id),'boar');await page.locator('#atk').click();
  assert(await page.evaluate(()=>S.battle.log.some(l=>/fire|Flames/.test(l.t))));
- assert(await page.evaluate(()=>{const old=JSON.parse(JSON.stringify(freshState()));delete old.onboarding;return migrate(old).onboarding===null}));
- console.log('ok fresh opening reliably teaches loot, salvage, a guaranteed fire forge and its effect; old saves opt out');
+ assert(await page.evaluate(()=>{const old=JSON.parse(JSON.stringify(freshState()));delete old.onboarding;return loadSave(old).onboarding===null}));
+ console.log('ok fresh opening reliably teaches loot, salvage, a guaranteed fire forge and its effect; a save without the field opts out');
  // Additional review regressions are added here.
  assert.deepEqual(errors,[]);console.log('USABILITY CHECK OK');
  }finally{await browser.close()}})().catch(e=>{console.error(e);process.exit(1)});

@@ -1,12 +1,11 @@
 #!/usr/bin/env node
 // Headless smoke test: plays the game through the real UI and fails on any page error.
 // Usage: node tools/smoke.js [steps]   (needs Playwright; Chromium is preinstalled in cloud sessions; I18N_LANG=de or ko plays it in that language)
-const {chromium}=require("playwright"),path=require("path"),fs=require("fs");
+const {chromium}=require("playwright"),path=require("path");
 const STEPS=+process.argv[2]||400,URL="file://"+path.resolve(__dirname,"..","index.html")+(process.env.I18N_LANG?"?lang="+process.env.I18N_LANG:""); // I18N_LANG=de|ko plays the same run in another language
-const FIX=path.join(__dirname,"fixtures");
 
 // nat: play the way a newcomer does (no forced unlocks, zones, Heat, daily, peddler or affix fights), so systems open by their own rules and the intro cards get clicked away
-async function run(label,setup,nat){
+async function run(label,setup,nat,steps=STEPS){
   const browser=await chromium.launch(),page=await browser.newPage({viewport:{width:390,height:844},reducedMotion:"reduce"});
   const errors=[];
   page.on("pageerror",e=>errors.push(`pageerror: ${e.message}`));
@@ -39,7 +38,7 @@ async function run(label,setup,nat){
       if(!nat&&i%47===11)wantShop=true;
       // the daily run and the normal zone must never mix
       if(S.run==="daily"?!(S.daily&&S.daily.state==="run"&&S.zone===S.daily.zone&&curMap()===S.daily.map):(S.daily&&S.daily.state==="run"))out.bad.push(`daily state broken at step ${i}`);
-      if(S.run==="daily"&&i%41===0){const s2=migrate(JSON.parse(JSON.stringify(S)));if(s2&&s2.run==="daily")S=s2;else out.bad.push("daily did not survive a save round trip")}
+      if(S.run==="daily"&&i%41===0){const s2=loadSave(JSON.parse(JSON.stringify(S)));if(s2&&s2.run==="daily")S=s2;else out.bad.push("daily did not survive a save round trip")}
       {const m=curMap(),seen=new Set(); // roaming enemies: never on rock, water or the fixed tiles, never two on a tile
         for(const p of m.pois){if(!isFoe(p)||p.done)continue;const k=p.x+","+p.y;if(seen.has(k)||!walk(m,p.x,p.y)||(roamer(p)&&fixed(m,p.x,p.y)))out.bad.push(`enemy on a bad tile ${k} at step ${i}`);seen.add(k)}}
       if(!nat&&i>=60&&!out.afxDone&&!busy()&&S.run!=="daily"&&!(S.battle&&S.battle.over)){afxCheck();continue}
@@ -146,7 +145,7 @@ async function run(label,setup,nat){
     out.miss=window.__miss?[...window.__miss]:[];out.proc=typeof PROC!=="undefined"?[...PROC]:[]; // a procedural creature's own strings stay English
     out.unl=Object.keys(S.unl);out.techs=Object.keys(S.techs).length;out.rp=S.rp;out.pending=pendingIntros().length;out.zones=[...out.zones];out.afx=[...out.afx];out.save=localStorage.getItem(KEY);out.key=KEY;out.v=S.v;
     return out;
-  },{steps:STEPS,nat});
+  },{steps,nat});
   await browser.close();
   const proc=new Set(stats.proc||[]);
   const miss=stats.miss.filter(k=>!/Test |^[ab]$|noun\|Blade/.test(k)&&!proc.has(k)); // the bot's own throwaway items ("Test Blade", recipe "a"+"b") have no translations, and a procedural creature's name is English by nature
@@ -154,6 +153,20 @@ async function run(label,setup,nat){
   const {save,miss:_m,...rest}=stats;
   console.log(`[${label}]`,JSON.stringify(rest));
   return {errors,stats};
+}
+
+// a save put in localStorage and loaded by the real page: what the game makes of it
+async function loadPage(save,key){
+  const browser=await chromium.launch(),page=await browser.newPage({viewport:{width:390,height:844},reducedMotion:"reduce"}),errors=[];
+  page.on("pageerror",e=>errors.push(`pageerror: ${e.message}`));
+  page.on("console",m=>{if(m.type()==="error"&&!/fonts\.(googleapis|gstatic)|net::ERR/.test(m.text()))errors.push(`console: ${m.text()}`)});
+  await page.goto(URL);
+  await page.evaluate(([k,s])=>{localStorage.clear();localStorage.setItem(k,s)},[key,save]);
+  await page.reload();
+  await page.waitForFunction(()=>typeof S==="object"&&S);
+  const st=await page.evaluate(()=>({v:S.v,wins:S.wins,journal:S.journal.length,techs:Object.keys(S.techs).join(","),key:KEY}));
+  await browser.close();
+  return {errors,st};
 }
 
 (async()=>{
@@ -179,16 +192,21 @@ async function run(label,setup,nat){
   if(!st.script)fail("The scripted chaser check (contact, flee, daze) did not run.");
   if(!(st.fled+fs_.fled)||!(st.byfoe+fs_.byfoe))fail(`The bot never fled (${st.fled}+${fs_.fled}) or was hunted down (${st.byfoe}+${fs_.byfoe}).`); // random encounters, so count both runs; the scripted chaser check covers flee and daze for sure
   if(st.battles<3)fail("Too few battles completed; the loop got stuck.");
-  // 3. every old save fixture must still load (migrations), open as a veteran (everything unlocked, no intro waiting) and play without errors
-  for(const f of fs.readdirSync(FIX).filter(f=>f.endsWith(".json")).sort()){
-    const {key,save}=JSON.parse(fs.readFileSync(path.join(FIX,f),"utf8"));
-    const r=await run(f,new Function(`localStorage.clear();localStorage.setItem(${JSON.stringify(key)},${JSON.stringify(save)})`));
-    if(r.errors.length)fail(r.errors.join("\n"));
-    if(r.stats.battles<3)fail(`${f}: too few battles; old save may not have migrated.`);
-    if(key!==all.stats.key&&r.stats.vet0!==1)fail(`${f}: an older save did not load as a fully unlocked veteran (${r.stats.vet0}).`);
-  }
-  if(process.argv.includes("--write-fixture")){
-    const n=all.stats.v;fs.writeFileSync(path.join(FIX,`save-v${n}.json`),JSON.stringify({key:all.stats.key,save:all.stats.save}));
-    console.log(`wrote fixture save-v${n}.json`)}
+  // 3. the run's own save loads again as the current version, keeps its progress and plays on
+  if(!st.save)fail("the unlocked run never saved its state.");
+  const saved=JSON.parse(st.save||"{}");
+  const rt=await loadPage(st.save,st.key);
+  if(rt.errors.length)fail(rt.errors.join("\n"));
+  if(rt.st.v!==17)fail(`the run's own save did not load as v17 (v${rt.st.v}).`);
+  if(rt.st.wins!==saved.wins||rt.st.journal!==saved.journal.length)fail(`the run's own save lost its progress (wins ${rt.st.wins}/${saved.wins}, journal ${rt.st.journal}/${saved.journal.length}).`);
+  const rt2=await run("roundtrip",new Function(`localStorage.clear();localStorage.setItem(${JSON.stringify(st.key)},${JSON.stringify(st.save)})`),false,150);
+  if(rt2.errors.length)fail(rt2.errors.join("\n"));
+  if(rt2.stats.v!==17)fail(`the reloaded save is not v17 (v${rt2.stats.v}).`);
+  if(rt2.stats.battles<3)fail(`the reloaded save played too few battles (${rt2.stats.battles}).`);
+  // 4. an older save is not loaded at all: the game starts fresh, without a page error
+  const old=JSON.stringify({v:16,wins:7,journal:[{id:"x",name:"x"}],unl:{start:1,patterns:2},kills:{gnarlhorn:1}});
+  const rj=await loadPage(old,"everforge-v16");
+  if(rj.errors.length)fail(rj.errors.join("\n"));
+  if(rj.st.v!==17||rj.st.wins!==0||rj.st.journal!==0)fail(`a v16 save did not start fresh (v${rj.st.v}, ${rj.st.wins} wins, ${rj.st.journal} journal entries).`);
   console.log(failed?"SMOKE FAILED":"SMOKE OK");process.exit(failed?1:0);
 })();
