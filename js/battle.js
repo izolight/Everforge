@@ -189,7 +189,7 @@ function enemyTurn(){
   tickYou(B,P);if(S.hp<=0)return youFall();
   if(P.regen&&S.hp<P.maxHp)healYou(P.regen,"Your gear mends you");
   if(P.root&&S.hp<P.maxHp*.5)healYou(P.root,"Roots knit your wounds");
-  endTurn(B);if(isSpecial(B)&&!B.frozen)sfx("warn",.25);save();render();
+  endTurn(B);if(isSpecial(B)&&!B.frozen){sfx("warn",.25);if(unlock("parry"))blog("It's winding up! Parry to turn it aside.","big")}save();render();
 }
 function enemyDown(){
   const B=S.battle,E=ENEMIES[B.id];
@@ -211,7 +211,7 @@ function enemyDown(){
   blog(`The ${B.name} falls.${P.lure?" Your Lure gear draws in extra scraps.":""}`,"good");
   if(E.boss&&h&&!dl){const n=h*HEAT_T.ess,xp=h*HEAT_T.xp;for(let i=0;i<n;i++)got.push(gess(pick(ESS_POOL),gz,gh));S.xp+=xp;blog(`Heat ${h} spoils: ${n} extra essence and ${xp} smith XP.`,"good")}
   if(E.boss&&dl)dailyBundle(got);
-  learn(B.id,"stats",1);B.emb=fightEmbers(E,B);blog(`You rake ${B.emb} embers from the ashes.`,"good");
+  learn(B.id,"stats",1);B.emb=fightEmbers(E,B);if(isUnl("peddler"))blog(`You rake ${B.emb} embers from the ashes.`,"good");
   got.forEach(id=>{addItem(id);const b=baseIdOf(id);if(E.drops.some(d=>d[0]===b))learn(B.id,"drops",b)});B.loot=got;
   S.campProg++;let msg="";if(S.campProg>=3){S.campProg=0;if(S.camp<3){S.camp++;msg="You earned a campfire charge."}}
   if(E.boss&&dl){finishDaily(MAP_ROWS,true);const next=ZONES[zoneIdx(E.zone)+1];if(next&&!S.unlocked.includes(next[0])){S.unlocked.push(next[0]);msg=`${next[1]} is now open!`}} // a daily boss kill unlocks like a normal one, matching the load-time fix-up in migrate

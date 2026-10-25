@@ -5,7 +5,8 @@ const {chromium}=require("playwright"),path=require("path"),fs=require("fs");
 const STEPS=+process.argv[2]||400,URL="file://"+path.resolve(__dirname,"..","index.html");
 const FIX=path.join(__dirname,"fixtures");
 
-async function run(label,setup){
+// nat: play the way a newcomer does (no forced unlocks, zones, Heat, daily, peddler or affix fights), so systems open by their own rules and the intro cards get clicked away
+async function run(label,setup,nat){
   const browser=await chromium.launch(),page=await browser.newPage({viewport:{width:390,height:844},reducedMotion:"reduce"});
   const errors=[];
   page.on("pageerror",e=>errors.push(`pageerror: ${e.message}`));
@@ -13,8 +14,9 @@ async function run(label,setup){
   await page.goto(URL);
   if(setup){await page.evaluate(setup);await page.reload()}
   await page.waitForFunction(()=>typeof S==="object"&&S);
-  const stats=await page.evaluate(async steps=>{
-    const sleep=ms=>new Promise(r=>setTimeout(r,ms)),out={steps:0,battles:0,won:0,lost:0,forged:0,zones:new Set(),views:0,wields:0,abil:0,tiles:0,outs:0,byfoe:0,fled:0,script:0,heat:0,daily:0,aband:0,bought:0,sold:0,upgraded:0,reforged:0,afx:new Set(),split:0,boom:0,rare:0,bad:[]};
+  const stats=await page.evaluate(async ({steps,nat})=>{
+    const sleep=ms=>new Promise(r=>setTimeout(r,ms)),out={steps:0,battles:0,won:0,lost:0,forged:0,zones:new Set(),views:0,wields:0,abil:0,tiles:0,outs:0,byfoe:0,fled:0,script:0,intros:0,heat:0,daily:0,aband:0,bought:0,sold:0,upgraded:0,reforged:0,afx:new Set(),split:0,boom:0,rare:0,bad:[]};
+    out.vet0=UNLOCKS.every(u=>S.unl[u.id])&&pendingIntros().length===0?1:`missing ${UNLOCKS.filter(u=>!S.unl[u.id]).map(u=>u.id)} pending ${pendingIntros().map(c=>c.id)}`; // as loaded, before the bot plays
     const click=el=>{el.click();return true};let wantZone=null,doChores=false,wantWield=false,wantHeat=false,wantDaily=false,wantAband=false,wantShop=false;
     const q=s=>document.querySelector(s),qa=s=>[...document.querySelectorAll(s)];
     const fin=B=>{ // a finished fight: a won one drops each affix's essence (a lost one never does); count splits and volatile deaths
@@ -23,26 +25,27 @@ async function run(label,setup){
       if(B.over==="lost"&&B.loot.length)out.bad.push("a lost fight dropped loot")};
     for(let i=0;i<steps;i++){out.steps++;
       // Every so often, unlock everything and top up HP so later content gets exercised too.
-      if(i%60===59)wantZone=ZONES[(i/60|0)%ZONES.length][0];
+      {const ok=q("#introOk");if(ok&&Math.random()<.6){click(ok);out.intros++;continue}} // an intro card: read it (Got it)
+      if(!nat&&i%60===59)wantZone=ZONES[(i/60|0)%ZONES.length][0];
       if(wantZone&&!busy()&&S.run!=="daily"){S.unlocked=[...new Set([...S.unlocked,...ZONES.map(z=>z[0])])];S.zone=wantZone;S.battle=null;S.event=null;wantZone=null;save();render()}
       if(i%25===24)doChores=true; // stays set until the bot is idle, so a busy moment never skips it
       if(i%10===9)wantWield=true;
       if(wantWield&&!busy()){wantWield=false;wield()}
-      if(i%37===5)wantHeat=true;
+      if(!nat&&i%37===5)wantHeat=true;
       if(i%70===33&&!busy()){curMap().torch=0;render()} // the torch dying: dim light, ambushes
-      if(i%53===17)wantDaily=true;
+      if(!nat&&i%53===17)wantDaily=true;
       if(i%29===3)wantAband=true;
-      if(i%47===11)wantShop=true;
+      if(!nat&&i%47===11)wantShop=true;
       // the daily run and the normal zone must never mix
       if(S.run==="daily"?!(S.daily&&S.daily.state==="run"&&S.zone===S.daily.zone&&curMap()===S.daily.map):(S.daily&&S.daily.state==="run"))out.bad.push(`daily state broken at step ${i}`);
       if(S.run==="daily"&&i%41===0){const s2=migrate(JSON.parse(JSON.stringify(S)));if(s2&&s2.run==="daily")S=s2;else out.bad.push("daily did not survive a save round trip")}
       {const m=curMap(),seen=new Set(); // roaming enemies: never on rock, water or the fixed tiles, never two on a tile
         for(const p of m.pois){if(!isFoe(p)||p.done)continue;const k=p.x+","+p.y;if(seen.has(k)||!walk(m,p.x,p.y)||(roamer(p)&&fixed(m,p.x,p.y)))out.bad.push(`enemy on a bad tile ${k} at step ${i}`);seen.add(k)}}
-      if(i>=60&&!out.afxDone&&!busy()&&S.run!=="daily"&&!(S.battle&&S.battle.over)){afxCheck();continue}
-      if(i%25===4&&!busy()&&S.run!=="daily"&&!(S.battle&&S.battle.over)){ // now and then a magic or rare fight with each affix in turn, so every hook runs (splitting, a volatile death, wards, dodging...)
+      if(!nat&&i>=60&&!out.afxDone&&!busy()&&S.run!=="daily"&&!(S.battle&&S.battle.over)){afxCheck();continue}
+      if(!nat&&i%25===4&&!busy()&&S.run!=="daily"&&!(S.battle&&S.battle.over)){ // now and then a magic or rare fight with each affix in turn, so every hook runs (splitting, a volatile death, wards, dodging...)
         const ids=Object.keys(AFX),a=ids[(i/25|0)%ids.length],rare=(i/25|0)%3===2,b=rare?rollAfx(Math.random,"rare",{mv:"chase",heat:S.heat[S.zone]?S.heat[S.zone].sel:0}).filter(x=>x!==a&&afxOk(a,x)):[];
         S.event=null;startBattle(pickEnemy(S.zone),{row:2,rar:rare?"rare":"magic",afx:[a,...b.slice(0,1)]});S.hp=pstats().maxHp;continue}
-      if(i>=50&&!out.script&&!busy()&&S.run!=="daily"&&!(S.battle&&S.battle.over)){scripted();continue}
+      if(!nat&&i>=50&&!out.script&&!busy()&&S.run!=="daily"&&!(S.battle&&S.battle.over)){scripted();continue}
       if(S.view!=="battle")go("battle");
       out.zones.add(S.zone);
       if(S.battle&&!S.battle.over){
@@ -131,9 +134,9 @@ async function run(label,setup){
       go("battle");if(!qa("#arena [data-tile]").length)q("#again")?.click();
     }
     await sleep(500);
-    out.zones=[...out.zones];out.afx=[...out.afx];out.save=localStorage.getItem(KEY);out.key=KEY;out.v=S.v;
+    out.unl=Object.keys(S.unl);out.pending=pendingIntros().length;out.zones=[...out.zones];out.afx=[...out.afx];out.save=localStorage.getItem(KEY);out.key=KEY;out.v=S.v;
     return out;
-  },STEPS);
+  },{steps:STEPS,nat});
   await browser.close();
   const {save,...rest}=stats;
   console.log(`[${label}]`,JSON.stringify(rest));
@@ -141,26 +144,36 @@ async function run(label,setup){
 }
 
 (async()=>{
-  let failed=false;
-  const fresh=await run("fresh");
-  if(fresh.errors.length){failed=true;console.error(fresh.errors.join("\n"))}
-  if(fresh.stats.wields>=7&&!fresh.stats.abil){failed=true;console.error("No ability buttons were clicked; they may have vanished.")}
-  if(fresh.stats.bad.length){failed=true;console.error(fresh.stats.bad.join("\n"))}
-  const st=fresh.stats;if(!st.bought||!st.sold||!st.upgraded||!st.reforged){failed=true;console.error(`The bot never exercised the economy (bought ${st.bought}, sold ${st.sold}, upgraded ${st.upgraded}, reforged ${st.reforged}).`)}
-  if(!fresh.stats.heat||!fresh.stats.daily){failed=true;console.error("The bot never exercised heat or the daily.")}
-  if(fresh.stats.tiles<30){failed=true;console.error("The bot barely explored the map.")}
-  if(fresh.stats.afx.length<17||!fresh.stats.split||!fresh.stats.boom||!fresh.stats.rare){failed=true;console.error(`The bot did not meet every affix (${fresh.stats.afx.length}/17), a split (${fresh.stats.split}), a volatile death (${fresh.stats.boom}) or a rare (${fresh.stats.rare}).`)}
-  if(!fresh.stats.script){failed=true;console.error("The scripted chaser check (contact, flee, daze) did not run.")}
-  if(fresh.stats.battles<3){failed=true;console.error("Too few battles completed; the loop got stuck.")}
-  // Every old save fixture must still load (migrations) and play without errors.
+  let failed=false;const fail=m=>{failed=true;console.error(m)};
+  // 1. a newcomer's save, played naturally: systems open by their own rules, intro cards are read and never pile up
+  const fresh=await run("fresh",null,true),fs_=fresh.stats;
+  if(fresh.errors.length)fail(fresh.errors.join("\n"));
+  if(fs_.bad.length)fail(fs_.bad.join("\n"));
+  if(fs_.battles<3)fail("Too few battles completed; the loop got stuck.");
+  if(!fs_.intros||fs_.unl.length<4)fail(`The natural run opened too little (${fs_.unl.length} unlocks, ${fs_.intros} intro cards read).`);
+  if(fs_.tiles<30)fail("The bot barely explored the map.");
+  // 2. a save with everything unlocked (a fresh state with every UNLOCKS entry open and read): the feature checks that gating would keep out of a 400-step newcomer run (abilities, Heat, daily, buying, selling, upgrading, reforging, flee, affixes, chasers, tiles)
+  const all=await run("unlocked",new Function(`S.unl=Object.fromEntries(UNLOCKS.map((u,i)=>[u.id,i+1]));UNLOCKS.forEach(u=>S.seen["i:"+u.id]=true);Object.keys(ABILITIES).forEach(k=>S.seen["a:"+k]=true);S.quest=TUTORIAL.length;save()`)),st=all.stats;
+  if(all.errors.length)fail(all.errors.join("\n"));
+  if(st.wields>=7&&!st.abil)fail("No ability buttons were clicked; they may have vanished.");
+  if(st.bad.length)fail(st.bad.join("\n"));
+  if(!st.bought||!st.sold||!st.upgraded||!st.reforged)fail(`The bot never exercised the economy (bought ${st.bought}, sold ${st.sold}, upgraded ${st.upgraded}, reforged ${st.reforged}).`);
+  if(!st.heat||!st.daily)fail("The bot never exercised heat or the daily.");
+  if(st.tiles<30)fail("The bot barely explored the map.");
+  if(st.afx.length<17||!st.split||!st.boom||!st.rare)fail(`The bot did not meet every affix (${st.afx.length}/17), a split (${st.split}), a volatile death (${st.boom}) or a rare (${st.rare}).`);
+  if(!st.script)fail("The scripted chaser check (contact, flee, daze) did not run.");
+  if(!st.fled||!st.byfoe)fail(`The bot never fled (${st.fled}) or was hunted down (${st.byfoe}).`);
+  if(st.battles<3)fail("Too few battles completed; the loop got stuck.");
+  // 3. every old save fixture must still load (migrations), open as a veteran (everything unlocked, no intro waiting) and play without errors
   for(const f of fs.readdirSync(FIX).filter(f=>f.endsWith(".json")).sort()){
     const {key,save}=JSON.parse(fs.readFileSync(path.join(FIX,f),"utf8"));
     const r=await run(f,new Function(`localStorage.clear();localStorage.setItem(${JSON.stringify(key)},${JSON.stringify(save)})`));
-    if(r.errors.length){failed=true;console.error(r.errors.join("\n"))}
-    if(r.stats.battles<3){failed=true;console.error(`${f}: too few battles; old save may not have migrated.`)}
+    if(r.errors.length)fail(r.errors.join("\n"));
+    if(r.stats.battles<3)fail(`${f}: too few battles; old save may not have migrated.`);
+    if(key!==all.stats.key&&r.stats.vet0!==1)fail(`${f}: an older save did not load as a fully unlocked veteran (${r.stats.vet0}).`);
   }
   if(process.argv.includes("--write-fixture")){
-    const n=fresh.stats.v;fs.writeFileSync(path.join(FIX,`save-v${n}.json`),JSON.stringify({key:fresh.stats.key,save:fresh.stats.save}));
+    const n=all.stats.v;fs.writeFileSync(path.join(FIX,`save-v${n}.json`),JSON.stringify({key:all.stats.key,save:all.stats.save}));
     console.log(`wrote fixture save-v${n}.json`)}
   console.log(failed?"SMOKE FAILED":"SMOKE OK");process.exit(failed?1:0);
 })();

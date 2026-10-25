@@ -25,6 +25,7 @@
   </header>
 
   <div class="goal" id="goal" aria-live="polite"></div>
+  <aside class="intro" id="intro" aria-label="Introduction" hidden></aside>
 
   <div id="v-battle" class="view">
     <section class="panel">
@@ -40,7 +41,7 @@
       <div class="pstats" id="pstats"></div>
       <div class="cfx" id="cfx"></div>
     </section>
-    <section class="panel" aria-label="Infusions">
+    <section class="panel" id="infp" aria-label="Infusions">
       <div class="lrow" id="inflabel"></div>
       <div class="inf" id="inf"></div>
       <div class="actions" id="infbtns"></div>
@@ -62,11 +63,12 @@
         <button class="btn" id="clear">Clear</button>
       </div>
     </section>
-    <section class="panel" aria-label="Upgrading">
+    <section class="panel" id="upgp" aria-label="Upgrading">
       <details id="upgd"><summary class="label" id="upgsum"></summary>
       <div class="upgrows" id="upgrows"></div></details>
     </section>
-    <section class="panel" aria-label="Skills">
+    <section class="panel" id="skp" aria-label="Skills">
+      <div id="sklock" hidden></div>
       <details id="skd"><summary class="label" id="sksum"></summary><div id="skills"></div></details>
     </section>
     <section class="panel result" id="result" aria-live="polite"></section>
@@ -99,14 +101,18 @@
   </div>
 
   <div id="v-codex" class="view" hidden>
-    <section class="panel" aria-label="Lifetime stats">
+    <section class="panel" aria-label="Guide">
+      <p class="label lrow" id="gdlabel"></p>
+      <div id="gdlist"></div>
+    </section>
+    <section class="panel" id="stp" aria-label="Lifetime stats">
       <details id="statsd"><summary class="label"><span data-ic="renown"></span> Lifetime stats</summary><div id="stats"></div></details>
     </section>
     <section class="panel">
       <p class="label lrow" id="cxlabel">Creature codex</p>
       <div id="cxlist"></div>
     </section>
-    <section class="panel">
+    <section class="panel" id="afp">
       <p class="label lrow" id="aflabel">Affixes</p>
       <div id="aflist"></div>
     </section>
@@ -183,6 +189,7 @@
 <script src="js/crafting.js"></script>
 <script src="js/codex.js"></script>
 <script src="js/goals.js"></script>
+<script src="js/unlocks.js"></script>
 <script src="js/player.js"></script>
 <script src="js/fx.js"></script>
 <script src="js/audio.js"></script>

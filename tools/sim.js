@@ -2,7 +2,7 @@
 // Balance simulator: plays battles and whole expeditions in the real game code (startBattle, attack, parry, ability, useItem, visit, pstats...)
 // in headless Chromium, with render/save/fx/sfx/toast stubbed. Kits are crafted with the real combine().
 // Usage: node tools/sim.js [--n 40] [--zone woods,pass] [--enemy wolf,archon] [--kit melee,spire-end] [--heat 0,3,5] [--policy smart,basic,passive]
-//        [--seed 7] [--trace (prints one battle log per cell, then exits)] [--elite (adds magic + and rare * variants)] [--rarity (the rarity table only)] [--row 3] [--all] [--attrition] [--no-mastered] [--jobs 4] [--out sim.json] [--econ-only | --no-econ] [--exped 30]
+//        [--fresh (the first expeditions with the unlock gates on, --exped 5)] [--seed 7] [--trace (prints one battle log per cell, then exits)] [--elite (adds magic + and rare * variants)] [--rarity (the rarity table only)] [--row 3] [--all] [--attrition] [--no-mastered] [--jobs 4] [--out sim.json] [--econ-only | --no-econ] [--exped 30]
 const {chromium}=require("playwright"),path=require("path"),fs=require("fs"),os=require("os");
 const URL="file://"+path.resolve(__dirname,"..","index.html");
 
@@ -67,8 +67,9 @@ function setup(){ // runs inside the game page; everything here uses the real ga
   const ref=s=>{if(s.startsWith("ess:")){const [,t,g]=s.split(":");return essG(t,+g||3)}return s.includes("@")?gradedItem(baseIdOf(s),gradeOf(s)):s};
   const SIM=window.SIM={kits:{}};
   // craft a kit with combine(), equip it, infuse. Returns the save snapshot and a summary
+  const openAll=()=>{S.unl=Object.fromEntries(UNLOCKS.map((u,i)=>[u.id,i+1]))}; // every system open: the kits and the matrix measure combat and the economy, not the unlock order
   SIM.build=(k,stage,xp,mast,sk)=>{ // mast = highest zone index whose enemies the player has mastered in the codex (-1: none)
-    S=freshState();S.xp=xp;Object.keys(SKILLS).forEach(x=>S.skills[x]=sk);let tries=0,fizz=0,nc=0;S.unlocked=ZONES.map(z=>z[0]);S.zone=stage;const out={},warn=[];let ess=0;const refs=[];
+    S=freshState();openAll();S.xp=xp;Object.keys(SKILLS).forEach(x=>S.skills[x]=sk);let tries=0,fizz=0,nc=0;S.unlocked=ZONES.map(z=>z[0]);S.zone=stage;const out={},warn=[];let ess=0;const refs=[];
     const need=id=>{if(id.startsWith("ess:")){const g=+id.split(":")[2]||3;ess+=plainEq(g);if(g>3)refs.push(g);const r=ref(id);addItem(r);return r}const r=ref(id);if(!S.items[r])warn.push("unknown "+id);return r};
     k.steps.forEach(([slot,as,ins])=>{
       const ids=ins.split(" ").map(i=>i[0]==="$"?out[i.slice(1)]:need(i));
@@ -132,8 +133,20 @@ function setup(){ // runs inside the game page; everything here uses the real ga
   // ---- economy: whole expeditions on the grid map (step(), BFS to POIs then the lair) ----
   const essCount=()=>Object.keys(S.inv).filter(isEss).reduce((a,id)=>a+S.inv[id]*plainEq(gradeOf(id)),0); // plain-essence equivalents
   const itemCount=()=>Object.values(S.inv).reduce((a,b)=>a+b,0);
+  // --fresh: the first expeditions of a new save with the unlock gates on (the starter kit, one policy): what each map holds, what opens between them
+  SIM.fresh=(n,pol,seed)=>{
+    useSeed(seed,"fresh");S=freshState();S.hp=pstats().maxHp;const rows=[],seenU=new Set();
+    for(let e=0;e<n;e++){
+      S.zone="woods";S.maps.woods=newMap("woods");S.battle=null;S.event=null;S.hp=pstats().maxHp;S.camp=2;S.stats.earned=0;
+      const m=curMap(),types={},w0=S.wins;m.pois.forEach(p=>types[p.t]=(types[p.t]||0)+1);
+      const r=walkExped(pol),res=r.won?"won":r.lost?"lost":"walked away";if(!r.won&&!r.lost)S.stats.exped++; // an abandoned run still counts as an expedition
+      checkUnl(true);const opened=Object.keys(S.unl).filter(k=>!seenU.has(k));Object.keys(S.unl).forEach(k=>seenU.add(k));
+      rows.push({e:e+1,res,steps:r.steps,fights:r.fights,wins:S.wins-w0,hunted:r.cont,pois:types,visits:r.visits,opened,sc:{exps:exps(S),wins:S.wins,lv:level()}})}
+    return rows};
   SIM.exped=(snap,zone,heat,pol,seedKey,seed)=>{
     useSeed(seed,seedKey);S=JSON.parse(snap);S.zone=zone;S.embers=0;S.hp=pstats().maxHp;S.camp=2;S.maps[zone]=genMap({heat,zone});S.stats.earned=0;
+    return walkExped(pol)};
+  const walkExped=pol=>{ // one expedition on the current S (its map), walked to the boss or a defeat
     const r={won:0,lost:0,fights:0,cont:0,mags:0,rares:0,shops:[],visits:{},hp0:S.hp},e0=essCount(),i0=itemCount(),inv0={...S.inv};let steps=0;
     const fightOut=()=>{const B=S.battle;let g=0;while(S.battle===B&&!B.over&&B.turn<150&&g++<600)POL[pol](B);r.fights++;if(B.by==="it")r.cont++;if(B.afx.length)r[B.rar==="rare"?"rares":"mags"]++;return B.over};
     const settle=()=>{
@@ -185,6 +198,11 @@ async function newPage(browser){const p=await browser.newPage();p.on("pageerror"
 async function main(){
   const t0=Date.now(),browser=await chromium.launch();
   const pages=await Promise.all(Array.from({length:JOBS},()=>newPage(browser))),P0=pages[0];
+  if(has("fresh")){ // the first expeditions with gating, then done
+    const n=+opt("exped",5),rows=await P0.evaluate(([n,p,sd])=>SIM.fresh(n,p,sd),[n,POLS[0],SEED]);
+    console.log(`== Fresh save: ${n} expeditions in the Woods with the unlock gates on (starter kit, ${POLS[0]} policy) ==\nColumns: result, steps, fights, wins this run; POIs placed on the map (shown by type); POI types the bot walked into; what opened afterwards (smith Lv / total wins / expeditions finished).`);
+    rows.forEach(r=>console.log(`#${r.e} ${r.res.padEnd(11)} ${String(r.steps).padStart(3)} steps ${String(r.fights).padStart(2)} fights ${String(r.wins).padStart(2)} wins | map: ${Object.entries(r.pois).map(([t,c])=>t+" "+c).join(", ")}\n     met: ${Object.entries(r.visits).map(([t,c])=>t+" "+c).join(", ")||"nothing"} | then Lv ${r.sc.lv}, ${r.sc.wins} wins, ${r.sc.exps} expeditions -> opened: ${r.opened.join(", ")||"-"}`));
+    await browser.close();return}
   const zones=list("zone",ZN),kitSel=list("kit",null),mastered=!has("no-mastered");
   const enemiesAll=await P0.evaluate(()=>Object.entries(ENEMIES).map(([id,e])=>({id,zone:e.zone,boss:!!e.boss,name:e.name})));
   const eSel=list("enemy",null),enemies=enemiesAll.filter(e=>(eSel?eSel.includes(e.id):(e.zone==="any"||zones.includes(e.zone))));

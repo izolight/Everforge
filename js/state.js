@@ -1,5 +1,5 @@
 // ================= STATE =================
-const KEY="everforge-v13",OLD_KEYS=["everforge-v12","everforge-v11","everforge-v10","everforge-v9","everforge-v8","everforge-v7","everforge-v6","everforge-v5","everforge-v4","everforge-v3"];
+const KEY="everforge-v14",OLD_KEYS=["everforge-v13","everforge-v12","everforge-v11","everforge-v10","everforge-v9","everforge-v8","everforge-v7","everforge-v6","everforge-v5","everforge-v4","everforge-v3"];
 function baseItem(id){const [name,form,traits,kind]=BASE[id];return {id,name,form,noun:name.split(" ").pop(),traits,tier:1,crafted:false,...(kind?{kind}:{})}}
 function mkGraded(b,g){ // the item for base id b at grade g (pure: migrate rebuilds graded items with it)
   const es=/^ess_([A-Za-z]+)$/.exec(b),it=es?{id:b,name:`${es[1]} Essence`,form:"material",kind:"essence",noun:"Essence",traits:{[es[1]]:ESS_VALUE},tier:1,crafted:false}:baseItem(b);
@@ -8,22 +8,32 @@ function mkGraded(b,g){ // the item for base id b at grade g (pure: migrate rebu
 const statsDef=()=>({salvaged:0,studied:0,dealt:0,taken:0,big:0,bigW:"",crits:0,parries:0,abil:0,sufd:0,cured:0,elites:0,bosses:0,deaths:0,exped:0,heatBest:{},fast:{},forged:0,legend:0,mishaps:0,fizzles:0,earned:0,spent:0,refined:0,dailies:0,dailyWins:0,dBest:null});
 function freshState(){
   const items={};Object.keys(BASE).forEach(id=>items[id]=baseItem(id));
-  return {v:13,embers:0,afx:{},infCredit:0,skills:{},maps:{},heat:{},daily:null,run:null,infuse:{},items,inv:{iron_sword:1},eq:{main:"iron_sword",off:null,head:null,body:null,hands:null,feet:null,charm:null},
+  return {v:14,embers:0,afx:{},unl:{},infCredit:0,skills:{},maps:{},heat:{},daily:null,run:null,infuse:{},items,inv:{iron_sword:1},eq:{main:"iron_sword",off:null,head:null,body:null,hands:null,feet:null,charm:null},
     hp:999,camp:2,campProg:0,xp:0,journal:[],knownR:[],hints:[0,1,2],bench:[],last:null,tab:"all",rtab:"all",view:"battle",zone:"woods",
     wins:0,kills:{},seen:{},codex:{},unlocked:["woods"],zoneKills:{},quest:0,bounty:null,stats:statsDef(),fresh:[],battle:null,event:null};
 }
 const isObj=v=>!!v&&typeof v==="object"&&!Array.isArray(v);
-const DEFAULTED=["maps","infuse","eq","kills","seen","codex","zoneKills","stats","journal","knownR","bench","unlocked","fresh","hp","xp","zone","heat","daily","run","hints","embers","skills","infCredit","afx"];
+const DEFAULTED=["maps","infuse","eq","kills","seen","codex","zoneKills","stats","journal","knownR","bench","unlocked","fresh","hp","xp","zone","heat","daily","run","hints","embers","skills","infCredit","afx","unl"];
 // Shape check for loaded or imported saves, so a malformed one is rejected instead of breaking every render.
 function sane(s){
-  return ["maps","heat","infuse","items","inv","eq","kills","seen","codex","zoneKills","stats"].every(k=>isObj(s[k]))
+  return ["maps","heat","infuse","items","inv","eq","kills","seen","codex","zoneKills","stats","unl"].every(k=>isObj(s[k]))
     &&["journal","knownR","bench","unlocked","fresh"].every(k=>Array.isArray(s[k]))
     &&Number.isFinite(s.hp)&&Number.isFinite(s.xp)&&ZONES.some(z=>z[0]===s.zone)
     &&Object.keys(s.inv).every(id=>isObj(s.items[id])&&isObj(s.items[id].traits)&&typeof s.items[id].name==="string"&&FORMS[s.items[id].form])
     &&s.bench.every(id=>isObj(s.items[id]))&&s.journal.every(j=>isObj(j)&&isObj(s.items[j.id]));
 }
+// v13 -> v14: a save keeps every system it already reached or used (UNLOCKS: `when` holds, or `used` finds proof), and those intros count as read. Runs last, on a sanitized save.
+function grandfather(s){
+  if(s.quest>=7)s.quest=TUTORIAL.length; // the old goal chain was 7 steps; the new steps are for newcomers
+  s.unl={};let n=0,ch=true;
+  const vet=boss1(s)||s.wins>=10||s.journal.length>=3||!!s.daily||s.stats.dailies>0; // someone who has really played the old game, where everything was open from the start, keeps all of it
+  while(ch){ch=false;UNLOCKS.forEach(u=>{if(!s.unl[u.id]&&(vet||(u.when&&u.when(s))||(u.used&&u.used(s)))){s.unl[u.id]=++n;ch=true}})}
+  UNLOCKS.forEach(u=>{if(s.unl[u.id])s.seen["i:"+u.id]=true});
+  if(s.unl.ability)Object.keys(ABILITIES).forEach(k=>s.seen["a:"+k]=true);
+}
 function migrate(s){
   if(!isObj(s))return null;
+  let up14=false;
   if(s.v===3){
     s.v=4;s.knownR=[];s.rtab="all";
     const byName=n=>Object.values(s.items).find(i=>i.name===n);
@@ -94,7 +104,8 @@ function migrate(s){
       if(p.t==="elite"||p.up){p.rar="magic";p.afx=[AFX_EL[p.af|0]||AFX_EL[0]]}else{p.rar="normal";p.afx=[]}delete p.up;delete p.af})};
     Object.values(isObj(s.maps)?s.maps:{}).forEach(conv);if(isObj(s.daily))conv(s.daily.map);
     const b=s.battle;if(isObj(b)&&b.afx===undefined){const a=b.elite&&AFX_EL.find(x=>AFX[x].tr===b.elite);b.rar=a?"magic":"normal";b.afx=a?[a]:[];delete b.elite;if(a){if(!isObj(s.afx))s.afx={};s.afx[a]=s.afx[a]||{s:1,b:0}}}} // an open elite battle counts as met
-  if(s.v!==13||!isObj(s.items)||!isObj(s.inv))return null;
+  if(s.v===13){s.v=14;up14=true} // grandfather() fills s.unl once the save is sanitized
+  if(s.v!==14||!isObj(s.items)||!isObj(s.inv))return null;
   const dflt=freshState();DEFAULTED.forEach(k=>{if(s[k]===undefined)s[k]=dflt[k]});if(!isObj(s.afx))s.afx={};
   Object.keys(BASE).forEach(id=>s.items[id]=baseItem(id));
   if(!sane(s))return null;
@@ -118,6 +129,7 @@ function migrate(s){
   if(s.run!=="daily"||!s.daily||s.daily.state!=="run")s.run=null;else s.zone=s.daily.zone;
   s.hints=Array.isArray(s.hints)?s.hints.filter(i=>Number.isInteger(i)&&SECRETS[i]):[0,1,2];
   if(!VIEWS.includes(s.view))s.view="battle";
+  if(up14)grandfather(s);
   return s;
 }
 let migNote=false,S=null; // migNote: a migration redrew the maps (shown once as a toast after load)

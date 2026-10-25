@@ -13,7 +13,7 @@ let fails=0;const ok=(c,m)=>{if(!c){fails++;console.log("FAIL",m)}else console.l
   // helpers inside the page
   await E(()=>{
     window.R=(v,fn)=>{const r=Math.random;Math.random=typeof v==="function"?v:()=>v;try{return fn()}finally{Math.random=r}};
-    window.fresh=(zone="woods")=>{S=freshState();S.zone=zone;S.unlocked=ZONES.map(z=>z[0]);S.maps[zone]=genMap({heat:0,zone});S.hp=pstats().maxHp};
+    window.openAll=()=>{S.unl=Object.fromEntries(UNLOCKS.map((u,i)=>[u.id,i+1]))};window.fresh=(zone="woods")=>{S=freshState();openAll();S.zone=zone;S.unlocked=ZONES.map(z=>z[0]);S.maps[zone]=genMap({heat:0,zone});S.hp=pstats().maxHp};
     window.fight=(e,afx,rar="magic",row=3)=>{S.battle=null;S.hp=pstats().maxHp;startBattle(e,{row,rar,afx});return S.battle};
     window.logs=B=>B.log.map(l=>l.t);
     window.plainRand=()=>.5;
@@ -133,7 +133,7 @@ let fails=0;const ok=(c,m)=>{if(!c){fails++;console.log("FAIL",m)}else console.l
   // ---- 5. daily determinism: two different Math.random streams, same map affixes and rarities, same dark ambush
   r=await E(()=>{const mul=a=>()=>{a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296};
     const run=(sd)=>{Math.random=mul(sd);const out=[];for(const tw of [null,"elites"]){const m=genMap({seed:20260101,heat:4,zone:"hollow",twist:tw});out.push(JSON.stringify(m.pois.filter(p=>p.rar!=null).map(p=>[p.x,p.y,p.t,p.e,p.rar,p.afx])))}
-      S=freshState();S.zone="hollow";const m=genMap({seed:777,heat:5,zone:"hollow"});S.maps.hollow=m;S.run=null;m.torch=0;const amb=[];
+      S=freshState();openAll();S.zone="hollow";const m=genMap({seed:777,heat:5,zone:"hollow"});S.maps.hollow=m;S.run=null;m.torch=0;const amb=[];
       for(let k=0;k<30;k++){S.battle=null;S.event=null;m.steps=k+1;const t0=m.steps;
         const ra=rng(hash(m.seed+":a:"+m.steps));if(ra()<TORCH.amb){const e=pickEnemy("hollow",ra),f=rollFoe(ra,{elite:false,heat:5,row:3,mv:ENEMIES[e].mv});amb.push([e,f.rar,f.afx])}}
       out.push(JSON.stringify(amb));return out};
@@ -142,7 +142,7 @@ let fails=0;const ok=(c,m)=>{if(!c){fails++;console.log("FAIL",m)}else console.l
   ok(r.same&&r.n>5&&r.r+r.mg>0,`daily determinism: ${r.n} rolled POIs (${r.mg} magic, ${r.r} rare) and ${r.amb} dark ambushes identical under two Math.random streams`);
   // a full seeded map compared whole (every field, incl. pois), plus step() ambush through the real function
   r=await E(()=>{const mul=a=>()=>{a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296};
-    const run=sd=>{Math.random=mul(sd);const m=genMap({seed:4242,heat:3,zone:"pass"});S=freshState();S.zone="pass";S.maps.pass=m;m.torch=0;const seen=[];
+    const run=sd=>{Math.random=mul(sd);const m=genMap({seed:4242,heat:3,zone:"pass"});S=freshState();openAll();S.zone="pass";S.maps.pass=m;m.torch=0;const seen=[];
       for(let k=0;k<60;k++){const nb=adjTiles(m);if(!nb.length||busy())break;const t=nb.find(([x,y])=>{const q=poiAt(m,x,y);return !q||q.done})||nb[0];step(...t);if(S.battle){seen.push([S.battle.rar,S.battle.afx,S.battle.id,S.battle.name]);if(!S.battle.over)S.battle.over="fled";S.battle=null}if(S.event)S.event=null}
       return JSON.stringify([m.pois.map(p=>[p.x,p.y,p.rar,p.afx]),seen])};
     const a=run(5),b=run(8);return{same:a===b,len:a.length}});
@@ -161,7 +161,7 @@ let fails=0;const ok=(c,m)=>{if(!c){fails++;console.log("FAIL",m)}else console.l
     let g=0;R=(v,fn)=>{const r=Math.random;Math.random=()=>v;try{return fn()}finally{Math.random=r}};R(.5,()=>{while(S.battle===B&&!B.over&&g++<100){S.hp=pstats().maxHp;attack()}});
     out.met=!!(S.afx.shadow&&S.afx.shadow.s>0&&S.afx.shadow.b>0);out.over=B.over;out.ess=B.loot.filter(isEss);out.emb=B.emb;out.hud=null;render();
     const bad=Object.values(S.maps).some(m=>m.pois.some(p=>p.up!==undefined||p.af!==undefined));out.bad=bad;return out},[fi,ei]);
-  ok(r.v===13&&r.key==="everforge-v13","migration: v12 -> v13");
+  ok(r.v===14&&r.key==="everforge-v14","migration: v12 -> v14 (through v13)");
   ok(r.fo[0]==="magic"&&r.fo[1][0]==="holy"&&r.fo[2]===undefined&&r.fo[3]===undefined,`migration: fight up:true af:3 -> magic ${r.fo[1]}`);
   ok(r.el[0]==="magic"&&r.el[1][0]==="shadow","migration: elite af:4 -> magic Umbral (shadow)");
   ok(r.b[0]==="magic"&&r.b[1][0]==="shadow"&&r.b[2]===undefined,"migration: the open elite battle keeps its affix");
@@ -170,7 +170,7 @@ let fails=0;const ok=(c,m)=>{if(!c){fails++;console.log("FAIL",m)}else console.l
   // plain v12 fixture loads too
   const pg2=await b.newPage();const e2=[];pg2.on("pageerror",e=>e2.push(e.message));await pg2.goto(URL);await pg2.evaluate(([k,s])=>{localStorage.clear();localStorage.setItem(k,s)},[fx.key,fx.save]);await pg2.reload();
   r=await pg2.evaluate(()=>({v:S.v,afx:S.afx,pois:Object.values(S.maps).reduce((n,m)=>n+m.pois.length,0)}));
-  ok(r.v===13&&typeof r.afx==="object"&&e2.length===0,"migration: the v12 fixture loads (S.afx ready)");
+  ok(r.v===14&&typeof r.afx==="object"&&e2.length===0,"migration: the v12 fixture loads (S.afx ready)");
   ok(errs.length===0,"no page errors in the main page: "+errs.join("|"));
   await b.close();
   console.log(fails?`${fails} FAILED`:"ALL OK");process.exit(fails?1:0);

@@ -1,6 +1,6 @@
 // ================= DAILY EXPEDITION =================
 // One seeded run per UTC day: same map, POIs and enemy picks for everyone. S.daily={date,seed,zone,heat,twist,map,state:"run"|"done",turns,back,result}; S.run==="daily" while it is being played (curMap() then returns S.daily.map).
-const today=()=>new Date().toISOString().slice(0,10),dailyReady=()=>(S.kills[ZONES[0][2]]||0)>0;
+const today=()=>new Date().toISOString().slice(0,10),dailyReady=()=>isUnl("daily");
 function dailyPlan(date){ // zone, heat (1-3) and twist all come from the date; a zone you haven't opened falls back to the highest one you have
   const seed=hash(date),R=rng(seed),want=ZONES[Math.floor(R()*ZONES.length)][0],heat=1+Math.floor(R()*3),tw=Object.keys(DAILY_TWISTS),twist=tw[Math.floor(R()*tw.length)];
   const open=ZONES.filter(z=>S.unlocked.includes(z[0]));
