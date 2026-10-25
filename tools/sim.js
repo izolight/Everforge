@@ -467,7 +467,17 @@ async function main(){
       const mb={},db={};nat.forEach(x=>{const b=rinfo[x.rs+":"+x.rd].biome;(mb[b]=mb[b]||[]).push(x);(db[x.rd]=db[x.rd]||[]).push(x)});
       console.log(`\n-- Rift summary (the master, native row) ==`);
       console.log(`by biome: ${Object.entries(mb).map(([b,xs])=>`${b} ${mean(xs)}%`).join("  ")}`);
-      console.log(`by depth: ${Object.entries(db).map(([d,xs])=>`depth ${d} ${mean(xs)}%`).join("  ")}`)}
+      console.log(`by depth: ${Object.entries(db).map(([d,xs])=>`depth ${d} ${mean(xs)}%`).join("  ")}`);
+      // the Rift's own wild creatures (with --rift-wild): the same summary, with the flags of the cells
+      const wnat=rres.filter(x=>x.e!=="rift_boss"&&x.vr==="native");
+      if(wnat.length){
+        const wmb={},wdb={};wnat.forEach(x=>{const b=rinfo[x.rs+":"+x.rd].biome;(wmb[b]=wmb[b]||[]).push(x);(wdb[x.rd]=wdb[x.rd]||[]).push(x)});
+        const flg=xs=>{const h=xs.filter(c=>c.flags.includes("TOO_HARD")).length,e=xs.filter(c=>c.flags.includes("TOO_EASY")).length;return[h?`TOO_HARD ${h}`:"",e?`TOO_EASY ${e}`:""].filter(Boolean).join(", ")};
+        const line=(xs)=>`${mean(xs)}%${flg(xs)?` (${flg(xs)})`:""}`;
+        console.log(`\n-- Rift summary (the master's wild creatures, native row; the flags count the cells) ==`);
+        console.log(`by biome: ${Object.entries(wmb).map(([b,xs])=>`${b} ${line(xs)}`).join("  ")}`);
+        console.log(`by depth: ${Object.entries(wdb).map(([d,xs])=>`depth ${d} ${line(xs)}`).join("  ")}`)}
+    }
   }
   // rarity table: each kit's arrival pairing (the previous stage's kit against the next zone's regulars, at map row ROW), every regular enemy, every affix in turn
   if(RARITY){
