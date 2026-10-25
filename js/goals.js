@@ -72,18 +72,25 @@ function pinnedInfo(){
 // Source hints use only a pinned recipe or the revealed part of a rumor.
 // They name possible drops, never promise a particular loot roll or grade.
 function ingredientSources(id){
-  const it=S.items[id],base=baseIdOf(id),es=isEss(id),tr=es?essTrait(id):null;
-  if(it?.crafted)return `<button class="btn sm" data-goal-recipe="${id}">${tx("Track its recipe")}</button>`;
-  const candidates=es?Object.keys(BASE).filter(b=>salvageYield(baseItem(b)).includes(tr)):[base];
+  const it=S.items[id],base=plainId(id),es=isEss(id),tr=es?essTrait(id):null;
+  if(it?.crafted&&!it.pat)return `<button class="btn sm" data-goal-recipe="${id}">${tx("Track its recipe")}</button>`;
+  if(it&&((isGear(it)&&!it.crafted)||it.pat)){
+    const bp=BLUEPRINTS[base];
+    if(bp&&!hasBp(base))return `<p>${tx("Study {name} to learn this blueprint.",{name:tx(ENEMIES[bp.e].name)})}</p><button class="btn sm" data-goal-tab="battle">${tx("Go to {tab}",{tab:viewName("battle")})}</button>`;
+    const mats=it.pat?it.recipeIds:stdMats(base)||[];
+    return `<p>${tx("Forge from materials: {items}.",{items:esc(mats.map(idName).join(", "))})}</p><button class="btn sm" data-goal-tab="forge">${tx("Go to {tab}",{tab:viewName("forge")})}</button>${[...new Set(mats)].map(m=>`<details><summary>${esc(idName(m))}</summary>${ingredientSources(m)}</details>`).join("")}`;
+  }
+  const deconTraits=it=>canDecon(it)?deconYield(it).frag.map(f=>f[0]):[];
+  const candidates=es?Object.keys(BASE).filter(b=>deconTraits(baseItem(b)).includes(tr)):isBaseMat(id)?Object.keys(DECON).filter(b=>DECON[b][0]===base):[base];
   const sources=ZONES.filter(z=>S.unlocked.includes(z[0])).map(z=>{
     const foes=Object.entries(ENEMIES).filter(([,e])=>e.zone===z[0]&&e.drops.some(([d])=>candidates.includes(d)));
     if(!foes.length)return "";
     const names=foes.slice(0,3).map(([,e])=>tx(e.name)).join(", ");
     return `<li><button class="btn sm" data-source-zone="${z[0]}" ${busy()||S.run==="daily"?"disabled":""}>${tx("Explore {zone}",{zone:zoneName(z[0])})}</button> ${esc(names)}${foes.length>3?"…":""}</li>`;
   }).filter(Boolean);
-  const held=es?Object.keys(S.inv).filter(b=>S.inv[b]>0&&!itemLocked(b)&&!eqCount(b)&&salvageYield(S.items[b]).includes(tr)&&salvGrade(S.items[b])===gradeOf(id)):[];
-  const salvage=es?`<p>${tx("Salvage {items} for {trait} essence; the source item's grade determines the essence grade.",{items:esc(candidates.slice(0,3).map(idName).join(", ")||trn(tr)),trait:trn(tr)})}</p>`:"";
-  return `${salvage}${held.length?`<p>${tx("In your satchel: {items}.",{items:esc(held.slice(0,3).map(idName).join(", "))})} <button class="btn sm" data-goal-tab="gear">${tx("Go to {tab}",{tab:viewName("gear")})}</button></p>`:""}${sources.length?`<ul class="source-list">${sources.join("")}</ul><p class="foot">${tx("Possible drops; loot and grades vary.")}</p>`:`<p>${tx("Explore further regions or seek essences from chests, shrines and affixed foes.")}</p>`}`;
+  const held=es?Object.keys(S.inv).filter(b=>S.inv[b]>0&&!itemLocked(b)&&!eqCount(b)&&((canDecon(S.items[b])&&deconYield(S.items[b]).frag.some(f=>f[0]===tr&&f[2]===gradeOf(id)))||(salvageYield(S.items[b]).includes(tr)&&salvGrade(S.items[b])===gradeOf(id)))):[];
+  const salvage=es?`<p>${tx("Deconstruct {items} for {trait} essence fragments; grades and bonus essences vary.",{items:esc(candidates.slice(0,3).map(idName).join(", ")||trn(tr)),trait:trn(tr)})}</p>`:"";
+  return `${isBaseMat(id)?`<p>${tx("Deconstruct {items} into this material.",{items:esc(candidates.map(idName).join(", "))})}</p>`:""}${salvage}${held.length?`<p>${tx("In your satchel: {items}.",{items:esc(held.slice(0,3).map(idName).join(", "))})} <button class="btn sm" data-goal-tab="gear">${tx("Go to {tab}",{tab:viewName("gear")})}</button></p>`:""}${sources.length?`<ul class="source-list">${sources.join("")}</ul><p class="foot">${tx("Possible drops; loot and grades vary.")}</p>`:`<p>${tx("Explore further regions or seek essences from chests, shrines and affixed foes.")}</p>`}`;
 }
 function renderPinnedGoal(){
   const el=$("pinnedGoal"),p=pinnedInfo();el.hidden=!p||inBattle()||S.view==="settings";if(!p)return;

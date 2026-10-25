@@ -8,11 +8,10 @@ DICT.ko=Object.assign(DICT.ko||{},{
 "Language":"언어","How to play":"플레이 방법","The map":"지도","Fighting":"전투","Gear and forge":"장비와 대장간","Start a new game":"새 게임 시작","Tap to continue":"탭하여 계속",
 "Introduction":"소개","Region":"지역","Equipment":"장비","Infusions":"주입","Upgrading":"등급 올리기","Skills":"기술","Guide":"안내서","Details":"상세 정보","Forging":"단조","Views":"화면",
 "Help: Satchel":"도움말: 가방","Help: Crucible":"도움말: 도가니","Help: {topic}":"도움말: {topic}",
-"Satchel\nTap an item to open it: equip, use, add to the crucible or salvage it.\nLong-press or hover for its name and stats. The frame colour is its grade (Faint, Lesser, Plain, Greater, Pure), a tick means worn, a dot means new, a number is how many you hold.":"가방\n아이템을 탭하면 열립니다: 장착, 사용, 도가니에 넣기, 분해.\n길게 누르거나 마우스를 올리면 이름과 능력치가 보입니다. 테두리 색은 등급(희미한, 하급, 보통, 상급, 순수)이고, 체크는 착용 중, 점은 새 아이템, 숫자는 보유 수량입니다.",
+
 "Satchel\nTap an item to add it to the crucible. Dimmed items won't mix with what is already in; tap one to inspect it.\nLong-press or hover for its name and stats. The frame colour is its grade (Faint, Lesser, Plain, Greater, Pure), a tick means worn, a dot means new, a number is how many you hold.":"가방\n아이템을 탭하면 도가니에 넣습니다. 흐리게 표시된 아이템은 이미 들어 있는 것과 섞이지 않습니다. 탭하면 살펴볼 수 있습니다.\n길게 누르거나 마우스를 올리면 이름과 능력치가 보입니다. 테두리 색은 등급(희미한, 하급, 보통, 상급, 순수)이고, 체크는 착용 중, 점은 새 아이템, 숫자는 보유 수량입니다.",
 "Crucible\nTap gear or a material in the satchel to add it. Tap a filled slot to take it out again.\nDimmed satchel items won't mix with what is already in. Essences mix with everything. The Recipes tab has the full table.\nMore slots unlock as your Smith level rises.":"도가니\n가방의 장비나 재료를 탭하면 넣습니다. 채워진 칸을 탭하면 다시 뺍니다.\n흐리게 표시된 가방 아이템은 이미 들어 있는 것과 섞이지 않습니다. 정수는 무엇과도 섞입니다. 전체 표는 레시피 탭에 있습니다.\n대장장이 레벨이 오르면 칸이 더 열립니다.",
 // ---- how to play (ids)
-"howto.loop":"<b>진행 방식.</b> 각 지역의 지도를 가로질러 싸우고 전리품을 얻은 뒤, 분해해 정수로 만들고, 더 좋은 장비를 단조하세요. 지도 끝의 보스를 쓰러뜨리면 다음 지역이 열립니다.<span data-unl=\"rift\"> 탑 너머에는 방랑자의 균열이 기다립니다. 그곳의 모든 출정은 무작위 지역이며, 매번 한 층 더 깊습니다.</span>",
 "howto.map":"<b>지도.</b> 각 지역은 타일 격자입니다. 바로 옆의 빛나는 타일을 탭해 한 걸음 이동합니다. 주변 몇 칸만 보이고, 이미 탐험한 땅은 어둡게 표시됩니다. 전투와 상자 위로 걸어가면 만나게 됩니다<span data-unl=\"elite\">. 엘리트(마법 또는 희귀: 더 강하고, 전투를 바꾸며 정수를 떨어뜨리는 접사를 지님)도 있습니다</span><span data-unl=\"shrine\">. 제단</span><span data-unl=\"peddler\">, 행상인</span><span data-unl=\"mystery\">, 수수께끼 타일(?)도 있습니다</span>. 보스는 야영지 너머 맨 위의 소굴에서 기다립니다. 패배하면 새 지도로 돌아가고, 클리어한 지역은 다시 탐험할 수 있습니다.",
 "howto.torch":"<b>횃불.</b> 횃불은 한 걸음마다 줄어듭니다. 다 타면 주변 한 칸만 보이고, 걸음마다 기습을 당할 위험이 생깁니다. 야영지, 제단 기도, 모닥불 휴식으로 다시 밝힐 수 있습니다.",
 "howto.health":"<b>체력.</b> HP는 전투 사이에도 이어집니다. 음식을 먹거나, 모닥불에서 쉬거나(승리 3번마다 1회), 야영지<span data-unl=\"shrine\"> 그리고 제단</span>에서 회복하세요. 장비의 치유 특성은 매 턴 체력을 회복시킵니다.",
@@ -24,7 +23,7 @@ DICT.ko=Object.assign(DICT.ko||{},{
 "howto.statuses":"<b>상태 이상.</b> 일부 생물은 당신을 태우고, 얼리고, 중독시키거나 저주합니다. 몇 턴 동안 피해를 주거나 방해하며 전투가 끝나면 사라집니다. 의술 장비, 저항 장비, 일부 소모품(의술, 신성, 물, 영양)이 이를 떨쳐냅니다.",
 "howto.knowledge":"<b>지식.</b> 약점은 때려서, 저항은 막혀서, 특수 기술은 살아남아서, 능력치는 승리해서, 전리품은 발견해서 알게 됩니다. 연구는 사실 하나를 알려 주지만 한 턴을 소모합니다.",
 "howto.gear":"<b>장비.</b> 칸은 일곱 개입니다. 보조 손의 무기는 더 약한 두 번째 공격을 더하고, 방패는 공격을 막을 수 있습니다.",
-"howto.mixing":"<b>섞기.</b> 말이 되는 조합만 가능합니다. 표는 레시피 탭에 있습니다. 분해하면 모든 아이템이 정수가 되며, 정수는 무엇과도 섞입니다.",
+
 "howto.infusions":"<b>주입.</b> 순수 정수는 장비 탭에서 자신에게 주입할 수 있습니다. 무엇을 들고 있든 그 특성은 당신에게 남습니다.",
 "howto.previews":"<b>미리보기.</b> 알고 있는 레시피는 단조하기 전에 전체 결과를 보여 줍니다. 새로운 조합은 형태와 발견한 반응을 보여 줍니다. 단조는 언제든 잘못될 수 있습니다. 도가니 아래 줄에는 해당 종류의 기술 수준, 깔끔한 결과·실수·소멸의 확률(재료는 사라지고 불씨 일부가 돌아옴), 그 기술이 도달할 수 있는 최고 단계가 표시됩니다. 실패해도 조금 배우지만 쉬운 레시피일수록 덜 배웁니다. 합쳐진 특성 수치가 8을 넘으면 절반 속도로 늘고, 제작한 아이템을 다시 올리는 것은 할 때마다 더 어렵습니다. 기술이 높고 레시피가 단순할수록 실패가 드물어집니다. 대장장이 Lv 3부터는 대장간이 예상 특성도 감정해 줍니다.",
 // ---- navigation, header, goal
@@ -90,7 +89,7 @@ DICT.ko=Object.assign(DICT.ko||{},{
 "Codex: new affix, {name}.":"도감: 새 접사, {name}.",
 // ---- affixes
 "{name} remnant":"{name}의 잔해","{affix} {name}":"{affix} {name}","the {title}":"‘{title}’","one grade better":"한 등급 더 높게","{n} grades better":"{n}등급 더 높게","a {p}% chance of one grade better":"{p}% 확률로 한 등급 더 높게",
-"{trait} Essence":"{trait} 정수","Drops: {ess}, {gs} than usual.":"전리품: {ess}, 평소보다 {gs}.","Drops: {ess}. Magic enemies: {m}. Rare: {r}.":"전리품: {ess}. 마법 적: {m}. 희귀: {r}.","Drops: {list} essence. {rar}: {gs} than usual.":"전리품: {list} 정수. {rar}: 평소보다 {gs}.",
+"{trait} Essence":"{trait} 정수","Drops: {list} essence. {rar}: {gs} than usual.":"전리품: {list} 정수. {rar}: 평소보다 {gs}.",
 "Each affix drops its linked essence, {gs} than usual.":"각 접사는 연결된 정수를 떨어뜨리며, 평소보다 {gs}.",
 "Fights as {fam}: resists it and has no weakness to it. +1 Defense.":"{fam} 속성으로 싸움: 이에 저항하고 약점이 없습니다. 방어력 +1.","Its hits can inflict {status} ({p}%).":"공격이 {status} 상태를 걸 수 있습니다({p}%).",
 "Heals for {p}% of the damage it deals you.":"당신에게 준 피해의 {p}%만큼 회복합니다.","Reflects {p}% of your blows back at you (at most {c}% of your max HP per round, and never enough to kill you).":"당신의 공격 피해의 {p}%를 되돌립니다(라운드당 최대 HP의 {c}%까지, 죽이지는 못함).",
@@ -230,7 +229,7 @@ DICT.ko=Object.assign(DICT.ko||{},{
 "-{n} per hit":"공격당 -{n}","Stone takes this much off every hit you take.":"돌은 받는 모든 공격에서 이만큼을 깎습니다.","Hits at floor ({p}%)":"최소 피해 도달 ({p}%)","Defense, resists and Stone together can't cut a hit below this share of its raw damage. More armor won't help against it.":"방어력, 저항, 돌을 합쳐도 공격 원피해의 이 비율 아래로 줄일 수 없습니다. 방어구를 더 늘려도 소용없습니다.",
 "Dodge {n}%":"회피 {n}%","Chance to dodge a hit.":"공격을 회피할 확률.","Roots +{n}":"뿌리 +{n}","HP healed each turn while you are below half health.":"체력이 절반 미만일 때 매 턴 회복되는 HP.","Cleanse {p}%":"정화 {p}%","Chance each turn to shake off a status (burn, chill, poison, curse).":"턴마다 상태 이상(화상, 냉기, 중독, 저주)을 떨쳐낼 확률.",
 "Essences worth {n} plain ones (a Greater counts as 3, a Pure as 9, a Lesser as ⅓) infuse a trait into you; as many again deepen it, up to III. Infused traits act as if they were on your weapon.":"보통 정수 {n}개 분량(상급은 3, 순수는 9, 하급은 ⅓으로 계산)으로 특성 하나를 주입하고, 같은 양을 더 넣으면 III까지 깊어집니다. 주입된 특성은 무기에 있는 것처럼 작용합니다.",
-"All slots used. You can still deepen an infusion with more of its essence.":"모든 칸을 사용 중입니다. 해당 정수를 더 넣어 주입을 깊게 할 수는 있습니다.","Collect essences of one trait worth {n} plain ones (salvage, elites, bounties) to infuse it.":"한 특성의 정수를 보통 {n}개 분량 모으면(분해, 엘리트, 현상금) 주입할 수 있습니다.",
+"All slots used. You can still deepen an infusion with more of its essence.":"모든 칸을 사용 중입니다. 해당 정수를 더 넣어 주입을 깊게 할 수는 있습니다.",
 "Empty infusion slot":"빈 주입 칸","Collect {n} plain essences of one kind to fill it.":"같은 종류의 보통 정수 {n}개를 모아 채우세요.","Effect on hit":"적중 시 효과","Rank {r} of {m}":"{m}단계 중 {r}단계","on hit":"적중 시","Credit: {n} plain, spent first on your next infusion.":"적립: 보통 {n}, 다음 주입에 먼저 사용됩니다.",
 "Deepen {trait} → {rank}":"{trait} 심화 → {rank}","Infuse {trait}":"{trait} 주입","credit":"적립",
 // ---- forge tab
@@ -246,20 +245,20 @@ DICT.ko=Object.assign(DICT.ko||{},{
 "Makes {cats}.":"제작 대상: {cats}.","Tier cap {c}; about {f}% base failure on a plain tier-2 craft.":"단계 한계 {c}. 평범한 2단계 제작의 기본 실패율은 약 {f}%.","Smith XP":"대장장이 XP","+{n} smith XP. It raises your smith level, which opens crucible slots and trait slots.":"대장장이 XP +{n}. 대장장이 레벨을 올려 도가니 칸과 특성 칸을 엽니다.",
 "Easy or known recipes teach less.":"쉽거나 이미 아는 레시피는 덜 가르쳐 줍니다.","Crafting trains the skill of what you make.":"제작은 만드는 것의 기술을 훈련합니다.","Ashes and smoke":"재와 연기","You sift {n} out of the ash.":"재에서 {n}개를 골라냈다.","you learn from failure":"실패에서 배웁니다","Legendary":"전설","New":"신규","Flawed":"결함","Held together":"무사히 완성",
 "{n}% was the chance to fail.":"실패 확률은 {n}%였습니다.","Equip or inspect":"장착 또는 살펴보기","Inspect":"살펴보기","You need at least two items to forge. Win battles to collect loot.":"단조하려면 아이템이 최소 두 개 필요합니다. 전투에서 이겨 전리품을 모으세요.",
-"Your sword takes ores, herbs, potions, essences and relics. Salvage loot in the Gear tab to turn it into essences.":"검에는 광석, 약초, 물약, 정수, 유물을 넣을 수 있습니다. 장비 탭에서 전리품을 분해해 정수로 만드세요.",
+
 // ---- recipes tab
 "Your recipes":"내 레시피","Every combination you forge is saved here. Tap the anvil to load its ingredients into the crucible.":"단조한 모든 조합이 여기에 저장됩니다. 모루를 탭하면 재료를 도가니에 불러옵니다.","Ingredients you don't have are crossed out.":"없는 재료는 취소선으로 표시됩니다.",
 "Load the ingredients into the crucible.":"재료를 도가니에 불러옵니다.","Needs Smith Lv {n} for {k} slots.":"{k}칸: 대장장이 Lv {n} 필요.","You are missing ingredients.":"재료가 부족합니다.","You have it.":"갖고 있습니다.","You are out of it.":"다 떨어졌습니다.",
 "Load the recipe for {item}":"{item}의 레시피 불러오기","Load":"불러오기","Cannot load {item}: {why}":"{item|을|를} 불러올 수 없습니다: {why}","Needs Lv {n}":"Lv {n} 필요","Missing":"부족","No recipes in this category yet.":"이 분류에는 아직 레시피가 없습니다.","Every combination you forge is saved here so you can make it again.":"단조한 모든 조합이 여기에 저장되어 다시 만들 수 있습니다.",
-"What mixes with what":"섞이는 조합","What mixes":"섞이는 조합","Each row lists what that kind of item takes, besides its own type. Essences mix with everything; salvage any item to get them.":"각 줄은 해당 종류가 자기 종류 외에 받아들이는 것을 보여 줍니다. 정수는 무엇과도 섞입니다. 아무 아이템이나 분해하면 얻습니다.",
-"takes":"받는 것","The same type":"같은 종류","{kind} also take other {kindl}.":"{kind}에는 다른 {kindl}도 넣을 수 있습니다.","Hides, ores and herbs.":"가죽, 광석, 약초.","Only their own kind.":"같은 종류만.","Essences":"정수","Everything":"모든 것","Salvage any item to get essences.":"아무 아이템이나 분해하면 정수를 얻습니다.",
+"What mixes with what":"섞이는 조합","What mixes":"섞이는 조합",
+"takes":"받는 것","The same type":"같은 종류","{kind} also take other {kindl}.":"{kind}에는 다른 {kindl}도 넣을 수 있습니다.","Only their own kind.":"같은 종류만.","Essences":"정수","Everything":"모든 것",
 "A fusion: two kinds that merge into a new one.":"융합: 두 종류가 합쳐져 새로운 하나가 됩니다.","Trait reactions":"특성 반응","Some pairs of traits react when they meet in the crucible and become a new trait. Discover one by forging it.":"일부 특성 쌍은 도가니에서 만나면 반응해 새로운 특성이 됩니다. 단조하여 발견하세요.",
 "Keeps both traits.":"두 특성 모두 유지.","Undiscovered reaction":"미발견 반응","Forge the right pair of traits to find it.":"알맞은 특성 쌍을 단조하면 찾을 수 있습니다.","Legendary secrets":"전설의 비밀","Hint scrolls from chests, shrines, riddles, bosses, bounties and the daily reveal a rumor, then its ingredients.":"상자, 제단, 수수께끼, 보스, 현상금, 오늘의 원정에서 얻는 힌트 두루마리가 소문을, 이어서 재료를 알려 줍니다.",
 "Discovered.":"발견함.","A rumor":"소문","Ingredients: {list}":"재료: {list}","Undiscovered":"미발견","A hint scroll would reveal a rumor.":"힌트 두루마리가 소문을 알려 줄 것입니다.",
 // ---- stats, affixes, guide, codex
 "none yet":"아직 없음","No boss beaten yet":"아직 처치한 보스 없음","Combat":"전투","damage dealt":"가한 피해","damage taken in battle":"전투 중 받은 피해","biggest hit · {w}":"최대 피해 · {w}","biggest hit":"최대 피해","critical hits":"치명타","perfect parries":"완벽한 받아치기","abilities used":"사용한 기술",
 "statuses suffered":"겪은 상태 이상","statuses cured":"치료한 상태 이상","defeats":"패배","creatures studied":"연구한 생물","Exploration":"탐험","creatures slain":"처치한 생물","magic & rare slain":"처치한 마법·희귀","bosses slain":"처치한 보스","expeditions done":"완료한 원정","kills by region ({list})":"지역별 처치 ({list})",
-"highest Heat cleared":"클리어한 최고 열기","items forged":"단조한 아이템","recipes found":"발견한 레시피","legendaries forged":"단조한 전설","mishaps":"실수","fizzles":"소멸","items salvaged":"분해한 아이템","grades upgraded":"올린 등급","Economy":"경제","embers earned":"획득한 불씨","embers spent":"쓴 불씨","embers now":"현재 불씨",
+"highest Heat cleared":"클리어한 최고 열기","items forged":"단조한 아이템","recipes found":"발견한 레시피","legendaries forged":"단조한 전설","mishaps":"실수","fizzles":"소멸","grades upgraded":"올린 등급","Economy":"경제","embers earned":"획득한 불씨","embers spent":"쓴 불씨","embers now":"현재 불씨",
 "Records":"기록","Dailies played / won":"오늘의 원정 도전 / 승리","Best daily":"최고 기록","Fists":"주먹","Shield bash":"방패 강타","Affixes":"접사","Magic enemies carry one affix, rare ones two (three from Heat 4). Each affix changes how the fight plays and drops its own essence when you win, better grades than usual (a rare more reliably than a magic one).":"마법 적은 접사 1개, 희귀 적은 2개(열기 4부터 3개)를 지닙니다. 접사마다 전투 양상이 바뀌며, 이기면 고유한 정수를 평소보다 높은 등급으로 떨어뜨립니다(희귀가 마법보다 더 확실합니다).",
 "Meet an enemy that carries an affix to record it here.":"접사를 지닌 적을 만나면 여기에 기록됩니다.","met {s}, beaten {b}":"조우 {s}회, 처치 {b}회","Unknown affix":"미확인 접사","Meet a magic or rare enemy that carries it.":"이를 지닌 마법 또는 희귀 적을 만나세요.",
 "Every introduction you have unlocked, to read again.":"해금한 모든 소개를 다시 읽을 수 있습니다.","New systems open as you play. The locked ones say how to open them.":"플레이하면서 새 시스템이 열립니다. 잠긴 항목에 여는 방법이 적혀 있습니다.","Show me":"보여 줘","Still locked · {n}":"아직 잠김 · {n}","Creature codex":"생물 도감","{a} of {b} met, {m} mastered.":"{b}종 중 {a}종 조우, {m}종 정복.",
@@ -411,7 +410,6 @@ Object.assign(DICT.ko,{
 "Spend one to learn about its reactions.":"하나를 써서 반응에 대해 알아봅니다.",
 "It has none left to find, but you may learn its nature once.":"더 찾을 반응은 없지만, 그 본성은 한 번 알아볼 수 있습니다.",
 "There is nothing more to learn from it.":"더 이상 알아낼 것이 없습니다.",
-"Salvage gear for essences to study.":"분해해서 분석할 정수를 얻으세요.",
 // ---- 균열 (무작위 지역)
 "Descend deeper":"더 깊이 내려가기",
 "Region: {name}":"지역: {name}",
@@ -435,6 +433,57 @@ Object.assign(DICT.ko,{
 "Reforge: needs Mending":"재단조: 수선 필요",
 "You have already gathered {n} research point.":"이미 연구 점수 {n}점을 모았습니다.",
 "Grade upgrades now need the Refining technique.":"등급 올리기에는 이제 정제 기술이 필요합니다.",
+// drops and crafting rework: deconstructing, patterns, blueprints
+"Drops an affixed material that deconstructs into {ess}, {gs} than usual.":"가공하면 {ess|이|가} 나오는 접사 재료를 떨어뜨립니다. 평소보다 {gs}.",
+"Drops an affixed material that deconstructs into {ess}. Magic enemies: {m}. Rare: {r}.":"가공하면 {ess|이|가} 나오는 접사 재료를 떨어뜨립니다. 마법 적: {m}. 희귀 적: {r}.",
+"Codex: you learned the blueprint for {item} from {nm}. Forge it from a pattern in the Forge.":"도감: {nm}에게서 {item} 설계도를 배웠습니다. 대장간의 도안에서 단조하세요.",
+"a new blueprint":"새 설계도",
+"Deconstructed into {list}.":"{list|으로|로} 가공했습니다.",
+"Forged {item}.":"{item|을|를} 단조했습니다.",
+"Lucky: {list}!":"행운: {list}!",
+"Salvaged for {n} embers.":"분해해서 불씨 {n}개를 얻었습니다.",
+"Collect essences of one trait worth {n} plain ones (deconstructing, elites, bounties) to infuse it.":"한 특성의 정수를 보통 정수 {n}개만큼 모으면(가공, 정예, 현상금) 주입할 수 있습니다.",
+"Patterns":"도안",
+"Pick what to forge, then fill its slots with base materials. Deconstruct hides, ores and wood in the Gear tab to get them.":"단조할 것을 고르고 칸을 기본 재료로 채우세요. 장비 탭에서 가죽, 광석, 나무를 가공하면 얻을 수 있습니다.",
+"The standard materials make the familiar piece; anything else makes a new one from the materials' traits. Better grades make stronger gear.":"표준 재료는 익숙한 장비를 만들고, 다른 재료는 그 특성으로 새 장비를 만듭니다. 등급이 높을수록 장비가 강해집니다.",
+"Blueprints for named gear come from studying creatures in a fight.":"이름 있는 장비의 설계도는 전투 중 생물을 연구해서 얻습니다.",
+"Blueprint":"설계도",
+"Pattern":"도안",
+"Blueprints":"설계도",
+"Study a creature in a fight to learn the blueprint of the named gear it carries. Mastering it teaches them too.":"전투 중 생물을 연구하면 그 생물이 지닌 이름 있는 장비의 설계도를 배웁니다. 정복해도 배웁니다.",
+"Pick a pattern to forge.":"단조할 도안을 고르세요.",
+"Pick a pattern to forge. Deconstruct raw finds in the Gear tab to get base materials.":"단조할 도안을 고르세요. 장비 탭에서 원재료를 가공하면 기본 재료를 얻습니다.",
+"Empty slot: {types}":"빈 칸: {types}",
+"Standard recipe":"표준 레시피",
+"New piece":"새 장비",
+"You have no {types} for the empty slots. Deconstruct raw finds in the Gear tab.":"빈 칸에 넣을 {types|이|가} 없습니다. 장비 탭에서 원재료를 가공하세요.",
+"Fill":"채우기",
+"Your sword takes ores, herbs, potions, essences and relics. Deconstruct raw finds in the Gear tab for materials and essences.":"검에는 광석, 약초, 물약, 정수, 유물을 넣을 수 있습니다. 장비 탭에서 원재료를 가공하면 재료와 정수를 얻습니다.",
+"Deconstruct all":"모두 가공",
+"Breaks every raw hide, ore and wood in your satchel into base materials and essence fragments. Food, potions, relics and anything a secret still needs stay.":"가방의 날가죽, 광석, 나무를 모두 기본 재료와 정수 조각으로 가공합니다. 음식, 물약, 유물, 비밀에 아직 필요한 것은 남깁니다.",
+"Tap again to deconstruct {n}":"다시 탭하면 {n}개 가공",
+"Deconstruct all raw finds ({n})":"원재료 모두 가공 ({n})",
+"Each row lists what that kind of item takes, besides its own type. Essences mix with everything; deconstruct raw finds to get them.":"각 줄은 그 종류의 아이템이 같은 종류 외에 받는 것을 보여 줍니다. 정수는 무엇과도 섞이며, 원재료를 가공하면 얻습니다.",
+"Hides, ores, timber and herbs.":"가죽, 광석, 목재, 약초.",
+"Deconstruct raw finds to get essences.":"원재료를 가공하면 정수를 얻습니다.",
+"items broken down":"분해·가공한 아이템",
+"Deconstruct raw finds for essences to study.":"원재료를 가공해 연구할 정수를 얻으세요.",
+"Tap again to deconstruct":"다시 탭하면 가공",
+"Deconstruct → {list}":"가공 → {list}",
+"Salvage for {n} embers":"분해 → 불씨 {n}개",
+"{p}% chance of a {ess}.":"{p}% 확률로 {ess}.",
+"{type}: forge it into gear with a pattern in the Forge.":"{type}: 대장간의 도안으로 장비를 단조하세요.",
+"Study it to learn":"연구해서 배우기",
+"Leather":"무두 가죽",
+"Cloth":"천",
+"Ingot":"주괴",
+"Timber":"목재",
+"Stone":"석재",
+"Crystal":"수정",
+"Satchel\nTap an item to open it: equip, use, add to the crucible, deconstruct or salvage it.\nLong-press or hover for its name and stats. The frame colour is its grade (Faint, Lesser, Plain, Greater, Pure), a tick means worn, a dot means new, a number is how many you hold.":"가방\n아이템을 탭하면 열립니다: 장착, 사용, 도가니에 넣기, 가공, 분해.\n길게 누르거나 마우스를 올리면 이름과 능력치가 보입니다. 테두리 색은 등급(희미한, 하급, 보통, 상급, 순수)이고, 체크는 착용 중, 점은 새 아이템, 숫자는 보유 수량입니다.",
+"howto.loop":"<b>진행 방식.</b> 각 지역의 지도를 가로질러 싸우며 원재료를 모으세요. 원재료를 기본 재료와 정수로 가공하고, 도안으로 장비를 단조해 정수를 결속하세요. 지도 끝의 보스를 쓰러뜨리면 다음 지역이 열립니다.<span data-unl=\"rift\"> 탑 너머에는 방랑자의 균열이 기다립니다. 그곳의 모든 출정은 무작위 지역이며, 매번 한 층 더 깊습니다.</span>",
+"howto.mixing":"<b>섞기.</b> 도안은 기본 재료를 장비로 바꿉니다. 도가니에서는 말이 되는 조합만 가능하며, 표는 레시피 탭에 있습니다. 원재료를 가공하면 무엇과도 섞이는 정수가 나옵니다. 장비를 분해하면 재료의 절반이 돌아옵니다.",
+"+{n} embers.":"불씨 +{n}."
 });
 
 Object.assign(DICT.ko, {
@@ -497,7 +546,7 @@ Object.assign(DICT.ko, {
 });
 
 Object.assign(DICT.ko, {
-  "Salvage the Ember Coal, then bind its Fire essence into your sword.": "잉걸탄을 분해한 다음 불의 정수를 검에 결합하세요.",
+  "Deconstruct the Ember Coal, then bind a Fire essence into your sword.": "잉걸탄을 분해한 다음 불의 정수를 검에 결합하세요.",
   "Your first enchanted weapon has proved itself. The Woods are yours to explore.": "첫 마법 무기의 위력을 확인했습니다. 이제 숲을 탐험하세요.",
   "Forge your first enchanted weapon": "첫 마법 무기 제작",
   "Prepare for the first boss": "첫 우두머리 준비",
@@ -518,7 +567,7 @@ Object.assign(DICT.ko, {
   "Unpin goal": "목표 고정 해제",
   "Track its recipe": "제작법 추적",
   "Explore {zone}": "{zone} 탐험",
-  "Salvage {items} for {trait} essence; the source item's grade determines the essence grade.": "{items} 분해로 {trait} 정수를 얻으세요. 재료의 등급이 정수의 등급을 결정합니다.",
+  "Deconstruct {items} for {trait} essence fragments; grades and bonus essences vary.": "{items} 분해로 {trait} 정수 조각을 얻으세요. 등급과 추가 정수는 달라집니다.",
   "In your satchel: {items}.": "가방에 있음: {items}.",
   "Possible drops; loot and grades vary.": "획득 가능한 전리품입니다. 실제 전리품과 등급은 달라집니다.",
   "Explore further regions or seek essences from chests, shrines and affixed foes.": "다른 지역을 탐험하거나 상자, 성소, 특성이 있는 적에게서 정수를 찾아보세요.",
@@ -530,3 +579,10 @@ Object.assign(DICT.ko, {
   "Guard → {action}: +{p}% damage on your next strike.": "방어 → {action}: 다음 공격 피해 +{p}%.",
   "{trait} → known weakness: +50% strike damage.": "{trait} → 확인된 약점: 공격 피해 +50%."
 });
+
+Object.assign(DICT.ko, {
+  "Study {name} to learn this blueprint.": "{name} 연구로 이 설계도를 배우세요.",
+  "Forge from materials: {items}.": "제작 재료: {items}."
+});
+
+Object.assign(DICT.ko, {"Deconstruct {items} into this material.":"{items} 분해로 이 재료를 얻으세요."});

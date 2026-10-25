@@ -3,6 +3,7 @@
 // in headless Chromium, with render/save/fx/sfx/toast stubbed. Kits are crafted with the real combine().
 // Usage: node tools/sim.js [--n 40] [--zone woods,pass] [--enemy wolf,archon] [--kit melee,spire-end] [--heat 0,3,5] [--policy smart,basic,passive,guard,parry]
 //        [--fresh (the first expeditions with the unlock gates on, --exped 5)] [--seed 7] [--trace (prints one battle log per cell, then exits)] [--elite (adds magic + and rare * variants)] [--rarity (the rarity table only)] [--row 3] [--all] [--attrition] [--no-mastered] [--jobs 4] [--out sim.json] [--econ-only | --no-econ] [--exped 30]
+//        [--wild (only the wild and Rift sections, with the forced rarity variants)] [--no-wild (skip them)] [--rift-seeds 1,2,3] [--rift-depth 1,3] [--rift-wild (the Rift's own wild creatures too)] [--force rare (the forced variants to trace)]
 const {chromium}=require("playwright"),path=require("path"),fs=require("fs"),os=require("os");
 const URL="file://"+path.resolve(__dirname,"..","index.html");
 
@@ -56,6 +57,14 @@ const argv=process.argv.slice(2),has=f=>argv.includes("--"+f),opt=(f,d)=>{const 
 const list=(f,d)=>{const v=opt(f,null);return v?v.split(","):d};
 const N=+opt("n",40),SEED=opt("seed",null),ROW=+opt("row",3),JOBS=Math.max(1,+opt("jobs",Math.min(4,os.cpus().length))),HEATS=list("heat",["0","3","5"]).map(Number),POLS=list("policy",["smart","basic","passive"]),EXPED=+opt("exped",30);
 const OUT=opt("out",null);
+// the wild sections: the wild creatures of the four regions and the Rift masters (they are not part of the regular matrix)
+// --wild: only these sections, with the forced rarity variants; --no-wild: none of them; --elite: the forced variants in a default run too
+const WILD_ONLY=has("wild"),NO_WILD=has("no-wild"),ELITE=has("elite");
+const RIFT_SEEDS=list("rift-seeds",null),RIFT_DEPTH=list("rift-depth",["1","3"]).map(Number),RIFT_WILD=has("rift-wild")||WILD_ONLY;
+const FORCED=WILD_ONLY||ELITE; // the forced normal/magic/rare variants of a wild creature
+// what runs: the regular matrix (printed), the wild and Rift sections, the rarity table, the economy
+const ONLY_ECON=has("econ-only"),RARITY=has("rarity");
+const RUN_MATRIX=!ONLY_ECON&&!RARITY&&!WILD_ONLY,RUN_WILD=!ONLY_ECON&&!RARITY&&!NO_WILD,RUN_ECON=!has("no-econ")&&!RARITY&&!WILD_ONLY;
 
 // ---------- in-page simulator ----------
 function setup(){ // runs inside the game page; everything here uses the real game functions
@@ -126,20 +135,56 @@ function setup(){ // runs inside the game page; everything here uses the real ga
     if(!rar||rar==="normal")return[];const E=ENEMIES[id],pool=Object.keys(AFX).filter(a=>!AFX[a].roam||(E.mv&&E.mv!=="still")),k=rar==="rare"&&heat>=RAR_CH.k3?3:RARITIES[rar].k,out=[pool[i%pool.length]];
     while(out.length<k){const c=pool.filter(a=>!out.includes(a)&&out.every(b=>afxOk(a,b)));if(!c.length)break;out.push(c[Math.floor(Math.random()*c.length)])}
     return out};
+  // ---- the Rift: a region rolled from one seed (its ten wild creatures and its master)
+  SIM.rift=(seed,depth)=>{
+    seed=seed>>>0;depth=Math.max(1,depth|0);
+    S.rift={depth,seed,best:depth,cleared:0,biome:"",name:"",pal:null,tier:null};
+    const r=riftMake(seed,depth);
+    S.rift.biome=r.biome;S.rift.name=r.name;S.rift.pal=r.pal;S.rift.tier=r.tier;
+    const M=ENEMIES.rift_boss;
+    return{seed,depth,biome:r.biome,name:r.name,tier:r.tier,
+      master:{name:M.name,el:M.el,hp:M.hp,atk:M.atk,def:M.def,afx:M.afx||[],sp:M.sp},
+      wild:Object.keys(ENEMIES).filter(id=>/^w_rift_\d+$/.test(id)).sort()};
+  };
+  // the seeds the sim tests by default: one per Rift biome, the lowest s whose roll lands there (the biome is the first draw of the roll)
+  SIM.riftSeeds=(n)=>{
+    const out=[],seen={};
+    for(let s=1;out.length<n&&s<1000000;s++){const R=rng(hash("sim-rift:"+s)),bi=RIFT_BIOMES[Math.floor(R()*RIFT_BIOMES.length)];if(seen[bi])continue;seen[bi]=1;out.push({s,seed:hash("sim-rift:"+s),biome:bi})}
+    return out};
+  // a wild creature forced to a rarity: its stored stats (its own rarity divided out) go back onto the region band,
+  // and the affix rules of a regular apply. A Rift master keeps its stored stats: the game gives bosses no affixes
+  // at all, so its forced rows apply them after the fight has started (sim-only).
+  const prep=(id,o)=>{
+    if(o.rs!=null)SIM.rift(o.rs,o.rd||1); // the Rift region is rebuilt from its seed before every fight (cheap and deterministic)
+    const E0=ENEMIES[id];let E=E0,restore=null;
+    if(o.force&&!E0.boss){const rm=RARITIES[E0.rar]||{hp:1,atk:1};const cp={...E0,hp:Math.round(E0.hp*rm.hp),atk:Math.round(E0.atk*rm.atk),afx:[],rar:undefined};restore=E0;ENEMIES[id]=cp;E=cp}
+    return{E,restore}};
+  const after=(id,o,E)=>{if(o.force&&E.boss){const M=ENEMIES[id],af=(M.afx||[]).slice(0,o.force==="rare"?3:1);if(af.length)applyAfx(S.battle,M,o.force,af)}};
   SIM.fight=(snap,id,heat,pol,o)=>{
-    S=JSON.parse(snap);const E=ENEMIES[id];S.zone=id==="mimic"?o.zone:E.zone;S.hp=pstats().maxHp;S.maps[S.zone]=genMap({heat});S.run=null;
-    startBattle(id,{row:E.boss||id==="mimic"?0:o.row,rar:o.rar||"normal",afx:SIM.afxFor(id,o.rar,o.i||0,heat)});
-    const B=S.battle;let g=0;while(S.battle===B&&!B.over&&B.turn<150&&g++<600)POL[pol](B);
-    const won=B.over==="won";return{w:won?1:0,t:B.turn,hp:won?S.hp/pstats().maxHp:0,a:B.afx[0]};
+    S=JSON.parse(snap);const{E,restore}=prep(id,o);
+    try{
+      S.zone=id==="mimic"?o.zone:E.zone;S.hp=pstats().maxHp;S.maps[S.zone]=genMap({heat,zone:S.zone==="rift"?"rift":undefined});S.run=null;
+      startBattle(id,{row:E.boss||id==="mimic"?0:o.row,rar:o.rar||"normal",afx:SIM.afxFor(id,o.rar,o.i||0,heat)});
+      after(id,o,E);
+      const B=S.battle;let g=0;while(S.battle===B&&!B.over&&B.turn<150&&g++<600)POL[pol](B);
+      const won=B.over==="won";return{w:won?1:0,t:B.turn,hp:won?S.hp/pstats().maxHp:0,a:B.afx[0]};
+    }finally{if(restore)ENEMIES[id]=restore}
   };
   // --trace: one fight with its battle log (your HP after each line's turn is not tracked; the final line is the result)
-  SIM.trace=(snap,id,heat,pol,o)=>{useSeed(o.seed,"trace"+id+heat+pol);S=JSON.parse(snap);const E=ENEMIES[id];S.zone=id==="mimic"?o.zone:E.zone;S.hp=pstats().maxHp;S.maps[S.zone]=genMap({heat});S.run=null;
-    startBattle(id,{row:E.boss||id==="mimic"?0:o.row,rar:o.rar||"normal",afx:SIM.afxFor(id,o.rar,0,heat)});const B=S.battle,hps=[];let g=0;while(S.battle===B&&!B.over&&B.turn<150&&g++<600){const t=B.turn,n=B.log.length;POL[pol](B);hps.push(`T${t} you ${S.hp}/${pstats().maxHp} foe ${Math.max(0,B.hp)}/${B.max}`)}
-    return{log:B.log.map(l=>l.t),hps,over:B.over,turns:B.turn}};
+  SIM.trace=(snap,id,heat,pol,o)=>{useSeed(o.seed,"trace"+id+heat+pol+(o.force||"")+(o.rs!=null?o.rs:""));S=JSON.parse(snap);const{E,restore}=prep(id,o);
+    try{
+      S.zone=id==="mimic"?o.zone:E.zone;S.hp=pstats().maxHp;S.maps[S.zone]=genMap({heat,zone:S.zone==="rift"?"rift":undefined});S.run=null;
+      startBattle(id,{row:E.boss||id==="mimic"?0:o.row,rar:o.rar||"normal",afx:SIM.afxFor(id,o.rar,0,heat)});after(id,o,E);
+      const B=S.battle,hps=[];let g=0;while(S.battle===B&&!B.over&&B.turn<150&&g++<600){const t=B.turn,n=B.log.length;POL[pol](B);hps.push(`T${t} you ${S.hp}/${pstats().maxHp} foe ${Math.max(0,B.hp)}/${B.max}`)}
+      return{log:B.log.map(l=>l.t),hps,over:B.over,turns:B.turn};
+    }finally{if(restore)ENEMIES[id]=restore}};
   // run a list of cells [{k,e,h,p}] n times each, deterministic per cell if seeded
   SIM.cells=(cells,n,o)=>cells.map(c=>{
-    const kit=SIM.kits[c.k];useSeed(o.seed,[c.k,c.e,c.h,c.p,c.mz,o.rar].join());let w=0,t=0,hp=0;const ba={};
-    for(let i=0;i<n;i++){const r=SIM.fight(kit.snap,c.e,c.h,c.p,{...o,i,zone:c.mz||kit.zone});w+=r.w;t+=r.t;hp+=r.hp;if(r.a){const x=ba[r.a]||(ba[r.a]=[0,0]);x[0]++;x[1]+=r.w}}
+    const kit=SIM.kits[c.k],rar=c.rar||o.rar||"normal";
+    const key=[c.k,c.e,c.h,c.p,c.mz,rar]; // the same key as before, so an unchanged run keeps its numbers
+    if(c.force||c.rs!=null||c.rd!=null)key.push(c.force||"",c.rs==null?"":c.rs,c.rd==null?"":c.rd);
+    useSeed(o.seed,key.join());let w=0,t=0,hp=0;const ba={};
+    for(let i=0;i<n;i++){const r=SIM.fight(kit.snap,c.e,c.h,c.p,{...o,i,zone:c.mz||kit.zone,rar,force:c.force,rs:c.rs,rd:c.rd});w+=r.w;t+=r.t;hp+=r.hp;if(r.a){const x=ba[r.a]||(ba[r.a]=[0,0]);x[0]++;x[1]+=r.w}}
     return{...c,n,win:w/n,turns:t/n,hp:hp/n,ba}});
   // attrition: a typical expedition (4 regulars at rows 1-4, then the boss) on one HP bar; a 35% heal after fights 2 and 4 stands in for shrine/camp
   SIM.attr=(snap,zone,heat,pol,n,o)=>{
@@ -154,10 +199,10 @@ function setup(){ // runs inside the game page; everything here uses the real ga
   const essCount=()=>Object.keys(S.inv).filter(isEss).reduce((a,id)=>a+S.inv[id]*plainEq(gradeOf(id)),0); // plain-essence equivalents
   const itemCount=()=>Object.values(S.inv).reduce((a,b)=>a+b,0);
   // --fresh: the first expeditions of a new save with the unlock gates on (the starter kit, one policy): what each map holds, what opens between them
-  // between expeditions the bot does what a newcomer does: salvages spare gear, binds each essence it holds into the sword, studies up to three families, learns the cheapest technique it can afford. rpEarned() counts what research was worth.
+  // between expeditions the bot does what a newcomer does: deconstructs its raw finds, binds each essence it holds into the sword, studies up to three families, learns the cheapest technique it can afford. rpEarned() counts what research was worth.
   const chores=()=>{
     const rp0=rpEarned(),learned=[];
-    Object.keys(S.inv).filter(id=>S.inv[id]-eqCount(id)>0&&!isEss(id)&&salvageYield(S.items[id]).length).forEach(id=>{while(S.inv[id]-eqCount(id)>0)salvageItem(id)});
+    Object.keys(S.inv).filter(id=>S.inv[id]-eqCount(id)>0&&!isEss(id)&&(DECON[plainId(id)]&&canDecon(S.items[id])||salvageYield(S.items[id]).length)).forEach(id=>{while(S.inv[id]-eqCount(id)>0){if(canDecon(S.items[id]))deconstruct(id);else salvageItem(id)}}); // raw finds are deconstructed, gear with essences in it salvaged
     const sw=S.inv.iron_sword>0?"iron_sword":null;
     if(sw)for(const f of [...new Set(Object.keys(S.inv).filter(id=>isEss(id)&&S.inv[id]>0).map(essTrait))].slice(0,2)){const id=studyPool(f)[0];if(!id)continue;S.bench=[sw,id];if(!craftMiss(S.bench.map(i=>S.items[i])).length&&checkMix(S.bench.map(i=>S.items[i])).ok)forgeIt(S.bench.map(i=>S.items[i]));S.bench=[]}
     checkUnl(true);rpSweep();
@@ -209,7 +254,8 @@ function setup(){ // runs inside the game page; everything here uses the real ga
       if(S.battle&&S.battle.over==="won"&&ENEMIES[S.battle.id].boss){r.won=1;break}}
     const tEnd=curMap().torch;
     // what salvaging the new loot would add: its essences and embers (the sim itself never salvages)
-    let sEss=0,sEmb=0;Object.keys(S.inv).forEach(id=>{const d=S.inv[id]-(inv0[id]||0),it=S.items[id];if(d>0&&!isEss(id)){sEss+=d*salvageYield(it).length*plainEq(salvGrade(it));sEmb+=d*salvageEmbers(it)}});
+    const decEss=it=>{const y=deconYield(it);return y.frag.reduce((n,[,k,g])=>n+k*plainEq(g),0)+y.ch.reduce((n,[,p,g])=>n+p*plainEq(g),0)}; // expected plain essences from deconstructing it (fragments plus the chances)
+    let sEss=0,sEmb=0;Object.keys(S.inv).forEach(id=>{const d=S.inv[id]-(inv0[id]||0),it=S.items[id];if(d>0&&!isEss(id)){if(canDecon(it)){sEss+=d*decEss(it);sEmb+=d*salvageEmbers(it)}else if(canSalvage(it)){sEss+=d*salvageYield(it).length*plainEq(salvGrade(it));sEmb+=d*salvageEmbers(it)}}});
     return{...r,embers:S.stats.earned,ess:essCount()-e0,items:itemCount()-i0,steps,dark,tEnd,sEss,sEmb};
   };
 }
@@ -228,16 +274,26 @@ async function newPage(browser){const p=await browser.newPage();p.on("pageerror"
 async function main(){
   const t0=Date.now(),browser=await chromium.launch();
   const pages=await Promise.all(Array.from({length:JOBS},()=>newPage(browser))),P0=pages[0];
+  const enemiesAll=await P0.evaluate(()=>Object.entries(ENEMIES).map(([id,e])=>({id,zone:e.zone,boss:!!e.boss,name:e.name,gen:!!e.gen,rar:e.rar||"",afx:e.afx||[],mv:e.mv||"",biome:(typeof ZONE_BIOME!=="undefined"&&ZONE_BIOME[e.zone])||""})));
+  // coverage guard: every element of a region's biome pool needs an authored (hand-made, non-boss) enemy of that region
+  const EL_EXCEPT={}; // documented exceptions, per region: elements deliberately left uncovered (none at the moment)
+  const cov=await P0.evaluate(()=>Object.entries(ZONE_BIOME).map(([z,bi])=>{const pool=BIOMES[bi].els,
+    els=new Set(Object.values(ENEMIES).filter(e=>!e.gen&&!e.boss&&e.zone===z).map(e=>e.el));
+    return{z,bi,pool,gap:pool.filter(e=>!els.has(e))}}));
+  console.log(`== Element coverage (authored, non-boss): ${cov.map(c=>`${c.z} ${c.pool.length-c.gap.length}/${c.pool.length}`).join(", ")} ==`);
+  const gaps=cov.flatMap(c=>c.gap.filter(e=>!(EL_EXCEPT[c.z]||[]).includes(e)).map(e=>`${c.z}: ${e}`));
+  if(gaps.length){console.error(`FAIL: biome elements with no authored enemy: ${gaps.join(", ")}`);await browser.close();process.exit(1)}
   if(has("fresh")){ // the first expeditions with gating, then done
     const n=+opt("exped",5),rows=await P0.evaluate(([n,p,sd])=>SIM.fresh(n,p,sd),[n,POLS[0],SEED]);
     console.log(`== Fresh save: ${n} expeditions in the Woods with the unlock gates on (starter kit, ${POLS[0]} policy) ==\nColumns: result, steps, fights, wins this run; POIs placed on the map (shown by type); POI types the bot walked into; what opened afterwards (smith Lv / total wins / expeditions finished).`);
     rows.forEach(r=>console.log(`#${r.e} ${r.res.padEnd(11)} ${String(r.steps).padStart(3)} steps ${String(r.fights).padStart(2)} fights ${String(r.wins).padStart(2)} wins | map: ${Object.entries(r.pois).map(([t,c])=>t+" "+c).join(", ")}\n     met: ${Object.entries(r.visits).map(([t,c])=>t+" "+c).join(", ")||"nothing"} | then Lv ${r.sc.lv}, ${r.sc.wins} wins, ${r.sc.exps} expeditions -> opened: ${r.opened.join(", ")||"-"}\n     research: +${r.rp.gain} RP (${r.rp.earned} earned, ${r.rp.have} unspent; sources so far: ${Object.entries(r.rp.src).map(([k,n])=>k+" "+n).join(", ")})${r.rp.learned.length?` | learned: ${r.rp.learned.join(", ")}`:""}`));
     const tc=await P0.evaluate(()=>TECHS.filter(t=>t.cost).map(t=>({n:t.name,c:t.cost,rq:rqT(t)})));
-    console.log(`\nResearch: RP earned per expedition: ${rows.map(r=>r.rp.gain).join(", ")} (mean ${f1(rows.reduce((a,r)=>a+r.rp.gain,0)/rows.length)}). The bot salvages spare gear, binds essences into the sword, studies up to three families per expedition and learns the cheapest technique it can afford.\nA technique is affordable on the first expedition whose cumulative RP earned reaches its cost (its Smith level or skill requirement may come later):\n${tc.map(t=>{const k=rows.find(r=>r.rp.earned>=t.c);return `  ${t.n.padEnd(13)} ${String(t.c).padStart(2)} RP  ${k?"expedition "+k.e:"not yet"}${t.rq?"  (needs "+t.rq+")":""}`}).join("\n")}`);
+    console.log(`\nResearch: RP earned per expedition: ${rows.map(r=>r.rp.gain).join(", ")} (mean ${f1(rows.reduce((a,r)=>a+r.rp.gain,0)/rows.length)}). The bot deconstructs raw finds, binds essences into the sword, studies up to three families per expedition and learns the cheapest technique it can afford.\nA technique is affordable on the first expedition whose cumulative RP earned reaches its cost (its Smith level or skill requirement may come later):\n${tc.map(t=>{const k=rows.find(r=>r.rp.earned>=t.c);return `  ${t.n.padEnd(13)} ${String(t.c).padStart(2)} RP  ${k?"expedition "+k.e:"not yet"}${t.rq?"  (needs "+t.rq+")":""}`}).join("\n")}`);
     await browser.close();return}
   const zones=list("zone",ZN),kitSel=list("kit",null),mastered=!has("no-mastered");
-  const enemiesAll=await P0.evaluate(()=>Object.entries(ENEMIES).map(([id,e])=>({id,zone:e.zone,boss:!!e.boss,name:e.name})));
-  const eSel=list("enemy",null),enemies=enemiesAll.filter(e=>(eSel?eSel.includes(e.id):(e.zone==="any"||zones.includes(e.zone))));
+  const eSel=list("enemy",null),pickE=e=>eSel?eSel.includes(e.id):(e.zone==="any"||zones.includes(e.zone));
+  const enemies=enemiesAll.filter(e=>!e.gen&&pickE(e)); // the hand-made regulars (the wild creatures have their own section)
+  const wild=enemiesAll.filter(e=>e.gen&&pickE(e)); // the ten wild creatures of every region
   // kits: each stage kit has an on-stage zone and an arrival zone (the next one); the starter kit only arrives (at the woods). --zone keeps kits whose on-stage or arrival zone is listed
   const defs=[...Object.entries(KITS).flatMap(([type,by])=>Object.entries(by).map(([z,def])=>({name:kitName(type,z),type,zone:z,on:z,arr:ZN[ZN.indexOf(z)+1]||null,xp:STAGES[z].xp,sk:STAGES[z].sk,mast:mastered?ZN.indexOf(z):-1,def}))),
     {name:"starter/start",type:"starter",zone:"woods",on:null,arr:"woods",xp:0,mast:-1,def:STARTER}];
@@ -251,25 +307,47 @@ async function main(){
     console.log(`${k.name.padEnd(17)} Lv${s.lv} HP${String(s.hp).padEnd(3)} ATK${String(s.atk).padEnd(3)} MAG${String(s.mag).padEnd(3)} DEF${String(s.def).padEnd(3)}(${s.red}%) SPD${String(s.spd).padEnd(2)} crit${s.crit}% | ${s.main||"fists"} [${s.abil.join(",")||"-"}] | ward${s.ward} thorn${s.thorns}% dr${s.dr} dodge${s.dodge}% regen${s.regen} root${s.root} cl${s.cleanse} res${JSON.stringify(s.res)} inf${JSON.stringify(s.infuse)} ess${s.ess}${over?"(!)":""} refine${s.refine}emb | ${s.crafts} crafts ~${s.tries} tries (~${s.fizz} fizzles)`);
     if(s.warn.length){warns+=s.warn.length;console.log(`   WARN: ${s.warn.join("; ")}`)}}
   console.log(`kit warnings: ${warns}`);
-  if(has("trace")){for(const k of kits)for(const e of enemies)for(const h of HEATS)for(const p of POLS){const r=await P0.evaluate(([n,e,h,p,o])=>SIM.trace(SIM.kits[n].snap,e,h,p,o),[k.name,e.id,h,p,{seed:SEED,row:ROW,zone:k.arr||k.on}]);console.log(`\n--- ${k.name} vs ${e.id} H${h} ${p}: ${r.over} in ${r.turns} turns ---\n${r.log.join("\n")}\n${r.hps.join("\n")}`)}
+  if(has("trace")){
+    const forceSel=list("force",FORCED?["normal","magic","rare"]:[]);
+    const show=async(k,e,h,p,o,tag)=>{const r=await P0.evaluate(([n,e,h,p,o])=>SIM.trace(SIM.kits[n].snap,e,h,p,o),[k.name,e.id,h,p,o]);
+      console.log(`\n--- ${k.name} vs ${e.id} H${h} ${p}${tag?" "+tag:""}: ${r.over} in ${r.turns} turns ---\n${r.log.join("\n")}\n${r.hps.join("\n")}`)};
+    for(const k of kits)for(const e of [...enemies,...wild])for(const h of HEATS)for(const p of POLS){
+      await show(k,e,h,p,{seed:SEED,row:ROW,zone:k.arr||k.on});
+      if(e.gen)for(const f of forceSel)await show(k,e,h,p,{seed:SEED,row:ROW,zone:k.arr||k.on,rar:f,force:f},`(forced ${f})`)}
+    // the Rift masters: --enemy rift_boss
+    if(eSel&&eSel.includes("rift_boss")){
+      const seeds=RIFT_SEEDS?await P0.evaluate(ss=>ss.map(s=>({s,seed:hash("sim-rift:"+s)})),RIFT_SEEDS):await P0.evaluate(()=>SIM.riftSeeds(RIFT_BIOMES.length));
+      const rk=kits.filter(k=>k.zone==="spire");
+      for(const sd of seeds)for(const d of RIFT_DEPTH)for(const k of rk)for(const p of POLS){
+        const info=await P0.evaluate(([seed,dep])=>SIM.rift(seed,dep),[sd.seed,d]);
+        for(const f of ["",...forceSel])await show(k,{id:"rift_boss"},0,p,{seed:SEED,row:ROW,zone:"rift",rs:sd.seed,rd:d,rar:f||"normal",force:f||undefined},`(seed ${sd.seed}, ${info.biome} · ${info.name}, depth ${d}${f?" forced "+f:""})`)}}
     await browser.close();return}
-  const result={args:{n:N,seed:SEED,row:ROW,heats:HEATS,policies:POLS,elite:has("elite"),mastered},kits:sums,cells:[],attr:[],econ:[]};
+  const result={args:{n:N,seed:SEED,row:ROW,heats:HEATS,policies:POLS,elite:ELITE,mastered,wild:!NO_WILD,riftSeeds:RIFT_SEEDS,riftDepth:RIFT_DEPTH},kits:sums,cells:[],wild:[],wildByRegion:[],rift:[],attr:[],econ:[]};
   const E=Object.fromEntries(enemiesAll.map(e=>[e.id,e])),K=Object.fromEntries(kits.map(k=>[k.name,k]));
-  if(!has("econ-only")&&!has("rarity")){
+  // the shared cell runner: the cells are grouped by rarity, so every chunk holds one rarity at a time
+  const runCells=async(todo,label)=>{
+    const chunks=Array.from({length:JOBS},()=>[]);todo.forEach((x,i)=>chunks[i%JOBS].push(x));let done=0;
+    const out=(await Promise.all(chunks.map((ch,i)=>(async()=>{const o=[];
+      for(let j=0;j<ch.length;j+=60){const part=ch.slice(j,j+60);
+        for(const vr of [...new Set(part.map(x=>x.vr))]){const sub=part.filter(x=>x.vr===vr).map(x=>x.c),r=await pages[i].evaluate(([c,n,o])=>SIM.cells(c,n,o),[sub,N,{seed:SEED,row:ROW}]);r.forEach(x=>o.push({...x,vr}));done+=sub.length}
+        if(process.stderr.isTTY)process.stderr.write(`\r${label} ${done}/${todo.length} cells  ${Math.round((Date.now()-t0)/1000)}s`)}
+      return o})()))).flat();
+    if(process.stderr.isTTY)process.stderr.write("\n");
+    return out};
+  // ---- the regular matrix: the hand-made enemies only (the wild creatures have their own section)
+  let res=[];
+  if(RUN_MATRIX||RUN_WILD){
     const todo=[];
     for(const k of kits)for(const e of enemies){
       const variants=e.id==="mimic"?[k.on&&[k.on,"on"],k.arr&&[k.arr,"arr"]].filter(Boolean):[[null,e.zone===k.arr?"arr":e.zone===k.on?"on":"off"]];
-      for(const [mz,mode] of variants)for(const h of HEATS)for(const p of POLS)for(const el of has("elite")&&!e.boss&&e.id!=="mimic"?["","magic","rare"]:[""])todo.push({c:{k:k.name,e:e.id,h,p,mz,mode},el})}
-    const chunks=Array.from({length:JOBS},()=>[]);todo.forEach((x,i)=>chunks[i%JOBS].push(x));let done=0;
-    const res=(await Promise.all(chunks.map((ch,i)=>(async()=>{const out=[];
-      for(let j=0;j<ch.length;j+=60){const part=ch.slice(j,j+60);
-        for(const el of [...new Set(part.map(x=>x.el))]){const sub=part.filter(x=>x.el===el).map(x=>x.c),r=await pages[i].evaluate(([c,n,o])=>SIM.cells(c,n,o),[sub,N,{seed:SEED,row:ROW,rar:el||"normal"}]);r.forEach(x=>out.push({...x,el}));done+=sub.length}
-        if(process.stderr.isTTY)process.stderr.write(`\rmatrix ${done}/${todo.length} cells  ${Math.round((Date.now()-t0)/1000)}s`)}
-      return out})()))).flat();if(process.stderr.isTTY)process.stderr.write("\n");
-    res.forEach(c=>{c.flags=c.el?[]:flagsOf(c,c.mode,E[c.e]);c.enemy=c.e+({magic:"+",rare:"*"}[c.el]||"")});
+      for(const [mz,mode] of variants)for(const h of HEATS)for(const p of POLS)for(const el of ELITE&&!e.boss&&e.id!=="mimic"?["","magic","rare"]:[""])todo.push({c:{k:k.name,e:e.id,h,p,mz,mode,rar:el||"normal",nat:!el,el},vr:el||"normal"})}
+    res=await runCells(todo,"matrix");
+    res.forEach(c=>{c.flags=c.nat?flagsOf(c,c.mode,E[c.e]):[];c.enemy=c.e+({magic:"+",rare:"*"}[c.vr]||"")});
     const MO={arr:0,on:1,off:2};
     res.sort((a,b)=>MO[a.mode]-MO[b.mode]||enemies.findIndex(e=>e.id===a.e)-enemies.findIndex(e=>e.id===b.e)||(RK.indexOf(a.el)-RK.indexOf(b.el))||kits.findIndex(k=>k.name===a.k)-kits.findIndex(k=>k.name===b.k)||POLS.indexOf(a.p)-POLS.indexOf(b.p)||a.h-b.h);
     result.cells=res;
+  }
+  if(RUN_MATRIX){
     const heads={arr:"ARRIVAL (previous stage's kit meets this zone; starter kit meets the woods): the main pairing",on:"ON-STAGE (the kit's own zone)",off:"OTHER pairings"};
     for(const mode of ["arr","on","off"]){
       if(mode==="off"&&!has("all"))continue;
@@ -295,6 +373,8 @@ async function main(){
       ["TOO_EASY","TOO_HARD","SLOG"].forEach(f=>{const xs=fl.filter(c=>c.flags.includes(f));console.log(`${f}: ${xs.length} cells`);
         POLS.forEach(p=>{const ys=xs.filter(c=>c.p===p);if(!ys.length)return;const by={};ys.forEach(c=>{const key=`${c.k}@H${c.h}`;(by[key]=by[key]||[]).push(c.enemy)});
           console.log(`  [${p}] ${ys.length}`);Object.entries(by).forEach(([k,v])=>console.log(`    ${k.padEnd(20)} ${v.join(" ")}`))})})}
+  }
+  if(RUN_MATRIX||RUN_WILD){
     // attrition: whole expedition on one HP bar
     if(has("attrition")){
       console.log(`\n== Attrition: 4 regulars (rows 1-4) then the boss on one HP bar, 35% heal after fights 2 and 4; ${N} expeditions per cell. Per heat: clear% / mean fights won (of 5) ==`);
@@ -304,8 +384,88 @@ async function main(){
       const ord=x=>jobs.findIndex(j=>j.k===x.k&&j.mode===x.mode&&j.p===x.p);out.sort((a,b)=>ord(a)-ord(b));result.attr=out;
       out.forEach(o=>console.log(`${o.k.padEnd(17)}${o.mode.padEnd(5)}${o.z.padEnd(8)}${o.p.padEnd(8)}${o.heats.map(x=>`${pct(x.clear)}% ${f1(x.fights)}`.padEnd(14)).join("")}`))}
   }
+  // ---- the wild creatures of the four regions: their own section (the regular matrix above holds the hand-made enemies only)
+  if(RUN_WILD){
+    const todo=[];
+    for(const k of kits)for(const e of wild){
+      const mode=e.zone===k.arr?"arr":e.zone===k.on?"on":"off";
+      if(mode==="off"&&!has("all"))continue;
+      for(const h of HEATS)for(const p of POLS){
+        todo.push({c:{k:k.name,e:e.id,h,p,mz:e.zone,mode,rar:"normal",nat:true},vr:"native"});
+        if(FORCED)for(const vr of ["normal","magic","rare"])todo.push({c:{k:k.name,e:e.id,h,p,mz:e.zone,mode,rar:vr,force:vr,nat:false},vr})}
+    }
+    const wres=await runCells(todo,"wild");
+    wres.forEach(c=>{c.flags=flagsOf(c,c.mode,E[c.e]||{})});
+    result.wild=wres;
+    const wlabel=e=>`${e.id} ${e.name} (${e.rar}: ${e.afx.join(", ")})`;
+    const heads={arr:"ARRIVAL (previous stage's kit meets this zone; starter kit meets the woods): the main pairing",on:"ON-STAGE (the kit's own zone)",off:"OTHER pairings"};
+    for(const mode of ["arr","on","off"]){
+      const rows=wres.filter(c=>c.mode===mode);
+      if(!rows.length)continue;
+      console.log(`\n== Wild creatures, ${heads[mode]}: ${N} fights per cell, seed ${SEED??"random"}, map row ${ROW}. "native" is the creature as the game rolls it (its own rarity and affixes); the forced rows put its stats back on the region band and roll the affixes like a regular's. Per heat: win% / mean turns / mean HP left% (losses count 0) ==`);
+      console.log(`${"creature".padEnd(46)}${"kit".padEnd(17)}${"policy".padEnd(8)}${"rarity".padEnd(8)}${HEATS.map(h=>("H"+h).padEnd(17)).join("")}flags`);
+      const groups={};rows.forEach(c=>{const key=[c.e,c.k,c.p,c.vr].join("|");(groups[key]=groups[key]||[]).push(c)});
+      Object.values(groups).forEach(g=>{const c0=g[0],e=E[c0.e];
+        console.log(`${wlabel(e).padEnd(46)}${c0.k.padEnd(17)}${c0.p.padEnd(8)}${c0.vr.padEnd(8)}${HEATS.map(h=>{const c=g.find(x=>x.h===h);return c?`${String(pct(c.win)).padStart(3)}% ${f1(c.turns).padStart(5)}t ${String(pct(c.hp)).padStart(3)}%`.padEnd(17):"".padEnd(17)}).join("")}${c0.nat?[...new Set(g.flatMap(x=>x.flags))].join(" "):""}`)})}
+    // ---- wild by region/biome: the mean over a region's creatures, against the hand-made regulars of the same zone
+    const regions=await P0.evaluate(()=>ZONES.map(z=>z[0]).filter(z=>z!=="rift"));
+    const biome=await P0.evaluate(()=>({...ZONE_BIOME}));
+    const wc=(e,k,p,h,vr)=>wres.find(x=>x.e===e.id&&x.k===k&&x.p===p&&x.h===h&&x.vr===vr);
+    console.log(`\n== Wild by region/biome: the mean over the region's wild creatures. "Δ vs regulars" is the win% difference from the same zone's hand-made regulars (same kit, policy, Heat), in points; the flags count the region's creatures flagged at Heat 0. ==`);
+    for(const region of regions){
+      const cs=wild.filter(e=>e.zone===region);
+      if(!cs.length)continue;
+      const ks=kits.filter(k=>k.arr===region||k.on===region);
+      if(!ks.length){console.log(`\n-- ${region} (${biome[region]||"?"}): no kit pairs with this region --`);continue}
+      console.log(`\n-- ${region} (${biome[region]||"?"}), ${cs.length} wild creatures --`);
+      console.log(`${"kit".padEnd(17)}${"policy".padEnd(8)}${"rarity".padEnd(8)}${HEATS.map(h=>("H"+h).padEnd(19)).join("")}${"Δ vs regulars".padEnd(20)}flags`);
+      for(const k of ks)for(const p of POLS)for(const vr of (FORCED?["native","normal","magic","rare"]:["native"])){
+        const row=HEATS.map(h=>{
+          const xs=cs.map(e=>wc(e,k.name,p,h,vr)).filter(Boolean);
+          const rs=res.filter(x=>x.k===k.name&&x.p===p&&x.h===h&&x.nat&&E[x.e]&&E[x.e].zone===region&&!E[x.e].boss);
+          const mw=xs.length?xs.reduce((a,c)=>a+c.win,0)/xs.length:0;
+          const mr=rs.length?rs.reduce((a,c)=>a+c.win,0)/rs.length:null;
+          return{w:mw,t:xs.length?xs.reduce((a,c)=>a+c.turns,0)/xs.length:0,hp:xs.length?xs.reduce((a,c)=>a+c.hp,0)/xs.length:0,d:mr==null?null:Math.round((mw-mr)*100)}});
+        const f0=cs.map(e=>wc(e,k.name,p,0,vr)).filter(Boolean);
+        const fl=[["TOO_HARD",f0.filter(c=>c.flags.includes("TOO_HARD")).length],["TOO_EASY",f0.filter(c=>c.flags.includes("TOO_EASY")).length]].filter(x=>x[1]).map(x=>`${x[0]} ${x[1]}`).join(", ");
+        console.log(`${k.name.padEnd(17)}${p.padEnd(8)}${vr.padEnd(8)}${row.map(r=>`${String(pct(r.w)).padStart(3)}% ${f1(r.t).padStart(5)}t ${String(pct(r.hp)).padStart(3)}%`.padEnd(19)).join("")}${row.map(r=>r.d==null?"-":(r.d>0?"+":"")+r.d).join(" / ").padEnd(20)}${fl}`);
+        result.wildByRegion.push({region,biome:biome[region]||"",creatures:cs.length,kit:k.name,policy:p,rarity:vr,
+          heats:HEATS.map((h,i)=>({h,win:row[i].w,turns:row[i].t,hp:row[i].hp,delta:row[i].d})),flags:fl})}}
+    // ---- the Rift: a region rolled from one seed, its master and (with --rift-wild) its own wild creatures
+    const seeds=RIFT_SEEDS?await P0.evaluate(ss=>ss.map(s=>({s,seed:hash("sim-rift:"+s)})),RIFT_SEEDS):await P0.evaluate(()=>SIM.riftSeeds(RIFT_BIOMES.length));
+    const rk=kits.filter(k=>k.zone==="spire"),rvars=["native","magic","rare"];
+    if(!rk.length)console.log(`\n== Rift masters: no spire kit to bring to the Rift (--kit picked something else) ==`);
+    else{
+      const rids=await P0.evaluate(([sd])=>SIM.rift(sd,1).wild,[seeds[0].seed]);
+      const rtodo=[];
+      for(const sd of seeds)for(const d of RIFT_DEPTH)for(const k of rk)for(const p of POLS)for(const vr of rvars){
+        const f=vr!=="native",ids=RIFT_WILD?["rift_boss",...rids]:["rift_boss"];
+        for(const id of ids)rtodo.push({c:{k:k.name,e:id,h:0,p,mz:"rift",rs:sd.seed,rd:d,rar:f?vr:"normal",force:f?vr:undefined,nat:!f},vr})}
+      const rres=await runCells(rtodo,"rift");
+      rres.forEach(c=>{c.flags=flagsOf(c,"on",{boss:c.e==="rift_boss"})});
+      console.log(`\n== Rift masters: ${seeds.length} seeds × ${RIFT_DEPTH.join(",")} depths × ${rk.length} kits × ${POLS.length} policies, ${N} fights per cell. Heat 0 (the Rift has no Heat), the Rift not mastered, map row 0 (as for bosses). "native" is the master as the game fights it today (a boss gets no affixes); "magic" and "rare" apply the master's own affixes to the fight (sim-only). ==`);
+      const rinfo={};
+      for(const sd of seeds)for(const d of RIFT_DEPTH){
+        const info=await P0.evaluate(([seed,dep])=>SIM.rift(seed,dep),[sd.seed,d]);
+        rinfo[sd.seed+":"+d]=info;
+        console.log(`\n-- seed ${sd.seed} (${info.biome} · ${info.name}) · ${info.master.name} (${info.master.el}) · depth ${d} · tier HP ${info.tier.hp} ATK ${info.tier.atk} DEF ${info.tier.def} --`);
+        const line=(k,p,id,label)=>{
+          const cs=rvars.map(vr=>rres.find(x=>x.k===k.name&&x.p===p&&x.rs===sd.seed&&x.rd===d&&x.e===id&&x.vr===vr));
+          const txt=cs.map((c,i)=>c?`${rvars[i].padEnd(6)} ${String(pct(c.win)).padStart(3)}% ${f1(c.turns).padStart(5)}t ${String(pct(c.hp)).padStart(3)}%${c.flags.length?" "+c.flags.join(" "):""}`:`${rvars[i].padEnd(6)} -`).join(" | ");
+          console.log(`${label.padEnd(20)}${k.name.padEnd(17)}${p.padEnd(8)}${txt}`)};
+        for(const k of rk)for(const p of POLS)line(k,p,"rift_boss",info.master.name);
+        if(RIFT_WILD)for(const id of rids)for(const k of rk)for(const p of POLS)line(k,p,id,"   "+id);
+        result.rift.push({seed:sd.seed,depth:d,biome:info.biome,region:info.name,master:info.master,cells:rres.filter(x=>x.rs===sd.seed&&x.rd===d)})}
+      // the summary: the master (native row) by biome and by depth
+      const nat=rres.filter(x=>x.e==="rift_boss"&&x.vr==="native");
+      const mean=xs=>xs.length?pct(xs.reduce((a,c)=>a+c.win,0)/xs.length):null;
+      const mb={},db={};nat.forEach(x=>{const b=rinfo[x.rs+":"+x.rd].biome;(mb[b]=mb[b]||[]).push(x);(db[x.rd]=db[x.rd]||[]).push(x)});
+      console.log(`\n-- Rift summary (the master, native row) ==`);
+      console.log(`by biome: ${Object.entries(mb).map(([b,xs])=>`${b} ${mean(xs)}%`).join("  ")}`);
+      console.log(`by depth: ${Object.entries(db).map(([d,xs])=>`depth ${d} ${mean(xs)}%`).join("  ")}`)}
+  }
   // rarity table: each kit's arrival pairing (the previous stage's kit against the next zone's regulars, at map row ROW), every regular enemy, every affix in turn
-  if(has("rarity")){
+  if(RARITY){
     const cells=[];for(const k of kits){if(!k.arr)continue;for(const e of enemies.filter(e=>!e.boss&&e.id!=="mimic"&&e.zone===k.arr))for(const h of HEATS)for(const p of POLS)for(const rar of ["normal","magic","rare"])cells.push({k:k.name,e:e.id,h,p,rar})}
     const chunks=Array.from({length:JOBS},()=>[]);cells.forEach((x,i)=>chunks[i%JOBS].push(x));
     const out=(await Promise.all(chunks.map((ch,i)=>(async()=>{const o=[];for(let j=0;j<ch.length;j+=40){const part=ch.slice(j,j+40);
@@ -325,7 +485,7 @@ async function main(){
     result.rarity=out;
   } else
   // economy
-  if(!has("no-econ")){
+  if(RUN_ECON){
     const ez=zones,eh=HEATS[0],ep=POLS.includes("smart")?"smart":POLS[0];
     console.log(`\n== Economy: ${EXPED} expeditions per zone, ${ep} policy, melee stage kit (codex mastered for its zone), Heat ${eh} ==`);
     console.log("Columns WITHOUT salvage: embers (fight rewards), ess (essences from chests, shrines, elites, bosses...), items (all drops). Columns WITH salvage (the bot never salvages; this is the value of the new non-equipped loot if you did): sv.ess (essences) and sv.emb (embers); emb+sv and ess+sv are the totals; gear/exp = (embers+sv.emb) / median shop gear price.");

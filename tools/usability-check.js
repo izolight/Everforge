@@ -46,7 +46,7 @@ const {chromium}=require('playwright'),path=require('path'),assert=require('node
  assert.equal(await page.evaluate(()=>S.battle.id),'sprite');
  await page.evaluate(()=>{for(let i=0;i<20&&!S.battle.over;i++)attack()});
  assert(await page.evaluate(()=>S.battle.over==='won'&&S.inv.coal===1&&S.onboarding===2));
- await page.evaluate(()=>{salvageItem('coal');const id=essG('Fire',3);S.bench=['iron_sword',id];go('forge')});await page.locator('#combine').click();
+ await page.evaluate(()=>{deconstruct('coal',()=>1);const id=essG('Fire',1);S.bench=['iron_sword',id];go('forge')});await page.locator('#combine').click();
  assert(await page.evaluate(()=>S.onboarding===3&&gearOf('main').traits.Fire>0));
  await page.evaluate(()=>{S.battle=null;go('battle');const m=curMap(),[x,y]=adjTiles(m).find(([x,y])=>!poiAt(m,x,y));step(x,y)});
  assert.equal(await page.evaluate(()=>S.battle.id),'boar');await page.locator('#atk').click();

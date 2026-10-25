@@ -17,8 +17,10 @@ function openSheet(id,refresh,preview){
           :`<button class="btn primary grow" data-act="equip" data-slot="${s}" ${locked||(eqCount(id)>=S.inv[id]&&!slots.some(x=>S.eq[x]===id))?"disabled":""}>${slots.length>1?tx("Equip in {slot}",{slot:lab}):tx("Equip")}</button>`)})}
     if(g==="consumable"&&statsOf(it).heal>0&&!locked)btns.push(`<button class="btn primary grow" data-act="eat" ${S.hp>=P.maxHp?"disabled":""}>${S.hp>=P.maxHp?tx("Already at full HP"):tx("Use now (+{n} HP)",{n:Math.min(medHeal(it),P.maxHp-S.hp)})}</button>`);
     btns.push(`<button class="btn grow" data-act="add" ${itemLocked(id)||left<=0||full||locked||!mix.ok?"disabled":""}>${locked?tx("Finish the fight to forge"):full?tx("Crucible full"):left<=0?tx("All in crucible"):!mix.ok?tx("Won't mix with the crucible"):tx("Add to crucible")}</button>`);
-    const ys=salvageYield(it);
-    if(ys.length)btns.push(`<button class="btn ${salvageArmed?"danger":""} grow" data-act="salvage" ${itemLocked(id)||locked||left<=0?"disabled":""}>${salvageArmed?tx("Tap again to salvage"):tx("Salvage → {list}",{list:ys.map(t=>iname(S.items[gradedItem("ess_"+t,salvGrade(it))])).join(" + ")})+(salvageEmbers(it)&&isUnl("peddler")?tx(" + {n} embers",{n:salvageEmbers(it)}):"")}</button>`);
+    if(canDecon(it)){const y=deconYield(it),nm=(id,n)=>`${n}× ${iname(S.items[gradedItem(baseIdOf(id),gradeOf(id))])}`;
+      btns.push(`<button class="btn ${salvageArmed?"danger":""} grow" data-act="salvage" ${itemLocked(id)||locked||left<=0?"disabled":""}>${salvageArmed?tx("Tap again to deconstruct"):tx("Deconstruct → {list}",{list:[...y.mat?[nm(...y.mat)]:[],...y.frag.map(([t,n,g])=>nm(gradedId("ess_"+t,g),n))].join(" + ")})+(salvageEmbers(it)&&isUnl("peddler")?tx(" + {n} embers",{n:salvageEmbers(it)}):"")}</button>`)}
+    else if(canSalvage(it)){const ys=salvageYield(it),ms=salvageMats(it),list=[...ms.map(m=>iname(S.items[gradedItem(baseIdOf(m),gradeOf(m))])),...ys.map(t=>iname(S.items[gradedItem("ess_"+t,salvGrade(it))]))];
+      btns.push(`<button class="btn ${salvageArmed?"danger":""} grow" data-act="salvage" ${itemLocked(id)||locked||left<=0?"disabled":""}>${salvageArmed?tx("Tap again to salvage"):!list.length?tx("Salvage for {n} embers",{n:salvageEmbers(it)}):tx("Salvage → {list}",{list:list.join(" + ")})+(salvageEmbers(it)&&isUnl("peddler")?tx(" + {n} embers",{n:salvageEmbers(it)}):"")}</button>`)}
     const mh=mishapsOf(it);if(mh.length&&isUnl("peddler")&&!hasTech("mend"))btns.push(`<button class="btn grow" aria-disabled="true" data-tap ${tt(tx("Reforge"),techWhy(["mend"]))}>${tx("Reforge: needs Mending")}</button>`);
     else if(mh.length&&isUnl("peddler"))btns.push(`<button class="btn grow" data-act="reforge" ${itemLocked(id)||locked||S.embers<reforgeCost(it)?"disabled":""}>${tx("Reforge — {list} ({n} embers)",{list:mh.map(m=>m==="Weakened"?tx("restore {m}",{m:trn(m)}):tx("remove {m}",{m:trn(m)})).join(tx(" and ")),n:reforgeCost(it)})}</button>`);
   }
@@ -29,6 +31,8 @@ function openSheet(id,refresh,preview){
     ${!preview&&!mix.ok?`<p class="warn-text">${mix.reason}</p>`:""}
     ${it.mishap==="Weakened"?`<p class="warn-text">${tx("Weakened: a fizzled mixture cost every trait 30%.")}</p>`:""}
     ${it.recipe?`<p class="empty">${tx("Forged from {list}.",{list:recipeNames(it)})}</p>`:""}
+    ${!preview&&canDecon(it)?`<p class="foot">${deconYield(it).ch.map(([t,p,g])=>tx("{p}% chance of a {ess}.",{p:pcn(p),ess:iname(S.items[essG(t,g)])})).join(" ")}</p>`:""}
+    ${isBaseMat(id)?`<p class="foot">${tx("{type}: forge it into gear with a pattern in the Forge.",{type:tx(MAT_T[MATS[plainId(id)]].label)})}</p>`:""}
     <div class="actions">${btns.join("")}</div>`;
   if(!refresh)showSheet();
 }
@@ -56,6 +60,7 @@ function openCodex(id,refresh){
       ${E.phase?`<dt>${tx("Second form")}</dt><dd>${ph?`<span>${tx("Below half health it turns {el}.",{el:famL(ph.el)})} ${K.sp2?spLine(ph.sp)+" ":tx("Its new special is still a mystery.")+" "}${tx("Its weak points change too.")}</span>`:unkChip(tx("Wound it badly to learn"))}</dd>`:""}
       ${E.inf||(K.inf||[]).length?`<dt>${tx("Afflicts")}</dt><dd>${[...new Set(K.inf||[])].map(s=>`<span class="chip" style="color:var(--bad)">${STATUS[s].n}</span> <span class="foot">${STATUS[s].tip}</span>`).join("")||unkChip(tx("Survive its special to learn"))}</dd>`:""}
       <dt>${tx("Drops")}</dt><dd>${drops}</dd>
+      ${bpOf(id).length?`<dt>${tx("Blueprints")}</dt><dd>${bpOf(id).map(b=>(K.bp||[]).includes(b)?`<span class="chip" style="color:var(--accent)">${iname(S.items[b])}</span>`:unkChip(tx("Study it to learn"))).join("")}</dd>`:""}
     </dl>
     <div class="actions"><button class="btn" data-act="close">${tx("Close")}</button></div>`;
   if(!refresh)showSheet();

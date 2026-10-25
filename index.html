@@ -56,13 +56,19 @@
       <div class="actions" id="infbtns"></div>
     </section>
     <section style="display:grid;gap:10px">
-      <div class="lrow"><p class="label" data-t>Satchel</p><button type="button" class="qm" data-tap data-ta="data-tip aria-label" data-tip="Satchel&#10;Tap an item to open it: equip, use, add to the crucible or salvage it.&#10;Long-press or hover for its name and stats. The frame colour is its grade (Faint, Lesser, Plain, Greater, Pure), a tick means worn, a dot means new, a number is how many you hold." aria-label="Help: Satchel">?</button></div>
+      <div class="lrow"><p class="label" data-t>Satchel</p><button type="button" class="qm" data-tap data-ta="data-tip aria-label" data-tip="Satchel&#10;Tap an item to open it: equip, use, add to the crucible, deconstruct or salvage it.&#10;Long-press or hover for its name and stats. The frame colour is its grade (Faint, Lesser, Plain, Greater, Pure), a tick means worn, a dot means new, a number is how many you hold." aria-label="Help: Satchel">?</button></div>
       <div class="tabs" id="gtabs"></div>
+      <div class="actions" id="gdecon" hidden></div>
       <div id="gtools"></div><div class="sqg" id="ginv"></div>
     </section>
   </div>
 
   <div id="v-forge" class="view" hidden>
+    <section class="panel" id="patp" aria-label="Patterns" data-ta="aria-label">
+      <div class="lrow" id="patlabel"></div>
+      <div class="tabs pats" id="pats"></div>
+      <div id="patbody" style="display:grid;gap:10px"></div>
+    </section>
     <section class="panel forge-workbench" aria-label="Crucible" data-ta="aria-label">
       <div class="lrow"><p class="label" data-t>Crucible</p><button type="button" class="qm" data-tap data-ta="data-tip aria-label" data-tip="Crucible&#10;Tap gear or a material in the satchel to add it. Tap a filled slot to take it out again.&#10;Dimmed satchel items won't mix with what is already in. Essences mix with everything. The Recipes tab has the full table.&#10;More slots unlock as your Smith level rises." aria-label="Help: Crucible">?</button></div>
       <div class="slots" id="slots"></div>
@@ -132,7 +138,7 @@
     <section class="panel" id="howto">
       <p class="label" data-t>How to play</p>
       <details class="howto"><summary><span data-ic="hero"></span> <span data-t>The map</span></summary><div class="rules">
-          <p data-t="howto.loop"><b>The loop.</b> Cross each region's map, fight for loot, salvage it into essences, forge better gear, and beat the boss at the end of the map to open the next region.<span data-unl="rift"> Past the Spire the Wanderer's Rift waits: every expedition there is a random region, and each one goes deeper than the last.</span></p>
+          <p data-t="howto.loop"><b>The loop.</b> Cross each region's map and fight for raw finds. Deconstruct them into base materials and essences, forge gear from patterns, bind essences into it, and beat the boss at the end of the map to open the next region.<span data-unl="rift"> Past the Spire the Wanderer's Rift waits: every expedition there is a random region, and each one goes deeper than the last.</span></p>
           <p data-t="howto.map"><b>The map.</b> Each region is a grid of tiles. Tap a glowing tile next to you to step; you only see a couple of tiles around you, and explored ground stays dim. Walk onto fights and chests to meet them<span data-unl="elite">, and elites (magic or rare: tougher, with affixes that change the fight and drop essences)</span><span data-unl="shrine">, shrines</span><span data-unl="peddler"> and peddlers</span><span data-unl="mystery"> and mystery tiles (?)</span>. The boss waits in the lair at the top, behind a camp. Losing sends you back to a fresh map; cleared regions can be explored again.</p>
           <p data-t="howto.torch"><b>Torchlight.</b> Your torch burns down one step at a time. When it runs out you only see one tile around you and every step risks an ambush. Camps, shrine prayers and campfire rests relight it.</p>
           <p data-t="howto.health"><b>Health.</b> HP carries over between fights. Heal by eating, resting at a campfire (one charge per three wins), camps<span data-unl="shrine"> and shrines</span>. Healing traits on gear mend you each turn.</p>
@@ -148,7 +154,7 @@
       </div></details>
       <details class="howto"><summary><span data-ic="forge"></span> <span data-t>Gear and forge</span></summary><div class="rules">
           <p data-t="howto.gear"><b>Gear.</b> Seven slots. An off-hand weapon adds a weaker second strike; a shield can block hits.</p>
-          <p data-t="howto.mixing"><b>Mixing.</b> Only sensible combinations work; the Recipes tab has the table. Salvage turns any item into essences, which mix with everything.</p>
+          <p data-t="howto.mixing"><b>Mixing.</b> Patterns turn base materials into gear. In the crucible only sensible combinations work; the Recipes tab has the table. Deconstructing raw finds gives essences, which mix with everything. Salvaged gear gives back half its materials.</p>
           <p data-unl="infuse" data-t="howto.infusions"><b>Infusions.</b> Pure essences can be infused into yourself in the Gear tab. The trait stays with you whatever you wield.</p>
           <p data-t="howto.previews"><b>Previews.</b> Known recipes show their full result before you forge. New combinations show the form and any reactions you've discovered. Every forge can go wrong: the line under the crucible shows your skill for that kind of item, the odds of a clean result, a mishap or a fizzle (the ingredients are lost, some embers return), and the highest tier that skill can reach. Failing teaches a little, but easy recipes teach less. Merged trait values above 8 grow at half rate, and upgrading a crafted item again is harder each time.  a higher skill and simpler recipes make it rarer. From Smith Lv 3 the forge also appraises the traits to expect.</p>
       </div></details>

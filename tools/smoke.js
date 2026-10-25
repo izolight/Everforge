@@ -15,14 +15,14 @@ async function run(label,setup,nat){
   if(setup){await page.evaluate(setup);await page.reload()}
   await page.waitForFunction(()=>typeof S==="object"&&S);
   const stats=await page.evaluate(async ({steps,nat})=>{
-    const sleep=ms=>new Promise(r=>setTimeout(r,ms)),out={steps:0,battles:0,won:0,lost:0,forged:0,zones:new Set(),views:0,wields:0,abil:0,tiles:0,outs:0,byfoe:0,fled:0,script:0,intros:0,heat:0,daily:0,aband:0,bought:0,sold:0,upgraded:0,reforged:0,learned:0,studied:0,gated:0,afx:new Set(),split:0,boom:0,rare:0,bad:[]};
+    const sleep=ms=>new Promise(r=>setTimeout(r,ms)),out={steps:0,battles:0,won:0,lost:0,forged:0,zones:new Set(),views:0,wields:0,abil:0,tiles:0,outs:0,byfoe:0,fled:0,script:0,intros:0,heat:0,daily:0,aband:0,bought:0,sold:0,upgraded:0,reforged:0,learned:0,studied:0,gated:0,afx:new Set(),split:0,boom:0,rare:0,decon:0,shaped:0,bad:[]};
     const legacy=UNLOCKS.filter(u=>u.id!=="rift"),pending=pendingIntros().filter(c=>c.id!=="rift"); // the Rift is new v16 content, still gated by the Archon
     out.vet0=legacy.every(u=>S.unl[u.id])&&TECHS.every(t=>S.techs[t.id])&&pending.length===0?1:`missing ${legacy.filter(u=>!S.unl[u.id]).map(u=>u.id)} pending ${pending.map(c=>c.id)}`; // as loaded, before the bot plays
     const click=el=>{el.click();return true};let wantZone=null,doChores=false,wantWield=false,wantHeat=false,wantDaily=false,wantAband=false,wantShop=false;
     const q=s=>document.querySelector(s),qa=s=>[...document.querySelectorAll(s)];
-    const fin=B=>{ // a finished fight: a won one drops each affix's essence (a lost one never does); count splits and volatile deaths
+    const fin=B=>{ // a finished fight: a won one drops an affixed raw for each affix that deconstructs into its essence (a lost one never drops anything); count splits and volatile deaths
       if(B.split)out.split++;if(B.boom)out.boom++;if(B.rar==="rare")out.rare++;
-      if(B.over==="won"&&!B.intr)B.afx.forEach(a=>{if(!B.loot.some(id=>isEss(id)&&essTrait(id)===AFX[a].tr))out.bad.push(`no ${AFX[a].tr} essence from ${a}`)});
+      if(B.over==="won"&&!B.intr)B.afx.forEach(a=>{const r=B.loot.find(id=>afxOfId(id)===a);if(!r)out.bad.push(`no affixed raw from ${a}`);else if(!deconYield(S.items[r]).frag.some(f=>f[0]===AFX[a].tr))out.bad.push(`${r} does not deconstruct into ${AFX[a].tr}`)});
       if(B.over==="lost"&&B.loot.length)out.bad.push("a lost fight dropped loot")};
     for(let i=0;i<steps;i++){out.steps++;
       // Every so often, unlock everything and top up HP so later content gets exercised too.
@@ -120,6 +120,9 @@ async function run(label,setup,nat){
     // Visit the other views, forge something, salvage, infuse.
     async function chores(){
       for(const v of VIEWS){go(v);out.views++}
+      go("gear");{const da=q("#gdecon:not([hidden]) #deconAll");if(da&&Math.random()<.6){const n0=S.stats.salvaged;da.click();q("#gdecon:not([hidden]) #deconAll")?.click();if(S.stats.salvaged>n0)out.decon++;else out.bad.push("Deconstruct all did nothing")}} // twice: the first tap arms it
+      go("forge");{const pb=qa("#pats [data-pat]");if(pb.length){click(pb[Math.floor(Math.random()*pb.length)]);const sh=q("#shape:not([disabled])"); // a pattern or blueprint, auto-filled when it is picked
+        if(sh){const n0=S.stats.shaped,inv0=JSON.stringify(S.inv);sh.click();await sleep(30);if(S.stats.shaped>n0)out.shaped++;else out.bad.push("a filled pattern did not forge");if(JSON.stringify(S.inv)===inv0)out.bad.push("pattern forging changed nothing in the satchel")}}}
       go("forge");S.bench=[];
       const can=qa("#finv [data-can='1']"),isE=b=>isEss(b.dataset.id),bases=can.filter(b=>!isE(b));
       if(nat&&bases.length&&can.some(isE)&&Math.random()<.8){click(bases[Math.floor(Math.random()*bases.length)]);click(qa("#finv [data-can='1']").find(isE))} // a newcomer binds an essence into an item: the one forge Binding allows
@@ -162,6 +165,7 @@ async function run(label,setup,nat){
   if(fs_.battles<3)fail("Too few battles completed; the loop got stuck.");
   if(!fs_.intros||fs_.unl.length<4)fail(`The natural run opened too little (${fs_.unl.length} unlocks, ${fs_.intros} intro cards read).`);
   if(fs_.tiles<30)fail("The bot barely explored the map.");
+  if(!fs_.unl.includes("patterns")||!fs_.shaped||!fs_.decon)fail(`The natural run did not deconstruct its raw finds and forge from a pattern (patterns open: ${fs_.unl.includes("patterns")}, deconstruct-all ${fs_.decon}, pattern forges ${fs_.shaped}).`);
   if(!fs_.unl.includes("research")||fs_.techs<2||!fs_.learned)fail(`The natural run did not progress into research and learn a technique (research open: ${fs_.unl.includes("research")}, techniques ${fs_.techs}, learned ${fs_.learned}).`);
   // 2. a save with everything unlocked (a fresh state with every UNLOCKS entry open and read): the feature checks that gating would keep out of a 400-step newcomer run (abilities, Heat, daily, buying, selling, upgrading, reforging, flee, affixes, chasers, tiles)
   const all=await run("unlocked",new Function(`S.unl=Object.fromEntries(UNLOCKS.map((u,i)=>[u.id,i+1]));UNLOCKS.forEach(u=>S.seen["i:"+u.id]=true);Object.keys(ABILITIES).forEach(k=>S.seen["a:"+k]=true);S.quest=TUTORIAL.length;S.techs=Object.fromEntries(TECHS.map((t,i)=>[t.id,i+1]));save()`)),st=all.stats;

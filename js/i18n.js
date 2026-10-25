@@ -59,6 +59,7 @@ function iname(it){
   if(LANG==="en")return it.name;
   if(it.grade&&!it.crafted){const b=S.items[baseIdOf(it.id)];return tx("{grade} {name}",{grade:tx(GRADES[it.grade-1][0]),name:b?iname(b):it.name})}
   if(!it.crafted&&isEss(it.id))return tx("{trait} Essence",{trait:trn(essTrait(it.id))});
+  if(!it.crafted&&it.afx&&AFX[it.afx])return tx("{affix} {name}",{affix:tx(AFX[it.afx].n),name:iname(S.items[plainId(it.id)])}); // an affixed variant: the affix prefix on the translated base name
   if(!it.crafted||it.legendary)return tx(it.name);
   return craftedName(it.name);
 }

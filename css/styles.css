@@ -738,6 +738,13 @@ select.lang{width:100%;margin-top:8px;background:#120f0c;color:var(--fg);border:
 :lang(ko) body{word-break:keep-all}
 :lang(de) .label,:lang(de) .tabbar span{letter-spacing:.06em}
 :lang(de) body{hyphens:auto}
+/* Patterns (Forge): pattern and blueprint picker chips, labelled empty slots */
+.pats{align-items:center}
+.pats .tab.ti>svg:not(.ic){width:24px;height:24px;flex:none}
+.pats .bpn{margin-left:auto;display:inline-flex;align-items:center;gap:4px}
+.slot.ps{gap:2px;align-content:center;text-align:center}
+.slot.ps>svg.ic{width:18px;height:18px}
+.slot.ps small{font-size:.58rem;line-height:1.1;color:var(--muted)}
 
 /* Keep the working ingredients beside the crucible; history never separates them. */
 .forge-workbench{position:sticky;top:8px;z-index:6;max-height:48dvh;overflow:auto}

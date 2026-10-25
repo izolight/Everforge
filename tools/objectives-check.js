@@ -8,7 +8,7 @@ const {chromium}=require('playwright'),path=require('path'),assert=require('node
  await page.locator('[data-pin-recipe]').click();
  assert(await page.locator('#pinnedGoal').innerText().then(t=>t.includes('Fire Essence')&&t.includes('Ember Coal')&&t.includes('Possible drops')));
  const pin=await page.evaluate(()=>S.pinned);await page.reload();assert.deepEqual(await page.evaluate(()=>S.pinned),pin);
- await page.evaluate(()=>{$('pinnedGoal').open=true});await page.locator('[data-source-zone="woods"]').first().click();
+ await page.evaluate(()=>{$('pinnedGoal').open=true});await page.locator('[data-source-zone="woods"]:visible').first().click();
  assert.equal(await page.evaluate(()=>S.view),'battle');
  await page.evaluate(()=>{S.hints=[0,0];go('recipes')});await page.locator('[data-pin-rumor="0"]').click();
  assert(await page.locator('#pinnedGoal').innerText().then(t=>t.includes('Light Essence')&&!t.includes('Sweet Essence')&&!t.includes('Iron Helmet')&&t.includes('2 ingredients')));

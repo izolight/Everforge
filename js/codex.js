@@ -12,7 +12,7 @@ function know(id){const E=ENEMIES[id],K=S.codex[id]||{weak:[],resist:[],drops:[]
   return{have,tot,pct:have/tot,mastered:have>=tot}}
 function learn(id,type,val){
   const K=cx(id),was=know(id).mastered;let fresh=false,text="";const nm=shortName(id);
-  if(type==="inf"){K.inf=K.inf||[];if(!K.inf.includes(val)){K.inf.push(val);fresh=true}}
+  if(type==="inf"||type==="bp"){K[type]=K[type]||[];if(!K[type].includes(val)){K[type].push(val);fresh=true}}
   else if(type==="weak"||type==="resist"||type==="drops"){if(!K[type].includes(val)){K[type].push(val);fresh=true}}
   else if(!K[type]){K[type]=true;fresh=true}
   if(!fresh)return false;
@@ -23,12 +23,15 @@ function learn(id,type,val){
   else if(type==="sp2")text=tx("Codex: you learned {nm}'s second-form special, {sp}.",{nm,sp:tx(foeOf(S.battle).sp.name)});
   else if(type==="ph")text=tx("Codex: {nm} changes form below half health.",{nm});
   else if(type==="stats")text=tx("Codex: {nm}'s strength is now recorded.",{nm});
+  else if(type==="bp"){text=tx("Codex: you learned the blueprint for {item} from {nm}. Forge it from a pattern in the Forge.",{item:iname(S.items[val]),nm});rpGain("bp:"+val,RP.bp,tx("a new blueprint"));if(!S.battle||S.battle.id!==id)toast(text)}
   else text=tx("Codex: {nm} can drop {item}.",{nm,item:iname(S.items[val])});
   if(S.battle&&S.battle.id===id)blog(text,"lore");
-  if(!was&&know(id).mastered){setTimeout(()=>toast(tx("{nm} mastered! You deal 15% more damage to it.",{nm})),50);rpGain("mast:"+id,ENEMIES[id]&&ENEMIES[id].gen?1:RP.mast,tx("{nm} mastered",{nm}))} // a wild creature is worth one point, not two (there are many of them)
+  if(!was&&know(id).mastered){setTimeout(()=>toast(tx("{nm} mastered! You deal 15% more damage to it.",{nm})),50);rpGain("mast:"+id,ENEMIES[id]&&ENEMIES[id].gen?1:RP.mast,tx("{nm} mastered",{nm}));bpOf(id).forEach(b=>learn(id,"bp",b))} // a wild creature is worth one point, not two (there are many of them); mastery teaches its blueprints too
   return true;
 }
 function unknownFacts(id){const E=S.battle&&S.battle.id===id?foeOf(S.battle):ENEMIES[id],K=cx(id),out=[];
   E.weak.filter(f=>!K.weak.includes(f)).forEach(f=>out.push(["weak",f]));E.resist.filter(f=>!K.resist.includes(f)).forEach(f=>out.push(["resist",f]));
   const sk=S.battle&&S.battle.id===id?parryKey(S.battle):"sp";
-  if(E.sp&&!K[sk])out.push([sk,1]);if(!K.stats)out.push(["stats",1]);return out}
+  if(E.sp&&!K[sk])out.push([sk,1]);if(!K.stats)out.push(["stats",1]);bpOf(id).filter(b=>!(K.bp||[]).includes(b)).forEach(b=>out.push(["bp",b]));return out}
+// blueprints are Codex facts outside the knowledge total (mastery stays as it was); knownBp lists every one learned
+const knownBp=(s=S)=>Object.values(s.codex||{}).flatMap(k=>k&&Array.isArray(k.bp)?k.bp:[]).filter(id=>BLUEPRINTS[id]),hasBp=id=>knownBp().includes(id);
