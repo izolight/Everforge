@@ -11,7 +11,7 @@ function rewardIds(r){return (r.items||[]).map(x=>{if(!x.startsWith("ess:"))retu
 function rewardText(r){const p=rewardIds(r).map(id=>iname(S.items[id]));if(r.xp)p.push(tx("{n} smith XP",{n:r.xp}));if(r.camp)p.push(tx("a campfire charge"));return p.join(", ")}
 function newBounty(kind,exclude=[]){
   const rew=z=>`ess:${pick(ESS_POOL)}@${rollGrade(z)}`,top=S.unlocked.filter(z=>z!==RIFT_ZONE).at(-1); // reward essences roll a grade for the zone the bounty is in
-  if(kind==="forge"||(!kind&&Math.random()<.3))return{kind:"forge",need:2,base:S.journal.length,reward:{items:[rew(top),rew(top)],xp:20,hint:Math.random()<.3?1:0}};
+  if(kind==="forge"||(!kind&&Math.random()<.3))return{kind:"forge",need:2,base:S.stats.forged||0,reward:{items:[rew(top),rew(top)],xp:20,hint:Math.random()<.3?1:0}}; // it counts forges, not journal rows: a reforge can splice a row
   const pool=Object.entries(ENEMIES).filter(([,e])=>!e.boss&&e.zone!=="any"&&e.zone!==RIFT_ZONE&&S.unlocked.includes(e.zone)&&!exclude.includes(e.name));
   const [id]=pick(pool),need=2+Math.floor(Math.random()*3);
   return{kind:"hunt",enemy:id,need,base:S.kills[id]||0,reward:{items:[rew(ENEMIES[id].zone),rew(ENEMIES[id].zone)],xp:15,camp:Math.random()<.35?1:0,hint:Math.random()<.3?1:0}};
@@ -25,8 +25,8 @@ function goal(){
   const b=S.bounty;
   if(b.kind==="hunt"){const n=Math.min(b.need,(S.kills[b.enemy]||0)-b.base),E=ENEMIES[b.enemy];
     return{step:tx("Bounty"),text:tx("Defeat {n} {name} in {zone}.",{n:b.need,name:tx(b.need>1?E.plural:E.name),zone:zoneName(E.zone)}),tab:"battle",done:n>=b.need,reward:b.reward,prog:`${n}/${b.need}`,zone:E.zone}}
-  const n=Math.min(b.need,S.journal.length-b.base);
-  return{step:tx("Bounty"),text:tx("Forge {n} new recipes.",{n:b.need}),tab:"forge",done:n>=b.need,reward:b.reward,prog:`${n}/${b.need}`};
+  const n=Math.max(0,Math.min(b.need,(S.stats.forged||0)-b.base));
+  return{step:tx("Bounty"),text:tx("Forge {n} items.",{n:b.need}),tab:"forge",done:n>=b.need,reward:b.reward,prog:`${n}/${b.need}`};
 }
 function claimGoal(){
   const g=goal();if(!g.done)return;
@@ -49,12 +49,12 @@ function showBounties(){
   if(S.bountyChoices?.some(b=>b.kind==="hunt"&&!ENEMIES[b.enemy]))S.bountyChoices=[];
   if(!S.bountyChoices?.length){const hunt=newBounty("hunt");S.bountyChoices=[hunt,newBounty("forge"),newBounty("hunt",[ENEMIES[hunt.enemy].name])];save()}
   sheet.mode="bounties";sheet.id=null;
-  $("sheetIn").innerHTML=`<h2>${tx("Choose bounty")}</h2><p>${tx("Progress starts when you accept. Rewards stay the same until you complete a bounty.")}</p><div class="bounty-options">${S.bountyChoices.map((b,i)=>`<section><h3>${b.kind==="forge"?tx("Forge {n} new recipes.",{n:b.need}):tx("Defeat {n} {name} in {zone}.",{n:b.need,name:tx(ENEMIES[b.enemy].plural),zone:zoneName(ENEMIES[b.enemy].zone)})}</h3><p>${tx("Reward: {list}",{list:rewardText(b.reward)})}${b.reward.hint?" · "+tx("a hint scroll"):""}</p><button class="btn" data-act="bounty" data-index="${i}">${tx("Accept bounty")}</button></section>`).join("")}</div><button class="btn" data-act="close">${tx("Close")}</button>`;
+  $("sheetIn").innerHTML=`<h2>${tx("Choose bounty")}</h2><p>${tx("Progress starts when you accept. Rewards stay the same until you complete a bounty.")}</p><div class="bounty-options">${S.bountyChoices.map((b,i)=>`<section><h3>${b.kind==="forge"?tx("Forge {n} items.",{n:b.need}):tx("Defeat {n} {name} in {zone}.",{n:b.need,name:tx(ENEMIES[b.enemy].plural),zone:zoneName(ENEMIES[b.enemy].zone)})}</h3><p>${tx("Reward: {list}",{list:rewardText(b.reward)})}${b.reward.hint?" · "+tx("a hint scroll"):""}</p><button class="btn" data-act="bounty" data-index="${i}">${tx("Accept bounty")}</button></section>`).join("")}</div><button class="btn" data-act="close">${tx("Close")}</button>`;
   showSheet();
 }
 function chooseBounty(i){
   if(S.quest<TUTORIAL.length||S.bounty||!S.bountyChoices?.[i])return;
-  const b=S.bountyChoices[i];S.bounty={...b,base:b.kind==="forge"?S.journal.length:S.kills[b.enemy]||0};
+  const b=S.bountyChoices[i];S.bounty={...b,base:b.kind==="forge"?S.stats.forged||0:S.kills[b.enemy]||0};
   S.bountyChoices=[];closeSheet();save();render();
 }
 function pinGoal(kind,id){

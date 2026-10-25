@@ -36,7 +36,7 @@ DICT.ko=Object.assign(DICT.ko||{},{
 "battle in progress":"전투 진행 중","{n} new items":"새 아이템 {n}개","new introduction":"새 소개",
 "Reward: {list}":"보상: {list}","Reward: {list}.":"보상: {list}.","Claim":"받기","Go to {tab}":"{tab|으로|로} 이동",
 "Step {n} of {t}":"{t}개 중 {n}번째","Next: {step}":"다음: {step}","map depth {a}/{b}":"지도 깊이 {a}/{b}","Bounty":"현상금",
-"Defeat {n} {name} in {zone}.":"{zone}에서 {name} {n}마리를 처치하세요.","Forge {n} new recipes.":"새 레시피 {n}개를 단조하세요.","{n} smith XP":"대장장이 XP {n}","a campfire charge":"모닥불 충전 1회","a hint scroll":"힌트 두루마리",
+"Defeat {n} {name} in {zone}.":"{zone}에서 {name} {n}마리를 처치하세요.","Forge {n} items.":"{n}개의 물건을 단조하세요.","{n} smith XP":"대장장이 XP {n}","a campfire charge":"모닥불 충전 1회","a hint scroll":"힌트 두루마리",
 "A hint scroll: \"{hint}\"":"힌트 두루마리: \"{hint}\"","A hint scroll sharpens a rumor (\"{hint}\"): one ingredient is {item}.":"힌트 두루마리가 소문(\"{hint}\")을 구체화합니다: 재료 중 하나는 {item}입니다.",
 "Unlocked: {name}.":"해금: {name}.","{name} (locked)":"{name} (잠김)","{name}, locked. {txt}":"{name}, 잠김. {txt}","Got it":"알겠어요",
 "You've been collecting embers all along: {n}.":"지금까지 불씨를 모아 왔습니다: {n}.","Your shield gives you {ab}.":"방패가 {ab} 기술을 줍니다.","Your {weapon} gives you {ab}.":"{weapon|이|가} {ab} 기술을 줍니다.",

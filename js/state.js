@@ -48,6 +48,8 @@ function loadSave(s){
   Object.keys(sd).forEach(k=>{const v=st0[k],d=sd[k];const ok=typeof d==="number"?Number.isFinite(v)&&v>=0:typeof d==="string"?typeof v==="string":k==="dBest"?v===null||(isObj(v)&&Number.isFinite(v.rows)&&Number.isFinite(v.turns)):isObj(v);
     st0[k]=had(k)&&ok?v:d});
   ["heatBest","fast"].forEach(k=>Object.keys(st0[k]).forEach(x=>{if(!Number.isFinite(st0[k][x]))delete st0[k][x]}));
+  // A forge bounty counted journal rows, and a reforge can splice a row; it now counts forges (S.stats.forged), so the progress it had is carried over.
+  if(isObj(s.bounty)&&s.bounty.kind==="forge"&&Number.isFinite(s.bounty.base)){const old=Math.max(0,s.journal.length-s.bounty.base);s.bounty.base=Math.max(0,(st0.forged||0)-old)}
   Object.keys(s.heat).forEach(z=>{const h=s.heat[z];if(!ZONES.some(x=>x[0]===z)||!isObj(h))delete s.heat[z];else{h.max=Math.max(0,Math.min(HEAT_MAX,h.max|0));h.sel=Math.max(0,Math.min(h.max,h.sel|0))}});
   const d=s.daily;
   const okMap=m=>{ // dimensions belong to the saved expedition, not today's generator
