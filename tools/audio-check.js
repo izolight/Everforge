@@ -89,10 +89,11 @@ const ok=(v,m)=>{assert.ok(v,m);console.log("ok  "+m)};
     });
     ok(true,"audio synthesis does not use gameplay's Math.random");
     const cues=await page.evaluate(()=>{
-      const original=sfx,seen=[];sfx=n=>seen.push(n);
-      try{fxQ=[];fx("enemyHud","miss","");fx("enemyHud","ward","");flushFx();return seen}finally{sfx=original}
+      const original=sfx,seen=[];sfx=(n,d,o)=>seen.push({n,d,o});
+      try{fxQ=[];fx("enemyHud","-5","",{el:"fire",form:"staff"});fx("enemyHud","miss","");fx("enemyHud","ward","");fx("youHud","","shake",{el:"ice"});flushFx();return seen}finally{sfx=original}
     });
-    ok(cues.join(",")==="dodge,block","misses and wards play their own cues");
+    ok(cues.map(c=>c.n).join(",")==="hit,dodge,block,ouch","strikes, misses, wards and hits on you play their own cues");
+    ok(cues[0].o?.el==="fire"&&cues[0].o?.form==="staff"&&cues[3].o?.el==="ice","strike and hurt cues carry their weapon form and element");
     await page.close();
 
     const unsupported=await browser.newPage();unsupported.on("pageerror",e=>errors.push(e.message));
@@ -114,7 +115,7 @@ const ok=(v,m)=>{assert.ok(v,m);console.log("ok  "+m)};
         for(let ch=0;ch<2;ch++){const d=b.getChannelData(ch);for(let i=0;i<d.length;i++)v.setInt16(44+i*4+ch*2,Math.round(Math.max(-1,Math.min(1,d[i]))*32767),true)}
         let s="";const bytes=new Uint8Array(data);for(let i=0;i<bytes.length;i+=8192)s+=String.fromCharCode(...bytes.subarray(i,i+8192));return btoa(s);
       }
-      async function render(name,scene){
+      async function render(name,scene,opt,label){
         const p=MUSIC_SCENES[name],bar=p?240/p.bpm:0,seconds=scene?bar*8+3:4;
         window.AudioContext=function(){return new OfflineAudioContext(2,Math.ceil(rate*seconds),rate)};
         AC=null;audioVoices.clear();base=.05;actx();const ctx=AC,pauses=[];
@@ -122,14 +123,24 @@ const ok=(v,m)=>{assert.ok(v,m);console.log("ok  "+m)};
           const schedule=b=>{for(let k=0;k<8;k++)musicBeat(.05+b*bar+k*bar/8,p,k,p.chords[b%p.chords.length],b)};
           schedule(0);
           for(let b=1;b<8;b++)pauses.push(ctx.suspend(b*bar-.05).then(()=>{schedule(b);return ctx.resume()}));
-        }else SND[name]();
+        }else SND[name](opt);
         const result=ctx.startRendering();await Promise.all(pauses);const b=await result;
         let peak=0,energy=0,tail=0,finite=true,stereo=0;
         for(let ch=0;ch<2;ch++){const d=b.getChannelData(ch);for(let i=0;i<d.length;i++){finite=finite&&Number.isFinite(d[i]);peak=Math.max(peak,Math.abs(d[i]));energy+=d[i]*d[i];if(i>d.length-rate*.1)tail+=d[i]*d[i]}}
         const left=b.getChannelData(0),right=b.getChannelData(1);for(let i=0;i<b.length;i++)stereo+=Math.abs(left[i]-right[i]);
-        out.push({name:(scene?"music-":"sfx-")+name,peak,rms:Math.sqrt(energy/(b.length*2)),tail:Math.sqrt(tail/(rate*.2)),finite,stereo:stereo/b.length,voices:audioVoices.size,wav:wantWav?wav(b):null});
+        out.push({name:(scene?"music-":"sfx-")+(label||name),peak,rms:Math.sqrt(energy/(b.length*2)),tail:Math.sqrt(tail/(rate*.2)),finite,stereo:stereo/b.length,voices:audioVoices.size,wav:wantWav?wav(b):null});
       }
       for(const name of Object.keys(SND))await render(name,false);
+      for(const form of ["blade","spear","staff","lance","spellblade","warstaff","claws","shield"])await render("ability",false,{form},"ability-"+form);
+      for(const el of ["fire","ice","poison","holy","shadow","arcane"]){
+        await render("hit",false,{el,form:"staff"},"hit-"+el);
+        await render("crit",false,{el,form:"claws"},"crit-"+el);
+        await render("status",false,{el},"status-"+el);
+      }
+      for(const el of ["fire","ice","poison","holy","shadow","arcane","wood","metal","stone","swift"]){
+        await render("ouch",false,{el},"ouch-"+el);
+        await render("tick",false,{el},"tick-"+el);
+      }
       for(const name of Object.keys(MUSIC_SCENES))await render(name,true);
       return out;
     },!!preview);

@@ -52,10 +52,10 @@ function inflict(B,P,sp){ // enemy hit landed: maybe afflict you; your element r
   l.forEach(({s,ch})=>{const T=STATUS[s];if(Math.random()>=Math.min(1,ch*hm*(sp?2:1))*(1-(P.rs[T.el]||0)/100))return;
     if(s==="poison"){const o=Y.poison||{n:0};Y.poison={n:Math.min(POISON_STACK,o.n+1),t:T.t,d:Math.max(1,Math.round(B.atk*.12))}}
     else Y[s]={t:T.t,d:Math.max(1,Math.round(B.atk*.2*(hot&&s==="burn"?1.5:1)))};
-    S.stats.sufd++;sfx("status");blog(tx("{msg} ({detail}).",{msg:tx(INF_MSG[s]),detail:s==="burn"||s==="poison"?tx("{n} damage per turn",{n:s==="poison"?Y.poison.d*Y.poison.n:Y[s].d})+(s==="poison"&&Y.poison.n>1?`, x${Y.poison.n}`:""):STATUS[s].tip}),"foe");if(E.inf&&E.inf.s===s)learn(B.id,"inf",s)})}
+    S.stats.sufd++;sfx("status",0,{el:T.el});blog(tx("{msg} ({detail}).",{msg:tx(INF_MSG[s]),detail:s==="burn"||s==="poison"?tx("{n} damage per turn",{n:s==="poison"?Y.poison.d*Y.poison.n:Y[s].d})+(s==="poison"&&Y.poison.n>1?`, x${Y.poison.n}`:""):STATUS[s].tip}),"foe");if(E.inf&&E.inf.s===s)learn(B.id,"inf",s)})}
 function tickYou(B,P){
   const Y=stOf();
-  ["burn","poison"].forEach(s=>{const x=Y[s];if(!x||S.hp<=0)return;const d=s==="poison"?x.d*x.n:x.d;S.stats.taken+=Math.min(d,S.hp);S.hp-=d;fx("youHud","-"+d,"hurt");
+  ["burn","poison"].forEach(s=>{const x=Y[s];if(!x||S.hp<=0)return;const d=s==="poison"?x.d*x.n:x.d;S.stats.taken+=Math.min(d,S.hp);S.hp-=d;fx("youHud","-"+d,"hurt",{el:STATUS[s].el});
     blog(s==="burn"?tx("Flames lick you for {n}.",{n:d}):tx("Venom burns in your veins for {n}.",{n:d}),"foe")});
   const live=Object.keys(Y);
   if(P.cleanse&&live.length&&S.hp>0&&Math.random()*100<Math.min(CLEANSE_CAP,P.cleanse*CLEANSE_PER)){const s=pick(live);delete Y[s];S.stats.cured++;blog(tx("Your gear helps you shake off the {status}.",{status:lc(STATUS[s].n)}),"good")}
@@ -75,7 +75,7 @@ function strike(W,pow,label,inn,o){
   const base=pow*.5,arm=Math.max(0,B.def-(B.shred||0))*pierce,dmg=Math.max(1,Math.round(base*base/(base+arm)*ef.m*mast*(crit?1.75:1)*vary()*(1+strikeBonus))); // armor takes a share of a blow, never all of it
   const st=S.stats,ab=wardCut(B,dmg),real=dmg-ab; // a Warded foe's shield soaks the blow first
   dealt(B,real);B.hp-=real;if(crit)st.crits++;if(dmg>st.big){st.big=dmg;st.bigW=W?W.id:o.bw||"Fists"}
-  fx("enemyHud",real?"-"+real:"ward",crit?"crit":"");fx("foeArt","","hit");
+  fx("enemyHud",real?"-"+real:"ward",crit?"crit":"",{el:strikeFamily(tr),form:W?W.form:o.bw==="Shield bash"?"shield":""});fx("foeArt","","hit");
   if(real)strikeFx(W,tr);
   const note=ef.k==="weak"?" "+tx("{trait} cuts deep!",{trait:trn(ef.t)}):ef.k==="resist"?" "+tx("It resists the {trait}.",{trait:lc(trn(ef.t))}):"";
   blog((crit?tx("{label} for {dmg}, a critical hit.",{label,dmg}):tx("{label} for {dmg}.",{label,dmg}))+note,crit?"big":"you");noteEff(ef);if(ab)blog(wardMsg(B,ab),"you");
@@ -105,7 +105,7 @@ const ELS={fire:["Fire","Sunfire"],ice:["Ice","Frost"],poison:["Poison","Venomou
 function ability(key){
   const B=S.battle,P=pstats(),A=ABILITIES[key],boss=ENEMIES[B.id].boss,W=P.main,n=P.atk+P.mag*MAG_W,cd=B.cd||(B.cd={});
   if(!A||cd[key]>0||!abKeys(P).includes(key))return;
-  S.stats.abil++;
+  S.stats.abil++;sfx("ability",0,{form:key});
   let bonus=0;
   bracedAttack(B,()=>{
   if(key==="blade"){for(let i=0;i<A.hits&&B.hp>0;i++)strike(W,n*A.x,i?tx("A second cut lands"):tx("Flurry! You cut"),true)}
@@ -142,7 +142,7 @@ function useItem(id){
   if(cu.length){S.stats.cured+=cu.length;cu.forEach(s=>delete Y[s]);blog(tx("{item} clears your {list}.",{item:iname(it),list:cu.map(s=>lc(STATUS[s].n)).join(tx(" and "))}),"good");did=true}
   if(st.heal>0){healYou(medHeal(it),tx("You use {item}",{item:iname(it)}));did=true}
   const d=Math.round((st.atk+st.mag)*.6);
-  if(d>=3){const ef=eff(it.traits,B),dmg=Math.max(1,Math.round(d*ef.m*vary())),st=S.stats,ab=wardCut(B,dmg);dealt(B,dmg-ab);B.hp-=dmg-ab;if(dmg>st.big){st.big=dmg;st.bigW=it.id}fx("enemyHud",dmg-ab?"-"+(dmg-ab):"ward","");fx("foeArt","","hit");
+  if(d>=3){const ef=eff(it.traits,B),dmg=Math.max(1,Math.round(d*ef.m*vary())),st=S.stats,ab=wardCut(B,dmg);dealt(B,dmg-ab);B.hp-=dmg-ab;if(dmg>st.big){st.big=dmg;st.bigW=it.id}fx("enemyHud",dmg-ab?"-"+(dmg-ab):"ward","",{el:strikeFamily(it.traits)});fx("foeArt","","hit");
     blog(tx("{item} bursts against the {name} for {dmg}.",{item:iname(it),name:bname(B),dmg})+(ef.k==="weak"?" "+tx("Super effective!"):""),"you");noteEff(ef);if(ab)blog(wardMsg(B,ab),"you");if(B.hp>0)frenzy(B);did=true}
   if(!did)blog(tx("You use {item}. Nothing happens.",{item:iname(it)}));
   afterPlayer();
@@ -168,8 +168,8 @@ function endTurn(B){B.thT=0;B.guard=false;B.parry=false;B.open=false;if(B.off>0)
 const endShift=B=>{endTurn(B);save();render()};
 function enemyTurn(){
   const B=S.battle,P=pstats(),Y=stOf();
-  if(B.burn){dealt(B,B.burn.d);B.hp-=B.burn.d;fx("enemyHud","-"+B.burn.d,"hurt");blog(tx("Flames lick the {name} for {n}.",{name:bname(B),n:B.burn.d}),"you");if(--B.burn.t<=0)B.burn=null}
-  if(B.poison&&B.hp>0){dealt(B,B.poison);B.hp-=B.poison;fx("enemyHud","-"+B.poison,"hurt");blog(tx("Poison eats at the {name} for {n}.",{name:bname(B),n:B.poison}),"you")}
+  if(B.burn){dealt(B,B.burn.d);B.hp-=B.burn.d;fx("enemyHud","-"+B.burn.d,"hurt",{el:"fire"});blog(tx("Flames lick the {name} for {n}.",{name:bname(B),n:B.burn.d}),"you");if(--B.burn.t<=0)B.burn=null}
+  if(B.poison&&B.hp>0){dealt(B,B.poison);B.hp-=B.poison;fx("enemyHud","-"+B.poison,"hurt",{el:"poison"});blog(tx("Poison eats at the {name} for {n}.",{name:bname(B),n:B.poison}),"you")}
   if(B.bleed&&B.hp>0){const d=B.bleed.d*B.bleed.n;dealt(B,d);B.hp-=d;fx("enemyHud","-"+d,"hurt");blog(tx("The {name} bleeds for {n}.",{name:bname(B),n:d}),"you");if(--B.bleed.t<=0)B.bleed=null}
   if(B.hp<=0)return enemyDown();
   afxTick(B);
@@ -195,7 +195,7 @@ function enemyTurn(){
       let dmg=foeHit(B,P,ml[i],vary());
       if(B.ward==null)B.ward=0; // battles saved before wards have none
       const tot=dmg,ab=Math.min(B.ward,dmg);B.ward-=ab;dmg-=ab;S.stats.taken+=Math.min(dmg,S.hp);S.hp-=dmg;
-      fx("youHud",dmg?"-"+dmg:"","hurt");fx("youHud","","shake");fx("vig","","on");
+      fx("youHud",dmg?"-"+dmg:"","hurt",{el:E.el});fx("youHud","","shake",{el:E.el});fx("vig","","on");
       if(ab)vfx("youHud","guard");
       blog(sp?(B.guard?tx("It hits you for {n} through your guard.",{n:tot}):tx("It hits you for {n}.",{n:tot})):hitMsg(B,E,tot),"foe");
       leech(B,dmg);if(dmg>0&&S.hp>0)inflict(B,P,sp);

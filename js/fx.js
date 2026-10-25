@@ -5,7 +5,7 @@ function vfx(target,kind,color){fx(target,"","visual",{kind,color})}
 function flushFx(){
   const counts={},sk=fxQ.some(f=>f.cls==="shake");let k=0,ky=0;
   fxQ.forEach(f=>{const y=f.target==="youHud",s=f.text==="miss"?"dodge":f.text==="ward"?"block":f.cls==="crit"?"crit":f.cls==="ember"?"ember":f.cls==="shake"?"ouch":f.cls==="heal"?(y?"heal":""):f.cls==="hurt"?(y&&sk?"":"tick"):f.target==="enemyHud"&&f.text?"hit":"";
-    if(s)sfx(s,Math.min(s==="ouch"?ky++:k++,3)*.09)}); // sounds for the floaters; a multi-hit turn is spread out, and sfx() rate-limits each kind
+    if(s)sfx(s,Math.min(s==="ouch"?ky++:k++,3)*.09,f.detail)}); // sounds for the floaters; a multi-hit turn is spread out, and sfx() rate-limits each kind
   const shown=new Set();
   const visual=(target,kind,color)=>{const key=target+kind;if(shown.has(key))return;shown.add(key);combatFx(target,kind,color)};
   fxQ.forEach(f=>{const el=$(f.target);if(!el)return;

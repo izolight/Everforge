@@ -63,23 +63,53 @@ const thud=(at=0,fr=140,g=.3)=>{osc(fr,.19,{at,to:42,g,type:"triangle"});osc(fr*
 function ting(fr,at=0,g=.1){[1,2.76,4.07].forEach((r,i)=>osc(fr*r,.55/(1+i*.65),{at,g:g/[1,3.8,7][i],pan:(i-1)*.18}))}
 function metal(fr,at=0,g=.13){noise(.035,{at,f:"highpass",hz:3600,g:g*.65});[1,1.483,2.137,3.61].forEach((r,i)=>osc(fr*r,.55/(1+i*.35),{at,g:g/(1+i*2.5),pan:i%2?.2:-.2}))}
 function swoosh(at=0,g=.1){noise(.14,{at,f:"bandpass",hz:2900,fto:480,g,a:.025,pan:-.18})}
-function weaponHit(heavy=false){
-  const w=typeof gearOf==="function"?gearOf("main"):null,f=w&&w.form,pitch=.94+audioRand()*.12;
-  if(f==="staff"){osc(420*pitch,.3,{to:145,g:.14,type:"triangle",f:"lowpass",hz:1700,pan:.15});ting(1046*pitch,.035,.06);noise(.12,{f:"bandpass",hz:2000,fto:600,g:.09});return}
+// A short elemental overtone layered over the physical impact, so a burning blade
+// and a frost spear read differently even before their status effects land.
+function elementHit(el,at=0,g=.14){
+  if(el==="fire"){noise(.17,{at,f:"bandpass",hz:2100,fto:560,q:1.1,g:g*.7});osc(210,.19,{at,to:82,g:g*.5,type:"sawtooth",f:"lowpass",hz:1100})}
+  else if(el==="ice"){osc(1760,.22,{at,to:2637,g:g*.34,type:"sine"});noise(.1,{at,f:"highpass",hz:5200,g:g*.4})}
+  else if(el==="poison"){osc(238,.26,{at,to:150,g:g*.5,type:"sine"});noise(.18,{at,f:"bandpass",hz:720,fto:1400,q:2.4,g:g*.45})}
+  else if(el==="holy"){ting(1046,at,g*.6);noise(.18,{at,f:"highpass",hz:3400,g:g*.22,a:.05})}
+  else if(el==="shadow"){osc(73,.34,{at,to:47,g:g*.62,type:"triangle",f:"lowpass",hz:320});noise(.24,{at,f:"lowpass",hz:430,fto:160,g:g*.42})}
+  else if(el==="arcane"){osc(659,.24,{at,to:987,g:g*.32,type:"triangle"});osc(987,.2,{at:at+.015,to:1480,g:g*.2,type:"sine",pan:.15})}
+  else if(el==="wood"){noise(.16,{at,f:"bandpass",hz:1200,fto:420,q:1.6,g:g*.6});osc(120,.16,{at,to:74,g:g*.35,type:"triangle"})}
+  else if(el==="metal"){metal(540,at,g*.55)}
+  else if(el==="stone"){thud(at,110,g*.55);noise(.2,{at,f:"lowpass",hz:420,g:g*.4})}
+  else if(el==="swift"){swoosh(at,g*.7)}
+}
+// Weapon abilities get a short wind-up tell before their strikes land, so a
+// Flurry, a Lunge and a Shield Bash are recognisable with the screen covered.
+function abilitySound(form){
+  const p=.96+audioRand()*.08;
+  if(form==="blade"){swoosh(0,.12);swoosh(.085,.09)}
+  else if(form==="spear"){noise(.16,{f:"bandpass",hz:4200,fto:1500,q:2,a:.012,g:.13});swoosh(.02,.08)}
+  else if(form==="staff"){osc(220*p,.4,{to:920*p,g:.08,type:"sawtooth",f:"lowpass",hz:2400,a:.05});ting(1318*p,.06,.05)}
+  else if(form==="lance"){noise(.3,{f:"bandpass",hz:900,fto:380,g:.12,a:.06});thud(.16,118,.18)}
+  else if(form==="spellblade"){ting(880*p,0,.07);metal(660*p,.03,.09);osc(440*p,.3,{to:1320*p,g:.05,type:"triangle"})}
+  else if(form==="warstaff"){swoosh(0,.18);thud(.035,120,.16);metal(520*p,.045,.08)}
+  else if(form==="claws"){[0,.045,.09].forEach((at,i)=>noise(.07,{at,f:"highpass",hz:3200+i*500,g:.07-i*.012,pan:(i-1)*.25}))}
+  else if(form==="shield"){metal(660*p,0,.12);thud(.01,170,.14)}
+  else swoosh(0,.12);
+}
+function weaponHit(heavy=false,form,el){
+  const w=typeof gearOf==="function"?gearOf("main"):null,f=form??(w&&w.form),pitch=.94+audioRand()*.12;
+  if(f==="staff"){osc(420*pitch,.3,{to:145,g:.14,type:"triangle",f:"lowpass",hz:1700,pan:.15});ting(1046*pitch,.035,.06);noise(.12,{f:"bandpass",hz:2000,fto:600,g:.09});elementHit(el,.02,heavy?.24:.17);return}
   swoosh(0,heavy?.17:.1);thud(.035,(heavy?155:180)*pitch,heavy?.4:.25);
   if(["blade","spear","lance","spellblade","claws","warstaff"].includes(f))metal((heavy?470:650)*pitch,.035,heavy?.15:.08);
   if(f==="spellblade"||f==="warstaff")ting(784*pitch,.045,.055);
+  elementHit(el,.05,heavy?.22:.15);
 }
 const SND={
-  hit:()=>weaponHit(),
-  crit:()=>{weaponHit(true);noise(.15,{f:"highpass",hz:2400,fto:600,g:.12,at:.035});metal(1175,.05,.09)},
-  ouch:()=>{thud(0,95,.36);noise(.16,{hz:650,fto:120,g:.17});osc(88,.24,{to:44,g:.12,type:"sawtooth",f:"lowpass",hz:240})},
-  tick:()=>{noise(.07,{f:"bandpass",hz:1600,g:.065});osc(185,.075,{to:140,g:.035})},
+  hit:o=>weaponHit(false,o&&o.form,o&&o.el),
+  crit:o=>{weaponHit(true,o&&o.form,o&&o.el);noise(.15,{f:"highpass",hz:2400,fto:600,g:.12,at:.035});metal(1175,.05,.09)},
+  ability:o=>abilitySound(o&&o.form),
+  ouch:o=>{thud(0,95,.36);noise(.16,{hz:650,fto:120,g:.17});osc(88,.24,{to:44,g:.12,type:"sawtooth",f:"lowpass",hz:240});elementHit(o&&o.el,.02,.1)},
+  tick:o=>{noise(.07,{f:"bandpass",hz:1600,g:.065});osc(185,.075,{to:140,g:.035});elementHit(o&&o.el,0,.06)},
   block:()=>{thud(0,210,.16);metal(740,0,.105)},
   dodge:()=>swoosh(0,.16),
   parry:()=>{metal(880,0,.16);metal(1320,.065,.09);thud(.025,145,.23)},
   heal:()=>{[523.25,659.25,783.99].forEach((f,i)=>{note(f,i*.1,.6,.08,"sine");ting(f*2,i*.1,.025)});noise(.4,{f:"bandpass",hz:2400,g:.035,a:.12})},
-  status:()=>{osc(310,.38,{to:165,g:.1,type:"sawtooth",f:"lowpass",hz:650});noise(.25,{f:"bandpass",hz:2100,fto:400,g:.085,at:.03})},
+  status:o=>{osc(310,.38,{to:165,g:.1,type:"sawtooth",f:"lowpass",hz:650});noise(.25,{f:"bandpass",hz:2100,fto:400,g:.085,at:.03});elementHit(o&&o.el,.04,.13)},
   warn:()=>{osc(73.42,.8,{g:.16,a:.18,to:65.41});osc(77.78,.7,{g:.06,a:.2,type:"triangle",f:"lowpass",hz:280});thud(.32,85,.12)},
   win:()=>{thud(0,110,.22);[293.66,349.23,440,587.33].forEach((f,i)=>{note(f,.1+i*.12,.75,.085);ting(f*2,.1+i*.12,.03)})},
   lose:()=>{[293.66,261.63,220,146.83].forEach((f,i)=>osc(f,.8,{at:i*.17,to:f*.985,g:.09,type:"triangle",f:"lowpass",hz:650,a:.04}));noise(.7,{hz:250,g:.09,a:.1})},
@@ -96,11 +126,11 @@ const SND={
   tap:()=>{osc(420,.045,{to:320,g:.035});noise(.018,{f:"bandpass",hz:2400,g:.018})},
   step:()=>{const grass=typeof S==="object"&&S.zone==="woods",p=.9+audioRand()*.2;noise(.09,{hz:grass?680:1200,fto:220,g:grass?.095:.08,pan:audioRand()*.3-.15});osc(82*p,.09,{to:55,g:.075});if(!grass)noise(.025,{f:"highpass",hz:2400,g:.045,at:.025})},
 };
-const GAP={research:.5,tech:.6,unlock:.6,tick:.12,tap:.05,step:.1,warn:.5,forge:1.5,legend:1,win:.8,lose:.8};
-function sfx(n,dl){
+const GAP={research:.5,tech:.6,unlock:.6,tick:.12,tap:.05,step:.1,warn:.5,forge:1.5,legend:1,win:.8,lose:.8,ability:.35};
+function sfx(n,dl,opt){
   if(!snd.on||!SND[n]||document.hidden)return;
   try{const a=actx();if(!a)return;if(a.state!=="running")wakeAudio();
-    base=Math.max(0,Number(dl)||0)+.012;const w=a.currentTime+base;if(w<(lastAt[n]??-Infinity)+(GAP[n]||.06))return;lastAt[n]=w;SND[n]();
+    base=Math.max(0,Number(dl)||0)+.012;const w=a.currentTime+base;if(w<(lastAt[n]??-Infinity)+(GAP[n]||.06))return;lastAt[n]=w;SND[n](opt);
     if(["forge","legend","win","lose","warn"].includes(n)&&musicDuck){const g=musicDuck.gain;g.cancelScheduledValues(w);g.setTargetAtTime(.5,w,.025);g.setTargetAtTime(1,w+(n==="forge"?1.8:.8),.25)}
   }catch(e){}
 }
