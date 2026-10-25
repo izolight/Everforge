@@ -406,6 +406,7 @@ function renderCodex(){
 }
 let lastIntro=null;
 function render(fresh){
+  const motion=captureMotion();
   if(checkUnl())save();
   renderHeader();renderNav();renderGoal();renderIntro();
   if(S.view==="battle")renderBattle();
@@ -415,6 +416,6 @@ function render(fresh){
   if(S.view==="recipes")renderRecipes();
   if(S.view==="codex")renderCodex();
   if(sheet.mode==="item"&&sheet.id)openSheet(sheet.id,true,sheet.preview);else if(sheet.mode==="codex")openCodex(sheet.id,true);
-  flushFx();syncMusic();
+  animateRender(motion);flushFx();syncMusic();
   applyNudge();placeIntro();const cur=curIntro(inBattle());if(cur&&cur.id!==lastIntro)nudge(cur.sel);lastIntro=cur?cur.id:null; // a new card pulses what it points at
 }

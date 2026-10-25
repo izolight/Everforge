@@ -143,6 +143,13 @@ button.chip{cursor:pointer}
 .floater.hurt{color:var(--down)}
 @keyframes floatUp{from{transform:translateY(12px) scale(.9);opacity:1}30%{transform:translateY(0) scale(1.1)}to{transform:translateY(-28px);opacity:0}}
 
+/* Combat marks sit over the art and HUD without covering their touch targets. */
+.combat-fx{position:absolute;inset:0;display:grid;place-items:center;pointer-events:none;z-index:6;color:#ffe0a5;filter:drop-shadow(0 0 5px currentColor)}
+.combat-fx>svg{width:100%;height:100%;overflow:visible}
+.combat-fx.fx-guard{color:var(--verd)}.combat-fx.fx-parry{color:var(--accent)}.combat-fx.fx-heal{color:var(--up)}.combat-fx.fx-dodge{color:#c9e3ec}
+.you>.combat-fx,#youHud.hpline>.combat-fx{inset:auto;left:0;top:calc(50% - 36px);width:72px;height:72px}
+#foeArt,#youHud{position:relative}
+
 /* map: a tile grid with fog; each region sets its palette on .z-<zone> */
 .mapwrap{margin:0 -29px;position:relative;border-radius:12px;overflow:hidden;background:#120f0c;border:1px solid var(--line)}
 .map{position:relative;width:100%;max-width:440px;margin:0 auto;--tf:#2a2118;--tl:#3a2e22;--tb:#6b5a46}
@@ -160,7 +167,8 @@ button.chip{cursor:pointer}
 .tl.p-boss,.tl.p-elite{color:#ffb4a2}.tl.p-boss svg{width:80%;height:80%}.tl.p-camp{color:var(--accent)}.tl.p-shrine{color:var(--verd)}.tl.p-peddler{color:#e6c46a}.tl.p-chest{color:#e6c46a}.tl.p-mystery{color:#b9a7e8}.tl.p-fight{color:#d0c4b4}
 .tl.lair{background:color-mix(in srgb,#4a2219 80%,transparent)}
 .tl .hero{position:absolute;inset:0;display:grid;place-items:center;color:var(--verd);filter:drop-shadow(0 0 4px rgb(124 196 166 / .8))}.tl .hero svg{width:70%;height:70%;fill:currentColor;fill-opacity:.35}
-.tl.here{scroll-margin-bottom:110px;box-shadow:inset 0 0 0 2px var(--verd)}
+.tl.here{scroll-margin-bottom:110px;box-shadow:inset 0 0 0 2px var(--verd);overflow:visible;z-index:2}
+.tl .hero{pointer-events:none}
 .tl.adj{cursor:pointer;box-shadow:inset 0 0 0 1.5px var(--accent);animation:glow 1.6s ease-in-out infinite}
 @keyframes glow{0%,100%{box-shadow:inset 0 0 0 1.5px var(--accent),0 0 0 0 rgb(242 165 74 / .5)}50%{box-shadow:inset 0 0 0 1.5px var(--accent),0 0 8px 1px rgb(242 165 74 / .35)}}
 .tl .bdg{position:absolute;top:1px;font:700 .72rem/1 var(--mono);z-index:1;text-shadow:0 0 3px #000}.bang{right:3px;color:#ff7a5c}.zz{left:3px;color:#8fb8e8}
@@ -311,7 +319,7 @@ textarea.code{width:100%;min-height:72px;background:#120f0c;color:var(--fg);bord
 .audio-level i{width:3px;height:2px;background:var(--line2);border-radius:1px}
 .audio-level i:nth-child(2){height:3px}.audio-level i:nth-child(3){height:4px}
 .audio-level i.on{background:currentColor}
-@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.floater{display:none}}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}.floater{display:none}}
 @media (max-width:420px){.rname{font-size:1.5rem}h1{font-size:1.8rem}}
 /* heat + daily */
 .dcard{border:1px solid var(--line);border-radius:12px;background:linear-gradient(180deg,var(--panel-hi),var(--panel));padding:10px 12px;display:grid;gap:8px}

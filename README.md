@@ -24,6 +24,7 @@ js/
   unlocks.js      progressive unlocks: isUnl, unlock, checkUnl, the intro queue, nudge, lockRow (the table is UNLOCKS in data.js)
   player.js       equipment, player stats, infusions
   fx.js           floating-number / hit-flash queue (also maps floaters to sounds)
+  motion.js       combat marks, map steps, HP changes, tab/encounter entries and loot reveals
   audio.js        layered sound effects, shared Web Audio mixer, effects/music volume preferences
   music.js        original generated score, regional instruments and adaptive battle/forge arrangements
   affix.js        rarity tiers and affixes: rolls (rollFoe, rollAfx), names and stats (applyAfx) and the combat hook helpers
@@ -110,6 +111,8 @@ Cinder Hollow's regular enemies cover all three movement types: the wandering Em
 - Lifetime counters live in `S.stats` (`statsDef()` in `state.js`; `migrate()` merges missing fields, deriving what it can). Count in the central places (`strike`, `dealt()` before any `B.hp-=`, enemy hit path, `enemyDown`, `youFall`, `finishDaily`, `gainEmbers`/`spendEmbers`) and show them in `renderStats()` (Codex tab).
 
 ## Testing
+
+`node tools/motion-check.js [--shots /tmp/everforge-motion]` exercises weapon impacts, guarding, parries, healing, health-bar changes, consecutive map steps, tab transitions and victory loot through the real UI. It checks touch targets and overflow at mobile/desktop widths in every language, effect cleanup, live reduced-motion changes, and identical saves and combat random rolls with motion enabled or disabled. Effects never delay actions or consume game randomness; entry and loot animations play when the scene changes, rather than on each render.
 
 `node tools/audio-check.js [--preview /tmp/everforge-audio]` checks real Web Audio playback, independent saved volumes, older muted preferences, gesture gating, scene transitions, tab visibility, unsupported browsers, game-randomness isolation and mobile controls in every language. Chromium also renders every sound effect and a full eight-bar phrase of each music arrangement, checking samples for silence, clipping, invalid values and lingering voices. `--preview` exports those renders as stereo WAV files.
 

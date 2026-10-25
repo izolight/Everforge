@@ -67,13 +67,14 @@ function bracedAttack(B,fn){ // scoped to this action: all its strikes, never th
 function strike(W,pow,label,inn,o){
   o=o||{};
   const B=S.battle,E=foeOf(B),tr=inn?withInnate(W?W.traits:{}):(W?W.traits:{}),v=t=>tr[t]||0,mast=know(B.id).mastered?1.15:1;
-  if(!o.sure&&hasAfx(B,"elusive")&&Math.random()*100<dodgeOf(B,tr)){blog(tx("It slips aside."),"foe");fx("enemyHud","miss","");return{dmg:0,crit:false,miss:true}} // Elusive: a visible dodge chance (a riposte always lands)
+  if(!o.sure&&hasAfx(B,"elusive")&&Math.random()*100<dodgeOf(B,tr)){blog(tx("It slips aside."),"foe");fx("enemyHud","miss","");vfx("foeArt","dodge");return{dmg:0,crit:false,miss:true}} // Elusive: a visible dodge chance (a riposte always lands)
   let ef=eff(tr,B);const arc=ef.k==="resist"&&v("Arcane")&&Math.random()*100<Math.min(ARC_CAP,v("Arcane")*ARC_PER);if(arc){ef={m:1};blog(tx("Arcane power cuts through its resistance."),"you")}
   const crit=Math.random()*100<Math.min(CRIT_CAP,5+v("Sharp")*3),pierce=Math.min(v("Heavy")?.4:1,1-(o.pen||0));
   const base=pow*.5,arm=Math.max(0,B.def-(B.shred||0))*pierce,dmg=Math.max(1,Math.round(base*base/(base+arm)*ef.m*mast*(crit?1.75:1)*vary()*(1+strikeBonus))); // armor takes a share of a blow, never all of it
   const st=S.stats,ab=wardCut(B,dmg),real=dmg-ab; // a Warded foe's shield soaks the blow first
   dealt(B,real);B.hp-=real;if(crit)st.crits++;if(dmg>st.big){st.big=dmg;st.bigW=W?W.id:o.bw||"Fists"}
   fx("enemyHud",real?"-"+real:"ward",crit?"crit":"");fx("foeArt","","hit");
+  if(real)strikeFx(W,tr);
   const note=ef.k==="weak"?" "+tx("{trait} cuts deep!",{trait:trn(ef.t)}):ef.k==="resist"?" "+tx("It resists the {trait}.",{trait:lc(trn(ef.t))}):"";
   blog((crit?tx("{label} for {dmg}, a critical hit.",{label,dmg}):tx("{label} for {dmg}.",{label,dmg}))+note,crit?"big":"you");noteEff(ef);if(ab)blog(wardMsg(B,ab),"you");
   const R={dmg,crit};if(B.hp<=0)return R;
@@ -122,7 +123,7 @@ function ability(key){
   });
   cd[key]=A.cd+1-bonus;afterPlayer();
 }
-function guard(){const B=S.battle;if(B.off>0)blog(tx("You're off balance. Your guard falters."),"foe");else{B.guard=true;B.braced=true;blog(tx("You raise your guard."),"you");blog(tx("You brace yourself. Your next attack deals {p}% more damage.",{p:Math.round(GUARD_T.braced*100)}),"good")}enemyTurn()}
+function guard(){const B=S.battle;if(B.off>0)blog(tx("You're off balance. Your guard falters."),"foe");else{B.guard=true;B.braced=true;vfx("youHud","guard");blog(tx("You raise your guard."),"you");blog(tx("You brace yourself. Your next attack deals {p}% more damage.",{p:Math.round(GUARD_T.braced*100)}),"good")}enemyTurn()}
 function parry(){const B=S.battle;if(B.off>0)blog(tx("You're off balance. Your parry falters."),"foe");else{B.parry=true;blog(tx("You wait for an opening..."),"you")}enemyTurn()}
 function study(){
   const B=S.battle,u=unknownFacts(B.id);S.stats.studied++;
@@ -176,23 +177,24 @@ function enemyTurn(){
   const E=foeOf(B),sp=isSpecial(B)?E.sp:null,pr=B.parry&&sp&&Math.random()<parryChance(B,P); // roll before learning this special, using the chance shown on the button
   if(B.frozen){B.frozen=false;B.stun=0;blog(tx("The {name} is frozen and can't act.",{name:bname(B)}),"good")}
   else if(B.stun){blog(B.stun===2&&sp?tx("{sp} is cancelled. The {name} can't act.",{sp:tx(sp.name),name:bname(B)}):tx("The {name} is stunned and can't act.",{name:bname(B)}),"good");B.stun=0}
-  else if(sp&&sp.kind==="heal"&&pr){blog(tx("You break the {name}'s concentration. {sp} fizzles!",{name:bname(B),sp:tx(sp.name)}),"good");learn(B.id,B.phased?"sp2":"sp",1)}
+  else if(sp&&sp.kind==="heal"&&pr){vfx("youHud","parry");blog(tx("You break the {name}'s concentration. {sp} fizzles!",{name:bname(B),sp:tx(sp.name)}),"good");learn(B.id,B.phased?"sp2":"sp",1)}
   else if(sp&&sp.kind==="heal"){if(B.parry){blog(tx("Your parry is mistimed! The spell goes off."),"foe");B.off=2}const h=Math.min(B.max-B.hp,Math.round(B.max*sp.x));B.hp+=h;if(h)fx("enemyHud","+"+h,"heal");blog(tx("The {name} uses {sp} and recovers {n} HP.",{name:bname(B),sp:tx(sp.name),n:h}),"foe");learn(B.id,B.phased?"sp2":"sp",1)}
   else{
     const hits=sp&&sp.kind==="multi"?sp.n:1,mult=sp?sp.x:1,perfect=pr,dg=Y.chill?Math.round(P.dodge/2):P.dodge,ml=Array(hits).fill(mult);
     if(!sp&&hasAfx(B,"swiftfoot")&&Math.random()<AFX_T.swift.fol)ml.push(AFX_T.swift.fx); // Swift-footed: now and then a quick follow-up
     if(sp){blog(tx("The {name} uses {sp}!",{name:bname(B),sp:tx(sp.name)}),"foe");learn(B.id,B.phased?"sp2":"sp",1)}
-    if(perfect){S.stats.parries++;sfx("parry");blog(tx("Perfect parry! You turn {sp} aside.",{sp:tx(sp.name)}),"big");strike(P.main,(P.atk+P.mag*MAG_W)*PARRY_X,tx("You riposte"),true,{sure:1})}
+    if(perfect){S.stats.parries++;sfx("parry");vfx("youHud","parry");blog(tx("Perfect parry! You turn {sp} aside.",{sp:tx(sp.name)}),"big");strike(P.main,(P.atk+P.mag*MAG_W)*PARRY_X,tx("You riposte"),true,{sure:1})}
     else if(B.parry){blog(tx("Your parry is mistimed! You're left open."),"foe");B.off=2}
     for(let i=0;i<ml.length&&S.hp>0&&!perfect&&B.hp>0;i++){
       if(i>=hits)blog(tx("The {name} follows up swiftly.",{name:bname(B)}),"foe");
       if(P.blind&&Math.random()<Math.min(.4,.08*P.blind)){blog(tx("Steam clouds its eyes. It misses."),"good");sfx("dodge");continue}
-      if(P.shield&&!B.guard&&Math.random()<.15+(P.shield.traits.Heavy||0)*.03){blog(tx("You block with {shield}.",{shield:iname(P.shield)}),"good");sfx("block");continue}
-      if(dg&&Math.random()*100<dg){blog(tx("You dodge aside. It misses."),"good");sfx("dodge");continue}
+      if(P.shield&&!B.guard&&Math.random()<.15+(P.shield.traits.Heavy||0)*.03){blog(tx("You block with {shield}.",{shield:iname(P.shield)}),"good");sfx("block");vfx("youHud","guard");continue}
+      if(dg&&Math.random()*100<dg){blog(tx("You dodge aside. It misses."),"good");sfx("dodge");vfx("youHud","dodge");continue}
       let dmg=foeHit(B,P,ml[i],vary());
       if(B.ward==null)B.ward=0; // battles saved before wards have none
       const tot=dmg,ab=Math.min(B.ward,dmg);B.ward-=ab;dmg-=ab;S.stats.taken+=Math.min(dmg,S.hp);S.hp-=dmg;
       fx("youHud",dmg?"-"+dmg:"","hurt");fx("youHud","","shake");fx("vig","","on");
+      if(ab)vfx("youHud","guard");
       blog(sp?(B.guard?tx("It hits you for {n} through your guard.",{n:tot}):tx("It hits you for {n}.",{n:tot})):hitMsg(B,E,tot),"foe");
       leech(B,dmg);if(dmg>0&&S.hp>0)inflict(B,P,sp);
       if(ab)blog(B.ward?tx("Your rune ward absorbs {n}.",{n:ab}):tx("Your rune ward absorbs {n} and shatters.",{n:ab}),"good");
