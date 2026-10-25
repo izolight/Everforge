@@ -116,6 +116,10 @@ function foesAct(m){
       const from=[p.x,p.y];p.x=to[0];p.y=to[1];p.ms=m.steps;
       if(at(p.x,p.y)){reveal(m);unlock("hunt");mlog(m,tx("The {nm} lunges out of the dark!",{nm}));enter(p,"it",from);return true}}}
   reveal(m);return false}
+// the map node a fight came from: a map enemy by its index, a boss by its tile
+const foeNode=(pi,boss)=>{const m=curMap(),n=pi!=null?m.pois[pi]:null;if(n&&isFoe(n))return n;return boss?m.pois.find(p=>p.t==="boss")||null:null};
+// a foe you fled from keeps its wounds on its tile, so you cannot chip it and meet it at full HP again (the state lives in the saved map)
+function storeFoe(B){const nd=foeNode(B.pi,!!(ENEMIES[B.id]&&ENEMIES[B.id].boss));if(!nd)return;nd.st={hp:Math.max(1,Math.round(B.hp)),ph:B.phased?1:0,sp:B.split?1:0}}
 function slip(B){ // you fled a map enemy: it stays and is dazed; you step back, or stay put if it walked into you
   const m=curMap(),nd=m.pois[B.pi];if(!nd||!isFoe(nd)||!nd.done)return;
   nd.done=false;nd.aw=0;const mv=nd.mv&&nd.mv!=="still";if(mv)nd.dz=ROAM.daze; // it loses your trail too, and must notice you again

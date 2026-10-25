@@ -67,8 +67,8 @@ function blast(B){ // Volatile: it bursts as it dies. Guard cuts the blast, your
   fx("youHud",n?"-"+n:"","hurt");fx("youHud","","shake");fx("vig","","on");
   if(S.hp<=0)blog(tx("The blast tears through you."),"foe");
   return S.hp>0}
-function splitFoe(B,E){ // Splitting: its first death leaves a weaker remnant with no affixes; B.split makes it happen once
+function splitFoe(B,E,quiet){ // Splitting: its first death leaves a weaker remnant with no affixes; B.split makes it happen once
   const T=AFX_T.split,was=bname(B);B.split=1;B.name=`${E.name} remnant`;B.title="";
   B.max=B.hp=Math.max(1,Math.round(B.max*T.hp));B.atk=Math.max(1,Math.round((B.a0||B.atk)*T.atk));B.fz=0;B.def=E.def;B.el=E.el;B.weak=[...E.weak];B.resist=[...E.resist];
   B.burn=null;B.poison=0;B.bleed=null;B.stun=0;B.frozen=false;B.wd=0;B.wm=0;
-  blog(tx("The {was} splits in two! A weaker {name} lunges out of it.",{was,name:tx(E.name)}),"big")}
+  if(!quiet)blog(tx("The {was} splits in two! A weaker {name} lunges out of it.",{was,name:tx(E.name)}),"big")}

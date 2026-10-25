@@ -49,6 +49,23 @@ const ROOT=path.resolve(__dirname,".."),URL="file://"+path.join(ROOT,"index.html
       const m=curMap(),bad=JSON.parse(JSON.stringify(S));bad.maps.woods.pos.x=m.w;const clean=loadSave(bad);
       return !clean.maps.woods&&curMap().w===13;
     });assert(r);console.log("ok new maps persist on reload and out-of-bounds imported maps are rejected");
+    // a foe you fled from keeps its wounds on its tile: you cannot chip it and meet it at full HP again
+    r=await p.evaluate(()=>{
+      S=freshState();S.unl=Object.fromEntries(UNLOCKS.map((u,i)=>[u.id,i+1]));S.zone="woods";S.unlocked=ZONES.map(z=>z[0]);
+      S.maps.woods=genMap({seed:48,zone:"woods",heat:0});const m=curMap(),nd=m.pois.find(q=>q.t==="fight");
+      const near=DIRS.map(([dx,dy])=>[nd.x+dx,nd.y+dy]).find(([x,y])=>walk(m,x,y));m.pos={x:near[0],y:near[1]};S.hp=pstats().maxHp;
+      enter(nd);const B=S.battle;B.hp=Math.round(B.max*.4);
+      const R=Math.random;Math.random=()=>.1;flee();Math.random=R;
+      return{over:B.over,max:B.max,hp:B.hp,st:(m.pois.find(q=>q.st)||{}).st};
+    });
+    assert(r.over==="fled"&&r.st&&r.st.hp===r.hp,`a fled foe keeps the HP it had left (${JSON.stringify(r.st)})`);
+    await p.evaluate(()=>save());await p.reload();
+    r=await p.evaluate(()=>{const nd=curMap().pois.find(q=>q.st);return{st:nd&&nd.st}});
+    assert(r.st&&r.st.hp>0,`the wounds survive a reload (${JSON.stringify(r.st)})`);
+    r=await p.evaluate(()=>{const nd=curMap().pois.find(q=>q.st);enter(nd);return{hp:S.battle.hp,max:S.battle.max}});
+    assert(r.hp>0&&r.hp<r.max,`re-engaging it starts it at the HP it had left (${r.hp}/${r.max})`);
+    console.log("ok a fled foe keeps its wounds on the map, through a reload and into the next fight");
+    await p.evaluate(()=>{S.battle=null;S.event=null;S.view="battle";go("battle");render()}); // back to the map for the layout checks
     for(const width of [320,360,720]){
       await p.setViewportSize({width,height:844});
       r=await p.evaluate(()=>{
