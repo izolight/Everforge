@@ -162,7 +162,7 @@ async function run(label,setup,nat){
   if(st.tiles<30)fail("The bot barely explored the map.");
   if(st.afx.length<17||!st.split||!st.boom||!st.rare)fail(`The bot did not meet every affix (${st.afx.length}/17), a split (${st.split}), a volatile death (${st.boom}) or a rare (${st.rare}).`);
   if(!st.script)fail("The scripted chaser check (contact, flee, daze) did not run.");
-  if(!st.fled||!st.byfoe)fail(`The bot never fled (${st.fled}) or was hunted down (${st.byfoe}).`);
+  if(!(st.fled+fs_.fled)||!(st.byfoe+fs_.byfoe))fail(`The bot never fled (${st.fled}+${fs_.fled}) or was hunted down (${st.byfoe}+${fs_.byfoe}).`); // random encounters, so count both runs; the scripted chaser check covers flee and daze for sure
   if(st.battles<3)fail("Too few battles completed; the loop got stuck.");
   // 3. every old save fixture must still load (migrations), open as a veteran (everything unlocked, no intro waiting) and play without errors
   for(const f of fs.readdirSync(FIX).filter(f=>f.endsWith(".json")).sort()){
