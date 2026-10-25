@@ -506,3 +506,27 @@ Object.assign(DICT.ko, {
   "Try your new weapon. Watch its effects after each strike.": "새 무기를 사용하고 공격 후 효과를 확인하세요.",
   "Step onto an empty tile to try your enchanted weapon.": "빈 칸으로 이동하여 마법 무기를 시험하세요."
 });
+
+Object.assign(DICT.ko, {
+  "Choose a bounty to support your build.": "장비 구성에 맞는 의뢰를 선택하세요.",
+  "Choose bounty": "의뢰 선택",
+  "Progress starts when you accept. Rewards stay the same until you complete a bounty.": "수락한 후부터 진행도가 계산됩니다. 의뢰를 완료할 때까지 보상은 바뀌지 않습니다.",
+  "Accept bounty": "의뢰 수락",
+  "Pin goal": "목표 고정",
+  "Pin rumor: {hint}": "소문 고정: {hint}",
+  "Pinned goal": "고정한 목표",
+  "Unpin goal": "목표 고정 해제",
+  "Track its recipe": "제작법 추적",
+  "Explore {zone}": "{zone} 탐험",
+  "Salvage {items} for {trait} essence; the source item's grade determines the essence grade.": "{items} 분해로 {trait} 정수를 얻으세요. 재료의 등급이 정수의 등급을 결정합니다.",
+  "In your satchel: {items}.": "가방에 있음: {items}.",
+  "Possible drops; loot and grades vary.": "획득 가능한 전리품입니다. 실제 전리품과 등급은 달라집니다.",
+  "Explore further regions or seek essences from chests, shrines and affixed foes.": "다른 지역을 탐험하거나 상자, 성소, 특성이 있는 적에게서 정수를 찾아보세요.",
+  "Legendary discovered!": "전설 아이템 발견!",
+  "{n} ingredients are still unknown. Find hint scrolls in chests, shrines, riddles, boss loot or bounties.": "아직 재료 {n}개를 모릅니다. 상자, 성소, 수수께끼, 우두머리 전리품, 의뢰에서 힌트 두루마리를 찾으세요.",
+  "Equip your fire weapon in Gear to try its effects.": "장비에서 불 속성 무기를 장착해 효과를 확인하세요.",
+  "Guard paid off: your empowered strike dealt +{p}% damage.": "방어 성공! 강화된 공격으로 피해가 {p}% 증가했습니다.",
+  "Your forged Fire is working: {n} extra burn damage this turn.": "제작한 불 속성이 발동했습니다. 이번 턴에 추가 화상 피해 {n}.",
+  "Guard → {action}: +{p}% damage on your next strike.": "방어 → {action}: 다음 공격 피해 +{p}%.",
+  "{trait} → known weakness: +50% strike damage.": "{trait} → 확인된 약점: 공격 피해 +50%."
+});

@@ -61,10 +61,11 @@ function tickYou(B,P){
   if(P.cleanse&&live.length&&S.hp>0&&Math.random()*100<Math.min(CLEANSE_CAP,P.cleanse*CLEANSE_PER)){const s=pick(live);delete Y[s];S.stats.cured++;blog(tx("Your gear helps you shake off the {status}.",{status:lc(STATUS[s].n)}),"good")}
   Object.keys(Y).forEach(s=>{if(--Y[s].t<=0){delete Y[s];blog(tx("The {status} fades.",{status:lc(STATUS[s].n)}),"good")}})}
 function healYou(n,why){const P=pstats(),b=S.hp;if(S.battle&&!S.battle.over&&stOf().curse)n=Math.ceil(n/2);S.hp=Math.min(P.maxHp,S.hp+n);const got=S.hp-b;if(got>0){fx("youHud","+"+got,"heal");if(why&&S.battle&&!S.battle.over)blog(tx("{why} (+{n} HP).",{why,n:got}),"good")}return got}
+function celebrateBuild(text){const B=S.battle;B.buildMoment={text,turn:B.turn};blog(text,"good")}
 let strikeBonus=0;
 function bracedAttack(B,fn){ // scoped to this action: all its strikes, never the enemy's turn or a riposte
-  const prev=strikeBonus;strikeBonus=B.braced?GUARD_T.braced:0;B.braced=false;
-  try{return fn()}finally{strikeBonus=prev}
+  const prev=strikeBonus,before=S.stats.dealt;strikeBonus=B.braced?GUARD_T.braced:0;B.braced=false;
+  try{return fn()}finally{if(strikeBonus&&S.stats.dealt>before)celebrateBuild(tx("Guard paid off: your empowered strike dealt +{p}% damage.",{p:pcn(GUARD_T.braced)}));strikeBonus=prev}
 }
 function strike(W,pow,label,inn,o){
   o=o||{};
@@ -168,7 +169,7 @@ function endTurn(B){B.thT=0;B.guard=false;B.parry=false;B.open=false;if(B.off>0)
 const endShift=B=>{endTurn(B);save();render()};
 function enemyTurn(){
   const B=S.battle,P=pstats(),Y=stOf();
-  if(B.burn){dealt(B,B.burn.d);B.hp-=B.burn.d;fx("enemyHud","-"+B.burn.d,"hurt",{el:"fire"});blog(tx("Flames lick the {name} for {n}.",{name:bname(B),n:B.burn.d}),"you");if(--B.burn.t<=0)B.burn=null}
+  if(B.burn){if(B.opening===2&&!B.fireShown){B.fireShown=true;celebrateBuild(tx("Your forged Fire is working: {n} extra burn damage this turn.",{n:B.burn.d}))}dealt(B,B.burn.d);B.hp-=B.burn.d;fx("enemyHud","-"+B.burn.d,"hurt",{el:"fire"});blog(tx("Flames lick the {name} for {n}.",{name:bname(B),n:B.burn.d}),"you");if(--B.burn.t<=0)B.burn=null}
   if(B.poison&&B.hp>0){dealt(B,B.poison);B.hp-=B.poison;fx("enemyHud","-"+B.poison,"hurt",{el:"poison"});blog(tx("Poison eats at the {name} for {n}.",{name:bname(B),n:B.poison}),"you")}
   if(B.bleed&&B.hp>0){const d=B.bleed.d*B.bleed.n;dealt(B,d);B.hp-=d;fx("enemyHud","-"+d,"hurt");blog(tx("The {name} bleeds for {n}.",{name:bname(B),n:d}),"you");if(--B.bleed.t<=0)B.bleed=null}
   if(B.hp<=0)return enemyDown();

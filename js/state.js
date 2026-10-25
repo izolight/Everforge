@@ -8,7 +8,7 @@ function mkGraded(b,g){ // the item for base id b at grade g (pure: migrate rebu
 const statsDef=()=>({salvaged:0,studied:0,dealt:0,taken:0,big:0,bigW:"",crits:0,parries:0,abil:0,sufd:0,cured:0,elites:0,bosses:0,deaths:0,exped:0,heatBest:{},fast:{},forged:0,legend:0,mishaps:0,fizzles:0,earned:0,spent:0,refined:0,dailies:0,dailyWins:0,dBest:null});
 function freshState(){
   const items={};Object.keys(BASE).forEach(id=>items[id]=baseItem(id));
-  return {v:16,onboarding:0,locked:[],recent:[],inventory:{layout:"grid",filter:"all",sort:"type"},embers:0,afx:{},unl:{},rp:0,techs:{bind:1},rpd:{},rxh:{},infCredit:0,skills:{},maps:{},heat:{},daily:null,run:null,infuse:{},items,inv:{iron_sword:1},eq:{main:"iron_sword",off:null,head:null,body:null,hands:null,feet:null,charm:null},
+  return {v:16,onboarding:0,pinned:null,bountyChoices:[],locked:[],recent:[],inventory:{layout:"grid",filter:"all",sort:"type"},embers:0,afx:{},unl:{},rp:0,techs:{bind:1},rpd:{},rxh:{},infCredit:0,skills:{},maps:{},heat:{},daily:null,run:null,infuse:{},items,inv:{iron_sword:1},eq:{main:"iron_sword",off:null,head:null,body:null,hands:null,feet:null,charm:null},
     hp:999,camp:2,campProg:0,xp:0,journal:[],knownR:[],hints:[0,1,2],bench:[],last:null,tab:"all",rtab:"all",view:"battle",zone:"woods",rift:{depth:1,best:0,seed:0,biome:"",name:"",pal:null,cleared:0},
     wins:0,kills:{},seen:{},codex:{},unlocked:["woods"],zoneKills:{},quest:0,bounty:null,stats:statsDef(),fresh:[],battle:null,event:null};
 }
@@ -166,6 +166,9 @@ function migrate(s){
     if(!s.techs.refine&&s.unl.upgrade){delete s.unl.upgrade;delete s.seen["i:upgrade"];s.seen["m:upg"]=true} // m:upg: the Research card says why
   }
   s.onboarding=Number.isInteger(s.onboarding)&&s.onboarding>=0&&s.onboarding<=5?s.onboarding:null;
+  const pin=s.pinned;
+  s.pinned=isObj(pin)&&((pin.kind==="recipe"&&s.journal.some(j=>j.id===pin.id))||(pin.kind==="rumor"&&Number.isInteger(pin.id)&&SECRETS[pin.id]&&s.hints.includes(pin.id)))?{kind:pin.kind,id:pin.id}:null;
+  s.bountyChoices=Array.isArray(s.bountyChoices)?s.bountyChoices.filter(b=>isObj(b)&&["hunt","forge"].includes(b.kind)&&Number.isInteger(b.need)&&b.need>0&&(b.kind==="forge"||typeof b.enemy==="string")&&isObj(b.reward)&&Array.isArray(b.reward.items)&&b.reward.items.every(id=>typeof id==="string"&&(s.items[id]||(/^ess:[A-Za-z]+(?:@[1-5])?$/.test(id)&&TRAITS[id.slice(4).split("@")[0]])))).slice(0,3):[];
   s.locked=Array.isArray(s.locked)?[...new Set(s.locked.filter(id=>s.items[id]))]:[];
   s.recent=Array.isArray(s.recent)?[...new Set(s.recent.filter(id=>s.items[id]))]:[];
   const ip=isObj(s.inventory)?s.inventory:{};

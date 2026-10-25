@@ -13,7 +13,7 @@ function go(view){
 }
 $("nav").addEventListener("click",e=>{const b=e.target.closest("[data-view]");if(b)go(b.dataset.view)});
 $("goal").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;
-  if(b.id==="claim")claimGoal();else if(b.id==="goGoal"){const g=goal();if(g.zone&&g.zone!==S.zone&&S.run==="daily")return toast(tx("Finish or abandon the daily first."));if(g.zone&&zoneOpen(g.zone)&&!busy()){S.zone=g.zone;if(S.battle?.over)S.battle=null}go(g.tab)}});
+  if(b.id==="chooseBounty")showBounties();else if(b.id==="claim")claimGoal();else if(b.id==="goGoal"){const g=goal();if(g.zone&&g.zone!==S.zone&&S.run==="daily")return toast(tx("Finish or abandon the daily first."));if(g.zone&&zoneOpen(g.zone)&&!busy()){S.zone=g.zone;if(S.battle?.over)S.battle=null}go(g.tab)}});
 $("intro").addEventListener("click",e=>{const b=e.target.closest("[data-intro]");if(b)dismissIntro(b.dataset.intro)});
 $("gdlist").addEventListener("click",e=>{const b=e.target.closest("[data-guide]");if(!b)return;const u=UNL[b.dataset.guide];if(!u.i)return;
   go(u.i.tab||"battle");nudge(u.i.sel)}); // Show me: open the tab and pulse the thing
@@ -57,12 +57,21 @@ $("result").addEventListener("click",e=>{const eq=e.target.closest("[data-result
 $("rtabs").addEventListener("click",e=>{const b=e.target.closest("[data-rtab]");if(!b)return;S.rtab=b.dataset.rtab;save();renderRecipes()});
 $("rlist").addEventListener("click",e=>{const b=e.target.closest("[data-load]");if(!b)return;const it=S.items[b.dataset.load];
   S.bench=[...it.recipeIds];go("forge");toast(tx("Loaded the recipe for {item}.",{item:iname(it)}))});
+$("rlist").addEventListener("click",e=>{const b=e.target.closest("[data-pin-recipe]");if(b)pinGoal("recipe",b.dataset.pinRecipe)});
+$("secrets").addEventListener("click",e=>{const b=e.target.closest("[data-pin-rumor]");if(b)pinGoal("rumor",+b.dataset.pinRumor)});
+$("pinnedGoal").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;
+  if(b.dataset.unpin!=null){S.pinned=null;save();render()}
+  else if(b.dataset.sourceZone){if(busy()||S.run==="daily")return;S.zone=b.dataset.sourceZone;S.battle=null;S.event=null;$("pinnedGoal").open=false;go("battle")}
+  else if(b.dataset.goalRecipe)pinGoal("recipe",b.dataset.goalRecipe);
+  else if(b.dataset.goalTab)go(b.dataset.goalTab);
+});
 $("cxlist").addEventListener("click",e=>{const b=e.target.closest("[data-codex]");if(b&&!b.disabled)openCodex(b.dataset.codex)});
 $("clear").onclick=()=>{S.bench=[];save();render()};
 $("scrim").onclick=closeSheet;
 document.addEventListener("keydown",e=>{if(e.key==="Escape"&&sheet.mode)closeSheet()});
 $("sheet").addEventListener("click",e=>{const b=e.target.closest("[data-act]");if(!b)return;const id=sheet.id,it=S.items[id],a=b.dataset.act;
   if(a==="close")return closeSheet();
+  if(a==="bounty")return chooseBounty(+b.dataset.index);
   if(a==="bulk-confirm")return confirmSalvage();
   if(a==="lock"){S.locked=itemLocked(id)?S.locked.filter(x=>x!==id):[...(S.locked||[]),id];if(itemLocked(id))S.bench=S.bench.filter(x=>x!==id);salvageSelection.delete(id);save();render();return}
   if(itemLocked(id)&&["add","salvage","reforge"].includes(a))return;

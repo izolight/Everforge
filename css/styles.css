@@ -789,3 +789,23 @@ select.lang{width:100%;margin-top:8px;background:#120f0c;color:var(--fg);border:
 #settingsBtn{font-size:.85rem;padding:6px 8px;min-height:36px}
 #v-settings{scroll-margin-top:12px}
 @media(min-width:960px){.tabbar{padding-left:max(10px,calc((100vw - 1100px)/2));padding-right:max(10px,calc((100vw - 1100px)/2))}}
+
+.pinned-goal{border:1px solid var(--line2);border-radius:12px;background:var(--panel);overflow-wrap:anywhere}
+.pinned-goal>summary{padding:12px;cursor:pointer;font-size:.95rem;color:var(--accent)}
+.pinned-goal>summary span{white-space:nowrap;color:var(--fg)}
+.pinned-content{padding:0 12px 12px;display:grid;gap:12px}
+.pinned-content h3,.bounty-options h3{font-size:1rem;margin:0 0 6px}
+.pinned-content p,.bounty-options p{font-size:.95rem;margin:6px 0}
+.source-list{padding-left:18px;margin:6px 0;display:grid;gap:6px}
+.bounty-options{display:grid;gap:14px;margin:16px 0}
+.bounty-options section{border:1px solid var(--line2);padding:12px;border-radius:10px}
+.pin-recipe{white-space:normal;min-height:44px}
+.rumor-pin{position:absolute;top:3px;font-size:.75rem;line-height:1.1}
+.build-moment{padding:10px;border-left:3px solid var(--verd);background:#151c16;color:var(--fg);margin:0;font-size:.95rem}
+.build-opportunity{color:var(--accent)}
+/* Give repeated recipe actions their own row and keep rumor labels tappable. */
+.rr>.rg{grid-column:1;grid-row:1 / span 2}
+.rr>.rm{grid-column:2;grid-row:1}
+.rr>.pin-recipe{grid-column:2;grid-row:2;justify-self:start;max-width:none}
+.rr>.load{grid-column:3;grid-row:1 / span 2}
+.secg{grid-template-columns:repeat(auto-fill,minmax(60px,1fr))}

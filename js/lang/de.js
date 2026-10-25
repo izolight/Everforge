@@ -509,3 +509,27 @@ Object.assign(DICT.de, {
   "Try your new weapon. Watch its effects after each strike.": "Probiere deine neue Waffe aus. Beobachte ihre Effekte nach jedem Schlag.",
   "Step onto an empty tile to try your enchanted weapon.": "Betritt ein leeres Feld, um deine verzauberte Waffe auszuprobieren."
 });
+
+Object.assign(DICT.de, {
+  "Choose a bounty to support your build.": "Wähle einen Auftrag, der zu deiner Ausrüstung passt.",
+  "Choose bounty": "Auftrag wählen",
+  "Progress starts when you accept. Rewards stay the same until you complete a bounty.": "Der Fortschritt zählt ab der Annahme. Die Belohnungen bleiben bis zum Abschluss eines Auftrags gleich.",
+  "Accept bounty": "Auftrag annehmen",
+  "Pin goal": "Ziel merken",
+  "Pin rumor: {hint}": "Gerücht merken: {hint}",
+  "Pinned goal": "Gemerktes Ziel",
+  "Unpin goal": "Ziel lösen",
+  "Track its recipe": "Rezept verfolgen",
+  "Explore {zone}": "{zone} erkunden",
+  "Salvage {items} for {trait} essence; the source item's grade determines the essence grade.": "Zerlege {items} für {trait}-Essenz; der Grad des Gegenstands bestimmt den Grad der Essenz.",
+  "In your satchel: {items}.": "In deinem Beutel: {items}.",
+  "Possible drops; loot and grades vary.": "Mögliche Beute; Gegenstände und Grade variieren.",
+  "Explore further regions or seek essences from chests, shrines and affixed foes.": "Erkunde weitere Regionen oder suche Essenzen in Truhen, an Schreinen und bei Gegnern mit Affixen.",
+  "Legendary discovered!": "Legendären Gegenstand entdeckt!",
+  "{n} ingredients are still unknown. Find hint scrolls in chests, shrines, riddles, boss loot or bounties.": "{n} Zutaten sind noch unbekannt. Finde Hinweisrollen in Truhen, an Schreinen, bei Rätseln, Bossen oder Aufträgen.",
+  "Equip your fire weapon in Gear to try its effects.": "Rüste unter Ausrüstung deine Feuerwaffe aus, um ihre Effekte zu erproben.",
+  "Guard paid off: your empowered strike dealt +{p}% damage.": "Die Deckung hat sich gelohnt: Dein verstärkter Schlag verursachte +{p}% Schaden.",
+  "Your forged Fire is working: {n} extra burn damage this turn.": "Dein geschmiedetes Feuer wirkt: {n} zusätzlicher Brandschaden in diesem Zug.",
+  "Guard → {action}: +{p}% damage on your next strike.": "Deckung → {action}: +{p}% Schaden beim nächsten Schlag.",
+  "{trait} → known weakness: +50% strike damage.": "{trait} → bekannte Schwäche: +50% Schlagschaden."
+});

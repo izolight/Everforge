@@ -16,12 +16,13 @@ async function run(label,setup,nat){
   await page.waitForFunction(()=>typeof S==="object"&&S);
   const stats=await page.evaluate(async ({steps,nat})=>{
     const sleep=ms=>new Promise(r=>setTimeout(r,ms)),out={steps:0,battles:0,won:0,lost:0,forged:0,zones:new Set(),views:0,wields:0,abil:0,tiles:0,outs:0,byfoe:0,fled:0,script:0,intros:0,heat:0,daily:0,aband:0,bought:0,sold:0,upgraded:0,reforged:0,learned:0,studied:0,gated:0,afx:new Set(),split:0,boom:0,rare:0,bad:[]};
-    out.vet0=UNLOCKS.every(u=>S.unl[u.id])&&TECHS.every(t=>S.techs[t.id])&&pendingIntros().length===0?1:`missing ${UNLOCKS.filter(u=>!S.unl[u.id]).map(u=>u.id)} pending ${pendingIntros().map(c=>c.id)}`; // as loaded, before the bot plays
+    const legacy=UNLOCKS.filter(u=>u.id!=="rift"),pending=pendingIntros().filter(c=>c.id!=="rift"); // the Rift is new v16 content, still gated by the Archon
+    out.vet0=legacy.every(u=>S.unl[u.id])&&TECHS.every(t=>S.techs[t.id])&&pending.length===0?1:`missing ${legacy.filter(u=>!S.unl[u.id]).map(u=>u.id)} pending ${pending.map(c=>c.id)}`; // as loaded, before the bot plays
     const click=el=>{el.click();return true};let wantZone=null,doChores=false,wantWield=false,wantHeat=false,wantDaily=false,wantAband=false,wantShop=false;
     const q=s=>document.querySelector(s),qa=s=>[...document.querySelectorAll(s)];
     const fin=B=>{ // a finished fight: a won one drops each affix's essence (a lost one never does); count splits and volatile deaths
       if(B.split)out.split++;if(B.boom)out.boom++;if(B.rar==="rare")out.rare++;
-      if(B.over==="won")B.afx.forEach(a=>{if(!B.loot.some(id=>isEss(id)&&essTrait(id)===AFX[a].tr))out.bad.push(`no ${AFX[a].tr} essence from ${a}`)});
+      if(B.over==="won"&&!B.intr)B.afx.forEach(a=>{if(!B.loot.some(id=>isEss(id)&&essTrait(id)===AFX[a].tr))out.bad.push(`no ${AFX[a].tr} essence from ${a}`)});
       if(B.over==="lost"&&B.loot.length)out.bad.push("a lost fight dropped loot")};
     for(let i=0;i<steps;i++){out.steps++;
       // Every so often, unlock everything and top up HP so later content gets exercised too.

@@ -73,11 +73,12 @@ const torchUp=n=>{const m=curMap(),b=m.torch;m.torch=Math.min(m.tmax,m.torch+n);
 // one tap on a neighbouring tile: the torch burns down, the light moves, whatever stands there is met, and in the dark something may find you
 function step(x,y){
   const m=curMap();if(busy()||m.cleared||Math.abs(x-m.pos.x)+Math.abs(y-m.pos.y)!==1||!walk(m,x,y))return;
+  if(S.onboarding===1)S.onboarding=0;else if(S.onboarding===4)S.onboarding=3;
   sfx("step");m.prev=m.pos;m.pos={x,y};m.steps++;m.dp=Math.max(m.dp,depthOf(m,x,y));S.battle=null;S.event=null;
   const was=m.torch>0;m.torch=Math.max(0,m.torch-drain(m));reveal(m);
   if(was&&m.torch<=0)toast(tx("Your torch gutters out. The dark presses close."));
   const nd=poiAt(m,x,y);
-  if(S.run!=="daily"&&S.zone==="woods"&&(!nd||nd.done)&&(S.onboarding===0||S.onboarding===3)){
+  if(S.run!=="daily"&&S.zone==="woods"&&(!nd||nd.done)&&(S.onboarding===0||(S.onboarding===3&&openingWeaponReady()))){
     const opening=S.onboarding===0?1:2;S.onboarding=opening===1?1:4;
     if(opening===1)S.hp=pstats().maxHp;
     return startBattle(opening===1?"sprite":"boar",{row:0,rar:"normal",afx:[],opening});

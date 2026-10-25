@@ -107,7 +107,7 @@ function dataKeys(G){
       [HEAT,DAILY_TWISTS,ABILITIES,STATUS,SKILLS,RARITIES,NODE_INFO,STAT_NAMES].forEach(o=>(Array.isArray(o)?o:Object.values(o)).forEach(v=>{if(v&&typeof v==="object")Object.keys(v).forEach(k=>v[k])}));
       Object.values(AFX).forEach(a=>a.d());Object.keys(STAT_NAMES).forEach(k=>STAT_NAMES[k]);elTxt("Fire");
     },l);
-    tourKeys[l]=new Set((await page.evaluate(()=>[...window.__miss])).filter(k=>!(typeof PROC!=="undefined"&&PROC.has(k)))); // a procedural creature's own strings stay English
+    tourKeys[l]=new Set((await page.evaluate(()=>[...window.__miss].filter(k=>!(typeof PROC!=="undefined"&&PROC.has(k)))))); // a procedural creature's own strings stay English
   }
   // ---- a scripted tour of every screen
   if(process.argv.includes("--tour")){
@@ -173,7 +173,7 @@ function dataKeys(G){
         const dailyP=dailyPlan(today());tryit(()=>{startDaily&&0;dailyResult({boss:false,rows:3,turns:5});dailyResult({boss:true,rows:6,turns:9})});
         tryit(()=>{S.battle=null;S.event=null;S.run=null;S.daily=null;S.kills.gnarlhorn=1;render()});
       });
-      tourKeys[l]=new Set([...tourKeys[l],...(await page.evaluate(()=>[...window.__miss])).filter(k=>!(typeof PROC!=="undefined"&&PROC.has(k)))]); // a procedural creature's own strings stay English
+      tourKeys[l]=new Set([...tourKeys[l],...(await page.evaluate(()=>[...window.__miss].filter(k=>!(typeof PROC!=="undefined"&&PROC.has(k)))))]); // a procedural creature's own strings stay English
       const txt=await page.evaluate(()=>[...window.__txt]);
       const IGN=new Set(["Everforge","English","Deutsch","Language · Sprache · 언어"]),eng0=l==="ko"?(t=>/[A-Za-z]{4,}/.test(t.replace(/\b(HP|XP|Lv|UTC|ATK|DEF|PWR|NEXT|DEF\/\(DEF\+|x\d|[a-z]\d)\b/g,"").replace(/<[^>]*>/g,""))):(t=>/\b(the|your|you|and|with|for|from|its|this|that|are|will|has|have|not|but|can|each|every)\b/.test(t)),eng=t=>!IGN.has(t)&&eng0(t);
       txt.filter(eng).forEach(t=>bad(`${l}: looks untranslated: ${t.slice(0,140)}`));

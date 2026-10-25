@@ -87,7 +87,7 @@ function renderGoal(){
   el.hidden=inBattle();
   el.className="goal"+(g.done?" done":"");
   el.innerHTML=`<div class="gt" ${tt(g.step+(g.prog?` · ${g.prog}`:""),g.text,g.done?tx("Reward: {list}",{list:rewardText(g.reward)}):"")}><small>${st}</small> ${g.text}${g.prog?` <em>${g.prog}</em>`:""}</div>
-    ${g.done?`<button class="btn primary sm" id="claim">${tx("Claim")}</button>`:S.view!==g.tab?`<button class="btn sm" id="goGoal">${tx("Go to {tab}",{tab:viewName(g.tab)})}</button>`:""}`;
+    ${g.choose?`<button class="btn sm" id="chooseBounty">${tx("Choose bounty")}</button>`:g.done?`<button class="btn primary sm" id="claim">${tx("Claim")}</button>`:S.view!==g.tab?`<button class="btn sm" id="goGoal">${tx("Go to {tab}",{tab:viewName(g.tab)})}</button>`:""}`;
 }
 const itemLines=it=>[iname(it),`${rarity(it)[0]} · ${labelOf(it)}${isGear(it)?` · ${tx("PWR {n}",{n:power(it)})}`:""}`,grp(it)==="consumable"?useHint(it):isGear(it)?statLine(shown(it)):tx("Crafting ingredient"),topTraits(it.traits).slice(0,4).map(([t,v])=>`${trn(t)} ${v}`).join(", ")];
 const itemTip=(it,...x)=>tt(...itemLines(it),...x),itemAria=it=>esc(itemLines(it).slice(1).filter(Boolean).join(". ")); // the tip text also goes in aria-label, for screen readers
@@ -194,7 +194,7 @@ function mapHead(){
     <p class="foot">${hz.sel?tx("Heat {n}, {name}: {desc} In all: {tot}.",{n:hz.sel,name:HEAT[hz.sel-1].name,desc:HEAT[hz.sel-1].desc,tot:heatTot(hz.sel)}):tx("New expeditions: normal difficulty.")}${hz.sel!==h&&!m.cleared?" "+tx("This map is Heat {n}; the choice applies to your next expedition here.",{n:h}):""}</p></div>`:"";
   return `<div class="mhead"><div class="mr"><span class="yg" ${tt(tx("You"),P.main?iname(P.main):tx("Bare fists"))}>${heroMini()}</span><div class="hpline" id="youHud" ${tt(`${tx("HP")} ${S.hp}/${P.maxHp}`)}>${hpBar(S.hp,P.maxHp)}<span class="hpnum">${S.hp}<small>/${P.maxHp}</small></span></div>
     ${ci("var(--fg)",stIc("atk","s"),P.atk,`${STAT_NAMES.atk} ${P.atk}`,tx("Strike power of your main hand."))}${ci("var(--fg)",stIc("def","s"),`${Math.round(P.red*100)}%`,`${STAT_NAMES.def} ${P.def}`,tx("Cuts the damage you take by {p}%.",{p:Math.round(P.red*100)}))}</div>
-    <div class="mr">${torch}${amb}${badges}${campBtn()}${ab}${help}</div>${sel}<p class="mnow${m.ls===m.steps&&m.steps?" mnew":""}">${S.onboarding===3?tx("Step onto an empty tile to try your enchanted weapon."):S.onboarding===2?tx("Salvage the Ember Coal, then bind its Fire essence into your sword."):(m.log||[]).slice(-1)[0]||tx("Tap a glowing tile next to you to set out.")}</p></div>`;
+    <div class="mr">${torch}${amb}${badges}${campBtn()}${ab}${help}</div>${sel}<p class="mnow${m.ls===m.steps&&m.steps?" mnew":""}">${S.onboarding===3?tx(openingWeaponReady()?"Step onto an empty tile to try your enchanted weapon.":"Equip your fire weapon in Gear to try its effects."):S.onboarding===2?tx("Salvage the Ember Coal, then bind its Fire essence into your sword."):(m.log||[]).slice(-1)[0]||tx("Tap a glowing tile next to you to set out.")}</p></div>`;
 }
 function riftCard(){ // the Rift: the region you stand in, its depth and your record
   if(S.zone!==RIFT_ZONE)return "";
@@ -254,8 +254,8 @@ function renderBattle(){
       :sp?`<div class="intent special${sp.kind==="heal"?" healing":""}" ${tt(tx("Next: {name}",{name:known?tx(sp.name):tx("something big")}),tx("It's {tell}.",{tell:tx(sp.tell)}),[dmgTxt,isUnl("parry")?sp.kind==="heal"?tx("Parry ({p}%) to interrupt it.",{p:pc}):tx("Guard, or Parry ({p}%) to turn it back!",{p:pc}):tx("Guard to soften it.")].filter(Boolean).join(" "))}><b>${tx("NEXT")}</b><span class="in">${ic(sp.kind==="heal"?"f_heal":"warn","s")} ${known?tx(sp.name):tx("Something big")}</span>${sp.kind==="heal"?"":dm}${isUnl("parry")?ci("var(--accent)",ic("parry","s"),`${pc}%`,tx("Parry {p}%",{p:pc}),tx("Beat a telegraphed special: negate it and riposte.")):""}${bm}${fzc}</div>`
       :`<div class="intent" ${tt(tx("Next: a normal attack"),dmgTxt,tx("Parrying now would backfire."))}><b>${tx("NEXT")}</b><span class="in">${ic("attack","s")} ${tx("Attack")}</span>${dm}${isUnl("parry")?`<span class="chip no">${ic("parry","s")}<b>${tx("no parry")}</b></span>`:""}${bm}${fzc}</div>`;
     const cons=Object.keys(S.inv).filter(id=>S.inv[id]>0&&grp(S.items[id])==="consumable");
-    const canStudy=unknownFacts(B.id).length>0||canTrainParry(B)||(hasAfx(B,"elusive")&&(B.sty||0)<AFX_T.dodge.studyMax),abs=abKeys(P).filter(abOn),abBtn=k=>{const A=ABILITIES[k],c=(B.cd||{})[k]||0;return `<button class="btn act ab" data-ability="${k}" ${c>0?`aria-disabled="true" data-tap`:""} aria-label="${esc(A.name+(c>0?", "+txn("ready in {n} turn","ready in {n} turns",c):"")+". "+A.desc)}" ${tt(A.name,c>0?txn("Ready in {n} turn.","Ready in {n} turns.",c):tx("Cooldown {n} turns.",{n:A.cd}),A.desc)}>${icon(A.icon)}<span>${A.name}</span>${c>0?`<i class="cdb">${ic("cooldown","s")}${c}</i>`:""}</button>`};
-    body=`${intent}${dmgTxt&&!B.frozen&&sp?.kind!=="heal"?`<p class="combat-advice">${dmgTxt} ${tx("Before Guard; ongoing status damage is separate.")}</p>`:""}${youHud()}${introHtml(curIntro(true))}
+    const canStudy=unknownFacts(B.id).length>0||canTrainParry(B)||(hasAfx(B,"elusive")&&(B.sty||0)<AFX_T.dodge.studyMax),abs=abKeys(P).filter(abOn),abBtn=k=>{const A=ABILITIES[k],c=(B.cd||{})[k]||0;return `<button class="btn act ab" data-ability="${k}" ${c>0?`aria-disabled="true" data-tap`:""} aria-label="${esc(A.name+(c>0?", "+txn("ready in {n} turn","ready in {n} turns",c):"")+". "+A.desc)}" ${tt(A.name,c>0?txn("Ready in {n} turn.","Ready in {n} turns.",c):tx("Cooldown {n} turns.",{n:A.cd}),A.desc)}>${icon(A.icon)}<span>${A.name}</span>${B.braced&&!c?`<small>${tx("Empowered: +{p}% damage",{p:pcn(GUARD_T.braced)})}</small>`:""}${c>0?`<i class="cdb">${ic("cooldown","s")}${c}</i>`:""}</button>`};
+    body=`${intent}${buildGuidance(B,P)}${dmgTxt&&!B.frozen&&sp?.kind!=="heal"?`<p class="combat-advice">${dmgTxt} ${tx("Before Guard; ongoing status damage is separate.")}</p>`:""}${youHud()}${introHtml(curIntro(true))}
       <div class="acts n${abs.length}"><button class="btn primary act" id="atk" ${tt(tx("Attack"),tx("Strike with your main hand."))}>${icon("attack")}<span>${tx("Attack")}</span><small>${B.braced?tx("Empowered: +{p}% damage",{p:pcn(GUARD_T.braced)}):tx("Strike with your weapon")}</small></button>${abs.map(abBtn).join("")}<button class="btn act${B.off>0?" impaired":""}" id="guard" ${tt(tx("Guard"),tx("Cuts every hit in the enemy's action by {p}% and blocks new statuses.",{p:pcn(GUARD_T.cut)}),tx("Gain Braced: your next Attack or ability deals {p}% more damage. Does not stack. Existing statuses still tick.",{p:pcn(GUARD_T.braced)}),B.off>0?tx("A mistimed parry cost you your guard."):"")}>${icon("guard")}<span>${tx("Guard")}</span><small>${B.off>0?tx("Off balance"):tx("−{cut}% hit · +{boost}% next",{cut:pcn(GUARD_T.cut),boost:pcn(GUARD_T.braced)})}</small></button>${isUnl("parry")?`<button class="btn act${sp&&!B.off&&!B.frozen?" opportunity":""}${B.off>0?" impaired":""}" id="parry" ${tt(tx("Parry {p}%",{p:pc}),tx("Beat a telegraphed special: negate it and riposte ({p}% to land). Mistimed: +25% damage and a lost guard.",{p:pc}),parryTip,B.off>0?tx("Off balance: you cannot parry this turn."):!sp?tx("Parrying now would backfire."):"")}>${icon("parry")}<span>${tx("Parry")} ${pc}%</span><small>${B.off>0?tx("Off balance"):!sp||B.frozen?tx("Wrong timing"):tx("Fail: +25% damage")}</small></button>`:lockAct("parry")}
       ${isUnl("study")?`<button class="btn act" id="study" ${canStudy?"":`aria-disabled="true" data-tap`} ${tt(canStudy?tx("Study"):tx("Known"),canStudy?tx("Learn one fact about it, but it costs your turn."):tx("You know everything it can teach."),tx("Parry training {n}/{max}: Study raises your chance against this form's special by {p}% per rank, across battles.",{n:parryLevel(B),max:PARRY_T.levels,p:pcn(PARRY_T.study)}),hasAfx(B,"elusive")?tx("Also lowers the dodge of an Elusive foe by {p}% ({a} of {b} used).",{p:AFX_T.dodge.study,a:B.sty||0,b:AFX_T.dodge.studyMax}):"")}>${icon("study")}<span>${canStudy?tx("Study"):tx("Known")}</span><small>${tx("Learn · uses a turn")}</small></button>`:lockAct("study")}<button class="btn act" id="flee" ${tt(tx("Flee"),tx("Try to get away. A creature from the map stays alive and dazed."))}>${icon("flee")}<span>${tx("Flee")}</span><small>${tx("Escape may fail")}</small></button></div>
       ${cons.length?`<div class="sqg cons">${cons.map(id=>{const it=S.items[id],hint=useHint(it);return `<button class="sq" style="${rcol(it)}" data-use="${id}" aria-label="${esc(tx("Use {item}",{item:iname(it)})+(S.inv[id]>1?", "+tx("{n} held",{n:S.inv[id]}):"")+". "+hint)}" ${tt(iname(it),hint,tx("You hold {n}.",{n:S.inv[id]}))}>${glyph(it)}${S.inv[id]>1?`<span class="sq-n">${S.inv[id]}</span>`:""}<span class="sq-p">${esc(hint.split(" · ")[0])}</span></button>`}).join("")}</div>`:""}
@@ -264,7 +264,7 @@ function renderBattle(){
     const loot=B.over==="won"?`<div class="loot"><span class="label" ${tt(tx("Loot"),tx("Tap an item to inspect it."))}>${ic("bag")}</span>${lootChips(B.loot)}${B.emb&&isUnl("peddler")?`<span class="chip emb">${icon("ember")}+${B.emb}</span>`:""}</div>`:"";
     body=`${loot}${youHud()}<div class="actions"><button class="btn primary grow" id="cont">${tx("Back to the map")}</button>${B.over==="won"?`<button class="btn grow" id="toforge">${tx("Go to the forge")}</button>`:""}</div>${logBlock(B)}`;
   }
-  a.innerHTML=`${B.opening===2&&!B.over?`<p class="combat-advice">${tx("Try your new weapon. Watch its effects after each strike.")}</p>`:""}${foeStage(B)}${body}`;
+  a.innerHTML=`${B.over?buildMomentHtml(B):""}${B.opening===2&&!B.over?`<p class="combat-advice">${tx("Try your new weapon. Watch its effects after each strike.")}</p>`:""}${foeStage(B)}${body}`;
   const bl=$("blog");if(bl)bl.scrollTop=bl.scrollHeight;
 }
 function useHint(it){const st=statsOf(it),p=[];if(st.heal>0)p.push(tx("+{n} HP",{n:medHeal(it)}));const d=Math.round((st.atk+st.mag)*.6);if(d>=3)p.push(tx("{n} dmg",{n:d}));const c=cures(it.traits);if(c.length)p.push(tx("cures {list}",{list:c.map(s=>lc(STATUS[s].n)).join(", ")}));return p.join(" · ")||tx("no effect")}
@@ -381,6 +381,7 @@ function renderRecipes(){
   $("rlist").innerHTML=recs.length?recs.map(it=>{const ids=it.recipeIds||[],have=haveFor(ids),all=have.every(Boolean)&&ids.length<=maxInputs()&&!inBattle(),lv=ids.length>maxInputs();
     const why=all?tx("Load the ingredients into the crucible."):lv?tx("Needs Smith Lv {n} for {k} slots.",{n:INPUT_LV[ids.length-3],k:ids.length}):inBattle()?tx("Finish the fight first."):tx("You are missing ingredients.");
     return `<div class="rr${all?" ok":""}"><span class="rg" style="${rcol(it)}" ${itemTip(it,tx("Recipe"))}>${glyph(it)}</span><div class="rm"><span class="rn">${nameHtml(it)}</span><span class="ris">${ids.map((id,i)=>{const x=S.items[id];return `<span class="ri1 ${have[i]?"have":"miss"}" ${tt(x?iname(x):"?",have[i]?tx("You have it."):tx("You are out of it."))}>${x?glyph(x):ic("mystery")}</span>`}).join('<i>+</i>')}</span></div>
+      <button class="btn sm pin-recipe" data-pin-recipe="${it.id}" aria-pressed="${S.pinned?.kind==="recipe"&&S.pinned.id===it.id}">${tx("Pin goal")}</button>
       ${all?`<button class="ibt load" data-load="${it.id}" aria-label="${esc(tx("Load the recipe for {item}",{item:iname(it)}))}" ${tt(tx("Load"),why)}>${icon("forge")}</button>`
         :`<button class="ibt load off" data-tap aria-label="${esc(tx("Cannot load {item}: {why}",{item:iname(it),why}))}" ${tt(lv?tx("Needs Lv {n}",{n:INPUT_LV[ids.length-3]}):tx("Missing"),why)}>${lv?ic("lock"):ic("bag")}</button>`}</div>`}).join("")
     :`<p class="empty">${S.journal.length?tx("No recipes in this category yet."):tx("Every combination you forge is saved here so you can make it again.")}</p>`;
@@ -401,7 +402,7 @@ function renderRecipes(){
   $("secrets").innerHTML=SECRETS.map((sc,i)=>{const ok=found(sc),lv=hintLv(i),jr=ok&&S.journal.find(j=>S.items[j.id]?.legendary&&S.items[j.id].name===sc.name);
     const ing=sc.ids.map((id,k)=>k<lv-1?idName(id):"?").join(" + ");
     return ok?`<span class="sq sec ok" style="--rc:var(--accent)" ${tt(tx(sc.name),tx("Discovered."),sc.ids.map(idName).join(" + "))}>${jr?glyph(S.items[jr.id]):ic("renown")}</span>`
-      :lv?`<span class="sq sec" ${tt(tx("A rumor"),tx(sc.hint),tx("Ingredients: {list}",{list:ing}))}><b>?</b><span class="sq-p">${Math.max(0,lv-1)}/${sc.ids.length}</span></span>`
+      :lv?`<button class="sq sec" data-pin-rumor="${i}" aria-label="${esc(tx("Pin rumor: {hint}",{hint:tx(sc.hint)}))}" aria-pressed="${S.pinned?.kind==="rumor"&&S.pinned.id===i}" ${tt(tx("A rumor"),tx(sc.hint),tx("Ingredients: {list}",{list:ing}))}><b>?</b><span class="sq-p">${Math.max(0,lv-1)}/${sc.ids.length}</span><span class="rumor-pin">${tx("Pin goal")}</span></button>`
       :`<span class="sq sec lock" ${tt(tx("Undiscovered"),tx("A hint scroll would reveal a rumor."))}>${ic("lock")}</span>`}).join("");
 }
 const sn=n=>n>=1e6?(n/1e6).toFixed(1).replace(/\.0$/,"")+"M":n>=1e4?(n/1e3).toFixed(n>=1e5?0:1).replace(/\.0$/,"")+"k":String(n);
@@ -448,7 +449,7 @@ let lastIntro=null;
 function render(fresh){
   const motion=captureMotion();
   if(checkUnl())save();
-  renderHeader();renderNav();renderGoal();renderIntro();
+  renderHeader();renderNav();renderGoal();renderPinnedGoal();renderIntro();
   if(S.view==="battle")renderBattle();
   if(S.view==="gear")renderGear();
   if(S.view==="forge"){renderBench();renderResearch();renderUpgrade();renderSkills();renderResult(fresh)}
@@ -459,4 +460,14 @@ function render(fresh){
   animateRender(motion);flushFx();syncMusic();
   applyNudge();placeIntro();const cur=curIntro(inBattle());if(cur&&cur.id!==lastIntro)nudge(cur.sel);lastIntro=cur?cur.id:null; // a new card pulses what it points at
   rpFlush();
+}
+
+function buildMomentHtml(B){
+  return B.buildMoment&&B.turn<=B.buildMoment.turn+1?`<p class="build-moment" role="status">${esc(B.buildMoment.text)}</p>`:"";
+}
+function buildGuidance(B,P){
+  const ready=abKeys(P).find(k=>abOn(k)&&!(B.cd||{})[k]);
+  const hint=B.braced?tx("Guard → {action}: +{p}% damage on your next strike.",{action:ready?ABILITIES[ready].name:tx("Attack"),p:pcn(GUARD_T.braced)}):"";
+  const ef=eff(withInnate(P.main?.traits||{}),B),weak=ef.k==="weak"&&cx(B.id).weak.includes(ef.f)?tx("{trait} → known weakness: +50% strike damage.",{trait:trn(ef.t)}):"";
+  return `${buildMomentHtml(B)}${hint||weak?`<p class="combat-advice build-opportunity">${[hint,weak].filter(Boolean).join(" ")}</p>`:""}`;
 }
