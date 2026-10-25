@@ -1,5 +1,8 @@
 // ================= EVENTS =================
-let toastT;function toast(m){const t=$("toast");t.textContent=m;t.classList.add("show");clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove("show"),3000)}
+let toastT,toastQ=[];
+function toast(m,later){ // later: wait behind a toast that is still showing (unlock notices), instead of replacing it
+  const t=$("toast");if(later&&t.classList.contains("show")){toastQ.push(m);return}
+  t.textContent=m;t.classList.add("show");clearTimeout(toastT);toastT=setTimeout(()=>{t.classList.remove("show");if(toastQ.length)setTimeout(()=>toast(toastQ.shift(),1),350)},3000)}
 function go(view){
   if(view==="gear"||view==="forge"){freshShown=new Set([...freshShown,...S.fresh]);S.fresh=[]}else freshShown=new Set();
   S.view=view;save();render();window.scrollTo({top:0});
@@ -7,10 +10,14 @@ function go(view){
 $("nav").addEventListener("click",e=>{const b=e.target.closest("[data-view]");if(b)go(b.dataset.view)});
 $("goal").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;
   if(b.id==="claim")claimGoal();else if(b.id==="goGoal"){const g=goal();if(g.zone&&g.zone!==S.zone&&S.run==="daily")return toast("Finish or abandon the daily first.");if(g.zone&&zoneOpen(g.zone)&&!busy()){S.zone=g.zone;if(S.battle?.over)S.battle=null}go(g.tab)}});
+$("intro").addEventListener("click",e=>{const b=e.target.closest("[data-intro]");if(b)dismissIntro(b.dataset.intro)});
+$("gdlist").addEventListener("click",e=>{const b=e.target.closest("[data-guide]");if(!b)return;const u=UNL[b.dataset.guide];if(!u.i)return;
+  go(u.i.tab||"battle");nudge(u.i.sel)}); // Show me: open the tab and pulse the thing
 $("zones").addEventListener("scroll",zoneFade);
 $("zones").addEventListener("click",e=>{const b=e.target.closest("[data-zone]");if(!b||b.disabled)return;S.zone=b.dataset.zone;S.battle=null;S.event=null;save();render()});
 $("arena").addEventListener("click",e=>{
   const t=e.target.closest("button");if(!t||t.getAttribute("aria-disabled")==="true")return;
+  if(t.dataset.intro)return dismissIntro(t.dataset.intro);
   if(t.dataset.codex)return openCodex(t.dataset.codex);
   if(t.dataset.item)return openSheet(t.dataset.item,false,!S.inv[t.dataset.item]);
   if(t.dataset.choice)return eventChoice(t.dataset.choice);
@@ -54,7 +61,7 @@ $("sheet").addEventListener("click",e=>{const b=e.target.closest("[data-act]");i
   if(a==="salvage"){
     if(!salvageArmed){salvageArmed=true;return openSheet(id,true)}
     const ys=salvageYield(it),sg=salvGrade(it);S.inv[id]--;trimBench();settleGear(null);S.stats.salvaged++;
-    ys.forEach(t=>addItem(essG(t,sg)));const em=gainEmbers(salvageEmbers(it));closeSheet();toast(`Salvaged into ${ys.map(t=>S.items[gradedId("ess_"+t,sg)].name).join(" and ")}${em?` and ${em} embers`:""}.`)}
+    ys.forEach(t=>addItem(essG(t,sg)));const em=gainEmbers(salvageEmbers(it));closeSheet();toast(`Salvaged into ${ys.map(t=>S.items[gradedId("ess_"+t,sg)].name).join(" and ")}${em&&isUnl("peddler")?` and ${em} embers`:""}.`)}
   if(a==="reforge")return reforge(id);
   save();render()});
 $("combine").onclick=()=>{

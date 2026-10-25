@@ -38,11 +38,12 @@ function genMap(o){
   const fe=t=>t==="fight"||t==="elite",far=c=>dist(...c)>3&&Math.max(Math.abs(c[0]-sx),Math.abs(c[1]-(H-1)))>3; // enemies never start within 3 tiles of the start
   const place=(t,minR)=>{const ok=(c,sp)=>depth(...c)>=minR&&(!fe(t)||far(c))&&(!sp||m.pois.every(p=>Math.max(Math.abs(p.x-c[0]),Math.abs(p.y-c[1]))>=2)),i=[cand.findIndex(c=>ok(c,1)),cand.findIndex(c=>ok(c,0)),fe(t)?cand.findIndex(far):0].find(i=>i>=0);
     if(i>=0&&cand.length)add(t,...cand.splice(i,1)[0])};
+  const ok=t=>sd||isUnl(t); // a POI type that is not unlocked yet is not placed (a seeded daily map always has them all); the rolls below are made either way, so the layout of the rest does not shift
   const ne=Math.round((POI_N.elite[0]+Math.floor(R()*POI_N.elite[1]))*(h>=2?HEAT_T.elite:1)),nf=POI_N.fight[0]+Math.floor(R()*POI_N.fight[1]);
-  for(let i=0;i<ne;i++)place("elite",2);
-  place("peddler",1);for(let i=0;i<POI_N.shrine;i++)place("shrine",1);for(let i=0;i<POI_N.chest;i++)place("chest",0);for(let i=0;i<POI_N.mystery;i++)place("mystery",0);for(let i=0;i<nf;i++)place("fight",0);
+  if(ok("elite"))for(let i=0;i<ne;i++)place("elite",2);
+  if(ok("peddler"))place("peddler",1);if(ok("shrine"))for(let i=0;i<POI_N.shrine;i++)place("shrine",1);for(let i=0;i<POI_N.chest;i++)place("chest",0);if(ok("mystery"))for(let i=0;i<POI_N.mystery;i++)place("mystery",0);for(let i=0;i<nf;i++)place("fight",0);
   if(o.twist==="elites")m.pois.forEach(p=>{if(p.t==="fight"&&p.r>0)p.t="elite"});
-  if(h>=2){const c=m.pois.filter(p=>p.t==="fight"&&p.r>=2&&p.r<MAP_ROWS-2);if(c.length)c[Math.floor(R()*c.length)].t="elite"}
+  if(h>=2&&ok("elite")){const c=m.pois.filter(p=>p.t==="fight"&&p.r>=2&&p.r<MAP_ROWS-2);if(c.length)c[Math.floor(R()*c.length)].t="elite"}
   if(sd)m.pois.forEach(nd=>{if(nd.t==="boss")return;const rn=rng(hash(o.seed+":"+nd.x+","+nd.y));nd.e=pickEnemy(o.zone,rn);if(nd.t==="mystery")nd.my=mystery(rn());
     // pre-rolled so the same day plays out alike: rarity and affixes (their own seeded rng per tile), chest (mimic, loot, scroll), pack loot and four rolls (rv) for choice events and six (sh) for the peddler's stock (the one-for-one offer, what you can sell and satchel-based event choices depend on you, so they vary)
     const zp=zonePool(o.zone),pk=a=>a[Math.floor(rn()*a.length)];
@@ -54,7 +55,7 @@ function genMap(o){
   m.torch=m.tmax;m.mem[key(sx,0)]="boss";m.sn[sx]=1;reveal(m);
   return m;
 }
-const heatOf=z=>S.heat[z]||{max:0,sel:0},newMap=z=>genMap({heat:heatOf(z).sel,zone:z});
+const heatOf=z=>S.heat[z]||{max:0,sel:0},newMap=z=>(checkUnl(),genMap({heat:heatOf(z).sel,zone:z})); // unlocks are checked first, so a defeat or a boss kill opens its POIs on the very next map
 const curMap=()=>S.run==="daily"&&S.daily?S.daily.map:S.maps[S.zone]||(S.maps[S.zone]=newMap(S.zone));
 const heatNow=()=>curMap().heat||0,twistNow=()=>S.run==="daily"&&S.daily?S.daily.twist:null,campFrac=()=>heatNow()>=5?HEAT_T.rest:.4;
 function setHeat(n){ // pick the heat for new expeditions here; an untouched map is rerolled at once
@@ -85,14 +86,14 @@ const fixed=(m,x,y)=>[m.start,m.gate,m.lair].some(q=>q.x===x&&q.y===y);
 const hard=(m,x,y)=>!walk(m,x,y)||fixed(m,x,y)||m.pois.some(p=>p.x===x&&p.y===y&&!(isFoe(p)&&(p.done||roamer(p))));
 const vacant=(m,x,y,me)=>!hard(m,x,y)&&!m.pois.some(p=>p!==me&&p.x===x&&p.y===y&&!p.done); // ... and one nobody stands on
 function foesAct(m){
-  if(m.steps<2)return false; // the first step of an expedition is safe
+  if(m.steps<2||!isUnl("roam"))return false; // the first step of an expedition is safe; before your first win nothing moves
   const rs=m.pois.filter(roamer);if(!rs.length)return false;
   const R=m.sd?rng(hash(m.seed+":e:"+m.steps)):Math.random,dp=bfs(m,m.pos.x,m.pos.y),dm=bfs(m,m.pos.x,m.pos.y,(m,x,y)=>!hard(m,x,y)),W=m.w,dark=m.torch<=0;
   for(const p of rs){
     if(p.dz>0){p.dz--;continue}
     const el=p.t==="elite",d=dp[p.y*W+p.x]<0?99:dp[p.y*W+p.x],nm=ENEMIES[p.e]?ENEMIES[p.e].name:"The hunter";
     if(p.mv==="chase"){const rg=el?ROAM.elite:ROAM.aw+(dark?ROAM.dark-ROAM.aw:0)+(m.heat>=3?ROAM.heat:0);
-      if(!p.aw&&d<=rg){p.aw=1;mlog(m,`The ${nm} catches your scent.`)}else if(p.aw&&d>ROAM.lose){p.aw=0;mlog(m,`The ${nm} loses you.`)}}
+      if(!p.aw&&d<=rg){p.aw=1;unlock("hunt");mlog(m,`The ${nm} catches your scent.`)}else if(p.aw&&d>ROAM.lose){p.aw=0;mlog(m,`The ${nm} loses you.`)}}
     if(el){p.pa=p.pa?0:1;if(p.pa)continue} // elites move on every other step
     const at=(x,y)=>x===m.pos.x&&y===m.pos.y;
     for(let k=0,n=(p.afx||[]).includes("swiftfoot")?AFX_T.swift.moves:1;k<n;k++){ // a Swift-footed enemy takes several tiles per turn, each by the same rules
@@ -102,7 +103,7 @@ function foesAct(m){
       else if(nb.length&&R()>=ROAM.stay)to=nb[Math.floor(R()*nb.length)];
       if(!to)break;
       const from=[p.x,p.y];p.x=to[0];p.y=to[1];p.ms=m.steps;
-      if(at(p.x,p.y)){reveal(m);mlog(m,`The ${nm} lunges out of the dark!`);enter(p,"it",from);return true}}}
+      if(at(p.x,p.y)){reveal(m);unlock("hunt");mlog(m,`The ${nm} lunges out of the dark!`);enter(p,"it",from);return true}}}
   reveal(m);return false}
 function slip(B){ // you fled a map enemy: it stays and is dazed; you step back, or stay put if it walked into you
   const m=curMap(),nd=m.pois[B.pi];if(!nd||!isFoe(nd)||!nd.done)return;
