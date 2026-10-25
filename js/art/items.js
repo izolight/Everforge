@@ -27,16 +27,26 @@ const G={
   shard:'<path d="M9 2 L17 6 L19 15 L12 22 L5 16 L6 7 Z"/><path d="M12 7 V16 M9 11 H15" fill="none"/>',
   crystal:'<path d="M12 1 L18 8 L15 22 H9 L6 8 Z"/><path d="M6 8 H18 M12 1 V22" fill="none"/>',
   starheart:'<path d="M12 2 L14 9 L21 12 L14 15 L12 22 L10 15 L3 12 L10 9 Z"/><circle cx="12" cy="12" r="2.2"/>',
+  ingot:'<path d="M5 9 H19 L22 18 H2 Z"/><path d="M5 9 L7 13 H17 L19 9" fill="none"/>',
+  timber:'<path d="M3 8 H17 A4 5 0 0 1 17 18 H3 A4 5 0 0 1 3 8 Z"/><ellipse cx="17" cy="13" rx="2.6" ry="3.4" fill="none"/>',
+  bough:'<path d="M5 21 L16 4 L18 5 L8 22 Z"/><path d="M12 11 Q17 10 20 12 Q16 14 12 12 Z M9 15 Q4 13 3 9 Q8 10 10 13 Z"/>',
+  cloth:'<path d="M4 6 Q4 3 7 3 H17 V18 H7 Q4 18 4 21 Z"/><path d="M4 6 V21 M17 18 Q20 18 20 15 V6 Q20 3 17 3" fill="none"/>',
+  block:'<path d="M3 8 L12 4 L21 8 V17 L12 21 L3 17 Z"/><path d="M3 8 L12 12 L21 8 M12 12 V21" fill="none"/>',
+  leather:'<path d="M4 6 Q12 3 20 6 V18 Q12 21 4 18 Z"/><path d="M7 9 Q12 8 17 9 M7 15 Q12 16 17 15" fill="none"/>',
+  dust:'<path d="M8 8 H16 L18 19 Q12 22 6 19 Z"/><path d="M8 8 Q12 5 16 8 M10 4 L11 6 M14 3 L13.5 5.5" fill="none"/>',
   fists:'<path d="M6 10 V6 Q6 4 8 4 Q10 4 10 6 V9 M10 8 V5 Q10 3 12 3 Q14 3 14 5 V9 M14 8 V6 Q14 4 16 4 Q18 4 18 6 V14 Q18 21 12 21 Q6 21 6 14 Z"/>'
 };
-const ART_ID={storm_feather:"feather",rune_shard:"shard",void_crystal:"crystal",star_heart:"starheart"};
+const ART_ID={storm_feather:"feather",rune_shard:"shard",void_crystal:"crystal",star_heart:"starheart",scrap_iron:"ore",slag_iron:"ore",sentinel_plate:"shard",sprite_dust:"dust",oak_bough:"bough",witchwood:"bough",
+  boar_leather:"leather",frost_leather:"leather",shroudcloth:"cloth",stormsilk:"cloth",iron_ingot:"ingot",slagsteel:"ingot",runesteel:"ingot",oak_timber:"timber",hexwood:"timber",golem_stone:"block",cinderstone:"block",glowglass:"crystal",rune_crystal:"crystal",void_shard:"shard"};
+const artKey=it=>ART_ID[plainId(it.id)]||(grp(it)==="material"?kindOf(it):it.form);
 const SLOT_GLYPH={main:"fists",off:"shield",head:"helm",body:"chest",hands:"gloves",feet:"boots",charm:"charm"};
 const MAT={metal:["#f1f4f5","#9aa6ab","#4a5458"],wood:["#e0b07a","#93653a","#4a2f18"],stone:["#d4cec1","#857f72","#454139"],hide:["#e2b88b","#9c6e43","#55391f"],
   glass:["#e8f8fb","#8fc6d4","#336170"],food:["#f8d28c","#cc8a44","#6a3f1c"],herbal:["#bde4a2","#62a24d","#2a5124"]};
 let gid=0;
 function matOf(it){
-  const k=ART_ID[baseIdOf(it.id)]||(grp(it)==="material"?kindOf(it):it.form),tr=topTraits(it.traits).map(x=>x[0]);
-  if(k==="essence"||k==="relic"||k==="starheart"||k==="crystal"||k==="shard"||k==="feather")return null;
+  const k=artKey(it),tr=topTraits(it.traits).map(x=>x[0]);
+  if(k==="essence"||k==="relic"||k==="starheart"||k==="crystal"||k==="shard"||k==="feather"||k==="cloth"||k==="dust")return null;
+  if(k==="ingot")return"metal";if(k==="timber"||k==="bough")return"wood";if(k==="block")return"stone";if(k==="leather")return"hide";
   if(k==="potion"||k==="elixir")return"glass";
   if(k==="food")return"food";if(k==="herb")return"herbal";if(k==="hide")return"hide";if(k==="ore")return tr.some(t=>TRAITS[t].f==="metal")?"metal":"stone";
   for(const t of tr){const f=TRAITS[t].f;if(f==="metal")return"metal";if(f==="wood")return t==="Fur"||t==="Insulated"?"hide":"wood";if(f==="stone")return"stone"}
@@ -44,7 +54,7 @@ function matOf(it){
 }
 // layered item art: base form + material gradient, then trait overlays (glow, frost, embers, drips, runes...)
 function art(it){
-  const id="a"+(gid++),tr=topTraits(it.traits),k=ART_ID[baseIdOf(it.id)]||(grp(it)==="material"?kindOf(it):it.form),top=tr[0]?tr[0][0]:null;
+  const id="a"+(gid++),tr=topTraits(it.traits),k=artKey(it),top=tr[0]?tr[0][0]:null;
   const m=matOf(it);let pal=m?MAT[m]:null;
   if(!pal){const c=top?tColor(top):"#9c998c";pal=[shade(c,.6),c,shade(c,-.55)]}
   const has=f=>tr.filter(([t,v])=>TRAITS[t].f===f&&v>=1.5).length>0;

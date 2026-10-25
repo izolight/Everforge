@@ -41,8 +41,8 @@ const FORMS={
   claws:{p:6,g:"weapon",slots:WS,label:"Claws",m:{atk:1.3,def:.5,mag:.5,heal:.3,spd:1.3},noun:"Claws"}
 };
 const FUSIONS=[["spear","shield","lance"],["blade","staff","spellblade"],["spear","staff","warstaff"],["blade","gloves","claws"],["chest","shield","bulwark"],["food","potion","elixir"]];
-const ACCEPTS={weapon:["ore","herb","potion","essence","relic"],armor:["hide","ore","essence","relic"],charm:["ore","essence","relic"],food:["food","herb","essence"],potion:["potion","herb","essence"]};
-const KIND_LABEL={weapon:"weapons",armor:"armor",charm:"trinkets",food:"food",potion:"potions",hide:"hides",ore:"ores",herb:"herbs",essence:"essences",relic:"relics"};
+const ACCEPTS={weapon:["ore","timber","herb","potion","essence","relic"],armor:["hide","ore","timber","essence","relic"],charm:["ore","essence","relic"],food:["food","herb","essence"],potion:["potion","herb","essence"]};
+const KIND_LABEL={weapon:"weapons",armor:"armor",charm:"trinkets",food:"food",potion:"potions",hide:"hides",ore:"ores",timber:"timber",herb:"herbs",essence:"essences",relic:"relics"};
 const REACTIONS=[
   ["Fire","Ice","Steam",["Fire","Ice"]],["Fire","Water","Steam",["Fire","Water"]],["Ice","Water","Frost",["Ice","Water"]],
   ["Poison","Nourishing","Medicine",["Poison","Nourishing"]],["Sweet","Light","Lure",["Sweet"]],
@@ -90,59 +90,118 @@ const BASE={
   gale_boots:["Galewing Boots","boots",{Swift:3,Arcane:1}],
   sentinel_aegis:["Sentinel's Aegis","shield",{Runic:3,Iron:1}],
   void_robe:["Voidweave Robe","chest",{Shadow:2,Arcane:2,Swift:1}],
-  storm_draught:["Stormdraught","potion",{Swift:2,Water:2,Arcane:1}]
+  storm_draught:["Stormdraught","potion",{Swift:2,Water:2,Arcane:1}],
+  glass_pendant:["Glass Pendant","charm",{Arcane:2,Light:1,Iron:1}],
+  // raw finds that only exist to be deconstructed (DECON)
+  scrap_iron:["Scrap Iron","material",{Iron:3,Sharp:1},"ore"],
+  oak_bough:["Oak Bough","material",{Wood:3,Arcane:1},"timber"],
+  sprite_dust:["Sprite Dust","material",{Light:2,Arcane:2},"ore"],
+  slag_iron:["Slag Iron","material",{Iron:3,Fire:2},"ore"],
+  witchwood:["Witchwood Twig","material",{Wood:2,Poison:2,Shadow:1},"timber"],
+  sentinel_plate:["Sentinel Plate","material",{Iron:3,Runic:2},"ore"],
+  // base materials (MATS): what patterns are forged from. Each type's base trait at 3 (Cloth 2) plus a zone trait at 1
+  boar_leather:["Boar Leather","material",{Fur:3,Heavy:1},"hide"],
+  frost_leather:["Frost Leather","material",{Fur:3,Ice:1},"hide"],
+  shroudcloth:["Shroudcloth","material",{Swift:2,Shadow:1},"hide"],
+  stormsilk:["Stormsilk","material",{Swift:2,Arcane:1},"hide"],
+  iron_ingot:["Iron Ingot","material",{Iron:3,Sharp:1},"ore"],
+  slagsteel:["Slagsteel Ingot","material",{Iron:3,Fire:1},"ore"],
+  runesteel:["Runesteel Ingot","material",{Iron:3,Runic:1},"ore"],
+  oak_timber:["Oak Timber","material",{Wood:3,Arcane:1},"timber"],
+  hexwood:["Hexwood Timber","material",{Wood:3,Poison:1},"timber"],
+  golem_stone:["Golem Stone","material",{Stone:3,Heavy:1},"ore"],
+  cinderstone:["Cinderstone","material",{Stone:3,Fire:1},"ore"],
+  glowglass:["Glowglass","material",{Arcane:3,Light:1},"ore"],
+  rune_crystal:["Rune Crystal","material",{Arcane:3,Stone:1},"ore"],
+  void_shard:["Void Shard","material",{Arcane:3,Shadow:1},"ore"]
 };
+// ---- Materials, deconstructing and patterns (crafting.js: deconYield, shape; economy.js: deconstruct)
+// Base material types: tr = the base trait every material of the type carries (deconstructing never returns it as fragments), label = the shown name. MATS: base material id -> type.
+const MAT_T={leather:{tr:"Fur",label:"Leather"},cloth:{tr:"Swift",label:"Cloth"},ingot:{tr:"Iron",label:"Ingot"},timber:{tr:"Wood",label:"Timber"},stone:{tr:"Stone",label:"Stone"},crystal:{tr:"Arcane",label:"Crystal"}};
+const MATS={boar_leather:"leather",frost_leather:"leather",shroudcloth:"cloth",stormsilk:"cloth",iron_ingot:"ingot",slagsteel:"ingot",runesteel:"ingot",oak_timber:"timber",hexwood:"timber",golem_stone:"stone",cinderstone:"stone",glowglass:"crystal",rune_crystal:"crystal",void_shard:"crystal"};
+// DECON: raw id -> [base material, how many]. Anything else that is not gear, an essence or a base material (food, potions, herbs, relics) deconstructs into essence fragments only.
+const DECON={boar_hide:["boar_leather",2],pelt:["frost_leather",2],shroud:["shroudcloth",2],storm_feather:["stormsilk",2],scrap_iron:["iron_ingot",2],slag_iron:["slagsteel",2],sentinel_plate:["runesteel",2],
+  oak_bough:["oak_timber",2],witchwood:["hexwood",2],golem_core:["golem_stone",2],coal:["cinderstone",1],sprite_dust:["glowglass",1],rune_shard:["rune_crystal",2],void_crystal:["void_shard",2]};
+// Fragments: every trait a deconstructed item carries (except its material's base trait) gives that many Faint essences per point at Plain (FRAG grade steps below the item's grade, never under Faint), plus a ch-per-point chance (capped) of one essence at the item's own grade. An affixed raw always gives afx fragments of its affix's essence and an afxCh chance of a full one; its material keeps the affix trait at AFX_RAW.
+const FRAG={step:2,ch:.2,cap:.75,afx:3,afxCh:.3},AFX_RAW=1;
+// Patterns (known from the start) shape base materials into plain gear. slots = [allowed material types, weight]: the result's traits are the materials' traits x their slot weight, plus the pattern's tr; traits under FRAG_MIN are dropped. std = standard recipes: those exact (Plain) materials make that BASE item instead, so secrets and old saves keep their ids; graded materials make it at the lowest grade among them (iron_sword@4), an affixed one adds its affix (iron_sword~vamp). noun = the noun of any other result, by the first slot's material type.
+const PAT_MIN=.5,SHAPE={xp:4,sk:4}; // SHAPE: smith XP and skill XP for one pattern forge
+const PATTERNS={
+  blade:{form:"blade",slots:[[["ingot"],.5],[["ingot"],.5],[["leather","cloth"],.25]],tr:{Sharp:3},std:[[["iron_ingot","iron_ingot","boar_leather"],"iron_sword"]],noun:"Sword"},
+  spear:{form:"spear",slots:[[["timber"],.5],[["timber"],.5],[["ingot"],.5]],tr:{Sharp:2,Swift:1},std:[[["oak_timber","oak_timber","iron_ingot"],"hunter_spear"]],noun:"Spear"},
+  staff:{form:"staff",slots:[[["timber"],.5],[["timber"],.5],[["crystal"],.5]],tr:{Arcane:1},std:[[["oak_timber","oak_timber","glowglass"],"oak_staff"]],noun:"Staff"},
+  shield:{form:"shield",slots:[[["timber","ingot","stone"],.5],[["timber","ingot","stone"],.5],[["leather"],.25]],tr:{Heavy:1},std:[[["oak_timber","oak_timber","boar_leather"],"wood_shield"]],noun:"Shield"},
+  helm:{form:"helm",slots:[[["leather","ingot","stone"],.5],[["leather","ingot","stone"],.5]],tr:{},std:[[["boar_leather","boar_leather"],"leather_cap"],[["iron_ingot","iron_ingot"],"iron_helmet"]],noun:{leather:"Cap",_:"Helmet"}},
+  chest:{form:"chest",slots:[[["leather","cloth","ingot","stone"],.4],[["leather","cloth","ingot","stone"],.4],[["leather","cloth","ingot","stone"],.4]],tr:{},std:[[["golem_stone","golem_stone","golem_stone"],"stone_plate"]],noun:{leather:"Jerkin",cloth:"Jerkin",_:"Plate"}},
+  gloves:{form:"gloves",slots:[[["leather","cloth"],.5],[["leather","cloth"],.5]],tr:{},std:[[["boar_leather","boar_leather"],"hide_gloves"]],noun:"Gloves"},
+  boots:{form:"boots",slots:[[["leather","cloth"],.5],[["leather","cloth"],.5]],tr:{Swift:1},std:[[["boar_leather","boar_leather"],"trail_boots"]],noun:"Boots"},
+  charm:{form:"charm",slots:[[["crystal"],.75],[["ingot"],.75]],tr:{},std:[[["glowglass","iron_ingot"],"glass_pendant"]],noun:"Charm"}
+};
+// Blueprints: named gear, learned by studying the creature in `e` (a Codex fact, see codex.js; mastering it teaches them too). slots = the material type each slot takes, m = the materials it is usually made from (salvage gives half of them back). A blueprint always makes its item (at the lowest grade among the materials, with the first affixed material's affix).
+const BLUEPRINTS={
+  dagger:{e:"bandit",slots:[["ingot"],["leather"]],m:["iron_ingot","boar_leather"]},
+  jerkin:{e:"bandit",slots:[["leather"],["leather"],["leather"]],m:["boar_leather","boar_leather","boar_leather"]},
+  sprite_lantern:{e:"sprite",slots:[["crystal"],["crystal"],["ingot"]],m:["glowglass","glowglass","iron_ingot"]},
+  fang_charm:{e:"wolf",slots:[["leather"],["ingot"]],m:["frost_leather","iron_ingot"]},
+  wraith_wraps:{e:"wraith",slots:[["cloth"],["cloth"]],m:["shroudcloth","shroudcloth"]},
+  ember_treads:{e:"imp",slots:[["stone"],["leather"]],m:["cinderstone","boar_leather"]},
+  witch_eye:{e:"witch",slots:[["timber"],["crystal"]],m:["hexwood","glowglass"]},
+  gale_boots:{e:"harpy",slots:[["cloth"],["cloth"],["leather"]],m:["stormsilk","stormsilk","frost_leather"]},
+  sentinel_aegis:{e:"sentinel",slots:[["ingot"],["ingot"],["crystal"]],m:["runesteel","runesteel","rune_crystal"]},
+  void_robe:{e:"acolyte",slots:[["cloth"],["cloth"],["crystal"]],m:["stormsilk","stormsilk","void_shard"]}
+};
+const bpOf=e=>Object.keys(BLUEPRINTS).filter(id=>BLUEPRINTS[id].e===e);
 const ZONES=[["woods","Whispering Woods","gnarlhorn"],["pass","Frostfang Pass","rimeclaw"],["hollow","Cinder Hollow","phoenix"],["spire","Starfall Spire","archon"],["rift","The Wanderer's Rift","rift_boss"]];
 const ENEMIES={
   boar:{name:"Thornback Boar",plural:"Thornback Boars",zone:"woods",mv:"chase",el:"wood",hp:30,atk:6,def:2,weak:["fire"],resist:[],w:3,verb:"gores you",intro:"A Thornback Boar bursts out of the brush.",
     lore:"Bristled forest boars that sharpen their tusks on oak bark. They charge when cornered, and often when not.",
-    sp:{every:3,name:"Tusk Charge",kind:"heavy",x:2,tell:"lowering its tusks"},drops:[["boar_hide",.6],["chili",.4],["hide_gloves",.15]]},
+    sp:{every:3,name:"Tusk Charge",kind:"heavy",x:2,tell:"lowering its tusks"},drops:[["boar_hide",.6],["chili",.4],["oak_bough",.2]]},
   sprite:{name:"Glowcap Sprite",plural:"Glowcap Sprites",zone:"woods",mv:"wander",el:"holy",hp:26,atk:5,def:0,weak:["fire","shadow"],resist:["holy"],w:3,verb:"flings spores at you",intro:"A Glowcap Sprite drifts out from between the roots.",
     lore:"Mushroom spirits that glow brighter when frightened. They knit their caps back together with spores.",
-    sp:{every:3,name:"Mend",kind:"heal",x:.3,tell:"gathering glowing spores around itself"},drops:[["mushroom",.75],["honey",.45],["sprite_lantern",.12]]},
+    sp:{every:3,name:"Mend",kind:"heal",x:.3,tell:"gathering glowing spores around itself"},drops:[["mushroom",.75],["honey",.45],["sprite_dust",.45]]},
   bandit:{name:"Woods Bandit",plural:"Woods Bandits",zone:"woods",mv:"still",el:"metal",hp:34,atk:7,def:3,weak:["arcane"],resist:[],w:2,verb:"slashes at you",intro:"A Woods Bandit steps onto the path, blade drawn.",
     lore:"Deserters and debtors who work the woods road. They carry whatever they last stole.",
-    sp:{every:3,name:"Flurry",kind:"multi",n:3,x:.6,tell:"shifting into a low, quick stance"},drops:[["bread",.55],["dagger",.25],["wood_shield",.2],["leather_cap",.2],["jerkin",.18],["trail_boots",.18],["hunter_spear",.1],["oak_staff",.1],["iron_sword",.07]]},
+    sp:{every:3,name:"Flurry",kind:"multi",n:3,x:.6,tell:"shifting into a low, quick stance"},drops:[["bread",.55],["scrap_iron",.45],["oak_bough",.3]]},
   stag:{name:"Mossback Stag",plural:"Mossback Stags",zone:"woods",mv:"wander",el:"swift",hp:34,atk:6,def:2,weak:["stone","fire"],resist:["swift"],w:2,verb:"rakes you",intro:"A Mossback Stag lowers its antlers between the birches.",
     lore:"Old stags grow moss on their backs and lose their fear with it. A fleet stag outruns anything in the brush, but its antlers strip bark like a drawknife.",art:{b:"beast",p:["antlers","tail"],c:"#8f9f5c",a:"#f0dfae",pat:"spots",po:.7},
-    sp:{every:3,name:"Antler Sweep",kind:"multi",n:2,x:.9,tell:"swinging its antlers low"},drops:[["boar_hide",.45],["honey",.4],["hunter_spear",.1]]},
+    sp:{every:3,name:"Antler Sweep",kind:"multi",n:2,x:.9,tell:"swinging its antlers low"},drops:[["boar_hide",.45],["honey",.4],["oak_bough",.2]]},
   briar:{name:"Briarling",plural:"Briarlings",zone:"woods",mv:"still",el:"poison",hp:34,atk:5,def:3,weak:["fire"],resist:["wood","poison"],w:2,verb:"lashes you",intro:"The brambles knot themselves into a Briarling and stand up.",
     lore:"Thickets that learned to walk, then forgot why. Their thorns carry a stinging sap that closes the wound it opens.",art:{b:"elemental",p:["mane","vines"],c:"#5f8a3a",a:"#93c252",pat:"spots",po:.9},
-    sp:{every:3,name:"Take Root",kind:"heal",x:.25,tell:"sinking its roots into the soil"},drops:[["mushroom",.5],["honey",.35],["wood_shield",.2]]},
+    sp:{every:3,name:"Take Root",kind:"heal",x:.25,tell:"sinking its roots into the soil"},drops:[["mushroom",.5],["honey",.35],["oak_bough",.35]]},
   ghoul:{name:"Barrow Ghoul",plural:"Barrow Ghouls",zone:"woods",mv:"chase",el:"shadow",hp:28,atk:7,def:1,weak:["holy","fire"],resist:["shadow"],w:2,verb:"claws you",intro:"A Barrow Ghoul crawls out from under a mossy cairn.",
     lore:"Old barrows dot the woods, and not all of their sleepers stayed asleep. Slow to die and quick to eat.",art:{b:"undead",p:["mane"],c:"#6f8c7c",a:"#c6e07a",pc:"#3b4a2a",pat:"rot",po:.55},
-    sp:{every:3,name:"Grave Hunger",kind:"drain",x:1.1,tell:"baring its yellow teeth"},drops:[["bread",.4],["jerkin",.18],["leather_cap",.15]]},
+    sp:{every:3,name:"Grave Hunger",kind:"drain",x:1.1,tell:"baring its yellow teeth"},drops:[["bread",.4],["scrap_iron",.3]]},
   kindlefox:{name:"Kindle Fox",plural:"Kindle Foxes",zone:"woods",mv:"chase",el:"fire",hp:30,atk:6,def:1,weak:["ice"],resist:["fire"],w:2,verb:"rakes you",intro:"A Kindle Fox slips out of the brush, its tail trailing smoke.",
     lore:"A fox whose tail smoulders like a torch. It runs ahead of you and lights the dry grass behind it.",art:{b:"beast",p:["tail","flames"],c:"#c8642e",a:"#ffd27a",pat:"stripes",po:.6},
-    sp:{every:3,name:"Tail Flare",kind:"heavy",x:1.8,tell:"curling its tail overhead"},drops:[["chili",.5],["boar_hide",.35],["trail_boots",.12]]},
+    sp:{every:3,name:"Tail Flare",kind:"heavy",x:1.8,tell:"curling its tail overhead"},drops:[["chili",.5],["boar_hide",.35],["oak_bough",.2]]},
   gnarlhorn:{name:"Gnarlhorn, the Boar King",short:"Gnarlhorn",zone:"woods",el:"wood",boss:true,hp:66,atk:8,def:4,weak:["fire"],resist:["wood"],verb:"tramples you",intro:"The ground shakes. Gnarlhorn, the Boar King, crashes through the trees.",
     lore:"The old king of the boar herds, his hide grown thick as bark. The woods go quiet when he walks.",
-    sp:{every:3,name:"Stampede",kind:"heavy",x:2.2,tell:"pawing the ground"},drops:[["gnarl_tusk",1],["boar_hide",.8]]},
+    sp:{every:3,name:"Stampede",kind:"heavy",x:2.2,tell:"pawing the ground"},drops:[["gnarl_tusk",1],["boar_hide",.8],["oak_bough",.5]]},
   wolf:{name:"Frost Wolf",plural:"Frost Wolves",zone:"pass",mv:"chase",el:"ice",hp:60,atk:11,def:3,weak:["fire"],resist:["ice"],w:3,verb:"bites",intro:"A Frost Wolf circles you through the snow.",
     lore:"Pack hunters with frost in their fur. They test you from the sides before they commit.",
     inf:{s:"chill",ch:0.3},
-    sp:{every:3,name:"Pounce",kind:"heavy",x:1.8,tell:"crouching low"},drops:[["pelt",.75],["spring_water",.35],["fang_charm",.18]]},
+    sp:{every:3,name:"Pounce",kind:"heavy",x:1.8,tell:"crouching low"},drops:[["pelt",.75],["spring_water",.35]]},
   wraith:{name:"Ice Wraith",plural:"Ice Wraiths",zone:"pass",mv:"wander",el:"shadow",hp:50,atk:11,def:1,weak:["holy","fire"],resist:["ice","metal"],w:2,verb:"chills you",intro:"The air freezes as an Ice Wraith takes shape.",
     lore:"Travellers who froze on the pass and never stopped walking. They feed on warmth.",
     inf:{s:"curse",ch:0.35},
-    sp:{every:3,name:"Soul Siphon",kind:"drain",x:1.2,tell:"reaching toward your chest"},drops:[["shroud",.55],["spring_water",.4],["holy_water",.25],["wraith_wraps",.18]]},
+    sp:{every:3,name:"Soul Siphon",kind:"drain",x:1.2,tell:"reaching toward your chest"},drops:[["shroud",.55],["spring_water",.4],["holy_water",.25]]},
   golem:{name:"Stone Golem",plural:"Stone Golems",zone:"pass",mv:"still",el:"stone",hp:76,atk:10,def:7,weak:["arcane","ice"],resist:["metal","poison"],w:2,verb:"slams you",intro:"A boulder unfolds into a Stone Golem.",
     lore:"Boulders woken by old runes. Slow to anger and slower to stop.",
-    sp:{every:4,name:"Earthquake",kind:"heavy",x:2.5,tell:"raising both fists overhead"},drops:[["golem_core",.7],["iron_helmet",.3],["stone_plate",.2]]},
+    sp:{every:4,name:"Earthquake",kind:"heavy",x:2.5,tell:"raising both fists overhead"},drops:[["golem_core",.85],["scrap_iron",.25]]},
   bear:{name:"Rimehide Bear",plural:"Rimehide Bears",zone:"pass",mv:"wander",el:"ice",hp:72,atk:10,def:4,weak:["fire"],resist:["ice"],w:2,verb:"mauls you",intro:"A Rimehide Bear shoulders out of a snowdrift.",
     lore:"Their fur freezes into plates over the winter. They do not hibernate on the pass; they patrol it.",art:{b:"beast",p:["mane","frost"],c:"#b9d6e2",a:"#ffffff",pat:"facets",po:.8},
     inf:{s:"chill",ch:0.25},
-    sp:{every:3,name:"Crushing Swipe",kind:"heavy",x:2,tell:"rearing up on its hind legs"},drops:[["pelt",.6],["honey",.3],["fang_charm",.15]]},
+    sp:{every:3,name:"Crushing Swipe",kind:"heavy",x:2,tell:"rearing up on its hind legs"},drops:[["pelt",.6],["honey",.3]]},
   raider:{name:"Pass Raider",plural:"Pass Raiders",zone:"pass",mv:"chase",el:"metal",hp:58,atk:11,def:4,weak:["arcane","fire"],resist:["ice"],w:2,verb:"hacks at you",intro:"A Pass Raider drops from a ledge, axe already swinging.",
     lore:"Mountain clans who tax the pass with axes. They wear horned helms so the snow-blind can still tell who robbed them.",art:{b:"humanoid",p:["horns","armor","axe"],skin:"#c99b78",c:"#b0503a",a:"#f0c05a",pc:"#2a3f6a",pat:"stripes",po:.55},
-    sp:{every:3,name:"Axe Flurry",kind:"multi",n:2,x:.9,tell:"hefting its axe in both hands"},drops:[["bread",.5],["iron_helmet",.3],["stone_plate",.15]]},
+    sp:{every:3,name:"Axe Flurry",kind:"multi",n:2,x:.9,tell:"hefting its axe in both hands"},drops:[["bread",.5],["scrap_iron",.4],["oak_bough",.25]]},
   squall:{name:"Squall Spirit",plural:"Squall Spirits",zone:"pass",mv:"still",el:"swift",hp:62,atk:11,def:3,weak:["stone"],resist:["swift"],w:2,verb:"buffets you",intro:"The wind stops moving and starts watching. A Squall Spirit hangs in the gap.",
     lore:"Gusts that circled the same crag for so long they grew a face. They hate anything that walks through them.",art:{b:"elemental",p:["orbit"],c:"#5fd6c2",a:"#f4fbff",pat:"swirl",po:.7},
     inf:{s:"chill",ch:0.3},
-    sp:{every:3,name:"Hailstorm",kind:"multi",n:3,x:.6,tell:"spinning faster and faster"},drops:[["spring_water",.6],["holy_water",.25],["fang_charm",.12]]},
+    sp:{every:3,name:"Hailstorm",kind:"multi",n:3,x:.6,tell:"spinning faster and faster"},drops:[["spring_water",.6],["holy_water",.25],["storm_feather",.15]]},
   seer:{name:"Cairn Seer",plural:"Cairn Seers",zone:"pass",mv:"still",el:"arcane",hp:60,atk:10,def:4,weak:["holy"],resist:["arcane","ice"],w:2,verb:"chills you",intro:"A hooded figure sits among the cairns, tracing runes in the frost.",
     lore:"A hermit who reads the frost-runes the pass cuts into its cairns. He mends what the cold breaks, for a price.",art:{b:"humanoid",p:["hood","staff","runes"],skin:"#c99b78",c:"#5a6fa8",a:"#a9f0ff",pat:"bands",po:.5},
-    sp:{every:3,name:"Glyph Mend",kind:"heal",x:.15,tell:"tracing a glyph in the frost"},drops:[["spring_water",.5],["rune_shard",.2],["fang_charm",.12]]},
+    sp:{every:3,name:"Glyph Mend",kind:"heal",x:.15,tell:"tracing a glyph in the frost"},drops:[["spring_water",.5],["rune_shard",.3],["holy_water",.2]]},
   rimeclaw:{name:"Rimeclaw, the Pack Mother",short:"Rimeclaw",zone:"pass",el:"ice",boss:true,hp:140,atk:14,def:5,weak:["fire"],resist:["ice","shadow"],verb:"mauls you",intro:"A howl splits the air. Rimeclaw, the Pack Mother, blocks the pass.",
     lore:"Mother of every pack on the pass. Her howl turns the air to needles.",
     inf:{s:"chill",ch:0.35},
@@ -150,29 +209,29 @@ const ENEMIES={
   imp:{name:"Ember Imp",plural:"Ember Imps",zone:"hollow",mv:"wander",el:"fire",hp:88,atk:14,def:4,weak:["ice"],resist:["fire"],w:3,verb:"scorches you",intro:"An Ember Imp cackles from a vent of smoke.",
     lore:"Small, spiteful fire spirits that nest in the vents of the Hollow.",
     inf:{s:"burn",ch:0.3},
-    sp:{every:3,name:"Fireball",kind:"heavy",x:2,tell:"cupping a glow between its hands"},drops:[["coal",.75],["chili",.4],["ember_treads",.18]]},
+    sp:{every:3,name:"Fireball",kind:"heavy",x:2,tell:"cupping a glow between its hands"},drops:[["coal",.75],["chili",.4]]},
   witch:{name:"Nightshade Witch",plural:"Nightshade Witches",zone:"hollow",mv:"chase",el:"poison",hp:95,atk:15,def:5,weak:["holy","metal"],resist:["shadow","poison"],w:2,verb:"hexes you",intro:"A Nightshade Witch rises from her bubbling cauldron.",
     lore:"Herbalists who stayed too long among the nightshade. Their brews heal them and only them.",
     inf:{s:"poison",ch:0.35},
-    sp:{every:3,name:"Hex Brew",kind:"heal",x:.25,tell:"stirring her cauldron"},drops:[["nightshade",.7],["oak_staff",.25],["holy_water",.3],["witch_eye",.18]]},
+    sp:{every:3,name:"Hex Brew",kind:"heal",x:.25,tell:"stirring her cauldron"},drops:[["nightshade",.7],["witchwood",.35],["holy_water",.3]]},
   slag:{name:"Slag Sentry",plural:"Slag Sentries",zone:"hollow",mv:"still",el:"stone",hp:104,atk:14,def:6,weak:["ice","arcane"],resist:["fire"],w:2,verb:"hammers you",intro:"A furnace eye opens in a mound of slag. Its iron arms rise.",
     lore:"Abandoned forge guardians fused to the Hollow's floor. A coal still burns behind each iron rib; cold and magic fracture their shells.",
-    sp:{every:4,name:"Crucible Hammer",kind:"heavy",x:2.2,tell:"locking its iron arms together overhead"},drops:[["coal",.55],["golem_core",.45],["stone_plate",.18]]},
+    sp:{every:4,name:"Crucible Hammer",kind:"heavy",x:2.2,tell:"locking its iron arms together overhead"},drops:[["coal",.55],["golem_core",.45],["slag_iron",.4]]},
   salamander:{name:"Magma Salamander",plural:"Magma Salamanders",zone:"hollow",mv:"chase",el:"fire",hp:92,atk:14,def:5,weak:["ice"],resist:["fire"],w:2,verb:"bites",intro:"A Magma Salamander slides out of a lava seam.",
     lore:"They swim in molten rock and come out only to hunt. Their skin cools to a crust that cracks when they run.",art:{b:"beast",p:["spikes","tail"],c:"#b8402a",a:"#ffd04a",pat:"cracks",po:1},
     inf:{s:"burn",ch:0.3},
-    sp:{every:3,name:"Lava Spit",kind:"heavy",x:2,tell:"its throat glowing white-hot"},drops:[["coal",.6],["chili",.4],["ember_treads",.15]]},
+    sp:{every:3,name:"Lava Spit",kind:"heavy",x:2,tell:"its throat glowing white-hot"},drops:[["coal",.6],["chili",.4],["slag_iron",.2]]},
   revenant:{name:"Ash Revenant",plural:"Ash Revenants",zone:"hollow",mv:"wander",el:"shadow",hp:90,atk:15,def:4,weak:["holy","ice"],resist:["shadow","fire"],w:2,verb:"claws you",intro:"Ash gathers into a shape and walks toward you. An Ash Revenant.",
     lore:"Smiths who died at the Hollow's forges, still bound to the work. The chains were theirs; they forget why.",art:{b:"undead",p:["chains","flames"],c:"#5d5866",a:"#ff8a3d",pat:"cracks",po:.9},
     inf:{s:"curse",ch:0.3},
-    sp:{every:3,name:"Ashen Grasp",kind:"drain",x:1.3,tell:"reaching out with smouldering fingers"},drops:[["coal",.45],["holy_water",.3],["witch_eye",.12]]},
+    sp:{every:3,name:"Ashen Grasp",kind:"drain",x:1.3,tell:"reaching out with smouldering fingers"},drops:[["coal",.45],["holy_water",.3],["slag_iron",.25]]},
   brimstone:{name:"Brimstone Elemental",plural:"Brimstone Elementals",zone:"hollow",mv:"still",el:"poison",hp:100,atk:13,def:6,weak:["ice","holy"],resist:["poison","fire"],w:2,verb:"scalds you",intro:"A vent coughs, and the cloud does not drift away. A Brimstone Elemental.",
     lore:"Sulphur fumes that pooled in a hollow and woke. Crystals grow on them like frost on a window.",art:{b:"elemental",p:["crystals"],c:"#d6c83a",a:"#9bff6a",pc:"#fff6a0",pat:"spots",po:.6},
     inf:{s:"poison",ch:0.35},
-    sp:{every:3,name:"Sulphur Burst",kind:"multi",n:3,x:.65,tell:"swelling with yellow fumes"},drops:[["nightshade",.5],["coal",.45],["stone_plate",.15]]},
+    sp:{every:3,name:"Sulphur Burst",kind:"multi",n:3,x:.65,tell:"swelling with yellow fumes"},drops:[["nightshade",.5],["coal",.55]]},
   anvil:{name:"Anvil Crawler",plural:"Anvil Crawlers",zone:"hollow",mv:"wander",el:"metal",hp:100,atk:14,def:6,weak:["arcane","ice"],resist:["fire"],w:2,verb:"strikes you",intro:"A forge construct scuttles between the cold anvils.",
     lore:"A construct built to haul anvils between forges. Left to crawl the Hollow's floor, it still hammers, and it still keeps count.",art:{b:"construct",p:["shell","spikes","armor"],c:"#7a7f86",a:"#ff8a3d",pat:"bands",po:.55},
-    sp:{every:3,name:"Pincer Clamp",kind:"multi",n:2,x:.9,tell:"snapping its pincers shut"},drops:[["golem_core",.5],["coal",.4],["ember_treads",.12]]},
+    sp:{every:3,name:"Pincer Clamp",kind:"multi",n:2,x:.9,tell:"snapping its pincers shut"},drops:[["golem_core",.5],["coal",.4],["slag_iron",.3]]},
   phoenix:{name:"Cinder Phoenix",short:"the Phoenix",zone:"hollow",el:"fire",boss:true,rebirth:true,hp:150,atk:17,def:7,weak:["ice"],resist:["fire","holy"],verb:"rakes you with burning talons",intro:"The sky ignites. A Cinder Phoenix descends.",
     lore:"The Hollow's heart. It has died many times and seems to have enjoyed none of them.",
     inf:{s:"burn",ch:0.35},
@@ -180,23 +239,23 @@ const ENEMIES={
   harpy:{name:"Storm Harpy",plural:"Storm Harpies",zone:"spire",mv:"wander",el:"swift",hp:105,atk:21,def:3,weak:["stone","ice"],resist:["swift"],w:3,verb:"rakes you",intro:"A Storm Harpy shrieks out of the cloud bank.",
     lore:"Wind-spirits in the shape of birds, forever circling the spire. Each wingbeat carries a little thunder.",
     inf:{s:"chill",ch:0.3},
-    sp:{every:3,name:"Gale Rush",kind:"multi",n:4,x:.55,tell:"wheeling overhead, wings drawn tight"},drops:[["storm_feather",.75],["storm_draught",.35],["gale_boots",.16]]},
+    sp:{every:3,name:"Gale Rush",kind:"multi",n:4,x:.55,tell:"wheeling overhead, wings drawn tight"},drops:[["storm_feather",.75],["storm_draught",.5]]},
   sentinel:{name:"Runebound Sentinel",plural:"Runebound Sentinels",zone:"spire",mv:"still",el:"arcane",hp:155,atk:22,def:8,weak:["metal","poison"],resist:["arcane","stone"],w:2,verb:"strikes you",intro:"A Runebound Sentinel grinds to life, its glyphs flaring.",
     lore:"Guardians carved before the spire fell. Their armor shrugs off blows, but rust and venom still find the seams.",
-    sp:{every:4,name:"Rune Slam",kind:"heavy",x:2.5,tell:"its runes flaring white"},drops:[["rune_shard",.7],["golem_core",.3],["sentinel_aegis",.16]]},
+    sp:{every:4,name:"Rune Slam",kind:"heavy",x:2.5,tell:"its runes flaring white"},drops:[["rune_shard",.7],["golem_core",.3],["sentinel_plate",.55]]},
   acolyte:{name:"Void Acolyte",plural:"Void Acolytes",zone:"spire",mv:"chase",el:"shadow",hp:112,atk:22,def:4,weak:["holy","arcane"],resist:["shadow"],w:3,verb:"touches you",intro:"A Void Acolyte steps out of a seam in the air.",
     lore:"Scholars who read one page too many of what lies between the stars. They feed the emptiness in them with your warmth.",
     inf:{s:"curse",ch:0.4},
-    sp:{every:3,name:"Soul Tithe",kind:"drain",x:1.4,tell:"opening its hollow hands"},drops:[["void_crystal",.7],["holy_water",.3],["void_robe",.16]]},
+    sp:{every:3,name:"Soul Tithe",kind:"drain",x:1.4,tell:"opening its hollow hands"},drops:[["void_crystal",.85],["holy_water",.4]]},
   seraph:{name:"Fallen Seraph",plural:"Fallen Seraphs",zone:"spire",mv:"wander",el:"holy",hp:120,atk:20,def:5,weak:["shadow","stone"],resist:["holy","swift"],w:2,verb:"smites you",intro:"Feathers fall like snow. A Fallen Seraph turns its blade toward you.",
     lore:"Guardians of the spire's upper halls who followed the star down. Their halos still burn; their mercy does not.",art:{b:"humanoid",p:["wings","halo","blade"],skin:"#e9e0cf",glow:1,c:"#f0dca8",a:"#8fc2ff",pc:"#f6c64a",pat:"scales",po:.7},
-    sp:{every:3,name:"Judgement",kind:"heavy",x:2.2,tell:"raising its blade toward the sky"},drops:[["holy_water",.5],["storm_feather",.4],["gale_boots",.14]]},
+    sp:{every:3,name:"Judgement",kind:"heavy",x:2.2,tell:"raising its blade toward the sky"},drops:[["holy_water",.5],["storm_feather",.5]]},
   lynx:{name:"Astral Lynx",plural:"Astral Lynxes",zone:"spire",mv:"chase",el:"arcane",hp:110,atk:22,def:4,weak:["stone","metal"],resist:["arcane"],w:2,verb:"rakes you",intro:"Something with starlight for eyes pads along the stair. An Astral Lynx.",
     lore:"Cats that slipped through a seam in the sky and came back speckled with stars. They hunt by the light of whatever you are thinking.",art:{b:"beast",p:["crystals","tail"],c:"#4e3a96",a:"#a9f0ff",pat:"stars",po:1},
-    sp:{every:3,name:"Starfall Pounce",kind:"multi",n:3,x:.65,tell:"its eyes going white"},drops:[["rune_shard",.5],["void_crystal",.3],["void_robe",.12]]},
+    sp:{every:3,name:"Starfall Pounce",kind:"multi",n:3,x:.65,tell:"its eyes going white"},drops:[["rune_shard",.5],["void_crystal",.35]]},
   orrery:{name:"Orrery Construct",plural:"Orrery Constructs",zone:"spire",mv:"still",el:"metal",hp:140,atk:20,def:7,weak:["fire","arcane"],resist:["stone","swift"],w:2,verb:"strikes you",intro:"Brass rings click into alignment. An Orrery Construct turns its eye on you.",
     lore:"Star-charts built to walk the spire and correct its course. The stars have moved; the orreries have not forgiven them.",art:{b:"construct",p:["orbit","armor"],c:"#c9a65a",a:"#3f8fe0",pat:"bands",po:.55},
-    sp:{every:4,name:"Recalibrate",kind:"heal",x:.15,tell:"spinning its rings back into line"},drops:[["rune_shard",.55],["golem_core",.4],["sentinel_aegis",.14]]},
+    sp:{every:4,name:"Recalibrate",kind:"heal",x:.15,tell:"spinning its rings back into line"},drops:[["rune_shard",.55],["golem_core",.4],["sentinel_plate",.3]]},
   archon:{name:"Starfallen Archon",short:"the Archon",zone:"spire",el:"swift",boss:true,hp:260,atk:25,def:9,weak:["stone"],resist:["swift","arcane"],verb:"strikes you with lightning",intro:"Lightning stitches the clouds shut. The Starfallen Archon unfolds above the spire.",
     lore:"A star that fell upward. Hurt enough, it stops being a storm and becomes the dark behind the storm.",
     inf:{s:"chill",ch:0.3},
@@ -256,11 +315,11 @@ const SECRETS=[
 ];
 const TUTORIAL=[
   {text:"Win your first battle.",tab:"battle",done:s=>s.wins>=1,reward:{items:["bread"]}},
-  {text:"Salvage a piece of loot into essence. Open Gear and tap an item.",tab:"gear",done:s=>s.stats.salvaged>=1,reward:{items:["spring_water"]}},
+  {text:"Deconstruct a raw find into materials and essence. Open Gear and tap a hide, ore or loaf.",tab:"gear",done:s=>s.stats.salvaged>=1,reward:{items:["spring_water"]}},
   {text:"Forge your sword with an essence in the Forge.",tab:"forge",done:s=>s.journal.length>=1,reward:{xp:20,items:["ess:Fire"]}},
   {text:"Learn a technique: open Research in the Forge and spend your research points.",tab:"forge",need:"research",done:s=>Object.keys(s.techs).length>1,reward:{items:["ess:Ice"],xp:20}},
   {text:"Use Study during a fight to learn something about an enemy.",tab:"battle",done:s=>s.stats.studied>=1,reward:{items:["ess:Sharp"]}},
-  {text:"Equip a piece of armor or a shield.",tab:"gear",done:s=>["off","head","body","hands","feet"].some(k=>s.eq[k]&&s.items[s.eq[k]]&&FORMS[s.items[s.eq[k]].form].g==="armor"),reward:{camp:1}},
+  {text:"Forge a piece of armor from a pattern in the Forge, then equip it.",tab:"gear",done:s=>["off","head","body","hands","feet"].some(k=>s.eq[k]&&s.items[s.eq[k]]&&FORMS[s.items[s.eq[k]].form].g==="armor"),reward:{camp:1}},
   {text:"Cross the Woods map and defeat Gnarlhorn at the end of it.",tab:"battle",done:s=>(s.kills.gnarlhorn||0)>=1,reward:{items:["ess:Swift","ess:Holy"],xp:30}},
   {text:"Infuse an essence into yourself in the Gear tab.",tab:"gear",done:s=>Object.keys(s.infuse||{}).length>0,reward:{camp:1,xp:20}},
   // steps 9-16 walk through the unlocks (see UNLOCKS). A step with need:"id" (an unlock) or ok(s) waits, showing how to open it (UNLOCKS txt, or wait), until its system is open
@@ -333,7 +392,9 @@ const GRADE_ODDS={woods:[40,40,19,1,0],pass:[18,38,38,6,0],hollow:[8,28,50,13,1]
 const INF_EQ=["⅑","⅓","1","3","9"]; // INF_W as plain essences, for text
 const GRADE_LV=[1,1,1,3,6],UP={n:3,emb:[4,8,12,30],base:80,slope:6,min:80,max:98,xp:[3,4,6,14,30]};
 const gradeOf=id=>{const m=/@([1-5])$/.exec(id);return m?+m[1]:3},baseIdOf=id=>id.replace(/@[1-5]$/,""),gradedId=(b,g)=>g===3?b:`${b}@${g}`; // pure id helpers (migrate needs them before helpers.js loads)
-const gradable=b=>/^ess_[A-Za-z]+$/.test(b)||(!!BASE[b]&&BASE[b][1]==="material"&&["ore","hide","herb"].includes(BASE[b][3]));
+const gradable=b=>{if(/^ess_[A-Za-z]+$/.test(b))return true;const [p,a,x]=b.split("~"),B=BASE[p];return !!B&&x===undefined&&(!a||!!AFX[a])&&B[1]==="material"&&["ore","hide","herb","timber"].includes(B[3])};
+// an affixed variant (`boar_hide~vamp`, `iron_sword~vamp@4`): afxOfId gives the affix, plainId the BASE id under grade and affix
+const afxOfId=id=>{const m=/~([a-z]+)(@[1-5])?$/.exec(id);return m&&AFX[m[1]]?m[1]:null},plainId=id=>baseIdOf(id).replace(/~[a-z]+$/,""),isBaseMat=id=>!!MATS[plainId(id)];
 const VIEWS=["battle","gear","forge","recipes","codex","settings"];
 // Heat: harder expeditions in a cleared zone, cumulative per level: every level adds hp/atk to all enemies (it ramps, 1.0x at Heat 0), and Heat 5 enemies bite through `bite` of your Defense. Beating the boss at heat h unlocks h+1.
 const HEAT_MAX=5,HEAT_T={hp:.1,atk:.1,bite:.4,elite:2,inf:1.5,boss:1.2,rest:.25,shrine:.5,loot:.15,ess:1,xp:20};
@@ -366,7 +427,7 @@ const boss1=s=>(s.kills[ZONES[0][2]]|0)>0,abOf=s=>[s.eq.main,s.eq.off].some(id=>
 // Research points (S.rp) come from discoveries: each source in RP pays once (S.rpd keeps which). They buy techniques (S.techs={id:order}); what you can craft depends on them (craftMiss in research.js).
 // A tech: id, name, ic, cost (RP), pre (techs needed first), rq/ok (a requirement over a state: Smith level or a skill), pos [column, row] in the tree, d (what it is), gate (what it opens, shown in tips), used(s) (migration only: proof an older save already did this) and i (the intro card, queued when learned).
 // Binding is known from the start. Refining is the grade upgrades; Mending is reforging; Precision lowers the failure chance by PREC points each; Masterwork lets legendary secrets succeed.
-const RP={form:2,rec:1,recCap:10,fam:1,rx:4,study:1,mast:2,boss:[4,8,12,16,20],afx:1,leg:4,lv:2,lvMax:9,sk:2,skLv:[3,5,7,9]},PREC=[5,5],INSIGHT={ch:35}; // INSIGHT.ch: % chance a craft with one side of an unseen reaction hints at it
+const RP={form:2,rec:1,recCap:10,fam:1,rx:4,study:1,mast:2,boss:[4,8,12,16,20],afx:1,leg:4,lv:2,lvMax:9,sk:2,skLv:[3,5,7,9],bp:2},PREC=[5,5],INSIGHT={ch:35}; // INSIGHT.ch: % chance a craft with one side of an unseen reaction hints at it
 const skLvOf=(s,k)=>SK_LV.filter(t=>((s.skills||{})[k]|0)>=t).length,smLv=n=>({rq:"Smith Lv {l}",rv:{l:n},ok:s=>lvOf(s.xp)>=n});
 const crafts=s=>s.journal.map(j=>s.items[j.id]).filter(it=>it&&it.crafted),rids=it=>it.recipeIds||[],plainIn=it=>rids(it).filter(r=>!/^ess_/.test(r)).length;
 const TECHS=[
@@ -395,6 +456,10 @@ const TECH=Object.fromEntries(TECHS.map(t=>[t.id,t]));
 const VAGUE={Fire:"something hot",Ice:"something freezing",Water:"something wet",Poison:"something venomous",Nourishing:"something wholesome",Sweet:"something sweet",Light:"something bright",Holy:"something sacred",Shadow:"something dark",Iron:"something forged",Arcane:"something uncanny",Stone:"something heavy",Fur:"something warm",Sharp:"something keen",Steam:"something misty"};
 const UNLOCKS=[
   {id:"start",name:"The map",ic:"hero",q:1,when:()=>true,i:{t:"Your first expedition",l:["Tap a glowing tile next to you to step. Fights drop loot, and a camp waits before the boss.","In a fight: Attack, Guard or Flee. Your torch burns down as you walk."],tab:"battle",sel:".tl.adj"}},
+  {id:"patterns",name:"Patterns",ic:"pattern",when:s=>s.stats.shaped>0||Object.keys(s.inv).some(id=>s.inv[id]>0&&isBaseMat(id)),used:s=>s.stats.shaped>0,txt:"Deconstruct a raw find in the Gear tab.",w:"Open the Forge tab.",
+    i:{t:"Patterns",l:["Deconstructing gives base materials: leather, cloth, ingots, timber, stone and crystal.","Pick a pattern in the Forge and fill its slots to forge gear. Better grades make stronger pieces."],tab:"forge",sel:"#patp"}},
+  {id:"blueprints",name:"Blueprints",ic:"scroll",when:s=>Object.values(s.codex).some(k=>k&&Array.isArray(k.bp)&&k.bp.length>0),used:s=>Object.values(s.codex).some(k=>k&&Array.isArray(k.bp)&&k.bp.length>0),txt:"Study a creature in a fight.",w:"Open the Forge tab.",
+    i:{t:"Blueprints",l:["A blueprint forges a creature's named gear from base materials. It waits beside the patterns in the Forge.","Study creatures in a fight, or master them, to learn more."],tab:"forge",sel:"#pats .bpb"}},
   {id:"study",name:"Study",ic:"study",when:s=>s.wins>=1,used:s=>s.stats.studied>0,txt:"Win your first battle.",w:"It joins the action buttons.",
     i:{t:"Study",l:["Spend a turn to learn one fact about a foe: a weakness, a resistance or its strength.","Study also improves your parry timing against this special, up to three ranks."],ctx:"battle",sel:"#study"}},
   {id:"parry",name:"Parry",ic:"parry",used:s=>s.stats.parries>0||s.wins>=3,txt:"Meet a creature that winds up a special move.",w:"It joins the action buttons.",
@@ -411,7 +476,7 @@ const UNLOCKS=[
   {id:"mystery",name:"Mystery events",ic:"mystery",when:s=>exps(s)>=2,txt:"Finish two expeditions.",w:"Look for ? tiles on your next expedition.",
     i:{t:"Mystery tiles",l:["A ? tile can hold anything: an ambush, a stranger with a bargain, a riddle, an old forge.","Read the choices. Walking away is always allowed."],tab:"battle",sel:".tl.p-mystery"}},
   {id:"elite",name:"Magic and rare foes",ic:"elite",when:s=>lvOf(s.xp)>=3||ZONES.some(z=>s.seen[z[2]]),used:s=>s.stats.elites>0,txt:"Face a region boss, or reach Smith Lv 3.",w:"They show up on your next expedition.",
-    i:{t:"Magic and rare foes",l:["Some creatures carry affixes: tricks that change the fight. A coloured frame marks them on the map.","Each drops essences linked to its affixes, in better grades."],tab:"battle",sel:".tl.p-elite"}},
+    i:{t:"Magic and rare foes",l:["Some creatures carry affixes: tricks that change the fight. A coloured frame marks them on the map.","Each drops an affixed material in a better grade. Deconstruct it for that affix's essence."],tab:"battle",sel:".tl.p-elite"}},
   {id:"infuse",name:"Infusions",ic:"infuse",when:s=>boss1(s)||s.quest>=7,used:s=>Object.keys(s.infuse).length>0||s.infCredit>0,txt:"Defeat Gnarlhorn.",w:"Open the Gear tab.",
     i:{t:"Infusions",l:["Essences worth {cost} plain ones can be infused into you. The trait stays whatever you wield.","Feed it the same essence again to deepen it, up to {max}."],v:{cost:INF_COST,max:["I","II","III"][INF_MAX-1]},tab:"gear",sel:"#inflabel"}},
   {id:"skills",name:"Crafting skills",ic:"hammer",when:s=>s.journal.length>0||s.stats.forged>0,used:s=>Object.values(s.skills).some(x=>x>0),txt:"Forge something.",w:"Open the Forge tab.",

@@ -24,7 +24,7 @@ function renderInventoryTools(){
   $(pre+"tools").innerHTML=`<div class="inventory-tools">${select("layout",tx("Inventory layout"),[["grid",tx("Grid")],["list",tx("List")]])}${select("filter",tx("Inventory filter"),[["all",tx("All")],["new",tx("New")],["equipped",tx("Equipped")],["craftable",tx("Craftable")]])}${select("sort",tx("Inventory order"),[["type",tx("Type")],["recent",tx("Recent")],["grade",tx("Grade")]])}</div>${gear?`<div class="actions"><button class="btn sm" data-bulk="toggle" ${inBattle()?"disabled":""}>${tx(salvageMode?"Cancel selection":"Select salvage")}</button>${salvageMode?`<button class="btn sm" data-bulk="review" ${salvageSelection.size?"":"disabled"}>${tx("Review salvage ({n})",{n:salvageSelection.size})}</button>`:""}</div>${salvageMode?`<p class="foot">${tx("Equipped, locked and legendary items are protected. Items in the crucible are reserved.")}</p>`:""}`:""}`;
   $(pre+"inv").classList.toggle("inventory-list",prefs.layout==="list");
 }
-const salvageCount=id=>!S.items[id]||itemLocked(id)||eqCount(id)||S.items[id].legendary||!salvageYield(S.items[id]).length?0:Math.max(0,avail(id));
+const salvageCount=id=>!S.items[id]||itemLocked(id)||eqCount(id)||S.items[id].legendary||!canSalvage(S.items[id])?0:Math.max(0,avail(id));
 function toggleSalvage(id){
   if(inBattle()||!salvageCount(id))return toast(tx("Choose spare items to salvage."));
   if(salvageSelection.has(id))salvageSelection.delete(id);else salvageSelection.add(id);
@@ -34,7 +34,7 @@ function salvagePlan(){return [...salvageSelection].map(id=>({id,n:salvageCount(
 function showSalvageReview(){
   if(inBattle())return;const plan=salvagePlan();if(!plan.length)return;
   const ys={};let embers=0;
-  plan.forEach(({id,n})=>{const it=S.items[id];salvageYield(it).forEach(t=>{const k=essG(t,salvGrade(it));ys[k]=(ys[k]||0)+n});embers+=salvageEmbers(it)*n});
+  plan.forEach(({id,n})=>{const it=S.items[id];salvageMats(it).forEach(m=>{const k=gradedItem(baseIdOf(m),gradeOf(m));ys[k]=(ys[k]||0)+n});salvageYield(it).forEach(t=>{const k=essG(t,salvGrade(it));ys[k]=(ys[k]||0)+n});embers+=salvageEmbers(it)*n});
   salvageReview=JSON.stringify(plan);Object.assign(sheet,{mode:"salvage",id:null});
   $("sheetIn").innerHTML=`<h2>${tx("Salvage preview")}</h2><ul>${plan.map(({id,n})=>`<li>${iname(S.items[id])} ×${n}</li>`).join("")}</ul><p class="label">${tx("You will receive")}</p><ul>${Object.entries(ys).map(([id,n])=>`<li>${iname(S.items[id])} ×${n}</li>`).join("")}${isUnl("peddler")?`<li>${tx("Embers")}: ${embers}</li>`:""}</ul><p class="foot">${tx("Equipped, locked and legendary items are protected. Items in the crucible are reserved.")}</p><div class="actions"><button class="btn danger" data-act="bulk-confirm">${tx("Salvage selected items")}</button><button class="btn" data-act="close">${tx("Close")}</button></div>`;
   showSheet();

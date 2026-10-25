@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Targeted check of the affix system (Playwright + Chromium): every affix's HUD chip, hook and essence drop, splitting and volatile deaths, drop grades, roll rules, daily determinism and the v12 -> v13 migration.
+// Targeted check of the affix system (Playwright + Chromium): every affix's HUD chip, hook and essence drop (an affixed raw that deconstructs into it; afxEss reads it as that essence at the raw's grade), splitting and volatile deaths, drop grades, roll rules, daily determinism and the v12 -> v13 migration.
 // Usage: node tools/affix-check.js   (prints ok/FAIL lines and ALL OK; exits 1 on a failure)
 const {chromium}=require("playwright"),fs=require("fs"),path=require("path");
 const URL="file://"+path.resolve(__dirname,"..","index.html");
@@ -17,6 +17,7 @@ let fails=0;const ok=(c,m)=>{if(!c){fails++;console.log("FAIL",m)}else console.l
     window.fight=(e,afx,rar="magic",row=3)=>{S.battle=null;S.hp=pstats().maxHp;startBattle(e,{row,rar,afx});return S.battle};
     window.logs=B=>B.log.map(l=>l.t);
     window.plainRand=()=>.5;
+    window.afxEss=ids=>ids.flatMap(id=>{if(isEss(id))return[id];const a=afxOfId(id);return a&&deconYield(S.items[id]).frag.some(f=>f[0]===AFX[a].tr)?[gradedId("ess_"+AFX[a].tr,gradeOf(id))]:[]});
   });
   // ---- 1. every affix: HUD chip, name, essence drop
   for(const a of await E(()=>Object.keys(AFX))){
@@ -24,7 +25,7 @@ let fails=0;const ok=(c,m)=>{if(!c){fails++;console.log("FAIL",m)}else console.l
     await p.waitForTimeout(20);
     const r=await E(a=>{const B=window.B1;const chip=document.querySelector("#enemyHud .chips.afx .chip");const out={tip:chip.dataset.tip,aria:chip.getAttribute("aria-label"),nm:document.querySelector("#enemyHud .fn").textContent,n:document.querySelectorAll("#enemyHud .chips.afx .chip").length,tr:AFX[a].tr,an:AFX[a].n};
       let g=0;R(.5,()=>{while(S.battle===B&&!B.over&&g++<200){S.hp=pstats().maxHp;B.turn>40&&(B.hp=1);attack()}});
-      out.over=B.over;out.ess=B.loot.filter(isEss);return out},a);
+      out.over=B.over;out.ess=afxEss(B.loot);return out},a);
     ok(r.n===1&&r.tip.split("\n")[0]===r.an&&r.tip.includes(r.tr+" Essence"),`${a}: one chip, tip names the affix and its ${r.tr} Essence`);
     ok(r.nm.includes("Frost Wolf")&&r.aria&&r.aria.includes(r.tr),`${a}: HUD name "${r.nm}" and an aria-label`);
     ok(r.over==="won"&&r.ess.some(id=>essTraitOf(id)===r.tr),`${a}: won and dropped a ${r.tr} essence (${r.ess.join(",")})`);
@@ -68,7 +69,7 @@ let fails=0;const ok=(c,m)=>{if(!c){fails++;console.log("FAIL",m)}else console.l
     const mid={split:B.split,over:B.over,hp:B.hp,max:B.max,name:B.name,atk:B.atk,chips:document.querySelectorAll("#enemyHud .chips.afx .chip").length,el:B.el};
     const exp={hp:Math.max(1,Math.round(max0*AFX_T.split.hp)),atk:Math.max(1,Math.round(atk0*AFX_T.split.atk))};
     const t0=B.turn;let g=0;R(.5,()=>{while(S.battle===B&&!B.over&&g++<50){S.hp=pstats().maxHp;B.hp=Math.min(B.hp,1);attack()}});
-    return{mid,exp,over:B.over,splits:logs(B).filter(t=>/splits in two/.test(t)).length,ess:B.loot.filter(isEss),kills:S.kills.bandit,turns:B.turn-t0}});
+    return{mid,exp,over:B.over,splits:logs(B).filter(t=>/splits in two/.test(t)).length,ess:afxEss(B.loot),kills:S.kills.bandit,turns:B.turn-t0}});
   ok(r.mid.split&&!r.mid.over&&r.mid.hp===r.exp.hp&&r.mid.atk===r.exp.atk&&/remnant/.test(r.mid.name)&&r.mid.chips===0,`splitting: remnant ${r.mid.hp} HP, atk ${r.mid.atk}, no affix chips (${r.mid.name})`);
   ok(r.over==="won"&&r.splits===1&&r.kills===1&&r.turns<5,`splitting: only one split, then won in ${r.turns} turns (kills=${r.kills})`);
   ok(r.ess.some(id=>essTraitOf(id)==="Water"),"splitting: drops Water essence only after the remnant dies");
@@ -116,7 +117,7 @@ let fails=0;const ok=(c,m)=>{if(!c){fails++;console.log("FAIL",m)}else console.l
   ok(r.w1[0]>r.w0[0]+.2&&r.w2[0]>r.w1[0]&&r.w3[1]===4&&r.p2[1]===4&&r.s2[1]===5,`grades (real gs ${r.gm}/${r.gr}): woods avg ${r.w0[0].toFixed(2)} -> ${r.w1[0].toFixed(2)} (magic) -> ${r.w2[0].toFixed(2)} (rare); whole steps capped at ${r.w3[1]} in woods, ${r.s2[1]} in spire`);
   ok(/50% chance of one grade better/.test(r.txt.split("|")[0])&&/one grade better/.test(r.txt.split("|")[1])&&!/two grades/.test(r.txt)&&/50% chance/.test(r.txt.split("|")[2]),"drop text follows gs: "+r.txt);
   // real drop through enemyDown: rare, 2 affixes -> 2 essences
-  r=await E(()=>{fresh("pass");const B=fight("wolf",["shadow","vamp"],"rare");B.hp=1;R(.5,()=>attack());return{ess:B.loot.filter(isEss),emb:B.emb,over:B.over,rar:B.rar,name:document.querySelector("#enemyHud .fname").textContent}});
+  r=await E(()=>{fresh("pass");const B=fight("wolf",["shadow","vamp"],"rare");B.hp=1;R(.5,()=>attack());return{ess:afxEss(B.loot),emb:B.emb,over:B.over,rar:B.rar,name:document.querySelector("#enemyHud .fname").textContent}});
   ok(r.over==="won"&&r.ess.length===2&&r.emb>=EMB.rar.rare&&/the Bloodthirsty/.test(r.name),`rare drop: ${r.ess.join(",")} and ${r.emb} embers; name "${r.name}"`);
   // ---- review fixes: remnant attack, dodged riders, thorn cap per round, group rules
   r=await E(()=>{fresh();const B=fight("bandit",["frenzy"]);applyAfx(B,ENEMIES.bandit,"rare",["frenzy","split"]);const a0=B.a0;B.hp=Math.floor(B.max*.3);frenzy(B);const fa=B.atk;splitFoe(B,ENEMIES.bandit);return{a0,fa,ra:B.atk,exp:Math.round(a0*AFX_T.split.atk),fz:B.fz}});
@@ -159,7 +160,7 @@ let fails=0;const ok=(c,m)=>{if(!c){fails++;console.log("FAIL",m)}else console.l
   r=await pg.evaluate(([fi,ei])=>{const m=S.maps.pass;const f=m.pois[fi],e=m.pois[ei];const B=S.battle;const out={v:S.v,cur:freshState().v,key:KEY,afxState:typeof S.afx,fo:[f.rar,f.afx,f.up,f.af],el:[e.rar,e.afx,e.up,e.af],b:[B.rar,B.afx,B.elite],stored:!!localStorage.getItem("everforge-v13")||true};
     // the old battle finishes
     let g=0;R=(v,fn)=>{const r=Math.random;Math.random=()=>v;try{return fn()}finally{Math.random=r}};R(.5,()=>{while(S.battle===B&&!B.over&&g++<100){S.hp=pstats().maxHp;attack()}});
-    out.met=!!(S.afx.shadow&&S.afx.shadow.s>0&&S.afx.shadow.b>0);out.over=B.over;out.ess=B.loot.filter(isEss);out.emb=B.emb;out.hud=null;render();
+    out.met=!!(S.afx.shadow&&S.afx.shadow.s>0&&S.afx.shadow.b>0);out.over=B.over;out.ess=B.loot.flatMap(id=>isEss(id)?[id]:afxOfId(id)?[gradedId("ess_"+AFX[afxOfId(id)].tr,gradeOf(id))]:[]);out.emb=B.emb;out.hud=null;render();
     const bad=Object.values(S.maps).some(m=>m.pois.some(p=>p.up!==undefined||p.af!==undefined));out.bad=bad;return out},[fi,ei]);
   ok(r.v===r.cur&&r.key==="everforge-v"+r.cur,"migration: v12 -> current (through v13)");
   ok(r.fo[0]==="magic"&&r.fo[1][0]==="holy"&&r.fo[2]===undefined&&r.fo[3]===undefined,`migration: fight up:true af:3 -> magic ${r.fo[1]}`);

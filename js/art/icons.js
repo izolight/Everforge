@@ -95,7 +95,9 @@ Object.assign(NODE_G,{
   a_elusive:'<path d="M3 8 H8 M2 12 H7 M3 16 H8"/><circle cx="15" cy="12" r="5" stroke-dasharray="2.5 2.5"/>',
   a_split:'<circle cx="12" cy="4.5" r="1.8"/><path d="M12 6.5 V11 M12 11 L5 20 M12 11 L19 20"/>',
   a_boom:'<circle cx="10" cy="15" r="6"/><path d="M14.5 10.5 L17 8"/><path d="M17 8 L19 4 M17 8 L21 8 M17 8 L20 11 M17 8 L14.5 4"/>',
-  a_swift:'<path d="M4 7 L10 12 L4 17 M12 7 L18 12 L12 17"/><path d="M21 5 V19"/>'
+  a_swift:'<path d="M4 7 L10 12 L4 17 M12 7 L18 12 L12 17"/><path d="M21 5 V19"/>',
+  salvage:'<path d="M4 20 L10 14 M14 4 L20 10 L16 14 L10 8 Z"/><path d="M15 17 L17 19 M18 15 L21 16 M13 19 L13 22"/>',
+  pattern:'<path d="M4 4 H20 V20 H4 Z"/><path d="M4 9 H20 M9 4 V20" stroke-dasharray="2 2"/><path d="M13 13 L17 17"/>'
 });
 const ic=(t,c)=>`<svg class="ic${c?" "+c:""}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true">${NODE_G[t]}</svg>`;
 const gIc=(k,c)=>`<svg class="ic${c?" "+c:""}" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">${G[k]}</svg>`;
