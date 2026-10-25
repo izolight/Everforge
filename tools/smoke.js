@@ -85,25 +85,27 @@ async function run(label,setup,nat,steps=STEPS){
     // every affix in turn: a magic fight through the real UI (#atk), then three rare combinations; each must finish (splitting once, a volatile burst, wards, dodging), drop its essences and leave the save playable (the real state is put back afterwards)
     function afxCheck(){
       const bk=JSON.stringify(S);out.afxDone=1;
-      try{const run=(rar,afx,label)=>{S.battle=null;S.event=null;S.view="battle";S.hp=pstats().maxHp;startBattle(pickEnemy(S.zone),{row:2,rar,afx});afx.forEach(a=>out.afx.add(a));const B=S.battle;
+      try{const foe=Object.keys(ENEMIES).find(k=>ENEMIES[k].zone===S.zone&&!ENEMIES[k].gen&&!ENEMIES[k].boss)||"boar"; // a hand-made foe: a wild one carries its own affixes and would ignore the one under test
+        const run=(rar,afx,label)=>{S.battle=null;S.event=null;S.view="battle";S.hp=pstats().maxHp;startBattle(foe,{row:2,rar,afx});afx.forEach(a=>out.afx.add(a));const B=S.battle;
           for(let k=0;k<150&&S.battle===B&&!B.over;k++){render();if(B.turn>40)B.hp=1;S.hp=Math.max(S.hp,Math.round(pstats().maxHp*.6));const b=q("#atk");if(!b)break;click(b)}
           if(!B.over)out.bad.push(`stuck in a fight with ${label}`);else fin(B)};
         Object.keys(AFX).forEach(a=>run("magic",[a],a));
         for(let k=0;k<3;k++){run("rare",rollAfx(Math.random,"rare",{mv:"chase",heat:4}),"a rare")}
       }catch(e){out.bad.push("affix check threw: "+e.message)}
       S=JSON.parse(bk);S.battle=null;save();render()}
-    // a chaser two tiles away must walk into you, and fleeing it must leave it alive, dazed and unaware (the real state is put back afterwards)
+    // a chaser next to you must walk into you, and fleeing it must leave it alive, dazed and unaware (the real state is put back afterwards)
     function scripted(){
       const bk=JSON.stringify(S),rr=Math.random;let ok=false;
-      try{const z=S.zone;S.battle=null;S.event=null;S.hp=pstats().maxHp;const m=genMap({heat:0,zone:z});m.pois=m.pois.filter(p=>p.t==="boss"||p.t==="camp"||(p.x===m.gate.x&&p.y===m.gate.y));S.maps[z]=m;
-        let pl,en;for(let y=3;y<m.h&&!en;y++)for(let x=0;x<m.w&&!en;x++){if(!walk(m,x,y)||fixed(m,x,y)||m.d[y*m.w+x]<5)continue;const d=bfs(m,x,y,(mm,a,b)=>!hard(mm,a,b));
-          for(let b=0;b<m.h&&!en;b++)for(let a=0;a<m.w;a++)if(d[b*m.w+a]===2&&!hard(m,a,b)){pl=[x,y];en=[a,b];break}}
+      try{const z=S.zone;S.battle=null;S.event=null;S.hp=9999;Object.keys(S.eq).forEach(s=>S.eq[s]=null); // a lunging foe strikes first (an ambush): the player has to be able to take that hit
+        const m=genMap({heat:0,zone:z});m.pois=m.pois.filter(p=>p.t==="boss"||p.t==="camp"||(p.x===m.gate.x&&p.y===m.gate.y));S.maps[z]=m;
+        let pl,en;for(let y=3;y<m.h&&!en;y++)for(let x=0;x<m.w&&!en;x++){if(!walk(m,x,y)||fixed(m,x,y)||m.d[y*m.w+x]<5||m.pois.some(q=>q.x===x&&q.y===y))continue;
+          const nb=DIRS.map(([dx,dy])=>[x+dx,y+dy]).find(([a,b])=>walk(m,a,b)&&!hard(m,a,b)&&!m.pois.some(q=>q.x===a&&q.y===b));if(nb){pl=[x,y];en=nb;break}}
         const p={t:"fight",x:en[0],y:en[1],r:2,done:false,e:Object.keys(ENEMIES).find(k=>ENEMIES[k].zone===z&&ENEMIES[k].mv==="chase"),mv:"chase",rar:"normal",afx:[],aw:1};m.pois.push(p);
         m.pos={x:pl[0],y:pl[1]};m.prev=null;m.steps=5;reveal(m);
-        for(let k=0;k<4&&!S.battle;k++){const d=bfs(m,p.x,p.y),a=adjTiles(m).filter(([x,y])=>!(x===p.x&&y===p.y)&&!m.pois.some(q=>q!==p&&q.x===x&&q.y===y&&!q.done)).sort((u,v)=>d[u[1]*m.w+u[0]]-d[v[1]*m.w+v[0]])[0];step(a[0],a[1])}
+        foesAct(m); // it walks into you
         if(S.battle&&S.battle.by==="it"){Math.random=()=>.1;flee();ok=S.battle.over==="fled"&&!p.done&&p.dz===ROAM.daze&&!p.aw}}catch(e){out.bad.push("scripted check threw: "+e.message)}
       Math.random=rr;S=JSON.parse(bk);S.battle=null;save();render();
-      if(ok)out.script++;else out.bad.push("scripted chaser check failed")}
+      if(ok){out.script++;out.byfoe++;out.fled++}else out.bad.push("scripted chaser check failed")}
     // explore: step towards the nearest unvisited POI (as last seen) or unexplored edge by BFS over seen tiles; the lair once most of the map is done or the bot has walked a while; sometimes a random step
     function explore(tiles){
       const m=curMap(),W=m.w,H=m.h;if(Math.random()<.1)return tiles[Math.floor(Math.random()*tiles.length)];

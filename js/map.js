@@ -45,7 +45,7 @@ function genMap(o){
   const ne=Math.round((POI_N.elite[0]+Math.floor(R()*POI_N.elite[1]))*(h>=2?HEAT_T.elite:1)),nf=POI_N.fight[0]+Math.floor(R()*POI_N.fight[1]);
   if(ok("elite"))for(let i=0;i<ne;i++)place("elite",2);
   if(ok("peddler"))place("peddler",1);if(ok("shrine"))for(let i=0;i<POI_N.shrine;i++)place("shrine",1);for(let i=0;i<POI_N.chest;i++)place("chest",0);if(ok("mystery"))for(let i=0;i<POI_N.mystery;i++)place("mystery",0);for(let i=0;i<nf;i++)place("fight",0);
-  if(o.twist==="elites")m.pois.forEach(p=>{if(p.t==="fight"&&p.r>0)p.t="elite"});
+  if(o.twist==="elites")m.pois.forEach(p=>{if(p.t==="fight")p.t="elite"}); // the twist says every fight: the nearest one included
   if(h>=2&&ok("elite")){const c=m.pois.filter(p=>p.t==="fight"&&p.r>=2&&p.r<MAP_ROWS-2);if(c.length)c[Math.floor(R()*c.length)].t="elite"}
   if(sd)m.pois.forEach(nd=>{if(nd.t==="boss")return;const rn=rng(hash(o.seed+":"+nd.x+","+nd.y));nd.e=pickEnemy(o.zone,rn);if(nd.t==="mystery")nd.my=mystery(rn());
     // pre-rolled so the same day plays out alike: rarity and affixes (their own seeded rng per tile), chest (mimic, loot, scroll), pack loot and four rolls (rv) for choice events and six (sh) for the peddler's stock (the one-for-one offer, what you can sell and satchel-based event choices depend on you, so they vary)
@@ -59,7 +59,8 @@ function genMap(o){
   return m;
 }
 const heatOf=z=>S.heat[z]||{max:0,sel:0},newMap=z=>{if(z===RIFT_ZONE)riftEnsure();return (checkUnl(),genMap({heat:heatOf(z).sel,zone:z}))}; // unlocks are checked first, so a defeat or a boss kill opens its POIs on the very next map
-const curMap=()=>S.run==="daily"&&S.daily?S.daily.map:S.maps[S.zone]||(S.maps[S.zone]=newMap(S.zone));
+const curMap=()=>{if(S.run==="daily"&&S.daily)return S.daily.map;let m=S.maps[S.zone];if(!m){m=newMap(S.zone);S.maps[S.zone]=m;save()} // a new map is saved at once, so a reload does not reroll it
+  return m};
 const heatNow=()=>curMap().heat||0,twistNow=()=>S.run==="daily"&&S.daily?S.daily.twist:null,campFrac=()=>heatNow()>=5?HEAT_T.rest:.4;
 function setHeat(n){ // pick the heat for new expeditions here; an untouched map is rerolled at once
   const hz=heatOf(S.zone);if(busy()||S.run==="daily"||!(n>=0&&n<=hz.max))return;
@@ -115,6 +116,10 @@ function foesAct(m){
       const from=[p.x,p.y];p.x=to[0];p.y=to[1];p.ms=m.steps;
       if(at(p.x,p.y)){reveal(m);unlock("hunt");mlog(m,tx("The {nm} lunges out of the dark!",{nm}));enter(p,"it",from);return true}}}
   reveal(m);return false}
+// the map node a fight came from: a map enemy by its index, a boss by its tile
+const foeNode=(pi,boss)=>{const m=curMap(),n=pi!=null?m.pois[pi]:null;if(n&&isFoe(n))return n;return boss?m.pois.find(p=>p.t==="boss")||null:null};
+// a foe you fled from keeps its wounds on its tile, so you cannot chip it and meet it at full HP again (the state lives in the saved map)
+function storeFoe(B){const nd=foeNode(B.pi,!!(ENEMIES[B.id]&&ENEMIES[B.id].boss));if(!nd)return;nd.st={hp:Math.max(1,Math.round(B.hp)),ph:B.phased?1:0,sp:B.split?1:0}}
 function slip(B){ // you fled a map enemy: it stays and is dazed; you step back, or stay put if it walked into you
   const m=curMap(),nd=m.pois[B.pi];if(!nd||!isFoe(nd)||!nd.done)return;
   nd.done=false;nd.aw=0;const mv=nd.mv&&nd.mv!=="still";if(mv)nd.dz=ROAM.daze; // it loses your trail too, and must notice you again

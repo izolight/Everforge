@@ -13,7 +13,7 @@ const near=(a,b)=>Math.abs(a-b)<1e-9;
     p.on("pageerror",e=>errs.push(e.message));
     await p.goto(URL);
     const E=(f,a)=>p.evaluate(f,a);
-    await E(()=>{
+    const setup=()=>E(()=>{
       window.R=(v,fn)=>{const r=Math.random;Math.random=()=>v;try{return fn()}finally{Math.random=r}};
       window.fresh=(id="boar")=>{
         S=freshState();S.unl=Object.fromEntries(UNLOCKS.map((u,i)=>[u.id,i+1]));
@@ -32,6 +32,7 @@ const near=(a,b)=>Math.abs(a-b)<1e-9;
       };
       window.playerDamage=B=>B.log.filter(l=>l.c==="you"||l.c==="big").map(l=>/for (\d+)/.exec(l.t)).filter(Boolean).map(m=>+m[1]);
     });
+    await setup();
     let r=await E(()=>{
       const B=fresh(),P={spd:0,main:null},base=parryChance(B,P);
       cx(B.id).sp=true;const known=parryChance(B,P);
@@ -119,6 +120,7 @@ const near=(a,b)=>Math.abs(a-b)<1e-9;
     ok(r.levels.at(-1)===3&&r.levels.every(n=>n>=1&&n<=3)&&r.first===3,"Study trains special timing persistently and caps at three ranks");
     ok(r.secondBefore===0&&r.second>=1&&r.timing.sp===3,"a boss's second-form special has separate training");
     await p.reload();
+    await setup(); // the page is fresh: the helpers are gone
     r=await E(()=>({timing:cx("archon").timing,level:parryLevel(S.battle),braced:S.battle.braced,phase:S.battle.phased}));
     ok(r.timing.sp===3&&r.level>=1&&r.braced&&r.phase,"reload preserves special training, current boss form and Braced");
     r=await E(()=>{
@@ -136,6 +138,26 @@ const near=(a,b)=>Math.abs(a-b)<1e-9;
     });
     ok(r.enabled,"Study stays available after all facts are known while timing can improve");
     ok(r.normal.includes(r.expected)&&r.off.includes("0%"),"parry button always shows the current percentage, including off-balance 0%");
+    r=await E(()=>{
+      const B=fresh("sprite");B.max=B.hp=1000;B.def=0;
+      weapon("t_main","blade",{Iron:1});S.eq.main="t_main";weapon("t_sh","shield",{Brittle:1});S.eq.off="t_sh";
+      const P=pstats(),def=statsOf(P.shield).def,pow=P.atk*ABILITIES.shield.x+def,before=B.hp;
+      R(.5,()=>ability("shield"));
+      return{pow,def,atk:P.atk,before,after:B.hp,finite:Number.isFinite(B.hp),logs:B.log.map(l=>l.t)};
+    });
+    ok(r.pow<=0&&r.finite&&r.after>0&&r.after<r.before,`a brittle shield bash (power ${r.pow}, shield DEF ${r.def}) never makes NaN and still lands a hit (${r.before} -> ${r.after})`);
+    r=await E(()=>{
+      fresh("boar");S.hp=pstats().maxHp;const hp=S.hp;
+      startBattle("boar",{rar:"normal",afx:[],ambush:true});
+      const B=S.battle;return{lost:hp-S.hp,turn:B.turn,logs:B.log.map(l=>l.t)};
+    });
+    ok(r.lost>0&&r.turn===2&&r.logs.some(t=>/before you can react/.test(t)),`an ambush lets the foe strike before your first action (${r.lost} damage)`);
+    r=await E(()=>{
+      fresh("boar");S.hp=pstats().maxHp;const hp=S.hp;
+      startBattle("boar",{rar:"normal",afx:[]});
+      return{lost:hp-S.hp,turn:S.battle.turn};
+    });
+    ok(r.lost===0&&r.turn===1,"a normal fight still starts with your own action");
     ok(errs.length===0,"no page errors: "+errs.join(" | "));
   }finally{await browser.close()}
   console.log(fails?`${fails} FAILED`:"ALL OK");process.exitCode=fails?1:0;
