@@ -4,12 +4,22 @@ const hasTech=id=>!!S.techs[id],allTechs=()=>TECHS.every(t=>S.techs[t.id]);
 const rpSpent=()=>TECHS.reduce((n,t)=>n+(S.techs[t.id]?t.cost:0),0),rpEarned=()=>S.rp+rpSpent();
 let rpQ=[];
 function rpGain(key,n,why){ // a discovery pays once; the toast is batched per action (rpFlush, end of render)
-  if(S.rpd[key]||allTechs())return 0;S.rpd[key]=1;S.rp+=n;rpQ.push([n,why]);return n;
+  if(S.rpd[key]||allTechs())return 0;S.rpd[key]=1;S.rp+=n;rpQ.push([n,why,key.split(":")[0]]);return n;
 }
+// milestones that keep paying as you grow: each Smith level from 2 to RP.lvMax, and the first crafting skill to reach each of RP.skLv. Retroactive and idempotent (each key pays once).
+function rpSweep(){
+  for(let l=2;l<=RP.lvMax;l++)if(level()>=l)rpGain("lv:"+l,RP.lv,`Smith level ${l}`);
+  RP.skLv.forEach(l=>{if(Object.keys(SKILLS).some(k=>skLv(k)>=l))rpGain("sk:"+l,RP.sk,`a skill at level ${l}`)});
+}
+const RP_MANY={fam:"new essences",rec:"new recipes",rx:"new reactions",mast:"creatures mastered",afx:"new affixes",study:"families studied"};
 function rpFlush(){ // quiet until Research is open (the points wait for you)
-  if(!rpQ.length)return;const q=rpQ;rpQ=[];if(!isUnl("research"))return;
-  const n=q.reduce((a,x)=>a+x[0],0);sfx("research");setTimeout(()=>toast(`+${n} research: ${q.map(x=>x[1]).join(", ")}.`,1),0);
+  rpSweep();if(!rpQ.length)return;const q=rpQ;rpQ=[];if(!isUnl("research"))return;
+  const n=q.reduce((a,x)=>a+x[0],0),by={};q.forEach(x=>(by[x[2]]=by[x[2]]||[]).push(x));
+  const txt=Object.entries(by).map(([k,l])=>l.length>1&&RP_MANY[k]?`${l.length} ${RP_MANY[k]}`:l.map(x=>x[1]).join(", ")).join(", ");
+  sfx("research");setTimeout(()=>toast(`+${n} research: ${txt}.`,1),0);
 }
+// a trait reaction found (a forge, a lesson): it pays once, whoever teaches it
+function learnReaction(k){if(S.knownR.includes(k))return false;S.knownR.push(k);rpGain("rx:"+k,RP.rx,"a new reaction");return true}
 const rpCount=p=>Object.keys(S.rpd).filter(k=>k.startsWith(p)).length;
 // ---- what a craft needs. Binding (known from the start) is an item and one essence; everything else is a technique
 const techNames=ids=>ids.map(i=>TECH[i].name).join(ids.length>2?", ":" and ");
@@ -21,6 +31,7 @@ function craftMiss(items){
   if(n-ess-(fus?2:1)!==0)need.push("compound"); // anything but one item (or one fusion pair) and essences
   return need.filter(id=>!hasTech(id));
 }
+const mwWarn="These are the ingredients of something legendary. Without the Masterwork technique (Research) you would forge only an ordinary piece. Tap Forge twice to confirm.";
 const techWhy=ids=>isUnl("research")?`Needs the ${techNames(ids)} technique${ids.length>1?"s":""} (Research).`:"Start simple: bind one essence into an item.";
 // ---- learning
 function techState(t,s=S){return s.techs[t.id]?"learned":t.pre.every(p=>s.techs[p])&&t.ok(s)?"avail":"locked"}
@@ -72,7 +83,7 @@ const techTip=t=>tt(`${t.name}${t.cost?` · ${t.cost} RP`:""}`,{learned:"Learned
 function renderResearch(){
   const on=isUnl("research");$("resd").hidden=!on;$("reslock").hidden=on;if(!on){$("reslock").innerHTML=lockRow("research");return}
   const rdy=TECHS.filter(t=>techState(t)==="avail"&&S.rp>=t.cost).length;
-  $("ressum").innerHTML=`${ic("research","s")} Research · ${S.rp} RP${rdy?` <b class="rdy">${rdy}</b>`:""}${helpBtn("Research","Discoveries earn research points: a first craft of each kind, a new reaction, a new essence, a first salvage, a studied creature, a boss down, a new affix.","Techniques decide what the forge accepts. Tap one to read it; Learn spends the points.","Study a material to hint at its reactions.")}`;
+  $("ressum").innerHTML=`${ic("research","s")} Research · ${S.rp} RP${rdy?` <b class="rdy">${rdy}</b>`:""}${helpBtn("Research","Discoveries earn research points: a first craft of each kind, a new reaction, a new essence, a studied creature, a boss down, a new affix, and each new smith or skill level.","Techniques decide what the forge accepts. Tap one to read it; Learn spends the points.","Study a material to hint at its reactions.")}`;
   if(!techSel||!TECH[techSel])techSel=(TECHS.find(t=>techState(t)==="avail"&&S.rp>=t.cost)||TECHS.find(t=>techState(t)==="avail")||TECHS[0]).id;
   const W=4,H=4,at=([c,r])=>`left:${(c+.5)/W*100}%;top:${(r+.5)/H*100}%`;
   const lines=TECHS.flatMap(t=>t.pre.map(p=>{const a=TECH[p].pos,b=t.pos,on=S.techs[p]&&S.techs[t.id];return `<line x1="${(a[0]+.5)/W*100}" y1="${(a[1]+.5)/H*100}" x2="${(b[0]+.5)/W*100}" y2="${(b[1]+.5)/H*100}" class="${on?"on":""}"/>`})).join("");

@@ -56,9 +56,9 @@ function reforge(id){
   for(const [s] of SLOTS)if(S.eq[s]===id&&eqCount(id)>(S.inv[id]||0)){S.eq[s]=nid;break}
   clampHp();save();render();closeSheet();toast(`${S.items[nid].name} reforged. ${ms.join(" and ")} gone.`);
 }
-// Salvage one: it breaks into essences (and embers); the first of each form teaches something.
+// Salvage one: it breaks into essences (and embers).
 function salvageItem(id){
   const it=S.items[id],ys=salvageYield(it),sg=salvGrade(it);S.inv[id]--;trimBench();settleGear(null);S.stats.salvaged++;
-  ys.forEach(t=>addItem(essG(t,sg)));const em=gainEmbers(salvageEmbers(it));rpGain("salv:"+it.form,RP.salv,`first ${formName(it.form)} salvaged`);
+  ys.forEach(t=>addItem(essG(t,sg)));const em=gainEmbers(salvageEmbers(it));
   return{ys,sg,em};
 }

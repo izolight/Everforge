@@ -40,7 +40,7 @@ function renderHeader(){
   $("lvl").innerHTML=`${ic("smith","l")}<b>${l}</b>`;$("lvl").dataset.tip=lt;$("xpbar").parentNode.dataset.tip=lt;
   $("xpbar").style.width=nxt?`${Math.min(100,(S.xp-cur)/(nxt-cur)*100)}%`:"100%";
   $("emb").hidden=!isUnl("peddler");$("emb").innerHTML=`${icon("ember")}${S.embers}`;$("emb").dataset.tip="Embers\nThe currency of the forge. Fights, salvage and selling earn it; the peddler, grade upgrades and reforging spend it.";
-  $("rp").hidden=!isUnl("research");$("rp").innerHTML=`${ic("research")}${S.rp}`;$("rp").dataset.tip=`Research points\nEarned by discoveries: a first craft of each kind, a new reaction, a new essence, a studied creature, a boss down. Spend them in the Forge on techniques.\nYou have ${S.rp}.`;
+  $("rp").hidden=!isUnl("research");$("rp").innerHTML=`${ic("research")}${S.rp}`;$("rp").dataset.tip=`Research points\nEarned by discoveries: a first craft of each kind, a new reaction, a new essence, a studied creature, a boss down, a smith or skill level. Spend them in the Forge on techniques.\nYou have ${S.rp}.`;
   $("disc").innerHTML=`<span class="mi" ${tt("Renown","Battles you have won.")}>${ic("renown")}${S.wins}</span><span class="mi" ${tt("Recipes forged","Different things you have forged. Each is saved in the Recipes tab.")}>${ic("hammer")}${S.journal.length}</span>`;
 }
 function renderNav(){
@@ -268,11 +268,12 @@ function renderBench(){
         ${ur.length?`<span class="foot" style="color:var(--accent)" ${tt("Unseen reaction","Something in this mix will react in a way you haven't seen yet.")}>${ic("warn","xs")} An unseen reaction</span>`:""}
         ${appraise}</div>`}
     hint+=craftLine(r,items);
+    if(r.mw>=0)hint+=`<p class="warn-text">${ic("warn","s")} ${mwWarn}</p>`;
   }
   $("mixhint").innerHTML=hint;
   $("combine").textContent=forgeArmed&&forgeArmed===S.bench.join()?"Tap again to forge":"Forge";
   $("combine").disabled=items.length<2||!chk.ok||!!crafting?.blocked;
-  $("combine").setAttribute("aria-disabled",miss.length?"true":"false");if(miss.length)$("combine").dataset.tip=`Can't forge this yet\n${techWhy(miss)}`;else delete $("combine").dataset.tip; // a missing technique refuses the forge with a tip
+  $("combine").setAttribute("aria-disabled",miss.length?"true":"false");if(miss.length)$("combine").setAttribute("aria-label",techWhy(miss));else $("combine").removeAttribute("aria-label"); // the reason is the warning above the button (and its label); a bubble on top would cover it
 }
 function renderResult(fresh){
   const el=$("result"),total=Object.values(S.inv).reduce((s,c)=>s+c,0);

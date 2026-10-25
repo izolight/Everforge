@@ -19,7 +19,7 @@ async function open(browser,w,setup){
 const shot=async(page,w,name,full)=>{if(SHOTS){await page.evaluate(()=>$("toast").classList.remove("show"));fs.mkdirSync(SHOTS,{recursive:true});await page.screenshot({path:path.join(SHOTS,`${name}-${w}.png`),fullPage:!!full})}};
 // put items on the bench by id and re-render
 const bench=(p,ids)=>p.evaluate(ids=>{ids.forEach(id=>{if(!S.items[id]){const m=/^ess_(\w+)$/.exec(id);if(m)essence(m[1])}});ids.forEach(id=>{if(!S.inv[id])addItem(id,3)});S.bench=ids;S.view="forge";render()},ids);
-const mix=p=>p.evaluate(()=>({miss:craftMiss(S.bench.map(i=>S.items[i])),dis:$("combine").getAttribute("aria-disabled"),tip:$("combine").dataset.tip||"",hint:$("mixhint").textContent,off:$("combine").disabled}));
+const mix=p=>p.evaluate(()=>({miss:craftMiss(S.bench.map(i=>S.items[i])),dis:$("combine").getAttribute("aria-disabled"),tip:($("combine").getAttribute("aria-label")||"").replace(". ",".\n")+"\n"+"",hint:$("mixhint").textContent,off:$("combine").disabled}));
 const forge=p=>p.evaluate(()=>{const n=S.journal.length,f=S.stats.forged;Math.random=()=>.99;$("combine").click();$("combine").click();return{journal:S.journal.length-n,forged:S.stats.forged-f,toast:__t[__t.length-1]}});
 
 async function flow(browser,w){
@@ -32,15 +32,15 @@ async function flow(browser,w){
   // the very first forge: Binding with the sword and Fire (Iron + Fire react into Tempered), so form, recipe and reaction pay once each
   await bench(p,["iron_sword","ess_Fire"]);
   r=await p.evaluate(()=>{const a=S.rp;Math.random=()=>.99;$("combine").click();$("combine").click();return{rp:S.rp-a,journal:S.journal.length,res:isUnl("research")}});
-  ok(r.journal===1&&r.rp===3+1+4,"the first forge pays 3 (a new form) + 1 (a new recipe) + 4 (a new reaction); got "+r.rp);ok(r.res,"the first forge opens Research");
+  ok(r.journal===1&&r.rp===2+1+4,"the first forge pays 2 (a new form) + 1 (a new recipe) + 4 (a new reaction); got "+r.rp+" (enough for Layering, 6, with the essence it was bound with)");ok(r.res,"the first forge opens Research");
   await p.waitForTimeout(500);r=await p.evaluate(()=>({t:__t.filter(x=>/research/.test(x)),s:__s.includes("research"),card:pendingIntros().some(c=>c.id==="research")}));
-  ok(r.t.length===1&&/\+8 research: a new form \(blade\), a new recipe, a new reaction/.test(r.t[0]),"... and one toast lists them ("+r.t+")");ok(r.s,"... with a sound");ok(r.card,"... and the Research intro card is queued");
+  ok(r.t.length===1&&/\+7 research: a new form \(blade\), a new recipe, a new reaction/.test(r.t[0]),"... and one toast lists them ("+r.t+")");ok(r.s,"... with a sound");ok(r.card,"... and the Research intro card is queued");
   // refused crafts: a reason in the Forge button's tip and under the crucible, a toast on tap, nothing consumed
   const cases=[[["iron_sword","ess_Fire","ess_Ice"],"temper",/Tempering/],[[],"layer",/Layering/],[["iron_sword","coal"],"compound",/Compounding/],[["hunter_spear","wood_shield"],"alloy",/Alloying/]];
   await p.evaluate(()=>{S.xp=100;const id=S.journal[0].id;window.__c=id;render()});
   for(const [ids,need,re] of cases){
     await bench(p,ids.length?ids:await p.evaluate(()=>[__c,"ess_Ice"]));r=await mix(p);
-    ok(r.miss.join()===need&&r.dis==="true"&&re.test(r.tip)&&/\(Research\)/.test(r.tip)&&re.test(r.hint),`${need}: refused with "${r.tip.split("\n")[1]}" in the tip and under the crucible`);
+    ok(r.miss.join()===need&&r.dis==="true"&&re.test(r.tip)&&/\(Research\)/.test(r.tip)&&re.test(r.hint),`${need}: refused with "${r.tip.split("\n")[0]}" in the button label and under the crucible`);
     const f=await forge(p);ok(f.journal===0&&f.forged===0&&re.test(f.toast),`${need}: tapping Forge does nothing but say why`);
   }
   await bench(p,["iron_sword","ess_Fire","ess_Ice"]);await shot(p,w,"3-refused-craft-tip");
@@ -67,33 +67,35 @@ async function sources(browser){
     S.battle=null;startBattle("gnarlhorn");S.battle.hp=1;const b=S.rp;attack();out.boss2=S.rp-b;
     out.total=S.rp;out.keys=Object.keys(S.rpd).length;return out});
   ok(d.fam===1&&d.fam2===0&&d.fam3===0,`a new essence family pays ${d.fam}, once (then ${d.fam2}, ${d.fam3} for another grade)`);
-  ok(d.salv===1&&d.salv2===0,`salvaging a form for the first time pays ${d.salv}, once (then ${d.salv2})`);
+  ok(d.salv===0&&d.salv2===0,`salvaging pays no research (${d.salv}, ${d.salv2})`);
   ok(d.study===2&&d.studyAgain===0,`studying a family: +1 for the new essence and +1 for the first study, nothing on the second (${d.study}, ${d.studyAgain})`);
   ok(d.afx===1&&d.afx2===0,`a new affix pays ${d.afx}, once (then ${d.afx2})`);
   ok(d.mastered&&d.mast===2&&d.mast2===0,`fully studying a creature pays ${d.mast}, once`);
-  ok(d.won&&d.boss>=6&&d.boss2===0,`the first boss kill pays ${d.boss} (6 + essences it dropped), the second nothing (${d.boss2})`);
+  ok(d.won&&d.boss>=4&&d.boss2===0,`the first boss kill (Gnarlhorn, zone 1) pays ${d.boss} (4 + essences it dropped), the second nothing (${d.boss2})`);
+  const m=await p.evaluate(()=>{S=freshState();S.xp=XP_LV[8];S.skills.weapon=SK_LV[6];render();rpFlush();const a=S.rp,k1=Object.keys(S.rpd).filter(k=>/^(lv|sk):/.test(k)).length;rpSweep();rpFlush();const b=S.rp;S.xp=XP_LV[9];rpSweep();return{a,b,k1,more:S.rp-b,bosses:RP.boss.join()}});
+  ok(m.a===2*8+2*3&&m.b===m.a&&m.more===0,`milestones: Smith Lv 2-9 pay 2 each and the first skill at Lv 3, 5, 7 pay 2 each, once and retroactively (${m.a}); Lv 10 pays nothing more (${m.more}); bosses pay ${m.bosses}`);
   await p.close();
 }
 
 async function learning(browser,w){
   const p=await open(browser,w);
-  await p.evaluate(()=>{S.journal=[{id:"x",name:"x"}];S.items.x={id:"x",name:"Fire Sword",form:"blade",noun:"Sword",traits:{Fire:3,Sharp:4},tier:2,crafted:true,recipeIds:["iron_sword","ess_Fire"],recipe:["a","b"]};S.inv.x=1;S.xp=120;essence("Ice");addItem("ess_Ice",3);S.view="forge";render();pendingIntros().forEach(c=>S.seen[introKey(c.id)]=true);Object.keys(ABILITIES).forEach(k=>S.seen["a:"+k]=true);S.rp=7;render();$("resd").open=true;render()});
+  await p.evaluate(()=>{S.journal=[{id:"x",name:"x"}];S.items.x={id:"x",name:"Fire Sword",form:"blade",noun:"Sword",traits:{Fire:3,Sharp:4},tier:2,crafted:true,recipeIds:["iron_sword","ess_Fire"],recipe:["a","b"]};S.inv.x=1;S.xp=120;essence("Ice");addItem("ess_Ice",3);S.view="forge";render();pendingIntros().forEach(c=>S.seen[introKey(c.id)]=true);Object.keys(ABILITIES).forEach(k=>S.seen["a:"+k]=true);S.rp=10;render();$("resd").open=true;render()});
   let r=await p.evaluate(()=>({n:TECHS.length,nodes:document.querySelectorAll("#restree .tn").length,learned:document.querySelectorAll("#restree .tn.learned").length,can:[...document.querySelectorAll("#restree .tn.can")].map(b=>b.dataset.tech),locked:document.querySelectorAll("#restree .tn.locked").length,sum:$("ressum").textContent,hdr:$("rp").textContent}));
-  ok(r.nodes===r.n&&r.learned===1,`the tree draws every technique (${r.nodes}) with Binding learned`);ok(r.can.join()==="layer,compound","available and affordable with 7 RP: Layering and Compounding ("+r.can+"); the rest are locked or too dear ("+r.locked+" locked)");
-  ok(/7 RP/.test(r.sum)&&r.hdr.trim()==="7","the summary and the header show 7 RP ("+r.sum+")");
+  ok(r.nodes===r.n&&r.learned===1,`the tree draws every technique (${r.nodes}) with Binding learned`);ok(r.can.join()==="layer,compound","available and affordable with 10 RP: Layering and Compounding ("+r.can+"); the rest are locked or too dear ("+r.locked+" locked)");
+  ok(/10 RP/.test(r.sum)&&r.hdr.trim()==="10","the summary and the header show 10 RP ("+r.sum+")");
   await shot(p,w,"1-research-fresh",true);
   // a locked one says why, and Learn does nothing
   r=await p.evaluate(()=>{document.querySelector("[data-tech=temper]").click();const lb=$("learn");lb.click();return{tip:lb.dataset.tip,dis:lb.getAttribute("aria-disabled"),t:S.techs.temper,det:document.querySelector(".tdb b").textContent}});
   ok(r.dis==="true"&&/Learn Layering first/.test(r.tip)&&/Smith Lv 2/.test(r.tip+" Smith Lv 2")&&!r.t&&r.det==="Tempering","Tempering is locked: Learn is disabled and its tip says to learn Layering first ("+r.tip.replace(/\n/g," | ")+")");
-  r=await p.evaluate(()=>{learnTech("temper");return{t:S.techs.temper,rp:S.rp,toast:__t[__t.length-1]}});ok(!r.t&&r.rp===7&&/Learn Layering first/.test(r.toast),"learnTech refuses it too");
+  r=await p.evaluate(()=>{learnTech("temper");return{t:S.techs.temper,rp:S.rp,toast:__t[__t.length-1]}});ok(!r.t&&r.rp===10&&/Learn Layering first/.test(r.toast),"learnTech refuses it too");
   // learn Layering: the sound, a toast, an intro card, the points spent, and the craft it opens
   await p.evaluate(()=>{window.__s.length=0;document.querySelector("[data-tech=layer]").click()});
-  r=await p.evaluate(()=>({txt:document.querySelector("#learn").textContent,on:$("learn").getAttribute("aria-disabled")}));ok(r.on!=="true"&&/Learn · 4/.test(r.txt),"an affordable technique shows Learn with its cost ("+r.txt+")");
+  r=await p.evaluate(()=>({txt:document.querySelector("#learn").textContent,on:$("learn").getAttribute("aria-disabled")}));ok(r.on!=="true"&&/Learn · 6/.test(r.txt),"an affordable technique shows Learn with its cost ("+r.txt+")");
   await p.evaluate(()=>{const b=$("bench")});
   await bench(p,[await p.evaluate(()=>"x"),"ess_Ice"]);r=await mix(p);ok(r.miss.join()==="layer","before learning, a crafted item plus an essence needs Layering");
   await p.evaluate(()=>{document.querySelector("[data-tech=layer]").click();$("learn").click()});await p.waitForTimeout(100);
   r=await p.evaluate(()=>({t:!!S.techs.layer,rp:S.rp,s:__s.filter(x=>x==="tech").length,toast:__t.filter(x=>/Learned Layering/.test(x)).length,card:pendingIntros().map(c=>c.id),shown:!$("intro").hidden&&/Layering/.test($("intro").textContent),unl:!!S.unl["t:layer"]}));
-  ok(r.t&&r.rp===3,`Layering is learned and 4 RP are spent (rp ${r.rp})`);ok(r.s===1&&r.toast===1,"it plays the tech sound and shows a toast");ok(r.card.join()==="t:layer"&&r.shown,"its intro card is queued and shows ("+r.card+")");
+  ok(r.t&&r.rp===4,`Layering is learned and 6 RP are spent (rp ${r.rp})`);ok(r.s===1&&r.toast===1,"it plays the tech sound and shows a toast");ok(r.card.join()==="t:layer"&&r.shown,"its intro card is queued and shows ("+r.card+")");
   await shot(p,w,"1b-learned-intro");
   await bench(p,["x","ess_Ice"]);r=await mix(p);ok(!r.miss.length&&r.dis==="false","learning Layering enables the craft");
   const f=await forge(p);ok(f.journal===1,"... and it forges");
@@ -108,7 +110,7 @@ async function learning(browser,w){
 async function study(browser,w){
   const p=await open(browser,w);
   await p.evaluate(()=>{S.journal=[{id:"x",name:"x"}];S.items.x={id:"x",name:"Fire Sword",form:"blade",noun:"Sword",traits:{Fire:3},tier:2,crafted:true,recipeIds:["iron_sword","ess_Fire"],recipe:["a","b"]};S.inv.x=1;S.xp=120;
-    UNLOCKS.forEach(u=>S.seen["i:"+u.id]=true);S.rpd={};addItem(essG("Fire",3),3);addItem(essG("Fire",1),1);S.rp=0;S.view="forge";render();$("resd").open=true;render()});
+    UNLOCKS.forEach(u=>S.seen["i:"+u.id]=true);S.rpd={"lv:2":1};addItem(essG("Fire",3),3);addItem(essG("Fire",1),1);S.rp=0;S.view="forge";render();$("resd").open=true;render()});
   const st=()=>p.evaluate(()=>({h:JSON.stringify(S.rxh),fire:S.inv.ess_Fire,faint:S.inv["ess_Fire@1"]||0,rp:S.rp,toast:__t[__t.length-1],part:(go("recipes"),document.querySelectorAll("#reactions .rx1.part").length),unk:document.querySelectorAll("#reactions .rx1.unk").length,tip:[...document.querySelectorAll("#reactions .rx1.part")].map(e=>e.dataset.tip.replace(/\n/g," | ")),back:go("forge")}));
   let r=await p.evaluate(()=>{document.querySelector("[data-study=Fire]").click();return 0});r=await st();
   ok(r.h==='{"Fire+Ice":["Fire"]}'&&r.faint===0&&r.fire===3,"study 1 spends the lowest grade (the Faint one) and shows Fire in a reaction: "+r.h);ok(r.rp===1,"... and the first study of a family pays 1 RP");
@@ -155,8 +157,8 @@ async function insight(browser,w){
   await p.close();
 }
 
-async function master(browser){
-  const p=await open(browser,390);
+async function master(browser,w=390){
+  const p=await open(browser,w);
   const setup=()=>p.evaluate(()=>{UNLOCKS.forEach(u=>S.seen["i:"+u.id]=true);S.journal=[{id:"x",name:"x"}];S.items.x={id:"x",name:"Fire Sword",form:"blade",noun:"Sword",traits:{Fire:3},tier:2,crafted:true,recipeIds:["iron_sword","ess_Fire"],recipe:["a","b"]};S.xp=2000;
     TECHS.forEach((t,i)=>{if(t.id!=="master")S.techs[t.id]=i+1});S.rpd={};S.hints=[0,1,2];S.stats.forged=1;S.skills={weapon:2000,alchemy:2000,shield:2000,body:2000,trinket:2000,cooking:2000,brewing:2000,helm:2000,gloves:2000,boots:2000};});
   await setup();
@@ -166,6 +168,11 @@ async function master(browser){
     out.a=f(["iron_sword","rime_fang","ess_Ice"]);out.hint=S.hints.includes(idx);out.b=f(["iron_sword","rime_fang","ess_Ice"]);out.leg=S.last.item.legendary;return out});
   ok(r.a===1&&!r.had&&r.hint,"a craft with 2 of a secret's 3 ingredients senses it and surfaces its rumor");ok(r.b===0,"... only the first time");
   // the exact ingredients without Masterwork: an ordinary piece plus an insight, never legendary
+  // the warning: exact ingredients without Masterwork show it and need a second tap
+  await p.evaluate(()=>{["hunter_spear","gnarl_tusk","nightshade"].forEach(i=>{if(!S.inv[i])addItem(i,3)});S.bench=["hunter_spear","gnarl_tusk","nightshade"];S.view="forge";render();$("mixhint").scrollIntoView({block:"center"})});await shot(p,w,"6-secret-warning");
+  r=await p.evaluate(()=>{const ids=["hunter_spear","gnarl_tusk","nightshade"];ids.forEach(i=>{if(!S.inv[i])addItem(i,3)});S.bench=ids;S.view="forge";render();const warn=/ingredients of something legendary/.test($("mixhint").textContent);
+    Math.random=()=>.99;const n=S.journal.length;$("combine").click();const first=S.journal.length-n,armed=$("combine").textContent;$("combine").click();return{warn,first,armed,second:S.journal.length-n}});
+  ok(r.warn&&r.first===0&&/again/.test(r.armed)&&r.second===1,"the exact ingredients of a secret warn about Masterwork and need a second tap ("+r.armed+")");
   r=await p.evaluate(()=>{const idx=SECRETS.findIndex(s=>s.name==="Stormcaller"),ids=["oak_staff","rune_shard","ess_Swift"];essence("Swift");ids.forEach(i=>{if(!S.inv[i])addItem(i,3)});S.bench=ids;S.view="forge";render();
     const pre=combine(ids.map(i=>S.items[i]),{roll:100});const o={mw:pre.mw===idx,leg:pre.item.legendary,id:pre.item.id,disabled:$("combine").disabled,pv:$("mixhint").textContent};
     Math.random=()=>.99;$("combine").click();$("combine").click();const it=S.items[S.last.id];Object.assign(o,{leg2:!!it.legendary,name:it.name,ins:S.last.log.filter(l=>/Masterwork/.test(l.t)).length,found:found(SECRETS[idx]),hint:S.hints.includes(idx),plain:it.id,dom:$("result").textContent});return o});
@@ -192,12 +199,14 @@ async function migration(browser){
     const up=(()=>{const s=clone();s.wins=2;s.xp=40;craft(s,"c_a",["iron_sword","ess_Fire"]);s.unl.upgrade=99;s.seen["i:upgrade"]=true;return migrate(JSON.parse(JSON.stringify(s)))})();
     const qs=[0,2,3,4,15].map(q=>{const s=clone();s.quest=q;return migrate(JSON.parse(JSON.stringify(s))).quest});
     const o13=(()=>{const s=clone();s.v=13;delete s.unl;s.quest=5;s.wins=2;return migrate(JSON.parse(JSON.stringify(s))).quest})(),o13b=(()=>{const s=clone();s.v=13;delete s.unl;s.quest=9;s.wins=2;return migrate(JSON.parse(JSON.stringify(s))).quest})();
+    const mk14=q=>{const s=clone();s.quest=q;return migrate(JSON.parse(JSON.stringify(s))).quest},mk13=q=>{const s=clone();s.v=13;delete s.unl;s.quest=q;s.wins=2;return migrate(JSON.parse(JSON.stringify(s))).quest};
     const k=s=>Object.keys(s.techs).join();
-    return{a:k(a),b:k(b),many:k(many),ref:k(ref),aRp:a.rp,aUnl:["research","t:layer","upgrade"].map(x=>!!a.unl[x]),aSeen:!!a.seen["i:research"],upUnl:!!up.unl.upgrade,upSeen:!!up.seen["i:upgrade"],refUnl:!!ref.unl.upgrade,qs,o13,o13b,len:TUTORIAL.length,bUnl:!!b.unl["t:layer"],bSeen:!!b.seen["i:t:layer"],aT:Object.keys(a.rpd)}});
+    return{a:k(a),b:k(b),many:k(many),ref:k(ref),aRp:a.rp,aUnl:["research","t:layer","upgrade"].map(x=>!!a.unl[x]),aSeen:!!a.seen["i:research"],upUnl:!!up.unl.upgrade,upSeen:!!up.seen["i:upgrade"],refUnl:!!ref.unl.upgrade,qs,o13,o13b,len:TUTORIAL.length,v13:[0,2,3,5,6,7].map(mk13),v14:[6,7,15].map(mk14),bUnl:!!b.unl["t:layer"],bSeen:!!b.seen["i:t:layer"],aT:Object.keys(a.rpd)}});
   ok(m.a==="bind","a borderline v14 save (2 wins, 1 craft) migrates with only Binding ("+m.a+")");ok(m.b==="bind,layer","... and Layering when it layered a craft ("+m.b+")");
   ok(m.bUnl&&m.bSeen,"... a technique it already used has its intro marked read");ok(m.many.split(",").length>=7&&/temper/.test(m.many)&&/alloy/.test(m.many)&&/compound/.test(m.many),"3+ inputs and a fusion in the journal earn Tempering, Alloying and what they need ("+m.many+")");
   ok(m.ref.includes("refine")&&m.refUnl,"a save that refined keeps Refining and the upgrade panel");ok(!m.upUnl&&!m.upSeen,"a save with the upgrade panel open but no Refining loses the panel until it learns Refining");
-  ok(m.aUnl.join()==="true,false,false"&&!m.aSeen,"the borderline save gets Research open (it has crafted) with its intro still to read ("+m.aUnl+")");ok(m.aRp>=4,"... and the points its past discoveries earned ("+m.aRp+")");
+  ok(m.aUnl.join()==="true,false,false"&&!m.aSeen,"the borderline save gets Research open (it has crafted) with its intro still to read ("+m.aUnl+")");ok(m.aRp>=3,"... and the points its past discoveries earned ("+m.aRp+")");
+  ok(m.v13.join()==="0,2,4,6,7,"+m.len&&m.v14.join()==="7,8,"+m.len,`quests migrate cleanly: v13 0,2,3,5,6,7 -> ${m.v13}; v14 6,7,15 -> ${m.v14}`);
   ok(m.qs.join()==="0,2,4,5,16"&&m.o13===6&&m.o13b===m.len,"the goal step inserted at 3 shifts quests 3 and above ("+m.qs+"; a v13 save at 5 -> "+m.o13+", past its chain -> "+m.o13b+")");
   await p.close();
   // every older fixture loads as a veteran with everything (smoke.js plays them; this checks the migration only)
@@ -214,6 +223,6 @@ async function migration(browser){
   for(const w of SHOTS?[390,360]:[390])await flow(browser,w);
   await sources(browser);
   for(const w of SHOTS?[390,360]:[390]){await learning(browser,w);await study(browser,w);await insight(browser,w)}
-  await master(browser);await migration(browser);await browser.close();
+  for(const w of SHOTS?[390,360]:[390])await master(browser,w);await migration(browser);await browser.close();
   console.log(fails?`RESEARCH CHECK FAILED (${fails})`:"RESEARCH CHECK OK");process.exit(fails?1:0);
 })();
