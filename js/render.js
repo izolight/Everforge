@@ -23,7 +23,7 @@ function statBreakdown(it){
 function upgradeSummary(it,other){
   const a=shown(it),b=shown(other),changes=Object.keys(STAT_NAMES).filter(k=>a[k]!==b[k]).map(k=>`${STAT_NAMES[k]} ${a[k]-b[k]>0?"+":""}${a[k]-b[k]}`);
   const old=effects(other),added=effects(it).filter(e=>!e.meta&&e.key!=="ability"&&!old.some(o=>o.key===e.key&&o.value===e.value)).slice(0,2).map(e=>e.text);
-  return `<p class="upgrade-summary">${tx("Compared with {item}: {changes}.",{item:iname(other),changes:changes.length?changes.join(", "):tx("Core stats unchanged")})}${added.length?` ${added.join(". ")}.`:""}</p>`;
+  return `<p class="upgrade-summary">${tx("Compared with {item}: {changes}.",{item:esc(iname(other)),changes:changes.length?changes.join(", "):tx("Core stats unchanged")})}${added.length?` ${added.join(". ")}.`:""}</p>`;
 }
 function itemProperties(it,other,full,label){
   const gear=isGear(it),title=tx(gear?"Traits":"Crafting traits");
@@ -32,7 +32,7 @@ function itemProperties(it,other,full,label){
 const statLine=st=>Object.entries(STAT_NAMES).filter(([k])=>st[k]).map(([k,l])=>`${l} ${st[k]>0?"+":""}${st[k]}`).join(" · ");
 const famChip=(f,pre)=>`<span class="chip fam" style="color:${FAM[f]}">${pre?pre+" ":""}${famN(f)}</span>`;
 const unkChip=t=>`<span class="chip unk">${t}</span>`;
-const nameHtml=it=>`<span style="color:${rarity(it)[1]}">${iname(it)}</span>`;
+const nameHtml=it=>`<span style="color:${rarity(it)[1]}">${esc(iname(it))}</span>`; // the name is shown text: never markup (a save can hold any name)
 function delta(a,b){const d=a-b;if(!d)return `<em class="d same">±0</em>`;return `<em class="d ${d>0?"up":"down"}">${d>0?"▲":"▼"}${Math.abs(d)}</em>`}
 const shown=it=>{const s=statsOf(it);return grp(it)==="consumable"?{...s,heal:medHeal(it)}:s}; // consumables show the heal they really restore
 function statGrid(st,cmp,full){ // icon + number per stat (full adds the word); with cmp, a delta against the other item
@@ -49,20 +49,22 @@ function hpBar(cur,max,cls){const p=Math.max(0,cur)/max;return `<div class="bar 
 const gcol=id=>S.items[id].grade?GRADES[S.items[id].grade-1][1]:"var(--accent)";
 const lootChips=ids=>ids.map(id=>{const it=S.items[id];return `<button class="sq" style="${rcol(it)}" data-item="${id}" aria-label="${esc(iname(it))}. ${itemAria(it)}" ${itemTip(it)}>${glyph(it)}</button>`}).join(""); // loot as small item squares
 
-const shopRow=(id,label,c,off)=>`<div class="shoprow"><button class="chip" data-item="${id}" style="color:${gcol(id)}">${iname(S.items[id])}</button><button class="btn sm" data-choice="${c}" ${off?"disabled":""}>${label}</button></div>`;
+const shopRow=(id,label,c,off)=>`<div class="shoprow"><button class="chip" data-item="${id}" style="color:${gcol(id)}">${esc(iname(S.items[id]))}</button><button class="btn sm" data-choice="${c}" ${off?"disabled":""}>${label}</button></div>`;
 const shopHtml=ev=>`<div class="shop"><p class="label">${tx("For sale · you have {n} embers",{n:S.embers})}</p>${ev.stock.map((e,i)=>e.done?"":shopRow(e.id,`${icon("ember")}${e.price}`,`buy:${i}`,S.embers<e.price)).join("")}
-  ${ev.sells.some(e=>!e.done)?`<p class="label">${tx("Sell a spare")}</p>${ev.sells.map((e,i)=>e.done?"":shopRow(e.id,tx("Sell +{n}",{n:e.price}),`sell:${i}`)).join("")}`:""}</div>`;
+  ${ev.sells.some(e=>!e.done)?`<p class="label">${tx("Sell a spare")}</p>${ev.sells.map((e,i)=>e.done?"":shopRow(e.id,isArmed("sell:"+i)?tx("Tap again to sell"):tx("Sell +{n}",{n:e.price}),`sell:${i}`)).join("")}`:""}</div>`;
 const topT=id=>topTraits(S.items[baseIdOf(id)].traits)[0][0];
 function renderUpgrade(){
   $("upgp").hidden=!isUnl("upgrade");if(!isUnl("upgrade"))return;
   const lv=skLv("alchemy"),ids=upgradable().sort((a,b)=>topT(a).localeCompare(topT(b))||S.items[baseIdOf(a)].name.localeCompare(S.items[baseIdOf(b)].name)||gradeOf(a)-gradeOf(b));
   $("upgsum").innerHTML=`${ic("upgrade","s")} ${tx("Upgrade grades")}${ids.length?` <b class="rdy">${ids.length}</b>`:""}${helpBtn(tx("Upgrade grades"),tx("{n} essences or materials of one grade and some embers make 1 of the next grade (Faint, Lesser, Plain, Greater, Pure): stronger traits, in a single crucible slot.",{n:UP.n}),tx("A miss costs the embers and one of them."),tx("Greater needs Alchemy Lv {a}, Pure Lv {b}. You are Lv {lv}.",{a:GRADE_LV[3],b:GRADE_LV[4],lv}))}`;
-  $("upgrows").innerHTML=ids.length?ids.map(id=>{const g=gradeOf(id),tg=g+1,it=S.items[id],low=lv<GRADE_LV[tg-1],poor=S.embers<UP.emb[g-1];
-    return `<div class="shoprow up">${glyph(it)}<span class="uname"><span style="color:${GRADES[g-1][1]}">${iname(it)}</span> <small>×${avail(id)}</small></span>
-      <button class="btn sm" data-upgrade="${id}" ${inBattle()||low||poor?"disabled":""} aria-label="${esc(tx("Upgrade {item} to {grade}",{item:iname(it),grade:gradeN(tg)}))}" ${tt(`${iname(it)} → ${gradeN(tg)}`,low?tx("Needs Alchemy Lv {n}",{n:GRADE_LV[tg-1]}):tx("{n} of them and {e} embers make 1. {p}% to succeed.",{n:UP.n,e:UP.emb[g-1],p:upChance(tg)}))}>${low?`${ic("lock","s")} ${tx("Lv {n}",{n:GRADE_LV[tg-1]})}`:`${icon("ember")}${UP.emb[g-1]} · ${gradeN(tg)} · ${upChance(tg)}%`}</button></div>`}).join(""):`<p class="foot">${tx("Collect {n} of the same grade of an essence, ore, hide or herb to upgrade them.",{n:UP.n})}</p>`;
+  $("upgrows").innerHTML=ids.length?ids.map(id=>{const g=gradeOf(id),tg=g+1,it=S.items[id],low=lv<GRADE_LV[tg-1],poor=S.embers<UP.emb[g-1],battle=inBattle();
+    const why=battle?tx("Finish the fight first."):low?tx("Needs Alchemy Lv {n}",{n:GRADE_LV[tg-1]}):poor?tx("Not enough embers."):""; // a refused upgrade says why
+    const cost=`${icon("ember")}${UP.emb[g-1]} · ${gradeN(tg)} · ${upChance(tg)}%`;
+    return `<div class="shoprow up">${glyph(it)}<span class="uname"><span style="color:${GRADES[g-1][1]}">${esc(iname(it))}</span> <small>×${avail(id)}</small></span>
+      <button class="btn sm" data-upgrade="${id}" ${why?`aria-disabled="true" data-tap`:""} aria-label="${esc(tx("Upgrade {item} to {grade}",{item:iname(it),grade:gradeN(tg)}))}" ${tt(`${iname(it)} → ${gradeN(tg)}`,why,tx("{n} of them and {e} embers make 1. {p}% to succeed.",{n:UP.n,e:UP.emb[g-1],p:upChance(tg)}))}>${battle?why:low?`${ic("lock","s")} ${tx("Lv {n}",{n:GRADE_LV[tg-1]})}`:poor?why:cost}</button></div>`}).join(""):`<p class="foot">${tx("Collect {n} of the same grade of an essence, ore, hide or herb to upgrade them.",{n:UP.n})}</p>`;
 }
 // ================= RENDER =================
-let deconArmed=false,forgeArmed="",freshShown=new Set(),logOpen=false,heatOpen=false,legendOpen=false;
+let freshShown=new Set(),logOpen=false,heatOpen=false,legendOpen=false;
 function renderHeader(){
   const l=level(),cur=XP_LV[l-1],nxt=XP_LV[l];clampHp();
   const lt=`${tx("Smith Lv {l}",{l})}\n${nxt?tx("{a}/{b} XP to Lv {n}.",{a:S.xp-cur,b:nxt-cur,n:l+1}):tx("Highest level reached.")}${LV_PERK[l]?` ${tx(LV_PERK[l])}`:""}\n${tx("Smith XP comes from forging and unlocks crucible slots, trait slots and appraisal.")}`;
@@ -76,9 +78,9 @@ const viewName=v=>v==="battle"?tx("Explore"):tx(cap(v));
 function renderNav(){
   $("nav").innerHTML=VIEWS.filter(v=>v!=="settings").map(v=>{
     let badge="";
-    if(v==="battle"&&inBattle()&&S.view!=="battle")badge=`<i class="badge-dot pulse" aria-label="${esc(tx("battle in progress"))}"></i>`;
-    if(v==="gear"&&S.fresh.length&&S.view!=="gear"&&S.view!=="forge")badge=`<i class="badge-dot" aria-label="${esc(tx("{n} new items",{n:S.fresh.length}))}">${S.fresh.length}</i>`;
-    if(!badge&&S.view!==v&&!inBattle()&&pendingIntros().some(c=>c.ctx!=="battle"&&c.tab===v))badge=`<i class="badge-dot pulse" aria-label="${esc(tx("new introduction"))}"></i>`;
+    if(v==="battle"&&inBattle()&&S.view!=="battle")badge=`<i class="badge-dot pulse" role="img" aria-label="${esc(tx("battle in progress"))}"></i>`;
+    if(v==="gear"&&S.fresh.length&&S.view!=="gear"&&S.view!=="forge")badge=`<i class="badge-dot" role="img" aria-label="${esc(tx("{n} new items",{n:S.fresh.length}))}">${S.fresh.length}</i>`;
+    if(!badge&&S.view!==v&&!inBattle()&&pendingIntros().some(c=>c.ctx!=="battle"&&c.tab===v))badge=`<i class="badge-dot pulse" role="img" aria-label="${esc(tx("new introduction"))}"></i>`;
     return `<button data-view="${v}" aria-current="${S.view===v?"page":"false"}">${icon(v)}<span>${viewName(v)}</span>${badge}</button>`}).join("");
   VIEWS.forEach(v=>$("v-"+v).hidden=S.view!==v);
 }
@@ -86,8 +88,10 @@ function renderGoal(){
   const g=goal(),el=$("goal"),st=g.short||g.step;
   el.hidden=inBattle();
   el.className="goal"+(g.done?" done":"");
-  el.innerHTML=`<div class="gt" ${tt(g.step+(g.prog?` · ${g.prog}`:""),g.text,g.done?tx("Reward: {list}",{list:rewardText(g.reward)}):"")}><small>${st}</small> ${g.text}${g.prog?` <em>${g.prog}</em>`:""}</div>
-    ${g.choose?`<button class="btn sm" id="chooseBounty">${tx("Choose bounty")}</button>`:g.done?`<button class="btn primary sm" id="claim">${tx("Claim")}</button>`:S.view!==g.tab?`<button class="btn sm" id="goGoal">${tx("Go to {tab}",{tab:viewName(g.tab)})}</button>`:""}`;
+  const btn=g.choose?`<button class="btn sm" id="chooseBounty">${tx("Choose bounty")}</button>`:g.done?`<button class="btn primary sm" id="claim">${tx("Claim")}</button>`:S.view!==g.tab?`<button class="btn sm" id="goGoal">${tx("Go to {tab}",{tab:viewName(g.tab)})}</button>`:"";
+  const html=`<div class="gt" ${tt(g.step+(g.prog?` · ${g.prog}`:""),g.text,g.done?tx("Reward: {list}",{list:rewardText(g.reward)}):"")}><small>${st}</small> ${g.text}${g.prog?` <em>${g.prog}</em>`:""}</div>${btn}`;
+  const sig=st+g.text+(g.prog||"")+(g.done?tx("Reward: {list}",{list:rewardText(g.reward)}):"")+btn;
+  if(el.dataset.sig!==sig){el.dataset.sig=sig;el.innerHTML=html} // the live region is only rewritten when its text changes, like the intro card
 }
 const itemLines=it=>[iname(it),`${rarity(it)[0]} · ${labelOf(it)}${isGear(it)?` · ${tx("PWR {n}",{n:power(it)})}`:""}`,grp(it)==="consumable"?useHint(it):isGear(it)?statLine(shown(it)):tx("Crafting ingredient"),topTraits(it.traits).slice(0,4).map(([t,v])=>`${trn(t)} ${v}`).join(", ")];
 const itemTip=(it,...x)=>tt(...itemLines(it),...x),itemAria=it=>esc(itemLines(it).slice(1).filter(Boolean).join(". ")); // the tip text also goes in aria-label, for screen readers
@@ -123,7 +127,7 @@ function renderGear(){
     const [t,r]=e,st=innateStats(t),bits=Object.entries(st).filter(([,v])=>v);
     return `<div class="islot on" style="border-color:${tColor(t)};color:${tColor(t)}" ${tt(`${trn(t)} ${R[r-1]}`,bits.map(([s,v])=>`${v>0?"+":""}${v} ${STAT_NAMES[s]}`).join(", ")||tx("Effect on hit"),tx("Rank {r} of {m}",{r,m:INF_MAX}))}>${traitIc(t,"l")}<b>${trn(t)} ${R[r-1]}</b><span class="ib">${bits.map(([s,v])=>`<span>${stIc(s,"xs")}${v>0?"+":""}${v}</span>`).join("")||`<span>${tx("on hit")}</span>`}</span></div>`}).join("");
   const cr=S.infCredit?`<p class="foot" style="flex-basis:100%">${tx("Credit: {n} plain, spent first on your next infusion.",{n:creditTxt(S.infCredit)})}</p>`:"";
-  $("infbtns").innerHTML=can.map(t=>`<button class="btn sm" data-infuse="${t}" style="border-color:${tColor(t)}">${traitIc(t,"s")} ${S.infuse[t]?tx("Deepen {trait} → {rank}",{trait:trn(t),rank:R[S.infuse[t]]}):tx("Infuse {trait}",{trait:trn(t)})} · ${payText(infPay(t,Math.max(0,INF_NEED-S.infCredit)))||tx("credit")}</button>`).join("")+cr;
+  $("infbtns").innerHTML=can.map(t=>`<button class="btn sm" data-infuse="${t}" style="border-color:${tColor(t)}">${traitIc(t,"s")} ${isArmed("infuse:"+t)?tx("Tap again to infuse"):S.infuse[t]?tx("Deepen {trait} → {rank}",{trait:trn(t),rank:R[S.infuse[t]]}):tx("Infuse {trait}",{trait:trn(t)})} · ${payText(infPay(t,Math.max(0,INF_NEED-S.infCredit)))||tx("credit")}</button>`).join("")+cr;
 }
 const lockAct=id=>`<button class="btn act lk" id="${id}" aria-disabled="true" data-tap aria-label="${esc(tx("{name}, locked. {txt}",{name:tx(UNL[id].name),txt:tx(UNL[id].txt)}))}" ${tt(tx("{name} (locked)",{name:tx(UNL[id].name)}),tx(UNL[id].txt))}>${ic("lock")}<span>${tx(UNL[id].name)}</span></button>`; // an action-grid button that is not open yet
 const introIn=c=>`<span class="ii" aria-hidden="true">${ic(c.ic,"l")}</span><div class="it"><b>${c.t}</b>${c.l.map(x=>`<p>${x}</p>`).join("")}</div><button class="btn sm" id="introOk" data-intro="${c.id}">${tx("Got it")}</button>`; // a one-time intro card (non-modal; Got it marks it read)
@@ -168,7 +172,7 @@ function foeStage(B){
       <div class="chips">${kw.map(f=>ci(FAM[f],ic("weak","s")+famIc(f,"s"),"",tx("Weak to {fam}",{fam:famN(f)}),tx("Takes 50% more from it."))).join("")}${kr.map(f=>ci(FAM[f],ic("resist","s")+famIc(f,"s"),"",tx("Resists {fam}",{fam:famN(f)}),tx("Takes 40% less from it."))).join("")}${unknown>0?`<span class="chip unk" ${tt(tx("{n} unknown",{n:unknown}),tx("Weaknesses and resistances you have not found yet. Hit it, or Study."))}><b>?</b>${unknown}</span>`:""}${st}</div></div></div>`;
 }
 function logBlock(B){
-  const entry=(l,tag)=>`<${tag} class="ll log-${l.c||"note"}">${ic(({you:"attack",foe:"hit",good:"guard",big:"crit",lore:"study"})[l.c]||"turn","s")}<span>${l.t}</span></${tag}>`;
+  const entry=(l,tag)=>`<${tag} class="ll log-${l.c||"note"}">${ic(({you:"attack",foe:"hit",good:"guard",big:"crit",lore:"study"})[l.c]||"turn","s")}<span>${esc(l.t)}</span></${tag}>`; // a log line is text, never markup
   const last=B.log.slice(-2).map(l=>entry(l,"span")).join("");
   return `<details class="logd" id="logd"${logOpen?" open":""}><summary>${last}<span class="more">${ic("list","s")}</span></summary><ul class="blog" id="blog">${B.log.map(l=>entry(l,"li")).join("")}</ul></details>`;
 }
@@ -189,17 +193,17 @@ function mapHead(){
   const badges=(dl?`<span class="heat daily" ${tt(tx("Daily expedition"),DAILY_TWISTS[d.twist].name,DAILY_TWISTS[d.twist].desc)}>${ic("daily","s")}</span>`:"")
     +(dl||!hz.max||!isUnl("heat")?(h?`<span class="heat" ${tt(tx("Heat {n}",{n:h}),...HEAT.slice(0,h).map(x=>x.name))}>${ic("heat","s")}${h}</span>`:""):`<button class="heat hb" id="heatBtn" aria-expanded="${heatOpen}" aria-label="${esc(tx("Heat: this map {a}, next expedition {b}",{a:h?h:tx("Normal"),b:hz.sel||tx("Normal")}))}" ${tt(`${tx("Heat")} ${h||tx("Normal")}`,h?HEAT[h-1].name:tx("Normal difficulty."),tx("Tap to choose the Heat of new expeditions."))}>${ic("heat","s")}${h}${hz.sel!==h&&!m.cleared?`<small>›${hz.sel}</small>`:""}</button>`);
   const amb=m.amb?`<span class="heat amb" ${tt(tx("Ambush"),tx("A whistle sounds behind you. If your next stop is a fight, it starts with an ambush."))}>${ic("warn","s")}</span>`:"";
-  const ab=dl?`<button class="ibt${dArmed?" warn":""}" id="dailyAbandon" aria-label="${esc(dArmed?tx("Tap again to abandon"):tx("Abandon the daily"))}" ${tt(dArmed?tx("Tap again to abandon"):tx("Abandon the daily"),dArmed?tx("No retry today."):tx("Tap twice. You get no retry today."))}>${ic(dArmed?"warn":"close")}</button>`:"";
+  const ab=dl?`<button class="ibt${isArmed("daily")?" warn":""}" id="dailyAbandon" aria-label="${esc(isArmed("daily")?tx("Tap again to abandon"):tx("Abandon the daily"))}" ${tt(isArmed("daily")?tx("Tap again to abandon"):tx("Abandon the daily"),isArmed("daily")?tx("No retry today."):tx("Tap twice. You get no retry today."))}>${ic(isArmed("daily")?"warn":"close")}</button>`:"";
   const sel=!dl&&hz.max&&isUnl("heat")&&heatOpen?`<div class="hpanel"><div class="hsel" role="group" aria-label="${esc(tx("Heat for new expeditions"))}">${Array.from({length:hz.max+1},(_,n)=>`<button class="hchip" data-heat="${n}" aria-pressed="${hz.sel===n}" aria-label="${esc(n?tx("Heat {n}",{n}):tx("Normal"))}" ${n?tt(HEAT[n-1].name,HEAT[n-1].desc):tt(tx("Normal"),tx("Normal difficulty."))}>${n?ic("heat","s")+n:"0"}</button>`).join("")}</div>
     <p class="foot">${hz.sel?tx("Heat {n}, {name}: {desc} In all: {tot}.",{n:hz.sel,name:HEAT[hz.sel-1].name,desc:HEAT[hz.sel-1].desc,tot:heatTot(hz.sel)}):tx("New expeditions: normal difficulty.")}${hz.sel!==h&&!m.cleared?" "+tx("This map is Heat {n}; the choice applies to your next expedition here.",{n:h}):""}</p></div>`:"";
   return `<div class="mhead"><div class="mr"><span class="yg" ${tt(tx("You"),P.main?iname(P.main):tx("Bare fists"))}>${heroMini()}</span><div class="hpline" id="youHud" ${tt(`${tx("HP")} ${S.hp}/${P.maxHp}`)}>${hpBar(S.hp,P.maxHp)}<span class="hpnum">${S.hp}<small>/${P.maxHp}</small></span></div>
     ${ci("var(--fg)",stIc("atk","s"),P.atk,`${STAT_NAMES.atk} ${P.atk}`,tx("Strike power of your main hand."))}${ci("var(--fg)",stIc("def","s"),`${Math.round(P.red*100)}%`,`${STAT_NAMES.def} ${P.def}`,tx("Cuts the damage you take by {p}%.",{p:Math.round(P.red*100)}))}</div>
-    <div class="mr">${torch}${amb}${badges}${campBtn()}${ab}${help}</div>${sel}<p class="mnow${m.ls===m.steps&&m.steps?" mnew":""}">${S.onboarding===3?tx(openingWeaponReady()?"Step onto an empty tile to try your enchanted weapon.":"Equip your fire weapon in Gear to try its effects."):S.onboarding===2?tx("Deconstruct the Ember Coal, then bind a Fire essence into your sword."):(m.log||[]).slice(-1)[0]||tx("Tap a glowing tile next to you to set out.")}</p></div>`;
+    <div class="mr">${torch}${amb}${badges}${campBtn()}${ab}${help}</div>${sel}<p class="mnow${m.ls===m.steps&&m.steps?" mnew":""}">${S.onboarding===3?tx(openingWeaponReady()?"Step onto an empty tile to try your enchanted weapon.":"Equip your fire weapon in Gear to try its effects."):S.onboarding===2?tx("Deconstruct the Ember Coal, then bind a Fire essence into your sword."):esc((m.log||[]).slice(-1)[0]||tx("Tap a glowing tile next to you to set out."))}</p></div>`;
 }
 function riftCard(){ // the Rift: the region you stand in, its depth and your record
   if(S.zone!==RIFT_ZONE)return "";
   const r=S.rift||{},nm=r.name||tx("unknown");
-  return `<div class="dcard rift"><div class="dtop"><b>${ic("mystery")} ${tx("The Wanderer's Rift")}</b><span class="dline"><span>${tx("Region: {name}",{name:nm})}</span><span class="heat">${tx("Depth {n}",{n:r.depth||1})}</span><span class="heat">${tx("Best {n}",{n:r.best||0})}</span></span>
+  return `<div class="dcard rift"><div class="dtop"><b>${ic("mystery")} ${tx("The Wanderer's Rift")}</b><span class="dline"><span>${tx("Region: {name}",{name:esc(nm)})}</span><span class="heat">${tx("Depth {n}",{n:r.depth||1})}</span><span class="heat">${tx("Best {n}",{n:r.best||0})}</span></span>
     ${helpBtn(tx("The Wanderer's Rift"),tx("Every expedition rolls a new region: a biome, ten wild creatures and a master."),tx("Wild creatures carry affixes of their own, and the master carries three."),tx("Beat the master to go one depth deeper."))}</div>
     <p class="foot">${tx("A new region every time: ten wild creatures and a master. Beat the master, then descend.")}</p>
     ${r.cleared?`<div class="actions"><button class="btn primary sm grow" id="riftNext">${tx("Descend deeper")}</button></div>`:""}</div>`}
@@ -228,13 +232,14 @@ function heroView(){
 }
 function renderBattle(){
   $("zones").innerHTML=ZONES.map(([id,name,boss],i)=>{const open=zoneOpen(id),cleared=S.kills[boss]>0;
-    return `<button class="zone" data-zone="${id}" aria-pressed="${S.zone===id}" ${open&&!busy()&&S.run!=="daily"?"":"disabled"}>${tx(name)}${cleared?" ✓":""}${open?"":` · ${tx("beat {boss}",{boss:shortName(ZONES[i-1][2])})}`}</button>`}).join("");zoneView();
+    const held=busy()||S.run==="daily",why=held?(S.run==="daily"?tx("Finish or abandon the daily first."):tx("Finish the fight first.")):""; // a chip you cannot use says why
+    return `<button class="zone" data-zone="${id}" aria-pressed="${S.zone===id}" ${!open?"disabled":held?`aria-disabled="true" data-tap ${tt(tx(name),why)}`:""}>${tx(name)}${cleared?" ✓":""}${open?"":` · ${tx("beat {boss}",{boss:shortName(ZONES[i-1][2])})}`}</button>`}).join("");zoneView();
   const a=$("arena"),B=S.battle,cont=`<div class="actions"><button class="btn primary grow" id="cont">${tx("Back to the map")}</button></div>`;
   if(S.event){const ev=S.event;
-    a.innerHTML=`<div class="event">${ev.icon?`<svg class="evart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true">${NODE_G[ev.icon]}</svg>`:""}<h2>${ev.title}</h2><p class="empty">${ev.text}</p></div>
+    a.innerHTML=`<div class="event">${ev.icon?`<svg class="evart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true">${NODE_G[ev.icon]}</svg>`:""}<h2>${esc(ev.title)}</h2><p class="empty">${esc(ev.text)}</p></div>
       ${ev.loot.length?`<div class="loot" style="justify-content:center">${lootChips(ev.loot)}</div>`:""}${ev.stock?shopHtml(ev):""}
-      ${ev.sc?`<p class="scrl"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true">${NODE_G.scroll}</svg><span>${ev.sc}</span></p>`:""}
-      ${ev.choices.length?`<div class="actions">${ev.choices.map(([c,l],i)=>`<button class="btn ${i===0?"primary":""} grow" data-choice="${c}">${l}</button>`).join("")}</div>`:cont}${youHud()}`;return}
+      ${ev.sc?`<p class="scrl"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true">${NODE_G.scroll}</svg><span>${esc(ev.sc)}</span></p>`:""}
+      ${ev.choices.length?`<div class="actions">${ev.choices.map(([c,l],i)=>`<button class="btn ${i===0?"primary":""} grow" data-choice="${c}">${esc(l)}</button>`).join("")}</div>`:cont}${youHud()}`;return}
   if(!B){
     const m=curMap(),zi=zoneIdx(S.zone),bossId=ZONES[zi][2],next=ZONES[zi+1];
     const head=m.cleared?`<div class="cleared"><b>${ic("ok")} ${tx("{zone} cleared",{zone:tx(ZONES[zi][1])})}</b>${helpBtn(tx("{boss} has fallen",{boss:shortName(bossId)}),next&&zoneOpen(next[0])?tx("Explore a fresh map here for more loot, or move on to {next}.",{next:tx(next[1])}):tx("Explore a fresh map here for more loot."))}
@@ -269,7 +274,7 @@ function renderBattle(){
 }
 function useHint(it){const st=statsOf(it),p=[];if(st.heal>0)p.push(tx("+{n} HP",{n:medHeal(it)}));const d=Math.round((st.atk+st.mag)*.6);if(d>=3)p.push(tx("{n} dmg",{n:d}));const c=cures(it.traits);if(c.length)p.push(tx("cures {list}",{list:c.map(s=>lc(STATUS[s].n)).join(", ")}));return p.join(" · ")||tx("no effect")}
 // Worn items a fizzle would take (the bench holds the equipped copy or the last copy)
-const equippedRisk=items=>[...new Set(items.map(i=>i.id))].filter(id=>(S.inv[id]||0)-benchCount(id)<eqCount(id)).map(id=>iname(S.items[id]));
+const equippedRisk=items=>[...new Set(items.map(i=>i.id))].filter(id=>(S.inv[id]||0)-benchCount(id)<eqCount(id)).map(id=>esc(iname(S.items[id])));
 // Forge preview line: the skill that makes this, success / mishap / fizzle odds, and the tier cap
 function craftLine(r,items){
   const risk=r.fiz>0?equippedRisk(items):[],sk=SKILLS[r.skill],cp=SK_CAP[r.lv-1],b=r.blocked,ch=(col,ics,v,...t)=>`<span class="chip" style="color:${col}" ${tt(...t)}>${ics}<b>${v}</b></span>`;
@@ -294,13 +299,13 @@ function renderBench(){
     if(i>0)parts.push('<span class="plus" aria-hidden="true">+</span>');
     if(i>=max){parts.push(`<div class="slot locked" ${tt(tx("Slot {n}",{n:i+1}),tx("Unlocks at Smith Lv {n}",{n:INPUT_LV[i-2]}))}>${ic("lock")}<small>${tx("Lv {n}",{n:INPUT_LV[i-2]})}</small></div>`);continue}
     const it=items[i];
-    parts.push(it?`<button class="slot full${!chk.ok&&chk.bad?.id===it.id?" bad":""}" style="${rcol(it)}" data-slot="${i}" aria-label="${esc(tx("Remove {item}",{item:iname(it)}))}" ${itemTip(it,tx("Tap to take it out."))}>${glyph(it)}</button>`:`<div class="slot" aria-label="${esc(tx("Empty slot"))}">${ic("plus","l")}</div>`);
+    parts.push(it?`<button class="slot full${!chk.ok&&chk.bad?.id===it.id?" bad":""}" style="${rcol(it)}" data-slot="${i}" aria-label="${esc(tx("Remove {item}",{item:iname(it)}))}" ${itemTip(it,tx("Tap to take it out."))}>${glyph(it)}</button>`:`<div class="slot" role="img" aria-label="${esc(tx("Empty slot"))}">${ic("plus","l")}</div>`);
   }
   $("slots").className=level()>=2?"slots s4":"slots";$("slots").innerHTML=parts.join("");
   let hint="",crafting=null;const miss=chk.ok&&items.length>1?craftMiss(items):[]; // techniques this craft needs and you lack
   if(!items.length)hint=`<p class="foot" style="text-align:center">${tx("Tap items below to add them.")}</p>`;
-  else if(!chk.ok)hint=`<p class="warn-text">${chk.reason}</p>`;
-  else if(items.length===1)hint=`<p class="foot">${tx("{item} takes {list}.",{item:iname(items[0]),list:acceptsText(items[0])})}</p>`;
+  else if(!chk.ok)hint=`<p class="warn-text">${esc(chk.reason)}</p>`;
+  else if(items.length===1)hint=`<p class="foot">${tx("{item} takes {list}.",{item:esc(iname(items[0])),list:acceptsText(items[0])})}</p>`;
   else if(miss.length)hint=`<p class="warn-text">${ic("lock","s")} ${techWhy(miss)}</p>${isUnl("research")?`<div class="actions"><button class="btn sm" data-gores="${miss[0]}">${ic("research","s")} ${tx("Open Research")}</button></div>`:""}`;
   else{
     const r=combine(items,{roll:100}),known=S.items[r.item.id],base=S.items[r.baseId];crafting=r;
@@ -320,7 +325,7 @@ function renderBench(){
     if(r.mw>=0)hint+=`<p class="warn-text">${ic("warn","s")} ${mwWarn()}</p>`;
   }
   $("mixhint").innerHTML=hint;
-  $("combine").textContent=forgeArmed&&forgeArmed===S.bench.join()?tx("Tap again to forge"):tx("Forge");
+  $("combine").textContent=isArmed("forge:"+S.bench.join())?tx("Tap again to forge"):tx("Forge");
   $("combine").disabled=items.length<2||!chk.ok||!!crafting?.blocked;
   $("combine").setAttribute("aria-disabled",miss.length?"true":"false");if(miss.length)$("combine").setAttribute("aria-label",techWhy(miss));else $("combine").removeAttribute("aria-label"); // the reason is the warning above the button (and its label); a bubble on top would cover it
 }
@@ -342,13 +347,13 @@ function renderPatterns(){
   patFix();const bps=knownBp(),k=patSel.k,bp=patSel.bp;
   $("patlabel").innerHTML=`<p class="label">${ic("pattern","s")} ${tx("Patterns")}</p>${helpBtn(tx("Patterns"),tx("Pick what to forge, then fill its slots with base materials. Deconstruct hides, ores and wood in the Gear tab to get them."),tx("The standard materials make the familiar piece; anything else makes a new one from the materials' traits. Better grades make stronger gear."),tx("Blueprints for named gear come from studying creatures in a fight."))}`;
   const btn=(key,isBp)=>{const on=key===k&&!!isBp===bp,nm=patLabel(key,isBp);
-    return `<button class="tab ti${isBp?" bpb":""}" data-pat="${key}" data-bp="${isBp?1:0}" aria-pressed="${on}" aria-label="${esc(nm)}" ${tt(nm,isBp?tx("Blueprint"):tx("Pattern"),patSlots(key,isBp).map(slotTxt).join(" + "))}>${isBp?glyph(S.items[key]):gIc(PATTERNS[key].form)}${on?`<span>${nm}</span>`:""}</button>`};
+    return `<button class="tab ti${isBp?" bpb":""}" data-pat="${key}" data-bp="${isBp?1:0}" aria-pressed="${on}" aria-label="${esc(nm)}" ${tt(nm,isBp?tx("Blueprint"):tx("Pattern"),patSlots(key,isBp).map(slotTxt).join(" + "))}>${isBp?glyph(S.items[key]):gIc(PATTERNS[key].form)}${on?`<span>${esc(nm)}</span>`:""}</button>`};
   $("pats").innerHTML=Object.keys(PATTERNS).map(x=>btn(x,false)).join("")+bps.map(x=>btn(x,true)).join("")
     +`<span class="foot bpn" ${tt(tx("Blueprints"),tx("Study a creature in a fight to learn the blueprint of the named gear it carries. Mastering it teaches them too."))}>${ic("scroll","xs")} ${bps.length}/${Object.keys(BLUEPRINTS).length}</span>`;
   if(!k){$("patbody").innerHTML=`<p class="foot">${Object.keys(S.inv).some(id=>isBaseMat(id)&&S.inv[id]>0)?tx("Pick a pattern to forge."):tx("Pick a pattern to forge. Deconstruct raw finds in the Gear tab to get base materials.")}</p>`;return}
   const slots=patSlots(k,bp),its=patSel.m.map(id=>id&&S.items[id]);
   const parts=slots.map((t,i)=>{const it=its[i];return (i?'<span class="plus" aria-hidden="true">+</span>':"")+(it?`<button class="slot full${it.grade?" gr":""}" style="${rcol(it)}" data-pslot="${i}" aria-label="${esc(tx("Remove {item}",{item:iname(it)}))}" ${itemTip(it,tx("Tap to take it out."))}>${glyph(it)}</button>`
-    :`<div class="slot ps" aria-label="${esc(tx("Empty slot: {types}",{types:slotTxt(t)}))}" ${tt(tx("Empty slot"),slotTxt(t))}>${ic("plus")}<small>${slotTxt(t)}</small></div>`)}).join("");
+    :`<div class="slot pslot" role="img" aria-label="${esc(tx("Empty slot: {types}",{types:slotTxt(t)}))}" ${tt(tx("Empty slot"),slotTxt(t))}>${ic("plus")}<small>${slotTxt(t)}</small></div>`)}).join("");
   const r=its.every(Boolean)?shapeResult(k,patSel.m,bp):null;
   const fit=Object.keys(S.inv).filter(id=>isBaseMat(id)&&patLeft(id)>0&&slots.some((_,i)=>!patSel.m[i]&&patFits(k,bp,i,id))).sort((a,b)=>baseName(S.items[a]).localeCompare(baseName(S.items[b]))||gradeOf(a)-gradeOf(b));
   const tiles=fit.map(id=>{const it=S.items[id],n=patLeft(id);return `<button class="sq${it.grade?" gr":""}" style="${rcol(it)}" data-pm="${id}" aria-label="${esc(iname(it)+(n!==1?`, ${n}`:""))}" ${itemTip(it,tx("You hold {n}.",{n}))}>${glyph(it)}${n!==1?`<span class="sq-n">${n}</span>`:""}${it.grade?`<span class="sq-p" style="color:var(--gc)">${ROMAN[it.grade]}</span>`:""}</button>`}).join("");
@@ -365,10 +370,10 @@ function renderResult(fresh){
   if(!S.last){el.className="panel result";el.innerHTML=`<p class="empty">${total<2?tx("You need at least two items to forge. Win battles to collect loot."):tx("Your sword takes ores, herbs, potions, essences and relics. Deconstruct raw finds in the Gear tab for materials and essences.")}</p>`;return}
   const r=S.last,ch=(col,ics,v,...t)=>`<span class="chip" style="color:${col}" ${tt(...t)}>${ics}<b>${v}</b></span>`;
   const gains=`<div class="chips">${ch("var(--accent)",ic("xp","s"),`+${r.xpGain}`,tx("Smith XP"),tx("+{n} smith XP. It raises your smith level, which opens crucible slots and trait slots.",{n:r.xpGain}))}${Object.entries(r.sx||{}).map(([k,n])=>ch("var(--fg)",skIcon(k),`+${n}`,`${SKILLS[k].name} +${n}`,r.scaled?tx("Easy or known recipes teach less."):tx("Crafting trains the skill of what you make."))).join("")}`; // the tail (fail chip) is added per branch
-  const logLi=l=>`<li class="${l.warn?"warn":""}"><strong>${tx(l.k)}</strong> ${l.t}</li>`;
+  const logLi=l=>`<li class="${l.warn?"warn":""}"><strong>${esc(tx(l.k))}</strong> ${esc(l.t)}</li>`;
   if(r.fizzle){el.className="panel result fizzle"+(fresh?" fresh":"");
     el.innerHTML=`<div class="rhead"><div><div class="rform">${tx("Fizzle")}</div><h2 class="rname">${tx("Ashes and smoke")}</h2></div></div>
-      <ul class="log"><li><strong>${tx("Recipe")}</strong> ${recipeNames(r)}</li>${r.log.map(logLi).join("")}${r.refund&&isUnl("peddler")?`<li><strong>${tx("Embers")}</strong> ${tx("You sift {n} out of the ash.",{n:r.refund})}</li>`:""}</ul>
+      <ul class="log"><li><strong>${tx("Recipe")}</strong> ${esc(recipeNames(r))}</li>${r.log.map(logLi).join("")}${r.refund&&isUnl("peddler")?`<li><strong>${tx("Embers")}</strong> ${tx("You sift {n} out of the ash.",{n:r.refund})}</li>`:""}</ul>
       ${gains}<span class="foot">${tx("you learn from failure")}</span></div>`;return}
   const it=S.items[r.id]||r.item,base=S.items[r.baseId],[rn]=rarity(it);
   const ts=targetSlot(it),eqIt=ts&&gearOf(ts),showEq=eqIt&&eqIt.id!==it.id&&eqIt.id!==base?.id;
@@ -377,7 +382,7 @@ function renderResult(fresh){
     <h2 class="rname">${nameHtml(it)}${r.isNew?`<span class="badge${it.legendary?" gold":""}">${it.legendary?tx("Legendary"):tx("New")}</span>`:""}</h2></div></div>
     ${itemProperties(it,base,false,"Compared to")}
     ${showEq?cmpBlock(it,eqIt,"Versus equipped"):""}
-    <ul class="log"><li><strong>${tx("Recipe")}</strong> ${recipeNames(r.id?it:r)}</li>${r.log.map(logLi).join("")}</ul>
+    <ul class="log"><li><strong>${tx("Recipe")}</strong> ${esc(recipeNames(r.id?it:r))}</li>${r.log.map(logLi).join("")}</ul>
     ${gains}${ch(r.mishap?"var(--accent)":"var(--up)",ic(r.mishap?"warn":"ok","s"),`${r.inst}%`,r.mishap?tx("Flawed"):tx("Held together"),tx("{n}% was the chance to fail.",{n:r.inst}))}</div>
     ${r.autoEquipped&&eqCount(it.id)?`<p class="ok-text">${tx("Equipped automatically")}</p>`:""}
     ${S.inv[it.id]>0?`<div class="actions">${isGear(it)&&!eqCount(it.id)?`<button class="btn primary" data-result-equip="${it.id}">${tx("Equip")}</button>`:""}<button class="btn${isGear(it)&&!eqCount(it.id)?" primary":""}" data-open="${it.id}">${isGear(it)&&!eqCount(it.id)?tx("Equip or inspect"):tx("Inspect")}</button></div>`:""}`;
@@ -396,7 +401,7 @@ function satchel(mode){
     let note="",no=false;
     if(mode==="forge"){if(itemLocked(it.id)){no=true;note=tx("Unlock these items before crafting.")}else if(left<=0){no=true;note=tx("All in the crucible.")}else if(full){no=true;note=tx("The crucible is full.")}else if(!checkMix([...benchItems,it]).ok){no=true;note=tx("Won't mix with what is in the crucible.")}}
     return `<button class="sq${salvageMode&&mode==="gear"&&salvageSelection.has(it.id)?" selected":""}${it.legendary?" legend":""}${it.grade?" gr":""}${eq?" eq":""}${no?" no":""}" style="${rcol(it)}" data-id="${it.id}" data-can="${no?0:1}" aria-label="${esc(iname(it)+(left!==1?`, ${left}`:"")+(eq?", "+tx("worn"):"")+(isNew?", "+tx("new"):"")+(note?`, ${note}`:""))}. ${itemAria(it)}" ${itemTip(it,left>1?tx("You hold {n}.",{n:left}):"",eq?tx("Worn."):"",note)}>
-      ${glyph(it)}${itemLocked(it.id)?`<span class="item-lock">${ic("lock","xs")}</span>`:""}${S.inventory?.layout==="list"?`<span class="item-caption"><b>${iname(it)}</b><small>${itemLines(it)[2]}</small></span>`:""}${left!==1?`<span class="sq-n">${left}</span>`:""}${eq?`<span class="sq-w">${ic("equip","xs")}</span>`:""}${isGear(it)||it.grade?`<span class="sq-p"${it.grade?` style="color:var(--gc)"`:""}>${isGear(it)?power(it):ROMAN[it.grade]}</span>`:""}${isNew?'<i class="sq-d"></i>':""}</button>`}).join("")
+      ${glyph(it)}${itemLocked(it.id)?`<span class="item-lock">${ic("lock","xs")}</span>`:""}${S.inventory?.layout==="list"?`<span class="item-caption"><b>${esc(iname(it))}</b><small>${esc(itemLines(it)[2])}</small></span>`:""}${left!==1?`<span class="sq-n">${left}</span>`:""}${eq?`<span class="sq-w">${ic("equip","xs")}</span>`:""}${isGear(it)||it.grade?`<span class="sq-p"${it.grade?` style="color:var(--gc)"`:""}>${isGear(it)?power(it):ROMAN[it.grade]}</span>`:""}${isNew?'<i class="sq-d"></i>':""}</button>`}).join("")
     :`<p class="empty">${tx("Nothing here yet.")}</p>`;
   return [tabs,tiles];
 }
@@ -404,7 +409,7 @@ function renderSatchels(){
   renderInventoryTools();
   if(S.view==="gear"){const [t,i]=satchel("gear");$("gtabs").innerHTML=t;$("ginv").innerHTML=i;
     const dl=deconList(),n=dl.reduce((a,id)=>a+avail(id),0);$("gdecon").hidden=!n||inBattle();
-    if(n)$("gdecon").innerHTML=`<button class="btn sm${deconArmed?" danger":""}" id="deconAll" ${tt(tx("Deconstruct all"),tx("Breaks every raw hide, ore and wood in your satchel into base materials and essence fragments. Food, potions, relics and anything a secret still needs stay."))}>${ic("salvage","s")} ${deconArmed?tx("Tap again to deconstruct {n}",{n}):tx("Deconstruct all raw finds ({n})",{n})}</button>`}
+    if(n)$("gdecon").innerHTML=`<button class="btn sm${isArmed("decon")?" danger":""}" id="deconAll" ${tt(tx("Deconstruct all"),tx("Breaks every raw hide, ore and wood in your satchel into base materials and essence fragments. Food, potions, relics and anything a secret still needs stay."))}>${ic("salvage","s")} ${isArmed("decon")?tx("Tap again to deconstruct {n}",{n}):tx("Deconstruct all raw finds ({n})",{n})}</button>`}
   if(S.view==="forge"){const [t,i]=satchel("forge");$("ftabs").innerHTML=t;$("finv").innerHTML=i}
 }
 function haveFor(ids){const need={};ids.forEach(id=>need[id]=(need[id]||0)+1);return ids.map(id=>(S.inv[id]||0)>=need[id])}
@@ -449,7 +454,7 @@ function renderStats(){
   const heat=ZONES.filter(z=>st.heatBest[z[0]]!==undefined).map(z=>`${zn[z[0]].split(" ").pop()} ${st.heatBest[z[0]]}`).join(" · ")||tx("none yet");
   const fast=bossIds.filter(id=>st.fast[id]).map(id=>`<li><span>${tx(ENEMIES[id].name)}</span><b>${txn("{n} turn","{n} turns",st.fast[id])}</b></li>`).join("")||`<li><span>${tx("No boss beaten yet")}</span></li>`;
   const bigW=S.items[st.bigW]?iname(S.items[st.bigW]):st.bigW?tx(st.bigW):"";
-  $("stats").innerHTML=grp(tx("Combat"),cell(sn(st.dealt),tx("damage dealt"))+cell(sn(st.taken),tx("damage taken in battle"))+cell(st.big?`${st.big}`:"-",st.big?tx("biggest hit · {w}",{w:bigW}):tx("biggest hit"))+cell(st.crits,tx("critical hits"))
+  $("stats").innerHTML=grp(tx("Combat"),cell(sn(st.dealt),tx("damage dealt"))+cell(sn(st.taken),tx("damage taken in battle"))+cell(st.big?`${st.big}`:"-",st.big?tx("biggest hit · {w}",{w:esc(bigW)}):tx("biggest hit"))+cell(st.crits,tx("critical hits"))
       +cell(st.parries,tx("perfect parries"))+cell(st.abil,tx("abilities used"))+cell(st.sufd,tx("statuses suffered"))+cell(st.cured,tx("statuses cured"))+cell(st.deaths,tx("defeats"))+cell(st.studied,tx("creatures studied")))
     +grp(tx("Exploration"),cell(kz.reduce((a,b)=>a+b,0),tx("creatures slain"))+cell(st.elites,tx("magic & rare slain"))+cell(st.bosses,tx("bosses slain"))+cell(st.exped,tx("expeditions done"))
       +`<div class="sc wide"><b>${kz.join(" / ")}</b><span>${tx("kills by region ({list})",{list:ZONES.map(z=>zn[z[0]].split(" ").pop()).join(" / ")})}</span></div>`
@@ -482,9 +487,45 @@ function renderCodex(){
     return seen?`<button class="cxt${k.mastered?" mst":""}" data-codex="${id}" aria-label="${esc(tx(E.name)+(E.boss?", "+lc(tx("Boss")):"")+". "+(k.mastered?tx("Mastered"):tx("Knowledge {p}%",{p:pct}))+". "+tx("Open its page."))}" ${tp}>${portrait(id,{lite:1})}${bd}</button>`
       :`<span class="cxt sil" ${tp}>${portrait(id,{lite:1})}</span>`}).join("")+`</div>`).join("");
 }
+// ---- one-time hint: on a touch screen a tip opens on a long press, which nothing says
+const HOLD_KEY="everforge-holdhint";
+const touchOnly=()=>!!(window.matchMedia&&matchMedia("(hover: none) and (pointer: coarse)").matches);
+function holdHint(){
+  if(!touchOnly())return;
+  try{if(localStorage.getItem(HOLD_KEY))return;localStorage.setItem(HOLD_KEY,"1")}catch(e){return}
+  setTimeout(()=>toast(tx("Hold any button for details")),900);
+}
 let lastIntro=null;
+// ---- keep the keyboard focus across a re-render: the nav, the arena and the zone chips are rebuilt every time
+const FOCUS_ATTRS=["data-view","data-zone","data-item","data-id","data-use","data-ability","data-act","data-slot","data-heat","data-choice","data-load","data-tech","data-study","data-upgrade","data-infuse","data-pat","data-pslot","data-pm","data-tab","data-rtab","data-codex","data-tile","data-pin-rumor","data-pin-recipe","data-bulk","data-open","data-source-zone","data-goal-tab","data-gores","data-intro","data-result-equip"];
+const focusPath=el=>{ // no id and no data attribute: the place in the tree is the key
+  const parts=[];let n=el;
+  while(n&&n.nodeType===1&&n!==document.body){
+    if(n.id){parts.unshift("#"+n.id);break}
+    const p=n.parentElement;if(!p||!p.children.length)break;
+    parts.unshift(`${n.tagName.toLowerCase()}:nth-child(${[...p.children].indexOf(n)+1})`);
+    n=p;
+  }
+  return parts.length?parts.join(">"):null;
+};
+const focusKey=el=>{
+  if(!el||el===document.body||el===document.documentElement||el.nodeType!==1)return null;
+  if(el.id)return "#"+el.id;
+  const a=FOCUS_ATTRS.filter(x=>el.hasAttribute(x));
+  if(a.length)return a.map(x=>`[${x}=${JSON.stringify(el.getAttribute(x))}]`).join("");
+  return focusPath(el);
+};
+const restoreFocus=key=>{
+  if(!key)return; // nothing in the app was focused: do not steal it
+  let el=null;try{el=document.querySelector(key)}catch(e){return}
+  if(!el||!el.getClientRects().length)return;
+  el.focus({preventScroll:true});
+  if(document.activeElement!==el)queueMicrotask(()=>{ // a tip-only element gets its tabindex a tick later (tip.js watches the DOM)
+    if(el.isConnected&&el.getClientRects().length&&document.activeElement!==el)el.focus({preventScroll:true});
+  });
+};
 function render(fresh){
-  const motion=captureMotion();
+  const motion=captureMotion(),focus=focusKey(document.activeElement);
   if(checkUnl())save();
   renderHeader();renderNav();renderGoal();renderPinnedGoal();renderIntro();
   if(S.view==="battle")renderBattle();
@@ -497,6 +538,8 @@ function render(fresh){
   animateRender(motion);flushFx();syncMusic();
   applyNudge();placeIntro();const cur=curIntro(inBattle());if(cur&&cur.id!==lastIntro)nudge(cur.sel);lastIntro=cur?cur.id:null; // a new card pulses what it points at
   rpFlush();
+  restoreFocus(focus);
+  if(S.view==="battle")holdHint();
 }
 
 function buildMomentHtml(B){

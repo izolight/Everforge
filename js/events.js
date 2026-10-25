@@ -19,13 +19,15 @@ $("gdlist").addEventListener("click",e=>{const b=e.target.closest("[data-guide]"
   go(u.i.tab||"battle");nudge(u.i.sel)}); // Show me: open the tab and pulse the thing
 $("zones").addEventListener("scroll",zoneFade);
 addEventListener("scroll",()=>placeIntro(),{passive:true});addEventListener("resize",()=>placeIntro());
-$("zones").addEventListener("click",e=>{const b=e.target.closest("[data-zone]");if(!b||b.disabled)return;S.zone=b.dataset.zone;S.battle=null;S.event=null;save();render()});
+$("zones").addEventListener("click",e=>{const b=e.target.closest("[data-zone]");if(!b||b.disabled||b.getAttribute("aria-disabled")==="true")return;S.zone=b.dataset.zone;S.battle=null;S.event=null;save();render()});
 $("arena").addEventListener("click",e=>{
   const t=e.target.closest("button");if(!t||t.getAttribute("aria-disabled")==="true")return;
   if(t.dataset.intro)return dismissIntro(t.dataset.intro);
   if(t.dataset.codex)return openCodex(t.dataset.codex);
   if(t.dataset.item)return openSheet(t.dataset.item,false,!S.inv[t.dataset.item]);
-  if(t.dataset.choice)return eventChoice(t.dataset.choice);
+  if(t.dataset.choice){const c=t.dataset.choice;
+    if(c.startsWith("sell:")&&!armTap("sell:"+c.slice(5),3000,()=>{if(S.event)render()}))return render(); // selling gives up an item: the first tap only arms it
+    return eventChoice(c)}
   if(t.dataset.use)return useItem(t.dataset.use);
   if(t.dataset.ability)return ability(t.dataset.ability);
   if(t.dataset.heat)return setHeat(+t.dataset.heat);
@@ -44,13 +46,15 @@ $("gear").addEventListener("click",e=>{const b=e.target.closest("[data-gear]");i
   toast(s==="off"?tx("Equip a second weapon or a shield in your off hand."):tx("Tap a {slot} item below to equip it.",{slot:lc(tx(SLOTS.find(x=>x[0]===s)[1]))}))});
 document.querySelectorAll("#gtabs,#ftabs").forEach(el=>el.addEventListener("click",e=>{const b=e.target.closest("[data-tab]");if(!b)return;S.tab=b.dataset.tab;save();renderSatchels()}));
 $("ginv").addEventListener("click",e=>{const b=e.target.closest("[data-id]");if(b){if(salvageMode){toggleSalvage(b.dataset.id);return}openSheet(b.dataset.id)}});
-$("gdecon").addEventListener("click",e=>{if(!e.target.closest("#deconAll"))return;if(!deconArmed){deconArmed=true;renderSatchels();setTimeout(()=>{deconArmed=false;if(S.view==="gear")renderSatchels()},3500);return}deconArmed=false;deconAll()});
+$("gdecon").addEventListener("click",e=>{if(!e.target.closest("#deconAll"))return;if(!armTap("decon",3500,()=>{if(S.view==="gear")renderSatchels()}))return renderSatchels();deconAll()});
 function openResearch(id){techSel=id;$("resd").open=true;go("forge");$("resp").scrollIntoView({block:"start"})}
 $("mixhint").addEventListener("click",e=>{const b=e.target.closest("[data-gores]");if(b)openResearch(b.dataset.gores)});
 $("restree").addEventListener("click",e=>{const b=e.target.closest("[data-tech],[data-study],#learn");if(!b)return;
   if(b.dataset.tech){techSel=b.dataset.tech;renderResearch()}else if(b.dataset.study)studyFam(b.dataset.study);else if(b.getAttribute("aria-disabled")!=="true")learnTech(techSel)});
-$("upgrows").addEventListener("click",e=>{const b=e.target.closest("[data-upgrade]");if(b)upgrade(b.dataset.upgrade)});
-$("infbtns").addEventListener("click",e=>{const b=e.target.closest("[data-infuse]");if(b&&!inBattle())infuse(b.dataset.infuse)});
+$("upgrows").addEventListener("click",e=>{const b=e.target.closest("[data-upgrade]");if(b&&b.getAttribute("aria-disabled")!=="true")upgrade(b.dataset.upgrade)});
+$("infbtns").addEventListener("click",e=>{const b=e.target.closest("[data-infuse]");if(!b||inBattle())return;
+  const t=b.dataset.infuse;if(!armTap("infuse:"+t,3000,()=>{if(S.view==="gear")renderGear()}))return renderGear(); // infusing spends essences: the first tap only arms it
+  infuse(t)});
 $("finv").addEventListener("click",e=>{const b=e.target.closest("[data-id]");if(!b)return;
   if(b.dataset.can==="1"&&!itemLocked(b.dataset.id)&&!inBattle()){S.bench.push(b.dataset.id);$("resultPanel").open=false;save();render()}else openSheet(b.dataset.id)});
 $("slots").addEventListener("click",e=>{const b=e.target.closest("[data-slot]");if(!b)return;S.bench.splice(+b.dataset.slot,1);save();render()});
@@ -81,7 +85,7 @@ $("patbody").addEventListener("click",e=>{const b=e.target.closest("[data-pslot]
   playForge(items,it,()=>{render(true);toast([tx("Forged {item}.",{item:iname(it)}),r.lv?lvMsg():"",r.up?skMsg(r.sk,r.up):""].filter(Boolean).join(" "))})});
 $("scrim").onclick=closeSheet;
 document.addEventListener("keydown",e=>{if(e.key==="Escape"&&sheet.mode)closeSheet()});
-$("sheet").addEventListener("click",e=>{const b=e.target.closest("[data-act]");if(!b)return;const id=sheet.id,it=S.items[id],a=b.dataset.act;
+$("sheet").addEventListener("click",e=>{const b=e.target.closest("[data-act]");if(!b||b.getAttribute("aria-disabled")==="true")return;const id=sheet.id,it=S.items[id],a=b.dataset.act;
   if(a==="close")return closeSheet();
   if(a==="bounty")return chooseBounty(+b.dataset.index);
   if(a==="bulk-confirm")return confirmSalvage();
@@ -92,7 +96,7 @@ $("sheet").addEventListener("click",e=>{const b=e.target.closest("[data-act]");i
   if(a==="eat"){S.inv[id]--;trimBench();const g=healYou(medHeal(it));toast(tx("You use {item} and recover {n} HP.",{item:iname(it),n:g}))}
   if(a==="add"){S.bench.push(id);closeSheet();go("forge");toast(tx("{item} added to the crucible.",{item:iname(it)}));return}
   if(a==="salvage"){
-    if(!salvageArmed){salvageArmed=true;return openSheet(id,true)}
+    if(!armTap("salvage",3500,()=>openSheet(id,true)))return openSheet(id,true); // the first tap only arms it
     if(canDecon(it)){const got=deconstruct(id);closeSheet();if(!got)return;const luck=got.filter(g=>g[2]);sfx("loot");
       toast(tx("Deconstructed into {list}.",{list:gotText(got.filter(g=>!g[2]))})+(luck.length?" "+tx("Lucky: {list}!",{list:gotText(luck)}):"")+(got.em&&isUnl("peddler")?" "+tx("+{n} embers.",{n:got.em}):""))}
     else{const r=salvageItem(id);closeSheet();if(!r)return;const {ys,sg,em,ms}=r;const list=[...ms.map(m=>iname(S.items[m])),...ys.map(t=>iname(S.items[gradedId("ess_"+t,sg)]))].join(tx(" and "));
@@ -106,8 +110,8 @@ $("combine").onclick=()=>{
   if(inBattle()){toast(tx("Finish the fight first."));return}
   const miss=craftMiss(items);if(miss.length){toast(techWhy(miss));return}
   const pre=combine(items,{roll:100}),bl=pre.blocked;if(bl){toast(blockText(bl));return}
-  if(((pre.fiz>0&&equippedRisk(items).length)||pre.mw>=0)&&forgeArmed!==S.bench.join()){forgeArmed=S.bench.join();renderBench();setTimeout(()=>{forgeArmed="";if(S.view==="forge")renderBench()},3500);return} // a fizzle would destroy something you wear, or a secret would come out ordinary: tap twice
-  forgeArmed="";
+  if(((pre.fiz>0&&equippedRisk(items).length)||pre.mw>=0)&&!armTap("forge:"+S.bench.join(),3500,()=>{if(S.view==="forge")renderBench()}))return renderBench(); // a fizzle would destroy something you wear, or a secret would come out ordinary: tap twice
+  armClear("forge:"+S.bench.join());
   const {lvBefore,ups,sk0,newRx,item,fizzle}=forgeIt(items);
   const after=()=>{
     render(true);
@@ -124,16 +128,16 @@ $("exportBtn").onclick=()=>{
   const fallback=()=>{box.focus();box.select();toast(tx("Select the code below and copy it."))};
   try{navigator.clipboard.writeText(code).then(done,fallback)}catch(e){fallback()}
 };
-let importArmed=false;$("importBtn").onclick=e=>{
+$("importBtn").onclick=e=>{
   const code=$("importBox").value.trim();if(!code){toast(tx("Paste a save code first."));return}
-  if(!importArmed){importArmed=true;e.target.textContent=tx("Tap again to replace your current save");setTimeout(()=>{importArmed=false;e.target.textContent=tx("Load save code")},3500);return}
-  importArmed=false;e.target.textContent=tx("Load save code");
+  if(!armTap("import",3500,()=>{e.target.textContent=tx("Load save code")})){e.target.textContent=tx("Tap again to replace your current save");return}
+  e.target.textContent=tx("Load save code");
   try{const s=importSave(code);if(!s)throw 0;S=s;S.battle=null;S.event=null;save();$("importBox").value="";go("battle");toast(tx("Save loaded."))}
   catch(err){toast(tx("That code didn't work. Make sure you copied all of it."))}
 };
-let armed=false;$("reset").onclick=e=>{
-  if(!armed){armed=true;e.target.textContent=tx("Tap again to erase all progress");setTimeout(()=>{armed=false;e.target.textContent=tx("Start a new game")},3000);return}
-  S=freshState();armed=false;e.target.textContent=tx("Start a new game");save();go("battle");toast(tx("A new journey begins."))};
+$("reset").onclick=e=>{
+  if(!armTap("reset",3000,()=>{e.target.textContent=tx("Start a new game")})){e.target.textContent=tx("Tap again to erase all progress");return}
+  e.target.textContent=tx("Start a new game");S=freshState();save();go("battle");toast(tx("A new journey begins."))};
 
 // remember whether a <details> panel was open (the upgrade, research and lifetime-stats panels)
 function rememberOpen(id,key){

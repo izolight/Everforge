@@ -5,6 +5,16 @@ const dec=n=>LANG==="de"?String(n).replace(".",","):String(n); // a number as te
 const cap=s=>s[0].toUpperCase()+s.slice(1);
 const pick=a=>a[Math.floor(Math.random()*a.length)];
 const $=id=>document.getElementById(id);
+// Tap-again confirmation: the first tap arms an action, a second tap inside the window carries it out.
+const armTaps={};
+function armClear(key){clearTimeout(armTaps[key+":t"]);delete armTaps[key]}
+function armTap(key,ms,expire){const now=Date.now();
+  if(armTaps[key]&&now-armTaps[key]<ms){armClear(key);return true}
+  armTaps[key]=now;clearTimeout(armTaps[key+":t"]);
+  armTaps[key+":t"]=setTimeout(()=>{delete armTaps[key];expire&&expire()},ms);
+  return false;
+}
+const isArmed=key=>!!armTaps[key];
 const reduced=()=>window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches;
 function level(){let l=1;XP_LV.forEach((t,i)=>{if(S.xp>=t)l=i+1});return l}
 const skXp=k=>S.skills[k]||0;

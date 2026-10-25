@@ -20,11 +20,10 @@ function finishDaily(rows,boss){
   st.dailies++;if(boss)st.dailyWins++;
   if(!b||(r.boss&&!b.boss)||(r.boss===!!b.boss&&(r.boss?r.turns<b.turns:r.rows>b.rows||(r.rows===b.rows&&r.turns<b.turns))))st.dBest=r; // best daily: a boss kill beats any fall, then fewer turns / more rows
 }
-let dArmed=false;
 function abandonDaily(){
   if(S.run!=="daily"||busy())return;
-  if(!dArmed){dArmed=true;render();setTimeout(()=>{dArmed=false;render()},3000);return}
-  dArmed=false;const m=S.daily.map;finishDaily(m.steps?m.dp:0,false);toast(tx("You abandon the expedition. Tomorrow brings another."));save();render();
+  if(!armTap("daily",3000,()=>render()))return render(); // the first tap only arms it
+  const m=S.daily.map;finishDaily(m.steps?m.dp:0,false);toast(tx("You abandon the expedition. Tomorrow brings another."));save();render();
 }
 // a rare find (the daily boss, the grateful traveller): one of the region's raws with an affix, a grade better than usual. x, y, g are 0-1 rolls (the creature, the affix, the grade) so seeded runs agree
 const zoneRare=z=>Object.keys(ENEMIES).filter(e=>ENEMIES[e].zone===z&&!ENEMIES[e].boss&&afxRawOf(ENEMIES[e]));
