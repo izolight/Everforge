@@ -176,12 +176,13 @@ function zoneView(){ // keep the chosen region chip in view and fade the edges t
   if(p&&z.scrollWidth>z.clientWidth)z.scrollLeft+=p.getBoundingClientRect().left-z.getBoundingClientRect().left-(z.clientWidth-p.offsetWidth)/2;
   zoneFade()}
 function zoneFade(){const z=$("zones");z.dataset.l=z.scrollLeft>2?1:0;z.dataset.r=z.scrollLeft+z.clientWidth<z.scrollWidth-2?1:0}
-function fitMap(){ // the grid gets the room above the tab bar, but never tiles under 36px (then the page scrolls and the hero stays in view)
+function fitMap(){ // keep 36px touch tiles; wider expeditions pan inside the map, never the page
   const w=document.querySelector(".mapwrap");if(!w||S.view!=="battle")return;const mp=w.firstElementChild,m=curMap(),nav=$("nav").offsetHeight;
   document.documentElement.style.setProperty("--nav",nav+"px");mp.style.setProperty("--mw","");
-  const top=w.getBoundingClientRect().top+scrollY,room=innerHeight-nav-12-top;mp.style.setProperty("--mw",Math.max(Math.min(37*m.w+3,w.clientWidth-8),Math.min(440,Math.floor(room*m.w/m.h)))+"px");
+  const top=w.getBoundingClientRect().top+scrollY,room=Math.max(260,innerHeight-nav-38-top),min=37*m.w+3,max=Math.max(min,Math.min(680,w.clientWidth-4));
+  mp.style.setProperty("--mw",Math.max(min,Math.min(max,Math.floor(room*m.w/m.h)))+"px");w.style.maxHeight=room+"px";w.dataset.pan=mp.offsetWidth>w.clientWidth||mp.offsetHeight>w.clientHeight?"1":"0";
 }
-const heroView=()=>document.querySelector(".tl.here")?.scrollIntoView({block:"nearest"});
+const heroView=()=>document.querySelector(".tl.here")?.scrollIntoView({block:"nearest",inline:"nearest"});
 function renderBattle(){
   $("zones").innerHTML=ZONES.map(([id,name,boss],i)=>{const open=zoneOpen(id),cleared=S.kills[boss]>0;
     return `<button class="zone" data-zone="${id}" aria-pressed="${S.zone===id}" ${open&&!busy()&&S.run!=="daily"?"":"disabled"}>${tx(name)}${cleared?" ✓":""}${open?"":` · ${tx("beat {boss}",{boss:shortName(ZONES[i-1][2])})}`}</button>`}).join("");zoneView();

@@ -460,9 +460,11 @@ h1{font-size:1.7rem}
 summary.label{-webkit-user-select:none;user-select:none}
 .goal .gt em{font:normal .66rem var(--mono);color:var(--muted);white-space:nowrap}
 /* U2: compact battle (map strip, fight HUDs, action grid), recipes, codex */
-.tl.here{scroll-margin-bottom:calc(var(--nav,64px) + 8px)}
-.mapwrap{margin:0 -29px;display:grid;justify-items:center;background:none;border:0;border-radius:0;overflow:visible}
-.map{width:min(var(--mw,100%),calc(100% - 8px));max-width:440px;border-radius:12px;overflow:hidden;background:#120f0c;border:1px solid var(--line)}
+.tl.here{scroll-margin-bottom:calc(var(--nav,64px) + 8px);scroll-margin-top:36px;scroll-margin-inline:45px}
+.mapwrap{margin:0 -14px;display:block;min-width:0;background:none;border:0;border-radius:12px;overflow:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:var(--line2) transparent}
+.map{width:var(--mw,484px);max-width:none;border-radius:12px;overflow:hidden;background:#120f0c;border:1px solid var(--line)}
+.map-pan{display:none;margin:0;text-align:center;font:normal .65rem var(--mono);color:var(--muted)}.mapwrap[data-pan="1"]+.map-pan{display:block}
+.mapwrap:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 #arena{gap:8px!important}
 .zones{margin-bottom:-2px}
 .mhead{display:grid;gap:4px;background:#17130f;border:1px solid var(--line);border-radius:12px;padding:5px 8px}

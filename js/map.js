@@ -12,29 +12,32 @@ function reveal(m){
     const k=x+","+y,p=poiAt(m,x,y);m.sn[y*m.w+x]=1;if(p&&!p.done)m.mem[k]=p.t;else delete m.mem[k]}}
 // o: {seed (reproducible map and enemy picks, else Math.random), heat, zone, twist}
 function genMap(o){
-  o=o||{};const sd=o.seed!=null,R=sd?rng(o.seed):Math.random,h=o.heat||0,W=GRID.w,H=GRID.h,sx=W>>1,key=(x,y)=>x+","+y;
-  const m={w:W,h:H,g:[],pois:[],pos:{x:sx,y:H-1},prev:null,start:{x:sx,y:H-1},lair:{x:sx,y:0},gate:{x:sx,y:1},sn:Array(W*H).fill(0),mem:{},d:[],D:1,torch:0,tmax:TORCH.max+(o.twist==="nocamp"?TORCH.nocamp:0),steps:0,dp:0,cleared:false,amb:false,sd,seed:sd?o.seed:Math.floor(Math.random()*1e9),heat:h};
-  for(let tries=0;tries<30;tries++){
-    const keep=new Set([key(sx,H-1),key(sx,H-2),key(sx-1,H-1),key(sx+1,H-1),key(sx,0),key(sx,1),key(sx-1,1),key(sx-1,2),key(sx,2)]);
-    const go=[sx,H-2]; // a winding path from the start up to the lair's gate always stays open
-    while(go[1]>2){const x=go[0],dx=R()<.5?-1:1;if(R()<.55||x+dx<1||x+dx>W-2)go[1]--;else go[0]+=dx;keep.add(key(...go))}
-    while(go[0]!==sx){go[0]+=go[0]<sx?1:-1;keep.add(key(...go))}
-    let g=Array.from({length:H},(_,y)=>Array.from({length:W},(_,x)=>keep.has(key(x,y))?".":R()<.3?"#":"."));
-    for(let p=0;p<2;p++)g=g.map((row,y)=>row.map((t,x)=>{if(keep.has(key(x,y)))return t;let n=0;for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++)if(dx||dy){const u=x+dx,v=y+dy;if(u<0||v<0||u>=W||v>=H||g[v][u]==="#")n++}return n>=5?"#":n<=3?".":t}));
-    for(let x=0;x<W;x++)if(x!==sx)g[0][x]="#";g[1][sx+1]="#";
-    for(const by of [4,8]){const gaps=new Set([...Array(W).keys()].filter(x=>keep.has(key(x,by))));gaps.add(Math.floor(R()*W));for(let x=0;x<W;x++)if(!gaps.has(x))g[by][x]="#"} // two wall bands with a gap each force detours
-    g[0][sx]=".";
-    m.g=g.map(r=>r.join(""));const d=bfs(m,sx,H-1);
-    g=g.map((row,y)=>row.map((t,x)=>d[y*W+x]<0?"#":t));m.g=g.map(r=>r.join(""));
-    const fl=g.flat().filter(t=>t!=="#").length;if(fl>=60&&fl<=92)break}
-  // flavour: some rock is water, some floor is brush (walkable)
-  m.g=m.g.map((row,y)=>[...row].map((t,x)=>t==="#"&&y>1&&R()<.2?"~":t==="."&&!(x===sx&&y>=H-2)&&y>1&&R()<.12?",":t).join(""));
-  m.d=bfs(m,sx,H-1);m.D=m.d[sx];
+  o=o||{};const sd=o.seed!=null,R=sd?rng(o.seed):Math.random,h=o.heat||0,W=GRID.w,H=GRID.h,key=(x,y)=>x+","+y;
+  const shuffle=a=>{for(let i=a.length-1;i>0;i--){const j=Math.floor(R()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a},cols=Array.from({length:(W-1)/2},(_,i)=>i*2+1),sx=cols[Math.floor(R()*cols.length)];
+  const m={w:W,h:H,g:[],pois:[],pos:{x:sx,y:H-1},prev:null,start:{x:sx,y:H-1},lair:{x:1,y:0},gate:{x:1,y:1},sn:Array(W*H).fill(0),mem:{},d:[],D:1,torch:0,tmax:TORCH.max+(o.twist==="nocamp"?TORCH.nocamp:0),steps:0,dp:0,cleared:false,amb:false,sd,seed:sd?o.seed:Math.floor(Math.random()*1e9),heat:h};
+  const g=Array.from({length:H},()=>Array(W).fill("#")),active=[[sx,H-2]];g[H-2][sx]=".";
+  // A growing-tree maze first connects every region. Mixing frontier and depth-first
+  // carving gives different branch lengths instead of one prescribed northward path.
+  while(active.length){const i=R()<.6?active.length-1:Math.floor(R()*active.length),[x,y]=active[i],next=shuffle(DIRS.map(([dx,dy])=>[x+dx*2,y+dy*2]).filter(([u,v])=>u>0&&v>0&&u<W-1&&v<H-1&&g[v][u]==="#"));
+    if(!next.length){active.splice(i,1);continue}const [u,v]=next[0];g[(y+v)/2][(x+u)/2]=".";g[v][u]=".";active.push([u,v])}
+  // Rooms open out the maze; braiding its remaining walls adds alternate routes.
+  // Every carving touches connected ground, so there are no inaccessible pockets.
+  for(let i=0,n=4+Math.floor(R()*4);i<n;i++){const cx=cols[Math.floor(R()*cols.length)],cy=1+2*Math.floor(R()*((H-1)/2)),rw=2+Math.floor(R()*3),rh=2+Math.floor(R()*3),rx=Math.max(1,Math.min(W-1-rw,cx-(rw>>1))),ry=Math.max(1,Math.min(H-1-rh,cy-(rh>>1)));
+    for(let y=ry;y<ry+rh;y++)for(let x=rx;x<rx+rw;x++)g[y][x]="."}
+  const links=[];for(let y=1;y<H-1;y++)for(let x=1;x<W-1;x++)if(g[y][x]==="#"&&((g[y][x-1]==="."&&g[y][x+1]===".")||(g[y-1][x]==="."&&g[y+1][x]===".")))links.push([x,y]);
+  shuffle(links).slice(0,10+Math.floor(R()*9)).forEach(([x,y])=>g[y][x]=".");
+  g[H-1][sx]=".";g[H-1][sx-1]=".";g[H-1][sx+1]=".";
+  m.g=g.map(r=>r.join(""));const initial=bfs(m,sx,H-1),farTop=cols.filter(x=>initial[W+x]>=24),bx=(farTop.length?farTop:cols)[Math.floor(R()*(farTop.length||cols.length))];
+  m.lair={x:bx,y:0};m.gate={x:bx,y:1};g[0][bx]=".";
+  // A reachable camp beside the gate, without cutting another compulsory corridor.
+  const camp=shuffle(DIRS.map(([dx,dy])=>[bx+dx,1+dy]).filter(([x,y])=>y>0&&g[y][x]==="."))[0];
+  m.g=g.map((row,y)=>row.map((t,x)=>t==="#"&&y>0&&R()<.2?"~":t==="."&&Math.abs(x-sx)+Math.abs(y-(H-1))>1&&R()<.12?",":t).join(""));
+  m.d=bfs(m,sx,H-1);m.D=m.d[bx];
   const dist=(x,y)=>m.d[y*W+x],depth=(x,y)=>depthOf(m,x,y);
-  const cand=[];for(let y=2;y<H;y++)for(let x=0;x<W;x++)if(walk(m,x,y)&&dist(x,y)>=3&&!(x===sx-1&&y===1)&&!(x===sx&&y===2))cand.push([x,y]);
+  const cand=[];for(let y=1;y<H;y++)for(let x=0;x<W;x++)if(walk(m,x,y)&&dist(x,y)>=3&&!(x===bx&&y===1)&&!(x===camp[0]&&y===camp[1]))cand.push([x,y]);
   for(let i=cand.length-1;i>0;i--){const j=Math.floor(R()*(i+1));[cand[i],cand[j]]=[cand[j],cand[i]]}
   const add=(t,x,y)=>{const p={t,x,y,r:depth(x,y),done:false};m.pois.push(p);return p};
-  add("boss",sx,0);add("fight",sx,1);add(o.twist==="nocamp"?"fight":"camp",sx-1,1);
+  add("boss",bx,0);add("fight",bx,1);add(o.twist==="nocamp"?"fight":"camp",...camp);
   const fe=t=>t==="fight"||t==="elite",far=c=>dist(...c)>3&&Math.max(Math.abs(c[0]-sx),Math.abs(c[1]-(H-1)))>3; // enemies never start within 3 tiles of the start
   const place=(t,minR)=>{const ok=(c,sp)=>depth(...c)>=minR&&(!fe(t)||far(c))&&(!sp||m.pois.every(p=>Math.max(Math.abs(p.x-c[0]),Math.abs(p.y-c[1]))>=2)),i=[cand.findIndex(c=>ok(c,1)),cand.findIndex(c=>ok(c,0)),fe(t)?cand.findIndex(far):0].find(i=>i>=0);
     if(i>=0&&cand.length)add(t,...cand.splice(i,1)[0])};
@@ -48,11 +51,11 @@ function genMap(o){
     // pre-rolled so the same day plays out alike: rarity and affixes (their own seeded rng per tile), chest (mimic, loot, scroll), pack loot and four rolls (rv) for choice events and six (sh) for the peddler's stock (the one-for-one offer, what you can sell and satchel-based event choices depend on you, so they vary)
     const zp=zonePool(o.zone),pk=a=>a[Math.floor(rn()*a.length)];
     nd.ch={m:rn()<.25,l:[pk(zp),pk(zp)],e:rn()<.5?pk(ESS_POOL):null,s:rn()<.15,sx:rn()};nd.pk=[pk(zp),...rn()<.5?[pk(zp)]:[]];nd.rv=[rn(),rn(),rn(),rn()];nd.sh=[rn(),rn(),rn(),rn(),rn(),rn()];nd.gr=Array.from({length:8},rn);nd.ch.g=nd.gr;
-    if(fe(nd.t)||nd.t==="mystery")Object.assign(nd,rollFoe(rng(hash(o.seed+":r:"+nd.x+","+nd.y)),{elite:nd.t==="elite"||(o.twist==="elites"&&nd.t==="mystery"),heat:h,row:nd.r,mv:nd.x===sx&&nd.y===1?"still":ENEMIES[nd.e].mv}))}); // gr: grade rolls for chest, pack and event finds
+    if(fe(nd.t)||nd.t==="mystery")Object.assign(nd,rollFoe(rng(hash(o.seed+":r:"+nd.x+","+nd.y)),{elite:nd.t==="elite"||(o.twist==="elites"&&nd.t==="mystery"),heat:h,row:nd.r,mv:nd.x===bx&&nd.y===1?"still":ENEMIES[nd.e].mv}))}); // gr: grade rolls for chest, pack and event finds
   m.pois.forEach(p=>{if(!fe(p.t))return;if(o.zone&&!p.e)p.e=pickEnemy(o.zone); // each enemy is picked now (so its way of moving is known); the gate guard never moves, elites stalk slowly
-    p.mv=!o.zone||(p.x===sx&&p.y===1)?"still":ENEMIES[p.e].mv||"still";
+    p.mv=!o.zone||(p.x===bx&&p.y===1)?"still":ENEMIES[p.e].mv||"still";
     if(p.rar==null)Object.assign(p,rollFoe(R,{elite:p.t==="elite",heat:h,row:p.r,mv:p.mv}))}); // rarity and affixes are rolled once, so fleeing and coming back meets the same foe (elites keep their species' way of moving, only slower)
-  m.torch=m.tmax;m.mem[key(sx,0)]="boss";m.sn[sx]=1;reveal(m);
+  m.torch=m.tmax;m.mem[key(bx,0)]="boss";m.sn[bx]=1;reveal(m);
   return m;
 }
 const heatOf=z=>S.heat[z]||{max:0,sel:0},newMap=z=>(checkUnl(),genMap({heat:heatOf(z).sel,zone:z})); // unlocks are checked first, so a defeat or a boss kill opens its POIs on the very next map

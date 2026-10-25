@@ -275,6 +275,7 @@ DICT.de=Object.assign(DICT.de||{},{
 "The peddler pockets your {give} and hands over the {get}. \"Anything else?\"":"Der Hausierer steckt {give} ein und überreicht dir {get}. „Sonst noch etwas?“",
 "Grade":"Güte",
 "Your hero":"Dein Held",
+"Expedition map":"Expeditionskarte","Swipe to explore the map.":"Wische, um die Karte zu erkunden.",
 "Equipped items shape your appearance. Tap a slot to inspect or change gear.":"Deine Ausrüstung bestimmt dein Aussehen. Tippe auf einen Platz, um Ausrüstung anzusehen oder zu wechseln.",
 // Guard, Braced and trained parries.
 "Cuts every hit in the enemy's action by {p}% and blocks new statuses.":"Senkt jeden Treffer im gegnerischen Zug um {p} % und verhindert neue Zustände.",
