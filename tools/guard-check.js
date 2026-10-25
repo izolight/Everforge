@@ -122,7 +122,7 @@ const near=(a,b)=>Math.abs(a-b)<1e-9;
     r=await E(()=>({timing:cx("archon").timing,level:parryLevel(S.battle),braced:S.battle.braced,phase:S.battle.phased}));
     ok(r.timing.sp===3&&r.level>=1&&r.braced&&r.phase,"reload preserves special training, current boss form and Braced");
     r=await E(()=>{
-      const old=freshState();old.codex.boar={weak:[],resist:[],drops:[],sp:true,stats:false};S=migrate(old);
+      const old=freshState();old.codex.boar={weak:[],resist:[],drops:[],sp:true,stats:false};S=loadSave(old);
       startBattle("boar",{rar:"normal",afx:[]});const level=parryLevel(S.battle);render();
       return{level,button:document.querySelector("#parry")?.textContent};
     });

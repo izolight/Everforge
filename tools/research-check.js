@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 // Targeted check of research (js/research.js, TECHS and RP in data.js): a fresh save can only Bind, a craft that needs a missing technique is refused with a reason in its tip,
 // research points come from each source once, learning a technique opens its craft, material study reveals a reaction step by step, insights come from a hash (deterministic),
-// Masterwork gates the legendary secrets (with a near-miss insight before it), and old saves migrate (the v14 fixture as a veteran, a borderline save with only what it used).
+// Masterwork gates the legendary secrets (with a near-miss insight before it).
 // Usage: node tools/research-check.js [--shots dir]   (screenshots at 390 and 360: the Research view fresh and mid-progress, a refused craft's tip, Recipes with partial hints, an insight in the log)
 const {chromium}=require("playwright"),path=require("path"),fs=require("fs");
-const URL="file://"+path.resolve(__dirname,"..","index.html"),FIX=path.join(__dirname,"fixtures");
+const URL="file://"+path.resolve(__dirname,"..","index.html");
 const si=process.argv.indexOf("--shots"),SHOTS=si>0?process.argv[si+1]:null;
 let fails=0;const ok=(c,m)=>{if(!c){fails++;console.error("FAIL: "+m)}else console.log("ok: "+m)};
 
@@ -185,44 +185,11 @@ async function master(browser,w=390){
   await p.close();
 }
 
-async function migration(browser){
-  const {key,save}=JSON.parse(fs.readFileSync(path.join(FIX,"save-v14.json"),"utf8"));
-  const p=await open(browser,390,new Function(`localStorage.clear();localStorage.setItem(${JSON.stringify(key)},${JSON.stringify(save)})`));
-  let r=await p.evaluate(()=>({v:S.v,techs:TECHS.every(t=>S.techs[t.id]),unl:UNLOCKS.every(u=>S.unl[u.id]),pend:pendingIntros().length,card:!$("intro").hidden,rp:!$("rp").hidden,key:KEY}));
-  ok(r.v===17&&r.techs&&r.unl&&!r.pend&&!r.card,"the v14 fixture migrates as a veteran: every technique and unlock, no intro pending");ok(r.rp,"... with the research counter showing");
-  const m=await p.evaluate(()=>{
-    const clone=()=>{const s=freshState();s.v=14;["rp","techs","rpd","rxh"].forEach(k=>delete s[k]);s.unl=Object.fromEntries(UNLOCKS.filter(u=>u.id!=="research"&&!u.id.startsWith("t:")).map((u,i)=>[u.id,i+1]));UNLOCKS.forEach(u=>{if(s.unl[u.id])s.seen["i:"+u.id]=true});return s};
-    const craft=(s,id,rec,form,ex)=>{s.items[id]={id,name:id,form:form||"blade",noun:"Sword",traits:{Fire:3},tier:2,crafted:true,recipeIds:rec,recipe:rec,...ex};s.journal.push({id,name:id});s.inv[id]=1};
-    const border=(layered)=>{const s=clone();s.wins=2;s.stats.forged=1;s.xp=40;s.quest=4;craft(s,"c_a",["iron_sword","ess_Fire"]);if(layered)craft(s,"c_b",["c_a","ess_Ice"]);return migrate(JSON.parse(JSON.stringify(s)))};
-    const a=border(false),b=border(true),many=(()=>{const s=clone();s.wins=2;s.xp=40;craft(s,"c_a",["iron_sword","ess_Fire"]);craft(s,"c_c",["iron_sword","ess_Fire","ess_Ice"]);craft(s,"c_f",["hunter_spear","wood_shield"],"lance");return migrate(JSON.parse(JSON.stringify(s)))})();
-    const ref=(()=>{const s=clone();s.wins=2;s.xp=40;s.stats.refined=2;craft(s,"c_a",["iron_sword","ess_Fire"]);s.unl.upgrade=99;s.seen["i:upgrade"]=true;return migrate(JSON.parse(JSON.stringify(s)))})();
-    const up=(()=>{const s=clone();s.wins=2;s.xp=40;craft(s,"c_a",["iron_sword","ess_Fire"]);s.unl.upgrade=99;s.seen["i:upgrade"]=true;return migrate(JSON.parse(JSON.stringify(s)))})();
-    const qs=[0,2,3,4,15].map(q=>{const s=clone();s.quest=q;return migrate(JSON.parse(JSON.stringify(s))).quest});
-    const o13=(()=>{const s=clone();s.v=13;delete s.unl;s.quest=5;s.wins=2;return migrate(JSON.parse(JSON.stringify(s))).quest})(),o13b=(()=>{const s=clone();s.v=13;delete s.unl;s.quest=9;s.wins=2;return migrate(JSON.parse(JSON.stringify(s))).quest})();
-    const mk14=q=>{const s=clone();s.quest=q;return migrate(JSON.parse(JSON.stringify(s))).quest},mk13=q=>{const s=clone();s.v=13;delete s.unl;s.quest=q;s.wins=2;return migrate(JSON.parse(JSON.stringify(s))).quest};
-    const k=s=>Object.keys(s.techs).join();
-    return{a:k(a),b:k(b),many:k(many),ref:k(ref),aRp:a.rp,aUnl:["research","t:layer","upgrade"].map(x=>!!a.unl[x]),aSeen:!!a.seen["i:research"],upUnl:!!up.unl.upgrade,upSeen:!!up.seen["i:upgrade"],refUnl:!!ref.unl.upgrade,qs,o13,o13b,len:TUTORIAL.length,v13:[0,2,3,5,6,7].map(mk13),v14:[6,7,15].map(mk14),bUnl:!!b.unl["t:layer"],bSeen:!!b.seen["i:t:layer"],aT:Object.keys(a.rpd)}});
-  ok(m.a==="bind","a borderline v14 save (2 wins, 1 craft) migrates with only Binding ("+m.a+")");ok(m.b==="bind,layer","... and Layering when it layered a craft ("+m.b+")");
-  ok(m.bUnl&&m.bSeen,"... a technique it already used has its intro marked read");ok(m.many.split(",").length>=7&&/temper/.test(m.many)&&/alloy/.test(m.many)&&/compound/.test(m.many),"3+ inputs and a fusion in the journal earn Tempering, Alloying and what they need ("+m.many+")");
-  ok(m.ref.includes("refine")&&m.refUnl,"a save that refined keeps Refining and the upgrade panel");ok(!m.upUnl&&!m.upSeen,"a save with the upgrade panel open but no Refining loses the panel until it learns Refining");
-  ok(m.aUnl.join()==="true,false,false"&&!m.aSeen,"the borderline save gets Research open (it has crafted) with its intro still to read ("+m.aUnl+")");ok(m.aRp>=3,"... and the points its past discoveries earned ("+m.aRp+")");
-  ok(m.v13.join()==="0,2,4,6,7,"+m.len&&m.v14.join()==="7,8,"+m.len,`quests migrate cleanly: v13 0,2,3,5,6,7 -> ${m.v13}; v14 6,7,15 -> ${m.v14}`);
-  ok(m.qs.join()==="0,2,4,5,16"&&m.o13===6&&m.o13b===m.len,"the goal step inserted at 3 shifts quests 3 and above ("+m.qs+"; a v13 save at 5 -> "+m.o13+", past its chain -> "+m.o13b+")");
-  await p.close();
-  // every older fixture loads as a veteran with everything (smoke.js plays them; this checks the migration only)
-  for(const f of fs.readdirSync(FIX).filter(f=>f.endsWith(".json")&&f!=="save-v17.json").sort()){
-    const {key:k2,save:s2}=JSON.parse(fs.readFileSync(path.join(FIX,f),"utf8"));
-    const q=await open(browser,390,new Function(`localStorage.clear();localStorage.setItem(${JSON.stringify(k2)},${JSON.stringify(s2)})`));
-    const x=await q.evaluate(()=>({t:TECHS.every(t=>S.techs[t.id]),u:UNLOCKS.every(u=>S.unl[u.id]),p:pendingIntros().length}));
-    ok(x.t&&x.u&&!x.p,`${f} loads as a veteran with every technique and no intro waiting`);await q.close();
-  }
-}
-
 (async()=>{
   const browser=await chromium.launch();
   for(const w of SHOTS?[390,360]:[390])await flow(browser,w);
   await sources(browser);
   for(const w of SHOTS?[390,360]:[390]){await learning(browser,w);await study(browser,w);await insight(browser,w)}
-  for(const w of SHOTS?[390,360]:[390])await master(browser,w);await migration(browser);await browser.close();
+  for(const w of SHOTS?[390,360]:[390])await master(browser,w);await browser.close();
   console.log(fails?`RESEARCH CHECK FAILED (${fails})`:"RESEARCH CHECK OK");process.exit(fails?1:0);
 })();

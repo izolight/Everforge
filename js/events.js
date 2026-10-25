@@ -128,7 +128,7 @@ let importArmed=false;$("importBtn").onclick=e=>{
   const code=$("importBox").value.trim();if(!code){toast(tx("Paste a save code first."));return}
   if(!importArmed){importArmed=true;e.target.textContent=tx("Tap again to replace your current save");setTimeout(()=>{importArmed=false;e.target.textContent=tx("Load save code")},3500);return}
   importArmed=false;e.target.textContent=tx("Load save code");
-  try{const s=migrate(JSON.parse(decodeURIComponent(escape(atob(code)))));if(!s)throw 0;S=s;S.battle=null;S.event=null;save();$("importBox").value="";go("battle");toast(tx("Save loaded."))}
+  try{const s=loadSave(JSON.parse(decodeURIComponent(escape(atob(code)))));if(!s)throw 0;S=s;S.battle=null;S.event=null;save();$("importBox").value="";go("battle");toast(tx("Save loaded."))}
   catch(err){toast(tx("That code didn't work. Make sure you copied all of it."))}
 };
 let armed=false;$("reset").onclick=e=>{

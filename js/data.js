@@ -371,7 +371,7 @@ const SKILLS={weapon:{get name(){return tx("Weaponsmithing")},g:"blade",forms:["
   body:{get name(){return tx("Armorsmithing")},g:"chest",forms:["chest","bulwark"],get cats(){return tx("body armor, bulwarks")}},gloves:{get name(){return tx("Glovemaking")},g:"gloves",forms:["gloves"],get cats(){return tx("gloves")}},boots:{get name(){return tx("Bootmaking")},g:"boots",forms:["boots"],get cats(){return tx("boots")}},
   trinket:{get name(){return tx("Trinketry")},g:"charm",forms:["charm"],get cats(){return tx("trinkets")}},cooking:{get name(){return tx("Cooking")},g:"food",forms:["food"],get cats(){return tx("food")}},brewing:{get name(){return tx("Brewing")},g:"potion",forms:["potion","elixir"],get cats(){return tx("potions, elixirs")}},
   alchemy:{get name(){return tx("Alchemy")},g:"shard",forms:["material"],get cats(){return tx("essences, materials")}}};
-function hash(str){let h=2166136261;for(let i=0;i<str.length;i++){h^=str.charCodeAt(i);h=Math.imul(h,16777619)}return h>>>0} // also needed by migrate(), which runs before helpers.js loads
+function hash(str){let h=2166136261;for(let i=0;i<str.length;i++){h^=str.charCodeAt(i);h=Math.imul(h,16777619)}return h>>>0} // also needed by loadSave(), which runs before helpers.js loads
 const skillOf=it=>Object.keys(SKILLS).find(k=>SKILLS[k].forms.includes(it.form));
 const SK_LV=[0,30,80,160,280,450,680,980,1350,1800],SK_CAP=[3,4,5,6,7,8,9,9,9,9],SK_XP={self:1,input:.3,fizzle:.5};
 // Difficulty of a recipe, in skill levels: CRAFT.base + CRAFT.tier per result tier above 1 + the raw instability (conflicts, reactions, extra inputs) / CRAFT.inst + CRAFT.up per tier above CRAFT.upFrom of a crafted input of the result's own form (upgrading again). The failure chance is FAIL.base + FAIL.slope x (difficulty - skill level), kept between FAIL.min and FAIL.max, and the share of failures that fizzle (lose everything, FIZ.refund of the ingredients' worth back in embers) instead of becoming a mishap is FIZ.base + FIZ.slope x the gap (FIZ.min..FIZ.max). Trait merges gain half as much above SOFT.
@@ -391,7 +391,7 @@ const GRADES=[["Faint","#948d82"],["Lesser","#7dbd8d"],["Plain","#d2c9bb"],["Gre
 const GRADE_ODDS={woods:[40,40,19,1,0],pass:[18,38,38,6,0],hollow:[8,28,50,13,1],spire:[6,18,52,21,3],rift:[6,18,52,21,3]},GRADE_HEAT=[-.08,-.04,0,.12,.25],GRADE_BOSS=1;
 const INF_EQ=["⅑","⅓","1","3","9"]; // INF_W as plain essences, for text
 const GRADE_LV=[1,1,1,3,6],UP={n:3,emb:[4,8,12,30],base:80,slope:6,min:80,max:98,xp:[3,4,6,14,30]};
-const gradeOf=id=>{const m=/@([1-5])$/.exec(id);return m?+m[1]:3},baseIdOf=id=>id.replace(/@[1-5]$/,""),gradedId=(b,g)=>g===3?b:`${b}@${g}`; // pure id helpers (migrate needs them before helpers.js loads)
+const gradeOf=id=>{const m=/@([1-5])$/.exec(id);return m?+m[1]:3},baseIdOf=id=>id.replace(/@[1-5]$/,""),gradedId=(b,g)=>g===3?b:`${b}@${g}`; // pure id helpers (loadSave needs them before helpers.js loads)
 const gradable=b=>{if(/^ess_[A-Za-z]+$/.test(b))return true;const [p,a,x]=b.split("~"),B=BASE[p];return !!B&&x===undefined&&(!a||!!AFX[a])&&B[1]==="material"&&["ore","hide","herb","timber"].includes(B[3])};
 // an affixed variant (`boar_hide~vamp`, `iron_sword~vamp@4`): afxOfId gives the affix, plainId the BASE id under grade and affix
 const afxOfId=id=>{const m=/~([a-z]+)(@[1-5])?$/.exec(id);return m&&AFX[m[1]]?m[1]:null},plainId=id=>baseIdOf(id).replace(/~[a-z]+$/,""),isBaseMat=id=>!!MATS[plainId(id)];
@@ -418,81 +418,80 @@ const DAILY_REWARD={ess:3,xp:80};
 
 // ================= UNLOCKS =================
 // Systems open as you play. S.unl={id:order} (order = when it opened, which sets the order intros queue in); S.seen["i:"+id] marks a read intro, S.seen["a:"+form] an introduced weapon ability.
-// Each entry: id, name, ic (icon in NODE_G), when(s) (a pure test over the state; omit for hooks that call unlock(id) themselves), used(s) (migration only: proof that an older save already used it),
+// Each entry: id, name, ic (icon in NODE_G), when(s) (a pure test over the state; omit for hooks that call unlock(id) themselves),
 // txt (teaser: how to unlock it), w (toast hint), q (quiet: no toast or sound), i ({t,l:[1-3 short lines],tab,sel,ctx}: the one-time intro; tab = where it shows, sel = what gets pulsed, ctx "battle" = shown above the action grid in a fight; omit i for a system with no card).
 // Order matters: it is the order of the Codex Guide. To gate something new add an entry here, test isUnl(id) where it is drawn (lockRow(id) draws the teaser), and add a step to TUTORIAL if it deserves one.
 const lvOf=xp=>XP_LV.filter(t=>xp>=t).length,exps=s=>s.stats.exped+s.stats.deaths,has_=(s,...ids)=>ids.every(i=>s.unl[i]); // exps: finished expeditions (a boss down or a defeat)
 const boss1=s=>(s.kills[ZONES[0][2]]|0)>0,abOf=s=>[s.eq.main,s.eq.off].some(id=>id&&s.items[id]&&ABILITIES[s.items[id].form]);
 // ================= RESEARCH =================
 // Research points (S.rp) come from discoveries: each source in RP pays once (S.rpd keeps which). They buy techniques (S.techs={id:order}); what you can craft depends on them (craftMiss in research.js).
-// A tech: id, name, ic, cost (RP), pre (techs needed first), rq/ok (a requirement over a state: Smith level or a skill), pos [column, row] in the tree, d (what it is), gate (what it opens, shown in tips), used(s) (migration only: proof an older save already did this) and i (the intro card, queued when learned).
+// A tech: id, name, ic, cost (RP), pre (techs needed first), rq/ok (a requirement over a state: Smith level or a skill), pos [column, row] in the tree, d (what it is), gate (what it opens, shown in tips) and i (the intro card, queued when learned).
 // Binding is known from the start. Refining is the grade upgrades; Mending is reforging; Precision lowers the failure chance by PREC points each; Masterwork lets legendary secrets succeed.
 const RP={form:2,rec:1,recCap:10,fam:1,rx:4,study:1,mast:2,boss:[4,8,12,16,20],afx:1,leg:4,lv:2,lvMax:9,sk:2,skLv:[3,5,7,9],bp:2},PREC=[5,5],INSIGHT={ch:35}; // INSIGHT.ch: % chance a craft with one side of an unseen reaction hints at it
 const skLvOf=(s,k)=>SK_LV.filter(t=>((s.skills||{})[k]|0)>=t).length,smLv=n=>({rq:"Smith Lv {l}",rv:{l:n},ok:s=>lvOf(s.xp)>=n});
-const crafts=s=>s.journal.map(j=>s.items[j.id]).filter(it=>it&&it.crafted),rids=it=>it.recipeIds||[],plainIn=it=>rids(it).filter(r=>!/^ess_/.test(r)).length;
 const TECHS=[
   {id:"bind",name:"Binding",ic:"infuse",cost:0,pre:[],pos:[1.5,0],d:"Bind one essence into an item.",gate:"An item and one essence."},
   {id:"layer",name:"Layering",ic:"tier",cost:6,pre:["bind"],pos:[0,1],d:"Forge on top of something you already crafted. The traits stack.",gate:"A crafted item as an ingredient.",
-    used:s=>crafts(s).some(it=>rids(it).some(r=>s.items[r]&&s.items[r].crafted)),i:{t:"Layering",l:["You can forge on top of a crafted item: add another essence and the traits stack, up to your trait slots."],tab:"forge",sel:"#slots"}},
+    i:{t:"Layering",l:["You can forge on top of a crafted item: add another essence and the traits stack, up to your trait slots."],tab:"forge",sel:"#slots"}},
   {id:"compound",name:"Compounding",ic:"bag",cost:10,pre:["bind"],pos:[1,1],d:"Forge with a second item or any ingredient that is not an essence: ores, herbs, hides, potions, relics.",gate:"A second item or non-essence ingredients (item + item, essence + essence).",
-    used:s=>crafts(s).some(it=>{const n=plainIn(it);return n>=2||(!n&&rids(it).length>=2)}),i:{t:"Compounding",l:["A second item or any non-essence ingredient can now go into the crucible: ores, herbs, hides, potions, relics. Until now only essences."],tab:"forge",sel:"#slots"}},
+    i:{t:"Compounding",l:["A second item or any non-essence ingredient can now go into the crucible: ores, herbs, hides, potions, relics. Until now only essences."],tab:"forge",sel:"#slots"}},
   {id:"mend",name:"Mending",ic:"cleanse",cost:12,pre:["bind"],pos:[2,1],...smLv(2),d:"Mend a flawed craft (Cursed, Brittle, Rust or Weakened) by reforging it.",gate:"Reforging flawed items.",
-    used:s=>Object.values(s.items).some(it=>it.crafted&&it.id.startsWith("c_")&&!it.recipeIds&&it.temper==null),i:{t:"Mending",l:["Open a flawed item and tap Reforge to strip its flaws. It costs embers, so it shows once you have some."],tab:"forge"}},
+    i:{t:"Mending",l:["Open a flawed item and tap Reforge to strip its flaws. It costs embers, so it shows once you have some."],tab:"forge"}},
   {id:"refine",name:"Refining",ic:"upgrade",cost:12,pre:["bind"],pos:[3,1],rq:"Alchemy Lv {l}",rv:{l:2},ok:s=>skLvOf(s,"alchemy")>=2,d:"Raise a grade: three essences or materials of one grade become one of the next.",gate:"The grade upgrade panel.",
-    used:s=>s.stats.refined>0,i:{t:"Refining",l:["{n} essences or materials of one grade, plus some embers, make one of the next grade: stronger traits in one slot.","The panel shows in the Forge once you have embers and crafting skills."],v:{n:UP.n},tab:"forge"}},
+    i:{t:"Refining",l:["{n} essences or materials of one grade, plus some embers, make one of the next grade: stronger traits in one slot.","The panel shows in the Forge once you have embers and crafting skills."],v:{n:UP.n},tab:"forge"}},
   {id:"temper",name:"Tempering",ic:"forge",cost:16,pre:["layer"],pos:[0,2],...smLv(2),d:"Forge with three or more ingredients at once.",gate:"Three or more inputs (the crucible slots still come with Smith level).",
-    used:s=>crafts(s).some(it=>rids(it).length>=3),i:{t:"Tempering",l:["Three or more things in one forge, as many as your crucible has slots. More inputs make a forge harder."],tab:"forge",sel:"#slots"}},
+    i:{t:"Tempering",l:["Three or more things in one forge, as many as your crucible has slots. More inputs make a forge harder."],tab:"forge",sel:"#slots"}},
   {id:"alloy",name:"Alloying",ic:"alloy",cost:20,pre:["compound"],pos:[1,2],...smLv(3),d:"Merge two kinds of gear into a new form, like a spear and a shield into a lance.",gate:"Form fusions.",
-    used:s=>crafts(s).some(it=>FUSIONS.some(f=>f[2]===it.form)),i:{t:"Alloying",l:["Two kinds of gear can now merge into a new form, such as a spear and a shield into a lance.","The Recipes tab lists every fusion."],tab:"forge",sel:"#slots"}},
+    i:{t:"Alloying",l:["Two kinds of gear can now merge into a new form, such as a spear and a shield into a lance.","The Recipes tab lists every fusion."],tab:"forge",sel:"#slots"}},
   {id:"prec1",name:"Precision I",ic:"weak",cost:20,pre:["mend"],pos:[2,2],...smLv(3),d:"A steadier hand: {n} points fewer failures in every forge.",v:{n:PREC[0]},gate:"Lower failure odds.",
     i:{t:"Precision I",l:["Your hand is steadier: every forge fails {n} points less often (never under {min}%)."],v:{n:PREC[0],min:FAIL.min},tab:"forge",sel:"#combine"}},
   {id:"prec2",name:"Precision II",ic:"weak",cost:30,pre:["prec1"],pos:[2,3],...smLv(6),d:"Steadier still: another {n} points fewer failures.",v:{n:PREC[1]},gate:"Lower failure odds.",
     i:{t:"Precision II",l:["Another {n} points off every forge's failure chance, {t} in all (never under {min}%)."],v:{n:PREC[1],t:PREC[0]+PREC[1],min:FAIL.min},tab:"forge",sel:"#combine"}},
   {id:"master",name:"Masterwork",ic:"renown",cost:40,pre:["temper","prec1"],pos:[1,3],...smLv(5),d:"Legendary secrets can succeed: the exact ingredients forge a legendary.",gate:"Legendary secrets.",
-    used:s=>s.journal.some(j=>j.legendary),i:{t:"Masterwork",l:["Legendary secrets can succeed now: forge the exact ingredients a rumor names and the result is legendary.","Until now the right ingredients only made an ordinary piece."],tab:"forge"}}
-].map(t=>({ok:()=>true,rq:"",used:()=>false,...t}));
+    i:{t:"Masterwork",l:["Legendary secrets can succeed now: forge the exact ingredients a rumor names and the result is legendary.","Until now the right ingredients only made an ordinary piece."],tab:"forge"}}
+].map(t=>({ok:()=>true,rq:"",...t}));
 const TECH=Object.fromEntries(TECHS.map(t=>[t.id,t]));
 // one vague word per trait that takes part in a reaction: an insight says "X reacts with <this>" without naming the partner
 const VAGUE={Fire:"something hot",Ice:"something freezing",Water:"something wet",Poison:"something venomous",Nourishing:"something wholesome",Sweet:"something sweet",Light:"something bright",Holy:"something sacred",Shadow:"something dark",Iron:"something forged",Arcane:"something uncanny",Stone:"something heavy",Fur:"something warm",Sharp:"something keen",Steam:"something misty"};
 const UNLOCKS=[
   {id:"start",name:"The map",ic:"hero",q:1,when:()=>true,i:{t:"Your first expedition",l:["Tap a glowing tile next to you to step. Fights drop loot, and a camp waits before the boss.","In a fight: Attack, Guard or Flee. Your torch burns down as you walk."],tab:"battle",sel:".tl.adj"}},
-  {id:"patterns",name:"Patterns",ic:"pattern",when:s=>s.stats.shaped>0||Object.keys(s.inv).some(id=>s.inv[id]>0&&isBaseMat(id)),used:s=>s.stats.shaped>0,txt:"Deconstruct a raw find in the Gear tab.",w:"Open the Forge tab.",
+  {id:"patterns",name:"Patterns",ic:"pattern",when:s=>s.stats.shaped>0||Object.keys(s.inv).some(id=>s.inv[id]>0&&isBaseMat(id)),txt:"Deconstruct a raw find in the Gear tab.",w:"Open the Forge tab.",
     i:{t:"Patterns",l:["Deconstructing gives base materials: leather, cloth, ingots, timber, stone and crystal.","Pick a pattern in the Forge and fill its slots to forge gear. Better grades make stronger pieces."],tab:"forge",sel:"#patp"}},
-  {id:"blueprints",name:"Blueprints",ic:"scroll",when:s=>Object.values(s.codex).some(k=>k&&Array.isArray(k.bp)&&k.bp.length>0),used:s=>Object.values(s.codex).some(k=>k&&Array.isArray(k.bp)&&k.bp.length>0),txt:"Study a creature in a fight.",w:"Open the Forge tab.",
+  {id:"blueprints",name:"Blueprints",ic:"scroll",when:s=>Object.values(s.codex).some(k=>k&&Array.isArray(k.bp)&&k.bp.length>0),txt:"Study a creature in a fight.",w:"Open the Forge tab.",
     i:{t:"Blueprints",l:["A blueprint forges a creature's named gear from base materials. It waits beside the patterns in the Forge.","Study creatures in a fight, or master them, to learn more."],tab:"forge",sel:"#pats .bpb"}},
-  {id:"study",name:"Study",ic:"study",when:s=>s.wins>=1,used:s=>s.stats.studied>0,txt:"Win your first battle.",w:"It joins the action buttons.",
+  {id:"study",name:"Study",ic:"study",when:s=>s.wins>=1,txt:"Win your first battle.",w:"It joins the action buttons.",
     i:{t:"Study",l:["Spend a turn to learn one fact about a foe: a weakness, a resistance or its strength.","Study also improves your parry timing against this special, up to three ranks."],ctx:"battle",sel:"#study"}},
-  {id:"parry",name:"Parry",ic:"parry",used:s=>s.stats.parries>0||s.wins>=3,txt:"Meet a creature that winds up a special move.",w:"It joins the action buttons.",
+  {id:"parry",name:"Parry",ic:"parry",txt:"Meet a creature that winds up a special move.",w:"It joins the action buttons.",
     i:{t:"It's winding up",l:["Parry a telegraphed special to negate it and riposte. Your chance is shown on the button.","Study, Speed and weapon form improve your odds. Guard blocks new statuses and strengthens your next attack."],ctx:"battle",sel:"#parry"}},
-  {id:"ability",name:"Weapon abilities",ic:"attack",when:s=>(lvOf(s.xp)>=2||s.wins>=3)&&abOf(s),used:s=>s.stats.abil>0,txt:"Equip a weapon with a signature move at Smith Lv 2, or after 3 wins.",w:"It joins the action buttons in your next fight.",
+  {id:"ability",name:"Weapon abilities",ic:"attack",when:s=>(lvOf(s.xp)>=2||s.wins>=3)&&abOf(s),txt:"Equip a weapon with a signature move at Smith Lv 2, or after 3 wins.",w:"It joins the action buttons in your next fight.",
     i:{t:"Weapon abilities",l:["Every weapon form has one signature move, and a shield can bash.","It takes your turn, then needs a few turns to cool down."],ctx:"battle",sel:".ab"}},
   {id:"roam",name:"Roaming enemies",ic:"fight",q:1,when:s=>s.wins>=1},
-  {id:"hunt",name:"Hunters",ic:"warn",used:s=>s.wins>=3,txt:"Let a creature catch your scent.",w:"",
+  {id:"hunt",name:"Hunters",ic:"warn",txt:"Let a creature catch your scent.",w:"",
     i:{t:"It's hunting you",l:["Some creatures catch your scent and follow, a step behind. A ! marks them.","Fight when you choose, or Flee: it stays behind, dazed, for a few steps."],tab:"battle",sel:".tl.aware"}},
   {id:"shrine",name:"Shrines",ic:"shrine",when:s=>exps(s)>=1,txt:"Finish your first expedition.",w:"Look for them on your next expedition.",
     i:{t:"Shrines",l:["Pray to mend yourself and relight your torch, or give the stones something for a hint scroll.","Look for the shrine on the map."],tab:"battle",sel:".tl.p-shrine"}},
-  {id:"peddler",name:"Peddlers and embers",ic:"peddler",when:s=>exps(s)>=2,used:s=>s.stats.spent>0||(s.embers>0&&s.wins>=3),txt:"Finish two expeditions.",w:"Look for one on your next expedition.",
+  {id:"peddler",name:"Peddlers and embers",ic:"peddler",when:s=>exps(s)>=2,txt:"Finish two expeditions.",w:"Look for one on your next expedition.",
     i:{t:"Peddlers and embers",l:["Fights, salvage and selling earn embers. A peddler on the map trades them for wares, buys your spares or swaps goods."],tab:"battle",sel:"#emb,.tl.p-peddler"}},
   {id:"mystery",name:"Mystery events",ic:"mystery",when:s=>exps(s)>=2,txt:"Finish two expeditions.",w:"Look for ? tiles on your next expedition.",
     i:{t:"Mystery tiles",l:["A ? tile can hold anything: an ambush, a stranger with a bargain, a riddle, an old forge.","Read the choices. Walking away is always allowed."],tab:"battle",sel:".tl.p-mystery"}},
-  {id:"elite",name:"Magic and rare foes",ic:"elite",when:s=>lvOf(s.xp)>=3||ZONES.some(z=>s.seen[z[2]]),used:s=>s.stats.elites>0,txt:"Face a region boss, or reach Smith Lv 3.",w:"They show up on your next expedition.",
+  {id:"elite",name:"Magic and rare foes",ic:"elite",when:s=>lvOf(s.xp)>=3||ZONES.some(z=>s.seen[z[2]]),txt:"Face a region boss, or reach Smith Lv 3.",w:"They show up on your next expedition.",
     i:{t:"Magic and rare foes",l:["Some creatures carry affixes: tricks that change the fight. A coloured frame marks them on the map.","Each drops an affixed material in a better grade. Deconstruct it for that affix's essence."],tab:"battle",sel:".tl.p-elite"}},
-  {id:"infuse",name:"Infusions",ic:"infuse",when:s=>boss1(s)||s.quest>=7,used:s=>Object.keys(s.infuse).length>0||s.infCredit>0,txt:"Defeat Gnarlhorn.",w:"Open the Gear tab.",
+  {id:"infuse",name:"Infusions",ic:"infuse",when:s=>boss1(s)||s.quest>=7,txt:"Defeat Gnarlhorn.",w:"Open the Gear tab.",
     i:{t:"Infusions",l:["Essences worth {cost} plain ones can be infused into you. The trait stays whatever you wield.","Feed it the same essence again to deepen it, up to {max}."],v:{cost:INF_COST,max:["I","II","III"][INF_MAX-1]},tab:"gear",sel:"#inflabel"}},
-  {id:"skills",name:"Crafting skills",ic:"hammer",when:s=>s.journal.length>0||s.stats.forged>0,used:s=>Object.values(s.skills).some(x=>x>0),txt:"Forge something.",w:"Open the Forge tab.",
+  {id:"skills",name:"Crafting skills",ic:"hammer",when:s=>s.journal.length>0||s.stats.forged>0,txt:"Forge something.",w:"Open the Forge tab.",
     i:{t:"Crafting skills",l:["Every kind of thing has its own skill, and forging it trains it.","A higher skill reaches higher tiers and fails less often."],tab:"forge",sel:"#skd"}},
-  {id:"research",name:"Research",ic:"research",when:s=>s.journal.length>0||s.stats.forged>0||lvOf(s.xp)>=2,used:s=>Object.keys(s.techs).length>1,txt:"Forge something, or reach Smith Lv 2.",w:"Open the Forge tab.",
+  {id:"research",name:"Research",ic:"research",when:s=>s.journal.length>0||s.stats.forged>0||lvOf(s.xp)>=2,txt:"Forge something, or reach Smith Lv 2.",w:"Open the Forge tab.",
     i:{t:"Research",l:["Forging, salvaging, studying and meeting new things teach you something. Each first discovery earns research points, and so do reaching new smith and skill levels and defeating bosses.","Spend them in the Forge on techniques: they decide what you can craft. You know Binding, one essence into an item."],tab:"forge",sel:"#resd"}},
-  ...TECHS.filter(t=>t.i).map(t=>({id:"t:"+t.id,name:t.name,ic:t.ic,q:1,when:s=>!!s.techs[t.id],used:s=>!!s.techs[t.id],i:t.i})), // a technique's intro is queued when it is learned (the toast and sound come from learnTech)
-  {id:"upgrade",name:"Grade upgrades",ic:"upgrade",when:s=>has_(s,"peddler","skills")&&!!s.techs.refine,used:s=>s.stats.refined>0,txt:"Unlock embers and crafting skills, and learn Refining in Research.",w:"Open the Forge tab.",
+  ...TECHS.filter(t=>t.i).map(t=>({id:"t:"+t.id,name:t.name,ic:t.ic,q:1,when:s=>!!s.techs[t.id],i:t.i})), // a technique's intro is queued when it is learned (the toast and sound come from learnTech)
+  {id:"upgrade",name:"Grade upgrades",ic:"upgrade",when:s=>has_(s,"peddler","skills")&&!!s.techs.refine,txt:"Unlock embers and crafting skills, and learn Refining in Research.",w:"Open the Forge tab.",
     i:{t:"Grade upgrades",l:["{n} essences or materials of one grade and some embers make one of the next grade: stronger traits in one slot.","A miss costs the embers and one of the {n}."],v:{n:UP.n},tab:"forge",sel:"#upgd"}},
-  {id:"heat",name:"Heat",ic:"heat",when:s=>Object.values(s.heat).some(h=>h.max>0)||boss1(s),used:s=>Object.keys(s.heat).length>0,txt:"Defeat a region boss.",w:"Find the flame on the map strip.",
+  {id:"heat",name:"Heat",ic:"heat",when:s=>Object.values(s.heat).some(h=>h.max>0)||boss1(s),txt:"Defeat a region boss.",w:"Find the flame on the map strip.",
     i:{t:"Heat",l:["Pick a Heat level with the flame on the map strip. Enemies grow tougher and loot gets richer.","Beat a region's boss at your highest Heat to unlock the next."],tab:"battle",sel:"#heatBtn"}},
-  {id:"daily",name:"Daily expedition",ic:"daily",when:s=>((s.kills[ZONES[1][2]]|0)>0||lvOf(s.xp)>=5)&&has_(s,"shrine","peddler","mystery","elite","roam"),used:s=>!!s.daily||s.stats.dailies>0||boss1(s),txt:"Clear Frostfang Pass or reach Smith Lv 5, after meeting shrines, peddlers and mysteries.",w:"It waits under the map.",
+  {id:"daily",name:"Daily expedition",ic:"daily",when:s=>((s.kills[ZONES[1][2]]|0)>0||lvOf(s.xp)>=5)&&has_(s,"shrine","peddler","mystery","elite","roam"),txt:"Clear Frostfang Pass or reach Smith Lv 5, after meeting shrines, peddlers and mysteries.",w:"It waits under the map.",
     i:{t:"The daily expedition",l:["One run a day on a map everyone shares. Beat the boss for essences, a rare find and smith XP.","You get a single attempt."],tab:"battle",sel:".dcard"}},
-  {id:"rift",name:"The Wanderer's Rift",ic:"mystery",when:s=>(s.kills[ZONES[3][2]]|0)>0,used:s=>!!(s.rift&&s.rift.seed),txt:"Defeat the Starfallen Archon.",w:"A crack in the world waits past the Spire.",
+  {id:"rift",name:"The Wanderer's Rift",ic:"mystery",when:s=>(s.kills[ZONES[3][2]]|0)>0,txt:"Defeat the Starfallen Archon.",w:"A crack in the world waits past the Spire.",
     i:{t:"The Wanderer's Rift",l:["Past the Spire the world frays. Every expedition there is a new region, rolled at random: a biome, ten wild creatures and a master.","Wild creatures carry affixes of their own, and the master carries three. Beat it to go one depth deeper.","Your deepest run is your record."],tab:"battle",sel:"#zones"}},
-  {id:"bounty",name:"Bounties",ic:"list",when:s=>s.quest>=TUTORIAL.length,used:s=>!!s.bounty,txt:"Finish the goal chain.",w:"The goal bar offers them now.",
+  {id:"bounty",name:"Bounties",ic:"list",when:s=>s.quest>=TUTORIAL.length,txt:"Finish the goal chain.",w:"The goal bar offers them now.",
     i:{t:"Bounties",l:["With the first steps behind you, the goal bar offers bounties: hunts and forging jobs that pay in essences.","Claim one to get the next."],tab:"battle"}},
   {id:"afx",name:"Affixes",ic:"elite",when:s=>Object.keys(s.afx).length>0,txt:"Meet a magic or rare enemy.",w:"See the Codex tab.",
     i:{t:"Affixes",l:["The Codex now records every affix you meet: what it does and which essence it drops."],tab:"codex",sel:"#aflabel"}},

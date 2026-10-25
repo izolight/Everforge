@@ -44,7 +44,8 @@ const URL="file://"+path.resolve(__dirname,"..","index.html"),shotArg=process.ar
     console.log("ok guarding, successful parries and healing animate and clean up");
 
     const r=await page.evaluate(()=>{
-      S.battle=null;S.event=null;S.maps.woods=genMap({zone:"woods",seed:42,heat:0});render();
+      S.battle=null;S.event=null;S.onboarding=5; // the opening fight would start on the first step and take the map off the screen
+      S.maps.woods=genMap({zone:"woods",seed:42,heat:0});render();
       const m=curMap(),start={...m.pos},btn=document.querySelector(".tl.adj[data-tile]");btn.click();
       const hero=document.querySelector(".tl.here .hero"),walking=hero.getAnimations().length>0;
       const tile=[...document.querySelectorAll("[data-tile]")].find(e=>e.dataset.tile===start.x+","+start.y);tile.click();

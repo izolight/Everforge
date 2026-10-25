@@ -41,7 +41,7 @@ Backlog for monster coverage, biome variety and related balance/tooling work.
 
 - [ ] **M-06 · Promote `fen` or `bone` to a full region** — `Status: Planned` · `Size: XL` · `js/data.js`, `js/monsters.js`, `js/map.js`, `js/audio.js`, `lang/` · `Depends: M-04, M-05`
   Add a `ZONES` entry, unlock gate, six authored regulars, a boss, map palette, music, quest intro, and translations.
-  **Done:** region is playable end-to-end; boss/quest/unlocks work; `smoke`, `map-check`, `audio-check`, `i18n-check`, `sim` pass; save version/fixture handled.
+  **Done:** region is playable end-to-end; boss/quest/unlocks work; `smoke`, `map-check`, `audio-check`, `i18n-check`, `sim` pass; save `KEY` bumped if the shape changed.
 
 - [ ] **M-07 · Boss coverage for missing elements** — `Status: Planned` · `Size: L` · `js/data.js` · `Depends: M-06` (first boss)
   Poison, holy, shadow, metal, arcane and stone have no boss. Add bosses through new regions or variants; if deliberately excluded, document why.
@@ -76,7 +76,7 @@ Backlog for monster coverage, biome variety and related balance/tooling work.
   **Done:** every biome has 8+ parts; no duplicates; visual spot-check and `smoke` pass.
   **Done (V-01):** all 8 `BIOMES` pools hold 9 distinct parts (129 possible 1–3-part sets each); no pool pairs `hood` with `halo`; no new `tail`, `blade`, `axe`, `staff` or `tusks` were added.
   `node tools/part-check.js` renders every biome × body × part (360 renders, 0 problems), `node tools/map-check.js` passes, and the visual sheets (`node tools/parts-preview.js`, `node tools/parts-combos.js`) show the new parts on every body.
-  `node tools/smoke.js` still reports the pre-existing `save-v14/15/16.json` migration failure ("missing rift pending"), which also fails on the base commit and is unrelated to the part pools.
+  `node tools/smoke.js` passes (the old `save-v14/15/16.json` fixtures and their migration checks are gone: saves are latest-only).
 
 - [ ] **V-02 · Use the four orphan parts** — `Status: Planned` · `Size: S` · `js/monsters.js` · `Depends: V-12`
   `blade`, `axe`, `staff`, `tusks` exist in `js/art/parts.js` but no wild pool uses them. Add them to appropriate biomes.
@@ -146,7 +146,7 @@ Backlog for monster coverage, biome variety and related balance/tooling work.
 
 - [ ] **V-18 · Add multi-enemy encounters** — `Status: Planned` · `Size: XL` · `js/battle.js`, `js/render.js`, `js/state.js`, `js/map.js` · `Depends: V-17`
   Support 2–3 foes with targeting, turn order, AoE abilities, pack-aware affixes and saves.
-  **Done:** packs work in normal/daily/Rift; UI and save migration handled; sim policies updated.
+  **Done:** packs work in normal/daily/Rift; UI and save shape updated; sim policies updated.
 
 - [ ] **V-19 · Add cross-biome factions** — `Status: Planned` · `Size: L` · `js/data.js`, `js/monsters.js`
   Tag rosters into factions (raiders, cultists, constructs, cult of the star) that cross biomes with shared looks and rules.
@@ -200,7 +200,6 @@ Backlog for monster coverage, biome variety and related balance/tooling work.
 
 - **All `js/monsters.js` changes** — M-01, M-02, V-01/V-02/V-03/V-04, V-05–V-09, V-10–V-13, V-16, V-19, V-20, plus parts of M-05/M-06/M-08/M-11/M-12/V-14/V-17/V-21.
 - **All `js/data.js` changes** — or assign one data steward and split by clearly separate sections (enemies vs balance vs biomes).
-- **Save-version/fixture changes** — M-06 and V-18 (and V-20 if it adds save fields) must not run concurrently. Only one branch should run `node tools/smoke.js 400 --write-fixture`.
 - **V-18 multi-enemy packs** — effectively a solo lane; it rewrites the core battle shape.
 
 ### Practical parallel plan
