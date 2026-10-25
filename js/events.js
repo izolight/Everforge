@@ -127,7 +127,7 @@ try{const sd=$("statsd");sd.open=localStorage.getItem("everforge-statsopen")==="
 // static markup: icons in headers, and the numbers in the How to play text (run again after a language change, which rewrites that text)
 function fillStatic(){
   document.querySelectorAll("[data-ic]").forEach(e=>e.innerHTML=ic(e.dataset.ic,"s"));
-  const RV={defk:DEF_K,hitmax:Math.round((1-HIT_MIN)*100),magw:MAG_W,pmiss:Math.round((1-PARRY_CH)*100)};document.querySelectorAll("[data-k]").forEach(e=>e.textContent=RV[e.dataset.k]);
+  const RV={defk:DEF_K,hitmax:Math.round((1-HIT_MIN)*100),magw:MAG_W,gcut:pcn(GUARD_T.cut),braced:pcn(GUARD_T.braced),pbase:pcn(PARRY_T.base),pcap:pcn(PARRY_T.cap),pranks:PARRY_T.levels};document.querySelectorAll("[data-k]").forEach(e=>e.textContent=RV[e.dataset.k]);
 }
 // language: the choice is kept outside the save (a save code moves between devices, the language does not have to)
 function setLang(l){
