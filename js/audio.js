@@ -57,7 +57,7 @@ function sfx(n,dl){
 function sndUi(){ // header speaker: Off / Low / Medium / High, one wave per level
   const b=$("snd"),l=snd.on?snd.vol+1:0;
   if(b){b.innerHTML=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z" fill="currentColor" fill-opacity=".3"/>${l?['<path d="M15 10a3 3 0 0 1 0 4"/>','<path d="M15 10a3 3 0 0 1 0 4M17.5 7.5a6.5 6.5 0 0 1 0 9"/>','<path d="M15 10a3 3 0 0 1 0 4M17.5 7.5a6.5 6.5 0 0 1 0 9M20 5a10 10 0 0 1 0 14"/>'][l-1]:'<path d="M16 9.5l5 5M21 9.5l-5 5"/>'}</svg>`;
-    b.setAttribute("aria-pressed",String(snd.on));b.setAttribute("aria-label",`Sound: ${VOL_N[l]}`);b.dataset.tip=`Sound: ${VOL_N[l]}\nTap to change the volume.`}
+    b.setAttribute("aria-pressed",String(snd.on));const sv=tx("Sound: {vol}",{vol:tx(VOL_N[l])});b.setAttribute("aria-label",sv);b.dataset.tip=sv+"\n"+tx("Tap to change the volume.")}
 }
 function setSnd(o){Object.assign(snd,o);sndSave();if(master)master.gain.value=VOLS[snd.vol]*.8;sndUi()}
 ["pointerdown","keydown","touchend"].forEach(ev=>addEventListener(ev,()=>{gesture=true;if(snd.on){const a=actx();if(a&&a.state!=="running")a.resume().catch(()=>{})}},{capture:true,passive:true}));

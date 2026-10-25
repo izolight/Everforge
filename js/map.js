@@ -1,5 +1,5 @@
 // ================= MAP =================
-const NODE_INFO={fight:"Fight",elite:"Elite",boss:"Boss",chest:"Chest",shrine:"Shrine",peddler:"Peddler",camp:"Camp",mystery:"Mystery"};
+const NODE_INFO={get fight(){return tx("Fight")},get elite(){return tx("Elite")},get boss(){return tx("Boss")},get chest(){return tx("Chest")},get shrine(){return tx("Shrine")},get peddler(){return tx("Peddler")},get camp(){return tx("Camp")},get mystery(){return tx("Mystery")}};
 const MYSTERY=[[.14,"ambush"],[.26,"shrine"],[.38,"pack"],[.5,"chest"],[.6,"peddler"],[.68,"altar"],[.76,"alchemist"],[.84,"traveller"],[.92,"forge"],[1,"riddle"]],mystery=x=>MYSTERY.find(([p])=>x<p)[1];
 // ---- grid helpers: m.g = tile rows ("." floor, "," brush, "#" rock/tree, "~" water), m.pois = things on tiles, m.sn = seen flags, m.mem = last-seen POI types
 const inb=(m,x,y)=>x>=0&&y>=0&&x<m.w&&y<m.h,walk=(m,x,y)=>inb(m,x,y)&&!"#~".includes(m.g[y][x]),poiAt=(m,x,y)=>m.pois.find(p=>p.x===x&&p.y===y&&!p.done)||m.pois.find(p=>p.x===x&&p.y===y),DIRS=[[0,-1],[1,0],[0,1],[-1,0]];
@@ -61,7 +61,7 @@ const heatNow=()=>curMap().heat||0,twistNow=()=>S.run==="daily"&&S.daily?S.daily
 function setHeat(n){ // pick the heat for new expeditions here; an untouched map is rerolled at once
   const hz=heatOf(S.zone);if(busy()||S.run==="daily"||!(n>=0&&n<=hz.max))return;
   S.heat[S.zone]={max:hz.max,sel:n};const m=curMap();
-  if(!m.steps&&(m.heat||0)!==n)S.maps[S.zone]=newMap(S.zone);else if((m.heat||0)!==n)toast(`Heat ${n} starts with your next expedition here.`);
+  if(!m.steps&&(m.heat||0)!==n)S.maps[S.zone]=newMap(S.zone);else if((m.heat||0)!==n)toast(tx("Heat {n} starts with your next expedition here.",{n}));
   save();render();
 }
 const adjTiles=m=>m.cleared?[]:DIRS.map(([dx,dy])=>[m.pos.x+dx,m.pos.y+dy]).filter(([x,y])=>walk(m,x,y));
@@ -72,10 +72,10 @@ function step(x,y){
   const m=curMap();if(busy()||m.cleared||Math.abs(x-m.pos.x)+Math.abs(y-m.pos.y)!==1||!walk(m,x,y))return;
   sfx("step");m.prev=m.pos;m.pos={x,y};m.steps++;m.dp=Math.max(m.dp,depthOf(m,x,y));S.battle=null;S.event=null;
   const was=m.torch>0;m.torch=Math.max(0,m.torch-drain(m));reveal(m);
-  if(was&&m.torch<=0)toast("Your torch gutters out. The dark presses close.");
+  if(was&&m.torch<=0)toast(tx("Your torch gutters out. The dark presses close."));
   const nd=poiAt(m,x,y);if(nd&&!nd.done)return enter(nd);
   if(m.torch<=0){const ra=m.sd?rng(hash(m.seed+":a:"+m.steps)):Math.random; // a seeded map rolls the dark's ambush by step number, so the same path meets the same things
-    if(ra()<TORCH.amb){const e=pickEnemy(S.zone,ra),f=rollFoe(ra,{elite:twistNow()==="elites",heat:m.heat||0,row:depthOf(m,x,y),mv:ENEMIES[e].mv});return startBattle(null,{row:depthOf(m,x,y),ambush:true,amsg:"Ambush! Something finds you in the dark.",e,...f})}}
+    if(ra()<TORCH.amb){const e=pickEnemy(S.zone,ra),f=rollFoe(ra,{elite:twistNow()==="elites",heat:m.heat||0,row:depthOf(m,x,y),mv:ENEMIES[e].mv});return startBattle(null,{row:depthOf(m,x,y),ambush:true,amsg:tx("Ambush! Something finds you in the dark."),e,...f})}}
   if(foesAct(m))return;
   save();render();
 }
@@ -91,9 +91,9 @@ function foesAct(m){
   const R=m.sd?rng(hash(m.seed+":e:"+m.steps)):Math.random,dp=bfs(m,m.pos.x,m.pos.y),dm=bfs(m,m.pos.x,m.pos.y,(m,x,y)=>!hard(m,x,y)),W=m.w,dark=m.torch<=0;
   for(const p of rs){
     if(p.dz>0){p.dz--;continue}
-    const el=p.t==="elite",d=dp[p.y*W+p.x]<0?99:dp[p.y*W+p.x],nm=ENEMIES[p.e]?ENEMIES[p.e].name:"The hunter";
+    const el=p.t==="elite",d=dp[p.y*W+p.x]<0?99:dp[p.y*W+p.x],nm=ENEMIES[p.e]?tx(ENEMIES[p.e].name):tx("hunter");
     if(p.mv==="chase"){const rg=el?ROAM.elite:ROAM.aw+(dark?ROAM.dark-ROAM.aw:0)+(m.heat>=3?ROAM.heat:0);
-      if(!p.aw&&d<=rg){p.aw=1;unlock("hunt");mlog(m,`The ${nm} catches your scent.`)}else if(p.aw&&d>ROAM.lose){p.aw=0;mlog(m,`The ${nm} loses you.`)}}
+      if(!p.aw&&d<=rg){p.aw=1;unlock("hunt");mlog(m,tx("The {nm} catches your scent.",{nm}))}else if(p.aw&&d>ROAM.lose){p.aw=0;mlog(m,tx("The {nm} loses you.",{nm}))}}
     if(el){p.pa=p.pa?0:1;if(p.pa)continue} // elites move on every other step
     const at=(x,y)=>x===m.pos.x&&y===m.pos.y;
     for(let k=0,n=(p.afx||[]).includes("swiftfoot")?AFX_T.swift.moves:1;k<n;k++){ // a Swift-footed enemy takes several tiles per turn, each by the same rules
@@ -103,20 +103,20 @@ function foesAct(m){
       else if(nb.length&&R()>=ROAM.stay)to=nb[Math.floor(R()*nb.length)];
       if(!to)break;
       const from=[p.x,p.y];p.x=to[0];p.y=to[1];p.ms=m.steps;
-      if(at(p.x,p.y)){reveal(m);unlock("hunt");mlog(m,`The ${nm} lunges out of the dark!`);enter(p,"it",from);return true}}}
+      if(at(p.x,p.y)){reveal(m);unlock("hunt");mlog(m,tx("The {nm} lunges out of the dark!",{nm}));enter(p,"it",from);return true}}}
   reveal(m);return false}
 function slip(B){ // you fled a map enemy: it stays and is dazed; you step back, or stay put if it walked into you
   const m=curMap(),nd=m.pois[B.pi];if(!nd||!isFoe(nd)||!nd.done)return;
   nd.done=false;nd.aw=0;const mv=nd.mv&&nd.mv!=="still";if(mv)nd.dz=ROAM.daze; // it loses your trail too, and must notice you again
   if(B.by==="it"&&B.ef&&walk(m,B.ef[0],B.ef[1])){nd.x=B.ef[0];nd.y=B.ef[1]}
   else if(m.prev&&walk(m,m.prev.x,m.prev.y)){m.pos=m.prev;m.prev=null}
-  mlog(m,mv?`You slip away. The ${ENEMIES[B.id].name} is dazed and stays put for ${ROAM.daze} steps.`:`You slip away. The ${ENEMIES[B.id].name} lets you go.`);if(mv)blog(`The ${B.name} is dazed. It will not follow for ${ROAM.daze} steps.`,"good");reveal(m)}
+  mlog(m,mv?tx("You slip away. The {name} is dazed and stays put for {n} steps.",{name:tx(ENEMIES[B.id].name),n:ROAM.daze}):tx("You slip away. The {name} lets you go.",{name:tx(ENEMIES[B.id].name)}));if(mv)blog(tx("The {name} is dazed. It will not follow for {n} steps.",{name:bname(B),n:ROAM.daze}),"good");reveal(m)}
 function enter(nd,by,from){ // the one place a POI is resolved into a battle or an event; by "it": the enemy walked into you (from = the tile it left)
   const m=curMap();nd.done=true;delete m.mem[nd.x+","+nd.y];S.battle=null;S.event=null;
   let t=nd.t;
   if(t==="mystery")t=nd.my||mystery(Math.random());
   if(isFoe(nd)){if(!nd.e)nd.e=pickEnemy(S.zone);if(nd.rar==null)Object.assign(nd,rollFoe(Math.random,{elite:nd.t==="elite",heat:m.heat||0,row:nd.r,mv:nd.mv}))} // an older map: pick once and keep
-  const src=isFoe(nd)?{pi:m.pois.indexOf(nd),by:by||"you",ef:from,...by==="it"?{amsg:`The ${ENEMIES[nd.e].name} lunges out of the dark!`,lunge:1}:{}}:{},P=pstats(),hl=m.heat||0,amb=!!m.amb&&["fight","elite"].includes(t),r=nd.r; // m.amb: a robbed traveller's friends make your next fight an ambush; it ends with the next stop whatever it is
+  const src=isFoe(nd)?{pi:m.pois.indexOf(nd),by:by||"you",ef:from,...by==="it"?{amsg:tx("The {nm} lunges out of the dark!",{nm:tx(ENEMIES[nd.e].name)}),lunge:1}:{}}:{},P=pstats(),hl=m.heat||0,amb=!!m.amb&&["fight","elite"].includes(t),r=nd.r; // m.amb: a robbed traveller's friends make your next fight an ambush; it ends with the next stop whatever it is
   m.amb=false;
   if(t==="fight")return startBattle(null,{row:r,ambush:amb,e:nd.e,rar:nd.rar,afx:nd.afx,...src});
   if(t==="ambush")return startBattle(null,{row:r,ambush:true,e:nd.e,rar:nd.rar,afx:nd.afx});
@@ -124,10 +124,10 @@ function enter(nd,by,from){ // the one place a POI is resolved into a battle or 
   if(t==="boss")return startBattle(ZONES[zoneIdx(S.zone)][2]);
   if(ENC[t])S.event=ENC[t].make([...nd.rv||[0,0,0,0].map(()=>Math.random()),...(nd.gr||[]).slice(0,4)],hl); // rv[4..7] roll the grades of what the event gives
   if(t==="pack"){const pool=zonePool(S.zone),got=(nd.pk?[...nd.pk]:[pick(pool)]).map((id,k)=>dropNow(id,nd.gr&&nd.gr[k]));if(!nd.pk&&Math.random()<.5)got.push(dropNow(pick(pool)));got.forEach(id=>addItem(id));sfx("loot");
-    S.event={type:"pack",icon:"chest",title:"An abandoned pack",text:"Someone left in a hurry. You help yourself.",loot:got,choices:[]}}
-  if(t==="chest")S.event={type:"chest",icon:"chest",title:"A lone chest",text:"An iron-banded chest sits in the open, unattended. Suspiciously unattended.",loot:[],choices:[["open","Open it"],["leave","Walk past"]],pre:nd.ch};
+    S.event={type:"pack",icon:"chest",title:tx("An abandoned pack"),text:tx("Someone left in a hurry. You help yourself."),loot:got,choices:[]}}
+  if(t==="chest")S.event={type:"chest",icon:"chest",title:tx("A lone chest"),text:tx("An iron-banded chest sits in the open, unattended. Suspiciously unattended."),loot:[],choices:[["open",tx("Open it")],["leave",tx("Walk past")]],pre:nd.ch};
   if(t==="peddler")S.event=merchant(nd.sh);
-  if(t==="camp"){torchUp(m.tmax);S.event={type:"camp",icon:"camp",title:"A sheltered camp",text:"A ring of stones and dry wood, out of the wind. The fire relights your torch. The boss lies just ahead.",loot:[],choices:[["rest",`Rest (+${Math.round(P.maxHp*campFrac())} HP)`],...hl>=5?[]:[["embers","Bank the embers (+1 campfire charge)"]]]}}
+  if(t==="camp"){torchUp(m.tmax);S.event={type:"camp",icon:"camp",title:tx("A sheltered camp"),text:tx("A ring of stones and dry wood, out of the wind. The fire relights your torch. The boss lies just ahead."),loot:[],choices:[["rest",tx("Rest (+{n} HP)",{n:Math.round(P.maxHp*campFrac())})],...hl>=5?[]:[["embers",tx("Bank the embers (+1 campfire charge)")]]]}}
   save();render();
 }
 function fallBack(m){ // fleeing the boss: back one tile (to where you came from), the lair stays open
@@ -146,14 +146,14 @@ function eventChoice(c){
   if(ev.type==="merchant"&&/^(buy|sell):/.test(c))return shopPick(c,ev);
   if(ENC[ev.type]){ENC[ev.type].pick(c,ev);save();return render()}
   if(ev.type==="camp"){
-    if(c==="rest"){const g=healYou(Math.round(pstats().maxHp*campFrac()));S.event={type:"done",icon:"camp",title:"Well rested",text:`You sleep by the fire and recover ${g} HP.`,loot:[],choices:[]}}
-    else{const had=S.camp;S.camp=Math.min(3,S.camp+1);S.event={type:"done",icon:"camp",title:"Embers banked",text:S.camp>had?"You pack glowing embers for later. One more campfire charge.":"Your ember pouch is already full. At least it's warm.",loot:[],choices:[]}}}
+    if(c==="rest"){const g=healYou(Math.round(pstats().maxHp*campFrac()));S.event={type:"done",icon:"camp",title:tx("Well rested"),text:tx("You sleep by the fire and recover {n} HP.",{n:g}),loot:[],choices:[]}}
+    else{const had=S.camp;S.camp=Math.min(3,S.camp+1);S.event={type:"done",icon:"camp",title:tx("Embers banked"),text:S.camp>had?tx("You pack glowing embers for later. One more campfire charge."):tx("Your ember pouch is already full. At least it's warm."),loot:[],choices:[]}}}
   if(ev.type==="chest"&&c==="open"){
     const pre=ev.pre;if(pre?pre.m:Math.random()<.25){S.event=null;return startBattle("mimic")}
     const p=zonePool(S.zone),got=(pre?[...pre.l]:[pick(p),pick(p)]).map((id,k)=>dropNow(id,pre&&pre.g?pre.g[k]:undefined));if(pre?pre.e:Math.random()<.5)got.push(essNow(pre?pre.e:pick(ESS_POOL),pre&&pre.g?pre.g[2]:undefined));got.forEach(id=>addItem(id));
-    endEv("chest","Treasure!","It was just a chest. A very generous chest.",got,(pre?pre.s:Math.random()<.15)?giveHint(pre?pre.sx:undefined):"")}
+    endEv("chest",tx("Treasure!"),tx("It was just a chest. A very generous chest."),got,(pre?pre.s:Math.random()<.15)?giveHint(pre?pre.sx:undefined):"")}
   if(ev.type==="merchant"&&c==="trade"){const {give,get}=ev.offer;
-    if((S.inv[give]||0)-eqCount(give)<=0){toast("You no longer have that item.");S.event=null}
-    else{S.inv[give]--;trimBench();addItem(get);ev.offer=null;ev.choices=[["leave","Move on"]];ev.loot=[get];ev.text=`The peddler pockets your ${S.items[give].name} and hands over the ${S.items[get].name}. "Anything else?"`;ev.sells=sellList().map(x=>({...x}))}}
+    if((S.inv[give]||0)-eqCount(give)<=0){toast(tx("You no longer have that item."));S.event=null}
+    else{S.inv[give]--;trimBench();addItem(get);ev.offer=null;ev.choices=[["leave",tx("Move on")]];ev.loot=[get];ev.text=tx('The peddler pockets your {give} and hands over the {get}. "Anything else?"',{give:iname(S.items[give]),get:iname(S.items[get])});ev.sells=sellList().map(x=>({...x}))}}
   save();render();
 }
