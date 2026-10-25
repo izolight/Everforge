@@ -17,7 +17,7 @@ tundra:{n:"Frostfang Pass",els:["ice","swift","stone","arcane","metal"],bodies:[
 ember:{n:"Cinder Hollow",els:["fire","poison","metal","stone"],bodies:["elemental","construct","humanoid","undead","beast"],parts:["flames","spikes","armor","chains","horns","crown"],pats:["cracks","bands","facets","swirl"],
   cols:["#b8402a","#ffb347","#d6c83a","#8a3a22","#e8793b"],skins:["#c99b78","#9c6e43"],verbs:["scorches you","hammers you","scalds you","rakes you","claws you","strikes you"],
   pre:["Cinder","Ember","Slag","Ash","Forge","Molten","Kiln","Scoria"],suf:["Hound","Sentinel","Warden","Drake","Creeper","Tender","Hammer","Wretch","Thief","Creecher"],
-  regions:["The Cinder Wastes","The Slag Flats","The Vent Fields"],lore:["It was forged, and then let go.","The Hollow's heat made it, and the Hollow forgets it.","Everything it touches keeps a little warmth.","It smells of coal and of old, old iron."]},
+  regions:["The Ashen Kilns","The Slag Flats","The Vent Fields"],lore:["It was forged, and then let go.","The Hollow's heat made it, and the Hollow forgets it.","Everything it touches keeps a little warmth.","It smells of coal and of old, old iron."]},
 astral:{n:"Starfall Spire",els:["arcane","holy","swift","shadow"],bodies:["construct","elemental","humanoid","beast","undead"],parts:["orbit","runes","halo","wings","crown","crystals"],pats:["stars","bands","swirl","scales"],
   cols:["#4e3a96","#a9f0ff","#7468b8","#f0dca8","#c9a65a"],skins:["#e9e0cf","#c9b9a8"],verbs:["strikes you","smites you","rakes you","touches you","chills you","hacks at you"],
   pre:["Star","Void","Astral","Rune","Halo","Fallen","Gilded","Umbral"],suf:["Watcher","Sentinel","Warden","Acolyte","Construct","Lynx","Seer","Wraith","Scribe","Herald"],
