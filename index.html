@@ -36,8 +36,12 @@
 
   <div id="v-gear" class="view" hidden>
     <section class="panel" aria-label="Equipment" data-ta="aria-label">
+      <div class="lrow" id="heroLabel"></div>
       <div class="hprow"><span data-t>HP</span><div class="bar" id="ghp"><i style="width:100%"></i></div><span id="ghptxt"></span></div>
-      <div class="gear" id="gear"></div>
+      <div class="character-sheet">
+        <div class="hero-portrait" id="heroPortrait" role="img"></div>
+        <div class="gear" id="gear"></div>
+      </div>
       <div class="pstats" id="pstats"></div>
       <div class="cfx" id="cfx"></div>
     </section>
@@ -210,6 +214,7 @@
 <script src="js/endgame.js"></script>
 <script src="js/gear.js"></script>
 <script src="js/art.js"></script>
+<script src="js/hero.js"></script>
 <script src="js/render.js"></script>
 <script src="js/sheets.js"></script>
 <script src="js/forgefx.js"></script>

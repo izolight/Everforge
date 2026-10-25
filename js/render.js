@@ -64,9 +64,12 @@ const ROMAN=["","I","II","III","IV","V"];
 const rcol=it=>`--rc:${rarity(it)[1]}${it.grade?`;--gc:${GRADES[it.grade-1][1]}`:""}`; // rarity stripe + grade frame colours
 function renderGear(){
   const P=pstats();P.floor=atFloor(P);
+  $("heroLabel").innerHTML=`<p class="label">${tx("Your hero")}</p>${helpBtn(tx("Your hero"),tx("Equipped items shape your appearance. Tap a slot to inspect or change gear."))}`;
+  $("heroPortrait").innerHTML=heroArt();
+  $("heroPortrait").setAttribute("aria-label",tx("Your hero")+". "+SLOTS.map(([s,l])=>`${tx(l)}: ${gearOf(s)?iname(gearOf(s)):tx("empty")}`).join(". "));
   $("ghp").className="bar"+(S.hp/P.maxHp<.3?" low":"");$("ghp").firstElementChild.style.width=`${S.hp/P.maxHp*100}%`;$("ghptxt").textContent=`${S.hp}/${P.maxHp}`;
   $("gear").innerHTML=SLOTS.map(([s,l0])=>{const it=gearOf(s),l=tx(l0);
-    return `<button class="sq gs${it?"":" none"}${it&&it.legendary?" legend":""}${it&&it.grade?" gr":""}"${it?` style="${rcol(it)}"`:""} data-gear="${s}" aria-label="${esc(l)}: ${it?`${esc(iname(it))}. ${itemAria(it)}`:esc(tx("empty"))}" ${it?itemTip(it,l):tt(l,s==="main"?tx("Bare fists. Tap to choose a weapon."):tx("Empty. Tap to choose an item for it."))}>${glyph(it,SLOT_GLYPH[s])}</button>`}).join("");
+    return `<button class="sq gs${it?"":" none"}${it&&it.legendary?" legend":""}${it&&it.grade?" gr":""}"${it?` style="${rcol(it)}"`:""} data-gear="${s}" aria-label="${esc(l)}: ${it?`${esc(iname(it))}. ${itemAria(it)}`:esc(tx("empty"))}" ${it?itemTip(it,l):tt(l,s==="main"?tx("Bare fists. Tap to choose a weapon."):tx("Empty. Tap to choose an item for it."))}>${glyph(it,SLOT_GLYPH[s])}<span class="gear-slot-label">${l}</span></button>`}).join("");
   const sp=Math.min(35,P.spd*3),rd=Math.round(P.red*100);
   $("pstats").innerHTML=[["atk",P.atk,P.offW?`+${P.offPow}`:"",P.offW?tx("Strike power of your main hand. Your off hand adds a weaker second strike of {n}.",{n:P.offPow}):tx("Strike power of your main hand.")],["mag",P.mag,"",tx("Counts {n} times as much as Attack in your strikes.",{n:MAG_W})],
     ["def",P.def,`${rd}%`,tx("Cuts the damage you take by {p}%, with diminishing returns.",{p:rd})],["spd",P.spd,"",tx("{p}% chance each turn of a swift follow-up strike (up to 35%).",{p:sp})]]
@@ -115,7 +118,7 @@ function youHud(){ // compact: weapon, HP bar, then icon chips (words in tips)
     live&&P.rs[B.el]&&ci(FAM[B.el],famIc(B.el,"s")+ic("resist","xs"),`${P.rs[B.el]}%`,tx("Resists {fam} {v}%",{fam:famN(B.el),v:P.rs[B.el]}),tx("Cuts damage from {fam} attacks.",{fam:famL(B.el)})),
     live&&B.ward>0&&ci("var(--verd)",ic("ward","s"),B.ward,tx("Ward {n}",{n:B.ward}),tx("Absorbs this much damage.")),
     ...(live?Object.entries(B.you||{}).map(([s,x])=>stChip(s,x)):[])].filter(Boolean).join("");
-  return `<div class="you" id="youHud"><span class="yg" ${tt(tx("You"),P.main?iname(P.main):tx("Bare fists"))}>${glyph(P.main,"fists")}</span><div class="hpline" ${tt(`${tx("HP")} ${S.hp}/${P.maxHp}`)}>${hpBar(S.hp,P.maxHp)}<span class="hpnum">${S.hp}<small>/${P.maxHp}</small></span></div><div class="chips">${c}</div></div>`;
+  return `<div class="you" id="youHud"><span class="yg" ${tt(tx("You"),P.main?iname(P.main):tx("Bare fists"))}>${heroMini()}</span><div class="hpline" ${tt(`${tx("HP")} ${S.hp}/${P.maxHp}`)}>${hpBar(S.hp,P.maxHp)}<span class="hpnum">${S.hp}<small>/${P.maxHp}</small></span></div><div class="chips">${c}</div></div>`;
 }
 function foeStage(B){
   const E=ENEMIES[B.id],K=cx(B.id),kn=know(B.id),live=afxOn(B),RC=RARITIES[rarOf(B)],et=elTr(B),eliteF=et?TRAITS[et].f:null;
@@ -157,7 +160,7 @@ function mapHead(){
   const ab=dl?`<button class="ibt${dArmed?" warn":""}" id="dailyAbandon" aria-label="${esc(dArmed?tx("Tap again to abandon"):tx("Abandon the daily"))}" ${tt(dArmed?tx("Tap again to abandon"):tx("Abandon the daily"),dArmed?tx("No retry today."):tx("Tap twice. You get no retry today."))}>${ic(dArmed?"warn":"close")}</button>`:"";
   const sel=!dl&&hz.max&&isUnl("heat")&&heatOpen?`<div class="hpanel"><div class="hsel" role="group" aria-label="${esc(tx("Heat for new expeditions"))}">${Array.from({length:hz.max+1},(_,n)=>`<button class="hchip" data-heat="${n}" aria-pressed="${hz.sel===n}" aria-label="${esc(n?tx("Heat {n}",{n}):tx("Normal"))}" ${n?tt(HEAT[n-1].name,HEAT[n-1].desc):tt(tx("Normal"),tx("Normal difficulty."))}>${n?ic("heat","s")+n:"0"}</button>`).join("")}</div>
     <p class="foot">${hz.sel?tx("Heat {n}, {name}: {desc} In all: {tot}.",{n:hz.sel,name:HEAT[hz.sel-1].name,desc:HEAT[hz.sel-1].desc,tot:heatTot(hz.sel)}):tx("New expeditions: normal difficulty.")}${hz.sel!==h&&!m.cleared?" "+tx("This map is Heat {n}; the choice applies to your next expedition here.",{n:h}):""}</p></div>`:"";
-  return `<div class="mhead"><div class="mr"><span class="yg" ${tt(tx("You"),P.main?iname(P.main):tx("Bare fists"))}>${glyph(P.main,"fists")}</span><div class="hpline" id="youHud" ${tt(`${tx("HP")} ${S.hp}/${P.maxHp}`)}>${hpBar(S.hp,P.maxHp)}<span class="hpnum">${S.hp}<small>/${P.maxHp}</small></span></div>
+  return `<div class="mhead"><div class="mr"><span class="yg" ${tt(tx("You"),P.main?iname(P.main):tx("Bare fists"))}>${heroMini()}</span><div class="hpline" id="youHud" ${tt(`${tx("HP")} ${S.hp}/${P.maxHp}`)}>${hpBar(S.hp,P.maxHp)}<span class="hpnum">${S.hp}<small>/${P.maxHp}</small></span></div>
     ${ci("var(--fg)",stIc("atk","s"),P.atk,`${STAT_NAMES.atk} ${P.atk}`,tx("Strike power of your main hand."))}${ci("var(--fg)",stIc("def","s"),`${Math.round(P.red*100)}%`,`${STAT_NAMES.def} ${P.def}`,tx("Cuts the damage you take by {p}%.",{p:Math.round(P.red*100)}))}</div>
     <div class="mr">${torch}${amb}${badges}${campBtn()}${ab}${help}</div>${sel}<p class="mnow${m.ls===m.steps&&m.steps?" mnew":""}">${(m.log||[]).slice(-1)[0]||tx("Tap a glowing tile next to you to set out.")}</p></div>`;
 }
