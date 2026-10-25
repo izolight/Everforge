@@ -35,7 +35,7 @@ function afxVal(a,B){ // the number on an affix chip
   return{vamp:()=>pcn(AFX_T.vamp)+"%",thorn:()=>pcn(AFX_T.thorn.x)+"%",regen:()=>"+"+pcn(AFX_T.regen)+"%",frenzy:()=>B.fz?"!":"",ward:()=>Math.max(0,B.wd),elusive:()=>dodgeNow(B)+"%",boom:()=>B.hp<=B.max*AFX_T.boom.warn?"~"+blastOf(B):""}[a]?.()??""}
 const afxChip=(a,B)=>ci(afxCol(a),afxIc(a,"s"),afxVal(a,B),...afxTip(a,B));
 // first sight of an affix fills its Codex entry (S.afx[id]={s: fights met in, b: enemies beaten})
-function noteAfx(B,won){(B.afx||[]).forEach(a=>{const o=S.afx[a]||(S.afx[a]={s:0,b:0});if(won){o.b++;o.s=Math.max(o.s,1)}else{if(!o.s)blog(`Codex: new affix, ${AFX[a].n}.`,"lore");o.s++}})}
+function noteAfx(B,won){(B.afx||[]).forEach(a=>{const o=S.afx[a]||(S.afx[a]={s:0,b:0});if(won){o.b++;o.s=Math.max(o.s,1)}else{if(!o.s){blog(`Codex: new affix, ${AFX[a].n}.`,"lore");rpGain("afx:"+a,RP.afx,"a new affix")}o.s++}})}
 // ---- hooks (called from the combat flow)
 function wardCut(B,n){const w=hasAfx(B,"ward")?Math.min(B.wd||0,n):0;if(w){B.wd-=w;if(!B.wd)B.wb=B.turn}return w}
 const wardMsg=(B,ab)=>`Its ward absorbs ${ab}${B.wd?"":" and shatters"}.`;

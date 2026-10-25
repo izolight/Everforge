@@ -20,6 +20,7 @@
       <span class="lvl" id="lvl"></span>
       <div class="xp" aria-hidden="true"><i id="xpbar" style="width:0%"></i></div>
       <span class="emb" id="emb"></span>
+      <span class="mi rp" id="rp"></span>
       <span id="disc"></span>
     </div>
   </header>
@@ -62,6 +63,10 @@
         <button class="btn primary grow" id="combine" disabled>Forge</button>
         <button class="btn" id="clear">Clear</button>
       </div>
+    </section>
+    <section class="panel" id="resp" aria-label="Research">
+      <div id="reslock" hidden></div>
+      <details id="resd"><summary class="label" id="ressum"></summary><div id="restree"></div></details>
     </section>
     <section class="panel" id="upgp" aria-label="Upgrading">
       <details id="upgd"><summary class="label" id="upgsum"></summary>
@@ -189,6 +194,7 @@
 <script src="js/crafting.js"></script>
 <script src="js/codex.js"></script>
 <script src="js/goals.js"></script>
+<script src="js/research.js"></script>
 <script src="js/unlocks.js"></script>
 <script src="js/player.js"></script>
 <script src="js/fx.js"></script>

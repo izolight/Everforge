@@ -40,7 +40,7 @@ function rollGrade(zone,heat,x,up){const h=Math.max(0,heat|0),o=GRADE_ODDS[zone]
   return g}
 const gdrop=(id,zone,heat,x)=>gradable(id)?gradedItem(id,rollGrade(zone,heat,x)):id,gess=(t,zone,heat,x,up)=>essG(t,rollGrade(zone,heat,x,up));
 const dropNow=(id,x)=>gdrop(id,S.zone,heatNow(),x),essNow=(t,x)=>gess(t,S.zone,heatNow(),x); // map finds and rewards in the zone you are in
-function addItem(id,n){S.inv[id]=(S.inv[id]||0)+(n||1);if(!S.fresh.includes(id))S.fresh.push(id)}
+function addItem(id,n){S.inv[id]=(S.inv[id]||0)+(n||1);if(!S.fresh.includes(id))S.fresh.push(id);if(isEss(id))rpGain("fam:"+essTrait(id),RP.fam,`a new essence (${essTrait(id)})`)}
 const sortInputs=raw=>raw.slice().sort((a,b)=>FORMS[b.form].p-FORMS[a.form].p||b.tier-a.tier||(a.id<b.id?-1:1));
 const isFusion=(a,b)=>FUSIONS.some(([x,y])=>(x===a&&y===b)||(x===b&&y===a));
 const zoneIdx=z=>ZONES.findIndex(x=>x[0]===z);

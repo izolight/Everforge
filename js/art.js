@@ -244,6 +244,8 @@ Object.assign(NODE_G,{
   smith:NODE_G.forge,hammer:'<path d="M13 3 L21 11 L17 15 L9 7 Z"/><path d="M12 12 L4 20"/>',
   equip:'<path d="M5 12.5 L10 17.5 L19 7"/>',amulet:'<path d="M7 3 Q12 9 17 3"/><circle cx="12" cy="15" r="5.5"/><circle cx="12" cy="15" r="1.8"/>',root:'<path d="M12 3 V10 M12 10 C9 11 7 14 6 20 M12 10 C15 11 17 14 18 20 M12 10 V21"/>',
   upgrade:'<path d="M12 20 V5 M6 11 L12 5 L18 11"/><path d="M6 20 H18"/>',
+  research:'<path d="M9.5 3 H14.5 M10.5 3 V9 L5 19 Q4.5 21 7 21 H17 Q19.5 21 19 19 L13.5 9 V3"/><path d="M8.5 15 H15.5"/><path d="M18.5 2.5 L19.2 4.3 L21 5 L19.2 5.7 L18.5 7.5 L17.8 5.7 L16 5 L17.8 4.3 Z"/>',
+  alloy:'<path d="M4 4 L12 12 L20 4"/><path d="M12 12 V19"/><path d="M8 20 H16"/>',
   hit:'<path d="M12 2 L14 8 L20 6 L16 11 L22 14 L15 15 L16 21 L12 17 L8 21 L9 15 L2 14 L8 11 L4 6 L10 8 Z"/>',weak:'<circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="2.2"/><path d="M12 2 V5 M12 19 V22 M2 12 H5 M19 12 H22"/>',heat:'<path d="M12 3 C15 8 18 10 18 14 A6 6 0 0 1 6 14 C6 10 9 8 12 3 Z"/><path d="M12 18 V12 M9.5 14.5 L12 12 L14.5 14.5"/>',daily:'<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10 H20 M8 3 V7 M16 3 V7"/><path d="M12 13 V17 M10 15 H14"/>',close:'<path d="M6 6 L18 18 M18 6 L6 18"/>',list:'<path d="M5 7 H19 M5 12 H19 M5 17 H14"/>',
   filter:'<path d="M3 5 H21 L14 13 V20 L10 18 V13 Z"/>',sort:'<path d="M7 4 V20 M3 16 L7 20 L11 16 M17 20 V4 M13 8 L17 4 L21 8"/>',
   ok:'<circle cx="12" cy="12" r="9"/><path d="M8 12.5 L11 15.5 L16.5 9"/>',warn:'<path d="M12 3 L22 20 H2 Z"/><path d="M12 10 V14 M12 17 V17.2"/>',
