@@ -222,10 +222,10 @@ const NODE_G={
   forge:'<path d="M3 8 H17 Q21 8 21 11 H15 Q14 14 11 14 V17 H15 V20 H6 V17 H9 V14 Q5 14 4 11 Z"/>',
   recipes:'<path d="M4 5 Q8 3 12 6 Q16 3 20 5 V19 Q16 17 12 20 Q8 17 4 19 Z"/><path d="M12 6 V20"/>',
   codex:'<path d="M2 12 Q12 3 22 12 Q12 21 2 12 Z"/><circle cx="12" cy="12" r="3.5"/>',
-  parry:'<path d="M5 19 L19 5 M5 5 L19 19 M3 21 L6 18 M21 21 L18 18"/>',
+  parry:'<path d="M4 20 L8 16 M5 14 L10 19 M8 16 L18 6 L21 3 V7 L11 17 M4 4 L9 9 M3 8 V3 H8 M16 16 L21 21 M18 14 V18 H14"/>',
   guard:'<path d="M12 2 L20 5 V11 C20 16 16 20 12 22 C8 20 4 16 4 11 V5 Z"/>',
-  study:'<circle cx="10" cy="10" r="6"/><path d="M14.5 14.5 L21 21"/>',
-  flee:'<path d="M4 12 H16 M11 7 L16 12 L11 17"/><path d="M20 5 V19"/>',
+  study:'<path d="M3 5 Q7 3 11 6 Q15 3 19 5 V11 M3 5 V19 Q7 17 11 20 V6 M11 20 Q13 18 15 18"/><circle cx="17" cy="14" r="4"/><path d="M20 17 L23 20"/>',
+  flee:'<circle cx="15" cy="4" r="2"/><path d="M12 8 L16 10 L20 10 M12 8 L9 13 L14 16 L13 22 M12 8 L7 8 L5 12 M9 13 L6 18 H2 M2 4 H7 M2 7 H4"/>',
   flurry:'<path d="M4 18 L16 6 M8 20 L20 8 M14 4 H20 V10"/>',
   lunge:'<path d="M3 21 L19 5 M13 4 H20 V11 M7 15 L9 17"/>',
   channel:'<circle cx="12" cy="12" r="3"/><path d="M12 2 V6 M12 18 V22 M2 12 H6 M18 12 H22 M5 5 L8 8 M16 16 L19 19 M19 5 L16 8 M5 19 L8 16"/>',
@@ -234,7 +234,7 @@ const NODE_G={
   sweep:'<path d="M4 8 Q12 2 20 8 M4 14 Q12 8 20 14 M16 18 L20 14 L16 10"/>',
   rend:'<path d="M5 3 L9 21 M11 3 L15 21 M17 3 L21 21"/>',
   bash:'<path d="M12 3 L20 6 V12 C20 17 16 20 12 22 C8 20 4 17 4 12 V6 Z"/><path d="M9 11 H15 M12 8 V14"/>',
-  attack:'<path d="M5 19 L17 7 M14 4 H20 V10 M4 16 L8 20"/>'
+  attack:'<path d="M3 21 L7 17 M4 14 L10 20 M7 17 L5 15 L17 3 H21 V7 L9 19 Z M10 14 L17 7"/>'
 };
 const icon=t=>`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true">${NODE_G[t]}</svg>`;
 // UI icon set (24x24 line icons, currentColor): stats, one per trait family, resources, actions. ic(name,size) adds the sizing class (s 12px, default 16px, l 22px); gIc(form) draws an item glyph as a flat icon.
