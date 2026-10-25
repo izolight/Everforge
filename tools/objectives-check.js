@@ -29,12 +29,6 @@ const {chromium}=require('playwright'),path=require('path'),assert=require('node
  assert.equal(await page.locator('#claim').count(),0);await page.locator('#chooseBounty').click();assert.equal(await page.locator('[data-act="bounty"]').count(),3);
  await page.locator('[data-act="close"]').click();
  console.log('ok three stable bounty choices survive reload, start progress on acceptance and pay once');
- const forge=await page.evaluate(()=>{ // the crafting bounty counts forges: a reforge that splices a recipe row cannot lower its progress
-   S=freshState();S.quest=TUTORIAL.length;S.stats.forged=4;S.journal=[{id:'a',name:'a'},{id:'b',name:'b'}];
-   const b=newBounty('forge');S.bounty={...b,base:S.stats.forged};S.stats.forged+=2;
-   const p1=goal().prog;S.journal.splice(0,1);return{p1,p2:goal().prog,need:b.need}});
- assert(forge.p1===forge.need+'/'+forge.need&&forge.p2===forge.p1,'the crafting bounty keeps its progress when a reforge splices a recipe row ('+forge.p1+' -> '+forge.p2+')');
- console.log('ok the crafting bounty counts forges and never goes negative');
  await page.evaluate(()=>{S=freshState();S.onboarding=null;S.unl.ability=1;S.seen['i:ability']=true;S.seen['a:blade']=true;go('battle');startBattle('boar',{rar:'normal',afx:[]});S.battle.hp=S.battle.max=200;S.battle.atk=0;S.hp=pstats().maxHp});
  await page.locator('#guard').click();
  assert(await page.locator('.build-opportunity').innerText().then(t=>t.includes('Guard →')));

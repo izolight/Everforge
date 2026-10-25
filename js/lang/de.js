@@ -36,7 +36,7 @@ DICT.de=Object.assign(DICT.de||{},{
 "battle in progress":"Kampf läuft","{n} new items":"{n} neue Gegenstände","new introduction":"neue Einführung",
 "Reward: {list}":"Belohnung: {list}","Reward: {list}.":"Belohnung: {list}.","Claim":"Abholen","Go to {tab}":"Zu {tab} wechseln",
 "Step {n} of {t}":"Schritt {n} von {t}","Next: {step}":"Als Nächstes: {step}","map depth {a}/{b}":"Kartentiefe {a}/{b}","Bounty":"Kopfgeld",
-"Defeat {n} {name} in {zone}.":"Besiege {n} {name} in {zone}.","Forge {n} items.":"Schmiede {n} Gegenstände.","{n} smith XP":"{n} Schmiede-EP","a campfire charge":"eine Lagerfeuer-Ladung","a hint scroll":"eine Hinweisrolle",
+"Defeat {n} {name} in {zone}.":"Besiege {n} {name} in {zone}.","Forge {n} new recipes.":"Schmiede {n} neue Rezepte.","{n} smith XP":"{n} Schmiede-EP","a campfire charge":"eine Lagerfeuer-Ladung","a hint scroll":"eine Hinweisrolle",
 "A hint scroll: \"{hint}\"":"Eine Hinweisrolle: „{hint}“","A hint scroll sharpens a rumor (\"{hint}\"): one ingredient is {item}.":"Eine Hinweisrolle präzisiert ein Gerücht („{hint}“): Eine Zutat ist {item}.",
 "Unlocked: {name}.":"Freigeschaltet: {name}.","{name} (locked)":"{name} (gesperrt)","{name}, locked. {txt}":"{name}, gesperrt. {txt}","Got it":"Verstanden",
 "You've been collecting embers all along: {n}.":"Du hast die ganze Zeit Glut gesammelt: {n}.","Your shield gives you {ab}.":"Dein Schild gibt dir {ab}.","Your {weapon} gives you {ab}.":"{weapon} gibt dir {ab}.",
