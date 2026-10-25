@@ -1,0 +1,10 @@
+{
+  "name": "everforge",
+  "private": true,
+  "scripts": {
+    "test": "node tools/run-checks.js"
+  },
+  "devDependencies": {
+    "playwright": "^1.64.0"
+  }
+}

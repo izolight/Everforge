@@ -1,8 +1,8 @@
 // Renders the head-slot combinations the new pools can produce (hood/halo with horns, antlers, crown).
-// Run: node tools/parts-preview.js --combos [out.png]
+// Run: node tools/parts-combos.js [out.png]   (default: out/parts-combos.png, out/ is git-ignored)
 const {chromium}=require("playwright"),fs=require("fs"),path=require("path");
 (async()=>{
-  const out=process.argv[3]||process.argv[2]||path.join(__dirname,"..","parts-combos.png");
+  const out=process.argv[3]||process.argv[2]||path.join(__dirname,"..","out","parts-combos.png");fs.mkdirSync(path.dirname(out),{recursive:true});
   const b=await chromium.launch(),p=await b.newPage({viewport:{width:1400,height:900}});
   const errs=[];p.on("pageerror",e=>errs.push(String(e)));
   await p.goto("file://"+path.join(__dirname,"..","index.html"));

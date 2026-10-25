@@ -2,11 +2,10 @@
 // Run: node tools/part-check.js
 const fs=require("fs"),vm=require("vm"),path=require("path");
 const ctx=vm.createContext({console,Math,JSON});
-const files=fs.readdirSync(path.join(__dirname,"..","js","art")).filter(f=>f.endsWith(".js")).sort();
-for(const f of files)vm.runInContext(fs.readFileSync(path.join(__dirname,"..","js","art",f),"utf8"),ctx,{filename:f});
-const src=fs.readFileSync(path.join(__dirname,"..","js","monsters.js"),"utf8");
-const block=src.slice(src.indexOf("const BIOMES={"),src.indexOf("\n};",src.indexOf("const BIOMES={"))+3);
-vm.runInContext(block.replace("const BIOMES=","globalThis.BIOMES="),ctx,{filename:"monsters.js"});
+// the art files in the order index.html loads them (a readdir sort would not match it)
+const html=fs.readFileSync(path.join(__dirname,"..","index.html"),"utf8");
+for(const [,f] of html.matchAll(/<script src="(js\/art\/[^"]+)"><\/script>/g))vm.runInContext(fs.readFileSync(path.join(__dirname,"..",f),"utf8"),ctx,{filename:f});
+vm.runInContext(fs.readFileSync(path.join(__dirname,"..","js","monsters.js"),"utf8")+"\nglobalThis.BIOMES=BIOMES;",ctx,{filename:"monsters.js"}); // whole file: BIOMES is a const, so export it
 const {PART,BODY,compose}=vm.runInContext("({PART,BODY,compose})",ctx);
 const BIOMES=ctx.BIOMES;
 const COL={id:"x",o:"#0d0a08",d:"#333",m:"#444",D:"#222",l:"#666",g:"#777",e:"#ff0",a:"#f80",b:"#a80",ph:false};
