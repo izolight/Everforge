@@ -20,11 +20,11 @@ function pstats(){
   const med=tsum("Medicine"),def=Math.max(0,Math.round(sum.def+(ms.def+os.def)*.5));
   return {main,offW,shield,def,red:redOf(def),
     atk:Math.max(1,Math.round(4+ms.atk+sum.atk*.5)),mag:Math.max(0,Math.round(ms.mag+sum.mag*.5)),
-    offPow:offW?Math.max(1,Math.round((os.atk+os.mag*MAG_W)*.6)):0,
+    offPow:offW?Math.max(1,Math.round(strikePower(os)*.6)):0,
     spd:Math.max(0,Math.round(sum.spd+ms.spd+os.spd*.5)),
     regen:Math.max(0,Math.round((sum.heal+ms.heal+os.heal)*.2+med*MED_REGEN)),
     maxHp:50+Math.round(def*.6),lure:tsum("Lure"),blind:tsum("Steam"),rs,
-    ward:Math.min(WARD_CAP,Math.round(tsum("Runic")*WARD_PER)),thorns:Math.min(THORN_CAP,Math.round(asum("Iron")*THORN_PER)),dr:Math.min(STONE_CAP,r1(asum("Stone")*STONE_DR)),
+    ward:wardVal(tsum("Runic")),thorns:thornsVal(asum("Iron")),dr:stoneVal(asum("Stone")),
     dodge:Math.min(DODGE_CAP,Math.round(tsum("Swift")*DODGE_PER)),root:Math.min(ROOT_CAP,Math.round(tsum("Wood")*ROOT_PER)),cleanse:med}; // cleanse: hook for status effects
 }
 function clampHp(){const m=pstats().maxHp;if(S.hp>m)S.hp=m}

@@ -25,7 +25,7 @@ function effects(it){
     if(s){const p=Math.round(Math.min(.4,.07*s)*100);add("drain","a_vamp",`${p}%`,tx("Life steal"),tx("Drains {p}% of damage dealt as HP",{p}),FAM.shadow)}
     if(v("Heavy"))add("pierce","pierce","60%",tx("Armor piercing"),tx("Hits pierce 60% of enemy armor"));
     if(v("Arcane")){const p=Math.round(Math.min(ARC_CAP,v("Arcane")*ARC_PER));add("arcane","arc_pierce",`${p}%`,tx("Resistance bypass"),tx("{p}% chance a hit ignores elemental resistance",{p}),FAM.arcane)}
-    if(v("Tempered")){const n=Math.round(Math.min(SHRED_CAP,v("Tempered")*SHRED_PER));add("shred","armor_break",`−${n}`,tx("Armor break"),tx("Each hit cracks enemy armor, up to -{n} DEF",{n}))}}
+    if(v("Tempered")){const n=shredVal(v("Tempered"));add("shred","armor_break",`−${n}`,tx("Armor break"),tx("Each hit cracks enemy armor, up to -{n} DEF",{n}))}}
   const ab=g==="weapon"?ABILITIES[it.form]:it.form==="shield"?ABILITIES.shield:null;
   if(ab){const open=isUnl("ability");add("ability",open?ab.icon:"lock",open?ab.cd:null,open?ab.name:tx("Ability"),open?tx(g==="weapon"?"Ability (main hand), {name}: {desc} Cooldown {cd}.":"Ability, {name}: {desc} Cooldown {cd}.",{name:ab.name,desc:ab.desc,cd:ab.cd}):tx("Carries an ability you will learn to use later."));if(open)out.at(-1).unit="cooldown"}
   if(isGear(it)){
@@ -33,9 +33,9 @@ function effects(it){
     if(v("Steam")){const p=Math.round(Math.min(40,8*v("Steam")));add("blind","smoke",`${p}%`,tx("Blind"),tx("Enemies miss you {p}% of the time",{p}),FAM.ice)}
     if(v("Lure")){const p=Math.round(v("Lure")*15);add("loot","chest",`+${p}%`,tx("Loot bonus"),tx("+{p}% loot drop chance",{p}),FAM.holy)}
     if(g!=="weapon"){const rr=resRaw(tr);Object.keys(rr).forEach(k=>{const p=resPct(rr[k]);if(p)add("resist_"+k,"f_"+k,`${p}%`,tx("Resists {fam} {v}%",{fam:famN(k),v:p}),tx("Resists {fam} attacks by {p}%",{fam:famL(k),p}),FAM[k])})
-      if(v("Iron")){const p=Math.round(Math.min(THORN_CAP,v("Iron")*THORN_PER));add("thorns","thorns",`${p}%`,tx("Thorns"),tx("Reflects {p}% of damage taken back at the attacker",{p}),FAM.metal)}
-      if(v("Stone")){const n=r1(Math.min(STONE_CAP,v("Stone")*STONE_DR));add("dr","dr",`−${n}`,tx("Damage reduction"),tx("Reduces each hit you take by {n}",{n}),FAM.stone)}}
-    if(v("Runic")){const n=Math.round(Math.min(WARD_CAP,v("Runic")*WARD_PER));add("ward","ward",n,tx("Ward"),tx("Ward absorbs {n} damage at the start of each battle",{n}),FAM.arcane)}
+      if(v("Iron")){const p=thornsVal(v("Iron"));add("thorns","thorns",`${p}%`,tx("Thorns"),tx("Reflects {p}% of damage taken back at the attacker",{p}),FAM.metal)}
+      if(v("Stone")){const n=stoneVal(v("Stone"));add("dr","dr",`−${n}`,tx("Damage reduction"),tx("Reduces each hit you take by {n}",{n}),FAM.stone)}}
+    if(v("Runic")){const n=wardVal(v("Runic"));add("ward","ward",n,tx("Ward"),tx("Ward absorbs {n} damage at the start of each battle",{n}),FAM.arcane)}
     if(v("Wood")){const n=Math.round(Math.min(ROOT_CAP,v("Wood")*ROOT_PER));add("root","root",`+${n}`,tx("Roots"),tx("Heals {n} HP per turn while below half health",{n}),FAM.wood);out.at(-1).unit="turn"}
     if(v("Swift")){const p=Math.round(Math.min(DODGE_CAP,v("Swift")*DODGE_PER));add("dodge","a_elusive",`${p}%`,tx("Dodge"),tx("{p}% chance to dodge a hit",{p}),FAM.swift)}
     if(v("Medicine")){const p=Math.round(Math.min(CLEANSE_CAP,v("Medicine")*CLEANSE_PER));add("cleanse","cleanse",`${p}%`,tx("Cleanse"),tx("{p}% chance each turn to shake off a status (burn, chill, poison, curse)",{p}),FAM.heal)}

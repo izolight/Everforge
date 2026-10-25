@@ -138,7 +138,7 @@ function placeIntro(){ // the floating card sits under the goal bar (so Claim st
 const ci=(col,ics,v,...t)=>`<span class="chip" style="color:${col}" ${t.length?tt(...t):""}>${ics}${v==null||v===""?"":`<b>${v}</b>`}</span>`; // icon chip: icon + value, words in the tip
 const stChip=(s,x)=>ci(FAM[STATUS[s].el]||"var(--bad)",famIc(STATUS[s].el,"s"),`${x.n>1?x.n+"x ":""}${x.t}t`,tx("{status}, {t} turns left",{status:`${STATUS[s].n}${x.n>1?` x${x.n}`:""}`,t:x.t}),cap(STATUS[s].tip)+".");
 function youHud(){ // compact: weapon, HP bar, then icon chips (words in tips)
-  const P=pstats(),B=S.battle,live=B&&!B.over,bite=live&&B.heat>=5,red=Math.round((bite?redOf(P.def*(1-HEAT_T.bite)):P.red)*100);
+  const P=pstats(),B=S.battle,live=B&&!B.over,bite=live&&B.heat>=5,red=Math.round(heatRed(P,bite?B:null)*100);
   const c=[ci("var(--fg)",stIc("atk","s"),P.atk,`${STAT_NAMES.atk} ${P.atk}`,tx("Strike power of your main hand.")),
     ci("var(--fg)",stIc("def","s"),`${red}%`,`${STAT_NAMES.def} ${P.def}`,tx("Cuts the damage you take by {p}%.",{p:red})+(bite?" "+tx("Heat 5 bites through {p}% of your Defense.",{p:Math.round(HEAT_T.bite*100)}):"")),
     P.regen&&ci("var(--up)",stIc("heal","s"),`+${P.regen}`,tx("Regen +{n}",{n:P.regen}),tx("HP you mend each turn.")),

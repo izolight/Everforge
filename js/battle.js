@@ -25,7 +25,7 @@ function startBattle(forced,opt){
   if(h>=5)blog(tx("Its blows bite through {p}% of your Defense.",{p:Math.round(HEAT_T.bite*100)}),"foe");
   const P=pstats(),rp=P.rs[B.el];if(rp)blog(tx("{msg} (-{p}% damage)",{msg:tx(RES_MSG[B.el]),p:rp}),"good");
   if(P.ward){B.ward=P.ward;blog(tx("A rune ward flares around you ({n}).",{n:P.ward}),"good")}
-  if(P.main&&P.main.form==="spear"&&!opt.ambush){blog(tx("Your spear darts out before it can move."),"you");strike(P.main,(P.atk+P.mag*MAG_W)*ABILITIES.spear.open,tx("Opening jab"),true);if(B.hp<=0)return enemyDown()}
+  if(P.main&&P.main.form==="spear"&&!opt.ambush){blog(tx("Your spear darts out before it can move."),"you");strike(P.main,strikePower(P)*ABILITIES.spear.open,tx("Opening jab"),true);if(B.hp<=0)return enemyDown()}
   save();render();
 }
 const spEvery=(E,h)=>E.boss&&h>=4?Math.max(2,E.sp.every-1):E.sp.every;
@@ -82,7 +82,7 @@ function strike(W,pow,label,inn,o){
   blog((crit?tx("{label} for {dmg}, a critical hit.",{label,dmg}):tx("{label} for {dmg}.",{label,dmg}))+note,crit?"big":"you");noteEff(ef);if(ab)blog(wardMsg(B,ab),"you");
   const R={dmg,crit};if(B.hp<=0)return R;
   frenzy(B);thornBack(B,real);
-  if(v("Tempered")&&B.def>0){const c=Math.min(SHRED_CAP,Math.round(v("Tempered")*SHRED_PER)),s=Math.min(c,B.def,(B.shred||0)+1);if(s>(B.shred||0)){B.shred=s;blog(tx("Its armor cracks (-{n} DEF).",{n:s}),"you")}}
+  if(v("Tempered")&&B.def>0){const c=shredVal(v("Tempered")),s=Math.min(c,B.def,(B.shred||0)+1);if(s>(B.shred||0)){B.shred=s;blog(tx("Its armor cracks (-{n} DEF).",{n:s}),"you")}}
   const fire=v("Fire")+v("Sunfire"),ice=v("Ice")+v("Frost"),poi=v("Poison")+v("Venomous"),holy=v("Holy")+v("Radiant"),sha=v("Shadow")+v("Twilight");
   const immune=(f,msg)=>{blog(msg,"");if(E.resist.includes(f))learn(B.id,"resist",f)};
   if(fire){if(B.resist.includes("fire"))immune("fire",tx("The {name} won't burn.",{name:bname(B)}));else{const d=Math.max(1,Math.round(fire*.8));if(!B.burn)blog(tx("The {name} catches fire.",{name:bname(B)}),"you");B.burn={d,t:3}}}
@@ -95,8 +95,8 @@ function strike(W,pow,label,inn,o){
 function attack(){
   const P=pstats(),B=S.battle;
   bracedAttack(B,()=>{
-  strike(P.main,P.atk+P.mag*MAG_W,P.main?tx("You strike with {weapon}",{weapon:iname(P.main)}):tx("You punch"),true);
-  if(B.hp>0&&!stOf().chill&&Math.random()*100<Math.min(35,P.spd*3))strike(P.main,P.atk+P.mag*MAG_W,tx("A swift follow-up hits"),true);
+  strike(P.main,strikePower(P),P.main?tx("You strike with {weapon}",{weapon:iname(P.main)}):tx("You punch"),true);
+  if(B.hp>0&&!stOf().chill&&Math.random()*100<Math.min(35,P.spd*3))strike(P.main,strikePower(P),tx("A swift follow-up hits"),true);
   if(B.hp>0&&P.offW)strike(P.offW,P.offPow*2,tx("Your off-hand {weapon} adds",{weapon:iname(P.offW)}));
   });
   afterPlayer();
@@ -104,7 +104,7 @@ function attack(){
 const abKeys=P=>[P.main&&ABILITIES[P.main.form]&&P.main.form,P.shield&&"shield"].filter(Boolean);
 const ELS={fire:["Fire","Sunfire"],ice:["Ice","Frost"],poison:["Poison","Venomous"],holy:["Holy","Radiant"],shadow:["Shadow","Twilight"]};
 function ability(key){
-  const B=S.battle,P=pstats(),A=ABILITIES[key],boss=ENEMIES[B.id].boss,W=P.main,n=P.atk+P.mag*MAG_W,cd=B.cd||(B.cd={});
+  const B=S.battle,P=pstats(),A=ABILITIES[key],boss=ENEMIES[B.id].boss,W=P.main,n=strikePower(P),cd=B.cd||(B.cd={});
   if(!A||cd[key]>0||!abKeys(P).includes(key))return;
   S.stats.abil++;sfx("ability",0,{form:key});
   let bonus=0;
@@ -160,7 +160,7 @@ function afterPlayer(){if(S.battle.hp<=0)return enemyDown();enemyTurn()}
 // the line for a plain enemy hit: English splices the species' verb ("gores you"), other languages have one template per verb with {name}, {n} and {g} (the guard note)
 const hitMsg=(B,E,n)=>LANG==="en"?`The ${bname(B)} ${E.verb} for ${n}${B.guard?" through your guard":""}.`:fmt(txc("hit",E.verb),{name:bname(B),n,g:B.guard?" "+tx("through your guard"):""});
 // one enemy hit after resist, armor, Stone and guard/parry (vf = damage variance)
-const foeHit=(B,P,mult,vf)=>{const raw=B.atk*mult*vf*(B.guard?1-GUARD_T.cut:1)*(B.open?1+ABILITIES.lance.open:1)*(B.parry?PARRY_FAIL:1),red=B.heat>=5?redOf(P.def*(1-HEAT_T.bite)):P.red;
+const foeHit=(B,P,mult,vf)=>{const raw=B.atk*mult*vf*(B.guard?1-GUARD_T.cut:1)*(B.open?1+ABILITIES.lance.open:1)*(B.parry?PARRY_FAIL:1),red=heatRed(P,B);
   return Math.max(1,Math.round(raw*HIT_MIN),Math.round(raw*(1-(P.rs[B.el]||0)/100)*(1-red)-(P.dr||0)))}; // resist, armor and Stone together never take more than 1-HIT_MIN of a hit; Heat 5 bites through part of your Defense
 // true when this zone's regular enemies (at map row 3) already hit you for the HIT_MIN floor, so more Defense, resist or Stone would change nothing here
 const atFloor=P=>{const es=Object.values(ENEMIES).filter(e=>e.zone===S.zone&&!e.boss);return es.length>0&&es.every(e=>{const a=Math.round(e.atk*1.18);return foeHit({atk:a,heat:0,el:e.el},P,1,1)<=Math.max(1,Math.round(a*HIT_MIN))})};
@@ -186,7 +186,7 @@ function enemyTurn(){
     const hits=sp&&sp.kind==="multi"?sp.n:1,mult=sp?sp.x:1,perfect=pr,dg=Y.chill?Math.round(P.dodge/2):P.dodge,ml=Array(hits).fill(mult);
     if(!sp&&hasAfx(B,"swiftfoot")&&Math.random()<AFX_T.swift.fol)ml.push(AFX_T.swift.fx); // Swift-footed: now and then a quick follow-up
     if(sp){blog(tx("The {name} uses {sp}!",{name:bname(B),sp:tx(sp.name)}),"foe");learn(B.id,B.phased?"sp2":"sp",1)}
-    if(perfect){S.stats.parries++;sfx("parry");vfx("youHud","parry");blog(tx("Perfect parry! You turn {sp} aside.",{sp:tx(sp.name)}),"big");strike(P.main,(P.atk+P.mag*MAG_W)*PARRY_X,tx("You riposte"),true,{sure:1})}
+    if(perfect){S.stats.parries++;sfx("parry");vfx("youHud","parry");blog(tx("Perfect parry! You turn {sp} aside.",{sp:tx(sp.name)}),"big");strike(P.main,strikePower(P)*PARRY_X,tx("You riposte"),true,{sure:1})}
     else if(B.parry){blog(tx("Your parry is mistimed! You're left open."),"foe");B.off=2}
     for(let i=0;i<ml.length&&S.hp>0&&!perfect&&B.hp>0;i++){
       if(i>=hits)blog(tx("The {name} follows up swiftly.",{name:bname(B)}),"foe");
