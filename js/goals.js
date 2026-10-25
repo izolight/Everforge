@@ -25,7 +25,7 @@ function goal(){
   const b=S.bounty;
   if(b.kind==="hunt"){const n=Math.min(b.need,(S.kills[b.enemy]||0)-b.base),E=ENEMIES[b.enemy];
     return{step:tx("Bounty"),text:tx("Defeat {n} {name} in {zone}.",{n:b.need,name:tx(b.need>1?E.plural:E.name),zone:zoneName(E.zone)}),tab:"battle",done:n>=b.need,reward:b.reward,prog:`${n}/${b.need}`,zone:E.zone}}
-  const n=Math.min(b.need,S.journal.length-b.base);
+  const n=Math.max(0,Math.min(b.need,S.journal.length-b.base)); // a reforge can splice a journal row: never below 0
   return{step:tx("Bounty"),text:tx("Forge {n} new recipes.",{n:b.need}),tab:"forge",done:n>=b.need,reward:b.reward,prog:`${n}/${b.need}`};
 }
 function claimGoal(){

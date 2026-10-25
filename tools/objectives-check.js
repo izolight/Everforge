@@ -29,6 +29,11 @@ const {chromium}=require('playwright'),path=require('path'),assert=require('node
  assert.equal(await page.locator('#claim').count(),0);await page.locator('#chooseBounty').click();assert.equal(await page.locator('[data-act="bounty"]').count(),3);
  await page.locator('[data-act="close"]').click();
  console.log('ok three stable bounty choices survive reload, start progress on acceptance and pay once');
+ const forge=await page.evaluate(()=>{ // a reforge that splices a recipe row cannot push the crafting bounty below 0
+   S=freshState();S.quest=TUTORIAL.length;S.journal=[{id:'a',name:'a'},{id:'b',name:'b'}];
+   const b=newBounty('forge');S.bounty={...b,base:S.journal.length};S.journal.splice(0,1);return goal().prog});
+ assert.equal(forge,'0/2','the crafting bounty never shows negative progress ('+forge+')');
+ console.log('ok the crafting bounty never goes negative');
  await page.evaluate(()=>{S=freshState();S.onboarding=null;S.unl.ability=1;S.seen['i:ability']=true;S.seen['a:blade']=true;go('battle');startBattle('boar',{rar:'normal',afx:[]});S.battle.hp=S.battle.max=200;S.battle.atk=0;S.hp=pstats().maxHp});
  await page.locator('#guard').click();
  assert(await page.locator('.build-opportunity').innerText().then(t=>t.includes('Guard →')));
