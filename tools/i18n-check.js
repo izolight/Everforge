@@ -11,7 +11,8 @@ let fails=0;const unusedList=[];const bad=m=>{fails++;console.error("FAIL: "+m)}
 const DICT={};
 const sandbox={DICT};
 for(const l of LANGS){
-  for(const f of fs.readdirSync(path.join(ROOT,"js","lang")).filter(f=>f.startsWith(l)).sort()){
+  // in index.html's <script> order (de.js before de-data.js), so a key defined twice resolves as it does in the game
+  for(const f of [...fs.readFileSync(path.join(ROOT,"index.html"),"utf8").matchAll(/src="js\/lang\/([^"]+)"/g)].map(m=>m[1]).filter(f=>f.startsWith(l))){
     new Function("DICT",fs.readFileSync(path.join(ROOT,"js","lang",f),"utf8"))(sandbox.DICT);
   }
 }
