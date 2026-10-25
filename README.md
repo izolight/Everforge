@@ -42,6 +42,8 @@ js/
 
 ## Conventions
 
+Cinder Hollow's regular enemies cover all three movement types: the wandering Ember Imp, chasing Nightshade Witch and stationary Slag Sentry. The sentry is a Stone construct weak to Ice and Arcane, resistant to Fire, with a heavy Crucible Hammer every fourth turn. It drops Ember Coal, Golem Cores and Stone Plate; new maps, daily expeditions, bounties and the Codex pick it up from the enemy table. Existing maps retain their preselected enemies.
+
 - The scripts are plain (non-module) scripts that share one global scope, so they work from `file://` without a server. **Load order matters**; it is the order of the `<script>` tags in `index.html`. Each file may use anything defined by files above it at load time, and anything at all inside functions at call time.
 - All game state lives in the single global `S` (see `freshState()` in `state.js`). After changing it, call `save()` and `render()`.
 - Weapon-form and shield abilities live in the `ABILITIES` table (`data.js`); `ability(key)` in `battle.js` runs them, cooldowns are per battle in `B.cd`, and `effects()` reads the same table for item text.

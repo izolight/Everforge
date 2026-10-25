@@ -1,6 +1,10 @@
 // Korean: game data (names, creatures, lore, goals, unlocks, secrets).
 // A special's "tell" ends in 중 ("in the middle of"), so it fits both "지금 {tell}입니다" and "{tell}일 때를 조심하세요".
 DICT.ko=Object.assign(DICT.ko||{},{
+"Slag Sentry":"슬래그 파수꾼","Slag Sentries":"슬래그 파수꾼",
+"A furnace eye opens in a mound of slag. Its iron arms rise.":"슬래그 더미 속에서 용광로의 눈이 열리고 쇠팔이 올라간다.",
+"Abandoned forge guardians fused to the Hollow's floor. A coal still burns behind each iron rib; cold and magic fracture their shells.":"골짜기 바닥에 녹아붙은 버려진 대장간 수호자들. 쇠갈비뼈 뒤로 아직 석탄이 타오른다. 냉기와 마법이 껍질을 부순다.",
+"Crucible Hammer":"도가니 망치","locking its iron arms together overhead":"머리 위에서 쇠팔을 맞물리는 중","hit|hammers you":"{name|이|가}{g} 망치로 내리쳐 {n} 피해를 준다.",
 // ---- words by context
 "fam|fire":"불","fam|ice":"얼음","fam|poison":"독","fam|holy":"신성","fam|shadow":"어둠","fam|wood":"나무","fam|metal":"금속","fam|heal":"치유","fam|arcane":"비전","fam|swift":"신속","fam|stone":"돌","fam|bad":"결함",
 "trait|Sharp":"예리함","trait|Heavy":"무거움","trait|Fire":"화염","trait|Ice":"냉기","trait|Steam":"증기","trait|Frost":"서리","trait|Water":"물","trait|Poison":"독","trait|Venomous":"맹독","trait|Nourishing":"영양","trait|Medicine":"의술","trait|Sweet":"달콤함","trait|Light":"빛","trait|Radiant":"광휘","trait|Holy":"신성",

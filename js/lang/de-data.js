@@ -1,5 +1,9 @@
 // German: game data (names, creatures, lore, goals, unlocks, secrets).
 DICT.de=Object.assign(DICT.de||{},{
+"Slag Sentry":"Schlackenwächter","Slag Sentries":"Schlackenwächter",
+"A furnace eye opens in a mound of slag. Its iron arms rise.":"Ein Ofenauge öffnet sich in einem Schlackenhaufen. Eiserne Arme heben sich.",
+"Abandoned forge guardians fused to the Hollow's floor. A coal still burns behind each iron rib; cold and magic fracture their shells.":"Verlassene Schmiedewächter, mit dem Boden der Aschesenke verschmolzen. Hinter jeder Eisenrippe glüht noch Kohle; Kälte und Magie sprengen ihre Hüllen.",
+"Crucible Hammer":"Tiegelhammer","locking its iron arms together overhead":"verschränkt seine Eisenarme über dem Kopf","hit|hammers you":"{name} trifft dich{g} mit einem Hammerschlag für {n}.",
 // ---- words by context
 "fam|fire":"Feuer","fam|ice":"Eis","fam|poison":"Gift","fam|holy":"Heilig","fam|shadow":"Schatten","fam|wood":"Holz","fam|metal":"Metall","fam|heal":"Heilung","fam|arcane":"Arkan","fam|swift":"Flink","fam|stone":"Stein","fam|bad":"Makel",
 "trait|Sharp":"Schärfe","trait|Heavy":"Schwere","trait|Fire":"Feuer","trait|Ice":"Eis","trait|Steam":"Dampf","trait|Frost":"Frost","trait|Water":"Wasser","trait|Poison":"Gift","trait|Venomous":"Giftigkeit","trait|Nourishing":"Nahrhaft","trait|Medicine":"Heilkunde","trait|Sweet":"Süße","trait|Light":"Licht","trait|Radiant":"Strahlkraft","trait|Holy":"Heilig",

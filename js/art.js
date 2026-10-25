@@ -124,6 +124,18 @@ const PORTRAITS={
     <path d="M60 57 l6 7 -6 0" fill="#6f8c5c"/><ellipse cx="53" cy="53" rx="3.2" ry="2.4" fill="${c.e}"/><ellipse cx="67" cy="53" rx="3.2" ry="2.4" fill="${c.e}"/>
     <ellipse cx="60" cy="96" rx="36" ry="5.5" fill="${c.l}"/>
     <g fill="${c.g}"><circle class="flt" cx="46" cy="90" r="4"/><circle class="flt" cx="62" cy="86" r="3"/><circle class="flt" cx="74" cy="91" r="2.6"/></g>`,
+  slag:c=>`<g stroke="${c.o}" stroke-width="2.5" stroke-linejoin="round">
+    <path d="M14 110 L24 92 L43 96 L60 88 L78 96 L98 92 L108 110 Z" fill="${c.d}"/>
+    <path d="M32 40 L22 59 L12 54 L7 71 L25 82 L40 67 Z M88 40 L98 59 L108 54 L113 71 L95 82 L80 67 Z" fill="${c.m}"/>
+    <path d="M36 33 H84 L92 96 Q60 110 28 96 Z" fill="${c.m}"/>
+    <path d="M42 34 V16 L51 8 H69 L78 16 V34 Z" fill="${c.d}"/>
+    <path d="M43 57 Q60 43 77 57 L80 89 Q60 99 40 89 Z" fill="#160d08"/>
+    <path class="flick" d="M48 85 Q42 73 54 63 Q52 75 60 70 Q65 54 67 60 Q82 77 72 88 Q60 93 48 85 Z" fill="${c.e}"/>
+    <path d="M48 55 L46 91 M60 51 V94 M72 55 L74 91 M40 73 H80" stroke="${c.d}" stroke-width="5"/>
+    <path d="M35 36 H85 M32 96 Q60 106 88 96" fill="none" stroke="${c.l}"/>
+    <path d="M48 21 H72 L68 28 H52 Z" fill="${c.e}"/>
+    <path d="M27 105 L36 100 M87 105 L79 99 M17 65 L25 69 M103 65 L95 69" fill="none" stroke="${c.l}" stroke-width="2"/>
+    </g>`,
   phoenix:c=>`<g stroke="${c.o}" stroke-width="2.5" stroke-linejoin="round">
     <path d="M60 62 Q34 16 2 24 Q24 40 26 52 Q8 54 4 70 Q30 62 40 72 Q28 78 24 90 Q46 78 60 76 Z" fill="${c.m}"/>
     <path d="M60 62 Q86 16 118 24 Q96 40 94 52 Q112 54 116 70 Q90 62 80 72 Q92 78 96 90 Q74 78 60 76 Z" fill="${c.m}"/>
