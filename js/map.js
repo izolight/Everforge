@@ -142,13 +142,9 @@ function enter(nd,by,from){ // the one place a POI is resolved into a battle or 
 }
 function fallBack(m){ // fleeing the boss: back one tile (to where you came from), the lair stays open
   m.pois.forEach(p=>{if(p.t==="boss"){p.done=false;m.mem[p.x+","+p.y]="boss"}});m.pos=m.prev&&!(m.prev.x===m.lair.x&&m.prev.y===m.lair.y)?m.prev:{...m.gate};reveal(m)}
+// the campfire: rest by the fire (heals half, relights the torch)
+function rest(){const P=pstats();if(twistNow()==="nocamp")return toast(tx("No campfires on this expedition."));const m0=curMap();if(S.camp<=0||(S.hp>=P.maxHp&&(m0.cleared||m0.torch>=m0.tmax)))return;S.camp--;const g=healYou(Math.round(P.maxHp*.5)),m=curMap(),lit=m.cleared?0:torchUp(TORCH.rest);save();render();toast(tx("You rest by the fire and recover {n} HP.",{n:g})+(lit?" "+tx("Your torch burns brighter (+{n}).",{n:lit}):""))}
 function newExpedition(){if(S.run==="daily")return;S.maps[S.zone]=newMap(S.zone);S.battle=null;S.event=null;save();render()}
-function makeOffer(){
-  const free=Object.keys(S.inv).filter(id=>(S.inv[id]-eqCount(id)-benchCount(id))>0&&!S.items[id].legendary&&gradeOf(id)<4);if(!free.length)return null;
-  const give=pick(free),zi=zoneIdx(S.zone),next=ZONES[Math.min(zi+1,ZONES.length-1)][0];
-  const get=Math.random()<OFFER_T.ess?essNow(pick([...ESS_POOL,"Radiant","Tempered","Frost"])):dropNow(pick([...zonePool(S.zone),...zonePool(next),...zonePool(next)]));
-  return get===give?null:{give,get};
-}
 function eventChoice(c){
   const ev=S.event;
   if(c==="leave"){S.event=null;save();return render()}
