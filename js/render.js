@@ -51,7 +51,7 @@ const lootChips=ids=>ids.map(id=>{const it=S.items[id];return `<button class="sq
 
 const shopRow=(id,label,c,off)=>`<div class="shoprow"><button class="chip" data-item="${id}" style="color:${gcol(id)}">${esc(iname(S.items[id]))}</button><button class="btn sm" data-choice="${c}" ${off?"disabled":""}>${label}</button></div>`;
 const shopHtml=ev=>`<div class="shop"><p class="label">${tx("For sale · you have {n} embers",{n:S.embers})}</p>${ev.stock.map((e,i)=>e.done?"":shopRow(e.id,`${icon("ember")}${e.price}`,`buy:${i}`,S.embers<e.price)).join("")}
-  ${ev.sells.some(e=>!e.done)?`<p class="label">${tx("Sell a spare")}</p>${ev.sells.map((e,i)=>e.done?"":shopRow(e.id,tx("Sell +{n}",{n:e.price}),`sell:${i}`)).join("")}`:""}</div>`;
+  ${ev.sells.some(e=>!e.done)?`<p class="label">${tx("Sell a spare")}</p>${ev.sells.map((e,i)=>e.done?"":shopRow(e.id,isArmed("sell:"+i)?tx("Tap again to sell"):tx("Sell +{n}",{n:e.price}),`sell:${i}`)).join("")}`:""}</div>`;
 const topT=id=>topTraits(S.items[baseIdOf(id)].traits)[0][0];
 function renderUpgrade(){
   $("upgp").hidden=!isUnl("upgrade");if(!isUnl("upgrade"))return;
@@ -62,7 +62,7 @@ function renderUpgrade(){
       <button class="btn sm" data-upgrade="${id}" ${inBattle()||low||poor?"disabled":""} aria-label="${esc(tx("Upgrade {item} to {grade}",{item:iname(it),grade:gradeN(tg)}))}" ${tt(`${iname(it)} → ${gradeN(tg)}`,low?tx("Needs Alchemy Lv {n}",{n:GRADE_LV[tg-1]}):tx("{n} of them and {e} embers make 1. {p}% to succeed.",{n:UP.n,e:UP.emb[g-1],p:upChance(tg)}))}>${low?`${ic("lock","s")} ${tx("Lv {n}",{n:GRADE_LV[tg-1]})}`:`${icon("ember")}${UP.emb[g-1]} · ${gradeN(tg)} · ${upChance(tg)}%`}</button></div>`}).join(""):`<p class="foot">${tx("Collect {n} of the same grade of an essence, ore, hide or herb to upgrade them.",{n:UP.n})}</p>`;
 }
 // ================= RENDER =================
-let deconArmed=false,forgeArmed="",freshShown=new Set(),logOpen=false,heatOpen=false,legendOpen=false;
+let freshShown=new Set(),logOpen=false,heatOpen=false,legendOpen=false;
 function renderHeader(){
   const l=level(),cur=XP_LV[l-1],nxt=XP_LV[l];clampHp();
   const lt=`${tx("Smith Lv {l}",{l})}\n${nxt?tx("{a}/{b} XP to Lv {n}.",{a:S.xp-cur,b:nxt-cur,n:l+1}):tx("Highest level reached.")}${LV_PERK[l]?` ${tx(LV_PERK[l])}`:""}\n${tx("Smith XP comes from forging and unlocks crucible slots, trait slots and appraisal.")}`;
@@ -123,7 +123,7 @@ function renderGear(){
     const [t,r]=e,st=innateStats(t),bits=Object.entries(st).filter(([,v])=>v);
     return `<div class="islot on" style="border-color:${tColor(t)};color:${tColor(t)}" ${tt(`${trn(t)} ${R[r-1]}`,bits.map(([s,v])=>`${v>0?"+":""}${v} ${STAT_NAMES[s]}`).join(", ")||tx("Effect on hit"),tx("Rank {r} of {m}",{r,m:INF_MAX}))}>${traitIc(t,"l")}<b>${trn(t)} ${R[r-1]}</b><span class="ib">${bits.map(([s,v])=>`<span>${stIc(s,"xs")}${v>0?"+":""}${v}</span>`).join("")||`<span>${tx("on hit")}</span>`}</span></div>`}).join("");
   const cr=S.infCredit?`<p class="foot" style="flex-basis:100%">${tx("Credit: {n} plain, spent first on your next infusion.",{n:creditTxt(S.infCredit)})}</p>`:"";
-  $("infbtns").innerHTML=can.map(t=>`<button class="btn sm" data-infuse="${t}" style="border-color:${tColor(t)}">${traitIc(t,"s")} ${S.infuse[t]?tx("Deepen {trait} → {rank}",{trait:trn(t),rank:R[S.infuse[t]]}):tx("Infuse {trait}",{trait:trn(t)})} · ${payText(infPay(t,Math.max(0,INF_NEED-S.infCredit)))||tx("credit")}</button>`).join("")+cr;
+  $("infbtns").innerHTML=can.map(t=>`<button class="btn sm" data-infuse="${t}" style="border-color:${tColor(t)}">${traitIc(t,"s")} ${isArmed("infuse:"+t)?tx("Tap again to infuse"):S.infuse[t]?tx("Deepen {trait} → {rank}",{trait:trn(t),rank:R[S.infuse[t]]}):tx("Infuse {trait}",{trait:trn(t)})} · ${payText(infPay(t,Math.max(0,INF_NEED-S.infCredit)))||tx("credit")}</button>`).join("")+cr;
 }
 const lockAct=id=>`<button class="btn act lk" id="${id}" aria-disabled="true" data-tap aria-label="${esc(tx("{name}, locked. {txt}",{name:tx(UNL[id].name),txt:tx(UNL[id].txt)}))}" ${tt(tx("{name} (locked)",{name:tx(UNL[id].name)}),tx(UNL[id].txt))}>${ic("lock")}<span>${tx(UNL[id].name)}</span></button>`; // an action-grid button that is not open yet
 const introIn=c=>`<span class="ii" aria-hidden="true">${ic(c.ic,"l")}</span><div class="it"><b>${c.t}</b>${c.l.map(x=>`<p>${x}</p>`).join("")}</div><button class="btn sm" id="introOk" data-intro="${c.id}">${tx("Got it")}</button>`; // a one-time intro card (non-modal; Got it marks it read)
@@ -189,7 +189,7 @@ function mapHead(){
   const badges=(dl?`<span class="heat daily" ${tt(tx("Daily expedition"),DAILY_TWISTS[d.twist].name,DAILY_TWISTS[d.twist].desc)}>${ic("daily","s")}</span>`:"")
     +(dl||!hz.max||!isUnl("heat")?(h?`<span class="heat" ${tt(tx("Heat {n}",{n:h}),...HEAT.slice(0,h).map(x=>x.name))}>${ic("heat","s")}${h}</span>`:""):`<button class="heat hb" id="heatBtn" aria-expanded="${heatOpen}" aria-label="${esc(tx("Heat: this map {a}, next expedition {b}",{a:h?h:tx("Normal"),b:hz.sel||tx("Normal")}))}" ${tt(`${tx("Heat")} ${h||tx("Normal")}`,h?HEAT[h-1].name:tx("Normal difficulty."),tx("Tap to choose the Heat of new expeditions."))}>${ic("heat","s")}${h}${hz.sel!==h&&!m.cleared?`<small>›${hz.sel}</small>`:""}</button>`);
   const amb=m.amb?`<span class="heat amb" ${tt(tx("Ambush"),tx("A whistle sounds behind you. If your next stop is a fight, it starts with an ambush."))}>${ic("warn","s")}</span>`:"";
-  const ab=dl?`<button class="ibt${dArmed?" warn":""}" id="dailyAbandon" aria-label="${esc(dArmed?tx("Tap again to abandon"):tx("Abandon the daily"))}" ${tt(dArmed?tx("Tap again to abandon"):tx("Abandon the daily"),dArmed?tx("No retry today."):tx("Tap twice. You get no retry today."))}>${ic(dArmed?"warn":"close")}</button>`:"";
+  const ab=dl?`<button class="ibt${isArmed("daily")?" warn":""}" id="dailyAbandon" aria-label="${esc(isArmed("daily")?tx("Tap again to abandon"):tx("Abandon the daily"))}" ${tt(isArmed("daily")?tx("Tap again to abandon"):tx("Abandon the daily"),isArmed("daily")?tx("No retry today."):tx("Tap twice. You get no retry today."))}>${ic(isArmed("daily")?"warn":"close")}</button>`:"";
   const sel=!dl&&hz.max&&isUnl("heat")&&heatOpen?`<div class="hpanel"><div class="hsel" role="group" aria-label="${esc(tx("Heat for new expeditions"))}">${Array.from({length:hz.max+1},(_,n)=>`<button class="hchip" data-heat="${n}" aria-pressed="${hz.sel===n}" aria-label="${esc(n?tx("Heat {n}",{n}):tx("Normal"))}" ${n?tt(HEAT[n-1].name,HEAT[n-1].desc):tt(tx("Normal"),tx("Normal difficulty."))}>${n?ic("heat","s")+n:"0"}</button>`).join("")}</div>
     <p class="foot">${hz.sel?tx("Heat {n}, {name}: {desc} In all: {tot}.",{n:hz.sel,name:HEAT[hz.sel-1].name,desc:HEAT[hz.sel-1].desc,tot:heatTot(hz.sel)}):tx("New expeditions: normal difficulty.")}${hz.sel!==h&&!m.cleared?" "+tx("This map is Heat {n}; the choice applies to your next expedition here.",{n:h}):""}</p></div>`:"";
   return `<div class="mhead"><div class="mr"><span class="yg" ${tt(tx("You"),P.main?iname(P.main):tx("Bare fists"))}>${heroMini()}</span><div class="hpline" id="youHud" ${tt(`${tx("HP")} ${S.hp}/${P.maxHp}`)}>${hpBar(S.hp,P.maxHp)}<span class="hpnum">${S.hp}<small>/${P.maxHp}</small></span></div>
@@ -320,7 +320,7 @@ function renderBench(){
     if(r.mw>=0)hint+=`<p class="warn-text">${ic("warn","s")} ${mwWarn()}</p>`;
   }
   $("mixhint").innerHTML=hint;
-  $("combine").textContent=forgeArmed&&forgeArmed===S.bench.join()?tx("Tap again to forge"):tx("Forge");
+  $("combine").textContent=isArmed("forge:"+S.bench.join())?tx("Tap again to forge"):tx("Forge");
   $("combine").disabled=items.length<2||!chk.ok||!!crafting?.blocked;
   $("combine").setAttribute("aria-disabled",miss.length?"true":"false");if(miss.length)$("combine").setAttribute("aria-label",techWhy(miss));else $("combine").removeAttribute("aria-label"); // the reason is the warning above the button (and its label); a bubble on top would cover it
 }
@@ -404,7 +404,7 @@ function renderSatchels(){
   renderInventoryTools();
   if(S.view==="gear"){const [t,i]=satchel("gear");$("gtabs").innerHTML=t;$("ginv").innerHTML=i;
     const dl=deconList(),n=dl.reduce((a,id)=>a+avail(id),0);$("gdecon").hidden=!n||inBattle();
-    if(n)$("gdecon").innerHTML=`<button class="btn sm${deconArmed?" danger":""}" id="deconAll" ${tt(tx("Deconstruct all"),tx("Breaks every raw hide, ore and wood in your satchel into base materials and essence fragments. Food, potions, relics and anything a secret still needs stay."))}>${ic("salvage","s")} ${deconArmed?tx("Tap again to deconstruct {n}",{n}):tx("Deconstruct all raw finds ({n})",{n})}</button>`}
+    if(n)$("gdecon").innerHTML=`<button class="btn sm${isArmed("decon")?" danger":""}" id="deconAll" ${tt(tx("Deconstruct all"),tx("Breaks every raw hide, ore and wood in your satchel into base materials and essence fragments. Food, potions, relics and anything a secret still needs stay."))}>${ic("salvage","s")} ${isArmed("decon")?tx("Tap again to deconstruct {n}",{n}):tx("Deconstruct all raw finds ({n})",{n})}</button>`}
   if(S.view==="forge"){const [t,i]=satchel("forge");$("ftabs").innerHTML=t;$("finv").innerHTML=i}
 }
 function haveFor(ids){const need={};ids.forEach(id=>need[id]=(need[id]||0)+1);return ids.map(id=>(S.inv[id]||0)>=need[id])}

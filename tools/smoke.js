@@ -71,7 +71,10 @@ async function run(label,setup,nat,steps=STEPS){
       const cs=qa("#arena [data-choice]:not([disabled])"),shop=S.event?.type==="merchant"; // the peddler's shop: sometimes buy or sell, else the usual picks
       if(shop&&S.embers<40)S.embers+=40;
       const sc=shop&&qa("#arena [data-choice]:not([disabled])").filter(b=>/^(buy|sell):/.test(b.dataset.choice));
-      if(sc&&sc.length&&Math.random()<.7){const b=sc[Math.floor(Math.random()*sc.length)];out[b.dataset.choice[0]==="b"?"bought":"sold"]++;click(b);continue}
+      if(sc&&sc.length&&Math.random()<.7){const b=sc[Math.floor(Math.random()*sc.length)],e0=S.embers;click(b);
+        if(b.dataset.choice.startsWith("sell:")){const b2=q("#arena [data-choice='"+b.dataset.choice+"']");if(b2)click(b2)} // selling gives up an item: the second tap confirms it
+        if(b.dataset.choice[0]==="b"?S.embers<e0:S.embers>e0)out[b.dataset.choice[0]==="b"?"bought":"sold"]++; // count the trade that really happened
+        continue}
       const choice=Math.random()<.35?cs[Math.floor(Math.random()*cs.length)]:cs.find(b=>b.dataset.choice!=="inspect"&&b.dataset.choice!=="leave")||cs[0]; // sometimes any choice, so leave and the odd ones run too
       if(choice){click(choice);continue}
       const tiles=qa("#arena [data-tile]");
@@ -95,13 +98,18 @@ async function run(label,setup,nat,steps=STEPS){
     // a chaser two tiles away must walk into you, and fleeing it must leave it alive, dazed and unaware (the real state is put back afterwards)
     function scripted(){
       const bk=JSON.stringify(S),rr=Math.random;let ok=false;
-      try{const z=S.zone;S.battle=null;S.event=null;S.hp=pstats().maxHp;const m=genMap({heat:0,zone:z});m.pois=m.pois.filter(p=>p.t==="boss"||p.t==="camp"||(p.x===m.gate.x&&p.y===m.gate.y));S.maps[z]=m;
+      // the zone must hold a chaser (the Rift has none); the map layout is random, so a few tries may be needed
+      const zc=S.zone,chaser=Object.keys(ENEMIES).find(k=>ENEMIES[k].zone===zc&&ENEMIES[k].mv==="chase");
+      const z=chaser?zc:ZONES.map(x=>x[0]).find(x=>Object.keys(ENEMIES).some(k=>ENEMIES[k].zone===x&&ENEMIES[k].mv==="chase"))||zc;
+      if(z!==zc)S.zone=z;
+      for(let attempt=0;attempt<4&&!ok;attempt++)try{S.battle=null;S.event=null;S.hp=pstats().maxHp;const m=genMap({heat:0,zone:z});m.pois=m.pois.filter(p=>p.t==="boss"||p.t==="camp"||(p.x===m.gate.x&&p.y===m.gate.y));S.maps[z]=m;
         let pl,en;for(let y=3;y<m.h&&!en;y++)for(let x=0;x<m.w&&!en;x++){if(!walk(m,x,y)||fixed(m,x,y)||m.d[y*m.w+x]<5)continue;const d=bfs(m,x,y,(mm,a,b)=>!hard(mm,a,b));
           for(let b=0;b<m.h&&!en;b++)for(let a=0;a<m.w;a++)if(d[b*m.w+a]===2&&!hard(m,a,b)){pl=[x,y];en=[a,b];break}}
+        if(!pl)continue;
         const p={t:"fight",x:en[0],y:en[1],r:2,done:false,e:Object.keys(ENEMIES).find(k=>ENEMIES[k].zone===z&&ENEMIES[k].mv==="chase"),mv:"chase",rar:"normal",afx:[],aw:1};m.pois.push(p);
         m.pos={x:pl[0],y:pl[1]};m.prev=null;m.steps=5;reveal(m);
-        for(let k=0;k<4&&!S.battle;k++){const d=bfs(m,p.x,p.y),a=adjTiles(m).filter(([x,y])=>!(x===p.x&&y===p.y)&&!m.pois.some(q=>q!==p&&q.x===x&&q.y===y&&!q.done)).sort((u,v)=>d[u[1]*m.w+u[0]]-d[v[1]*m.w+v[0]])[0];step(a[0],a[1])}
-        if(S.battle&&S.battle.by==="it"){Math.random=()=>.1;flee();ok=S.battle.over==="fled"&&!p.done&&p.dz===ROAM.daze&&!p.aw}}catch(e){out.bad.push("scripted check threw: "+e.message)}
+        for(let k=0;k<4&&!S.battle;k++){const d=bfs(m,p.x,p.y),a=adjTiles(m).filter(([x,y])=>!(x===p.x&&y===p.y)&&!m.pois.some(q=>q!==p&&q.x===x&&q.y===y&&!q.done)).sort((u,v)=>d[u[1]*m.w+u[0]]-d[v[1]*m.w+v[0]])[0];if(!a)break;step(a[0],a[1])}
+        if(S.battle&&S.battle.by==="it"){Math.random=()=>.1;flee();ok=S.battle.over==="fled"&&!p.done&&p.dz===ROAM.daze&&!p.aw}}catch(e){out.bad.push("scripted check threw: "+e.message);break}
       Math.random=rr;S=JSON.parse(bk);S.battle=null;save();render();
       if(ok)out.script++;else out.bad.push("scripted chaser check failed")}
     // explore: step towards the nearest unvisited POI (as last seen) or unexplored edge by BFS over seen tiles; the lair once most of the map is done or the bot has walked a while; sometimes a random step
@@ -138,7 +146,7 @@ async function run(label,setup,nat,steps=STEPS){
       S.items.t_curse={id:"t_curse",name:"Cursed Test Blade",form:"blade",noun:"Blade",traits:{Fire:2,Cursed:2},tier:2,crafted:true,recipe:["a","b"],recipeIds:[]};addItem("t_curse");
       go("gear");{const cb=qa("#ginv [data-id]").find(b=>b.dataset.id==="t_curse");if(cb){cb.click();const rg=q("#sheet [data-act='reforge']:not([disabled])");if(rg){rg.click();out.reforged++}else closeSheet()}}
       go("gear");const it=qa("#ginv [data-id]").find(b=>!eqCount(b.dataset.id));if(it){it.click();const sv=q("#sheet [data-act='salvage']");if(sv&&Math.random()<.5){sv.click();q("#sheet [data-act='salvage']")?.click()}closeSheet()}
-      const inf=q("#infbtns [data-infuse]");if(inf)inf.click();
+      const inf=q("#infbtns [data-infuse]");if(inf){inf.click();q("#infbtns [data-infuse]")?.click()} // the first tap only arms the infusion
       go("battle");if(!qa("#arena [data-tile]").length)q("#again")?.click();
     }
     await sleep(500);

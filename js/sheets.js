@@ -1,9 +1,9 @@
 // ================= SHEETS =================
-const sheet={mode:null,id:null,preview:false};let salvageArmed=false,sheetReturn=null;
+const sheet={mode:null,id:null,preview:false};let sheetReturn=null;
 function showSheet(){if($("sheet").hidden)sheetReturn=document.activeElement;$("scrim").hidden=false;$("sheet").hidden=false;$("sheet").querySelector("button:not(:disabled)")?.focus()}
 function openSheet(id,refresh,preview){
   if(!preview&&!S.inv[id]){closeSheet();return}
-  if(!refresh)salvageArmed=false;
+  if(!refresh)armClear("salvage");
   Object.assign(sheet,{mode:"item",id,preview:!!preview});
   const it=S.items[id],g=grp(it),[rn]=rarity(it),left=avail(id),full=S.bench.length>=maxInputs(),locked=inBattle(),P=pstats();
   const ts=targetSlot(it),eqIt=ts&&gearOf(ts),cmp=eqIt&&eqIt.id!==id?eqIt:null;
@@ -17,10 +17,10 @@ function openSheet(id,refresh,preview){
           :`<button class="btn primary grow" data-act="equip" data-slot="${s}" ${locked||(eqCount(id)>=S.inv[id]&&!slots.some(x=>S.eq[x]===id))?"disabled":""}>${slots.length>1?tx("Equip in {slot}",{slot:lab}):tx("Equip")}</button>`)})}
     if(g==="consumable"&&statsOf(it).heal>0&&!locked)btns.push(`<button class="btn primary grow" data-act="eat" ${S.hp>=P.maxHp?"disabled":""}>${S.hp>=P.maxHp?tx("Already at full HP"):tx("Use now (+{n} HP)",{n:Math.min(medHeal(it),P.maxHp-S.hp)})}</button>`);
     btns.push(`<button class="btn grow" data-act="add" ${itemLocked(id)||left<=0||full||locked||!mix.ok?"disabled":""}>${locked?tx("Finish the fight to forge"):full?tx("Crucible full"):left<=0?tx("All in crucible"):!mix.ok?tx("Won't mix with the crucible"):tx("Add to crucible")}</button>`);
-    if(canDecon(it)){const y=deconYield(it),nm=(id,n)=>`${n}× ${iname(S.items[gradedItem(baseIdOf(id),gradeOf(id))])}`;
-      btns.push(`<button class="btn ${salvageArmed?"danger":""} grow" data-act="salvage" ${itemLocked(id)||locked||left<=0?"disabled":""}>${salvageArmed?tx("Tap again to deconstruct"):tx("Deconstruct → {list}",{list:[...y.mat?[nm(...y.mat)]:[],...y.frag.map(([t,n,g])=>nm(gradedId("ess_"+t,g),n))].join(" + ")})+(salvageEmbers(it)&&isUnl("peddler")?tx(" + {n} embers",{n:salvageEmbers(it)}):"")}</button>`)}
-    else if(canSalvage(it)){const ys=salvageYield(it),ms=salvageMats(it),list=[...ms.map(m=>iname(S.items[gradedItem(baseIdOf(m),gradeOf(m))])),...ys.map(t=>iname(S.items[gradedItem("ess_"+t,salvGrade(it))]))];
-      btns.push(`<button class="btn ${salvageArmed?"danger":""} grow" data-act="salvage" ${itemLocked(id)||locked||left<=0?"disabled":""}>${salvageArmed?tx("Tap again to salvage"):!list.length?tx("Salvage for {n} embers",{n:salvageEmbers(it)}):tx("Salvage → {list}",{list:list.join(" + ")})+(salvageEmbers(it)&&isUnl("peddler")?tx(" + {n} embers",{n:salvageEmbers(it)}):"")}</button>`)}
+    if(canDecon(it)){const y=deconYield(it),nm=(id,n)=>`${n}× ${esc(iname(S.items[gradedItem(baseIdOf(id),gradeOf(id))]))}`;
+      btns.push(`<button class="btn ${isArmed("salvage")?"danger":""} grow" data-act="salvage" ${itemLocked(id)||locked||left<=0?"disabled":""}>${isArmed("salvage")?tx("Tap again to deconstruct"):tx("Deconstruct → {list}",{list:[...y.mat?[nm(...y.mat)]:[],...y.frag.map(([t,n,g])=>nm(gradedId("ess_"+t,g),n))].join(" + ")})+(salvageEmbers(it)&&isUnl("peddler")?tx(" + {n} embers",{n:salvageEmbers(it)}):"")}</button>`)}
+    else if(canSalvage(it)){const ys=salvageYield(it),ms=salvageMats(it),list=[...ms.map(m=>esc(iname(S.items[gradedItem(baseIdOf(m),gradeOf(m))]))),...ys.map(t=>esc(iname(S.items[gradedItem("ess_"+t,salvGrade(it))])))];
+      btns.push(`<button class="btn ${isArmed("salvage")?"danger":""} grow" data-act="salvage" ${itemLocked(id)||locked||left<=0?"disabled":""}>${isArmed("salvage")?tx("Tap again to salvage"):!list.length?tx("Salvage for {n} embers",{n:salvageEmbers(it)}):tx("Salvage → {list}",{list:list.join(" + ")})+(salvageEmbers(it)&&isUnl("peddler")?tx(" + {n} embers",{n:salvageEmbers(it)}):"")}</button>`)}
     const mh=mishapsOf(it);if(mh.length&&isUnl("peddler")&&!hasTech("mend"))btns.push(`<button class="btn grow" aria-disabled="true" data-tap ${tt(tx("Reforge"),techWhy(["mend"]))}>${tx("Reforge: needs Mending")}</button>`);
     else if(mh.length&&isUnl("peddler"))btns.push(`<button class="btn grow" data-act="reforge" ${itemLocked(id)||locked||S.embers<reforgeCost(it)?"disabled":""}>${tx("Reforge — {list} ({n} embers)",{list:mh.map(m=>m==="Weakened"?tx("restore {m}",{m:trn(m)}):tx("remove {m}",{m:trn(m)})).join(tx(" and ")),n:reforgeCost(it)})}</button>`);
   }
@@ -65,7 +65,7 @@ function openCodex(id,refresh){
     <div class="actions"><button class="btn" data-act="close">${tx("Close")}</button></div>`;
   if(!refresh)showSheet();
 }
-function closeSheet(){$("scrim").hidden=true;$("sheet").hidden=true;Object.assign(sheet,{mode:null,id:null,preview:false});salvageArmed=false;if(sheetReturn?.isConnected)sheetReturn.focus({preventScroll:true});else document.querySelector("#nav [aria-current=page]")?.focus({preventScroll:true});sheetReturn=null}
+function closeSheet(){$("scrim").hidden=true;$("sheet").hidden=true;Object.assign(sheet,{mode:null,id:null,preview:false});armClear("salvage");if(sheetReturn?.isConnected)sheetReturn.focus({preventScroll:true});else document.querySelector("#nav [aria-current=page]")?.focus({preventScroll:true});sheetReturn=null}
 
 document.addEventListener("keydown",e=>{
   if(e.key!=="Tab"||$("sheet").hidden)return;
