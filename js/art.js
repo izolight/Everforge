@@ -124,6 +124,18 @@ const PORTRAITS={
     <path d="M60 57 l6 7 -6 0" fill="#6f8c5c"/><ellipse cx="53" cy="53" rx="3.2" ry="2.4" fill="${c.e}"/><ellipse cx="67" cy="53" rx="3.2" ry="2.4" fill="${c.e}"/>
     <ellipse cx="60" cy="96" rx="36" ry="5.5" fill="${c.l}"/>
     <g fill="${c.g}"><circle class="flt" cx="46" cy="90" r="4"/><circle class="flt" cx="62" cy="86" r="3"/><circle class="flt" cx="74" cy="91" r="2.6"/></g>`,
+  slag:c=>`<g stroke="${c.o}" stroke-width="2.5" stroke-linejoin="round">
+    <path d="M14 110 L24 92 L43 96 L60 88 L78 96 L98 92 L108 110 Z" fill="${c.d}"/>
+    <path d="M32 40 L22 59 L12 54 L7 71 L25 82 L40 67 Z M88 40 L98 59 L108 54 L113 71 L95 82 L80 67 Z" fill="${c.m}"/>
+    <path d="M36 33 H84 L92 96 Q60 110 28 96 Z" fill="${c.m}"/>
+    <path d="M42 34 V16 L51 8 H69 L78 16 V34 Z" fill="${c.d}"/>
+    <path d="M43 57 Q60 43 77 57 L80 89 Q60 99 40 89 Z" fill="#160d08"/>
+    <path class="flick" d="M48 85 Q42 73 54 63 Q52 75 60 70 Q65 54 67 60 Q82 77 72 88 Q60 93 48 85 Z" fill="${c.e}"/>
+    <path d="M48 55 L46 91 M60 51 V94 M72 55 L74 91 M40 73 H80" stroke="${c.d}" stroke-width="5"/>
+    <path d="M35 36 H85 M32 96 Q60 106 88 96" fill="none" stroke="${c.l}"/>
+    <path d="M48 21 H72 L68 28 H52 Z" fill="${c.e}"/>
+    <path d="M27 105 L36 100 M87 105 L79 99 M17 65 L25 69 M103 65 L95 69" fill="none" stroke="${c.l}" stroke-width="2"/>
+    </g>`,
   phoenix:c=>`<g stroke="${c.o}" stroke-width="2.5" stroke-linejoin="round">
     <path d="M60 62 Q34 16 2 24 Q24 40 26 52 Q8 54 4 70 Q30 62 40 72 Q28 78 24 90 Q46 78 60 76 Z" fill="${c.m}"/>
     <path d="M60 62 Q86 16 118 24 Q96 40 94 52 Q112 54 116 70 Q90 62 80 72 Q92 78 96 90 Q74 78 60 76 Z" fill="${c.m}"/>
@@ -187,6 +199,8 @@ function portrait(id,o){
 // ================= ART: MAP + ICONS =================
 const NODE_G={
   fight:'<path d="M4 4 L14 14 M20 4 L10 14 M11 17 L7 13 M13 17 L17 13 M6 18 L8 16 M18 18 L16 16"/>',
+  wander:'<ellipse cx="7" cy="15.5" rx="3" ry="5" transform="rotate(-20 7 15.5)"/><ellipse cx="17" cy="8.5" rx="3" ry="5" transform="rotate(20 17 8.5)"/><path d="M4.5 13 L9.5 11.5 M14.5 11 L19.5 12.5"/>',
+  chase:'<circle cx="17" cy="7" r="4"/><path d="M3 21 L17 7 M10 7 H17 V14 M3 12 H7 M8 21 V17"/>',
   elite:'<path d="M7 10 A5 5 0 0 1 17 10 V13 L15 15 V18 H9 V15 L7 13 Z"/><path d="M7 9 L3 4 M17 9 L21 4"/><circle cx="10" cy="11" r="1"/><circle cx="14" cy="11" r="1"/>',
   boss:'<path d="M3 18 L5 7 L9 12 L12 5 L15 12 L19 7 L21 18 Z"/><path d="M3 21 H21"/>',
   chest:'<rect x="3" y="9" width="18" height="11" rx="1"/><path d="M3 9 Q12 2 21 9 M3 13 H21"/><rect x="10.5" y="11.5" width="3" height="4"/>',
@@ -260,6 +274,18 @@ Object.assign(NODE_G,{
   dr:'<path d="M12 2 L20 5 V11 C20 16 16 20 12 22 C8 20 4 16 4 11 V5 Z"/><path d="M8.5 12 H15.5"/>',
   floor:'<path d="M3 20 H21 M12 4 V15 M7 11 L12 16 L17 11"/>',
   cleanse:'<path d="M12 3 C16 9 18 12 18 15 A6 6 0 0 1 6 15 C6 12 8 9 12 3 Z"/><path d="M9 15 H15 M12 12 V18"/>',
+  sharp:'<path d="M5 19 L9 15 L7 13 L17 3 H21 V7 L11 17 L9 15 M4 16 L8 20 M3 21 L6 18"/>',
+  heavy:'<circle cx="12" cy="5.5" r="3"/><path d="M7 9 H17 L21 21 H3 Z M12 12 V18 M9 15 L12 18 L15 15"/>',
+  crit:'<path d="M5 19 L17 7 M4 16 L8 20 M14 4 H20 V10 M5 3 V7 M3 5 H7 M18 16 V22 M15 19 H21"/>',
+  pierce:'<path d="M12 3 L20 6 V12 Q20 18 12 22 Q4 18 4 12 V6 Z M2 19 L22 5 M16 5 H22 V11"/>',
+  arc_pierce:'<path d="M12 2 L21 12 L12 22 L3 12 Z M2 19 L22 5 M16 5 H22 V11"/>',
+  armor_break:'<path d="M12 3 L20 6 V12 Q20 18 12 22 Q4 18 4 12 V6 Z M14 4 L10 10 L14 13 L10 20"/>',
+  heal_hit:'<path d="M3 21 L17 7 M4 16 L8 20 M14 4 H20 V10 M16 15 V21 M13 18 H19"/>',
+  turn:'<path d="M20 10 A8 8 0 1 0 18 18 M20 3 V10 H13"/>',
+  cooldown:'<circle cx="12" cy="12" r="9"/><path d="M12 6 V12 L16 15"/>',
+  water:'<path d="M12 2 C16 8 19 12 19 15 A7 7 0 0 1 5 15 C5 12 8 8 12 2 Z"/>',
+  fur:'<path d="M3 7 L7 3 L10 6 H14 L17 3 L21 7 L18 11 L20 15 L16 17 L14 21 L10 18 L6 20 L6 15 L2 12 Z"/>',
+  sweet:'<path d="M8 7 L12 5 L16 7 L18 12 L16 17 L12 19 L8 17 L6 12 Z M6 9 L2 6 V18 L6 15 M18 9 L22 6 V18 L18 15"/>',
   a_vamp:'<path d="M12 3 C16 9 18 12 18 15 A6 6 0 0 1 6 15 C6 12 8 9 12 3 Z"/><path d="M9 14 L10 18 L12 15 L14 18 L15 14"/>',
   a_thorn:'<path d="M4 20 H20 M6 20 L8 8 L10 20 M11 20 L13 4 L15 20 M16 20 L18 10 L20 20"/>',
   a_regen:'<path d="M20 12 A8 8 0 1 1 15 4.6"/><path d="M20 4 V9 H15"/><path d="M12 9 V15 M9 12 H15"/>',
@@ -272,6 +298,8 @@ Object.assign(NODE_G,{
 const ic=(t,c)=>`<svg class="ic${c?" "+c:""}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true">${NODE_G[t]}</svg>`;
 const gIc=(k,c)=>`<svg class="ic${c?" "+c:""}" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">${G[k]}</svg>`;
 const famIc=(f,c)=>ic("f_"+(NODE_G["f_"+f]?f:"stone"),c),stIc=(k,c)=>ic("st_"+k,c);
+const TRAIT_IC={Sharp:"sharp",Heavy:"heavy",Steam:"smoke",Water:"water",Frost:"f_ice",Venomous:"a_vamp",Nourishing:"st_heal",Medicine:"cleanse",Sweet:"sweet",Radiant:"st_mag",Sunfire:"heat",Twilight:"f_shadow",Iron:"resist",Tempered:"armor_break",Wood:"root",Fur:"fur",Insulated:"ward",Runic:"ward",Swift:"f_swift",Lure:"chest",Rust:"armor_break",Cursed:"f_bad",Brittle:"armor_break"};
+const traitIc=(t,c)=>ic(TRAIT_IC[t]||"f_"+TRAITS[t].f,c);
 function terrain(zone,H,seed){
   const R=rng(seed),W=400;let s="";
   if(zone==="woods"){for(let k=0;k<26;k++){const x=R()*W,y=R()*H,sz=8+R()*10;s+=`<path d="M${x} ${y-sz*1.8} L${x-sz} ${y} H${x+sz} Z" fill="#1f3322"/><path d="M${x} ${y-sz*1.2} L${x-sz*.8} ${y+sz*.5} H${x+sz*.8} Z" fill="#26402a"/>`}}
@@ -293,16 +321,25 @@ const TILE_ART={
 };
 const tileSvg=(z,c,x,y)=>`<svg class="tart" viewBox="0 0 24 24" aria-hidden="true">${c==="~"?TILE_ART[z].water:TILE_ART[z].rock}</svg>`;
 const DIR_N=["north","east","south","west"];
+// Read the POI's actual movement (old maps and the gate guard stay still), never the species.
+const mapMove=p=>isUnl("roam")&&(p.mv==="wander"||p.mv==="chase")?p.mv:"still";
+const MOVE_INFO={
+  still:{ic:"fight",get name(){return tx("Stationary enemy")},get tip(){return tx("Waits on its tile.")}},
+  wander:{ic:"wander",get name(){return tx("Wandering enemy")},get tip(){return tx("Roams between nearby tiles.")}},
+  chase:{ic:"chase",get name(){return tx("Chasing enemy")},get tip(){return tx("Follows you after noticing you.")}}
+};
 function mapHtml(){
   const m=curMap(),z=S.zone,adj=busy()?[]:adjTiles(m),H=Math.round(400*m.h/m.w),boss=shortName(ZONES[zoneIdx(z)][2]);
   let cells="";
   for(let y=0;y<m.h;y++)for(let x=0;x<m.w;x++){
     const i=y*m.w+x,c=m.g[y][x],seen=m.sn[i],lit=litAt(m,x,y),here=m.pos.x===x&&m.pos.y===y,p=poiAt(m,x,y),t=!seen?null:lit?(p&&!p.done?p.t:null):m.mem[x+","+y]||null,k=adj.findIndex(a=>a[0]===x&&a[1]===y),en=lit&&p&&!p.done&&isFoe(p)?p:null,gh=!lit&&(t==="fight"||t==="elite"),ra=en&&RARITIES[en.rar]?RARITIES[en.rar]:null; // en: an enemy in the light now; gh: only where one was last seen; ra: its rarity, shown as a frame and affix pips
     const cls=`tl ${!seen?"unk":lit?"lit":"seen"}${c==="#"||c==="~"?" blk":""}${c===","?" brush":""}${t?" p-"+t:""}${here?" here":""}${k>=0?" adj":""}${t==="boss"?" lair":""}${gh?" ghost":""}${en&&en.aw?" aware":""}${en&&en.dz>0?" dazed":""}${en&&en.ms===m.steps?" moved":""}${ra?" r-"+en.rar:""}`;
-    const inner=`${seen&&(c==="#"||c==="~")?tileSvg(z,c):""}${t?icon(t):""}${en&&en.aw?`<b class="bdg bang" aria-hidden="true">!</b>`:""}${en&&en.dz>0?`<b class="bdg zz" aria-hidden="true">z</b>`:""}${ra?`<span class="afp" aria-hidden="true">${en.afx.map(a=>`<i style="background:${afxCol(a)}"></i>`).join("")}</span>`:""}${here?`<span class="hero">${icon("hero")}</span>`:""}`;
-    const lbl=t?`${gh?"Last seen: ":""}${ra?ra.name+" ":""}${NODE_INFO[t]}${ra?` (${en.afx.map(a=>AFX[a].n).join(", ")})`:""}${en&&en.aw?", hunting":""}${en&&en.dz>0?", dazed":""}`:"",tp=ra?" "+tt(`${ra.name} ${NODE_INFO[t].toLowerCase()}`,...en.afx.map(a=>`${AFX[a].n}: ${AFX[a].d()}`),`Drops: ${en.afx.map(a=>AFX[a].tr).join(", ")} essence. ${RARITIES[en.rar].name}: ${gsTxt(RARITIES[en.rar].gs)} than usual.`):"";
-    cells+=k>=0?`<button class="${cls}" data-tile="${x},${y}" aria-label="Step ${DIR_N[DIRS.findIndex(d=>d[0]===x-m.pos.x&&d[1]===y-m.pos.y)]}${t?`: ${lbl}${t==="boss"?`, ${boss}`:""}`:""}"${tp}>${inner}</button>`:`<div class="${cls}"${t?` aria-label="${lbl}"`:""}${tp}>${inner}</div>`}
-  const legend=Object.entries(NODE_INFO).filter(([t])=>!UNL[t]||isUnl(t)).map(([t,l])=>`<span>${icon(t)}${l}</span>`).join("")+`<span>${icon("hero")}You</span><span class="lg-fog"><i></i>Unseen</span>${isUnl("roam")?`<span><b class="bdg bang">!</b>hunting</span><span><b class="bdg zz">z</b>dazed</span>`:""}${isUnl("elite")?`<span class="lg-r m"><i></i>Magic</span><span class="lg-r r"><i></i>Rare</span>`:""}<span class="lg-gh">${icon("fight")}seen</span>`;
+    const move=en?MOVE_INFO[mapMove(en)]:null;
+    const inner=`${seen&&(c==="#"||c==="~")?tileSvg(z,c):""}${t?icon(move?move.ic:gh?"fight":t):""}${en&&en.aw?`<b class="bdg bang" aria-hidden="true">!</b>`:""}${en&&en.dz>0?`<b class="bdg zz" aria-hidden="true">z</b>`:""}${ra?`<span class="afp" aria-hidden="true">${en.afx.map(a=>`<i style="background:${afxCol(a)}"></i>`).join("")}</span>`:""}${here?`<span class="hero">${heroMini()}</span>`:""}`;
+    const lbl=t?`${gh?tx("Last seen: "):""}${ra?ra.name+" ":""}${NODE_INFO[t]}${move?", "+move.name:""}${ra?` (${en.afx.map(a=>tx(AFX[a].n)).join(", ")})`:""}${en&&en.aw?", "+tx("hunting"):""}${en&&en.dz>0?", "+tx("dazed"):""}`:"",tp=move?" "+tt(lbl,move.tip,...ra?[...en.afx.map(a=>`${tx(AFX[a].n)}: ${AFX[a].d()}`),tx("Drops: {list} essence. {rar}: {gs} than usual.",{list:en.afx.map(a=>trn(AFX[a].tr)).join(", "),rar:ra.name,gs:gsTxt(RARITIES[en.rar].gs)})]:[]):"";
+    cells+=k>=0?`<button class="${cls}" data-tile="${x},${y}" aria-label="${esc(tx("Step {dir}",{dir:tx(DIR_N[DIRS.findIndex(d=>d[0]===x-m.pos.x&&d[1]===y-m.pos.y)])})+(t?`: ${lbl}${t==="boss"?`, ${boss}`:""}`:""))}"${tp}>${inner}</button>`:`<div class="${cls}"${t||here?` aria-label="${esc([here?tx("You"):"",lbl].filter(Boolean).join(", "))}"`:""}${tp}>${inner}</div>`}
+  const foes=(isUnl("roam")?Object.values(MOVE_INFO):[MOVE_INFO.still]).map(move=>`<span ${tt(move.name,move.tip)}>${icon(move.ic)}${move.name}</span>`).join("");
+  const legend=foes+Object.entries(NODE_INFO).filter(([t])=>t!=="fight"&&t!=="elite"&&(!UNL[t]||isUnl(t))).map(([t,l])=>`<span>${icon(t)}${l}</span>`).join("")+`<span>${heroMini()}${tx("You")}</span><span class="lg-fog"><i></i>${tx("Unseen")}</span>${isUnl("roam")?`<span><b class="bdg bang">!</b>${tx("hunting")}</span><span><b class="bdg zz">z</b>${tx("dazed")}</span>`:""}${isUnl("elite")?`<span class="lg-r m"><i></i>${RARITIES.magic.name}</span><span class="lg-r r"><i></i>${RARITIES.rare.name}</span>`:""}<span class="lg-gh">${icon("fight")}${tx("seen")}</span>`;
   const ml=(m.log||[]).slice(-3),fresh=m.ls===m.steps,lg=ml.slice(0,-1).map(l=>`<li>${l}</li>`).join(""); // the newest line sits in the status strip; the two before it show here; the screen reader hears the newest
-  return `<div class="mapwrap"><div class="map z-${z}" style="--w:${m.w}">${terrain(z,H,m.seed||7)}<div class="tls">${cells}</div></div></div>${lg?`<ul class="mlog">${lg}</ul>${fresh?`<p class="sr" role="status">${ml[ml.length-1]}</p>`:""}`:""}<details class="legend" id="legend"${legendOpen?" open":""}><summary>${ic("list","s")} Map key</summary><div>${legend}</div></details>`;
+  return `<div class="mapwrap" tabindex="0" role="region" aria-label="${esc(tx("Expedition map"))}"><div class="map z-${z}" style="--w:${m.w}">${terrain(z,H,m.seed||7)}<div class="tls">${cells}</div></div></div><p class="map-pan">↔ ${tx("Swipe to explore the map.")}</p>${lg?`<ul class="mlog">${lg}</ul>${fresh?`<p class="sr" role="status">${ml[ml.length-1]}</p>`:""}`:""}<details class="legend" id="legend"${legendOpen?" open":""}><summary>${ic("list","s")} ${tx("Map key")}</summary><div>${legend}</div></details>`;
 }

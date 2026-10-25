@@ -127,6 +127,8 @@ function migrate(s){
   ZONES.forEach((z,i)=>{if(i&&(s.kills[ZONES[i-1][2]]||0)>0&&!s.unlocked.includes(z[0]))s.unlocked.push(z[0])}); // zones added later open for saves that already beat the boss before them
   Object.keys(s.items).forEach(id=>{const b=baseIdOf(id),g=gradeOf(id);if(gradable(b)&&gradedId(b,g)===id)s.items[id]=mkGraded(b,g)}); // essences and graded materials are rebuilt from their fixed values
   s.embers=Math.max(0,Math.floor(Number(s.embers))||0);s.infCredit=Math.max(0,Math.floor(Number(s.infCredit))||0);
+  // Additive timing ranks need no save bump; old known specials imply rank I at read time.
+  Object.values(s.codex).forEach(k=>{if(isObj(k)&&k.timing!==undefined){const t=isObj(k.timing)?k.timing:{};k.timing=Object.fromEntries(["sp","sp2"].map(key=>[key,Number.isFinite(t[key])?Math.max(0,Math.min(PARRY_T.levels,Math.floor(t[key]))):0]))}});
   s.skills=Object.fromEntries(Object.keys(SKILLS).map(k=>[k,isObj(s.skills)?Math.max(0,Math.floor(Number(s.skills[k]))||0):0]));
   const st0=s.stats,sd=statsDef(),had=k=>st0[k]!==undefined;
   const dv={forged:s.journal.length,legend:s.journal.filter(j=>j.legendary).length,bosses:ZONES.reduce((n,z)=>n+(s.kills[z[2]]|0),0),
@@ -136,9 +138,13 @@ function migrate(s){
   ["heatBest","fast"].forEach(k=>Object.keys(st0[k]).forEach(x=>{if(!Number.isFinite(st0[k][x]))delete st0[k][x]}));
   Object.values(s.items).forEach(it=>{const sc=it.legendary&&SECRETS.find(x=>x.name===it.name&&x.bonus);if(sc&&!(it.traits[sc.bonus.trait]>0))it.traits[sc.bonus.trait]=sc.bonus.v}); // a legendary that lost its bonus to the trait-slot trim gets it back
   Object.keys(s.heat).forEach(z=>{const h=s.heat[z];if(!ZONES.some(x=>x[0]===z)||!isObj(h))delete s.heat[z];else{h.max=Math.max(0,Math.min(HEAT_MAX,h.max|0));h.sel=Math.max(0,Math.min(h.max,h.sel|0))}});
-  const d=s.daily,N=GRID.w*GRID.h,pt=p=>isObj(p)&&Number.isInteger(p.x)&&Number.isInteger(p.y)&&p.x>=0&&p.y>=0&&p.x<GRID.w&&p.y<GRID.h;
-  const okMap=m=>isObj(m)&&m.w===GRID.w&&m.h===GRID.h&&Array.isArray(m.g)&&m.g.length===m.h&&m.g.every(r=>typeof r==="string"&&r.length===m.w&&/^[.,#~]+$/.test(r))&&[m.pos,m.start,m.lair,m.gate].every(pt)&&(m.prev===null||pt(m.prev))
+  const d=s.daily;
+  const okMap=m=>{ // dimensions belong to the saved expedition, not today's generator
+    if(!isObj(m)||!Number.isInteger(m.w)||!Number.isInteger(m.h)||m.w<5||m.h<5||m.w>31||m.h>31)return false;
+    const N=m.w*m.h,pt=p=>isObj(p)&&Number.isInteger(p.x)&&Number.isInteger(p.y)&&p.x>=0&&p.y>=0&&p.x<m.w&&p.y<m.h;
+    return Array.isArray(m.g)&&m.g.length===m.h&&m.g.every(r=>typeof r==="string"&&r.length===m.w&&/^[.,#~]+$/.test(r))&&[m.pos,m.start,m.lair,m.gate].every(pt)&&(m.prev===null||pt(m.prev))
     &&Array.isArray(m.pois)&&m.pois.every(p=>pt(p)&&typeof p.t==="string"&&Number.isFinite(p.r)&&!"#~".includes(m.g[p.y][p.x]))&&Array.isArray(m.sn)&&m.sn.length===N&&Array.isArray(m.d)&&m.d.length===N&&isObj(m.mem)&&Number.isFinite(m.torch)&&Number.isFinite(m.tmax)&&Number.isFinite(m.steps)&&Number.isFinite(m.dp)&&Number.isFinite(m.D)&&m.D>0&&m.pois.some(p=>p.t==="boss")&&!"#~".includes(m.g[m.pos.y][m.pos.x]);
+  };
   Object.keys(s.maps).forEach(z=>{if(!okMap(s.maps[z])){delete s.maps[z];migNote=true}});
   if(d&&!(isObj(d)&&(d.state==="done"||okMap(d.map))&&["run","done"].includes(d.state)&&(d.state!=="done"||isObj(d.result))&&Number.isFinite(d.turns)&&Number.isFinite(d.seed)&&ZONES.some(z=>z[0]===d.zone)&&ZONES.some(z=>z[0]===d.back)&&DAILY_TWISTS[d.twist]))s.daily=null;
   if(s.run!=="daily"||!s.daily||s.daily.state!=="run")s.run=null;else s.zone=s.daily.zone;

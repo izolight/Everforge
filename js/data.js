@@ -129,6 +129,9 @@ const ENEMIES={
     lore:"Herbalists who stayed too long among the nightshade. Their brews heal them and only them.",
     inf:{s:"poison",ch:0.35},
     sp:{every:3,name:"Hex Brew",kind:"heal",x:.25,tell:"stirring her cauldron"},drops:[["nightshade",.7],["oak_staff",.25],["holy_water",.3],["witch_eye",.18]]},
+  slag:{name:"Slag Sentry",plural:"Slag Sentries",zone:"hollow",mv:"still",el:"stone",hp:104,atk:14,def:6,weak:["ice","arcane"],resist:["fire"],w:2,verb:"hammers you",intro:"A furnace eye opens in a mound of slag. Its iron arms rise.",
+    lore:"Abandoned forge guardians fused to the Hollow's floor. A coal still burns behind each iron rib; cold and magic fracture their shells.",
+    sp:{every:4,name:"Crucible Hammer",kind:"heavy",x:2.2,tell:"locking its iron arms together overhead"},drops:[["coal",.55],["golem_core",.45],["stone_plate",.18]]},
   phoenix:{name:"Cinder Phoenix",short:"the Phoenix",zone:"hollow",el:"fire",boss:true,rebirth:true,hp:150,atk:17,def:7,weak:["ice"],resist:["fire","holy"],verb:"rakes you with burning talons",intro:"The sky ignites. A Cinder Phoenix descends.",
     lore:"The Hollow's heart. It has died many times and seems to have enjoyed none of them.",
     inf:{s:"burn",ch:0.35},
@@ -157,13 +160,13 @@ const ENEMIES={
     sp:{every:3,name:"Chomp",kind:"heavy",x:2.2,tell:"opening its lid very wide"},drops:[]}
 };
 // Affix system (affix.js). A map enemy has a rarity: normal (no affix), magic (1 affix) or rare (2, 3 from Heat RAR_CH.k3). RARITIES: stat multipliers (hp, atk, def added), k = affixes, gs = grade steps its affix essences roll better (a fraction is the chance of one step; a full step per rarity made essence income jump 40% or more at Heat 3, see README). RAR_CH: the rare share of elite tiles (base + heat x Heat + row x depth row, capped) and the magic share of ordinary fights from Heat magic.from. Rarity colours match the Greater (blue) and Pure (gold) grades.
-const RARITIES={magic:{name:"Magic",col:"#6eb1f0",hp:1.35,atk:1.15,def:0,k:1,gs:.5},rare:{name:"Rare",col:"#f2a54a",hp:1.55,atk:1.2,def:0,k:2,gs:1}};
+const RARITIES={magic:{get name(){return tx("Magic")},col:"#6eb1f0",hp:1.35,atk:1.15,def:0,k:1,gs:.5},rare:{get name(){return tx("Rare")},col:"#f2a54a",hp:1.55,atk:1.2,def:0,k:2,gs:1}};
 const RAR_CH={rare:{base:.15,heat:.05,row:.03,cap:.6},magic:{from:2,base:.1,heat:.05},k3:4};
 // Affix tunables: vamp = share of the damage it deals that it heals; thorn = share of your blow reflected, capped at cap of your max HP (never lethal); regen = share of max HP per turn; frenzy = Attack x below `at` of its HP; ward = shield as a share of max HP, back `every` turns after it breaks; dodge = base % to dodge your strikes, less sharp per point of Sharp (up to sharpCap) and study per Study used on it (up to studyMax), never under min; split = remnant HP share and Attack x; boom = blast as a share of its max HP (Guard x guard), shown in the NEXT row below `warn` of its HP; swift = Attack x, chance of a follow-up hit of fx x damage, tiles per map turn.
 const AFX_T={vamp:.4,thorn:{x:.15,cap:.06},regen:.03,frenzy:{at:.4,x:1.4},ward:{x:.2,every:3},dodge:{base:20,sharp:2,sharpCap:8,study:4,studyMax:3,min:4},split:{hp:.35,atk:.6},boom:{x:.15,warn:.35,guard:.4},swift:{atk:1.05,fol:.15,fx:.5,moves:2}};
 // AFX: n = prefix, ti = the rare title ("the Bloodthirsty"), tr = the trait whose essence it drops, t "el" = elemental (fights as that family), g = groups, space-separated (an enemy never rolls two affixes that share one; the same essence is never rolled twice), m = stat multipliers (hp, atk) and flat def, roam = needs a species that moves on the map, d(B) = effect text (B adds live numbers). Elemental affixes keep the old elite behaviour.
 const pcn=x=>Math.round(x*100);
-const elTxt=tr=>{const s=ELITE_INF[tr];return `Fights as ${TRAITS[tr].f}: resists it and has no weakness to it. +1 Defense.${s?` Its hits can inflict ${STATUS[s].n.toLowerCase()} (${pcn(ELITE_INF_CH)}%).`:""}`};
+const elTxt=tr=>{const s=ELITE_INF[tr];return tx("Fights as {fam}: resists it and has no weakness to it. +1 Defense.",{fam:famL(TRAITS[tr].f)})+(s?" "+tx("Its hits can inflict {status} ({p}%).",{status:lc(STATUS[s].n),p:pcn(ELITE_INF_CH)}):"")};
 const AFX={
   fire:{t:"el",g:"el",n:"Burning",ti:"Cinderborn",tr:"Fire",m:{def:1},d:()=>elTxt("Fire")},
   ice:{t:"el",g:"el",n:"Frostbound",ti:"Rimeheart",tr:"Ice",m:{def:1},d:()=>elTxt("Ice")},
@@ -173,15 +176,15 @@ const AFX={
   iron:{t:"el",g:"el",n:"Ironclad",ti:"Unbroken",tr:"Iron",m:{def:1},d:()=>elTxt("Iron")},
   swift:{t:"el",g:"el",n:"Fleet",ti:"Windrunner",tr:"Swift",m:{def:1},d:()=>elTxt("Swift")},
   arcane:{t:"el",g:"el",n:"Arcane",ti:"Spellwoven",tr:"Arcane",m:{def:1},d:()=>elTxt("Arcane")},
-  vamp:{n:"Vampiric",ti:"Bloodthirsty",tr:"Nourishing",ic:"a_vamp",col:"#d4607c",g:"sustain",d:()=>`Heals for ${pcn(AFX_T.vamp)}% of the damage it deals you.`},
-  thorn:{n:"Thorned",ti:"Barbed",tr:"Sharp",ic:"a_thorn",col:"#b8a45a",d:()=>`Reflects ${pcn(AFX_T.thorn.x)}% of your blows back at you (at most ${pcn(AFX_T.thorn.cap)}% of your max HP per round, and never enough to kill you).`},
-  regen:{n:"Regenerating",ti:"Undying",tr:"Wood",ic:"a_regen",col:"#7cc47c",g:"tank sustain",m:{hp:.9},d:()=>`Heals ${pcn(AFX_T.regen)}% of its max HP every turn. Burn and poison keep it in check.`},
-  frenzy:{n:"Frenzied",ti:"Savage",tr:"Heavy",ic:"a_frenzy",col:"#e8793b",d:()=>`Below ${pcn(AFX_T.frenzy.at)}% HP its Attack rises ${pcn(AFX_T.frenzy.x-1)}%.`},
-  ward:{n:"Warded",ti:"Shieldbound",tr:"Runic",ic:"ward",col:"#6fb5c4",g:"tank sustain",d:B=>`A shield of ${B&&B.wm?B.wm:`${pcn(AFX_T.ward.x)}% of its HP`} absorbs your blows${B&&B.wm?` (${Math.max(0,B.wd)} left)`:""}. It returns ${AFX_T.ward.every} turns after it breaks. Burn and poison pass through it.`},
-  elusive:{n:"Elusive",ti:"Slippery",tr:"Light",ic:"a_elusive",col:"#b9c4d8",g:"tank",m:{hp:.85},d:B=>`Dodges ${B?dodgeNow(B):AFX_T.dodge.base}% of your strikes. Sharp lowers it by ${AFX_T.dodge.sharp}% per point (up to ${AFX_T.dodge.sharpCap}%), and each Study by ${AFX_T.dodge.study}% (up to ${AFX_T.dodge.studyMax} times). A dodged blow applies nothing (no bleed, stun or status); burn and poison already on it keep ticking.`},
-  split:{n:"Splitting",ti:"Fractured",tr:"Water",ic:"a_split",col:"#c39cf7",g:"death",m:{hp:.85},d:()=>`The first time it falls it splits into a remnant with ${pcn(AFX_T.split.hp)}% of its HP, ${pcn(1-AFX_T.split.atk)}% less Attack and no affixes.`},
-  boom:{n:"Volatile",ti:"Unstable",tr:"Steam",ic:"a_boom",col:"#ffb142",g:"death",d:()=>`Explodes when it dies for ${pcn(AFX_T.boom.x)}% of its max HP. Guard cuts the blast by ${pcn(1-AFX_T.boom.guard)}% when it dies on its own turn. Your rune ward soaks it.`},
-  swiftfoot:{n:"Swift-footed",ti:"Quicksilver",tr:"Swift",ic:"a_swift",col:"#6fd8b6",roam:1,m:{atk:AFX_T.swift.atk},d:()=>`Covers ${AFX_T.swift.moves} tiles per step on the map. In a fight, +${pcn(AFX_T.swift.atk-1)}% Attack and a ${pcn(AFX_T.swift.fol)}% chance each turn of a quick follow-up hit (${pcn(AFX_T.swift.fx)}% damage).`}
+  vamp:{n:"Vampiric",ti:"Bloodthirsty",tr:"Nourishing",ic:"a_vamp",col:"#d4607c",g:"sustain",d:()=>tx("Heals for {p}% of the damage it deals you.",{p:pcn(AFX_T.vamp)})},
+  thorn:{n:"Thorned",ti:"Barbed",tr:"Sharp",ic:"a_thorn",col:"#b8a45a",d:()=>tx("Reflects {p}% of your blows back at you (at most {c}% of your max HP per round, and never enough to kill you).",{p:pcn(AFX_T.thorn.x),c:pcn(AFX_T.thorn.cap)})},
+  regen:{n:"Regenerating",ti:"Undying",tr:"Wood",ic:"a_regen",col:"#7cc47c",g:"tank sustain",m:{hp:.9},d:()=>tx("Heals {p}% of its max HP every turn. Burn and poison keep it in check.",{p:pcn(AFX_T.regen)})},
+  frenzy:{n:"Frenzied",ti:"Savage",tr:"Heavy",ic:"a_frenzy",col:"#e8793b",d:()=>tx("Below {at}% HP its Attack rises {p}%.",{at:pcn(AFX_T.frenzy.at),p:pcn(AFX_T.frenzy.x-1)})},
+  ward:{n:"Warded",ti:"Shieldbound",tr:"Runic",ic:"ward",col:"#6fb5c4",g:"tank sustain",d:B=>tx("A shield of {amt} absorbs your blows{left}. It returns {n} turns after it breaks. Burn and poison pass through it.",{amt:B&&B.wm?B.wm:tx("{p}% of its HP",{p:pcn(AFX_T.ward.x)}),left:B&&B.wm?" "+tx("({n} left)",{n:Math.max(0,B.wd)}):"",n:AFX_T.ward.every})},
+  elusive:{n:"Elusive",ti:"Slippery",tr:"Light",ic:"a_elusive",col:"#b9c4d8",g:"tank",m:{hp:.85},d:B=>tx("Dodges {d}% of your strikes. Sharp lowers it by {s}% per point (up to {sc}%), and each Study by {st}% (up to {sm} times). A dodged blow applies nothing (no bleed, stun or status); burn and poison already on it keep ticking.",{d:B?dodgeNow(B):AFX_T.dodge.base,s:AFX_T.dodge.sharp,sc:AFX_T.dodge.sharpCap,st:AFX_T.dodge.study,sm:AFX_T.dodge.studyMax})},
+  split:{n:"Splitting",ti:"Fractured",tr:"Water",ic:"a_split",col:"#c39cf7",g:"death",m:{hp:.85},d:()=>tx("The first time it falls it splits into a remnant with {hp}% of its HP, {atk}% less Attack and no affixes.",{hp:pcn(AFX_T.split.hp),atk:pcn(1-AFX_T.split.atk)})},
+  boom:{n:"Volatile",ti:"Unstable",tr:"Steam",ic:"a_boom",col:"#ffb142",g:"death",d:()=>tx("Explodes when it dies for {p}% of its max HP. Guard cuts the blast by {g}% when it dies on its own turn. Your rune ward soaks it.",{p:pcn(AFX_T.boom.x),g:pcn(1-AFX_T.boom.guard)})},
+  swiftfoot:{n:"Swift-footed",ti:"Quicksilver",tr:"Swift",ic:"a_swift",col:"#6fd8b6",roam:1,m:{atk:AFX_T.swift.atk},d:()=>tx("Covers {n} tiles per step on the map. In a fight, +{a}% Attack and a {f}% chance each turn of a quick follow-up hit ({x}% damage).",{n:AFX_T.swift.moves,a:pcn(AFX_T.swift.atk-1),f:pcn(AFX_T.swift.fol),x:pcn(AFX_T.swift.fx)})}
 };
 const AFX_EL=Object.keys(AFX).filter(a=>AFX[a].t==="el"); // the old AFFIXES order: a save's `af` index maps into it
 // Legendary secrets: ids = exact inputs (sorted match), hint = cryptic clue, bonus = extra trait merged into the result (on top of the +20% stats).
@@ -221,7 +224,7 @@ const TUTORIAL=[
   {text:"Play the daily expedition, under the map.",tab:"battle",need:"daily",done:s=>s.stats.dailies>=1,reward:{items:["ess:Holy@4","ess:Stone"],xp:60}}
 ];
 // the map is a GRID.w x GRID.h tile grid; MAP_ROWS is its depth scale (0..5 by distance from the start, 6 = the lair) that sets enemy scaling and the daily's "depth reached"
-const MAP_ROWS=7,GRID={w:9,h:13},POI_N={fight:[5,3],elite:[1,2],chest:2,shrine:2,peddler:1,mystery:3}; // [min,spread]: fights 5-7, elites 1-2 (doubled at Heat 2+)
+const MAP_ROWS=7,GRID={w:13,h:17},POI_N={fight:[5,3],elite:[1,2],chest:2,shrine:2,peddler:1,mystery:3}; // larger branching maps; [min,spread]: fights 5-7, elites 1-2 (doubled at Heat 2+)
 // torchlight: the torch drains 1 per step (Heat 5: h5 per step); at 0 light drops to dim and every step risks an ambush (amb); shrine/rest refill
 const TORCH={max:40,rad:2,dim:1,amb:.3,shrine:20,rest:15,h5:1.5,nocamp:20};
 // roaming enemies: aw = path steps at which a chaser notices you (dark = torch out, heat = extra at Heat 3+, elite = elites), lose = steps at which it loses you, daze = steps a fled-from enemy stays idle, stay = a wanderer's chance to hold still
@@ -233,19 +236,21 @@ const DEF_K=50,HIT_MIN=.2,MAG_W=1.3,redOf=d=>d/(d+DEF_K);
 const RES_PER=5,RES_CAP=40,RES_ALT={Fur:[["ice",1],["wood",1]],Insulated:[["ice",2.5]]},RES_MSG={ice:"Your fur-lined gear blunts the cold.",fire:"Your gear turns aside the heat.",poison:"Your gear keeps the venom at bay.",holy:"Your gear dulls the glare.",shadow:"Your gear holds the gloom back.",wood:"Your gear shrugs off the thorns.",metal:"Your gear turns the blades.",stone:"Your gear absorbs the crushing blows.",arcane:"Your gear scatters the stray magic.",swift:"Your gear slows the flurry."};
 const ARC_PER=12,ARC_CAP=60,WARD_PER=4,WARD_CAP=40,THORN_PER=4,THORN_CAP=30,STONE_DR=.6,STONE_CAP=6,SHRED_PER=1.5,SHRED_CAP=6,ROOT_PER=1.5,ROOT_CAP=8,DODGE_PER=4,DODGE_CAP=25,MED_PER=.1,MED_CAP=.5,MED_REGEN=.5;
 // statuses enemies inflict on you: el = resisting element (P.rs), t = turns; cures = traits on consumables that clear them
-const STATUS={burn:{n:"Burn",el:"fire",t:3,tip:"damage each turn"},chill:{n:"Chill",el:"ice",t:3,tip:"no swift follow-ups, half dodge"},poison:{n:"Poison",el:"poison",t:4,tip:"stacking damage each turn"},curse:{n:"Curse",el:"shadow",t:4,tip:"healing you receive is halved"}};
+const STATUS={burn:{get n(){return tx("Burn")},el:"fire",t:3,get tip(){return tx("damage each turn")}},chill:{get n(){return tx("Chill")},el:"ice",t:3,get tip(){return tx("no swift follow-ups, half dodge")}},poison:{get n(){return tx("Poison")},el:"poison",t:4,get tip(){return tx("stacking damage each turn")}},curse:{get n(){return tx("Curse")},el:"shadow",t:4,get tip(){return tx("healing you receive is halved")}}};
 const INF_MSG={burn:"You catch fire",chill:"A numbing chill sets in",poison:"Venom seeps into your blood",curse:"A curse withers you"};
-const ELITE_INF={Fire:"burn",Ice:"chill",Poison:"poison",Shadow:"curse"},ELITE_INF_CH=.25,POISON_STACK=3,CLEANSE_PER=6,CLEANSE_CAP=50,PARRY_X=1.5,PARRY_FAIL=1.25,PARRY_CH=.8; // PARRY_CH: chance a parry on a telegraphed special lands (a miss leaves you open)
+const ELITE_INF={Fire:"burn",Ice:"chill",Poison:"poison",Shadow:"curse"},ELITE_INF_CH=.25,POISON_STACK=3,CLEANSE_PER=6,CLEANSE_CAP=50,PARRY_X=1.5,PARRY_FAIL=1.25;
+const GUARD_T={cut:.6,braced:.3}; // all hits in the enemy action; Braced boosts the next Attack or ability, once
+const PARRY_T={base:.65,study:.05,levels:3,spd:.005,spdCap:.05,cap:.9,form:{blade:.05,spellblade:.05,claws:.05,lance:-.05,warstaff:-.05}};
 // signature abilities by weapon form (+ shield): cd = turns before reuse, x = power vs a normal attack
 const ABILITIES={
-  blade:{name:"Flurry",icon:"flurry",cd:3,hits:2,x:.7,desc:"Two quick strikes at 0.7x each. Each can crit."},
-  spear:{name:"Lunge",icon:"lunge",cd:3,x:1.2,pen:.7,open:.5,desc:"1.2x strike that ignores 70% of armor. A spear also jabs first at 0.5x when a battle starts."},
-  staff:{name:"Channel",icon:"channel",cd:3,x:1.3,pen:.5,desc:"1.3x a normal attack that ignores half of armor. The weapon's top element effect always lands."},
-  lance:{name:"Charge",icon:"charge",cd:4,x:2,open:.25,desc:"2.0x heavy strike, but the enemy's reply hits you 25% harder."},
-  spellblade:{name:"Arc Slash",icon:"arcslash",cd:3,x:1.2,desc:"1.2x a normal attack. A crit refunds 1 turn of cooldown."},
-  warstaff:{name:"Sweep",icon:"sweep",cd:3,x:1,stun:.35,bossStun:.15,desc:"1.0x strike with a 35% chance to stun (15% on bosses). A stunned enemy loses its turn."},
-  claws:{name:"Rend",icon:"rend",cd:3,x:.9,desc:"0.9x strike that opens a bleed: 20% of Attack per turn for 5 turns (ignores armor). Rending again before it ends adds a stack, up to 3, and refreshes it."},
-  shield:{name:"Shield Bash",icon:"bash",cd:3,x:.6,int:.85,bossInt:.6,stun:.2,bossStun:.08,desc:"0.6x Attack plus your shield's defense. Cancels a telegraphed special (85%, 60% on bosses), otherwise 20% to stun (8% on bosses)."}
+  blade:{get name(){return tx("Flurry")},icon:"flurry",cd:3,hits:2,x:.7,get desc(){return tx("Two quick strikes at 0.7x each. Each can crit.")}},
+  spear:{get name(){return tx("Lunge")},icon:"lunge",cd:3,x:1.2,pen:.7,open:.5,get desc(){return tx("1.2x strike that ignores 70% of armor. A spear also jabs first at 0.5x when a battle starts.")}},
+  staff:{get name(){return tx("Channel")},icon:"channel",cd:3,x:1.3,pen:.5,get desc(){return tx("1.3x a normal attack that ignores half of armor. The weapon's top element effect always lands.")}},
+  lance:{get name(){return tx("Charge")},icon:"charge",cd:4,x:2,open:.25,get desc(){return tx("2.0x heavy strike, but the enemy's reply hits you 25% harder.")}},
+  spellblade:{get name(){return tx("Arc Slash")},icon:"arcslash",cd:3,x:1.2,get desc(){return tx("1.2x a normal attack. A crit refunds 1 turn of cooldown.")}},
+  warstaff:{get name(){return tx("Sweep")},icon:"sweep",cd:3,x:1,stun:.35,bossStun:.15,get desc(){return tx("1.0x strike with a 35% chance to stun (15% on bosses). A stunned enemy loses its turn.")}},
+  claws:{get name(){return tx("Rend")},icon:"rend",cd:3,x:.9,get desc(){return tx("0.9x strike that opens a bleed: 20% of Attack per turn for 5 turns (ignores armor). Rending again before it ends adds a stack, up to 3, and refreshes it.")}},
+  shield:{get name(){return tx("Shield Bash")},icon:"bash",cd:3,x:.6,int:.85,bossInt:.6,stun:.2,bossStun:.08,get desc(){return tx("0.6x Attack plus your shield's defense. Cancels a telegraphed special (85%, 60% on bosses), otherwise 20% to stun (8% on bosses).")}}
 },BLEED_STACK=3,BLEED_PER=.2,BLEED_T=5;
 const CURES={Medicine:["burn","chill","poison","curse"],Holy:["curse","poison"],Water:["burn","chill"],Nourishing:["poison"]};
 const RARITY=[["Common","#b3aa9e"],["Uncommon","#88d7a1"],["Rare","#7cb6f2"],["Epic","#c39cf7"],["Mythic","#ff8a50"]];
@@ -253,16 +258,16 @@ const XP_LV=[0,60,160,320,560,900,1400,2100,3000,4200];
 // smith level perks: level-up toast text (lvMsg) and what maxInputs, infSlots and traitSlots read
 const LV_PERK={2:"Third crucible slot unlocked.",3:"Another trait slot, and you can appraise a forge.",5:"Another trait slot.",7:"Another trait slot.",8:"Fourth crucible slot unlocked.",9:"Fourth infusion slot unlocked.",10:"Master smith: an eighth trait slot."},INPUT_LV=[2,8],MIMIC_HP=[1,2.1,3.1,4.1],MIMIC_ATK=[1,2.1,2.8,3.5];
 // Crafting skills (S.skills[key]=xp): every category of thing levels on its own. A craft trains the result's skill (SK_XP.self of the craft's XP) and each other input category (SK_XP.input); a fizzle teaches SK_XP.fizzle of the base XP. Levels 1-10 come from SK_LV; SK_CAP[lv-1] is the highest result tier that skill can reach (the craft is blocked above it).
-const SKILLS={weapon:{name:"Weaponsmithing",g:"blade",forms:["blade","spear","staff","lance","spellblade","warstaff","claws"],cats:"all weapons"},shield:{name:"Shieldwright",g:"shield",forms:["shield"],cats:"shields"},helm:{name:"Helmsmithing",g:"helm",forms:["helm"],cats:"head armor"},
-  body:{name:"Armorsmithing",g:"chest",forms:["chest","bulwark"],cats:"body armor, bulwarks"},gloves:{name:"Glovemaking",g:"gloves",forms:["gloves"],cats:"gloves"},boots:{name:"Bootmaking",g:"boots",forms:["boots"],cats:"boots"},
-  trinket:{name:"Trinketry",g:"charm",forms:["charm"],cats:"trinkets"},cooking:{name:"Cooking",g:"food",forms:["food"],cats:"food"},brewing:{name:"Brewing",g:"potion",forms:["potion","elixir"],cats:"potions, elixirs"},
-  alchemy:{name:"Alchemy",g:"shard",forms:["material"],cats:"essences, materials"}};
+const SKILLS={weapon:{get name(){return tx("Weaponsmithing")},g:"blade",forms:["blade","spear","staff","lance","spellblade","warstaff","claws"],get cats(){return tx("all weapons")}},shield:{get name(){return tx("Shieldwright")},g:"shield",forms:["shield"],get cats(){return tx("shields")}},helm:{get name(){return tx("Helmsmithing")},g:"helm",forms:["helm"],get cats(){return tx("head armor")}},
+  body:{get name(){return tx("Armorsmithing")},g:"chest",forms:["chest","bulwark"],get cats(){return tx("body armor, bulwarks")}},gloves:{get name(){return tx("Glovemaking")},g:"gloves",forms:["gloves"],get cats(){return tx("gloves")}},boots:{get name(){return tx("Bootmaking")},g:"boots",forms:["boots"],get cats(){return tx("boots")}},
+  trinket:{get name(){return tx("Trinketry")},g:"charm",forms:["charm"],get cats(){return tx("trinkets")}},cooking:{get name(){return tx("Cooking")},g:"food",forms:["food"],get cats(){return tx("food")}},brewing:{get name(){return tx("Brewing")},g:"potion",forms:["potion","elixir"],get cats(){return tx("potions, elixirs")}},
+  alchemy:{get name(){return tx("Alchemy")},g:"shard",forms:["material"],get cats(){return tx("essences, materials")}}};
 function hash(str){let h=2166136261;for(let i=0;i<str.length;i++){h^=str.charCodeAt(i);h=Math.imul(h,16777619)}return h>>>0} // also needed by migrate(), which runs before helpers.js loads
 const skillOf=it=>Object.keys(SKILLS).find(k=>SKILLS[k].forms.includes(it.form));
 const SK_LV=[0,30,80,160,280,450,680,980,1350,1800],SK_CAP=[3,4,5,6,7,8,9,9,9,9],SK_XP={self:1,input:.3,fizzle:.5};
 // Difficulty of a recipe, in skill levels: CRAFT.base + CRAFT.tier per result tier above 1 + the raw instability (conflicts, reactions, extra inputs) / CRAFT.inst + CRAFT.up per tier above CRAFT.upFrom of a crafted input of the result's own form (upgrading again). The failure chance is FAIL.base + FAIL.slope x (difficulty - skill level), kept between FAIL.min and FAIL.max, and the share of failures that fizzle (lose everything, FIZ.refund of the ingredients' worth back in embers) instead of becoming a mishap is FIZ.base + FIZ.slope x the gap (FIZ.min..FIZ.max). Trait merges gain half as much above SOFT.
 const CRAFT={base:1,tier:.8,inst:12,up:.5,upFrom:3},FAIL={base:10,slope:10,min:3,max:85},FIZ={base:.05,slope:.2,min:.05,max:.85,refund:.25},SOFT=8;
-const STAT_NAMES={atk:"Attack",def:"Defense",mag:"Magic",heal:"Heal",spd:"Speed"};
+const STAT_NAMES={get atk(){return tx("Attack")},get def(){return tx("Defense")},get mag(){return tx("Magic")},get heal(){return tx("Heal")},get spd(){return tx("Speed")}};
 const DECAY=[1,.5,.3,.2,.15,.1,.1,.1];
 const ESS_VALUE=2.5;
 // Embers: a currency from fights, salvage and selling; it buys peddler stock, upgrades grades and reforges mishaps (economy.js).
@@ -282,21 +287,21 @@ const gradable=b=>/^ess_[A-Za-z]+$/.test(b)||(!!BASE[b]&&BASE[b][1]==="material"
 const VIEWS=["battle","gear","forge","recipes","codex"];
 // Heat: harder expeditions in a cleared zone, cumulative per level: every level adds hp/atk to all enemies (it ramps, 1.0x at Heat 0), and Heat 5 enemies bite through `bite` of your Defense. Beating the boss at heat h unlocks h+1.
 const HEAT_MAX=5,HEAT_T={hp:.1,atk:.1,bite:.4,elite:2,inf:1.5,boss:1.2,rest:.25,shrine:.5,loot:.15,ess:1,xp:20};
-const heatTot=h=>`enemies get +${Math.round(h*HEAT_T.hp*100)}% HP and +${Math.round(h*HEAT_T.atk*100)}% Attack`;
+const heatTot=h=>tx("enemies get +{hp}% HP and +{atk}% Attack",{hp:Math.round(h*HEAT_T.hp*100),atk:Math.round(h*HEAT_T.atk*100)});
 const HEAT=[
-  {name:"Kindled",desc:`Enemies have +${Math.round(HEAT_T.hp*100)}% HP and +${Math.round(HEAT_T.atk*100)}% Attack. Every Heat level adds the same again.`},
-  {name:"Smoldering",desc:`Maps hide twice as many elites and one more besides, and ordinary fights can turn magic (${pcn(RAR_CH.magic.base)}%, +${pcn(RAR_CH.magic.heat)}% per further Heat). Elites turn rare more often at every Heat.`},
-  {name:"Blazing",desc:"Enemy status effects land 1.5x as often. Hunters notice you from one step further away."},
-  {name:"Searing",desc:`Bosses use their special one turn sooner (at least every 2) and have +20% HP. Rare enemies carry a third affix.`},
-  {name:"Inferno",desc:`Enemy blows bite through ${Math.round(HEAT_T.bite*100)}% of your Defense. Camps only offer rest, and it heals less (25%). Shrines heal half as much.`}
+  {get name(){return tx("Kindled")},get desc(){return tx("Enemies have +{hp}% HP and +{atk}% Attack. Every Heat level adds the same again.",{hp:Math.round(HEAT_T.hp*100),atk:Math.round(HEAT_T.atk*100)})}},
+  {get name(){return tx("Smoldering")},get desc(){return tx("Maps hide twice as many elites and one more besides, and ordinary fights can turn magic ({b}%, +{h}% per further Heat). Elites turn rare more often at every Heat.",{b:pcn(RAR_CH.magic.base),h:pcn(RAR_CH.magic.heat)})}},
+  {get name(){return tx("Blazing")},get desc(){return tx("Enemy status effects land 1.5x as often. Hunters notice you from one step further away.")}},
+  {get name(){return tx("Searing")},get desc(){return tx("Bosses use their special one turn sooner (at least every 2) and have +20% HP. Rare enemies carry a third affix.")}},
+  {get name(){return tx("Inferno")},get desc(){return tx("Enemy blows bite through {b}% of your Defense. Camps only offer rest, and it heals less (25%). Shrines heal half as much.",{b:Math.round(HEAT_T.bite*100)})}}
 ];
 // Rewards at heat h: +15% per level on drop rolls, +1 essence and 20 smith XP per level on a boss kill.
 // Daily expedition: seeded by the UTC date; one attempt a day, one twist.
 const DAILY_TWISTS={
-  elites:{name:"Elites everywhere",desc:"Every fight is an elite."},
-  cinder:{name:"Everything burns",desc:"Every enemy can set you alight (30%, doubled if it already burns), and burns hurt 50% more."},
-  nocamp:{name:"No campfires",desc:"Camps become fights, and you can't rest at the fire."},
-  double:{name:"Double loot, double damage",desc:"Enemies hit twice as hard. Every drop is doubled."}
+  elites:{get name(){return tx("Elites everywhere")},get desc(){return tx("Every fight is an elite.")}},
+  cinder:{get name(){return tx("Everything burns")},get desc(){return tx("Every enemy can set you alight (30%, doubled if it already burns), and burns hurt 50% more.")}},
+  nocamp:{get name(){return tx("No campfires")},get desc(){return tx("Camps become fights, and you can't rest at the fire.")}},
+  double:{get name(){return tx("Double loot, double damage")},get desc(){return tx("Enemies hit twice as hard. Every drop is doubled.")}}
 };
 const DAILY_REWARD={ess:3,xp:80};
 
@@ -312,7 +317,7 @@ const boss1=s=>(s.kills[ZONES[0][2]]|0)>0,abOf=s=>[s.eq.main,s.eq.off].some(id=>
 // A tech: id, name, ic, cost (RP), pre (techs needed first), rq/ok (a requirement over a state: Smith level or a skill), pos [column, row] in the tree, d (what it is), gate (what it opens, shown in tips), used(s) (migration only: proof an older save already did this) and i (the intro card, queued when learned).
 // Binding is known from the start. Refining is the grade upgrades; Mending is reforging; Precision lowers the failure chance by PREC points each; Masterwork lets legendary secrets succeed.
 const RP={form:2,rec:1,recCap:10,fam:1,rx:4,study:1,mast:2,boss:[4,8,12,16],afx:1,leg:4,lv:2,lvMax:9,sk:2,skLv:[3,5,7,9]},PREC=[5,5],INSIGHT={ch:35}; // INSIGHT.ch: % chance a craft with one side of an unseen reaction hints at it
-const skLvOf=(s,k)=>SK_LV.filter(t=>((s.skills||{})[k]|0)>=t).length,smLv=n=>({rq:`Smith Lv ${n}`,ok:s=>lvOf(s.xp)>=n});
+const skLvOf=(s,k)=>SK_LV.filter(t=>((s.skills||{})[k]|0)>=t).length,smLv=n=>({rq:"Smith Lv {l}",rv:{l:n},ok:s=>lvOf(s.xp)>=n});
 const crafts=s=>s.journal.map(j=>s.items[j.id]).filter(it=>it&&it.crafted),rids=it=>it.recipeIds||[],plainIn=it=>rids(it).filter(r=>!/^ess_/.test(r)).length;
 const TECHS=[
   {id:"bind",name:"Binding",ic:"infuse",cost:0,pre:[],pos:[1.5,0],d:"Bind one essence into an item.",gate:"An item and one essence."},
@@ -322,16 +327,16 @@ const TECHS=[
     used:s=>crafts(s).some(it=>{const n=plainIn(it);return n>=2||(!n&&rids(it).length>=2)}),i:{t:"Compounding",l:["A second item or any non-essence ingredient can now go into the crucible: ores, herbs, hides, potions, relics. Until now only essences."],tab:"forge",sel:"#slots"}},
   {id:"mend",name:"Mending",ic:"cleanse",cost:12,pre:["bind"],pos:[2,1],...smLv(2),d:"Mend a flawed craft (Cursed, Brittle, Rust or Weakened) by reforging it.",gate:"Reforging flawed items.",
     used:s=>Object.values(s.items).some(it=>it.crafted&&it.id.startsWith("c_")&&!it.recipeIds&&it.temper==null),i:{t:"Mending",l:["Open a flawed item and tap Reforge to strip its flaws. It costs embers, so it shows once you have some."],tab:"forge"}},
-  {id:"refine",name:"Refining",ic:"upgrade",cost:12,pre:["bind"],pos:[3,1],rq:"Alchemy Lv 2",ok:s=>skLvOf(s,"alchemy")>=2,d:"Raise a grade: three essences or materials of one grade become one of the next.",gate:"The grade upgrade panel.",
-    used:s=>s.stats.refined>0,i:{t:"Refining",l:[`${UP.n} essences or materials of one grade, plus some embers, make one of the next grade: stronger traits in one slot.`,"The panel shows in the Forge once you have embers and crafting skills."],tab:"forge"}},
+  {id:"refine",name:"Refining",ic:"upgrade",cost:12,pre:["bind"],pos:[3,1],rq:"Alchemy Lv {l}",rv:{l:2},ok:s=>skLvOf(s,"alchemy")>=2,d:"Raise a grade: three essences or materials of one grade become one of the next.",gate:"The grade upgrade panel.",
+    used:s=>s.stats.refined>0,i:{t:"Refining",l:["{n} essences or materials of one grade, plus some embers, make one of the next grade: stronger traits in one slot.","The panel shows in the Forge once you have embers and crafting skills."],v:{n:UP.n},tab:"forge"}},
   {id:"temper",name:"Tempering",ic:"forge",cost:16,pre:["layer"],pos:[0,2],...smLv(2),d:"Forge with three or more ingredients at once.",gate:"Three or more inputs (the crucible slots still come with Smith level).",
     used:s=>crafts(s).some(it=>rids(it).length>=3),i:{t:"Tempering",l:["Three or more things in one forge, as many as your crucible has slots. More inputs make a forge harder."],tab:"forge",sel:"#slots"}},
   {id:"alloy",name:"Alloying",ic:"alloy",cost:20,pre:["compound"],pos:[1,2],...smLv(3),d:"Merge two kinds of gear into a new form, like a spear and a shield into a lance.",gate:"Form fusions.",
     used:s=>crafts(s).some(it=>FUSIONS.some(f=>f[2]===it.form)),i:{t:"Alloying",l:["Two kinds of gear can now merge into a new form, such as a spear and a shield into a lance.","The Recipes tab lists every fusion."],tab:"forge",sel:"#slots"}},
-  {id:"prec1",name:"Precision I",ic:"weak",cost:20,pre:["mend"],pos:[2,2],...smLv(3),d:`A steadier hand: ${PREC[0]} points fewer failures in every forge.`,gate:"Lower failure odds.",
-    i:{t:"Precision I",l:[`Your hand is steadier: every forge fails ${PREC[0]} points less often (never under ${FAIL.min}%).`],tab:"forge",sel:"#combine"}},
-  {id:"prec2",name:"Precision II",ic:"weak",cost:30,pre:["prec1"],pos:[2,3],...smLv(6),d:`Steadier still: another ${PREC[1]} points fewer failures.`,gate:"Lower failure odds.",
-    i:{t:"Precision II",l:[`Another ${PREC[1]} points off every forge's failure chance, ${PREC[0]+PREC[1]} in all (never under ${FAIL.min}%).`],tab:"forge",sel:"#combine"}},
+  {id:"prec1",name:"Precision I",ic:"weak",cost:20,pre:["mend"],pos:[2,2],...smLv(3),d:"A steadier hand: {n} points fewer failures in every forge.",v:{n:PREC[0]},gate:"Lower failure odds.",
+    i:{t:"Precision I",l:["Your hand is steadier: every forge fails {n} points less often (never under {min}%)."],v:{n:PREC[0],min:FAIL.min},tab:"forge",sel:"#combine"}},
+  {id:"prec2",name:"Precision II",ic:"weak",cost:30,pre:["prec1"],pos:[2,3],...smLv(6),d:"Steadier still: another {n} points fewer failures.",v:{n:PREC[1]},gate:"Lower failure odds.",
+    i:{t:"Precision II",l:["Another {n} points off every forge's failure chance, {t} in all (never under {min}%)."],v:{n:PREC[1],t:PREC[0]+PREC[1],min:FAIL.min},tab:"forge",sel:"#combine"}},
   {id:"master",name:"Masterwork",ic:"renown",cost:40,pre:["temper","prec1"],pos:[1,3],...smLv(5),d:"Legendary secrets can succeed: the exact ingredients forge a legendary.",gate:"Legendary secrets.",
     used:s=>s.journal.some(j=>j.legendary),i:{t:"Masterwork",l:["Legendary secrets can succeed now: forge the exact ingredients a rumor names and the result is legendary.","Until now the right ingredients only made an ordinary piece."],tab:"forge"}}
 ].map(t=>({ok:()=>true,rq:"",used:()=>false,...t}));
@@ -341,9 +346,9 @@ const VAGUE={Fire:"something hot",Ice:"something freezing",Water:"something wet"
 const UNLOCKS=[
   {id:"start",name:"The map",ic:"hero",q:1,when:()=>true,i:{t:"Your first expedition",l:["Tap a glowing tile next to you to step. Fights drop loot, and a camp waits before the boss.","In a fight: Attack, Guard or Flee. Your torch burns down as you walk."],tab:"battle",sel:".tl.adj"}},
   {id:"study",name:"Study",ic:"study",when:s=>s.wins>=1,used:s=>s.stats.studied>0,txt:"Win your first battle.",w:"It joins the action buttons.",
-    i:{t:"Study",l:["Spend a turn to learn one fact about a foe: a weakness, a resistance or its strength.","A weakness you have found makes your blows hit 50% harder."],ctx:"battle",sel:"#study"}},
+    i:{t:"Study",l:["Spend a turn to learn one fact about a foe: a weakness, a resistance or its strength.","Study also improves your parry timing against this special, up to three ranks."],ctx:"battle",sel:"#study"}},
   {id:"parry",name:"Parry",ic:"parry",used:s=>s.stats.parries>0||s.wins>=3,txt:"Meet a creature that winds up a special move.",w:"It joins the action buttons.",
-    i:{t:"It's winding up",l:["Parry to turn it aside. Against a telegraphed special it negates the blow and strikes back.","Mistimed, or against a normal attack, it backfires. Guard is the safe choice."],ctx:"battle",sel:"#parry"}},
+    i:{t:"It's winding up",l:["Parry a telegraphed special to negate it and riposte. Your chance is shown on the button.","Study, Speed and weapon form improve your odds. Guard blocks new statuses and strengthens your next attack."],ctx:"battle",sel:"#parry"}},
   {id:"ability",name:"Weapon abilities",ic:"attack",when:s=>(lvOf(s.xp)>=2||s.wins>=3)&&abOf(s),used:s=>s.stats.abil>0,txt:"Equip a weapon with a signature move at Smith Lv 2, or after 3 wins.",w:"It joins the action buttons in your next fight.",
     i:{t:"Weapon abilities",l:["Every weapon form has one signature move, and a shield can bash.","It takes your turn, then needs a few turns to cool down."],ctx:"battle",sel:".ab"}},
   {id:"roam",name:"Roaming enemies",ic:"fight",q:1,when:s=>s.wins>=1},
@@ -358,14 +363,14 @@ const UNLOCKS=[
   {id:"elite",name:"Magic and rare foes",ic:"elite",when:s=>lvOf(s.xp)>=3||ZONES.some(z=>s.seen[z[2]]),used:s=>s.stats.elites>0,txt:"Face a region boss, or reach Smith Lv 3.",w:"They show up on your next expedition.",
     i:{t:"Magic and rare foes",l:["Some creatures carry affixes: tricks that change the fight. A coloured frame marks them on the map.","Each drops essences linked to its affixes, in better grades."],tab:"battle",sel:".tl.p-elite"}},
   {id:"infuse",name:"Infusions",ic:"infuse",when:s=>boss1(s)||s.quest>=7,used:s=>Object.keys(s.infuse).length>0||s.infCredit>0,txt:"Defeat Gnarlhorn.",w:"Open the Gear tab.",
-    i:{t:"Infusions",l:[`Essences worth ${INF_COST} plain ones can be infused into you. The trait stays whatever you wield.`,`Feed it the same essence again to deepen it, up to ${["I","II","III"][INF_MAX-1]}.`],tab:"gear",sel:"#inflabel"}},
+    i:{t:"Infusions",l:["Essences worth {cost} plain ones can be infused into you. The trait stays whatever you wield.","Feed it the same essence again to deepen it, up to {max}."],v:{cost:INF_COST,max:["I","II","III"][INF_MAX-1]},tab:"gear",sel:"#inflabel"}},
   {id:"skills",name:"Crafting skills",ic:"hammer",when:s=>s.journal.length>0||s.stats.forged>0,used:s=>Object.values(s.skills).some(x=>x>0),txt:"Forge something.",w:"Open the Forge tab.",
     i:{t:"Crafting skills",l:["Every kind of thing has its own skill, and forging it trains it.","A higher skill reaches higher tiers and fails less often."],tab:"forge",sel:"#skd"}},
   {id:"research",name:"Research",ic:"research",when:s=>s.journal.length>0||s.stats.forged>0||lvOf(s.xp)>=2,used:s=>Object.keys(s.techs).length>1,txt:"Forge something, or reach Smith Lv 2.",w:"Open the Forge tab.",
     i:{t:"Research",l:["Forging, salvaging, studying and meeting new things teach you something. Each first discovery earns research points, and so do reaching new smith and skill levels and defeating bosses.","Spend them in the Forge on techniques: they decide what you can craft. You know Binding, one essence into an item."],tab:"forge",sel:"#resd"}},
   ...TECHS.filter(t=>t.i).map(t=>({id:"t:"+t.id,name:t.name,ic:t.ic,q:1,when:s=>!!s.techs[t.id],used:s=>!!s.techs[t.id],i:t.i})), // a technique's intro is queued when it is learned (the toast and sound come from learnTech)
   {id:"upgrade",name:"Grade upgrades",ic:"upgrade",when:s=>has_(s,"peddler","skills")&&!!s.techs.refine,used:s=>s.stats.refined>0,txt:"Unlock embers and crafting skills, and learn Refining in Research.",w:"Open the Forge tab.",
-    i:{t:"Grade upgrades",l:[`${UP.n} essences or materials of one grade and some embers make one of the next grade: stronger traits in one slot.`,`A miss costs the embers and one of the ${UP.n}.`],tab:"forge",sel:"#upgd"}},
+    i:{t:"Grade upgrades",l:["{n} essences or materials of one grade and some embers make one of the next grade: stronger traits in one slot.","A miss costs the embers and one of the {n}."],v:{n:UP.n},tab:"forge",sel:"#upgd"}},
   {id:"heat",name:"Heat",ic:"heat",when:s=>Object.values(s.heat).some(h=>h.max>0)||boss1(s),used:s=>Object.keys(s.heat).length>0,txt:"Defeat a region boss.",w:"Find the flame on the map strip.",
     i:{t:"Heat",l:["Pick a Heat level with the flame on the map strip. Enemies grow tougher and loot gets richer.","Beat a region's boss at your highest Heat to unlock the next."],tab:"battle",sel:"#heatBtn"}},
   {id:"daily",name:"Daily expedition",ic:"daily",when:s=>((s.kills[ZONES[1][2]]|0)>0||lvOf(s.xp)>=5)&&has_(s,"shrine","peddler","mystery","elite","roam"),used:s=>!!s.daily||s.stats.dailies>0||boss1(s),txt:"Clear Frostfang Pass or reach Smith Lv 5, after meeting shrines, peddlers and mysteries.",w:"It waits under the map.",

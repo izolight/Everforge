@@ -13,7 +13,7 @@ function startDaily(){
   const p=dailyPlan(today());
   S.daily={...p,map:genMap({seed:p.seed,heat:p.heat,zone:p.zone,twist:p.twist}),state:"run",turns:0,back:S.zone,result:null};
   S.run="daily";S.zone=p.zone;S.battle=null;S.event=null;
-  toast(`Daily expedition: ${DAILY_TWISTS[p.twist].name}.`);save();render();
+  toast(tx("Daily expedition: {name}.",{name:DAILY_TWISTS[p.twist].name}));save();render();
 }
 function finishDaily(rows,boss){
   const d=S.daily,st=S.stats,r={rows,boss:!!boss,turns:d.turns},b=st.dBest;d.state="done";d.result={rows,boss,turns:d.turns};S.run=null;S.zone=d.back;
@@ -24,7 +24,7 @@ let dArmed=false;
 function abandonDaily(){
   if(S.run!=="daily"||busy())return;
   if(!dArmed){dArmed=true;render();setTimeout(()=>{dArmed=false;render()},3000);return}
-  dArmed=false;const m=S.daily.map;finishDaily(m.steps?m.dp:0,false);toast("You abandon the expedition. Tomorrow brings another.");save();render();
+  dArmed=false;const m=S.daily.map;finishDaily(m.steps?m.dp:0,false);toast(tx("You abandon the expedition. Tomorrow brings another."));save();render();
 }
 const zoneRare=z=>[...new Set(Object.values(ENEMIES).filter(e=>e.zone===z&&!e.boss).flatMap(e=>e.drops.filter(d=>d[1]<=.2).map(d=>d[0])))];
 function dailyBundle(got){ // boss kill: essences + one rare drop (same for everyone) + smith XP
@@ -32,6 +32,6 @@ function dailyBundle(got){ // boss kill: essences + one rare drop (same for ever
   const gh=d.heat+GRADE_BOSS; // grades come from the seeded stream too, so the reward is the same for everyone
   for(let i=0;i<DAILY_REWARD.ess;i++){const t=ESS_POOL[Math.floor(R()*ESS_POOL.length)];got.push(gess(t,d.zone,gh,R()))}
   if(rare.length){const r=rare[Math.floor(R()*rare.length)];got.push(gdrop(r,d.zone,gh,R()))}
-  const hm=giveHint(R());S.xp+=DAILY_REWARD.xp;blog(`Daily reward: ${DAILY_REWARD.ess} essences, a rare find${hm?", a hint scroll":""} and ${DAILY_REWARD.xp} smith XP.`,"big");if(hm)blog(hm,"good");
+  const hm=giveHint(R());S.xp+=DAILY_REWARD.xp;blog(hm?tx("Daily reward: {n} essences, a rare find, a hint scroll and {xp} smith XP.",{n:DAILY_REWARD.ess,xp:DAILY_REWARD.xp}):tx("Daily reward: {n} essences, a rare find and {xp} smith XP.",{n:DAILY_REWARD.ess,xp:DAILY_REWARD.xp}),"big");if(hm)blog(hm,"good");
 }
-const dailyResult=r=>`${r.boss?"Boss beaten":`Fell at depth ${r.rows} of ${MAP_ROWS-1}`} · ${r.turns} turns`;
+const dailyResult=r=>`${r.boss?tx("Boss beaten"):tx("Fell at depth {n} of {m}",{n:r.rows,m:MAP_ROWS-1})} · ${tx("{n} turns",{n:r.turns})}`;

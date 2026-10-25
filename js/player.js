@@ -38,7 +38,7 @@ function infPay(t,need=INF_NEED){
   for(let i=p.length-1;i>=0;i--){const w=INF_W[gradeOf(p[i])-1];if(sum-w>=need){sum-=w;p.splice(i,1)}} // drop what the total does not need, dearest first
   return p;
 }
-const payText=ids=>{const c={};ids.forEach(id=>c[gradeOf(id)]=(c[gradeOf(id)]||0)+1);return Object.keys(c).sort().map(g=>`${c[g]} ${GRADES[g-1][0]}`).join(" + ")};
+const payText=ids=>{const c={};ids.forEach(id=>c[gradeOf(id)]=(c[gradeOf(id)]||0)+1);return Object.keys(c).sort().map(g=>`${c[g]} ${gradeN(+g)}`).join(" + ")};
 function infusable(){
   return [...new Set(Object.keys(S.items).filter(isEss).map(essTrait))].filter(t=>{
     const r=S.infuse[t]||0;
@@ -46,4 +46,4 @@ function infusable(){
 // surplus from an infusion (a Pure paying for one rank) is kept as credit (S.infCredit, ninths) and spent first on the next
 const creditTxt=c=>{const w=Math.floor(c/9),r=c%9;return `${w?w+" ":""}${r?(r%3?r+"/9":r/3+"/3"):""}`.trim()||"0"};
 function infuse(t){if(!infusable().includes(t))return;const pay=infPay(t,Math.max(0,INF_NEED-S.infCredit)),sum=pay.reduce((n,id)=>n+INF_W[gradeOf(id)-1],0);pay.forEach(id=>S.inv[id]--);S.infCredit=S.infCredit+sum-INF_NEED;trimBench();S.infuse[t]=(S.infuse[t]||0)+1;clampHp();save();render();
-  toast(`${t} infused into you. Rank ${["I","II","III"][S.infuse[t]-1]}.`)}
+  toast(tx("{trait} infused into you. Rank {rank}.",{trait:trn(t),rank:["I","II","III"][S.infuse[t]-1]}))}
