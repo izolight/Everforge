@@ -237,7 +237,7 @@ function enemyDown(){
   learn(B.id,"stats",1);B.emb=fightEmbers(E,B);if(isUnl("peddler"))blog(tx("You rake {n} embers from the ashes.",{n:B.emb}),"good");
   got.forEach(id=>{addItem(id);const b=plainId(id);if(E.drops.some(d=>d[0]===b))learn(B.id,"drops",b)});B.loot=got;
   S.campProg++;let msg="";if(S.campProg>=3){S.campProg=0;if(S.camp<3){S.camp++;msg=tx("You earned a campfire charge.")}}
-  if(E.boss&&dl){finishDaily(MAP_ROWS,true);const next=ZONES[zoneIdx(E.zone)+1];if(next&&!S.unlocked.includes(next[0])){S.unlocked.push(next[0]);msg=tx("{zone} is now open!",{zone:tx(next[1])})}} // a daily boss kill unlocks like a normal one, matching the load-time fix-up in migrate
+  if(E.boss&&dl){finishDaily(MAP_ROWS,true);const next=ZONES[zoneIdx(E.zone)+1];if(next&&!S.unlocked.includes(next[0])){S.unlocked.push(next[0]);msg=tx("{zone} is now open!",{zone:tx(next[1])})}} // a daily boss kill unlocks like a normal one, matching the load-time fix-up in loadSave
   else if(E.boss){const next=ZONES[zoneIdx(E.zone)+1],nh=Math.min(HEAT_MAX,h+1),hz=heatOf(E.zone);if(S.maps[E.zone])S.maps[E.zone].cleared=true;
     if(E.zone===RIFT_ZONE){const r=S.rift;r.cleared=1;r.best=Math.max(r.best||0,r.depth||1);msg=tx("The master of {name} falls. Go deeper when you are ready.",{name:r.name||tx("the region")})}
     else if(next&&!S.unlocked.includes(next[0])){S.unlocked.push(next[0]);msg=tx("{zone} is now open!",{zone:tx(next[1])})}
