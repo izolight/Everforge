@@ -269,6 +269,8 @@ DICT.de=Object.assign(DICT.de||{},{
 "Fight, study and hunt creatures to fill in their pages. A fully known creature takes 15% more damage from you.":"Kämpfe gegen Kreaturen, studiere und jage sie, um ihre Seiten zu füllen. Eine vollständig bekannte Kreatur erleidet 15 % mehr Schaden von dir.","Tap one to open its page.":"Tippe auf eine, um ihre Seite zu öffnen.","Unknown creature":"Unbekannte Kreatur","Boss.":"Boss.","Defeated {n}":"{n}-mal besiegt","Not yet encountered":"Noch nicht begegnet","Mastered: you deal 15% more damage.":"Gemeistert: Du verursachst 15 % mehr Schaden.",
 "Knowledge {a}/{b} ({p}%)":"Wissen {a}/{b} ({p} %)","Knowledge {p}%":"Wissen {p} %","Open its page.":"Seite öffnen.",
 // ---- sound, floaters
+"Sound effects: {vol}":"Klangeffekte: {vol}","Music: {vol}":"Musik: {vol}",
+"An original score that changes with your adventure.":"Eigens komponierte Musik, die sich deinem Abenteuer anpasst.",
 "Sound: {vol}":"Ton: {vol}","Tap to change the volume.":"Tippe, um die Lautstärke zu ändern.","Off":"Aus","Low":"Leise","Medium":"Mittel","High":"Laut","miss":"daneben","ward":"Schutz",
 "{trait} infused into you. Rank {rank}.":"{trait} in dich infundiert. Rang {rank}.","{grade} {name}":"{name} ({grade})",
 "Your rune ward absorbs {n}.":"Deine Schutzrune absorbiert {n}.","Your rune ward absorbs {n} and shatters.":"Deine Schutzrune absorbiert {n} und zerbricht.","{status}, {t} turns left":"{status}, noch {t} Runden",

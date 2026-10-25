@@ -266,6 +266,8 @@ DICT.ko=Object.assign(DICT.ko||{},{
 "Fight, study and hunt creatures to fill in their pages. A fully known creature takes 15% more damage from you.":"생물과 싸우고, 연구하고, 사냥해서 도감을 채우세요. 모든 것을 알게 된 생물은 당신에게서 15% 더 큰 피해를 받습니다.","Tap one to open its page.":"탭하면 해당 페이지가 열립니다.","Unknown creature":"알 수 없는 생물","Boss.":"보스.","Defeated {n}":"{n}회 처치","Not yet encountered":"아직 조우하지 않음","Mastered: you deal 15% more damage.":"정복: 15% 더 큰 피해를 줍니다.",
 "Knowledge {a}/{b} ({p}%)":"지식 {a}/{b} ({p}%)","Knowledge {p}%":"지식 {p}%","Open its page.":"페이지 열기.",
 // ---- sound, floaters
+"Sound effects: {vol}":"효과음: {vol}","Music: {vol}":"음악: {vol}",
+"An original score that changes with your adventure.":"모험에 따라 달라지는 오리지널 음악입니다.",
 "Sound: {vol}":"소리: {vol}","Tap to change the volume.":"탭하여 음량을 바꿉니다.","Off":"끔","Low":"작게","Medium":"보통","High":"크게","miss":"빗나감","ward":"보호막",
 "{trait} infused into you. Rank {rank}.":"{trait|이|가} 몸에 주입되었습니다. {rank}단계.","{grade} {name}":"{grade} {name}",
 "Your rune ward absorbs {n}.":"룬 보호막이 {n}을(를) 흡수한다.","Your rune ward absorbs {n} and shatters.":"룬 보호막이 {n}을(를) 흡수하고 깨진다.","{status}, {t} turns left":"{status}, {t}턴 남음",
