@@ -466,37 +466,40 @@ const TECHS=[
   {id:"trinketry",name:"Trinketry",ic:"amulet",cost:6,pre:[],or:["weaponcraft","armorcraft"],pos:[0,4],d:"Charms: trinkets made from crystal and ingots.",gate:"Trinkets (charms).",
     i:{t:"Trinketry",l:["Trinkets are made from crystal and ingots. The charm pattern is in the Forge."],tab:"forge",sel:"#pats"}},
   {id:"infuse",name:"Infusing",ic:"infuse",cost:8,pre:[],or:SLOT_ALL,pos:[2,0],d:"Infuse: one item and one essence. The essence's trait joins the item's traits.",gate:"An item and an essence.",
-    i:{t:"Infusing",l:["Put one item and one essence in the crucible: the essence's trait joins the item's traits."],tab:"forge",sel:"#combine"}},
+    i:{t:"Infusing",l:["Put one item and one essence in the crucible: the essence's trait joins the item's traits."],tab:"forge",sel:"#cacts"}},
   {id:"infuse2",name:"Infusing II",ic:"infuse",cost:14,pre:["infuse"],...smLv(3),pos:[2,1],d:"Two essences go into one infusion.",gate:"Two essences at once.",
-    i:{t:"Infusing II",l:["Two essences can go into one infusion now."],tab:"forge",sel:"#combine"}},
+    i:{t:"Infusing II",l:["Two essences can go into one infusion now."],tab:"forge",sel:"#cacts"}},
   {id:"infuse3",name:"Infusing III",ic:"infuse",cost:24,pre:["infuse2"],...smLv(5),pos:[2,2],d:"Infuse an item that is already infused: the traits stack.",gate:"An infused item, infused again.",
-    i:{t:"Infusing III",l:["An item that already holds essences can take another one. The traits stack."],tab:"forge",sel:"#combine"}},
+    i:{t:"Infusing III",l:["An item that already holds essences can take another one. The traits stack."],tab:"forge",sel:"#cacts"}},
   {id:"improve",name:"Improving",ic:"bag",cost:10,pre:[],or:SLOT_ALL,pos:[3,0],d:"Improve: an item and materials (ore, hide, herb, relic). The item keeps its form.",gate:"An item and materials.",
-    i:{t:"Improving",l:["Ore, hide, herb and relics can go into an item in the crucible, and the item keeps its form."],tab:"forge",sel:"#combine"}},
+    i:{t:"Improving",l:["Ore, hide, herb and relics can go into an item in the crucible, and the item keeps its form."],tab:"forge",sel:"#cacts"}},
   {id:"improve2",name:"Improving II",ic:"bag",cost:18,pre:["improve"],...smLv(3),pos:[3,1],d:"More materials in one go, as far as the crucible has slots.",gate:"Several materials at once.",
-    i:{t:"Improving II",l:["Several materials can go into one improvement, as far as the crucible has slots."],tab:"forge",sel:"#combine"}},
+    i:{t:"Improving II",l:["Several materials can go into one improvement, as far as the crucible has slots."],tab:"forge",sel:"#cacts"}},
   {id:"fuse",name:"Fusing",ic:"alloy",cost:20,pre:["improve"],pos:[3,2],d:"Merge two kinds of gear into a new form, like a spear and a shield into a lance.",gate:"Form fusions, once both forms are known.",
-    i:{t:"Fusing",l:["Two kinds of gear can now merge into a new form, such as a spear and a shield into a lance.","The Recipes tab lists every fusion."],tab:"forge",sel:"#combine"}},
+    i:{t:"Fusing",l:["Two kinds of gear can now merge into a new form, such as a spear and a shield into a lance.","The Recipes tab lists every fusion."],tab:"forge",sel:"#cacts"}},
   {id:"refine",name:"Refining",ic:"upgrade",cost:12,pre:[],rq:"Salvaging Lv {l}",rv:{l:2},ok:s=>skLvOf(s,"salvage")>=2,pos:[2,3],d:"Raise a grade: three essences or materials of one grade become one of the next.",gate:"The grade upgrade panel.",
-    i:{t:"Refining",l:["{n} essences or materials of one grade, plus some embers, make one of the next grade: stronger traits in one slot.","The panel shows in the Forge once you have embers and crafting skills."],v:{n:UP.n},tab:"forge",sel:"#upgd"}},
+    i:{t:"Refining",l:["{n} essences or materials of one grade, plus some embers, make one of the next grade: stronger traits in one slot.","The Refine tab holds the panel once you have embers and crafting skills."],v:{n:UP.n},tab:"forge",sel:"#cacts"}},
   {id:"mend",name:"Mending",ic:"cleanse",cost:12,pre:[],or:["infuse","improve"],pos:[2,4],d:"Mend a flawed craft (Cursed, Brittle, Rust or Weakened) by reforging it.",gate:"Reforging flawed items.",
     i:{t:"Mending",l:["Open a flawed item and tap Reforge to strip its flaws. It costs embers, so it shows once you have some."],tab:"forge",sel:"#finv"}},
   {id:"prec1",name:"Precision I",ic:"weak",cost:20,pre:["mend"],...smLv(3),pos:[3,4],d:"A steadier hand: {n} points fewer failures in every forge.",v:{n:PREC[0]},gate:"Lower failure odds.",
-    i:{t:"Precision I",l:["Your hand is steadier: every forge fails {n} points less often (never under {min}%)."],v:{n:PREC[0],min:FAIL.min},tab:"forge",sel:"#combine"}},
+    i:{t:"Precision I",l:["Your hand is steadier: every forge fails {n} points less often (never under {min}%)."],v:{n:PREC[0],min:FAIL.min},tab:"forge",sel:"#cacts"}},
   {id:"prec2",name:"Precision II",ic:"weak",cost:30,pre:["prec1"],...smLv(6),pos:[3,5],d:"Steadier still: another {n} points fewer failures.",v:{n:PREC[1]},gate:"Lower failure odds.",
-    i:{t:"Precision II",l:["Another {n} points off every forge's failure chance, {t} in all (never under {min}%)."],v:{n:PREC[1],t:PREC[0]+PREC[1],min:FAIL.min},tab:"forge",sel:"#combine"}},
+    i:{t:"Precision II",l:["Another {n} points off every forge's failure chance, {t} in all (never under {min}%)."],v:{n:PREC[1],t:PREC[0]+PREC[1],min:FAIL.min},tab:"forge",sel:"#cacts"}},
   {id:"master",name:"Masterwork",ic:"renown",cost:40,pre:["fuse","infuse2"],...smLv(5),pos:[3,3],d:"Legendary secrets can succeed: the exact ingredients forge a legendary.",gate:"Legendary secrets.",
-    i:{t:"Masterwork",l:["Legendary secrets can succeed now: forge the exact ingredients a rumor names and the result is legendary.","Until now the right ingredients only made an ordinary piece."],tab:"forge",sel:"#combine"}},
+    i:{t:"Masterwork",l:["Legendary secrets can succeed now: forge the exact ingredients a rumor names and the result is legendary.","Until now the right ingredients only made an ordinary piece."],tab:"forge",sel:"#cacts"}},
   {id:"cooking",name:"Cooking",ic:"heal_hit",cost:4,pre:[],pos:[4,0],d:"Food: ingredients only, in its own simple crucible.",gate:"Food, from herbs and essences.",
-    i:{t:"Cooking",l:["Food is cooked from herbs and essences. Eating it in a fight heals you."],tab:"forge",sel:"#combine"}},
+    i:{t:"Cooking",l:["Food is cooked from herbs and essences. Eating it in a fight heals you."],tab:"forge",sel:"#cacts"}},
   {id:"brewing",name:"Brewing",ic:"water",cost:6,pre:[],pos:[4,1],d:"Potions and elixirs.",gate:"Potions and elixirs.",
-    i:{t:"Brewing",l:["Potions and elixirs are brewed from herbs and potions in the crucible."],tab:"forge",sel:"#combine"}},
+    i:{t:"Brewing",l:["Potions and elixirs are brewed from herbs and potions in the crucible."],tab:"forge",sel:"#cacts"}},
   {id:"alchemy",name:"Alchemy",ic:"ember",cost:8,pre:[],or:["brewing","infuse"],pos:[4,2],d:"Make essences and materials in the crucible.",gate:"Essences and materials.",
-    i:{t:"Alchemy",l:["Essences and materials can be made in the crucible from other essences and materials."],tab:"forge",sel:"#combine"}}
+    i:{t:"Alchemy",l:["Essences and materials can be made in the crucible from other essences and materials."],tab:"forge",sel:"#cacts"}}
 ].map(t=>({ok:()=>true,rq:"",...t}));
 const TECH=Object.fromEntries(TECHS.map(t=>[t.id,t]));
 // the branch columns of the tree (research.js): a name and the first and last column (pos[0]) it spans
 const BRANCHES=[{name:"Gear",c:[0,1]},{name:"Forge actions",c:[2,3]},{name:"Kitchen",c:[4,4]}];
+// the action tabs of the Forge tab (forge-view.js): tech is the technique that opens it (null: always). Forge is the pattern panel and Refine the grade panel; the rest are crucible actions (actFit, crafting.js).
+const ACTIONS=[{id:"forge",name:"Forge",ic:"forge",tech:null},{id:"infuse",name:"Infuse",ic:"infuse",tech:"infuse"},{id:"improve",name:"Improve",ic:"bag",tech:"improve"},{id:"fuse",name:"Fuse",ic:"alloy",tech:"fuse"},{id:"refine",name:"Refine",ic:"upgrade",tech:"refine"},{id:"cook",name:"Cook",ic:"heal_hit",tech:"cooking"},{id:"brew",name:"Brew",ic:"water",tech:"brewing"},{id:"alchemy",name:"Alchemy",ic:"ember",tech:"alchemy"}];
+const CRUCIBLE_ACTS=["infuse","improve","fuse","cook","brew","alchemy"];
 // one vague word per trait that takes part in a reaction: an insight says "X reacts with <this>" without naming the partner
 const VAGUE={Fire:"something hot",Ice:"something freezing",Water:"something wet",Poison:"something venomous",Nourishing:"something wholesome",Sweet:"something sweet",Light:"something bright",Holy:"something sacred",Shadow:"something dark",Iron:"something forged",Arcane:"something uncanny",Stone:"something heavy",Fur:"something warm",Sharp:"something keen",Steam:"something misty"};
 const UNLOCKS=[

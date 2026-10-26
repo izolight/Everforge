@@ -133,7 +133,7 @@ async function run(label,setup,nat,steps=STEPS){
       go("forge");{const n=qa("#pats [data-pat]").length,k0=Math.floor(Math.random()*n); // a pattern or blueprint, auto-filled when it is picked: the first one (from a random start) whose materials are in the satchel, since a random pick often has none
         for(let k=0;k<n;k++){click(qa("#pats [data-pat]")[(k0+k)%n]);const sh=q("#shape:not([disabled])");if(!sh)continue;
           const n0=S.stats.shaped,inv0=JSON.stringify(S.inv);sh.click();await sleep(30);if(S.stats.shaped>n0)out.shaped++;else out.bad.push("a filled pattern did not forge");if(JSON.stringify(S.inv)===inv0)out.bad.push("pattern forging changed nothing in the satchel");break}}
-      go("forge");S.bench=[];
+      go("forge");S.bench=[];{const acts=qa("#cacts [data-cact]").map(b=>b.dataset.cact).filter(x=>CRUCIBLE_ACTS.includes(x)),want=nat&&acts.includes("infuse")?"infuse":acts.length?pick(acts):null;if(want)click(q(`#cacts [data-cact='${want}']`))} // a crucible action to craft with (a newcomer infuses, once Infusing is known)
       const can=qa("#finv [data-can='1']"),isE=b=>isEss(b.dataset.id),bases=can.filter(b=>!isE(b));
       if(nat&&bases.length&&can.some(isE)&&Math.random()<.8){click(bases[Math.floor(Math.random()*bases.length)]);click(qa("#finv [data-can='1']").find(isE))} // a newcomer infuses an essence into an item: once Infusing is known, the one forge it allows (refused until then, and counted as gated)
       else{

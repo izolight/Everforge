@@ -61,7 +61,8 @@ $("slots").addEventListener("click",e=>{const b=e.target.closest("[data-slot]");
 $("result").addEventListener("click",e=>{const eq=e.target.closest("[data-result-equip]");if(eq&&!inBattle()){const id=eq.dataset.resultEquip;if(S.inv[id]>0){equip(id,targetSlot(S.items[id]));save();render()}return}const b=e.target.closest("[data-open]");if(b)openSheet(b.dataset.open)});
 $("rtabs").addEventListener("click",e=>{const b=e.target.closest("[data-rtab]");if(!b)return;S.rtab=b.dataset.rtab;save();renderRecipes()});
 $("rlist").addEventListener("click",e=>{const b=e.target.closest("[data-load]");if(!b)return;const it=S.items[b.dataset.load];
-  S.bench=[...it.recipeIds];go("forge");toast(tx("Loaded the recipe for {item}.",{item:iname(it)}))});
+  setAct(actFor(it.recipeIds.map(id=>S.items[id])),it.recipeIds);go("forge");toast(tx("Loaded the recipe for {item}.",{item:iname(it)}))}); // the recipe loads into the action that takes its inputs
+$("cacts").addEventListener("click",e=>{const b=e.target.closest("[data-cact]");if(!b||b.dataset.cact===S.act)return;setAct(b.dataset.cact);render()}); // a locked tab has no data-cact: its tip says what opens it
 $("rlist").addEventListener("click",e=>{const b=e.target.closest("[data-pin-recipe]");if(b)pinGoal("recipe",b.dataset.pinRecipe)});
 $("secrets").addEventListener("click",e=>{const b=e.target.closest("[data-pin-rumor]");if(b)pinGoal("rumor",+b.dataset.pinRumor)});
 $("pinnedGoal").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;
@@ -90,11 +91,11 @@ $("sheet").addEventListener("click",e=>{const b=e.target.closest("[data-act]");i
   if(a==="bounty")return chooseBounty(+b.dataset.index);
   if(a==="bulk-confirm")return confirmSalvage();
   if(a==="lock"){S.locked=itemLocked(id)?S.locked.filter(x=>x!==id):[...(S.locked||[]),id];if(itemLocked(id))S.bench=S.bench.filter(x=>x!==id);salvageSelection.delete(id);save();render();return}
-  if(itemLocked(id)&&["add","salvage","reforge"].includes(a))return;
+  if(itemLocked(id)&&["into","salvage","reforge"].includes(a))return;
   if(a==="equip"){equip(id,b.dataset.slot);toast(tx("{item} equipped.",{item:iname(it)}))}
   if(a==="unequip"){S.eq[b.dataset.slot]=null;clampHp();toast(tx("{item} unequipped.",{item:iname(it)}))}
   if(a==="eat"){S.inv[id]--;trimBench();const g=healYou(medHeal(it));toast(tx("You use {item} and recover {n} HP.",{item:iname(it),n:g}))}
-  if(a==="add"){S.bench.push(id);closeSheet();go("forge");toast(tx("{item} added to the crucible.",{item:iname(it)}));return}
+  if(a==="into"){setAct(b.dataset.into,[id]);closeSheet();go("forge");return} // Infuse… / Improve…: the crucible opens with this item in it
   if(a==="salvage"){
     if(!armTap("salvage",3500,()=>openSheet(id,true)))return openSheet(id,true); // the first tap only arms it
     if(canDecon(it)){const got=deconstruct(id);closeSheet();if(!got)return;const luck=got.filter(g=>g[2]);sfx("loot");

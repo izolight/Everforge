@@ -741,6 +741,13 @@ select.lang{width:100%;margin-top:8px;background:#120f0c;color:var(--fg);border:
 .slot.pslot{gap:2px;align-content:center;text-align:center}
 .slot.pslot>svg.ic{width:18px;height:18px}
 .slot.pslot small{font-size:.58rem;line-height:1.1;color:var(--muted)}
+/* crucible actions: the tab row above the crucible; a locked one shows its lock and the technique that opens it */
+.cacts{justify-content:center;gap:5px}
+.cacts .tab.ti{min-height:36px;padding:4px 10px;font-size:.78rem;color:var(--fg)}
+.cacts .tab.ti[aria-pressed="false"]{color:var(--muted)}
+.cacts .tab.ti.locked{border-style:dashed;color:var(--dim);background:#17130f}
+.cacts .tab.ti.locked span{font-size:.7rem}
+.cacts .tab.ti.locked .ic{width:14px;height:14px}
 
 /* Keep the working ingredients beside the crucible; history never separates them. */
 .forge-workbench{position:sticky;top:8px;z-index:6;max-height:48dvh;overflow:auto}
@@ -750,8 +757,9 @@ select.lang{width:100%;margin-top:8px;background:#120f0c;color:var(--fg);border:
 @media(min-width:960px){
   .wrap:has(#v-forge:not([hidden])){max-width:1100px}
   #v-forge{grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-items:start}
-  #v-forge>.forge-workbench{grid-column:1;grid-row:1;max-height:75dvh}
-  #v-forge>.forge-inventory{grid-column:2;grid-row:1 / span 5}
+  #v-forge>.cacts{grid-column:1;grid-row:1}
+  #v-forge>.forge-workbench{grid-column:1;grid-row:2;max-height:75dvh}
+  #v-forge>.forge-inventory{grid-column:2;grid-row:1 / span 6}
   #v-forge>.panel:not(.forge-workbench),#v-forge>.forge-history{grid-column:1}
 }
 

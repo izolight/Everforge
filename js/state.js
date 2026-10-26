@@ -10,7 +10,7 @@ const statsDef=()=>({salvaged:0,studied:0,dealt:0,taken:0,big:0,bigW:"",crits:0,
 function freshState(){
   const items={};Object.keys(BASE).forEach(id=>items[id]=baseItem(id));
   return {v:18,onboarding:0,pinned:null,bountyChoices:[],locked:[],recent:[],inventory:{layout:"grid",filter:"all",sort:"type"},embers:0,afx:{},unl:{},rp:0,techs:{},tpaid:{},rpd:{},rxh:{},infCredit:0,skills:{},maps:{},heat:{},daily:null,run:null,infuse:{},items,inv:{iron_sword:1},eq:{main:"iron_sword",off:null,head:null,body:null,hands:null,feet:null,charm:null},
-    hp:999,camp:2,campProg:0,xp:0,journal:[],knownR:[],hints:[0,1,2],bench:[],last:null,tab:"all",rtab:"all",view:"battle",zone:"woods",rift:{depth:1,best:0,seed:0,biome:"",name:"",pal:null,cleared:0},
+    hp:999,camp:2,campProg:0,xp:0,journal:[],knownR:[],hints:[0,1,2],bench:[],act:"forge",last:null,tab:"all",rtab:"all",view:"battle",zone:"woods",rift:{depth:1,best:0,seed:0,biome:"",name:"",pal:null,cleared:0},
     wins:0,kills:{},seen:{},codex:{},unlocked:["woods"],zoneKills:{},quest:0,bounty:null,stats:statsDef(),fresh:[],battle:null,event:null};
 }
 const isObj=v=>!!v&&typeof v==="object"&&!Array.isArray(v);

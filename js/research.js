@@ -42,7 +42,7 @@ function actionOk(items){
   if(ess){need.push("infuse");if(ess>1)need.push("infuse2");if(rest.some(x=>x.crafted&&x.ei>0))need.push("infuse3")}
   return[...new Set(need)].filter(id=>!hasTech(id));
 }
-const mwWarn=()=>tx("These are the ingredients of something legendary. Without the Masterwork technique (Research) you would forge only an ordinary piece. Tap Forge twice to confirm.");
+const mwWarn=()=>tx("These are the ingredients of something legendary. Without the Masterwork technique (Research) you would forge only an ordinary piece. Tap the button twice to confirm.");
 const techWhy=ids=>isUnl("research")?txn("Needs the {names} technique (Research).","Needs the {names} techniques (Research).",ids.length,{names:techNames(ids)}):tx("Learn a technique in Research first.");
 // ---- learning
 function techState(t,s=S){return s.techs[t.id]?"learned":preOk(t,s)?"avail":"locked"}

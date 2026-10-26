@@ -55,7 +55,7 @@ const shopHtml=ev=>`<div class="shop"><p class="label">${tx("For sale · you hav
   ${ev.sells.some(e=>!e.done)?`<p class="label">${tx("Sell a spare")}</p>${ev.sells.map((e,i)=>e.done?"":shopRow(e.id,isArmed("sell:"+i)?tx("Tap again to sell"):tx("Sell +{n}",{n:e.price}),`sell:${i}`)).join("")}`:""}</div>`;
 const topT=id=>topTraits(S.items[baseIdOf(id)].traits)[0][0];
 function renderUpgrade(){
-  $("upgp").hidden=!isUnl("upgrade");if(!isUnl("upgrade"))return;
+  const on=isUnl("upgrade");$("upglock").hidden=on;$("upglock").innerHTML=on?"":lockRow("upgrade");$("upgd").hidden=!on;if(!on)return; // the Refine tab shows the teaser until the grade upgrades unlock
   const lv=skLv("alchemy"),ids=upgradable().sort((a,b)=>topT(a).localeCompare(topT(b))||S.items[baseIdOf(a)].name.localeCompare(S.items[baseIdOf(b)].name)||gradeOf(a)-gradeOf(b));
   $("upgsum").innerHTML=`${ic("upgrade","s")} ${tx("Upgrade grades")}${ids.length?` <b class="rdy">${ids.length}</b>`:""}${helpBtn(tx("Upgrade grades"),tx("{n} essences or materials of one grade and some embers make 1 of the next grade (Faint, Lesser, Plain, Greater, Pure): stronger traits, in a single crucible slot.",{n:UP.n}),tx("A miss costs the embers and one of them."),tx("Greater needs Alchemy Lv {a}, Pure Lv {b}. You are Lv {lv}.",{a:GRADE_LV[3],b:GRADE_LV[4],lv}))}`;
   $("upgrows").innerHTML=ids.length?ids.map(id=>{const g=gradeOf(id),tg=g+1,it=S.items[id],low=lv<GRADE_LV[tg-1],poor=S.embers<UP.emb[g-1],battle=inBattle();

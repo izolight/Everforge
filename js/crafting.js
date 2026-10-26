@@ -25,6 +25,40 @@ function acceptsText(it){
   const own=ACCEPTS[k].includes(k)?[]:[mass(formEn(it.form))?tx("other {form}",{form:formName(it.form)}):tx("another {form}",{form:formName(it.form)})];
   return [...ACCEPTS[k].map(a=>txc("kind",KIND_LABEL[a])),...own,...(fus.length?[tx("{list} (fusion)",{list:fus.join(tx(" or "))})]:[])].join(", ");
 }
+// ---- crucible actions: each one takes its own inputs. actCap is how many it holds (after the Infusing II and Improving II slots); actFit says why an item can't go in next to the ones there ("" when it fits), so the bench and the satchel refuse what does not belong. actionOk and checkMix still guard the craft itself.
+const isEssIt=it=>kindOf(it)==="essence",isMatIt=it=>grp(it)==="material"&&!isEssIt(it);
+const actCap=act=>({infuse:hasTech("infuse2")?3:2,improve:hasTech("improve2")?maxInputs():2,fuse:2,cook:maxInputs(),brew:maxInputs(),alchemy:maxInputs()})[act]||0;
+function goesMsg(it){ // where an item does go, for a refused placement
+  return isEssIt(it)?tx("Essences go in Infuse."):isMatIt(it)?tx("{kind} go in Improve.",{kind:cap(txc("kind",KIND_LABEL[kindOf(it)]))}):kindOf(it)==="food"?tx("Food goes in Cook."):kindOf(it)==="potion"?tx("Potions go in Brew."):tx("Gear goes in Infuse, Improve or Fuse.");
+}
+function actFit(act,it,items=[]){
+  const ess=isEssIt(it),item=items.find(isGear);let why="";
+  if(act==="forge")return tx("Pick a pattern above to forge.");
+  if(act==="refine")return tx("Refining works from the grade panel below.");
+  if(act==="infuse"){
+    if(ess)why=items.filter(isEssIt).length>=(hasTech("infuse2")?2:1)?(hasTech("infuse2")?tx("Two essences is all one infusion takes."):tx("One essence per infusion. Infusing II takes two.")):"";
+    else why=!isGear(it)?goesMsg(it):item?tx("Infuse takes one item. Essences go in the slots after it."):"";
+  }else if(act==="improve"){
+    if(ess||!isGear(it)&&!isMatIt(it))why=goesMsg(it);
+    else if(isGear(it)&&item)why=tx("Improve takes one item. Materials go in the slots after it.");
+    else why=checkMix([...items,it]).reason||"";
+  }else if(act==="fuse"){
+    if(!isGear(it))why=goesMsg(it);
+    else if(items[0]&&!isFusion(items[0].form,it.form)){const a=items[0],ps=FUSIONS.filter(p=>p.slice(0,2).includes(a.form)).map(p=>formName(p[0]===a.form?p[1]:p[0]));
+      why=ps.length?tx("{a} only fuses with {list}.",{a:cap(formName(a.form)),list:ps.join(tx(" or "))}):tx("{a} doesn't fuse with anything.",{a:cap(formName(a.form))})}
+  }else if(act==="cook"||act==="brew"){
+    if(!ACCEPTS[act==="cook"?"food":"potion"].includes(kindOf(it)))why=goesMsg(it);else why=checkMix([...items,it]).reason||"";
+  }else if(act==="alchemy"){
+    if(!ess&&!isMatIt(it))why=goesMsg(it);else why=checkMix([...items,it]).reason||"";
+  }else return "";
+  return why||(items.length>=actCap(act)?tx("The crucible is full."):"");
+}
+const actFor=items=>["infuse","improve","fuse","cook","brew","alchemy"].find(a=>items.every((x,i)=>!actFit(a,x,items.slice(0,i))))||"forge"; // the action that takes these items (recipes load into it)
+// switch the crucible to an action: the bench keeps only the items that action takes, in order. ids replaces the bench instead (a preloaded item, a recipe).
+function setAct(act,ids){
+  const keep=[];(ids||S.bench).forEach(id=>{const it=S.items[id];if(it&&!actFit(act,it,keep.map(x=>S.items[x])))keep.push(id)});
+  S.act=act;S.bench=keep;save();
+}
 
 // ================= COMBINE =================
 // o.roll (0-100) fixes the success roll (100 = clean, used by previews and the balance sim); by default every attempt rolls for real. o.full keeps the failure chance even on the first forge (which never fails).

@@ -157,7 +157,7 @@ DICT.de=Object.assign(DICT.de||{},{
 "Raise a grade: three essences or materials of one grade become one of the next.":"Hebe die Güte an: Drei Essenzen oder Materialien einer Güte werden zu einer der nächsten.",
 "The grade upgrade panel.":"Das Panel für Güteaufwertungen.",
 "{n} essences or materials of one grade, plus some embers, make one of the next grade: stronger traits in one slot.":"{n} Essenzen oder Materialien einer Güte ergeben mit etwas Glut eine der nächsten Güte: stärkere Eigenschaften in einem Platz.",
-"The panel shows in the Forge once you have embers and crafting skills.":"Das Panel erscheint in der Schmiede, sobald du Glut und Handwerksfertigkeiten hast.",
+"The Refine tab holds the panel once you have embers and crafting skills.":"Der Reiter Veredeln enthält das Panel, sobald du Glut und Handwerksfertigkeiten hast.",
 
 
 

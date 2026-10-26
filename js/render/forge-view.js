@@ -9,7 +9,7 @@ function craftLine(r,items){
     ${b?"":ch("var(--up)",ic("ok","s"),`${100-r.fail}%`,tx("{n}% clean",{n:100-r.fail}),tx("A clean forge gives exactly the item previewed."))+ch("var(--accent)",ic("warn","s"),`${r.mis}%`,tx("{n}% mishap",{n:r.mis}),tx(isUnl("peddler")?"A mishap gives a flawed copy (Cursed, Brittle, Rust or Weakened) that you can reforge for embers.":"A mishap gives a flawed copy (Cursed, Brittle, Rust or Weakened)."))+ch("var(--down)",ic("smoke","s"),`${r.fiz}%`,tx("{n}% fizzle",{n:r.fiz}),tx(isUnl("peddler")?"A fizzle loses the ingredients but returns some embers.":"A fizzle loses the ingredients."))
       +helpBtn(tx("Forge odds"),S.journal.length?tx("Difficulty {d} against your skill {lv}{reach}. The higher your skill, the fewer mishaps and fizzles.",{d:r.diff,lv:r.lv,reach:r.diff-r.lv>2?tx(", a reach for you"):""})+(r.prec?" "+tx("Precision trims {n} points off the failure chance.",{n:r.prec}):""):tx("Your first forge never fails."))}</div>
     ${b?`<p class="warn-text">${blockText(b)}</p>`:""}
-    ${risk.length?`<p class="warn-text">${risk.length>1?tx("{list} are equipped. A fizzle would destroy them; tap Forge twice to confirm.",{list:risk.join(tx(" and "))}):tx("{list} is equipped. A fizzle would destroy it; tap Forge twice to confirm.",{list:risk[0]})}</p>`:""}</div>`;
+    ${risk.length?`<p class="warn-text">${risk.length>1?tx("{list} are equipped. A fizzle would destroy them; tap the button twice to confirm.",{list:risk.join(tx(" and "))}):tx("{list} is equipped. A fizzle would destroy it; tap the button twice to confirm.",{list:risk[0]})}</p>`:""}</div>`;
 }
 const skIcon=k=>`<svg class="ski" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">${G[SKILLS[k].g]}</svg>`;
 function renderSkills(){
@@ -20,19 +20,41 @@ function renderSkills(){
     return `<div class="sk" ${tt(tx("{skill} Lv {lv}",{skill:sk.name,lv:l}),tx("Makes {cats}.",{cats:sk.cats}),nxt?tx("{a}/{b} XP to Lv {n}.",{a:x-cur,b:nxt-cur,n:l+1}):tx("Highest level reached."),crafts?tx("Tier cap {c}; about {f}% base failure on a plain tier-2 craft.",{c:SK_CAP[l-1],f}):tx("Tier cap {c}. Salvaging is never blocked: above the cap, materials come one grade lower.",{c:SK_CAP[l-1]}))}>${skIcon(k)}<div class="skb"><span class="sn"><b>${sk.name}</b> <span class="foot">${tx("Lv {n}",{n:l})}</span></span>
       <div class="bar know"><i style="width:${nxt?Math.min(100,(x-cur)/(nxt-cur)*100):100}%"></i></div></div><span class="skc"><span>${ic("tier","xs")}${SK_CAP[l-1]}</span>${crafts?`<span>${ic("warn","xs")}${f}%</span>`:""}</span></div>`}).join("");
 }
+// ---- the action tabs above the crucible. A locked one shows its lock and the technique that opens it; its tip says what it is for.
+const actOpen=id=>{const A=ACTIONS.find(a=>a.id===id);return !A.tech||hasTech(A.tech)};
+function renderActs(){
+  if(!ACTIONS.some(A=>A.id===S.act))S.act="forge"; // a save without the field starts on Forge
+  if(S.act!=="forge"&&!actOpen(S.act))setAct("forge"); // a stale action (a save from before its technique) falls back to Forge
+  $("cacts").innerHTML=ACTIONS.map(A=>{const nm=tx(A.name),on=S.act===A.id;
+    if(!actOpen(A.id))return `<button class="tab ti locked" aria-disabled="true" data-tap aria-label="${esc(`${nm}: ${tx("Locked. Learn {tech} in Research to open it.",{tech:tx(TECH[A.tech].name)})}`)}" ${tt(nm,tx("Locked. Learn {tech} in Research to open it.",{tech:tx(TECH[A.tech].name)}),tx(TECH[A.tech].gate))}>${ic("lock","s")}<span>${tx(TECH[A.tech].name)}</span></button>`;
+    return `<button class="tab ti${on?" on":""}" data-cact="${A.id}" aria-pressed="${on}" aria-label="${esc(nm)}" ${tt(nm,A.tech?tx(TECH[A.tech].d):tx("Patterns and blueprints: gear from base materials."))}>${ic(A.ic,"s")}<span>${nm}</span></button>`}).join("");
+  $("patp").hidden=S.act!=="forge";$("upgp").hidden=S.act!=="refine";$("crucible").hidden=!CRUCIBLE_ACTS.includes(S.act);
+}
+// what each crucible action says: the empty crucible, and one item alone
+const ACT_EMPTY={infuse:()=>tx("Put in an item you want to strengthen, then an essence. Essences come from salvaging affixed materials."),improve:()=>tx("Put in an item, then the materials to improve it with."),fuse:()=>tx("Put in two gear items that fuse, like a spear and a shield."),cook:()=>tx("Put in food, herbs or essences to cook."),brew:()=>tx("Put in potions, herbs or essences to brew."),alchemy:()=>tx("Put in essences and materials to make a new material.")};
+const ACT_ONE={infuse:()=>tx("Add an essence to infuse it."),improve:()=>tx("Add materials to improve it."),cook:()=>tx("Add more food, herbs or essences."),brew:()=>tx("Add more potions, herbs or essences."),alchemy:()=>tx("Add more essences or materials.")};
+const ffn=f=>cap(formName(f));
 function renderBench(){
-  const max=maxInputs(),parts=[],items=S.bench.map(id=>S.items[id]),chk=checkMix(items);
-  for(let i=0;i<(level()>=2?4:3);i++){
-    if(i>0)parts.push('<span class="plus" aria-hidden="true">+</span>');
-    if(i>=max){parts.push(`<div class="slot locked" ${tt(tx("Slot {n}",{n:i+1}),tx("Unlocks at Smith Lv {n}",{n:INPUT_LV[i-2]}))}>${ic("lock")}<small>${tx("Lv {n}",{n:INPUT_LV[i-2]})}</small></div>`);continue}
-    const it=items[i];
-    parts.push(it?`<button class="slot full${!chk.ok&&chk.bad?.id===it.id?" bad":""}" style="${rcol(it)}" data-slot="${i}" aria-label="${esc(tx("Remove {item}",{item:iname(it)}))}" ${itemTip(it,tx("Tap to take it out."))}>${glyph(it)}</button>`:`<div class="slot" role="img" aria-label="${esc(tx("Empty slot"))}">${ic("plus","l")}</div>`);
+  const act=S.act,A=ACTIONS.find(a=>a.id===act),parts=[],items=S.bench.map(id=>S.items[id]),chk=checkMix(items);
+  if(!CRUCIBLE_ACTS.includes(act))return;
+  // the slots: infuse and improve take the item first, then essences or materials; fuse takes two items; the kitchen actions take ingredients in the order they were put in
+  const special=act==="infuse"||act==="improve",gi=special?items.findIndex(isGear):-1,shown=special?[gi,...items.map((_,i)=>i).filter(i=>i!==gi)]:items.map((_,i)=>i);
+  const role=i=>special?(i?tx(act==="infuse"?"Essence":"Material"):tx("Item")):act==="fuse"?tx("Item"):tx("Ingredient");
+  $("cruciblelabel").innerHTML=`<p class="label">${ic(A.ic,"s")} ${tx(A.name)} · ${tx("Crucible")}</p>${helpBtn(tx(A.name),tx(TECH[A.tech].d))}`;
+  for(let i=0;i<actCap(act);i++){
+    if(i>0)parts.push(`<span class="plus" aria-hidden="true">${act==="infuse"?"←":"+"}</span>`);
+    const bi=i<shown.length?shown[i]:-1,it=bi>=0?items[bi]:null;
+    parts.push(it?`<button class="slot full${!chk.ok&&chk.bad?.id===it.id?" bad":""}" style="${rcol(it)}" data-slot="${bi}" aria-label="${esc(tx("Remove {item}",{item:iname(it)}))}" ${itemTip(it,tx("Tap to take it out."))}>${glyph(it)}</button>`
+      :`<div class="slot pslot" role="img" aria-label="${esc(tx("Empty slot"))}" ${tt(tx("Empty slot"),role(i))}>${ic("plus")}<small>${role(i)}</small></div>`);
   }
-  $("slots").className=level()>=2?"slots s4":"slots";$("slots").innerHTML=parts.join("");
+  $("slots").className="slots";$("slots").innerHTML=parts.join("");
   let hint="",crafting=null;const miss=chk.ok&&items.length>1?actionOk(items):[]; // techniques this craft needs and you lack
-  if(!items.length)hint=`<p class="foot" style="text-align:center">${tx("Tap items below to add them.")}</p>`;
+  if(!items.length)hint=`<p class="foot" style="text-align:center">${ACT_EMPTY[act]()}</p>`;
   else if(!chk.ok)hint=`<p class="warn-text">${esc(chk.reason)}</p>`;
-  else if(items.length===1)hint=`<p class="foot">${tx("{item} takes {list}.",{item:esc(iname(items[0])),list:acceptsText(items[0])})}</p>`;
+  else if(items.length===1&&act==="fuse"){ // one side placed: the forms it fuses with, and what each makes
+    const ps=FUSIONS.filter(p=>p.slice(0,2).includes(items[0].form));
+    hint=ps.length?`<p class="foot">${tx("Add a second item to fuse it:")} ${ps.map(p=>tx("{a} + {b} → {c}",{a:ffn(p[0]),b:ffn(p[1]),c:ffn(p[2])})).join(", ")}</p>`:`<p class="foot">${tx("{a} doesn't fuse with anything.",{a:cap(formName(items[0].form))})}</p>`}
+  else if(items.length===1)hint=`<p class="foot">${ACT_ONE[act]()}</p>`;
   else if(miss.length)hint=`<p class="warn-text">${ic("lock","s")} ${techWhy(miss)}</p>${isUnl("research")?`<div class="actions"><button class="btn sm" data-gores="${miss[0]}">${ic("research","s")} ${tx("Open Research")}</button></div>`:""}`;
   else{
     const r=combine(items,{roll:100}),known=S.items[r.item.id],base=S.items[r.baseId];crafting=r;
@@ -52,7 +74,7 @@ function renderBench(){
     if(r.mw>=0)hint+=`<p class="warn-text">${ic("warn","s")} ${mwWarn()}</p>`;
   }
   $("mixhint").innerHTML=hint;
-  $("combine").textContent=isArmed("forge:"+S.bench.join())?tx("Tap again to forge"):tx("Forge");
+  $("combine").textContent=isArmed("forge:"+S.bench.join())?tx("Tap again to forge"):tx(A.name);
   $("combine").disabled=items.length<2||!chk.ok||!!crafting?.blocked;
   $("combine").setAttribute("aria-disabled",miss.length?"true":"false");if(miss.length)$("combine").setAttribute("aria-label",techWhy(miss));else $("combine").removeAttribute("aria-label"); // the reason is the warning above the button (and its label); a bubble on top would cover it
 }

@@ -155,7 +155,7 @@ DICT.ko=Object.assign(DICT.ko||{},{
 "Raise a grade: three essences or materials of one grade become one of the next.":"등급을 올립니다: 같은 등급의 정수나 재료 셋이 다음 등급 하나가 됩니다.",
 "The grade upgrade panel.":"등급 올리기 패널.",
 "{n} essences or materials of one grade, plus some embers, make one of the next grade: stronger traits in one slot.":"같은 등급의 정수나 재료 {n}개와 약간의 불씨로 다음 등급 1개를 만듭니다. 칸 하나에 더 강한 특성이 담깁니다.",
-"The panel shows in the Forge once you have embers and crafting skills.":"불씨와 제작 기술이 생기면 대장간에 패널이 나타납니다.",
+"The Refine tab holds the panel once you have embers and crafting skills.":"불씨와 제작 기술이 생기면 정제 탭에 패널이 나타납니다.",
 
 
 
