@@ -14,6 +14,7 @@ Backlog for monster coverage, biome variety and related balance/tooling work.
 - **M-09** — `Implement` (see `plan-m-09.md`)
 - **V-01** — `Done`
 - **V-03** — `Done`
+- **V-04** — `Done`
 - Everything else — `Planned`
 
 ---
@@ -94,9 +95,10 @@ Backlog for monster coverage, biome variety and related balance/tooling work.
   **Done:** every biome has 6+ patterns; no biome uses all patterns identically.
   **Done (V-03):** PAT has 8 keys (not 9; `spots` was removed). Each of the 8 `BIOMES` lists now holds 6 distinct keys, all valid in PAT, and no two biomes share the same set. `node tools/sim.js --wild --seed 1` completes with exit 0.
 
-- [ ] **V-04 · Expand region-name pools** — `Status: Planned` · `Size: XS` · `js/monsters.js`
+- [x] **V-04 · Expand region-name pools** — `Status: Done` · `Size: XS` · `js/monsters.js`
   Increase each biome from 3 to 5–6 region names and avoid duplicates.
   **Done:** no duplicate names across all biomes; Rift name variety increases.
+  **Done (V-04):** each of the 8 `BIOMES` lists now holds 6 region names (48 total, up from 24). No duplicates across biomes or with the 5 authored zone names in `js/data.js`, checked by a script outside the repo. `node tools/sim.js --wild --seed 1` completes with exit 0.
 
 - [ ] **V-05 · Add a Tidewrack coast biome** — `Status: Planned` · `Size: M` · `js/monsters.js`
   Elements ice/poison/shadow/swift; bodies beast/undead/elemental/humanoid; parts shell/frost/tail/vines/hood/crystals; names such as "The Drowned Coast", "Saltwind Cliffs", "The Tidewrack".
