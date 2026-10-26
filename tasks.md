@@ -168,6 +168,14 @@ Backlog for monster coverage, biome variety and related balance/tooling work.
 
 ---
 
+- [x] **V-22 · Visual readability rules for enemies** — `Status: Done` · `Size: M` · `js/art/color.js`, `js/art/affixes.js`, `js/art/creature.js`, `js/monsters.js`, `js/data.js`, `js/render/battle-view.js`, `tools/color-check.js`
+  One visual feature per meaning: body hue = element (`ELPAL` light/mid/dark, a creature rolls one), accent = biome (`BIOMES.acc`, two per biome, distinct between biomes), pattern and parts = biome variety, ring = rank, affix = fixed spot and shape, status = tint plus a fixed corner badge.
+  Biome accents: forest `#b5b04a` `#6e8a3a`, tundra `#f4fbff` `#bfe0ea`, ember `#ff8a3d` `#ff5a1f`, astral `#f6d36b` `#fff3c4`, fen `#4d5a2a` `#2e3420`, ash `#4a4643` `#8a847c`, bone `#e4dccb` `#c9b48a`, deep `#3ff0ff` `#7fe8ff`.
+  Affix spots: elemental particles around (fire top-left edge, ice right edge, holy top-left corner, arcane top-right corner, poison bottom-left, shadow bottom-right); defence on the body (iron plates, ward hexagon, regen cross, thorn spikes at the sides); aggression on the head (frenzy eyes and steam, vamp fangs and drip); on-death cracks (boom low on the body, split seam down the middle); movement behind or under (swift lines, swiftfoot dust at the feet, elusive afterimage).
+  Statuses: stun (stars circle the head), weak (desaturated body, down-arrow badge; enemy weakness is `B.shred`, the armour break), bleed (red drops, drop badge), shield (solid bright ring; `B.wd`, the warded pool). Each status keeps its own badge slot in the bottom-right corner.
+  **Done:** `node tools/color-check.js` passes (45 element pairs at dE 20 or more; 112 biome accent pairs at 10 or more; 701 generated and Rift creature accents plus the hand-made enemies at dE 25 or more). `node tools/run-checks.js` 14/14, including `affix-check` and `smoke`. `node tools/part-check.js` 360 renders, 0 problems. `node tools/parts-preview.js` and `parts-combos.js` render with no page errors. `node tools/sim.js --wild --seed 1` (wild rows) re-run: the seed-1 numbers are unchanged, see the note under M-12.
+  **Deviations:** no water or steam element palette (neither is an enemy element; V-20 covers them). The shield status uses the enemy's ward pool, so a warded foe shows both the ward hexagon and the ring.
+
 ## Parallelization
 
 ### Safe to run in parallel now
