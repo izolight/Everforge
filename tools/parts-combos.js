@@ -26,7 +26,7 @@ const {chromium}=require("playwright"),fs=require("fs"),path=require("path");
       const row=document.createElement("div");row.style.cssText="display:flex;gap:4px";
       for(const body of B.bodies){
         const id="pc_"+bn+"_"+body+"_"+parts.join("_");
-        ENEMIES[id]={el:B.els[0],art:{b:body,p:parts,c:B.cols[0],a:B.cols[1],pat:B.pats[0],po:.5,skin:B.skins[0],glow:false}};
+        ENEMIES[id]={el:B.els[0],art:{b:body,p:parts,c:ELPAL[B.els[0]][1],a:B.acc[0],pat:B.pats[0],po:.5,skin:B.skins[0],glow:false}};
         const cell=document.createElement("div");
         cell.style.cssText="width:96px;height:96px;background:#1c1720;border:1px solid #332c3a;border-radius:8px;position:relative";
         cell.innerHTML=portrait(id,{lite:true});
