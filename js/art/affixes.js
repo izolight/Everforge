@@ -6,15 +6,16 @@
 // cracks (boom orange cracks low on the body, split a pale seam down the middle); movement = behind or under (swift speed lines
 // on the left, swiftfoot dust at the feet, elusive afterimage).
 const snow=(x,y)=>`<path d="M${x} ${y-5} v10 M${x-5} ${y} h10 M${x-3.5} ${y-3.5} l7 7 M${x+3.5} ${y-3.5} l-7 7"/>`;
+const flame=(x,y,s)=>`M${x} ${y-s} C${x+s*.55} ${y-s*.25} ${x+s*.5} ${y+s*.35} ${x} ${y+s*.5} C${x-s*.5} ${y+s*.35} ${x-s*.55} ${y-s*.25} ${x} ${y-s} Z`; // a flame tongue, tip up
 const AFX_ART={
-  fire:{f:c=>`<g fill="#ffd04a" stroke="#0d0a08" stroke-width=".8">${[[9,40,2.8],[14,26,2.2],[6,22,1.6],[16,34,1.8]].map(([x,y,r],i)=>`<circle ${an("amb-rise",2.2+i*.5,i/4)} cx="${x}" cy="${y}" r="${r}"/>`).join("")}</g>`},
+  fire:{f:c=>`<g fill="#ff8a2a" stroke="#14100c" stroke-width=".8">${[[9,40,10],[17,30,8],[4,28,7]].map(([x,y,s],i)=>`<path class="flick" style="animation-delay:-${(i*.3).toFixed(1)}s" d="${flame(x,y,s)}"/>`).join("")}<circle class="flt" cx="16" cy="42" r="3.4" fill="#ffd04a"/></g>`},
   ice:{f:c=>`<g stroke="#effbff" stroke-width="2" stroke-linecap="round">${snow(106,26)}${snow(111,44)}${snow(102,56)}</g>`},
-  poison:{f:c=>`<g fill="${FAM.poison}" fill-opacity=".3" stroke="${FAM.poison}" stroke-width="1.2">${[[10,106,3.2],[20,114,2],[5,116,1.6],[22,100,1.6]].map(([x,y,r],i)=>`<circle ${an("amb-rise",2.6+i*.4,i/4)} cx="${x}" cy="${y}" r="${r}"/>`).join("")}</g>`},
-  holy:{f:c=>`<g fill="#fff2b8">${[[9,10,4],[22,7,2.6],[18,21,2]].map(([x,y,r],i)=>`<path ${an("amb-tw",1.8+i*.3,i/3)} d="${star4(x,y,r)}"/>`).join("")}</g>`},
-  shadow:{f:c=>`<g fill="none" stroke="#a385dc" stroke-width="2.2" stroke-linecap="round" opacity=".75"><path class="flt" d="M96 116 q-2 -10 8 -16 q-6 10 2 16"/><path class="flt" d="M110 116 q2 -9 -6 -14 q5 8 1 14"/></g>`},
+  poison:{f:c=>`<g fill="#b8f04a" stroke="#14100c" stroke-width=".8">${[[12,104,6],[24,114,4],[7,114,3.4],[24,98,2.8]].map(([x,y,r],i)=>`<g class="flt" style="animation-delay:-${(i*.6).toFixed(1)}s"><circle cx="${x}" cy="${y}" r="${r}"/><circle cx="${x-r*.35}" cy="${y-r*.35}" r="${r*.28}" fill="#f4ffd0" stroke="none"/></g>`).join("")}</g>`},
+  holy:{f:c=>`<g fill="#fff0a0" stroke="#14100c" stroke-width=".8">${[[12,11,7.5],[26,6,4.8],[28,19,3.6]].map(([x,y,r],i)=>`<path class="flt" style="animation-delay:-${(i*.8).toFixed(1)}s" d="${star4(x,y,r)}"/>`).join("")}</g>`},
+  shadow:{f:c=>{const w=["M90 118 C82 110 96 106 92 96","M104 118 C98 110 112 106 110 96","M115 118 C108 112 118 108 114 102"];return `<g fill="none" stroke-linecap="round" class="flt">${w.map(d=>`<path d="${d}" stroke="#14100c" stroke-width="4.4" opacity=".8"/>`).join("")}${w.map(d=>`<path d="${d}" stroke="#c4a8ff" stroke-width="2.6"/>`).join("")}</g>`}},
   iron:{p:"armor"},
   swift:{f:c=>`<path d="M2 48 H16 M4 55 H22 M2 62 H14" stroke="${FAM.swift}" stroke-width="2.2" stroke-linecap="round" opacity=".8"/>`},
-  arcane:{f:c=>`<g fill="${FAM.arcane}" stroke="#0d0a08" stroke-width="1.2"><path class="flt" d="M100 12 l3 -5 3 5 -3 5 Z"/><path class="flt" d="M110 28 l3 -5 3 5 -3 5 Z"/></g>`},
+  arcane:{f:c=>`<g fill="#d8b8ff" stroke="#14100c" stroke-width="1">${[[104,10,6],[115,20,3.8],[95,17,3]].map(([x,y,s],i)=>`<path class="flt" style="animation-delay:-${(i*.7).toFixed(1)}s" d="M${x} ${y-s} L${x+s*.6} ${y} L${x} ${y+s} L${x-s*.6} ${y} Z"/>`).join("")}</g>`},
   vamp:{f:c=>`<path d="M44 44 l4 9 l4 -9 Z M54 44 l4 9 l4 -9 Z" fill="#f2ece0" stroke="#0d0a08" stroke-width="1.2" stroke-linejoin="round"/><path d="M55 53 q-1 4 0 7" stroke="#c43c4f" stroke-width="2" fill="none" stroke-linecap="round"/><circle class="flt" cx="55" cy="63" r="2.2" fill="#c43c4f"/>`},
   thorn:{f:c=>`<path d="M2 78 L14 82 L4 90 M118 78 L106 82 L116 90" fill="#b8a45a" stroke="#0d0a08" stroke-width="1.8" stroke-linejoin="round"/>`},
   regen:{f:c=>`<path class="amb-tw" d="M31 50 h6 v6 h6 v8 h-6 v6 h-6 v-6 h-6 v-8 h6 Z" fill="#b6ff9a" stroke="#0d0a08" stroke-width="1.6"/>`},
@@ -22,7 +23,7 @@ const AFX_ART={
   ward:{f:c=>`<path d="M100 62 L80 96.6 L40 96.6 L20 62 L40 27.4 L80 27.4 Z" fill="none" stroke="#6fb5c4" stroke-width="2.6" stroke-dasharray="7 4" stroke-linejoin="round" opacity=".85"/>`},
   elusive:{ghost:1},
   split:{f:c=>`<path d="M74 6 L66 26 L76 34 L62 56 L72 66 L58 92" fill="none" stroke="#0d0a08" stroke-width="3.2" opacity=".75"/><path d="M74 6 L66 26 L76 34 L62 56 L72 66 L58 92" fill="none" stroke="#c39cf7" stroke-width="1.4"/>`},
-  boom:{f:c=>`<g stroke="#ffb142" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"><path class="flick" d="M50 80 l-6 7 l7 4 l-5 9"/><path class="flick" d="M40 90 l4 -2"/></g>`},
-  swiftfoot:{f:c=>`<g fill="#6fd8b6" opacity=".55"><circle cx="30" cy="110" r="3.4"/><circle cx="24" cy="112" r="2.4"/><circle cx="86" cy="110" r="3.4"/><circle cx="94" cy="112" r="2.4"/></g>`}
+  boom:{f:c=>{const b="M48 86 L40 78 L42 70 M48 86 L58 78 L56 70 M48 86 L46 97 L36 101 M48 86 L60 93 L70 91 M48 86 L38 89 L27 84";return `<g fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="${b}" stroke="#ff8a2a" stroke-width="7" opacity=".4"/><path class="flick" d="${b}" stroke="#14100c" stroke-width="4" opacity=".75"/><path class="flick" d="${b}" stroke="#ffc65a" stroke-width="2.2"/></g>`}},
+  swiftfoot:{f:c=>`<g fill="#8ff0d0" opacity=".9"><circle cx="26" cy="109" r="6"/><circle cx="19" cy="113" r="4.2"/><circle cx="33" cy="113" r="3.6"/><circle cx="90" cy="109" r="6"/><circle cx="98" cy="113" r="4.2"/><circle cx="85" cy="113" r="3.6"/></g><path d="M12 102 h-8 M10 110 h-7 M108 102 h8 M110 110 h7" stroke="#8ff0d0" stroke-width="2.2" stroke-linecap="round"/>`}
 };
 // one composed creature: parts behind, the silhouette, its pattern (masked to the silhouette), details, parts in front; affixes the body cannot wear are returned for frame marks
