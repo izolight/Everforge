@@ -52,7 +52,7 @@ function genMap(o){
     const zp=zonePool(o.zone),pk=a=>a[Math.floor(rn()*a.length)];
     nd.ch={m:rn()<CHEST_T.mimic,l:[pk(zp),pk(zp)],e:rn()<CHEST_T.ess?pk(ESS_POOL):null,s:rn()<CHEST_T.scroll,sx:rn()};nd.pk=[pk(zp),...rn()<.5?[pk(zp)]:[]];nd.rv=[rn(),rn(),rn(),rn()];nd.sh=[rn(),rn(),rn(),rn(),rn(),rn()];nd.gr=Array.from({length:8},rn);nd.ch.g=nd.gr;
     if(fe(nd.t)||nd.t==="mystery")Object.assign(nd,speciesAfx(ENEMIES[nd.e])||rollFoe(rng(hash(o.seed+":r:"+nd.x+","+nd.y)),{elite:nd.t==="elite"||(o.twist==="elites"&&nd.t==="mystery"),heat:h,row:nd.r,mv:nd.x===bx&&nd.y===1?"still":ENEMIES[nd.e].mv}))}); // gr: grade rolls for chest, pack and event finds
-  m.pois.forEach(p=>{if(!fe(p.t))return;if(o.zone&&!p.e)p.e=pickEnemy(o.zone); // each enemy is picked now (so its way of moving is known); the gate guard never moves, elites stalk slowly
+  m.pois.forEach(p=>{if(!fe(p.t))return;if(o.zone&&!p.e)p.e=pickEnemy(o.zone,R,!sd); // each enemy is picked now (so its way of moving is known); the gate guard never moves, elites stalk slowly
     p.mv=!o.zone||(p.x===bx&&p.y===1)?"still":ENEMIES[p.e].mv||"still";
     if(p.rar==null)Object.assign(p,speciesAfx(ENEMIES[p.e])||rollFoe(R,{elite:p.t==="elite",heat:h,row:p.r,mv:p.mv}))}); // rarity and affixes are rolled once, so fleeing and coming back meets the same foe (elites keep their species' way of moving, only slower)
   m.torch=m.tmax;m.mem[key(bx,0)]="boss";m.sn[bx]=1;reveal(m);

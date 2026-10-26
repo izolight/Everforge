@@ -10,7 +10,7 @@ const {chromium}=require('playwright'),path=require('path'),assert=require('node
  await page.evaluate(()=>{$('resultPanel').open=true;S.eq.main=null;render()});
  await page.locator('[data-result-equip]').click();assert(await page.evaluate(()=>S.eq.main===S.last.id));
  console.log('ok forge explains effects and automatic equipment; direct Equip updates loadout');
- await page.evaluate(()=>{S=freshState();S.rp=20;learnTech('weaponcraft');learnTech('blade');learnTech('infuse');const id=essG('Fire',3);addItem(id);S.act='infuse';S.bench=['iron_sword',id];go('forge')}); // Infusing, learned the normal way: its group, a slot technique, then Infusing (any slot)
+ await page.evaluate(()=>{S=freshState();S.rp=30;learnTech('weaponcraft');learnTech('blade');learnTech('infuse');const id=essG('Fire',3);addItem(id);S.act='infuse';S.bench=['iron_sword',id];go('forge')}); // Infusing, learned the normal way: its group, a slot technique, then Infusing (any slot)
  assert(!await page.locator('#mixhint').innerText().then(t=>t.includes('destroy')));
  await page.locator('#combine').click();assert.equal(await page.evaluate(()=>S.stats.forged),1);
  await page.evaluate(()=>{S.battle=null;go('battle');startBattle('wolf',{row:0});unlock('parry',true);delete S.seen['i:parry'];S.battle.turn=1;render()});
@@ -46,7 +46,7 @@ const {chromium}=require('playwright'),path=require('path'),assert=require('node
  assert.equal(await page.evaluate(()=>S.battle.id),'sprite');
  await page.evaluate(()=>{for(let i=0;i<20&&!S.battle.over;i++)attack()});
  assert(await page.evaluate(()=>S.battle.over==='won'&&S.inv.coal===1&&S.onboarding===2));
- await page.evaluate(()=>{deconstruct('coal',()=>1);S.rp+=20;learnTech('weaponcraft');learnTech('blade');learnTech('infuse');const id=essG('Fire',1);S.act='infuse';S.bench=['iron_sword',id];go('forge')});await page.locator('#combine').click(); // the opening forge needs Infusing, learned the same way
+ await page.evaluate(()=>{deconstruct('coal',()=>1);S.rp+=30;learnTech('weaponcraft');learnTech('blade');learnTech('infuse');const id=essG('Fire',1);S.act='infuse';S.bench=['iron_sword',id];go('forge')});await page.locator('#combine').click(); // the opening forge needs Infusing, learned the same way
  assert(await page.evaluate(()=>S.onboarding===3&&gearOf('main').traits.Fire>0));
  await page.evaluate(()=>{S.battle=null;go('battle');const m=curMap(),[x,y]=adjTiles(m).find(([x,y])=>!poiAt(m,x,y));step(x,y)});
  assert.equal(await page.evaluate(()=>S.battle.id),'boar');await page.locator('#atk').click();
@@ -68,7 +68,7 @@ const {chromium}=require('playwright'),path=require('path'),assert=require('node
  assert(await page.evaluate(()=>document.activeElement===document.body));
  console.log('ok a re-render keeps focus on the control that had it');
  // the crucible actions: the locked ones name their technique; a satchel item the chosen action does not take is dimmed and says where it goes; the item sheet opens Infuse with its item in place
- await page.evaluate(()=>{S=freshState();S.rp=20;learnTech('weaponcraft');learnTech('blade');learnTech('infuse');addItem('iron_sword');addItem('coal');addItem(essG('Fire',3));go('forge')});
+ await page.evaluate(()=>{S=freshState();S.rp=30;learnTech('weaponcraft');learnTech('blade');learnTech('infuse');addItem('iron_sword');addItem('coal');addItem(essG('Fire',3));go('forge')});
  const tabs=await page.evaluate(()=>({open:[...document.querySelectorAll('#cacts [data-cact]')].map(b=>b.dataset.cact),locked:[...document.querySelectorAll('#cacts .locked')].map(b=>b.textContent.trim())}));
  assert.deepEqual(tabs.open,['forge','infuse']);assert.deepEqual(tabs.locked,['Improving','Fusing','Refining','Cooking','Brewing','Alchemy']);
  await page.locator('[data-cact="infuse"]').click();assert.equal(await page.evaluate(()=>S.act),'infuse');assert(await page.locator('#crucible').isVisible()&&await page.locator('#patp').isHidden()&&await page.locator('#upgp').isHidden());

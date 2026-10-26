@@ -1,5 +1,7 @@
 # Crafting rework · gradual research, clear crucible actions, denser regions
 
+**Status: done.** Chunks 1–5 are committed on `crafting-rework`; the step-by-step status is in `tasks.md` (C-01 to C-08) and the follow-ups in `todo.md`.
+
 Files: `js/data.js` (TECHS, UNLOCKS, RP, POI_N, SKILLS, TUTORIAL), `js/research.js`, `js/crafting.js`, `js/render/forge-view.js`, `js/render/gear-view.js` (salvage), `js/map.js`, `js/battle.js` (drops), `js/state.js` (new save version), `js/lang/*`, `tools/sim.js`, docs (`README.md`, `tasks.md`, `todo.md`).
 
 Old saves do not need to keep working: bump the save version and start fresh. No migration code.

@@ -8,7 +8,8 @@ const buyPrice=id=>{if(isEss(id))return Math.max(1,Math.round(EMB.ess*plainEq(gr
 const salvageEmbers=it=>isEss(it.id)?0:Math.max(1,Math.round(worth(it)*EMB.salv));
 function spendEmbers(n){S.embers-=n;S.stats.spent+=n}
 function gainEmbers(n){if(n>0){S.embers+=n;S.stats.earned+=n;if(isUnl("peddler"))floatFx("emb","+"+n,"ember")}return n}
-function fightEmbers(E,B){const base=E.boss?EMB.boss:B.id==="mimic"?EMB.elite:B.intr?EMB.fight:EMB.rar[B.rar]||EMB.fight;return gainEmbers(Math.round(base*(1+(B.heat||0)*EMB.heat)))}
+function fightEmbers(E,B){const base=E.boss?EMB.boss:B.id==="mimic"?EMB.elite:B.intr?EMB.fight:EMB.rar[B.rar]||EMB.fight,x=base*(1+(B.heat||0)*EMB.heat);
+  if(E.boss||B.id==="mimic")return gainEmbers(Math.round(x));const y=x*DENSITY_RW,n=Math.floor(y)+(Math.random()<y%1?1:0);return gainEmbers(n)} // a map fight rounds at random, so DENSITY_RW keeps its average (2 x .6 is not always 1)
 // The peddler's one-for-one offer: one of your spares for something of theirs.
 function makeOffer(){
   const free=Object.keys(S.inv).filter(id=>(S.inv[id]-eqCount(id)-benchCount(id))>0&&!S.items[id].legendary&&gradeOf(id)<4);if(!free.length)return null;

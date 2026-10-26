@@ -231,3 +231,24 @@ Then serialize **V-05–V-09** under Worker A, **M-06/M-07** under Worker C, and
 - [x] **U-01 · Grade pips and rarity frames** — `Status: Done` · `Size: S` · `js/art/items.js`, `js/helpers.js`, `js/render/`, `js/gear.js`, `js/hero.js`, `css/styles.css`, `js/lang/`
   Every essence and basic material shows its grade as five pips in the art (filled = grade; Plain is 3 and has no grade field, so `itemGrade` in `helpers.js` reads it as 3). The grade colour (new metal ramp: Faint, Lesser, Plain, Greater, Pure) is on the pips only; Pure's pips glow (off under reduced motion). The frame and stripe are rarity's, the name takes the rarity colour, and the grade ring and grade frame are gone. Removed the Roman-numeral grade badges in the satchel list and the forge tiles. Gear's grade row reads "Greater (4/5)" with `×1.4`; item lines read the same. Hero trim is rarity's (gear is never graded). Satchel help now says the pips show the grade (en, de, ko).
   **Done:** `node tools/i18n-check.js` and `node tools/run-checks.js` pass (13/13). Rendered each grade of `ess_Fire` and `golem_core` to SVG and a screenshot sheet: 1 to 5 pips read clearly on the satchel tile.
+
+## Crafting rework (`plan-crafting-rework.md`)
+
+- [x] **C-01 · Data: techniques, salvage skill, denser maps, save v18** — `Status: Done` · `Size: L` · `js/data.js`, `js/state.js`, `js/crafting.js`
+  The Binding, Layering, Compounding, Tempering and Alloying techniques are gone. A new game can only salvage (Salvaging levels output quality). Gear, forge-action and kitchen techniques replace them (`TECHS`, 25 nodes).
+  **Done:** save v18; `POI_N` fights 10–13 and elites 2–3; `DENSITY_RW` and `SPAWN_NEW` in `data.js`.
+- [x] **C-02 · Gating: `actionOk`** — `Status: Done` · `Size: M` · `js/research.js`
+  `craftMiss` became `actionOk(items)`: patterns, blueprints, Recipes and the Gear-tab buttons check slot and kitchen techniques.
+- [x] **C-03 · Crucible actions** — `Status: Done` · `Size: L` · `js/render/forge-view.js`
+  Action tabs (Forge, Infuse, Improve, Fuse, Refine, plus Cook, Brew and Alchemy when known), a slot layout per action, bench filtering, and a locked tab that names its technique.
+- [x] **C-04 · Input effects** — `Status: Done` · `Size: M` · `js/crafting.js`, `js/render/forge-view.js`
+  `combine()` tracks a source per trait; the crucible shows the header, before and after, reactions and the risk breakdown.
+- [x] **C-05 · Research view** — `Status: Done` · `Size: M` · `js/research.js`
+  Branch columns (Gear, Forge actions, Kitchen) replace the fixed 4x4 grid. Intro cards for each technique.
+- [x] **C-06 · Density** — `Status: Done` · `Size: M` · `js/data.js`, `js/map.js`, `js/battle.js`, `js/economy.js`
+  Map fights pay `DENSITY_RW` (0.65) of the old embers and drop chance; bosses and mimics do not. Spawns favour unmastered kinds (`SPAWN_NEW`). The map grid is unchanged (no fights were dropped by placement). The roamer cap was not added: the sim showed no need (see `todo.md`).
+  **Done:** `node tools/map-check.js` and `node tools/unlock-check.js` pass with the new counts. Sim (`--econ-only`, seed 7, 30 expeditions): embers within about 10% of the old values in every zone, materials within 10%.
+- [x] **C-07 · Sim and tuning** — `Status: Done` · `Size: M` · `tools/sim.js`
+  `--fresh` reports RP per expedition (fights included), and for each technique the first expedition its cumulative RP covers it with its prerequisites at the real cost (group discount and free pick). Tuning: Weaponcraft and Armorcraft 14, Infusing 8, so the first slot technique is affordable from expedition 2 or 3 (four seeds) and Infusing from expedition 2 to 5.
+- [x] **C-08 · Text and docs** — `Status: Done` · `Size: S` · `js/lang/`, `README.md`, `todo.md`
+  German and Korean entries for every new string (`node tools/i18n-check.js`). README describes the path: salvage, research, slot techniques, then Infuse, Improve, Fuse and Refine.

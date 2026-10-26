@@ -21,14 +21,14 @@ async function flow(browser,w){
   // a fresh save can only salvage: the Infuse tab is locked and names the technique that opens it
   r=await p.evaluate(()=>{essence("Fire");addItem("ess_Fire",3);go("forge");const l=[...document.querySelectorAll("#cacts .locked")].find(b=>/Infusing/.test(b.textContent));return{tip:l?l.dataset.tip:"",dis:l?l.getAttribute("aria-disabled"):null,hidden:$("crucible").hidden}});
   ok(r.dis==="true"&&/Learn Infusing in Research/.test(r.tip)&&r.hidden,"before Research the Infuse tab is locked and names Infusing ("+r.tip.replace(/\n/g," | ")+")");
-  // the first salvage opens Research and pays 3 RP: enough for Weaponcraft
+  // the first salvage opens Research and pays 3 RP: a start, not yet a group technique (14)
   r=await p.evaluate(()=>{const a=S.rp;addItem("coal");deconstruct("coal",()=>1);render();return{rp:S.rp-a,res:isUnl("research"),salv:S.stats.salvaged}});
   ok(r.rp===3&&r.res&&r.salv===1,"the first salvage opens Research and pays 3 RP (got "+r.rp+")");
   await p.waitForTimeout(500);r=await p.evaluate(()=>({t:__t.filter(x=>/research/.test(x)),s:__s.includes("research"),card:pendingIntros().some(c=>c.id==="research")}));
   ok(r.t.length===1&&/\+3 research: your first salvage/.test(r.t[0]),"... and one toast says so ("+r.t+")");ok(r.s,"... with a sound");ok(r.card,"... and the Research intro card is queued");
-  // learn Weaponcraft (3), then a blade for free, then Infusing (8): the first forge needs it
-  r=await p.evaluate(()=>{const a=S.rp;learnTech("weaponcraft");const b=S.rp;learnTech("blade");const c=S.rp;S.rp+=8;learnTech("infuse");return{wc:b-a,blade:c-b,infuse:S.rp-c-8,ids:Object.keys(S.techs).join(","),tp:S.tpaid.blade}});
-  ok(r.wc===-3&&r.blade===0&&r.tp===0&&r.infuse===-8&&r.ids.includes("infuse"),"Weaponcraft costs 3, the first slot technique after it is free, Infusing costs 8 ("+JSON.stringify(r)+")");
+  // learn Weaponcraft (14), then a blade for free, then Infusing (8): the first forge needs it
+  r=await p.evaluate(()=>{S.rp+=11;const a=S.rp;learnTech("weaponcraft");const b=S.rp;learnTech("blade");const c=S.rp;S.rp+=8;learnTech("infuse");return{wc:b-a,blade:c-b,infuse:S.rp-c-8,ids:Object.keys(S.techs).join(","),tp:S.tpaid.blade}});
+  ok(r.wc===-14&&r.blade===0&&r.tp===0&&r.infuse===-8&&r.ids.includes("infuse"),"Weaponcraft costs 14, the first slot technique after it is free, Infusing costs 8 ("+JSON.stringify(r)+")");
   await bench(p,["iron_sword","ess_Fire"]);r=await mix(p);ok(!r.miss.length&&r.dis==="false"&&!r.off,"with Infusing, a sword and one essence forge");
   // the very first forge: Iron + Fire react into Tempered, so form, recipe and reaction pay once each
   r=await p.evaluate(()=>{const a=S.rp;Math.random=()=>.99;$("combine").click();$("combine").click();return{rp:S.rp-a,journal:S.journal.length}});
@@ -79,26 +79,26 @@ async function sources(browser){
 
 async function learning(browser,w){
   const p=await open(browser,w);
-  await p.evaluate(()=>{S.journal=[{id:"x",name:"x"}];S.items.x={id:"x",name:"Fire Sword",form:"blade",noun:"Sword",traits:{Fire:3,Sharp:4},tier:2,crafted:true,recipeIds:["iron_sword","ess_Fire"],recipe:["a","b"]};S.inv.x=1;S.xp=120;essence("Ice");addItem("ess_Ice",3);S.view="forge";render();pendingIntros().forEach(c=>S.seen[introKey(c.id)]=true);Object.keys(ABILITIES).forEach(k=>S.seen["a:"+k]=true);S.rp=10;render();$("resd").open=true;render()});
+  await p.evaluate(()=>{S.journal=[{id:"x",name:"x"}];S.items.x={id:"x",name:"Fire Sword",form:"blade",noun:"Sword",traits:{Fire:3,Sharp:4},tier:2,crafted:true,recipeIds:["iron_sword","ess_Fire"],recipe:["a","b"]};S.inv.x=1;S.xp=120;essence("Ice");addItem("ess_Ice",3);S.view="forge";render();pendingIntros().forEach(c=>S.seen[introKey(c.id)]=true);Object.keys(ABILITIES).forEach(k=>S.seen["a:"+k]=true);S.rp=17;render();$("resd").open=true;render()});
   let r=await p.evaluate(()=>({n:TECHS.length,nodes:document.querySelectorAll("#restree .tn").length,learned:document.querySelectorAll("#restree .tn.learned").length,can:TECHS.filter(t=>techState(t)==="avail"&&S.rp>=techCost(t)).map(t=>t.id),locked:document.querySelectorAll("#restree .tn.locked").length,sum:$("ressum").textContent,hdr:$("rp").textContent}));
   ok(r.nodes===r.n&&r.learned===0,`the tree draws every technique (${r.nodes}), none learned yet`);
-  ok(r.can.join()==="weaponcraft,armorcraft,cooking,brewing","available and affordable with 10 RP: the two group techniques and the kitchen ones; a slot technique waits for its group ("+r.can+")");
-  ok(/10 RP/.test(r.sum)&&r.hdr.trim()==="10","the summary and the header show 10 RP ("+r.sum+")");
+  ok(r.can.join()==="weaponcraft,armorcraft,cooking,brewing","available and affordable with 17 RP: the two group techniques and the kitchen ones; a slot technique waits for its group ("+r.can+")");
+  ok(/17 RP/.test(r.sum)&&r.hdr.trim()==="17","the summary and the header show 17 RP ("+r.sum+")");
   await shot(p,w,"1-research-fresh",true);
   // a locked one says why, and Learn does nothing
   r=await p.evaluate(()=>{document.querySelector("[data-tech=master]").click();const lb=$("learn");lb.click();return{tip:lb.dataset.tip,dis:lb.getAttribute("aria-disabled"),t:S.techs.master,det:document.querySelector(".tdb b").textContent}});
   ok(r.dis==="true"&&/Learn Fusing first/.test(r.tip)&&!r.t&&r.det==="Masterwork","Masterwork is locked: Learn is disabled and its tip says to learn Fusing first ("+r.tip.replace(/\n/g," | ")+")");
-  r=await p.evaluate(()=>{learnTech("master");return{t:S.techs.master,rp:S.rp,toast:__t[__t.length-1]}});ok(!r.t&&r.rp===10&&/Learn Fusing first/.test(r.toast),"learnTech refuses it too");
+  r=await p.evaluate(()=>{learnTech("master");return{t:S.techs.master,rp:S.rp,toast:__t[__t.length-1]}});ok(!r.t&&r.rp===17&&/Learn Fusing first/.test(r.toast),"learnTech refuses it too");
   // learn Weaponcraft: the sound, a toast, an intro card, the points spent
   await p.evaluate(()=>{window.__s.length=0;document.querySelector("[data-tech=weaponcraft]").click()});
-  r=await p.evaluate(()=>({txt:document.querySelector("#learn").textContent,on:$("learn").getAttribute("aria-disabled")}));ok(r.on!=="true"&&/Learn · 3/.test(r.txt),"an affordable technique shows Learn with its cost ("+r.txt+")");
+  r=await p.evaluate(()=>({txt:document.querySelector("#learn").textContent,on:$("learn").getAttribute("aria-disabled")}));ok(r.on!=="true"&&/Learn · 14/.test(r.txt),"an affordable technique shows Learn with its cost ("+r.txt+")");
   await p.evaluate(()=>{document.querySelector("[data-tech=weaponcraft]").click();$("learn").click()});await p.waitForTimeout(100);
   r=await p.evaluate(()=>({t:!!S.techs.weaponcraft,rp:S.rp,s:__s.filter(x=>x==="tech").length,toast:__t.filter(x=>/Learned Weaponcraft/.test(x)).length,card:pendingIntros().map(c=>c.id),shown:!$("intro").hidden&&/Weaponcraft/.test($("intro").textContent),unl:!!S.unl["t:weaponcraft"]}));
-  ok(r.t&&r.rp===7,`Weaponcraft is learned and 3 RP are spent (rp ${r.rp})`);ok(r.s===1&&r.toast===1,"it plays the tech sound and shows a toast");ok(r.card.join()==="t:weaponcraft"&&r.shown,"its intro card is queued and shows ("+r.card+")");
+  ok(r.t&&r.rp===3,`Weaponcraft is learned and 14 RP are spent (rp ${r.rp})`);ok(r.s===1&&r.toast===1,"it plays the tech sound and shows a toast");ok(r.card.join()==="t:weaponcraft"&&r.shown,"its intro card is queued and shows ("+r.card+")");
   await shot(p,w,"1b-learned-intro");
   // the free pick: the first blade costs nothing, the spear then costs half (3)
   r=await p.evaluate(()=>{document.querySelector("#intro #introOk")?.click();document.querySelector("[data-tech=blade]").click();const a=S.rp;$("learn").click();const b=S.rp;document.querySelector("[data-tech=spear]").click();$("learn").click();return{blade:S.techs.blade?a-b:"no",spear:S.techs.spear?b-S.rp:"no",rp:S.rp,tb:S.tpaid.blade,tsp:S.tpaid.spear}});
-  ok(r.blade===0&&r.spear===3&&r.rp===4,`the first weapon technique after Weaponcraft is free, the next costs 3 (blade ${r.blade}, spear ${r.spear}, rp ${r.rp})`);
+  ok(r.blade===0&&r.spear===3&&r.rp===0,`the first weapon technique after Weaponcraft is free, the next costs 3 (blade ${r.blade}, spear ${r.spear}, rp ${r.rp})`);
   // mid-progress screenshot: a few techniques learned, points to spend
   await p.evaluate(()=>{S.rp=9;S.xp=330;["armorcraft","helm","cooking"].forEach(id=>S.techs[id]=Object.keys(S.techs).length+1);UNLOCKS.forEach(u=>{if(u.i)S.seen["i:"+u.id]=true});render();document.querySelector("[data-tech=fuse]").click()});
   await shot(p,w,"2-research-mid",true);

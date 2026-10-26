@@ -142,7 +142,8 @@ async function run(label,setup,nat,steps=STEPS){
       if(S.bench.length>=2){const j0=S.stats.forged+S.stats.fizzles;q("#combine").click();q("#combine").click();await sleep(30);out.forged++;if(S.stats.forged+S.stats.fizzles===j0&&actionOk(S.bench.map(id=>S.items[id])).length)out.gated++} // twice: the first tap only arms the equipped-item warning; a craft that needs a technique you lack is refused
       S.bench=[];save();
       if(isUnl("research")){go("forge");{const rd=q("#resd");if(rd)rd.open=true}
-        const av=qa("#restree .tn.can");if(av.length){click(av[Math.floor(Math.random()*av.length)]);const lb=q("#learn");if(lb&&lb.getAttribute("aria-disabled")!=="true"){click(lb);out.learned++}}
+        const av=qa("#restree .tn.can"),gear=b=>/^(weaponcraft|armorcraft|blade|spear|staff|helm|body|gloves|boots|shield)$/.test(b.dataset.tech),gc=av.filter(gear),saving=!gc.length&&qa("#restree .tn.avail").some(gear); // a newcomer buys gear first, and saves up for it rather than spending on the cheap ones
+        const pk=gc.length?gc:saving?[]:av;if(pk.length){click(pk[Math.floor(Math.random()*pk.length)]);const lb=q("#learn");if(lb&&lb.getAttribute("aria-disabled")!=="true"){click(lb);out.learned++}}
         const sb=qa("#restree [data-study]:not(.off)");if(sb.length){click(sb[Math.floor(Math.random()*sb.length)]);out.studied++}}
       S.embers+=40;{const t=pick(ESS_POOL);for(let k=0;k<3;k++)addItem(essG(t,1))}go("forge"); // upgrading a grade (3 Faint, Alchemy Lv 1 is enough), then a mishap to reforge
       const rf=q("#upgrows [data-upgrade]:not([disabled])");if(rf){rf.click();out.upgraded++}

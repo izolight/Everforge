@@ -209,20 +209,25 @@ function setup(){ // runs inside the game page; everything here uses the real ga
     if(isUnl("research")){[...new Set(Object.keys(S.inv).filter(id=>isEss(id)&&S.inv[id]>0).map(essTrait))].filter(canStudy).slice(0,3).forEach(studyFam);
       for(let k=0;k<10;k++){const t=TECHS.filter(t=>techState(t)==="avail"&&S.rp>=techCost(t)).sort((a,b)=>techCost(a)-techCost(b))[0];if(!t)break;learnTech(t.id);learned.push(t.name)}}
     rpQ=[];return{gain:rpEarned()-rp0,learned}};
+  // the RP a technique needs in all: what it and the techniques it needs first cost, bought in order on a copy of the save (techCost in that order: a group's discount and free pick count)
+  const chainTo=id=>{const s={techs:{...S.techs},tpaid:{...(S.tpaid||{})}};let total=0;
+    const buy=t=>{if(s.techs[t.id])return;t.pre.forEach(p=>buy(TECH[p]));if(t.or&&!t.or.some(p=>s.techs[p]))buy(t.or.map(p=>TECH[p]).sort((a,b)=>techCost(a,s)-techCost(b,s))[0]);
+      const c=techCost(t,s);total+=c;s.techs[t.id]=Math.max(0,...Object.values(s.techs))+1;s.tpaid[t.id]=c};
+    buy(TECH[id]);return total};
   SIM.fresh=(n,pol,seed)=>{
     useSeed(seed,"fresh");S=freshState();S.hp=pstats().maxHp;const rows=[],seenU=new Set();
     for(let e=0;e<n;e++){
       S.zone="woods";S.maps.woods=newMap("woods");S.battle=null;S.event=null;S.hp=pstats().maxHp;S.camp=2;S.stats.earned=0;
-      const m=curMap(),types={},w0=S.wins;m.pois.forEach(p=>types[p.t]=(types[p.t]||0)+1);
+      const m=curMap(),types={},w0=S.wins,rpE0=rpEarned();m.pois.forEach(p=>types[p.t]=(types[p.t]||0)+1);
       const r=walkExped(pol),res=r.won?"won":r.lost?"lost":"walked away";if(!r.won&&!r.lost)S.stats.exped++; // an abandoned run still counts as an expedition
       const rs=chores();checkUnl(true);const opened=Object.keys(S.unl).filter(k=>!seenU.has(k));Object.keys(S.unl).forEach(k=>seenU.add(k));
-      rows.push({e:e+1,res,steps:r.steps,fights:r.fights,wins:S.wins-w0,hunted:r.cont,pois:types,visits:r.visits,opened,rp:{gain:rs.gain,earned:rpEarned(),have:S.rp,learned:rs.learned,src:Object.keys(S.rpd).reduce((o,k)=>{const p=k.split(":")[0];o[p]=(o[p]||0)+1;return o},{})},sc:{exps:exps(S),wins:S.wins,lv:level()}})}
+      rows.push({e:e+1,res,steps:r.steps,fights:r.fights,wins:S.wins-w0,hunted:r.cont,pois:types,visits:r.visits,opened,rp:{gain:rpEarned()-rpE0,earned:rpEarned(),have:S.rp,learned:rs.learned,aff:TECHS.filter(t=>rpEarned()>=chainTo(t.id)).map(t=>t.id),src:Object.keys(S.rpd).reduce((o,k)=>{const p=k.split(":")[0];o[p]=(o[p]||0)+1;return o},{})},sc:{exps:exps(S),wins:S.wins,lv:level()}})}
     return rows};
   SIM.exped=(snap,zone,heat,pol,seedKey,seed)=>{
     useSeed(seed,seedKey);S=JSON.parse(snap);S.zone=zone;S.embers=0;S.hp=pstats().maxHp;S.camp=2;S.maps[zone]=genMap({heat,zone});S.stats.earned=0;
     return walkExped(pol)};
   const walkExped=pol=>{ // one expedition on the current S (its map), walked to the boss or a defeat
-    const r={won:0,lost:0,fights:0,cont:0,mags:0,rares:0,shops:[],visits:{},hp0:S.hp},e0=essCount(),i0=itemCount(),inv0={...S.inv};let steps=0;
+    const r={won:0,lost:0,fights:0,cont:0,mags:0,rares:0,shops:[],visits:{},hp0:S.hp},e0=essCount(),i0=itemCount(),inv0={...S.inv},xp0=S.xp;let steps=0;
     const fightOut=()=>{const B=S.battle;let g=0;while(S.battle===B&&!B.over&&B.turn<150&&g++<600)POL[pol](B);r.fights++;if(B.by==="it")r.cont++;if(B.afx.length)r[B.rar==="rare"?"rares":"mags"]++;return B.over};
     const settle=()=>{
       for(let k=0;k<12;k++){
@@ -256,7 +261,7 @@ function setup(){ // runs inside the game page; everything here uses the real ga
     // what salvaging the new loot would add: its essences and embers (the sim itself never salvages)
     const decEss=it=>{const y=deconYield(it);return y.frag.reduce((n,[,k,g])=>n+k*plainEq(g),0)+y.ch.reduce((n,[,p,g])=>n+p*plainEq(g),0)}; // expected plain essences from deconstructing it (fragments plus the chances)
     let sEss=0,sEmb=0;Object.keys(S.inv).forEach(id=>{const d=S.inv[id]-(inv0[id]||0),it=S.items[id];if(d>0&&!isEss(id)){if(canDecon(it)){sEss+=d*decEss(it);sEmb+=d*salvageEmbers(it)}else if(canSalvage(it)){sEss+=d*salvageYield(it).length*plainEq(salvGrade(it));sEmb+=d*salvageEmbers(it)}}});
-    return{...r,embers:S.stats.earned,ess:essCount()-e0,items:itemCount()-i0,steps,dark,tEnd,sEss,sEmb};
+    return{...r,embers:S.stats.earned,ess:essCount()-e0,items:itemCount()-i0,xp:S.xp-xp0,steps,dark,tEnd,sEss,sEmb};
   };
 }
 
@@ -288,8 +293,12 @@ async function main(){
     const n=+opt("exped",5),rows=await P0.evaluate(([n,p,sd])=>SIM.fresh(n,p,sd),[n,POLS[0],SEED]);
     console.log(`== Fresh save: ${n} expeditions in the Woods with the unlock gates on (starter kit, ${POLS[0]} policy) ==\nColumns: result, steps, fights, wins this run; POIs placed on the map (shown by type); POI types the bot walked into; what opened afterwards (smith Lv / total wins / expeditions finished).`);
     rows.forEach(r=>console.log(`#${r.e} ${r.res.padEnd(11)} ${String(r.steps).padStart(3)} steps ${String(r.fights).padStart(2)} fights ${String(r.wins).padStart(2)} wins | map: ${Object.entries(r.pois).map(([t,c])=>t+" "+c).join(", ")}\n     met: ${Object.entries(r.visits).map(([t,c])=>t+" "+c).join(", ")||"nothing"} | then Lv ${r.sc.lv}, ${r.sc.wins} wins, ${r.sc.exps} expeditions -> opened: ${r.opened.join(", ")||"-"}\n     research: +${r.rp.gain} RP (${r.rp.earned} earned, ${r.rp.have} unspent; sources so far: ${Object.entries(r.rp.src).map(([k,n])=>k+" "+n).join(", ")})${r.rp.learned.length?` | learned: ${r.rp.learned.join(", ")}`:""}`));
-    const tc=await P0.evaluate(()=>TECHS.filter(t=>t.cost).map(t=>({n:t.name,c:t.cost,rq:rqT(t)})));
-    console.log(`\nResearch: RP earned per expedition: ${rows.map(r=>r.rp.gain).join(", ")} (mean ${f1(rows.reduce((a,r)=>a+r.rp.gain,0)/rows.length)}). The bot deconstructs raw finds, infuses essences into the sword, studies up to three families per expedition and learns the cheapest technique it can afford.\nA technique is affordable on the first expedition whose cumulative RP earned reaches its cost (its Smith level or skill requirement may come later). A slot technique costs 3 once its group is known, and the first one after a group technique is free:\n${tc.map(t=>{const k=rows.find(r=>r.rp.earned>=t.c);return `  ${t.n.padEnd(13)} ${String(t.c).padStart(2)} RP  ${k?"expedition "+k.e:"not yet"}${t.rq?"  (needs "+t.rq+")":""}`}).join("\n")}`);
+    // the first expedition each technique is affordable (prerequisites learned, unspent RP covers its real cost), from the bot's own sequence
+    const names=await P0.evaluate(()=>Object.fromEntries(TECHS.map(t=>[t.id,{n:t.name,c:S.techs[t.id]!=null?S.tpaid[t.id]:techCost(t),rq:rqT(t)}]))); // c: what it cost when bought (the free pick is 0), else what it costs now
+    const first={};rows.forEach(r=>r.rp.aff.forEach(id=>{if(!first[id])first[id]={e:r.e}}));
+    const learnedAt={};rows.forEach(r=>r.rp.learned.forEach(n=>{learnedAt[n]=learnedAt[n]||r.e}));
+    console.log(`\nResearch: RP earned per expedition: ${rows.map(r=>r.rp.gain).join(", ")} (mean ${f1(rows.reduce((a,r)=>a+r.rp.gain,0)/rows.length)}). The bot deconstructs raw finds, infuses essences into the sword, studies up to three families per expedition and learns the cheapest technique it can afford.\nAffordable = the first expedition whose cumulative RP earned covers the technique with what it needs first (the group technique, for a slot), at the real techCost (a slot technique costs 3 once its group is known, and the first one after a group technique is free). Learned = the expedition the bot bought it:`);
+    console.log(Object.entries(names).map(([id,x])=>{const f=first[id];return `  ${x.n.padEnd(13)} ${String(x.c).padStart(2)} RP  ${f?"affordable from expedition "+f.e:"not affordable in "+rows.length+" expeditions"}${learnedAt[x.n]?", learned on "+learnedAt[x.n]:""}${x.rq?"  (needs "+x.rq+")":""}`}).join("\n"));
     await browser.close();return}
   const zones=list("zone",ZN),kitSel=list("kit",null),mastered=!has("no-mastered");
   const eSel=list("enemy",null),pickE=e=>eSel?eSel.includes(e.id):(e.zone==="any"||zones.includes(e.zone));
@@ -503,17 +512,17 @@ async function main(){
   if(RUN_ECON){
     const ez=zones,eh=HEATS[0],ep=POLS.includes("smart")?"smart":POLS[0];
     console.log(`\n== Economy: ${EXPED} expeditions per zone, ${ep} policy, melee stage kit (codex mastered for its zone), Heat ${eh} ==`);
-    console.log("Columns WITHOUT salvage: embers (fight rewards), ess (essences from chests, shrines, elites, bosses...), items (all drops). Columns WITH salvage (the bot never salvages; this is the value of the new non-equipped loot if you did): sv.ess (essences) and sv.emb (embers); emb+sv and ess+sv are the totals; gear/exp = (embers+sv.emb) / median shop gear price.");
-    const cols=[["zone",8],["kit",14],["clear%",7],["lost%",6],["fights",7],["by foe",7],["magic",6],["rare",6],["embers",7],["sv.emb",7],["emb+sv",7],["ess",5],["sv.ess",7],["ess+sv",7],["items",6],["shops",6],["steps",6],["dark",5],["torch",6],["gear price min-med-max",23],["ess price",10],["emb@shop",9],["gear/exp",8]];
+    console.log("Columns WITHOUT salvage: embers (fight rewards), ess (essences from chests, shrines, elites, bosses...), items (all drops), xp (smith XP gained: no fight gives XP directly, only heat spoils, bounties and dailies). Columns WITH salvage (the bot never salvages; this is the value of the new non-equipped loot if you did): sv.ess (essences) and sv.emb (embers); emb+sv and ess+sv are the totals; gear/exp = (embers+sv.emb) / median shop gear price.");
+    const cols=[["zone",8],["kit",14],["clear%",7],["lost%",6],["fights",7],["by foe",7],["magic",6],["rare",6],["embers",7],["sv.emb",7],["emb+sv",7],["ess",5],["sv.ess",7],["ess+sv",7],["items",6],["shops",6],["steps",6],["dark",5],["torch",6],["xp",5],["gear price min-med-max",23],["ess price",10],["emb@shop",9],["gear/exp",8]];
     console.log(cols.map(([c,w])=>c.padEnd(w)).join(""));
     for(const z of ez){const k=kits.find(k=>k.on===z&&k.type==="melee")||kits.find(k=>k.on===z);if(!k)continue;
       const ids=Array.from({length:EXPED},(_,i)=>i),chunks=Array.from({length:JOBS},(_,j)=>ids.filter(i=>i%JOBS===j));
       const rs=(await Promise.all(chunks.map((ch,j)=>pages[j].evaluate(([n,zz,h,p,ids,seed])=>ids.map(i=>SIM.exped(SIM.kits[n].snap,zz,h,p,"exp"+zz+i,seed)),[k.name,z,eh,ep,ch,SEED])))).flat();
       const avg=f=>rs.reduce((a,r)=>a+f(r),0)/rs.length,shops=rs.flatMap(r=>r.shops),gear=shops.flatMap(s=>s.gear),essP=shops.flatMap(s=>s.ess);
-      const row={zone:z,kit:k.name,clear:avg(r=>r.won),lost:avg(r=>r.lost),fights:avg(r=>r.fights),cont:avg(r=>r.cont),mags:avg(r=>r.mags),rares:avg(r=>r.rares),embers:avg(r=>r.embers),salvEmb:avg(r=>r.sEmb),ess:avg(r=>r.ess),salvEss:avg(r=>r.sEss),items:avg(r=>r.items),shops:shops.length/rs.length,steps:avg(r=>r.steps),dark:avg(r=>r.dark),torch:avg(r=>r.tEnd),
+      const row={zone:z,kit:k.name,clear:avg(r=>r.won),lost:avg(r=>r.lost),fights:avg(r=>r.fights),cont:avg(r=>r.cont),mags:avg(r=>r.mags),rares:avg(r=>r.rares),embers:avg(r=>r.embers),salvEmb:avg(r=>r.sEmb),ess:avg(r=>r.ess),salvEss:avg(r=>r.sEss),items:avg(r=>r.items),xp:avg(r=>r.xp),shops:shops.length/rs.length,steps:avg(r=>r.steps),dark:avg(r=>r.dark),torch:avg(r=>r.tEnd),
         gear:gear.length?[Math.min(...gear),median(gear),Math.max(...gear)]:null,essPrice:essP.length?[Math.min(...essP),Math.max(...essP)]:null,embAtShop:shops.length?shops.reduce((a,s)=>a+s.emb,0)/shops.length:0,exped:rs.length};
       row.affordable=gear.length?(row.embers+row.salvEmb)/median(gear):0;result.econ.push(row);
-      console.log([z,k.name,pct(row.clear),pct(row.lost),f1(row.fights),f1(row.cont),f1(row.mags),f1(row.rares),f1(row.embers),f1(row.salvEmb),f1(row.embers+row.salvEmb),f1(row.ess),f1(row.salvEss),f1(row.ess+row.salvEss),f1(row.items),f1(row.shops),f1(row.steps),f1(row.dark),f1(row.torch),row.gear?row.gear.join("-"):"-",row.essPrice?[...new Set(row.essPrice)].join("-"):"-",f1(row.embAtShop),f1(row.affordable)].map((v,i)=>String(v).padEnd(cols[i][1])).join(""))}
+      console.log([z,k.name,pct(row.clear),pct(row.lost),f1(row.fights),f1(row.cont),f1(row.mags),f1(row.rares),f1(row.embers),f1(row.salvEmb),f1(row.embers+row.salvEmb),f1(row.ess),f1(row.salvEss),f1(row.ess+row.salvEss),f1(row.items),f1(row.shops),f1(row.steps),f1(row.dark),f1(row.torch),f1(row.xp),row.gear?row.gear.join("-"):"-",row.essPrice?[...new Set(row.essPrice)].join("-"):"-",f1(row.embAtShop),f1(row.affordable)].map((v,i)=>String(v).padEnd(cols[i][1])).join(""))}
   }
   await browser.close();
   if(OUT){fs.writeFileSync(OUT,JSON.stringify(result));console.log(`\nwrote ${OUT}`)}

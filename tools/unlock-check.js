@@ -63,7 +63,7 @@ async function flow(browser,w){
     S.stats.exped=1;out.e1=types().t;S.stats.deaths=1;S.stats.exped=0;checkUnl(true);out.d1=S.unl.shrine?1:0; // a defeat counts like a boss kill
     S.stats.exped=1;S.stats.deaths=1;checkUnl(true);out.e2=types().t;
     S.xp=160;checkUnl(true);const x=types();out.lv3=x.t;out.reach=reach(x.m);
-    out.nf=[...Array(30)].map(()=>genMap({heat:0,zone:"woods"}).pois.filter(q=>q.t==="fight").length).filter(n=>n<6||n>9).length; // fights stay 5-7 plus the gate guard (and a bit of a spread)
+    out.nf=[...Array(30)].map(()=>genMap({heat:0,zone:"woods"}).pois.filter(q=>q.t==="fight").length).filter(n=>n<11||n>14).length; // fights stay 10-13 plus the gate guard (and a bit of a spread)
     const a=JSON.stringify(genMap({seed:77,zone:"pass",heat:2})),b=(S.unl={},JSON.stringify(genMap({seed:77,zone:"pass",heat:2})));out.det=a===b; // a seeded (daily) map ignores unlocks
     return out});
   ok(g.e0==="boss,camp,chest,fight","map 1: no shrine, peddler, mystery or elite ("+g.e0+")");

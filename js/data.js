@@ -333,7 +333,9 @@ const TUTORIAL=[
   {text:"Play the daily expedition, under the map.",tab:"battle",need:"daily",done:s=>s.stats.dailies>=1,reward:{items:["ess:Holy@4","ess:Stone"],xp:60}}
 ];
 // the map is a GRID.w x GRID.h tile grid; MAP_ROWS is its depth scale (0..5 by distance from the start, 6 = the lair) that sets enemy scaling and the daily's "depth reached"
-const MAP_ROWS=7,GRID={w:13,h:17},POI_N={fight:[5,3],elite:[1,2],chest:2,shrine:2,peddler:1,mystery:3}; // larger branching maps; [min,spread]: fights 5-7, elites 1-2 (doubled at Heat 2+)
+const MAP_ROWS=7,GRID={w:13,h:17},POI_N={fight:[10,4],elite:[2,2],chest:2,shrine:2,peddler:1,mystery:3}; // denser maps; [min,spread]: fights 10-13, elites 2-3 (doubled at Heat 2+)
+// DENSITY_RW: what a map fight pays against the old maps (embers, material drop chance), so a whole expedition keeps about its old loot with more fights (the sim's expedition meets about 1.3x the old count). Bosses and mimics are not scaled. SPAWN_NEW: the weight of a kind you have not mastered when a map picks its fights, against 1 for a mastered one.
+const DENSITY_RW=.65,SPAWN_NEW=2;
 // torchlight: the torch drains 1 per step (Heat 5: h5 per step); at 0 light drops to dim and every step risks an ambush (amb); shrine/rest refill
 const TORCH={max:40,rad:2,dim:1,amb:.3,shrine:20,rest:15,h5:1.5,nocamp:20};
 // roaming enemies: aw = path steps at which a chaser notices you (dark = torch out, heat = extra at Heat 3+, elite = elites), lose = steps at which it loses you, daze = steps a fled-from enemy stays idle, stay = a wanderer's chance to hold still
@@ -440,10 +442,10 @@ const boss1=s=>(s.kills[ZONES[0][2]]|0)>0,abOf=s=>[s.eq.main,s.eq.off].some(id=>
 // The forge actions: infuse (essences), improve (materials), fuse (two forms), refine (grades, see UP), mend (reforge), precision and masterwork. KITCHEN_TECH: food, potions and materials need cooking, brewing and alchemy. actionOk (research.js) reads these.
 const GROUP_TECH={weapon:"weaponcraft",armor:"armorcraft"},SLOT_TECH={blade:"blade",spear:"spear",staff:"staff",helm:"helm",chest:"body",bulwark:"body",gloves:"gloves",boots:"boots",shield:"shield",charm:"trinketry"},KITCHEN_TECH={food:"cooking",potion:"brewing",elixir:"brewing",material:"alchemy"};
 const SLOT_ALL=["blade","spear","staff","helm","body","gloves","boots","shield"];
-const RP={form:2,rec:1,recCap:10,fam:1,rx:4,study:1,mast:2,boss:[4,8,12,16,20],afx:1,leg:4,lv:2,lvMax:9,sk:2,skLv:[3,5,7,9],bp:2,salv:3},PREC=[5,5],INSIGHT={ch:35}; // INSIGHT.ch: % chance a craft with one side of an unseen reaction hints at it; RP.salv: the first salvage pays this much, enough for a group technique
+const RP={form:2,rec:1,recCap:10,fam:1,rx:4,study:1,mast:2,boss:[4,8,12,16,20],afx:1,leg:4,lv:2,lvMax:9,sk:2,skLv:[3,5,7,9],bp:2,salv:3},PREC=[5,5],INSIGHT={ch:35}; // INSIGHT.ch: % chance a craft with one side of an unseen reaction hints at it; RP.salv: the first salvage pays this much (a first step toward a group technique)
 const skLvOf=(s,k)=>SK_LV.filter(t=>((s.skills||{})[k]|0)>=t).length,smLv=n=>({rq:"Smith Lv {l}",rv:{l:n},ok:s=>lvOf(s.xp)>=n});
 const TECHS=[
-  {id:"weaponcraft",name:"Weaponcraft",ic:"attack",cost:3,pre:[],gr:"weapon",group:1,pos:[0,0],d:"Weapon slot techniques cost half. The first one you learn after this is free.",gate:"Blade, spear and staff: half price, and one free.",
+  {id:"weaponcraft",name:"Weaponcraft",ic:"attack",cost:14,pre:[],gr:"weapon",group:1,pos:[0,0],d:"Weapon slot techniques cost half. The first one you learn after this is free.",gate:"Blade, spear and staff: half price, and one free.",
     i:{t:"Weaponcraft",l:["Weapon slot techniques cost half now. Your next weapon technique is free: pick the blade, spear or staff you want most."],tab:"forge",sel:"#resd"}},
   {id:"blade",name:"Bladecraft",ic:"smith",cost:6,pre:["weaponcraft"],gr:"weapon",pos:[0,1],d:"The blade pattern and its blueprints in the Forge.",gate:"Blades.",
     i:{t:"Bladecraft",l:["Blades can be forged from the blade pattern in the Forge."],tab:"forge",sel:"#pats"}},
@@ -451,7 +453,7 @@ const TECHS=[
     i:{t:"Spearcraft",l:["Spears can be forged from the spear pattern in the Forge."],tab:"forge",sel:"#pats"}},
   {id:"staff",name:"Staffcraft",ic:"smith",cost:6,pre:["weaponcraft"],gr:"weapon",pos:[0,3],d:"The staff pattern and its blueprints in the Forge.",gate:"Staves.",
     i:{t:"Staffcraft",l:["Staves can be forged from the staff pattern in the Forge."],tab:"forge",sel:"#pats"}},
-  {id:"armorcraft",name:"Armorcraft",ic:"guard",cost:3,pre:[],gr:"armor",group:1,pos:[1,0],d:"Armor slot techniques cost half. The first one you learn after this is free.",gate:"Helm, body, gloves, boots and shield: half price, and one free.",
+  {id:"armorcraft",name:"Armorcraft",ic:"guard",cost:14,pre:[],gr:"armor",group:1,pos:[1,0],d:"Armor slot techniques cost half. The first one you learn after this is free.",gate:"Helm, body, gloves, boots and shield: half price, and one free.",
     i:{t:"Armorcraft",l:["Armor slot techniques cost half now. Your next armor technique is free: pick the piece you need most."],tab:"forge",sel:"#resd"}},
   {id:"helm",name:"Helmcraft",ic:"smith",cost:6,pre:["armorcraft"],gr:"armor",pos:[1,1],d:"The helm pattern and its blueprints in the Forge.",gate:"Head armor.",
     i:{t:"Helmcraft",l:["Helms can be forged from the helm pattern in the Forge."],tab:"forge",sel:"#pats"}},

@@ -9,7 +9,7 @@ let fails=0;const ok=(c,m)=>{if(!c){fails++;console.log("FAIL",m)}else console.l
   const errs=[];p.on("pageerror",e=>errs.push(e.message));p.on("console",m=>{if(m.type()==="error"&&!/fonts|net::/.test(m.text()))errs.push(m.text())});
   await p.goto(URL);
   const E=(f,a)=>p.evaluate(f,a);
-  const {AFX_T,EMB,RARITIES}=await E(()=>({AFX_T,EMB,RARITIES}));
+  const {AFX_T,EMB,RARITIES,DENSITY_RW}=await E(()=>({AFX_T,EMB,RARITIES,DENSITY_RW}));
   // helpers inside the page
   await E(()=>{
     window.R=(v,fn)=>{const r=Math.random;Math.random=typeof v==="function"?v:()=>v;try{return fn()}finally{Math.random=r}};
@@ -118,7 +118,7 @@ let fails=0;const ok=(c,m)=>{if(!c){fails++;console.log("FAIL",m)}else console.l
   ok(/50% chance of one grade better/.test(r.txt.split("|")[0])&&/one grade better/.test(r.txt.split("|")[1])&&!/two grades/.test(r.txt)&&/50% chance/.test(r.txt.split("|")[2]),"drop text follows gs: "+r.txt);
   // real drop through enemyDown: rare, 2 affixes -> 2 essences
   r=await E(()=>{fresh("pass");const B=fight("wolf",["shadow","vamp"],"rare");B.hp=1;R(.5,()=>attack());return{ess:afxEss(B.loot),emb:B.emb,over:B.over,rar:B.rar,name:document.querySelector("#enemyHud .fname").textContent}});
-  ok(r.over==="won"&&r.ess.length===2&&r.emb>=EMB.rar.rare&&/the Bloodthirsty/.test(r.name),`rare drop: ${r.ess.join(",")} and ${r.emb} embers; name "${r.name}"`);
+  ok(r.over==="won"&&r.ess.length===2&&r.emb>=Math.floor(EMB.rar.rare*DENSITY_RW)&&/the Bloodthirsty/.test(r.name),`rare drop: ${r.ess.join(",")} and ${r.emb} embers; name "${r.name}"`);
   // ---- review fixes: remnant attack, dodged riders, thorn cap per round, group rules
   r=await E(()=>{fresh();const B=fight("bandit",["frenzy"]);applyAfx(B,ENEMIES.bandit,"rare",["frenzy","split"]);const a0=B.a0;B.hp=Math.floor(B.max*.3);frenzy(B);const fa=B.atk;splitFoe(B,ENEMIES.bandit);return{a0,fa,ra:B.atk,exp:Math.round(a0*AFX_T.split.atk),fz:B.fz}});
   ok(r.fa>r.a0&&r.ra===r.exp&&!r.fz,`remnant attack ${r.ra} = ${AFX_T.split.atk} x base ${r.a0} (frenzied was ${r.fa})`);
