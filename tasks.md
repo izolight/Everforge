@@ -87,9 +87,10 @@ Backlog for monster coverage, biome variety and related balance/tooling work.
   `node tools/smoke.js` passes.
   **Note (seeded rosters):** M-01 and V-01 re-rolled every seeded wild creature and Rift region (the part loop draws a variable number of times). The M-04 numbers predate this; the seed-1 values in M-09 to M-12 are the current ones.
 
-- [ ] **V-02 · Use the four orphan parts** — `Status: Planned` · `Size: S` · `js/monsters.js` · `Depends: V-12`
+- [x] **V-02 · Use the four orphan parts** — `Status: Done` · `Size: S` · `js/monsters.js` · `Depends: V-12`
   `blade`, `axe`, `staff`, `tusks` exist in `js/art/parts.js` but no wild pool uses them. Add them to appropriate biomes.
   **Done:** all four parts appear on generated creatures with sensible body gating.
+  **Done (V-02):** data only. `tusks` added to forest, fen and tundra (beast); `blade` to ember and ash and astral (humanoid/construct); `axe` to ash and bone (humanoid/construct); `staff` to tundra, astral and deep (humanoid/construct). A headless check over 3,000 creatures per biome found each part on its allowed bodies only, no part drawing nothing, and no biome × body combo below 3 usable parts. `BODY_PARTS` and code unchanged.
 
 - [x] **V-03 · More patterns per biome** — `Status: Done` · `Size: S` · `js/monsters.js`
   There are 9 patterns; each biome offers 4. Raise to 6–7 with thematic choices.
