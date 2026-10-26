@@ -20,7 +20,7 @@ function openSheet(id,refresh,preview){
           :`<button class="btn primary grow" data-act="equip" data-slot="${s}" ${dis}>${why||name}</button>`)})}
     if(g==="consumable"&&statsOf(it).heal>0&&!locked)btns.push(`<button class="btn primary grow" data-act="eat" ${S.hp>=P.maxHp?"disabled":""}>${S.hp>=P.maxHp?tx("Already at full HP"):tx("Use now (+{n} HP)",{n:Math.min(medHeal(it),P.maxHp-S.hp)})}</button>`);
     if(isGear(it)){ // the crucible actions this gear goes into (only the ones you have learned), opened with it in place
-      const into=[["infuse",tx("Infuse…")],["improve",tx("Improve…")]].filter(([a])=>hasTech(a));
+      const into=[["infuse",tx("Infuse gear…")],["improve",tx("Improve gear…")]].filter(([a])=>hasTech(a));
       into.forEach(([a,l])=>btns.push(`<button class="btn grow" data-act="into" data-into="${a}" ${itemLocked(id)||left<=0||locked?"disabled":""}>${l}</button>`))}
     if(canDecon(it)){const y=deconYield(it),nm=(id,n)=>`${n}× ${esc(iname(S.items[gradedItem(baseIdOf(id),gradeOf(id))]))}`;
       btns.push(`<button class="btn ${isArmed("salvage")?"danger":""} grow" data-act="salvage" ${itemLocked(id)||locked||left<=0?"disabled":""}>${isArmed("salvage")?tx("Tap again to deconstruct"):tx("Deconstruct → {list}",{list:[...y.mat?[nm(...y.mat)]:[],...y.frag.map(([t,n,g])=>nm(gradedId("ess_"+t,g),n))].join(" + ")})+(salvageEmbers(it)&&isUnl("peddler")?tx(" + {n} embers",{n:salvageEmbers(it)}):"")}</button>`)}
@@ -30,14 +30,20 @@ function openSheet(id,refresh,preview){
     else if(mh.length&&isUnl("peddler"))btns.push(`<button class="btn grow" data-act="reforge" ${itemLocked(id)||locked||S.embers<reforgeCost(it)?"disabled":""}>${tx("Reforge — {list} ({n} embers)",{list:mh.map(m=>m==="Weakened"?tx("restore {m}",{m:trn(m)}):tx("remove {m}",{m:trn(m)})).join(tx(" and ")),n:reforgeCost(it)})}</button>`);
   }
   btns.push(`<button class="btn" data-act="close">${tx("Close")}</button>`);
+  const primary=btns.filter(b=>/data-act="(?:equip|unequip|eat)"/.test(b)),crafting=btns.filter(b=>/data-act="into"/.test(b)),management=btns.filter(b=>!/data-act="(?:equip|unequip|eat|into|close)"/.test(b)),close=btns.find(b=>/data-act="close"/.test(b));
+  const summary=isGear(it)?`${cmp?upgradeSummary(it,cmp):""}${statGrid(shown(it),cmp?shown(cmp):null,false)}`:g==="consumable"?effectBadges(it,"active"):"";
   $("sheetIn").innerHTML=`<div class="grab" aria-hidden="true"></div>
     <div class="rhead">${glyph(it)}<div><div class="rform">${rn} · ${labelOf(it)} · ${tx("Tier {n}",{n:it.tier})}${preview?" · "+tx("on offer"):` · ×${S.inv[id]}`}</div><h2 class="rname">${nameHtml(it)}</h2></div></div>
+    ${summary?`<div class="sheet-summary">${summary}</div>`:""}
+    ${primary.length?`<div class="actions sheet-primary">${primary.join("")}</div>`:""}
     ${itemLocked(id)?`<p class="ok-text">${tx("Protected from crafting, salvage and selling.")}</p>`:""}${itemProperties(it,cmp,true,"Versus equipped")}
     ${it.mishap==="Weakened"?`<p class="warn-text">${tx("Weakened: a fizzled mixture cost every trait 30%.")}</p>`:""}
     ${it.recipe?`<p class="empty">${tx("Forged from {list}.",{list:esc(recipeNames(it))})}</p>`:""}
     ${!preview&&canDecon(it)?`<p class="foot">${deconYield(it).ch.map(([t,p,g])=>tx("{p}% chance of a {ess}.",{p:pcn(p),ess:esc(iname(S.items[essG(t,g)]))})).join(" ")}</p>`:""}
     ${isBaseMat(id)?`<p class="foot">${tx("{type}: forge it into gear with a pattern in the Forge.",{type:tx(MAT_T[MATS[plainId(id)]].label)})}</p>`:""}
-    <div class="actions">${btns.join("")}</div>`;
+    ${crafting.length?`<section class="sheet-action-group"><h3>${tx("Crafting actions")}</h3><div class="actions">${crafting.join("")}</div></section>`:""}
+    ${management.length?`<details class="sheet-management"${isArmed("salvage")?" open":""}><summary>${tx("Item management")}</summary><div class="actions">${management.join("")}</div></details>`:""}
+    <div class="actions sheet-close">${close||""}</div>`;
   if(!refresh)showSheet();
 }
 function openCodex(id,refresh){

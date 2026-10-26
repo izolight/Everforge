@@ -41,7 +41,7 @@
 
   <div id="v-gear" class="view" hidden>
     <section class="panel" aria-label="Equipment" data-ta="aria-label">
-      <div class="lrow" id="heroLabel"></div>
+      <div class="lrow gear-heading"><div id="heroLabel"></div><button class="btn sm" type="button" data-scroll-inventory data-t>Inventory</button></div>
       <div class="hprow"><span data-t>HP</span><div class="bar" id="ghp"><i style="width:100%"></i></div><span id="ghptxt"></span></div>
       <div class="character-sheet">
         <div class="hero-portrait" id="heroPortrait" role="img"></div>
@@ -55,8 +55,8 @@
       <div class="inf" id="inf"></div>
       <div class="actions" id="infbtns"></div>
     </section>
-    <section style="display:grid;gap:10px">
-      <div class="lrow"><p class="label" data-t>Satchel</p><button type="button" class="qm" data-tap data-ta="data-tip aria-label" data-tip="Satchel&#10;Tap an item to open it: equip, use, add to the crucible, deconstruct or salvage it.&#10;Long-press or hover for its name and stats. The pips show its grade (Faint, Lesser, Plain, Greater, Pure), a tick means worn, a dot means new, a number is how many you hold." aria-label="Help: Satchel">?</button></div>
+    <section id="inventory" style="display:grid;gap:10px;scroll-margin-top:12px">
+      <div class="lrow"><p class="label" data-t>Inventory</p><button type="button" class="qm" data-tap data-ta="data-tip aria-label" data-tip="Satchel&#10;Tap an item to open it: equip, use, add to the crucible, deconstruct or salvage it.&#10;Long-press or hover for its name and stats. The pips show its grade (Faint, Lesser, Plain, Greater, Pure), a tick means worn, a dot means new, a number is how many you hold." aria-label="Help: Inventory">?</button></div>
       <div class="tabs" id="gtabs"></div>
       <div class="actions" id="gdecon" hidden></div>
       <div id="gtools"></div><div class="sqg" id="ginv"></div>

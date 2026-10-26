@@ -744,6 +744,10 @@ select.lang{width:100%;margin-top:8px;background:#120f0c;color:var(--fg);border:
 /* crucible actions: the tab row above the crucible; a locked one shows its lock and the technique that opens it */
 .cacts{flex-wrap:nowrap;justify-content:flex-start;overflow-x:auto;scrollbar-width:none;padding:0 0 2px;-webkit-mask-image:linear-gradient(90deg,#000 88%,transparent);mask-image:linear-gradient(90deg,#000 88%,transparent)} /* one line that scrolls sideways: learned tabs first, locked ones after, never three rows at 360px */
 .cacts .tab.ti{flex:none;min-height:36px;padding:4px 10px;font-size:.78rem;color:var(--fg)}
+.cacts .act-group{align-self:center;flex:none;padding:0 2px 0 8px;border-left:1px solid var(--line2);font-size:.67rem;line-height:1.1;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;white-space:normal;max-width:72px}
+.cacts .act-group:first-child{border:0;padding-left:0}
+.cacts .tab .act-copy{display:grid;gap:1px;text-align:left;max-width:140px;white-space:normal}
+.cacts .tab .act-copy small{font-size:.68rem;line-height:1.1;color:var(--muted);overflow-wrap:anywhere}
 .cacts .tab.ti[aria-pressed="false"]{color:var(--muted)}
 .cacts .tab.ti.locked{border-style:dashed;color:var(--dim);background:#17130f}
 .cacts .tab.ti.locked span{font-size:.7rem}
@@ -816,6 +820,16 @@ select.lang{width:100%;margin-top:8px;background:#120f0c;color:var(--fg);border:
 .inventory-list .sq>svg{width:48px;height:48px}
 .item-caption{display:grid;gap:4px;min-width:0;font-size:1rem;overflow-wrap:anywhere}
 .item-caption small{font-size:.85rem;color:var(--muted)}
+.item-caption .item-status{color:var(--accent);font-weight:700}
+.gear-heading{align-items:center;justify-content:space-between;gap:8px}
+.gear-heading #heroLabel{min-width:0}
+.gear-heading button{flex:none}
+.sheet-summary{display:grid;gap:8px;padding:10px;border:1px solid var(--line);border-radius:10px;background:var(--panel2)}
+.sheet-primary .btn{font-weight:700;min-height:48px}
+.sheet-action-group,.sheet-management{border-top:1px solid var(--line);padding-top:10px;margin-top:10px}
+.sheet-action-group h3{margin:0 0 6px;font-size:.9rem;color:var(--muted)}
+.sheet-management>summary{cursor:pointer;color:var(--muted);font-weight:700;padding:6px 0}
+.sheet-management .actions{padding-top:8px}
 
 /* Readable secondary text without losing the forge palette. */
 #settingsBtn{font-size:.85rem;padding:6px 8px;min-height:40px}

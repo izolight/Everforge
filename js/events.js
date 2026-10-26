@@ -5,6 +5,7 @@ function toast(m,later){ // later: wait behind a toast that is still showing (un
   t.textContent=m;t.classList.add("show");clearTimeout(toastT);toastT=setTimeout(()=>{t.classList.remove("show");if(toastQ.length)setTimeout(()=>toast(toastQ.shift(),1),350)},3000)}
 let settingsReturn="battle";
 $("settingsBtn").onclick=()=>{if(S.view!=="settings")settingsReturn=S.view;go("settings")};
+$("v-gear").addEventListener("click",e=>{if(!e.target.closest("[data-scroll-inventory]"))return;$("inventory").scrollIntoView({behavior:"smooth",block:"start"});});
 $("settingsBack").onclick=()=>go(settingsReturn);
 function go(view){
   salvageMode=false;salvageSelection.clear();

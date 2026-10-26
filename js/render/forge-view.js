@@ -22,12 +22,16 @@ function renderSkills(){
 }
 // ---- the action tabs above the crucible. A locked one shows its lock and the technique that opens it; its tip says what it is for.
 const actOpen=id=>{const A=ACTIONS.find(a=>a.id===id);return !A.tech||hasTech(A.tech)};
+const ACT_HINT={forge:"Create gear from a pattern",infuse:"Add an essence to gear",improve:"Change gear with materials",fuse:"Combine two gear items",refine:"Upgrade material grade",cook:"Make food from ingredients",brew:"Make potions from ingredients",alchemy:"Make materials from essences"};
+const ACT_GROUPS=[["Create gear",["forge","fuse"]],["Modify gear",["infuse","improve","refine"]],["Process ingredients",["cook","brew","alchemy"]]];
 function renderActs(){
   if(!ACTIONS.some(A=>A.id===S.act))S.act="forge"; // a save without the field starts on Forge
   if(S.act!=="forge"&&!actOpen(S.act))setAct("forge"); // a stale action (a save from before its technique) falls back to Forge
-  const open=ACTIONS.filter(A=>actOpen(A.id)),locked=ACTIONS.filter(A=>!actOpen(A.id));
-  const button=A=>{const nm=tx(A.name),on=S.act===A.id;return `<button class="tab ti${on?" on":""}" data-cact="${A.id}" aria-pressed="${on}" aria-label="${esc(nm)}" ${tt(nm,A.tech?tx(TECH[A.tech].d):tx("Patterns and blueprints: gear from base materials."))}>${ic(A.ic,"s")}<span>${nm}</span></button>`};
-  $("cacts").innerHTML=open.map(button).join("")+(locked.length?`<details class="locked-forge-actions"><summary>${ic("lock","xs")} ${tx("Locked actions · {n}",{n:locked.length})}</summary><div class="tabs">${locked.map(A=>`<span class="tab ti locked" tabindex="0" aria-disabled="true" aria-label="${esc(tx("{action}: locked",{action:tx(A.name)}))}" ${tt(tx(A.name),tx("Locked. Learn {tech} in Research to open it.",{tech:tx(TECH[A.tech].name)}),tx(TECH[A.tech].gate))}>${ic("lock","s")}<span>${tx(A.name)} · ${tx(TECH[A.tech].name)}</span></span>`).join("")}</div></details>`:"");
+  const locked=ACTIONS.filter(A=>!actOpen(A.id));
+  const renderAction=A=>{const nm=tx(A.name),on=S.act===A.id;
+    const hint=tx(ACT_HINT[A.id]);
+    return `<button class="tab ti${on?" on":""}" data-cact="${A.id}" aria-pressed="${on}" aria-label="${esc(nm+": "+hint)}" ${tt(nm,hint,A.tech?tx(TECH[A.tech].d):tx("Patterns and blueprints: gear from base materials."))}>${ic(A.ic,"s")}<span class="act-copy"><b>${nm}</b><small>${hint}</small></span></button>`};
+  $("cacts").innerHTML=ACT_GROUPS.map(([group,ids])=>{const actions=ids.map(id=>ACTIONS.find(A=>A.id===id)).filter(A=>actOpen(A.id));return actions.length?`<span class="act-group">${tx(group)}</span>${actions.map(renderAction).join("")}`:""}).join("")+(locked.length?`<details class="locked-forge-actions"><summary>${ic("lock","xs")} ${tx("Locked actions · {n}",{n:locked.length})}</summary><div class="tabs">${locked.map(A=>`<span class="tab ti locked" tabindex="0" aria-disabled="true" aria-label="${esc(tx("{action}: locked",{action:tx(A.name)}))}" ${tt(tx(A.name),tx("Locked. Learn {tech} in Research to open it.",{tech:tx(TECH[A.tech].name)}),tx(TECH[A.tech].gate))}>${ic("lock","s")}<span>${tx(A.name)} · ${tx(TECH[A.tech].name)}</span></span>`).join("")}</div></details>`:"");
   $("patp").hidden=S.act!=="forge";$("upgp").hidden=S.act!=="refine";$("crucible").hidden=!CRUCIBLE_ACTS.includes(S.act);
 }
 // what each crucible action says: the empty crucible, and one item alone
