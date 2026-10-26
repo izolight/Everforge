@@ -7,7 +7,7 @@
 // The Rift (riftMake) is a random region: a biome, a palette, a name, ten wild creatures and a master, all rolled
 // from one seed. The seed is kept in the save, so a reloaded game rebuilds exactly the same region.
 const BIOMES={
-forest:{n:"Whispering Woods",els:["wood","poison","fire","swift","metal"],bodies:["beast","undead","humanoid","elemental","construct"],parts:["mane","antlers","horns","tail","vines","spikes","hood","wings","shell"],pats:["spots","stripes","rot","scales"],
+forest:{n:"Whispering Woods",els:["wood","poison","fire","swift","metal"],bodies:["beast","undead","humanoid","elemental","construct"],parts:["mane","antlers","horns","tail","vines","spikes","hood","wings","shell"],pats:["bands","stripes","rot","scales"],
   acc:["#b5b04a","#6e8a3a"],skins:["#c99b78","#b78a63"],verbs:["bites you","claws you","rakes you","slashes at you","lashes you","gores you"],
   pre:["Briar","Moss","Thorn","Fern","Oak","Rowan","Hazel","Grove","Bramble","Alder"],suf:["Stalker","Crawler","Watcher","Gnawer","Runner","Warden","Lurker","Creeper","Slasher","Hound"],
   regions:["The Old Grove","The Rootless Wood","Whispering Thicket"],lore:["It hunts where the light ends and the roots begin.","The forest grew it, and the forest keeps it.","It wears moss like a coat and never takes it off.","Old tracks end at it. Nothing else lives here."]},
@@ -23,7 +23,7 @@ astral:{n:"Starfall Spire",els:["arcane","holy","swift","shadow"],bodies:["const
   acc:["#f6d36b","#fff3c4"],skins:["#e9e0cf","#c9b9a8"],verbs:["strikes you","smites you","rakes you","touches you","chills you","hacks at you"],
   pre:["Star","Void","Astral","Rune","Halo","Fallen","Gilded","Umbral"],suf:["Watcher","Sentinel","Warden","Acolyte","Construct","Lynx","Seer","Wraith","Scribe","Herald"],
   regions:["The Starless Gallery","The Ossuary of Glass","The Vault of Falling Light"],lore:["It was a star that learned to walk.","Something up here rewrote it.","It keeps the hour it was made for.","The stars moved; it did not."]},
-fen:{n:"Mirewood Fen",els:["poison","wood","shadow","swift"],bodies:["beast","undead","elemental","humanoid","construct"],parts:["vines","mane","tail","horns","spikes","shell","hood","antlers","wings"],pats:["rot","spots","swirl","stripes"],
+fen:{n:"Mirewood Fen",els:["poison","wood","shadow","swift"],bodies:["beast","undead","elemental","humanoid","construct"],parts:["vines","mane","tail","horns","spikes","shell","hood","antlers","wings"],pats:["rot","scales","swirl","stripes"],
   acc:["#4d5a2a","#2e3420"],skins:["#a89b7a","#8f9f5c"],verbs:["lashes you","claws you","bites you","strikes you","scalds you","hacks at you"],
   pre:["Mire","Fen","Silt","Reed","Bog","Moss","Weeping","Drowned"],suf:["Crawler","Leech","Lurker","Drowner","Watcher","Warden","Slimer","Gnawer","Wretch","Drifter"],
   regions:["The Weeping Fen","The Silt Marches","Rotmire Hollow"],lore:["The bog keeps what it takes.","It surfaces only when the water is still.","Half of it is moss, and the moss is hungry.","It was a traveller once. The fen kept it."]},
