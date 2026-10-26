@@ -563,5 +563,6 @@ DICT.de=Object.assign(DICT.de||{},{
 "Fusing (locked)":"Verschmelzung (gesperrt)",
 "Learn Fusing in Research (the Forge tab) to merge two kinds of gear.":"Lerne Verschmelzung in der Forschung (Schmiede-Ansicht), um zwei Ausrüstungsarten zu vereinen.",
 "Learn a technique in Research first.":"Lerne zuerst eine Technik in der Forschung.",
-"Learn one of {names} first.":"Lerne zuerst eine von {names}."
+"Learn one of {names} first.":"Lerne zuerst eine von {names}.",
+"Research Infusing to bind this into gear":"Erforsche Infusion, um das hier in Ausrüstung zu binden"
 });

@@ -560,5 +560,6 @@ DICT.ko=Object.assign(DICT.ko||{},{
 "Fusing (locked)":"융합 (잠김)",
 "Learn Fusing in Research (the Forge tab) to merge two kinds of gear.":"연구(대장간 탭)에서 융합을 익히면 두 종류의 장비를 합칠 수 있습니다.",
 "Learn a technique in Research first.":"먼저 연구에서 기술을 익히세요.",
-"Learn one of {names} first.":"먼저 {names} 중 하나를 익히세요."
+"Learn one of {names} first.":"먼저 {names} 중 하나를 익히세요.",
+"Research Infusing to bind this into gear":"연구에서 주입을 익혀 이것을 장비에 묶으세요."
 });

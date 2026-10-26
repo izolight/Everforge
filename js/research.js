@@ -90,6 +90,7 @@ function insights(items,key,mw){
 }
 // ---- the Research panel (Forge tab)
 let techSel=null;
+const TREE_ROW=84,TREE_HEAD=28; // px: one row of the technique tree, and the band above it for the branch names
 const techSt=t=>({learned:tx("Learned"),avail:tx("Ready"),locked:tx("Locked")}[techState(t)]);
 const techTip=t=>tt(`${tx(t.name)}${techCost(t)?` · ${tx("{n} RP",{n:techCost(t)})}`:""}`,{learned:tx("Learned."),avail:tx("Ready to learn."),locked:tx("Locked.")}[techState(t)],tx(t.d,t.v),tx("Opens: {gate}",{gate:tx(t.gate)}),...(S.techs[t.id]?[]:techLack(t)));
 function renderResearch(){
@@ -97,13 +98,15 @@ function renderResearch(){
   const rdy=TECHS.filter(t=>techState(t)==="avail"&&S.rp>=techCost(t)).length;
   $("ressum").innerHTML=`${ic("research","s")} ${tx("Research")} · ${tx("{n} RP",{n:S.rp})}${rdy?` <b class="rdy">${rdy}</b>`:""}${helpBtn(tx("Research"),tx("Discoveries earn research points: a first craft of each kind, a new reaction, a new essence, a studied creature, a boss down, a new affix, and each new smith or skill level."),tx("Techniques decide what the forge accepts. Tap one to read it; Learn spends the points."),tx("Study a material to hint at its reactions."))}`;
   if(!techSel||!TECH[techSel])techSel=(TECHS.find(t=>techState(t)==="avail"&&S.rp>=techCost(t))||TECHS.find(t=>techState(t)==="avail")||TECHS[0]).id;
-  const W=Math.max(...TECHS.map(t=>t.pos[0]))+1,H=Math.max(...TECHS.map(t=>t.pos[1]))+1,at=([c,r])=>`left:${(c+.5)/W*100}%;top:${(r+.5)/H*100}%`;
-  const lines=TECHS.flatMap(t=>t.pre.map(p=>{const a=TECH[p].pos,b=t.pos,on=S.techs[p]&&S.techs[t.id];return `<line x1="${(a[0]+.5)/W*100}" y1="${(a[1]+.5)/H*100}" x2="${(b[0]+.5)/W*100}" y2="${(b[1]+.5)/H*100}" class="${on?"on":""}"/>`})).join("");
+  // the grid is as wide and tall as its positions (pos) say: columns are a share of the width, rows are px and the tree scrolls down. Lines join each prerequisite to its technique.
+  const W=Math.max(...TECHS.map(t=>t.pos[0]))+1,H=Math.max(...TECHS.map(t=>t.pos[1]))+1,ROW=TREE_ROW,HD=TREE_HEAD,PH=H*ROW+HD,at=([c,r])=>`left:${(c+.5)/W*100}%;top:${HD+(r+.5)*ROW}px`;
+  const lines=TECHS.flatMap(t=>t.pre.map(p=>{const a=TECH[p].pos,b=t.pos,on=S.techs[p]&&S.techs[t.id];return `<line x1="${(a[0]+.5)/W*100}" y1="${HD+(a[1]+.5)*ROW}" x2="${(b[0]+.5)/W*100}" y2="${HD+(b[1]+.5)*ROW}" class="${on?"on":""}"/>`})).join("");
+  const branches=BRANCHES.map(b=>`<div class="tbr" style="left:${b.c[0]/W*100}%;width:${(b.c[1]-b.c[0]+1)/W*100}%"><b>${tx(b.name)}</b></div>`).join("");
   const nodes=TECHS.map(t=>{const st=techState(t),afford=st==="avail"&&S.rp>=techCost(t),bd=st==="learned"?ic("equip","xs"):st==="locked"?ic("lock","xs"):techCost(t);
     return `<button class="tn ${st}${afford?" can":""}${t.id===techSel?" sel":""}" style="${at(t.pos)}" data-tech="${t.id}" aria-label="${esc(`${tx(t.name)}, ${lc(techSt(t))}${st==="avail"?`, ${txn("{n} research point","{n} research points",techCost(t))}`:""}`)}" aria-pressed="${t.id===techSel}" ${techTip(t)}>${ic(t.ic,"l")}<i class="tb">${bd}</i><span>${tx(t.name)}</span></button>`}).join("");
   const t=TECH[techSel],st=techState(t),lack=st==="locked"?techLack(t):[],can=st==="avail"&&S.rp>=techCost(t)&&!inBattle();
   const req=[...t.pre.map(p=>[tx(TECH[p].name),!!S.techs[p]]),...t.or?[[t.or.map(p=>tx(TECH[p].name)).join(tx(" or ")),t.or.some(p=>S.techs[p])]]:[],...t.rq?[[rqT(t),t.ok(S)]]:[]];
-  $("restree").innerHTML=`<div class="tree"><svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">${lines}</svg>${nodes}</div>
+  $("restree").innerHTML=`<div class="tree"><div class="tgrid" style="--cols:${W};height:${PH}px"><svg viewBox="0 0 100 ${PH}" preserveAspectRatio="none" aria-hidden="true">${lines}</svg>${branches}${nodes}</div></div>
     <div class="tdet"><span class="ti2">${ic(t.ic,"l")}</span><div class="tdb"><b>${tx(t.name)}</b><small>${techSt(t)}${techCost(t)?` · ${tx("{n} RP",{n:techCost(t)})}`:""}</small><p>${tx(t.d,t.v)}</p><p class="foot">${tx("Opens: {gate}",{gate:tx(t.gate)})}</p>
       ${req.length&&st!=="learned"?`<div class="treq">${req.map(([n,ok])=>`<span class="${ok?"ok":"no"}">${ic(ok?"equip":"lock","xs")}${n}</span>`).join("")}</div>`:""}</div>
       ${st==="learned"?"":`<button class="btn ${can?"primary":""} sm" id="learn" ${can?"":`aria-disabled="true" data-tap ${tt(tx(t.name),...lack,...S.rp<techCost(t)&&!lack.length?[tx("Costs {cost} research points. You have {rp}.",{cost:techCost(t),rp:S.rp})]:[],...inBattle()?[tx("Finish the fight first.")]:[])}`}>${tx("Learn · {n}",{n:techCost(t)})}</button>`}</div>

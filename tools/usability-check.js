@@ -10,7 +10,7 @@ const {chromium}=require('playwright'),path=require('path'),assert=require('node
  await page.evaluate(()=>{$('resultPanel').open=true;S.eq.main=null;render()});
  await page.locator('[data-result-equip]').click();assert(await page.evaluate(()=>S.eq.main===S.last.id));
  console.log('ok forge explains effects and automatic equipment; direct Equip updates loadout');
- await page.evaluate(()=>{S=freshState();S.techs.infuse=1;S.tpaid.infuse=8;const id=essG('Fire',3);addItem(id);S.bench=['iron_sword',id];go('forge')}); // Infusing: an item and an essence
+ await page.evaluate(()=>{S=freshState();S.rp=20;learnTech('weaponcraft');learnTech('blade');learnTech('infuse');const id=essG('Fire',3);addItem(id);S.bench=['iron_sword',id];go('forge')}); // Infusing, learned the normal way: its group, a slot technique, then Infusing (any slot)
  assert(!await page.locator('#mixhint').innerText().then(t=>t.includes('destroy')));
  await page.locator('#combine').click();assert.equal(await page.evaluate(()=>S.stats.forged),1);
  await page.evaluate(()=>{S.battle=null;go('battle');startBattle('wolf',{row:0});unlock('parry',true);delete S.seen['i:parry'];S.battle.turn=1;render()});
@@ -46,7 +46,7 @@ const {chromium}=require('playwright'),path=require('path'),assert=require('node
  assert.equal(await page.evaluate(()=>S.battle.id),'sprite');
  await page.evaluate(()=>{for(let i=0;i<20&&!S.battle.over;i++)attack()});
  assert(await page.evaluate(()=>S.battle.over==='won'&&S.inv.coal===1&&S.onboarding===2));
- await page.evaluate(()=>{deconstruct('coal',()=>1);S.techs.infuse=1;S.tpaid.infuse=8;const id=essG('Fire',1);S.bench=['iron_sword',id];go('forge')});await page.locator('#combine').click(); // the opening forge needs Infusing
+ await page.evaluate(()=>{deconstruct('coal',()=>1);S.rp+=20;learnTech('weaponcraft');learnTech('blade');learnTech('infuse');const id=essG('Fire',1);S.bench=['iron_sword',id];go('forge')});await page.locator('#combine').click(); // the opening forge needs Infusing, learned the same way
  assert(await page.evaluate(()=>S.onboarding===3&&gearOf('main').traits.Fire>0));
  await page.evaluate(()=>{S.battle=null;go('battle');const m=curMap(),[x,y]=adjTiles(m).find(([x,y])=>!poiAt(m,x,y));step(x,y)});
  assert.equal(await page.evaluate(()=>S.battle.id),'boar');await page.locator('#atk').click();

@@ -81,7 +81,7 @@ async function learning(browser,w){
   await p.evaluate(()=>{S.journal=[{id:"x",name:"x"}];S.items.x={id:"x",name:"Fire Sword",form:"blade",noun:"Sword",traits:{Fire:3,Sharp:4},tier:2,crafted:true,recipeIds:["iron_sword","ess_Fire"],recipe:["a","b"]};S.inv.x=1;S.xp=120;essence("Ice");addItem("ess_Ice",3);S.view="forge";render();pendingIntros().forEach(c=>S.seen[introKey(c.id)]=true);Object.keys(ABILITIES).forEach(k=>S.seen["a:"+k]=true);S.rp=10;render();$("resd").open=true;render()});
   let r=await p.evaluate(()=>({n:TECHS.length,nodes:document.querySelectorAll("#restree .tn").length,learned:document.querySelectorAll("#restree .tn.learned").length,can:TECHS.filter(t=>techState(t)==="avail"&&S.rp>=techCost(t)).map(t=>t.id),locked:document.querySelectorAll("#restree .tn.locked").length,sum:$("ressum").textContent,hdr:$("rp").textContent}));
   ok(r.nodes===r.n&&r.learned===0,`the tree draws every technique (${r.nodes}), none learned yet`);
-  ok(r.can.join()==="weaponcraft,blade,spear,staff,armorcraft,helm,body,gloves,boots,shield,cooking,brewing","available and affordable with 10 RP: the two group techniques, the slot techniques and the kitchen ones ("+r.can+")");
+  ok(r.can.join()==="weaponcraft,armorcraft,cooking,brewing","available and affordable with 10 RP: the two group techniques and the kitchen ones; a slot technique waits for its group ("+r.can+")");
   ok(/10 RP/.test(r.sum)&&r.hdr.trim()==="10","the summary and the header show 10 RP ("+r.sum+")");
   await shot(p,w,"1-research-fresh",true);
   // a locked one says why, and Learn does nothing
