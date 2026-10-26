@@ -1,37 +1,55 @@
-# Everforge — ideas backlog
+# Everforge — ideas and playtest watchlist
 
-Ideas discussed but not yet scheduled.
+For scoped work, status and dependencies, use [tasks.md](tasks.md). Finished work and its evidence live in [backlog-completed.md](backlog-completed.md). This file holds undecided ideas and observations; none is an active assignment. Promote an idea to a task with an ID, scope and acceptance criteria before scheduling it.
 
-## World and monsters
-- **Composable monster art + more base monsters (done).** Bodies per family with overlay parts and affix marks (`BODY`/`PART`/`AFX_ART` in `js/art/`); 12 new regular enemies, six per region. Follow-ups: every new creature can be mastered for `RP.mast`, so 24 more RP is available over a career; watch the research pace. Staff kits are weakest against the Fallen Seraph and Orrery Construct at Heat 5 (78% win arriving at the Spire), in line with the staff note under Balance.
-- **Wild creatures per region (done).** Every region has ten creatures rolled from its biome (`js/monsters.js`): a body and parts from the theme, an element, a name from the biome's words, and one or two affixes of their own. They are rare-grade (so they show a frame on the map) but their affixes are their own: no extra essence, no elite embers, so a region's economy does not move, and their stats land on the region's band. Follow-ups: they are about 40% of a region's encounters, so re-run `tools/sim.js` for every region (the wild creatures are not in the enemy's list; pick them by hand or add a `--wild` flag). Their names are English only (no dictionary entry per name): a translation pass would need a rule per biome instead of a line per creature.
-- **Close the authored element gaps (done).** Every hand-made region's roster now covers its biome's whole element pool: the Woods' Briarling became Poison and its Mossback Stag Swift, and three regulars were added (the Kindle Fox in the Woods, the Cairn Seer in the Pass, the Anvil Crawler in the Hollow). No enemy id was deleted, so old saves, bounties and Codex entries keep working; `migrate()` prunes stale Codex weaknesses. `tools/sim.js` prints the element coverage and fails on a gap (`EL_EXCEPT` holds the documented exceptions, none at the moment). Follow-ups: the Spire keeps six regulars, the other three regions seven, so the Spire is now the odd one out; and the Woods' stag is weak to Stone as well as Fire, which makes it quick work for the Stone kits.
-- **The Wanderer's Rift (done).** A random region past the Spire: a biome, a palette, a name, ten wild creatures and a master with three affixes, rolled from one seed that lives in the save (a reload shows the same region). Descending goes one depth deeper (18% HP and 12% Attack per depth); the best depth is the record. Follow-ups: the Rift is a score mode, so the tiers cap at 9 and the Smith level at 10; it has no Heat, no daily and no renown of its own yet. A save bump (v16) came with it.
-- **New hand-made regions.** Each region is about one piece: 3–4 enemies, a boss with phases, palette, terrain mix, essences.
-- **Earlier mystery reveal** on the map (optional idea from P11).
+## Already tracked elsewhere
 
-## Balance
-- **Trait stacking soft cap.** The min-max `stacked` kit still breezes through Heat 5 (spire/Archon 100% smart, 82% HP left). A cap on stat-from-trait would rescale every existing item, so it needs a decision.
-- **Starter sword vs Gnarlhorn.** Without the tutorial's Fire weapon, basic play wins about 8%. The tutorial forges a Fire weapon first (100% win), so it was left alone; easing Gnarlhorn slightly would fix it.
+| Topic | Canonical tasks |
+|---|---|
+| Affix/staff balance, starter difficulty | M-09, M-10 |
+| Rift masters and wild creature strength | M-11, M-12, V-16 |
+| Steam essence availability | M-08; Heavy, Runic and Light already have deconstruction sources. Wood has a boss-only non-affix source. |
+| More authored regions and biome identity | M-05, M-06, V-11 |
+| Species silhouettes, equipment shapes, terrain, creature names, visual hierarchy | A-01–A-05 |
+| Completed creature composition, wild rosters, element coverage, Rift, crafting rework | [Completed backlog](backlog-completed.md); no follow-up to add `--wild` or save migration remains. |
 
-- **Affix balance leftovers (from A1).** Staff kits are weakest against affixed foes: rare at Heat 3 is 83% for staff/pass and 59% for staff/hollow, and magic Volatile/Warded/Burning are 74-76% on staff kits. Defensive kits against rares at Heat 5 run about 31 turns (SLOG line 30). The starter kit loses to magic and rare enemies.
-- **New essence sources.** Wood, Heavy, Runic, Light and Steam now also come from deconstructing (Heavy: hides and golem cores; Runic: Sentinel Plate; Light: Sprite Dust), but still never from the peddler, chests or shrines. Decide whether that's intended.
+## Playtest and measurement watchlist
 
-## Research (from G2)
-- **RP pacing (superseded by the crafting rework, below).** A career bot over 20 expeditions found 7 of 9 techniques affordable on expedition 1 and income gone by expedition 5, so salvage RP was dropped, forms pay 2, bosses 4/8/12/16 by region, Smith levels 2-9 and skill levels 3/5/7/9 pay 2 each, and costs rose (Layering 6 ... Precision I 20). Watch it in play; move `RP` and the `TECHS` costs, not the code.
-- **More to spend RP on.** Everything in the tree is a gate. Ideas: a second tier past Masterwork (a fifth trait-slot technique, grade 5 refining), a Study upgrade, naming recipes.
-- **Recipes tab and tech gates.** Loading a recipe in the crucible does not check techniques (a veteran knows them all, a newcomer only has recipes they forged); an imported save could show it.
+These observations need fresh evidence on the current build; they do not reopen the completed crafting rework.
 
-## Housekeeping
-- Delete the merged local `feat/*` and `fix/*` branches.
+| Area | What to check | Possible follow-up |
+|---|---|---|
+| First forge and research pace | Does waiting for the first slot technique feel too long? Weaponcraft/Armorcraft cost 14 RP, Infusing 8, Improving 10 in the completed rework. | Adjust `TECHS` costs after playtesting; coordinate starter changes with M-10. |
+| Bot priorities | `--fresh` buys the cheapest technique first, so kitchen techniques precede gear. | Compare a gear-first policy with actual player choices before drawing pacing conclusions. |
+| Fusing timing | `--fresh` only plays the Woods, so the intended second-region timing is unmeasured. | Extend the sim into the Pass or check in play. |
+| Expedition visit cap | `walkExped` stops after eight visits and misses some dense-map rewards. | Measure fuller exploration before retuning `DENSITY_RW`. |
+| Roaming ambushes | Denser maps increased encounters initiated by roamers in the recorded run. | Add a movement cap only if play shows excessive ambushes; the tried cap of six had no measurable sim effect. |
+| Essence/material income | Compare reward pace across zones and seeds, especially Spire salvage essences. | Retune `FRAG`/drop chances only after current economy measurements. |
+| Regional material coverage | Pass lacks local Timber; Hollow/Spire lack local Leather. Earlier zones supply these. | Decide whether every region should supply every material type. |
+| Trait stacking | Earlier runs found stacked kits very strong at Heat 5. | Decide whether a soft cap is desirable; it would rescale existing items. Remeasure before specifying it. |
+| Roster coverage | Spire has six authored regulars; the other regions have seven. The Woods' stag is also weak to Stone. | Check whether the asymmetry and Stone-kit matchup warrant changes. |
 
-## Drops and crafting rework (save v17)
-- **Essence income.** With `FRAG={step:2,ch:.2,cap:.75}` the sim (`--econ-only`, seeds 7 and 11) puts essences 0-35% under the old salvage values depending on zone and seed (Spire lost the most with its gear drops; Hollow can run above), embers within about 5%. Tune `FRAG` and the raw drop chances if it feels slow in play.
-- **Material coverage.** The Pass has no Timber (Stone Golems drop some Scrap Iron), and the Hollow and Spire have no Leather of their own; older zones' materials cover them. Add zone variants if every region should have every type.
-- **Other essence sources.** Shrines, altars, the alchemist, chests and the peddler still hand out essences directly. Possible change: shrines boost your next deconstructs instead.
-- **Pattern skill.** Pattern forging never fails and gives a flat `SHAPE` XP. It could use the crafting skills' failure odds for higher-grade materials.
+## Unscheduled ideas
 
-## Crafting rework (done, `plan-crafting-rework.md`)
+- **Procedural name localization:** generated creature names remain English. Translate biome/body word lists and composition rules rather than adding a dictionary entry per creature; coordinate with A-04.
+- **Rift progression:** consider Heat, daily participation or renown beyond depth records. The recorded tier/Smith caps are 9/10; review the progression purpose before expanding it.
+- **Earlier map mystery reveal:** optional idea from P11; needs a concrete player-facing benefit and reveal rule.
+- **More research rewards:** consider a tier beyond Masterwork, grade-5 refining, a Study upgrade or recipe naming; reconcile with the current technique tree before specifying.
+- **Alternative essence rewards:** shrines, altars, alchemists, chests and peddlers give essences directly. Consider rewards that improve subsequent deconstruction instead.
+- **Pattern-forging risk:** patterns currently use flat `SHAPE` XP and no failure roll. Consider skill-based risk for higher-grade materials only if it improves the crafting choices.
+- **Animation/depth:** consider brief SVG anticipation, attack and recovery motions, body-specific idle motion and restrained biome ambience after silhouette work. Preserve reduced-motion support and game-randomness isolation. A 2.5D presentation is exploratory; full 3D has no scheduled task or agreed requirement.
+
+## Housekeeping candidates
+
+- Review merged local `feat/*` and `fix/*` branches for deletion.
+
+## Historical crafting measurements
+
+The notes below were recorded when C-01–C-08 completed. They explain the chosen tuning; they are not measurements rerun during backlog cleanup. Pre-v18 RP pacing and starter/Gnarlhorn estimates have been superseded by the current watchlist and M-10. Recipe technique gating was implemented in C-02, so the older imported-save concern is no longer an open item.
+
+<details>
+<summary>Recorded crafting-rework results and limitations</summary>
+
 - **Densities and what the sim says.** `DENSITY_RW` is 0.65, not the plan's 0.55: the sim's expedition walk stops after eight points of interest, so a dense map gives about 30% more fights (7.8 to 10.2 in the Woods), not twice as many, and 0.55 lost about 15% of the embers. Four seeds, 200 expeditions each: embers -4% to -6% per zone, embers with salvage -1% to -3%, materials +1% to +3%, essences from salvage +2% to +6%. Torch-outs fall. Smith XP stays at zero from fights (no fight gives XP; only heat spoils, bounties and dailies do), so nothing scales there.
 - **Visit cap.** `walkExped` in `tools/sim.js` stops at eight visits, which hides part of the new fights. Raising it shows the full value of the dense maps, but the embers and materials targets would need `DENSITY_RW` retuned.
 - **Ambushes.** Caught-by-roamer rises from about 1.0 to 1.9 per expedition (13% to 19% of fights). A cap of six movers per step made no measurable difference in the sim, so none was added. Add `ROAM.act` if play shows too many ambushes.
@@ -39,3 +57,5 @@ Ideas discussed but not yet scheduled.
 - **Research pace.** Weaponcraft and Armorcraft cost 14 (the first slot technique is affordable from expedition 2 or 3 across four seeds, not expedition 1), Infusing 8 (from expedition 2 to 5 across four seeds), Improving 10. Research per expedition in the Woods: mean 1.9 before, 2.1 after (30 expeditions, seed 7). Watch whether 14 RP for a group feels too long to wait on the first forge, and move the `TECHS` costs, not the code.
 - **Cheap techniques are bought first.** The `--fresh` bot buys the cheapest technique it can afford, so Cooking and Brewing come before the gear in its path. A real player may prefer the gear, which the intro cards point at.
 - **Essences from salvage in the Spire** came out about 16% above the old values on seed 7 over 30 expeditions (within 5% on average). Check it if the Spire's essence feels generous.
+
+</details>

@@ -11,11 +11,14 @@ The starter kit is not a stage kit and now has its own task, **M-10**. See "Out 
 
 ---
 
-## 0. Related tasks in `tasks.md` (from main)
+## 0. Current context and related tasks
 
-- **M-04 · Add wild creatures and Rift masters to the simulator** (`tools/sim.js`, In Progress, Worker B; it comes before M-09). It overlaps step 1. It wants wild creatures run "through normal/magic/rare", but rarity does nothing to a wild creature (§1.1). Agree with M-04 that `--rarity` leaves `w_*` out, and that M-04 reports them in a section of its own. If M-04 lands first, rebase step 1 onto it rather than adding a second wild filter.
-- **M-03 · Close authored element gaps** (In Progress). It swaps or adds enemies in the woods, pass and hollow rosters, which changes the arrival-zone enemy lists. Re-run step 5 after M-03 merges. The enemies that matter here are the healers (Witch, Orrery, Sprite, Briarling) and the slow ones (Stone Golem, Witch, Orrery).
-- **M-10 · Tune the starter kit against magic/rare enemies**. The starter rows that stay flagged after M-09 belong there.
+M-09 remains `Implement` in [tasks.md](tasks.md), but the investigation below is historical. Refresh the baseline on the current revision before tuning: V-12/V-02 changed generated rosters and C-01–C-08 changed crafting, research and encounter density. Reconcile any kit construction assumptions with the current technique gates; record the revision and seed with new results.
+
+- **M-04 is Done.** The simulator separates authored enemies from wild creatures; `--rarity` covers authored foes and `--wild` reports native and forced rarity rows. Check which parts of step 1 already landed rather than implementing a duplicate filter.
+- **M-03 is Done.** Authored elemental coverage is complete. Use the current enemy tables for the arrival-zone lists.
+- **M-10 is Planned.** Starter rows and the revised opening progression belong there, separately from M-09's stage-kit criteria.
+- **M-11 → M-12 → V-16** is the planned Rift-master/wild-band sequence. Coordinate shared combat and generator edits with that work.
 
 ## 1. Research findings
 
