@@ -73,8 +73,9 @@ function art(it){
   if(poison)front+=`<g fill="${FAM.poison}"><path d="M24 55 q2.4 4 0 6.5 q-2.4 -2.5 0 -6.5Z"/><path d="M39 57 q2.4 4 0 6.5 q-2.4 -2.5 0 -6.5Z"/></g>`;
   if(sharp>=3&&grp(it)==="weapon")front+=`<path d="M49 4 l1.5 4 4 1.5 -4 1.5 -1.5 4 -1.5 -4 -4 -1.5 4 -1.5Z" fill="#fff" opacity=".95"/>`;
   if(bad)front+=`<path d="M25 21 l5 6 -3 5 6 7 -2 5" stroke="#e2593f" stroke-width="1.7" fill="none"/>`;
-  if(it.grade){const gc=GRADES[it.grade-1][1];if(it.grade>=4)back+=`<circle cx="32" cy="32" r="30" fill="none" stroke="${gc}" stroke-width="${it.grade-2}" opacity=".6"/>`; // grade: a ring for Greater and Pure, pips for every non-Plain grade
-    front+=Array.from({length:it.grade},(_,i)=>`<circle cx="${32+(i-(it.grade-1)/2)*6.5}" cy="60" r="2.4" fill="${gc}" stroke="#14100c" stroke-width=".8"/>`).join("")}
+  const gr=itemGrade(it);if(gr){const gc=GRADES[gr-1][1],pips=[0,1,2,3,4]; // grade: five pips, the first `gr` filled in the grade colour (Plain is 3); Pure's pips glow (CSS, off under reduced motion)
+    if(gr===5)front+=`<g fill="${gc}" class="pip-glow">${pips.map(i=>`<circle cx="${17+i*7.5}" cy="59" r="4.6"/>`).join("")}</g>`;
+    front+=pips.map(i=>i<gr?`<circle cx="${17+i*7.5}" cy="59" r="3" fill="${gc}" stroke="#14100c" stroke-width=".8"/>`:`<circle cx="${17+i*7.5}" cy="59" r="3" fill="#0d0a08" stroke="#4a3f35" stroke-width=".8"/>`).join("")}
   if(it.legendary)back+=`<circle cx="32" cy="32" r="30" fill="none" stroke="#f2a54a" stroke-width="1.2" opacity=".7"/>`;
   return `<svg viewBox="0 0 64 64" aria-hidden="true"><defs>${defs}</defs>${back}<g transform="translate(6 6) scale(2.1667)" fill="url(#${id})" stroke="${shade(pal[2],-.55)}" stroke-width=".8" stroke-linejoin="round" stroke-linecap="round">${G[k]||G.material}</g>${front}</svg>`;
 }

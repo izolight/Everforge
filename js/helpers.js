@@ -43,7 +43,8 @@ const benchCount=id=>S.bench.filter(x=>x===id).length;
 const avail=id=>(S.inv[id]||0)-benchCount(id);
 const eqCount=id=>Object.values(S.eq).filter(x=>x===id).length;
 const inBattle=()=>!!(S.battle&&!S.battle.over);
-const rarity0=it=>it.grade||(!it.crafted&&gradable(baseIdOf(it.id)))?GRADES[(it.grade||3)-1]:it.legendary?["Legendary","#f2a54a"]:RARITY[Math.min(4,it.tier-1)]; // graded essences and materials show their grade instead
+const itemGrade=it=>it.grade||(!it.crafted&&gradable(baseIdOf(it.id))?3:0); // 1-5 for an essence or basic material (Plain has no grade field, so it reads 3), 0 for anything else
+const rarity0=it=>{const g=itemGrade(it);return g?[GRADES[g-1][0],RARITY[Math.min(4,it.tier-1)][1]]:it.legendary?["Legendary","#f2a54a"]:RARITY[Math.min(4,it.tier-1)]}; // graded items are named by their grade and keep rarity's colour (the grade colour is on the pips only)
 const rarity=it=>{const r=rarity0(it);return[tx(r[0]),r[1]]},gradeN=g=>tx(GRADES[g-1][0]);
 const formEn=f=>FORMS[f].label.toLowerCase(),formName=f=>lc(txc("form",FORMS[f].label)); // formEn is for logic, formName is shown
 const shortName=id=>tx(ENEMIES[id].short||ENEMIES[id].name);

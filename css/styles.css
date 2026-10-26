@@ -434,7 +434,9 @@ h1{font-size:1.7rem}
 .cmp .pw{font-family:var(--mono);font-size:.72rem;color:var(--muted);font-variant-numeric:tabular-nums}
 .preview{background:#17130f;border:1px solid var(--line);border-radius:10px;padding:8px 10px;display:grid;gap:6px;font-size:.88rem}
 .preview .cmp{background:#120f0c}
-/* satchel: square icon tiles. The frame colour is the grade (--gc), the bottom stripe the rarity (--rc) */
+/* satchel: square icon tiles. The frame and bottom stripe are the rarity (--rc); a grade shows only as pips in the art, Pure's glowing */
+@keyframes pipGlow{from{opacity:.25}to{opacity:.7}}
+.pip-glow{animation:pipGlow 2.4s ease-in-out infinite alternate}
 .tabs{gap:5px}
 .tab{border:1px solid var(--line);background:transparent;border-radius:99px;padding:4px 12px;min-height:40px;font-size:.84rem;color:var(--muted)}
 .tab[aria-pressed="true"]{background:var(--fg);color:var(--bg);border-color:var(--fg)}
@@ -445,7 +447,7 @@ h1{font-size:1.7rem}
 .sq{position:relative;aspect-ratio:1;min-width:0;padding:5px;display:grid;place-items:center;background:linear-gradient(180deg,#221d18,#1a1612);border:2px solid var(--line);border-radius:11px;box-shadow:inset 0 -3px 0 var(--rc,transparent)}
 .sq svg{width:100%;height:100%;display:block}
 @media (hover:hover){.sq:hover{border-color:var(--line2)}}
-.sq.legend{border-color:var(--accent)}.sq.gr{border-color:var(--gc)}
+.sq.legend{border-color:var(--accent)}
 .sq.eq{outline:1px solid var(--verd);outline-offset:1px}
 .sq:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .sqg .empty{grid-column:1/-1}
@@ -490,7 +492,6 @@ h1{font-size:1.7rem}
 .slot svg{width:100%;height:100%}
 .slot>svg.ic{width:22px;height:22px}
 .slot.full{border-style:solid;border-color:var(--accent);box-shadow:inset 0 -10px 20px -8px rgb(255 120 40 / .35),inset 0 -3px 0 var(--rc,transparent)}
-.slot.full.gr{border-color:var(--gc)}
 .slot.bad{border-color:var(--bad);box-shadow:none}
 .slot.locked{opacity:.5;font-family:var(--mono);gap:0;align-content:center}.slot.locked small{font-size:.6rem}
 .slots.s4 .slot{width:60px;height:60px}

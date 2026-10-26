@@ -21,7 +21,7 @@ function heroWorn(slot,it,draw,box){
   if(families.has("swift"))fx+=`<path d="M${x+w*.12} ${y+h*.45} l-5 -3 m6 7 l-5 -1" fill="none" stroke="${FAM.swift}" stroke-width="1.5" stroke-linecap="round"/>`;
   if(Object.keys(it.traits).some(t=>TRAITS[t].f==="bad"))fx+=`<path d="M${x+w*.4} ${y+h*.3} l4 5 -3 4 5 5" fill="none" stroke="#b66d54" stroke-width="1.3"/>`;
   }
-  const trim=it.legendary?"#f2a54a":it.grade>=4?GRADES[it.grade-1][1]:c.light;
+  const trim=it.legendary?"#f2a54a":c.light; // gear is never graded (only essences and basic materials are), so the trim is rarity's: gold for legendary, else the material's light tone
   return `<g class="hero-worn" data-hero-slot="${slot}" data-item="${esc(it.id)}" data-form="${it.form}"><defs><linearGradient id="${id}" x1="0" y1="0" x2="1" y2="1"><stop stop-color="${c.light}"/><stop offset=".45" stop-color="${c.mid}"/><stop offset="1" stop-color="${c.dark}"/></linearGradient></defs>${draw(c,fill,trim)}${fx}</g>`;
 }
 function heroHeld(it,slot){

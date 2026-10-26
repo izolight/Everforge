@@ -47,7 +47,7 @@ function cmpBlock(it,other,label){ // one row: vs <name>, % verdict, power befor
   return `<div class="cmp" ${tt(`${tx(label)} ${iname(other)}`,word,tx("Power {b} → {a}",{a,b}))}><span class="cn">${label==="Versus equipped"?ic("equip","s"):tx("vs")} ${nameHtml(other)}</span><span class="verdict ${cls}">${a>b?"▲":a<b?"▼":"="}${Math.abs(pct)}%</span><span class="pw">${tx("PWR {b}→{a}",{a,b})}</span></div>`;
 }
 function hpBar(cur,max,cls){const p=Math.max(0,cur)/max;return `<div class="bar ${cls||(p<.3?"low":"")}"><i style="width:${p*100}%"></i></div>`}
-const gcol=id=>S.items[id].grade?GRADES[S.items[id].grade-1][1]:"var(--accent)";
+const gcol=id=>itemGrade(S.items[id])?rarity(S.items[id])[1]:"var(--accent)"; // a graded item's name takes its rarity colour (grade colour is on the pips)
 const lootChips=ids=>ids.map(id=>{const it=S.items[id];return `<button class="sq" style="${rcol(it)}" data-item="${id}" aria-label="${esc(iname(it))}. ${itemAria(it)}" ${itemTip(it)}>${glyph(it)}</button>`}).join(""); // loot as small item squares
 
 const shopRow=(id,label,c,off)=>`<div class="shoprow"><button class="chip" data-item="${id}" style="color:${gcol(id)}">${esc(iname(S.items[id]))}</button><button class="btn sm" data-choice="${c}" ${off?"disabled":""}>${label}</button></div>`;
@@ -61,10 +61,9 @@ function renderUpgrade(){
   $("upgrows").innerHTML=ids.length?ids.map(id=>{const g=gradeOf(id),tg=g+1,it=S.items[id],low=lv<GRADE_LV[tg-1],poor=S.embers<UP.emb[g-1],battle=inBattle();
     const why=battle?tx("Finish the fight first."):low?tx("Needs Alchemy Lv {n}",{n:GRADE_LV[tg-1]}):poor?tx("Not enough embers."):""; // a refused upgrade says why
     const cost=`${icon("ember")}${UP.emb[g-1]} · ${gradeN(tg)} · ${upChance(tg)}%`;
-    return `<div class="shoprow up">${glyph(it)}<span class="uname"><span style="color:${GRADES[g-1][1]}">${esc(iname(it))}</span> <small>×${avail(id)}</small></span>
+    return `<div class="shoprow up">${glyph(it)}<span class="uname"><span style="color:${rarity(it)[1]}">${esc(iname(it))}</span> <small>×${avail(id)}</small></span>
       <button class="btn sm" data-upgrade="${id}" ${why?`aria-disabled="true" data-tap`:""} aria-label="${esc(tx("Upgrade {item} to {grade}",{item:iname(it),grade:gradeN(tg)}))}" ${tt(`${iname(it)} → ${gradeN(tg)}`,why,tx("{n} of them and {e} embers make 1. {p}% to succeed.",{n:UP.n,e:UP.emb[g-1],p:upChance(tg)}))}>${battle?why:low?`${ic("lock","s")} ${tx("Lv {n}",{n:GRADE_LV[tg-1]})}`:poor?why:cost}</button></div>`}).join(""):`<p class="foot">${tx("Collect {n} of the same grade of an essence, ore, hide or herb to upgrade them.",{n:UP.n})}</p>`;
 }
-const itemLines=it=>[iname(it),`${rarity(it)[0]} · ${labelOf(it)}${isGear(it)?` · ${tx("PWR {n}",{n:power(it)})}`:""}`,grp(it)==="consumable"?useHint(it):isGear(it)?statLine(shown(it)):tx("Crafting ingredient"),topTraits(it.traits).slice(0,4).map(([t,v])=>`${trn(t)} ${v}`).join(", ")];
+const itemLines=it=>[iname(it),`${itemGrade(it)?`${gradeN(itemGrade(it))} (${itemGrade(it)}/5)`:rarity(it)[0]} · ${labelOf(it)}${isGear(it)?` · ${tx("PWR {n}",{n:power(it)})}`:""}`,grp(it)==="consumable"?useHint(it):isGear(it)?statLine(shown(it)):tx("Crafting ingredient"),topTraits(it.traits).slice(0,4).map(([t,v])=>`${trn(t)} ${v}`).join(", ")];
 const itemTip=(it,...x)=>tt(...itemLines(it),...x),itemAria=it=>esc(itemLines(it).slice(1).filter(Boolean).join(". ")); // the tip text also goes in aria-label, for screen readers
-const ROMAN=["","I","II","III","IV","V"];
-const rcol=it=>`--rc:${rarity(it)[1]}${it.grade?`;--gc:${GRADES[it.grade-1][1]}`:""}`; // rarity stripe + grade frame colours
+const rcol=it=>`--rc:${rarity(it)[1]}`; // the rarity colour: the frame and stripe (a grade shows only as pips in the art)

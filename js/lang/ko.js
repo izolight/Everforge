@@ -9,7 +9,7 @@ DICT.ko=Object.assign(DICT.ko||{},{
 "Introduction":"소개","Region":"지역","Equipment":"장비","Infusions":"주입","Upgrading":"등급 올리기","Skills":"기술","Guide":"안내서","Details":"상세 정보","Forging":"단조","Views":"화면",
 "Help: Satchel":"도움말: 가방","Help: Crucible":"도움말: 도가니","Help: {topic}":"도움말: {topic}",
 
-"Satchel\nTap an item to add it to the crucible. Dimmed items won't mix with what is already in; tap one to inspect it.\nLong-press or hover for its name and stats. The frame colour is its grade (Faint, Lesser, Plain, Greater, Pure), a tick means worn, a dot means new, a number is how many you hold.":"가방\n아이템을 탭하면 도가니에 넣습니다. 흐리게 표시된 아이템은 이미 들어 있는 것과 섞이지 않습니다. 탭하면 살펴볼 수 있습니다.\n길게 누르거나 마우스를 올리면 이름과 능력치가 보입니다. 테두리 색은 등급(희미한, 하급, 보통, 상급, 순수)이고, 체크는 착용 중, 점은 새 아이템, 숫자는 보유 수량입니다.",
+"Satchel\nTap an item to add it to the crucible. Dimmed items won't mix with what is already in; tap one to inspect it.\nLong-press or hover for its name and stats. The pips show its grade (Faint, Lesser, Plain, Greater, Pure), a tick means worn, a dot means new, a number is how many you hold.":"가방\n아이템을 탭하면 도가니에 넣습니다. 흐리게 표시된 아이템은 이미 들어 있는 것과 섞이지 않습니다. 탭하면 살펴볼 수 있습니다.\n길게 누르거나 마우스를 올리면 이름과 능력치가 보입니다. 등급은 동그라미 다섯 개 중 채워진 수(희미한, 하급, 보통, 상급, 순수)이고, 체크는 착용 중, 점은 새 아이템, 숫자는 보유 수량입니다.",
 "Crucible\nTap gear or a material in the satchel to add it. Tap a filled slot to take it out again.\nDimmed satchel items won't mix with what is already in. Essences mix with everything. The Recipes tab has the full table.\nMore slots unlock as your Smith level rises.":"도가니\n가방의 장비나 재료를 탭하면 넣습니다. 채워진 칸을 탭하면 다시 뺍니다.\n흐리게 표시된 가방 아이템은 이미 들어 있는 것과 섞이지 않습니다. 정수는 무엇과도 섞입니다. 전체 표는 레시피 탭에 있습니다.\n대장장이 레벨이 오르면 칸이 더 열립니다.",
 // ---- how to play (ids)
 "howto.map":"<b>지도.</b> 각 지역은 타일 격자입니다. 바로 옆의 빛나는 타일을 탭해 한 걸음 이동합니다. 주변 몇 칸만 보이고, 이미 탐험한 땅은 어둡게 표시됩니다. 전투와 상자 위로 걸어가면 만나게 됩니다<span data-unl=\"elite\">. 엘리트(마법 또는 희귀: 더 강하고, 전투를 바꾸며 정수를 떨어뜨리는 접사를 지님)도 있습니다</span><span data-unl=\"shrine\">. 제단</span><span data-unl=\"peddler\">, 행상인</span><span data-unl=\"mystery\">, 수수께끼 타일(?)도 있습니다</span>. 보스는 야영지 너머 맨 위의 소굴에서 기다립니다. 패배하면 새 지도로 돌아가고, 클리어한 지역은 다시 탐험할 수 있습니다.",
@@ -59,9 +59,9 @@ DICT.ko=Object.assign(DICT.ko||{},{
 "Hunts you once it catches your scent (from 4 steps, 6 with your torch out). Elite ones move every other step and notice you within 2.":"냄새를 맡으면 당신을 추격합니다(4걸음 거리부터, 횃불이 꺼지면 6걸음). 엘리트는 두 걸음에 한 번 움직이며 2칸 안에서 알아챕니다.",
 "Drifts about the region. Elite ones move every other step.":"지역을 떠돕니다. 엘리트는 두 걸음에 한 번 움직입니다.","Holds its ground.":"제자리를 지킵니다.",
 // ---- items: gear effects
-"Grade: {grade}, traits ×{m} (Plain is ×1). Upgrade {n} of a grade into 1 of the next in the Forge tab.":"등급: {grade}, 특성 ×{m} (보통은 ×1). 대장간 탭에서 같은 등급 {n}개를 다음 등급 1개로 올릴 수 있습니다.",
-"Grade: {grade}, trait ×{m} (Plain is ×1). Counts as {eq} plain essences for infusion. Upgrade {n} of a grade into 1 of the next in the Forge tab.":"등급: {grade}, 특성 ×{m} (보통은 ×1). 주입 시 보통 정수 {eq}개로 계산됩니다. 대장간 탭에서 같은 등급 {n}개를 다음 등급 1개로 올릴 수 있습니다.",
-"Grade: {grade}, trait ×{m} (Plain is ×1). Counts as {eq} plain essence for infusion. Upgrade {n} of a grade into 1 of the next in the Forge tab.":"등급: {grade}, 특성 ×{m} (보통은 ×1). 주입 시 보통 정수 {eq}개로 계산됩니다. 대장간 탭에서 같은 등급 {n}개를 다음 등급 1개로 올릴 수 있습니다.",
+"Traits ×{m} (Plain is ×1). Upgrade {n} of a grade into 1 of the next in the Forge tab.":"특성 ×{m} (보통은 ×1). 대장간 탭에서 같은 등급 {n}개를 다음 등급 1개로 올릴 수 있습니다.",
+"Trait ×{m} (Plain is ×1). Counts as {eq} plain essences for infusion. Upgrade {n} of a grade into 1 of the next in the Forge tab.":"특성 ×{m} (보통은 ×1). 주입 시 보통 정수 {eq}개로 계산됩니다. 대장간 탭에서 같은 등급 {n}개를 다음 등급 1개로 올릴 수 있습니다.",
+"Trait ×{m} (Plain is ×1). Counts as {eq} plain essence for infusion. Upgrade {n} of a grade into 1 of the next in the Forge tab.":"특성 ×{m} (보통은 ×1). 주입 시 보통 정수 {eq}개로 계산됩니다. 대장간 탭에서 같은 등급 {n}개를 다음 등급 1개로 올릴 수 있습니다.",
 "{p}% critical hit chance":"치명타 확률 {p}%","Elusive enemies dodge {p}% less against it":"회피형 적의 회피율이 {p}% 감소","Sets enemies on fire for {n} damage per turn":"적을 불태워 턴마다 {n} 피해","{p}% chance to freeze an enemy for a turn":"{p}% 확률로 적을 한 턴 동안 얼림","Adds {n} poison per hit, stacking up to {cap} a turn for the whole fight":"적중마다 독 {n} 추가, 턴당 최대 {cap}까지 중첩되어 전투 내내 지속","Heals you {n} HP per hit":"공격마다 HP {n} 회복",
 "Drains {p}% of damage dealt as HP":"준 피해의 {p}%를 HP로 흡수","Hits pierce 60% of enemy armor":"공격이 적 방어구의 60%를 관통","{p}% chance a hit ignores elemental resistance":"{p}% 확률로 공격이 속성 저항을 무시","Each hit cracks enemy armor, up to -{n} DEF":"공격마다 적의 방어구에 금이 가 최대 -{n} 방어",
 "Ability (main hand), {name}: {desc} Cooldown {cd}.":"기술(주 손), {name}: {desc} 재사용 대기 {cd}.","Ability, {name}: {desc} Cooldown {cd}.":"기술, {name}: {desc} 재사용 대기 {cd}.","Carries an ability you will learn to use later.":"나중에 쓰는 법을 익히게 될 기술이 담겨 있습니다.",
@@ -477,7 +477,7 @@ DICT.ko=Object.assign(DICT.ko||{},{
 "Timber":"목재",
 "Stone":"석재",
 "Crystal":"수정",
-"Satchel\nTap an item to open it: equip, use, add to the crucible, deconstruct or salvage it.\nLong-press or hover for its name and stats. The frame colour is its grade (Faint, Lesser, Plain, Greater, Pure), a tick means worn, a dot means new, a number is how many you hold.":"가방\n아이템을 탭하면 열립니다: 장착, 사용, 도가니에 넣기, 가공, 분해.\n길게 누르거나 마우스를 올리면 이름과 능력치가 보입니다. 테두리 색은 등급(희미한, 하급, 보통, 상급, 순수)이고, 체크는 착용 중, 점은 새 아이템, 숫자는 보유 수량입니다.",
+"Satchel\nTap an item to open it: equip, use, add to the crucible, deconstruct or salvage it.\nLong-press or hover for its name and stats. The pips show its grade (Faint, Lesser, Plain, Greater, Pure), a tick means worn, a dot means new, a number is how many you hold.":"가방\n아이템을 탭하면 열립니다: 장착, 사용, 도가니에 넣기, 가공, 분해.\n길게 누르거나 마우스를 올리면 이름과 능력치가 보입니다. 등급은 동그라미 다섯 개 중 채워진 수(희미한, 하급, 보통, 상급, 순수)이고, 체크는 착용 중, 점은 새 아이템, 숫자는 보유 수량입니다.",
 "howto.loop":"<b>진행 방식.</b> 각 지역의 지도를 가로질러 싸우며 원재료를 모으세요. 원재료를 기본 재료와 정수로 가공하고, 도안으로 장비를 단조해 정수를 결속하세요. 지도 끝의 보스를 쓰러뜨리면 다음 지역이 열립니다.<span data-unl=\"rift\"> 탑 너머에는 방랑자의 균열이 기다립니다. 그곳의 모든 출정은 무작위 지역이며, 매번 한 층 더 깊습니다.</span>",
 "howto.mixing":"<b>섞기.</b> 도안은 기본 재료를 장비로 바꿉니다. 도가니에서는 말이 되는 조합만 가능하며, 표는 레시피 탭에 있습니다. 원재료를 가공하면 무엇과도 섞이는 정수가 나옵니다. 장비를 분해하면 재료의 절반이 돌아옵니다.",
 "+{n} embers.":"불씨 +{n}.",
