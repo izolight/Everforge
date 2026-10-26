@@ -88,8 +88,9 @@ function animateRender(before){
     }
   }
 }
-// Also stop effects already playing when the OS preference changes mid-session.
-if(window.matchMedia){const mq=matchMedia("(prefers-reduced-motion: reduce)");
+// Stop effects already playing when the OS preference changes mid-session (called from boot()).
+function motionWatch(){
+  if(!window.matchMedia)return;const mq=matchMedia("(prefers-reduced-motion: reduce)");
   const stop=()=>{if(mq.matches){motionActive.forEach(a=>a.cancel());document.querySelectorAll(".combat-fx").forEach(el=>el.remove())}};
   if(mq.addEventListener)mq.addEventListener("change",stop);
 }

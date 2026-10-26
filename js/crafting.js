@@ -94,6 +94,8 @@ const essIn=(it,d=0)=>!it||!it.crafted||d>8?0:it.ei!=null?it.ei:it.recipeIds?it.
 function salvageYield(it){if(!it.crafted||isEss(it.id))return[];const ys=topTraits(it.traits).filter(([t])=>TRAITS[t].f!=="bad").slice(0,2).filter(([,v],i)=>i===0||v>=2).map(([t])=>t);return ys.slice(0,essIn(it))}
 
 // ================= MATERIALS: DECONSTRUCT AND PATTERNS =================
+// the crucible's contents: keep only as many copies of an id as the satchel actually holds
+function trimBench(){const seen={};S.bench=S.bench.filter(id=>{seen[id]=(seen[id]||0)+1;return seen[id]<=(S.inv[id]||0)})}
 // Anything that is not gear, crafted, an essence or a base material deconstructs (economy.js: deconstruct); gear and crafted pieces salvage instead.
 const canDecon=it=>!!it&&!isGear(it)&&!it.crafted&&!isEss(it.id)&&!isBaseMat(it.id)&&!!BASE[plainId(it.id)];
 const canSalvage=it=>!!it&&(isGear(it)||it.crafted)&&!isEss(it.id);

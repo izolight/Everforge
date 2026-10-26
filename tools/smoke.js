@@ -16,7 +16,7 @@ async function run(label,setup,nat,steps=STEPS){
   const stats=await page.evaluate(async ({steps,nat})=>{
     const sleep=ms=>new Promise(r=>setTimeout(r,ms)),out={steps:0,battles:0,won:0,lost:0,forged:0,zones:new Set(),views:0,wields:0,abil:0,tiles:0,outs:0,byfoe:0,fled:0,script:0,intros:0,heat:0,daily:0,aband:0,bought:0,sold:0,upgraded:0,reforged:0,learned:0,studied:0,gated:0,afx:new Set(),split:0,boom:0,rare:0,decon:0,shaped:0,bad:[]};
     const legacy=UNLOCKS.filter(u=>u.id!=="rift"),pending=pendingIntros().filter(c=>c.id!=="rift"); // the Rift is new v16 content, still gated by the Archon
-    // the forced checks always fight a hand-made regular of one fixed zone: a wild creature brings its own affixes (they would replace the forced ones), and the Rift has no hand-made regulars
+    // the scripted chaser check always meets a hand-made chaser of one fixed zone: a wild creature brings its own affixes, and the Rift has no hand-made regulars
     const CHECK_ZONE="pass",plain=(z,mv)=>Object.keys(ENEMIES).find(k=>ENEMIES[k].zone===z&&!ENEMIES[k].boss&&!k.startsWith("w_")&&(!mv||ENEMIES[k].mv===mv));
     out.vet0=legacy.every(u=>S.unl[u.id])&&TECHS.every(t=>S.techs[t.id])&&pending.length===0?1:`missing ${legacy.filter(u=>!S.unl[u.id]).map(u=>u.id)} pending ${pending.map(c=>c.id)}`; // as loaded, before the bot plays
     const click=el=>{el.click();return true};let wantZone=null,doChores=false,wantWield=false,wantHeat=false,wantDaily=false,wantAband=false,wantShop=false;
@@ -73,7 +73,10 @@ async function run(label,setup,nat,steps=STEPS){
       const cs=qa("#arena [data-choice]:not([disabled])"),shop=S.event?.type==="merchant"; // the peddler's shop: sometimes buy or sell, else the usual picks
       if(shop&&S.embers<40)S.embers+=40;
       const sc=shop&&qa("#arena [data-choice]:not([disabled])").filter(b=>/^(buy|sell):/.test(b.dataset.choice));
-      if(sc&&sc.length&&Math.random()<.7){const b=sc[Math.floor(Math.random()*sc.length)];out[b.dataset.choice[0]==="b"?"bought":"sold"]++;click(b);continue}
+      if(sc&&sc.length&&Math.random()<.7){const b=sc[Math.floor(Math.random()*sc.length)],e0=S.embers;click(b);
+        if(b.dataset.choice.startsWith("sell:")){const b2=q("#arena [data-choice='"+b.dataset.choice+"']");if(b2)click(b2)} // selling gives up an item: the second tap confirms it
+        if(b.dataset.choice[0]==="b"?S.embers<e0:S.embers>e0)out[b.dataset.choice[0]==="b"?"bought":"sold"]++; // count the trade that really happened
+        continue}
       const choice=Math.random()<.35?cs[Math.floor(Math.random()*cs.length)]:cs.find(b=>b.dataset.choice!=="inspect"&&b.dataset.choice!=="leave")||cs[0]; // sometimes any choice, so leave and the odd ones run too
       if(choice){click(choice);continue}
       const tiles=qa("#arena [data-tile]");
@@ -86,28 +89,30 @@ async function run(label,setup,nat,steps=STEPS){
     }
     // every affix in turn: a magic fight through the real UI (#atk), then three rare combinations; each must finish (splitting once, a volatile burst, wards, dodging), drop its essences and leave the save playable (the real state is put back afterwards)
     function afxCheck(){
-      const bk=JSON.stringify(S);out.afxDone=1;S.zone=CHECK_ZONE;
-      try{const run=(rar,afx,label)=>{S.battle=null;S.event=null;S.view="battle";S.hp=pstats().maxHp;startBattle(plain(CHECK_ZONE),{row:2,rar,afx});afx.forEach(a=>out.afx.add(a));const B=S.battle;
+      const bk=JSON.stringify(S);out.afxDone=1;
+      try{const foe=Object.keys(ENEMIES).find(k=>ENEMIES[k].zone===S.zone&&!ENEMIES[k].gen&&!ENEMIES[k].boss)||"boar"; // a hand-made foe: a wild one carries its own affixes and would ignore the one under test
+        const run=(rar,afx,label)=>{S.battle=null;S.event=null;S.view="battle";S.hp=pstats().maxHp;startBattle(foe,{row:2,rar,afx});afx.forEach(a=>out.afx.add(a));const B=S.battle;
           for(let k=0;k<150&&S.battle===B&&!B.over;k++){render();if(B.turn>40)B.hp=1;S.hp=Math.max(S.hp,Math.round(pstats().maxHp*.6));const b=q("#atk");if(!b)break;click(b)}
           if(!B.over)out.bad.push(`stuck in a fight with ${label}`);else fin(B)};
         Object.keys(AFX).forEach(a=>run("magic",[a],a));
         for(let k=0;k<3;k++){run("rare",rollAfx(Math.random,"rare",{mv:"chase",heat:4}),"a rare")}
       }catch(e){out.bad.push("affix check threw: "+e.message)}
       S=JSON.parse(bk);S.battle=null;save();render()}
-    // a chaser two tiles away must walk into you, and fleeing it must leave it alive, dazed and unaware (the real state is put back afterwards)
+    // a chaser next to you must walk into you, and fleeing it must leave it alive, dazed and unaware (the real state is put back afterwards)
     function scripted(){
       const bk=JSON.stringify(S),rr=Math.random;let ok=false,st="no battle";
-      try{const z=CHECK_ZONE;S.zone=z;S.battle=null;S.event=null;S.hp=pstats().maxHp;const m=genMap({heat:0,zone:z,seed:7}); // a seeded map: the same layout every run
-        m.pois=m.pois.filter(p=>p.t==="boss"||p.t==="camp"||(p.x===m.gate.x&&p.y===m.gate.y));S.maps[z]=m;
-        let pl,en;for(let y=3;y<m.h&&!en;y++)for(let x=0;x<m.w&&!en;x++){if(!walk(m,x,y)||fixed(m,x,y)||m.d[y*m.w+x]<5)continue;const d=bfs(m,x,y,(mm,a,b)=>!hard(mm,a,b));
-          for(let b=0;b<m.h&&!en;b++)for(let a=0;a<m.w;a++)if(d[b*m.w+a]===2&&!hard(m,a,b)){pl=[x,y];en=[a,b];break}}
+      const z=CHECK_ZONE;S.zone=z; // a fixed zone with a hand-made chaser (the Rift has none, and a wild one brings its own affixes)
+      try{S.battle=null;S.event=null;S.hp=9999;Object.keys(S.eq).forEach(s=>S.eq[s]=null); // a lunging foe strikes first (an ambush): the player has to be able to take that hit
+        const m=genMap({heat:0,zone:z,seed:7});m.pois=m.pois.filter(p=>p.t==="boss"||p.t==="camp"||(p.x===m.gate.x&&p.y===m.gate.y));S.maps[z]=m; // a seeded map: the same layout every run
+        let pl,en;for(let y=3;y<m.h&&!en;y++)for(let x=0;x<m.w&&!en;x++){if(!walk(m,x,y)||fixed(m,x,y)||m.d[y*m.w+x]<5||m.pois.some(q=>q.x===x&&q.y===y))continue;
+          const nb=DIRS.map(([dx,dy])=>[x+dx,y+dy]).find(([a,b])=>walk(m,a,b)&&!hard(m,a,b)&&!m.pois.some(q=>q.x===a&&q.y===b));if(nb){pl=[x,y];en=nb;break}}
         const p={t:"fight",x:en[0],y:en[1],r:2,done:false,e:plain(z,"chase"),mv:"chase",rar:"normal",afx:[],aw:1};m.pois.push(p);
         m.pos={x:pl[0],y:pl[1]};m.prev=null;m.steps=5;reveal(m);
-        for(let k=0;k<4&&!S.battle;k++){const d=bfs(m,p.x,p.y),a=adjTiles(m).filter(([x,y])=>!(x===p.x&&y===p.y)&&!m.pois.some(q=>q!==p&&q.x===x&&q.y===y&&!q.done)).sort((u,v)=>d[u[1]*m.w+u[0]]-d[v[1]*m.w+v[0]])[0];step(a[0],a[1])}
+        foesAct(m); // it walks into you
         st=S.battle?`battle by ${S.battle.by}, ${S.battle.id}`:"no battle";
         if(S.battle&&S.battle.by==="it"){Math.random=()=>.1;flee();st=`fled ${S.battle.over}, dazed ${p.dz}, aware ${p.aw}, done ${p.done}`;ok=S.battle.over==="fled"&&!p.done&&p.dz===ROAM.daze&&!p.aw}}catch(e){out.bad.push("scripted check threw: "+e.message)}
       Math.random=rr;S=JSON.parse(bk);S.battle=null;save();render();
-      if(ok){out.script++;out.fled++;out.byfoe++} // the chaser caught you (hunted down) and you fled it: both counted here, so they never depend on the random encounters
+      if(ok){out.script++;out.byfoe++;out.fled++} // the chaser caught you (hunted down) and you fled it: both counted here, so they never depend on the random encounters
       else out.bad.push("scripted chaser check failed ("+st+")")}
     // explore: step towards the nearest unvisited POI (as last seen) or unexplored edge by BFS over seen tiles; the lair once most of the map is done or the bot has walked a while; sometimes a random step
     function explore(tiles){
@@ -144,7 +149,7 @@ async function run(label,setup,nat,steps=STEPS){
       S.items.t_curse={id:"t_curse",name:"Cursed Test Blade",form:"blade",noun:"Blade",traits:{Fire:2,Cursed:2},tier:2,crafted:true,recipe:["a","b"],recipeIds:[]};addItem("t_curse");
       go("gear");{const cb=qa("#ginv [data-id]").find(b=>b.dataset.id==="t_curse");if(cb){cb.click();const rg=q("#sheet [data-act='reforge']:not([disabled])");if(rg){rg.click();out.reforged++}else closeSheet()}}
       go("gear");const it=qa("#ginv [data-id]").find(b=>!eqCount(b.dataset.id));if(it){it.click();const sv=q("#sheet [data-act='salvage']");if(sv&&Math.random()<.5){sv.click();q("#sheet [data-act='salvage']")?.click()}closeSheet()}
-      const inf=q("#infbtns [data-infuse]");if(inf)inf.click();
+      const inf=q("#infbtns [data-infuse]");if(inf){inf.click();q("#infbtns [data-infuse]")?.click()} // the first tap only arms the infusion
       go("battle");if(!qa("#arena [data-tile]").length)q("#again")?.click();
     }
     await sleep(500);

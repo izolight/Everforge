@@ -56,7 +56,7 @@ const URL="file://"+path.resolve(__dirname,"..","index.html"),shotArg=process.ar
     assert.equal(await page.evaluate(()=>document.querySelector(".tl.here .hero").getAnimations().length),0);
     await page.evaluate(()=>go("gear"));
     assert(await page.evaluate(()=>$("v-gear").getAnimations().length>0));
-    await page.waitForTimeout(250);
+    await page.waitForFunction(()=>$("v-gear").getAnimations().length===0,null,{timeout:3000}); // the entry has finished (a fixed wait raced it on a busy machine)
     await page.evaluate(()=>render());
     assert.equal(await page.evaluate(()=>$("v-gear").getAnimations().length),0,"same-view renders do not replay entry motion");
     console.log("ok consecutive map steps remain responsive and tab transitions play once");

@@ -36,7 +36,7 @@ function showSalvageReview(){
   const ys={};let embers=0;
   plan.forEach(({id,n})=>{const it=S.items[id];salvageMats(it).forEach(m=>{const k=gradedItem(baseIdOf(m),gradeOf(m));ys[k]=(ys[k]||0)+n});salvageYield(it).forEach(t=>{const k=essG(t,salvGrade(it));ys[k]=(ys[k]||0)+n});embers+=salvageEmbers(it)*n});
   salvageReview=JSON.stringify(plan);Object.assign(sheet,{mode:"salvage",id:null});
-  $("sheetIn").innerHTML=`<h2>${tx("Salvage preview")}</h2><ul>${plan.map(({id,n})=>`<li>${iname(S.items[id])} ×${n}</li>`).join("")}</ul><p class="label">${tx("You will receive")}</p><ul>${Object.entries(ys).map(([id,n])=>`<li>${iname(S.items[id])} ×${n}</li>`).join("")}${isUnl("peddler")?`<li>${tx("Embers")}: ${embers}</li>`:""}</ul><p class="foot">${tx("Equipped, locked and legendary items are protected. Items in the crucible are reserved.")}</p><div class="actions"><button class="btn danger" data-act="bulk-confirm">${tx("Salvage selected items")}</button><button class="btn" data-act="close">${tx("Close")}</button></div>`;
+  $("sheetIn").innerHTML=`<h2>${tx("Salvage preview")}</h2><ul>${plan.map(({id,n})=>`<li>${esc(iname(S.items[id]))} ×${n}</li>`).join("")}</ul><p class="label">${tx("You will receive")}</p><ul>${Object.entries(ys).map(([id,n])=>`<li>${esc(iname(S.items[id]))} ×${n}</li>`).join("")}${isUnl("peddler")?`<li>${tx("Embers")}: ${embers}</li>`:""}</ul><p class="foot">${tx("Equipped, locked and legendary items are protected. Items in the crucible are reserved.")}</p><div class="actions"><button class="btn danger" data-act="bulk-confirm">${tx("Salvage selected items")}</button><button class="btn" data-act="close">${tx("Close")}</button></div>`;
   showSheet();
 }
 function confirmSalvage(){

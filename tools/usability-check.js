@@ -53,6 +53,23 @@ const {chromium}=require('playwright'),path=require('path'),assert=require('node
  assert(await page.evaluate(()=>S.battle.log.some(l=>/fire|Flames/.test(l.t))));
  assert(await page.evaluate(()=>{const old=JSON.parse(JSON.stringify(freshState()));delete old.onboarding;return loadSave(old).onboarding===null}));
  console.log('ok fresh opening reliably teaches loot, salvage, a guaranteed fire forge and its effect; a save without the field opts out');
+ // a save import cannot inject markup: a hostile item name is shown as text on the forge and recipes views
+ const evil='<img src=x onerror="window.__xss=1">';
+ const code=await page.evaluate(evil=>{S=freshState();S.items.evil_blade={id:'evil_blade',name:evil,form:'blade',noun:'Blade',traits:{Fire:2},tier:1,crafted:true,recipe:['a','b'],recipeIds:[]};addItem('evil_blade');S.journal=[{id:'evil_blade',name:evil}];S.bench=['evil_blade'];return btoa(unescape(encodeURIComponent(JSON.stringify({...S,battle:null,event:null}))))},evil);
+ await page.evaluate(()=>{go('settings');$('saved').open=true});await page.locator('#importBox').fill(code);await page.locator('#importBtn').click();await page.locator('#importBtn').click();
+ await page.evaluate(()=>{go('forge');render();go('recipes');render()});
+ assert(await page.locator('#rlist').innerText().then(t=>t.includes('<img src=x')));
+ assert.equal(await page.evaluate(()=>window.__xss),undefined);
+ console.log('ok an imported save with markup in an item name shows it as text');
+ // a re-render keeps keyboard focus on the same control; with nothing focused it does not steal focus
+ await page.evaluate(()=>{go('battle')});await page.locator('[data-view="forge"]').focus();
+ await page.evaluate(()=>render());assert(await page.evaluate(()=>document.activeElement?.dataset.view==='forge'));
+ await page.evaluate(()=>document.activeElement.blur());await page.evaluate(()=>render());
+ assert(await page.evaluate(()=>document.activeElement===document.body));
+ console.log('ok a re-render keeps focus on the control that had it');
+ // tap-again helper: the first tap arms, a second tap inside the window carries it out, then it is spent
+ assert.deepEqual(await page.evaluate(()=>{armClear('t');return [armTap('t',3000),armTap('t',3000),armTap('t',3000)]}),[false,true,false]);
+ console.log('ok armTap needs a second tap inside its window');
  // Additional review regressions are added here.
  assert.deepEqual(errors,[]);console.log('USABILITY CHECK OK');
  }finally{await browser.close()}})().catch(e=>{console.error(e);process.exit(1)});

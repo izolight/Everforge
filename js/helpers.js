@@ -1,9 +1,20 @@
 // ================= HELPERS =================
 function rng(seed){return()=>{seed|=0;seed=seed+0x6D2B79F5|0;let t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
 const r1=v=>Math.round(v*10)/10;
+const dec=n=>LANG==="de"?String(n).replace(".",","):String(n); // a number as text: German writes the decimal comma
 const cap=s=>s[0].toUpperCase()+s.slice(1);
 const pick=a=>a[Math.floor(Math.random()*a.length)];
 const $=id=>document.getElementById(id);
+// Tap-again confirmation: the first tap arms an action, a second tap inside the window carries it out.
+const armTaps={};
+function armClear(key){clearTimeout(armTaps[key+":t"]);delete armTaps[key]}
+function armTap(key,ms,expire){const now=Date.now();
+  if(armTaps[key]&&now-armTaps[key]<ms){armClear(key);return true}
+  armTaps[key]=now;clearTimeout(armTaps[key+":t"]);
+  armTaps[key+":t"]=setTimeout(()=>{delete armTaps[key];expire&&expire()},ms);
+  return false;
+}
+const isArmed=key=>!!armTaps[key];
 const reduced=()=>window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches;
 function level(){let l=1;XP_LV.forEach((t,i)=>{if(S.xp>=t)l=i+1});return l}
 const skXp=k=>S.skills[k]||0;
@@ -17,6 +28,14 @@ const maxInputs=()=>2+INPUT_LV.filter(l=>level()>=l).length;
 const infSlots=()=>INF_SLOTS+(level()>=9?1:0);
 const traitSlots=()=>Math.min(7,4+Math.floor((level()-1)/2))+(level()>=10?1:0);
 const tColor=t=>FAM[(TRAITS[t]||{f:"stone"}).f];
+// shared formulas: the strike power of a stat block, the damage reduction at Heat 5, and the capped values of the
+// combat traits, so the combat code and the item sheet can never drift apart
+const strikePower=P=>P.atk+P.mag*MAG_W;
+const heatRed=(P,B)=>B&&B.heat>=5?redOf(P.def*(1-HEAT_T.bite)):P.red;
+const shredVal=v=>Math.round(Math.min(SHRED_CAP,v*SHRED_PER));
+const thornsVal=v=>Math.round(Math.min(THORN_CAP,v*THORN_PER));
+const stoneVal=v=>r1(Math.min(STONE_CAP,v*STONE_DR));
+const wardVal=v=>Math.round(Math.min(WARD_CAP,v*WARD_PER));
 const topTraits=tr=>Object.entries(tr).sort((a,b)=>b[1]-a[1]);
 const grp=it=>FORMS[it.form].g;
 const isGear=it=>!!FORMS[it.form].slots;
