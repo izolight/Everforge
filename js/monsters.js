@@ -1,5 +1,6 @@
 // ================= BIOMES, WILD CREATURES, RANDOM REGIONS =================
-// A biome is a theme: the elements, bodies, parts, colours and words its creatures are built from.
+// A biome is a theme: the elements, bodies, parts, accents and words its creatures are built from. A creature's body takes its
+// element's colour (ELPAL) and its accent the biome's (acc), so an element reads the same in every biome.
 // Every region gets ten wild creatures (genRoster): composed from the biome's parts, carrying affixes of their
 // own, and the same in every playthrough (the seed is the region's id). They are rare-grade creatures, so the map
 // shows them with a frame, but their own affixes drop no extra essence: the economy of a region does not move.
@@ -7,35 +8,35 @@
 // from one seed. The seed is kept in the save, so a reloaded game rebuilds exactly the same region.
 const BIOMES={
 forest:{n:"Whispering Woods",els:["wood","poison","fire","swift","metal"],bodies:["beast","undead","humanoid","elemental","construct"],parts:["mane","antlers","horns","tail","vines","spikes","hood","wings","shell"],pats:["spots","stripes","rot","scales"],
-  acc:["#b5b04a","#6e8a3a"],cols:["#7f9a5c","#c9a24a","#5f8a3a","#a3604a","#6f8c7c"],skins:["#c99b78","#b78a63"],verbs:["bites you","claws you","rakes you","slashes at you","lashes you","gores you"],
+  acc:["#b5b04a","#6e8a3a"],skins:["#c99b78","#b78a63"],verbs:["bites you","claws you","rakes you","slashes at you","lashes you","gores you"],
   pre:["Briar","Moss","Thorn","Fern","Oak","Rowan","Hazel","Grove","Bramble","Alder"],suf:["Stalker","Crawler","Watcher","Gnawer","Runner","Warden","Lurker","Creeper","Slasher","Hound"],
   regions:["The Old Grove","The Rootless Wood","Whispering Thicket"],lore:["It hunts where the light ends and the roots begin.","The forest grew it, and the forest keeps it.","It wears moss like a coat and never takes it off.","Old tracks end at it. Nothing else lives here."]},
 tundra:{n:"Frostfang Pass",els:["ice","swift","stone","arcane","metal"],bodies:["beast","elemental","construct","humanoid","undead"],parts:["frost","mane","horns","tail","spikes","armor","crystals","antlers","hood"],pats:["facets","bands","swirl","scales"],
-  acc:["#f4fbff","#bfe0ea"],cols:["#b9d6e2","#8fbcd0","#6c8ea0","#dbeef6","#5f7f8f"],skins:["#c99b78","#a8846a"],verbs:["bites you","claws you","mauls you","buffets you","hacks at you","slams you"],
+  acc:["#f4fbff","#bfe0ea"],skins:["#c99b78","#a8846a"],verbs:["bites you","claws you","mauls you","buffets you","hacks at you","slams you"],
   pre:["Rime","Frost","Glacier","Snow","Wind","Pale","Bitter","Hail"],suf:["Stalker","Razor","Howler","Drifter","Warden","Shredder","Lurker","Runner","Biter","Crusher"],
   regions:["The White Silence","The Grey Shelf","The Frostfang Expanse"],lore:["The cold got into it first; the rest is habit.","It waits where the wind funnels between the rocks.","Snow covers its tracks, but not for long.","It was born in a blizzard and never warmed up."]},
 ember:{n:"Cinder Hollow",els:["fire","poison","metal","stone"],bodies:["elemental","construct","humanoid","undead","beast"],parts:["flames","spikes","armor","chains","horns","crown","runes","wings","shell"],pats:["cracks","bands","facets","swirl"],
-  acc:["#ff8a3d","#ff5a1f"],cols:["#b8402a","#ffb347","#d6c83a","#8a3a22","#e8793b"],skins:["#c99b78","#9c6e43"],verbs:["scorches you","hammers you","scalds you","rakes you","claws you","strikes you"],
+  acc:["#ff8a3d","#ff5a1f"],skins:["#c99b78","#9c6e43"],verbs:["scorches you","hammers you","scalds you","rakes you","claws you","strikes you"],
   pre:["Cinder","Ember","Slag","Ash","Forge","Molten","Kiln","Scoria"],suf:["Hound","Sentinel","Warden","Drake","Creeper","Tender","Hammer","Wretch","Thief","Creecher"],
   regions:["The Ashen Kilns","The Slag Flats","The Vent Fields"],lore:["It was forged, and then let go.","The Hollow's heat made it, and the Hollow forgets it.","Everything it touches keeps a little warmth.","It smells of coal and of old, old iron."]},
 astral:{n:"Starfall Spire",els:["arcane","holy","swift","shadow"],bodies:["construct","elemental","humanoid","beast","undead"],parts:["orbit","runes","halo","wings","crown","crystals","armor","chains","mane"],pats:["stars","bands","swirl","scales"],
-  acc:["#f6d36b","#fff3c4"],cols:["#4e3a96","#a9f0ff","#7468b8","#f0dca8","#c9a65a"],skins:["#e9e0cf","#c9b9a8"],verbs:["strikes you","smites you","rakes you","touches you","chills you","hacks at you"],
+  acc:["#f6d36b","#fff3c4"],skins:["#e9e0cf","#c9b9a8"],verbs:["strikes you","smites you","rakes you","touches you","chills you","hacks at you"],
   pre:["Star","Void","Astral","Rune","Halo","Fallen","Gilded","Umbral"],suf:["Watcher","Sentinel","Warden","Acolyte","Construct","Lynx","Seer","Wraith","Scribe","Herald"],
   regions:["The Starless Gallery","The Ossuary of Glass","The Vault of Falling Light"],lore:["It was a star that learned to walk.","Something up here rewrote it.","It keeps the hour it was made for.","The stars moved; it did not."]},
 fen:{n:"Mirewood Fen",els:["poison","wood","shadow","swift"],bodies:["beast","undead","elemental","humanoid","construct"],parts:["vines","mane","tail","horns","spikes","shell","hood","antlers","wings"],pats:["rot","spots","swirl","stripes"],
-  acc:["#4d5a2a","#2e3420"],cols:["#5f8a3a","#7a8f5c","#3f6b48","#8f9f5c","#6f8c7c"],skins:["#a89b7a","#8f9f5c"],verbs:["lashes you","claws you","bites you","strikes you","scalds you","hacks at you"],
+  acc:["#4d5a2a","#2e3420"],skins:["#a89b7a","#8f9f5c"],verbs:["lashes you","claws you","bites you","strikes you","scalds you","hacks at you"],
   pre:["Mire","Fen","Silt","Reed","Bog","Moss","Weeping","Drowned"],suf:["Crawler","Leech","Lurker","Drowner","Watcher","Warden","Slimer","Gnawer","Wretch","Drifter"],
   regions:["The Weeping Fen","The Silt Marches","Rotmire Hollow"],lore:["The bog keeps what it takes.","It surfaces only when the water is still.","Half of it is moss, and the moss is hungry.","It was a traveller once. The fen kept it."]},
 ash:{n:"The Cinder Wastes",els:["fire","metal","stone","poison"],bodies:["construct","humanoid","elemental","beast","undead"],parts:["armor","spikes","flames","chains","horns","shell","hood","crystals","wings"],pats:["bands","cracks","facets","stripes"],
-  acc:["#4a4643","#8a847c"],cols:["#a86a3a","#e0a060","#7a5a44","#c9a24a","#8a4a30"],skins:["#b08a63","#8a6a4a"],verbs:["hammers you","strikes you","scorches you","rakes you","gores you","claws you"],
+  acc:["#4a4643","#8a847c"],skins:["#b08a63","#8a6a4a"],verbs:["hammers you","strikes you","scorches you","rakes you","gores you","claws you"],
   pre:["Dune","Cinder","Brass","Glass","Salt","Iron","Ashen","Scrap"],suf:["Raider","Sentinel","Golem","Drifter","Reaver","Warden","Hound","Creeper","Wretch","Hulk"],
   regions:["The Glass Desert","The Rust Flats","The Salt Reach"],lore:["It was made to work in the sun, and never stopped.","Glass underfoot, and something that drinks the heat.","Nothing grows here; it grows anyway.","The wastes are full of things that were once people."]},
 bone:{n:"Ossuary Barrens",els:["shadow","holy","stone","poison"],bodies:["undead","beast","humanoid","construct","elemental"],parts:["horns","antlers","mane","chains","armor","tail","hood","runes","wings"],pats:["rot","cracks","scales","bands"],
-  acc:["#e4dccb","#c9b48a"],cols:["#d8d0bb","#8a8070","#b9ad98","#5a4a3a","#9c998c"],skins:["#c9b9a8","#a89880"],verbs:["claws you","gores you","smites you","hacks at you","lashes you","strikes you"],
+  acc:["#e4dccb","#c9b48a"],skins:["#c9b9a8","#a89880"],verbs:["claws you","gores you","smites you","hacks at you","lashes you","strikes you"],
   pre:["Bone","Ossuary","Marrow","Grave","Pallid","Riven","Silent","Hollow"],suf:["Warden","Crawler","Hound","Sexton","Ritual","Thrall","Watcher","Gnawer","Wretch","Choir"],
   regions:["The Pallid Fields","The Ossuary Gate","The Long Barrows"],lore:["It was buried with something it did not forgive.","The dead here do not lie down.","It wears the bones of better fighters.","Something keeps the barrows tidy."]},
 deep:{n:"The Weeping Deep",els:["arcane","ice","shadow","poison"],bodies:["elemental","construct","beast","undead","humanoid"],parts:["crystals","runes","vines","tail","frost","hood","shell","spikes","chains"],pats:["stars","swirl","cracks","facets"],
-  acc:["#3ff0ff","#7fe8ff"],cols:["#2f6f7a","#7fe8ff","#3a5f8a","#a9f0ff","#6f4f8a"],skins:["#9fb0b8","#7f8f98"],verbs:["chills you","touches you","strikes you","claws you","scalds you","rakes you"],
+  acc:["#3ff0ff","#7fe8ff"],skins:["#9fb0b8","#7f8f98"],verbs:["chills you","touches you","strikes you","claws you","scalds you","rakes you"],
   pre:["Deep","Weeping","Glass","Abyss","Silent","Pale","Vault","Drowned"],suf:["Warden","Sentinel","Watcher","Husk","Seeker","Lurker","Chorus","Creeper","Thrall","Drifter"],
   regions:["The Weeping Vaults","The Glass Deeps","The Drowned Gallery"],lore:["It came up from a place that has no floor.","The water there keeps its shape.","It remembers a door that no longer exists.","Every sound in the deep answers itself."]}
 };
@@ -68,6 +69,12 @@ const pluralOf=n=>/(s|x|z|ch|sh)$/.test(n)?n+"es":/[^aeiou]y$/.test(n)?n.slice(0
 function genName(B,R,used){ // a name from the biome's words, unique inside its roster
   for(let i=0;i<60;i++){const n=B.pre[Math.floor(R()*B.pre.length)]+" "+B.suf[Math.floor(R()*B.suf.length)];if(!used.has(n)){used.add(n);return n}}
   const n=B.pre[0]+" "+B.suf[0]+" the "+used.size;used.add(n);return n}
+function accFor(B,body,R){ // a biome accent at dE 25 or more from the body; else the accent moved in lightness until it is (the best seen)
+  const n=B.acc.length,k=Math.floor(R()*n);
+  for(let i=0;i<n;i++){const a=B.acc[(k+i)%n];if(dE(a,body)>=25)return a}
+  const[h,s,l]=toHsl(B.acc[k]);let best=B.acc[k],bd=dE(best,body);
+  for(const dir of[1,-1])for(let i=1;i<=12;i++){const c=fromHsl(h,s,l+dir*i*.04),d=dE(c,body);if(d>=25)return c;if(d>bd){best=c;bd=d}}
+  return best}
 function genDrops(zone,el,R){ // one to three of the region's own materials
   const t=GEN_DROP[zone]||GEN_DROP.spire,list=t[el]&&t[el].length?t[el]:t.any,n=1+Math.floor(R()*2.6),out=[],seen=new Set();
   for(let i=0;i<n;i++){const id=list[Math.floor(R()*list.length)];if(seen.has(id))continue;seen.add(id);out.push([id,.35+R()*.45])}
@@ -80,7 +87,7 @@ function genCreature(o){ // o:{id,zone,biome,tier,R,used,boss,where,seed}
   const el=B.els[Math.floor(R()*B.els.length)],nat=EL_NAT[el]||{w:[],r:[]};
   const mv=["still","wander","chase"][Math.floor(R()*3)],body=B.bodies[Math.floor(R()*B.bodies.length)];
   const nparts=1+Math.floor(R()*3),parts=[];while(parts.length<nparts){const p=B.parts[Math.floor(R()*B.parts.length)];if(!parts.includes(p))parts.push(p)}
-  const col=B.cols[Math.floor(R()*B.cols.length)],acc=B.cols[Math.floor(R()*B.cols.length)];
+  const col=ELPAL[el][Math.floor(R()*3)],acc=accFor(B,col,R); // body: the element's light, mid or dark; accent: the biome's
   const name=o.boss?proc(cap(B.pre[Math.floor(R()*B.pre.length)])+" "+cap(B.suf[Math.floor(R()*B.suf.length)])):genName(B,R,o.used);
   const sp=GEN_SP[Math.floor(R()*GEN_SP.length)];
   const boss=o.boss?1.9:1,atkm=o.boss?1.25:1;
@@ -110,7 +117,7 @@ function riftMake(seed,depth){ // a random region: biome, palette, name, ten wil
   const R=rng(seed),bi=RIFT_BIOMES[Math.floor(R()*RIFT_BIOMES.length)],B=BIOMES[bi];
   const reg=B.regions[Math.floor(R()*B.regions.length)];
   const tier={hp:Math.round(GEN_T.spire.hp*(1+.18*(depth-1))),atk:Math.round(GEN_T.spire.atk*(1+.12*(depth-1))),def:GEN_T.spire.def+Math.floor((depth-1)/2)};
-  const cols=B.cols.slice(),pal={tf:cols[0],tl:cols[1],tb:cols[2]};
+  const[ph,ps]=toHsl(B.acc[0]),pal={tf:fromHsl(ph,ps*.6,.09),tl:fromHsl(ph,ps*.6,.17),tb:B.acc[0]}; // the map's floor, lit floor and border, from the biome accent
   const used=new Set(),list=[];
   for(let i=0;i<RIFT_N;i++)list.push(genCreature({id:"w_rift_"+i,zone:RIFT_ZONE,biome:bi,tier,R:rng(hash(seed+":w"+i)),used,where:reg,seed}));
   list.push(genCreature({id:"rift_boss",zone:RIFT_ZONE,biome:bi,tier,R:rng(hash(seed+":boss")),used,boss:1,where:reg,seed}));

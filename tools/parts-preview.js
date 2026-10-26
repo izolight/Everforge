@@ -22,7 +22,7 @@ const {chromium}=require("playwright"),fs=require("fs"),path=require("path");
         const lab=document.createElement("div");lab.style.cssText="width:70px;color:#9a9";lab.textContent=body;row.appendChild(lab);
         for(const part of B.parts){
           const id="pp_"+bn+"_"+body+"_"+part;
-          ENEMIES[id]={el:B.els[0],art:{b:body,p:[part],c:B.cols[0],a:B.cols[1],pat:B.pats[0],po:.5,skin:B.skins[0],glow:false}};
+          ENEMIES[id]={el:B.els[0],art:{b:body,p:[part],c:ELPAL[B.els[0]][1],a:B.acc[0],pat:B.pats[0],po:.5,skin:B.skins[0],glow:false}};
           const cell=document.createElement("div");
           cell.style.cssText="width:96px;height:96px;background:#1c1720;border:1px solid #332c3a;border-radius:8px;position:relative";
           cell.innerHTML=portrait(id,{lite:true});
