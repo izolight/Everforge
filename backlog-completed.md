@@ -62,6 +62,15 @@ Completed task records and their implementation evidence. Test counts and simula
 
 ## UI
 
+- [x] **U-06 · Open Codex on searchable creature knowledge** — `Status: Done` · `Size: M` · `Priority: High` · `index.html`, `js/render/lists-view.js`, `js/events.js`, `js/sheets.js`, `css/styles.css`
+  Guide precedes the creature list and occupied about 2,230px when all introductions were unlocked. Give Codex explicit Creatures, Guide, Affixes and Records sections, opening on Creatures for a first visit. Place How to play within Guide. Add creature-name search, region selection and discovered/mastered filters. Show names and knowledge progress for discovered creatures; summarize unknown entries per region instead of rendering a long wall of silhouettes.
+  **Acceptance:** the initial Codex viewport contains creature browsing controls and discovered entries, or an actionable first-encounter empty state. Search and filters combine predictably and provide resettable no-match results. Selecting a creature opens its existing knowledge page. Unknown names/facts remain concealed; creature, mastery and affix totals remain accurate. Guide introductions, Show me links, unlock requirements, How to play and lifetime stats remain reachable. Verify fresh, partially discovered and fully unlocked states.
+
+- [x] **U-07 · Bound Codex card sizes on desktop** — `Status: Done` · `Size: S` · `Priority: Medium` · `css/styles.css`, `js/render/lists-view.js` · `Depends: U-06`
+  The creature grid stays four columns wide with square tiles, so widening the page enlarges portraits instead of improving scan density. The review fixture's creature section grew from roughly 1,943px on mobile to 3,927px on desktop. Use bounded card sizes and additional columns, or a compact list beside a detail pane, within U-06's creature browser.
+  **Acceptance:** at 1200px width the same creature results show at least as many entries per viewport as at 390px; desktop space does not merely enlarge four portraits. Names, region and knowledge state remain legible at actual card sizes. Verify 320px, 390px, 960px and 1200px widths with no horizontal page overflow and usable keyboard focus. Coordinate with A-05's creature readability pass.
+
+
 - [x] **U-02 · Keep the Forge result summary and action visible** — `Status: Done` · `Size: M` · `js/render/forge-view.js`, `css/styles.css`
   **Done:** Forge previews show a compact result name and useful stats, with detailed comparison, reactions and failure breakdown collapsed. Success odds and equipped-item fizzle warnings remain visible ahead of the enabled action. The workbench no longer traps content in its own scroll area. Browser checks cover known and new combinations, nonzero failure odds, blocked research requirements, equipped destruction warnings, and action visibility at 390×844, with reachability at 320px and overflow at desktop width. The action stays clear of mobile navigation at 390px.
 

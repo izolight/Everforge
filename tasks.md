@@ -4,16 +4,16 @@ The status index for scoped work. Open tasks are below; implementation evidence 
 
 ## At a glance
 
-**56 tasks · 22 Done · 0 In Progress · 1 Implement · 33 Planned · 34 open.** No task is currently recorded as actively underway.
+**56 tasks · 27 Done · 0 In Progress · 1 Implement · 28 Planned · 29 open.** No task is currently recorded as actively underway.
 
 | Workstream | Done | In Progress | Implement | Planned |
 |---|---:|---:|---:|---:|
 | Monster coverage, balance and progression (M) | 4 | 0 | 1 | 7 |
 | Biome variety and mechanics (V) | 6 | 0 | 0 | 16 |
 | Art identity and readability (A) | 0 | 0 | 0 | 5 |
-| UI (U) | 4 | 0 | 0 | 5 |
+| UI (U) | 9 | 0 | 0 | 0 |
 | Crafting rework (C) | 8 | 0 | 0 | 0 |
-| **Total** | **22** | **0** | **1** | **33** |
+| **Total** | **27** | **0** | **1** | **28** |
 
 **Statuses:** `Planned` = scoped backlog, not started; `Implement` = detailed implementation plan exists; `In Progress` = actively underway; `Done` = completed, with evidence in the archive. Dependencies are stated on task cards; Planned does not necessarily mean ready to start.
 
@@ -23,7 +23,6 @@ The status index for scoped work. Open tasks are below; implementation evidence 
 
 | Focus | Tasks | Next step |
 |---|---|---|
-| UI simplification | U-04; U-06 → U-07; U-08 → U-09 | Make Inventory and creature knowledge easy to reach, then clarify crafting language and item actions. |
 | Balance with an existing plan | M-09 | Refresh the baseline and reconcile the [implementation plan](plan-m-09.md) with current crafting before tuning. |
 | Starter progression | M-10 | Recheck the opening loop after the crafting/research rework. |
 | Most visible art improvements | A-01, A-02, A-03 | Distinct animal bodies, named equipment and Rift terrain; do these before multiplying biomes/roster sizes. |
@@ -40,29 +39,7 @@ Numbers retained under M-09–M-12 are historical seed-1 baselines, including th
 
 ## UI simplification
 
-Scoped from the 2026-10-26 source and browser review at 390×844 and 1200×844. Measurements below came from a synthetic populated state, including all introductions unlocked; they are reproduction examples, not player telemetry. Preserve the forge theme, item artwork, U-01 grade/rarity semantics and existing gameplay rules. Priorities indicate recommended implementation order; all tasks remain Planned.
-
-- [x] **U-02 · Keep the Forge result summary and action visible** — `Status: Done` · `Size: M` · `Priority: High` · `js/render/forge-view.js`, `css/styles.css`
-  The mobile crucible is capped at `48dvh` with its own scrollbar. An Infuse preview occupied 733px inside a 403px panel, hiding the primary button while the surrounding page also scrolled. Put the result name, useful stat/effect changes, success odds and primary action in a compact workbench. Move reactions, input contributions and detailed failure calculations into expandable details; keep ingredient selection usable alongside it.
-  **Acceptance:** at 390×844, a completed Infuse or Improve selection exposes its result summary and enabled action without scrolling inside the preview. At 320px width and on desktop, long names, warnings and expanded explanations remain readable and the action remains reachable. Equipped-item destruction warnings stay visible before confirmation. Inspect known and new combinations, blocked crafts and nonzero failure odds; extend the browser usability check for the clipped-action regression.
-
-- [x] **U-03 · Use one contextual ingredient picker per Forge task** — `Status: Done` · `Size: L` · `Priority: High` · `js/render/forge-view.js`, `js/render/lists-view.js`, `js/events.js`, `js/crafting.js`, `css/styles.css` · `Depends: U-05`
-  Patterns render a material picker as well as the full Satchel; crucible actions instead consume items from the Satchel. Replace those competing selectors with one picker driven by the selected pattern/action and empty slot. Show named compatible ingredients, available quantities and selected inputs. Keep incompatible items behind an explicit option with reasons. Add access to compatible saved recipes from the Forge and retain the existing Recipes view. Hide locked actions behind an expandable list that still explains how to unlock them.
-  **Acceptance:** each Forge mode has one ingredient-selection surface; filling/removing slots updates availability, honors locks and reserved quantities, and explains missing requirements. Pattern fill and saved-recipe loading work through the same visible workflow. Loaded recipes select their matching action. Exercise patterns, Infuse, Improve, Fuse, Cook, Brew, Alchemy and Refine; Refine presents its grade-upgrade controls without an unrelated ingredient picker. Check first-use and fully unlocked states on phone and desktop.
-
-- [x] **U-05 · Separate Inventory filters and explain empty results** — `Status: Done` · `Size: M` · `Priority: High` · `js/inventory.js`, `js/render/lists-view.js`, `js/events.js`, `js/state.js`
-  Gear and Forge share category/filter state. The current Craftable filter depends on the crucible action, returning no items during pattern forging even when usable pattern materials exist. Store task-specific category/filter preferences separately; define pattern compatibility from its slots and crucible compatibility from its action and current inputs. Replace filtered-out inventory's “Nothing here yet” message with an explanation and a reset control; distinguish this from genuinely owning no items.
-  **Acceptance:** selecting a Gear category or filter does not unexpectedly hide Forge ingredients, and vice versa. A pattern with matching materials shows them under its compatibility filter; Refine has an appropriate filter or omits unsupported options. Empty filtered results expose Clear filters, which restores owned items. Existing saves with the shared preference shape load safely. Add browser regression coverage for cross-view filter state, pattern compatibility and empty-result recovery.
-
-- [ ] **U-06 · Open Codex on searchable creature knowledge** — `Status: Planned` · `Size: M` · `Priority: High` · `index.html`, `js/render/lists-view.js`, `js/events.js`, `js/sheets.js`, `css/styles.css`
-  Guide precedes the creature list and occupied about 2,230px when all introductions were unlocked. Give Codex explicit Creatures, Guide, Affixes and Records sections, opening on Creatures for a first visit. Place How to play within Guide. Add creature-name search, region selection and discovered/mastered filters. Show names and knowledge progress for discovered creatures; summarize unknown entries per region instead of rendering a long wall of silhouettes.
-  **Acceptance:** the initial Codex viewport contains creature browsing controls and discovered entries, or an actionable first-encounter empty state. Search and filters combine predictably and provide resettable no-match results. Selecting a creature opens its existing knowledge page. Unknown names/facts remain concealed; creature, mastery and affix totals remain accurate. Guide introductions, Show me links, unlock requirements, How to play and lifetime stats remain reachable. Verify fresh, partially discovered and fully unlocked states.
-
-- [ ] **U-07 · Bound Codex card sizes on desktop** — `Status: Planned` · `Size: S` · `Priority: Medium` · `css/styles.css`, `js/render/lists-view.js` · `Depends: U-06`
-  The creature grid stays four columns wide with square tiles, so widening the page enlarges portraits instead of improving scan density. The review fixture's creature section grew from roughly 1,943px on mobile to 3,927px on desktop. Use bounded card sizes and additional columns, or a compact list beside a detail pane, within U-06's creature browser.
-  **Acceptance:** at 1200px width the same creature results show at least as many entries per viewport as at 390px; desktop space does not merely enlarge four portraits. Names, region and knowledge state remain legible at actual card sizes. Verify 320px, 390px, 960px and 1200px widths with no horizontal page overflow and usable keyboard focus. Coordinate with A-05's creature readability pass.
-
-**Verification across U-02–U-09:** use meaningful browser checks for changed interactions, visually inspect fresh and populated states on phone and desktop, and run affected existing checks plus `npm test` before closing each task. Preserve item locking, reserved ingredients, bulk-salvage review, battle restrictions, discovery gates and accessible control labels. UI-only work does not require balance retuning.
+U-02–U-09 are complete. See [Completed UI tasks](backlog-completed.md#ui) for implementation and validation evidence.
 
 ## Balance and progression
 
