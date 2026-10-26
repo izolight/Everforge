@@ -122,21 +122,20 @@
   </div>
 
   <div id="v-codex" class="view" hidden>
-    <section class="panel" aria-label="Guide" data-ta="aria-label">
-      <p class="label lrow" id="gdlabel"></p>
-      <div id="gdlist"></div>
-    </section>
-    <section class="panel" id="stp" aria-label="Lifetime stats" data-ta="aria-label">
-      <details id="statsd"><summary class="label"><span data-ic="renown"></span> <span data-t>Lifetime stats</span></summary><div id="stats"></div></details>
-    </section>
-    <section class="panel">
+    <nav class="cxsections" aria-label="Codex sections" data-ta="aria-label">
+      <button class="btn sm" data-cxsection="creatures" aria-pressed="true" data-t>Creatures</button>
+      <button class="btn sm" data-cxsection="guide" aria-pressed="false" data-t>Guide</button>
+      <button class="btn sm" data-cxsection="affixes" aria-pressed="false" data-t>Affixes</button>
+      <button class="btn sm" data-cxsection="records" aria-pressed="false" data-t>Records</button>
+    </nav>
+    <section class="panel" id="cx-creatures" data-cxpanel="creatures">
       <p class="label lrow" id="cxlabel" data-t>Creature codex</p>
+      <div id="cxcontrols"></div>
       <div id="cxlist"></div>
     </section>
-    <section class="panel" id="afp">
-      <p class="label lrow" id="aflabel" data-t>Affixes</p>
-      <div id="aflist"></div>
-    </section>
+    <section class="panel" id="cx-guide" aria-label="Guide" data-ta="aria-label" data-cxpanel="guide" hidden>
+      <p class="label lrow" id="gdlabel"></p>
+      <div id="gdlist"></div>
     <section class="panel" id="howto">
       <p class="label" data-t>How to play</p>
       <details class="howto"><summary><span data-ic="hero"></span> <span data-t>The map</span></summary><div class="rules">
@@ -161,6 +160,14 @@
           <p data-t="howto.previews"><b>Previews.</b> Known recipes show their full result before you forge. New combinations show the form and any reactions you've discovered. Every forge can go wrong: the line under the crucible shows your skill for that kind of item, the odds of a clean result, a mishap or a fizzle (the ingredients are lost, some embers return), and the highest tier that skill can reach. Failing teaches a little, but easy recipes teach less. Merged trait values above 8 grow at half rate, and upgrading a crafted item again is harder each time. A higher skill and simpler recipes make failures rarer. From Smith Lv 3 the forge also appraises the traits to expect.</p>
       </div></details>
 
+    </section>
+    </section>
+    <section class="panel" id="afp" data-cxpanel="affixes" hidden>
+      <p class="label lrow" id="aflabel" data-t>Affixes</p>
+      <div id="aflist"></div>
+    </section>
+    <section class="panel" id="cx-records" aria-label="Lifetime stats" data-ta="aria-label" data-cxpanel="records" hidden>
+      <details id="statsd"><summary class="label"><span data-ic="renown"></span> <span data-t>Lifetime stats</span></summary><div id="stats"></div></details>
     </section>
   </div>
   <div id="v-settings" class="view" hidden><div class="lrow"><h2 data-t>Settings</h2><button class="btn" id="settingsBack" data-t>Back to game</button></div>

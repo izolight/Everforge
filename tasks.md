@@ -4,16 +4,16 @@ The status index for scoped work. Open tasks are below; implementation evidence 
 
 ## At a glance
 
-**56 tasks · 19 Done · 0 In Progress · 1 Implement · 36 Planned · 37 open.** No task is currently recorded as actively underway.
+**56 tasks · 21 Done · 0 In Progress · 1 Implement · 34 Planned · 35 open.** No task is currently recorded as actively underway.
 
 | Workstream | Done | In Progress | Implement | Planned |
 |---|---:|---:|---:|---:|
 | Monster coverage, balance and progression (M) | 4 | 0 | 1 | 7 |
 | Biome variety and mechanics (V) | 6 | 0 | 0 | 16 |
 | Art identity and readability (A) | 0 | 0 | 0 | 5 |
-| UI (U) | 1 | 0 | 0 | 8 |
+| UI (U) | 3 | 0 | 0 | 6 |
 | Crafting rework (C) | 8 | 0 | 0 | 0 |
-| **Total** | **19** | **0** | **1** | **36** |
+| **Total** | **21** | **0** | **1** | **34** |
 
 **Statuses:** `Planned` = scoped backlog, not started; `Implement` = detailed implementation plan exists; `In Progress` = actively underway; `Done` = completed, with evidence in the archive. Dependencies are stated on task cards; Planned does not necessarily mean ready to start.
 
@@ -23,7 +23,7 @@ The status index for scoped work. Open tasks are below; implementation evidence 
 
 | Focus | Tasks | Next step |
 |---|---|---|
-| UI simplification | U-02, U-05 → U-03; U-04; U-06 → U-07 | Expose the Forge action, fix misleading filters, simplify ingredient selection, and make Inventory and creature knowledge easy to reach. |
+| UI simplification | U-02, U-05 → U-03; U-04 | Expose the Forge action, fix misleading filters, simplify ingredient selection, and make Inventory easy to reach. |
 | Balance with an existing plan | M-09 | Refresh the baseline and reconcile the [implementation plan](plan-m-09.md) with current crafting before tuning. |
 | Starter progression | M-10 | Recheck the opening loop after the crafting/research rework. |
 | Most visible art improvements | A-01, A-02, A-03 | Distinct animal bodies, named equipment and Rift terrain; do these before multiplying biomes/roster sizes. |
@@ -58,11 +58,11 @@ Scoped from the 2026-10-26 source and browser review at 390×844 and 1200×844. 
   Gear and Forge share category/filter state. The current Craftable filter depends on the crucible action, returning no items during pattern forging even when usable pattern materials exist. Store task-specific category/filter preferences separately; define pattern compatibility from its slots and crucible compatibility from its action and current inputs. Replace filtered-out inventory's “Nothing here yet” message with an explanation and a reset control; distinguish this from genuinely owning no items.
   **Acceptance:** selecting a Gear category or filter does not unexpectedly hide Forge ingredients, and vice versa. A pattern with matching materials shows them under its compatibility filter; Refine has an appropriate filter or omits unsupported options. Empty filtered results expose Clear filters, which restores owned items. Existing saves with the shared preference shape load safely. Add browser regression coverage for cross-view filter state, pattern compatibility and empty-result recovery.
 
-- [ ] **U-06 · Open Codex on searchable creature knowledge** — `Status: Planned` · `Size: M` · `Priority: High` · `index.html`, `js/render/lists-view.js`, `js/events.js`, `js/sheets.js`, `css/styles.css`
+- [x] **U-06 · Open Codex on searchable creature knowledge** — `Status: Done` · `Size: M` · `Priority: High` · `index.html`, `js/render/lists-view.js`, `js/events.js`, `js/sheets.js`, `css/styles.css`
   Guide precedes the creature list and occupied about 2,230px when all introductions were unlocked. Give Codex explicit Creatures, Guide, Affixes and Records sections, opening on Creatures for a first visit. Place How to play within Guide. Add creature-name search, region selection and discovered/mastered filters. Show names and knowledge progress for discovered creatures; summarize unknown entries per region instead of rendering a long wall of silhouettes.
   **Acceptance:** the initial Codex viewport contains creature browsing controls and discovered entries, or an actionable first-encounter empty state. Search and filters combine predictably and provide resettable no-match results. Selecting a creature opens its existing knowledge page. Unknown names/facts remain concealed; creature, mastery and affix totals remain accurate. Guide introductions, Show me links, unlock requirements, How to play and lifetime stats remain reachable. Verify fresh, partially discovered and fully unlocked states.
 
-- [ ] **U-07 · Bound Codex card sizes on desktop** — `Status: Planned` · `Size: S` · `Priority: Medium` · `css/styles.css`, `js/render/lists-view.js` · `Depends: U-06`
+- [x] **U-07 · Bound Codex card sizes on desktop** — `Status: Done` · `Size: S` · `Priority: Medium` · `css/styles.css`, `js/render/lists-view.js` · `Depends: U-06`
   The creature grid stays four columns wide with square tiles, so widening the page enlarges portraits instead of improving scan density. The review fixture's creature section grew from roughly 1,943px on mobile to 3,927px on desktop. Use bounded card sizes and additional columns, or a compact list beside a detail pane, within U-06's creature browser.
   **Acceptance:** at 1200px width the same creature results show at least as many entries per viewport as at 390px; desktop space does not merely enlarge four portraits. Names, region and knowledge state remain legible at actual card sizes. Verify 320px, 390px, 960px and 1200px widths with no horizontal page overflow and usable keyboard focus. Coordinate with A-05's creature readability pass.
 

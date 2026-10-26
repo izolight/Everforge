@@ -608,5 +608,6 @@ DICT.de=Object.assign(DICT.de||{},{
 "{kind} go in Improve.":"{kind} gehören zu Verbessern.",
 "Food goes in Cook.":"Essen gehört zu Kochen.",
 "Potions go in Brew.":"Tränke gehören zu Brauen.",
-"Gear goes in Infuse, Improve or Fuse.":"Ausrüstung gehört zu Infundieren, Verbessern oder Verschmelzen."
+"Gear goes in Infuse, Improve or Fuse.":"Ausrüstung gehört zu Infundieren, Verbessern oder Verschmelzen.",
+"Creatures":"Kreaturen","Codex sections":"Kodexbereiche","Search creatures":"Kreaturen suchen","All regions":"Alle Regionen","Discovered":"Entdeckt","Mastered":"Gemeistert","Reset filters":"Filter zurücksetzen","No creatures match these filters.":"Keine Kreaturen entsprechen diesen Filtern.","No creatures discovered yet. Explore the map and win your first fight to reveal creature names and knowledge.":"Noch keine Kreaturen entdeckt. Erkunde die Karte und gewinne deinen ersten Kampf, um Kreaturennamen und Wissen freizuschalten.","{n} creatures undiscovered in this region":"{n} Kreaturen in dieser Region unentdeckt","Lifetime stats unlock as you play.":"Die Gesamtstatistik wird im Spielverlauf freigeschaltet.","mastered":"gemeistert"
 });

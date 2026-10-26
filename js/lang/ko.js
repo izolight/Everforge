@@ -605,5 +605,6 @@ DICT.ko=Object.assign(DICT.ko||{},{
 "{kind} go in Improve.":"{kind|은|는} 개량에 넣습니다.",
 "Food goes in Cook.":"음식은 요리에 넣습니다.",
 "Potions go in Brew.":"물약은 양조에 넣습니다.",
-"Gear goes in Infuse, Improve or Fuse.":"장비는 주입, 개량 또는 융합에 넣습니다."
+"Gear goes in Infuse, Improve or Fuse.":"장비는 주입, 개량 또는 융합에 넣습니다.",
+"Creatures":"생물","Codex sections":"도감 섹션","Search creatures":"생물 검색","All regions":"모든 지역","Discovered":"발견함","Mastered":"완전 숙달","Reset filters":"필터 초기화","No creatures match these filters.":"필터에 맞는 생물이 없습니다.","No creatures discovered yet. Explore the map and win your first fight to reveal creature names and knowledge.":"아직 발견한 생물이 없습니다. 지도를 탐험하고 첫 전투에서 승리하면 생물의 이름과 정보를 확인할 수 있습니다.","{n} creatures undiscovered in this region":"이 지역에서 발견하지 못한 생물 {n}마리","Lifetime stats unlock as you play.":"게임을 진행하면 누적 기록이 해금됩니다.","mastered":"완전 숙달"
 });
