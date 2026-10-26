@@ -72,7 +72,7 @@ const {chromium}=require('playwright'),path=require('path'),assert=require('node
  // the crucible actions: the locked ones name their technique; a satchel item the chosen action does not take is dimmed and says where it goes; the item sheet opens Infuse with its item in place
  await page.evaluate(()=>{S=freshState();S.rp=30;learnTech('weaponcraft');learnTech('blade');learnTech('infuse');addItem('iron_sword');addItem('coal');addItem(essG('Fire',3));go('forge')});
  const tabs=await page.evaluate(()=>({open:[...document.querySelectorAll('#cacts [data-cact]')].map(b=>b.dataset.cact),locked:[...document.querySelectorAll('#cacts .locked')].map(b=>b.textContent.trim())}));
- assert.deepEqual(tabs.open,['forge','infuse']);assert.deepEqual(tabs.locked,['Improve gear · Improving','Fuse · Fusing','Refine · Refining','Cook · Cooking','Brew · Brewing','Alchemy · Alchemy']);
+ assert.deepEqual(tabs.open,['forge','infuse']);assert.deepEqual(tabs.locked,['Improve · Improving','Fuse · Fusing','Refine · Refining','Cook · Cooking','Brew · Brewing','Alchemy · Alchemy']);
  await page.locator('[data-cact="infuse"]').click();assert.equal(await page.evaluate(()=>S.act),'infuse');assert(await page.locator('#crucible').isVisible()&&await page.locator('#patp').isHidden()&&await page.locator('#upgp').isHidden());
  await page.locator('#ftools [data-invpref="filter"]').selectOption('all'); // expose incompatible items explicitly for their explanation
  await page.locator('#finv [data-id="iron_sword"]').click();assert.deepEqual(await page.evaluate(()=>S.bench),['iron_sword']);

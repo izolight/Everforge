@@ -25,7 +25,7 @@ async function flow(browser,w){
   ok(r.inf&&r.btns,"gear: infusions is a teaser");await shot(p,w,"3-fresh-gear");
   await p.click("#inflabel .lockrow");r=await p.evaluate(()=>({tip:!$("tip").hidden,t:$("tip").textContent}));
   ok(r.tip&&/Defeat Gnarlhorn/.test(r.t),"the locked teaser's tip says how to unlock it ("+r.t+")");await shot(p,w,"4-teaser-tip");
-  await p.evaluate(()=>go("codex"));r=await p.evaluate(()=>({st:$("stp").hidden,af:$("afp").hidden,gd:$("gdlist").querySelectorAll("details.gd:not(.lockd)").length}));
+  await p.evaluate(()=>go("codex"));r=await p.evaluate(()=>({st:$("cx-records").hidden&&!$("stats"),af:$("afp").hidden&&!!$("aflist").querySelector(".lockrow"),gd:$("gdlist").querySelectorAll("details.gd:not(.lockd)").length}));
   ok(r.st&&r.af,"codex: stats and affixes are hidden");ok(r.gd===1,"codex: the Guide lists the one intro so far");
   // --- the first fight: Study and Parry are teasers, abilities are hidden, the parry intro comes when a special winds up
   await p.evaluate(()=>{go("battle");S.seen["i:start"]=true;startBattle("boar")});
@@ -81,7 +81,7 @@ async function flow(browser,w){
   // --- Guide
   await p.evaluate(()=>go("codex"));r=await p.evaluate(()=>({n:$("gdlist").querySelectorAll("details.gd:not(.lockd)").length,want:UNLOCKS.filter(u=>u.i&&S.unl[u.id]).length,lock:$("gdlist").querySelectorAll(".lockrow").length}));
   ok(r.n===r.want&&r.n>=5,"the Guide lists every unlocked intro ("+r.n+") and the locked ones as teasers ("+r.lock+")");
-  await p.click("#gdlist details.gd:nth-child(2) summary");await shot(p,w,"7-guide");
+  await p.click('[data-cxsection="guide"]');await p.click("#gdlist details.gd:nth-child(2) summary");await shot(p,w,"7-guide");
   ok(!p.errs.length,"no page errors ("+p.errs.join("; ")+")");
   await p.close();
 }
