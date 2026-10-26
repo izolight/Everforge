@@ -99,7 +99,7 @@ function strike(W,pow,label,inn,o){
   const immune=(f,msg)=>{blog(msg,"");if(E.resist.includes(f))learn(B.id,"resist",f)};
   if(fire){if(B.resist.includes("fire"))immune("fire",tx("The {name} won't burn.",{name:bname(B)}));else{const d=Math.max(1,Math.round(fire*.8));if(!B.burn)blog(tx("The {name} catches fire.",{name:bname(B)}),"you");B.burn={d,t:3}}}
   if(ice){if(B.resist.includes("ice"))immune("ice",tx("The cold slides right off it."));else if(!B.frozen&&(o.force==="ice"||Math.random()*100<Math.min(FREEZE_CAP,6+ice*4))){B.frozen=true;blog(tx("The {name} is frozen solid!",{name:bname(B)}),"big")}}
-  if(poi){if(B.resist.includes("poison"))immune("poison",tx("The poison has no effect."));else B.poison=Math.min(15,B.poison+Math.round(poi))}
+  if(poi){if(B.resist.includes("poison"))immune("poison",tx("The poison has no effect."));else B.poison=Math.min(POISON_FOE_CAP,B.poison+Math.round(poi))}
   if(holy)healYou(Math.round(holy),tx("Holy light mends you"));
   if(sha)healYou(Math.round(dmg*Math.min(.4,.07*sha)),tx("You drain its life"));
   return R;

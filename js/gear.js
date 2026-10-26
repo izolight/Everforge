@@ -20,7 +20,7 @@ function effects(it){
     if(v("Sharp"))add("aim","weak",`−${aim}%`,tx("Precision"),tx("Elusive enemies dodge {p}% less against it",{p:aim}));
     if(f){const n=Math.max(1,Math.round(f*.8));add("burn","f_fire",n,tx("Burn"),tx("Sets enemies on fire for {n} damage per turn",{n}),FAM.fire);out.at(-1).unit="turn"}
     if(i){const p=Math.round(Math.min(FREEZE_CAP,6+i*4));add("freeze","f_ice",`${p}%`,tx("Freeze"),tx("{p}% chance to freeze an enemy for a turn",{p}),FAM.ice)}
-    if(p){add("poison","f_poison",`+${Math.round(p)}`,tx("Poison"),tx("Adds {n} poison per hit, stacking",{n:Math.round(p)}),FAM.poison);out.at(-1).unit="hit"}
+    if(p){add("poison","f_poison",`+${Math.round(p)}`,tx("Poison"),tx("Adds {n} poison per hit, stacking up to {cap} a turn for the whole fight",{n:Math.round(p),cap:POISON_FOE_CAP}),FAM.poison);out.at(-1).unit="hit"}
     if(h){add("onheal","heal_hit",`+${Math.round(h)}`,tx("Healing on hit"),tx("Heals you {n} HP per hit",{n:Math.round(h)}),FAM.holy);out.at(-1).unit="hit"}
     if(s){const p=Math.round(Math.min(.4,.07*s)*100);add("drain","a_vamp",`${p}%`,tx("Life steal"),tx("Drains {p}% of damage dealt as HP",{p}),FAM.shadow)}
     if(v("Heavy"))add("pierce","pierce","60%",tx("Armor piercing"),tx("Hits pierce 60% of enemy armor"));
@@ -64,7 +64,7 @@ function traitTip(t,v,it){
   if(t==="Heavy")notes.push(tx("On weapons, ignores 60% of enemy armor. On shields, each point adds 3 percentage points to the base 15% block chance."));
   if(["Fire","Sunfire"].includes(t))notes.push(tx("On weapons, burns enemies for damage each turn."));
   if(["Ice","Frost"].includes(t))notes.push(tx("On weapons, can freeze an enemy and make it lose a turn."));
-  if(["Poison","Venomous"].includes(t))notes.push(tx("On weapons, adds stacking poison with every hit."));
+  if(["Poison","Venomous"].includes(t))notes.push(tx("On weapons, adds poison with every hit; it stacks up to {cap} a turn and lasts the whole fight.",{cap:POISON_FOE_CAP}));
   if(["Holy","Radiant"].includes(t))notes.push(tx("On weapons, restores HP with every hit."));
   if(["Shadow","Twilight"].includes(t))notes.push(tx("On weapons, heals you for a share of damage dealt."));
   if(t==="Arcane")notes.push(tx("On weapons, can bypass elemental resistance."));
