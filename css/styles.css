@@ -705,10 +705,11 @@ details.howto[open]>summary{margin-bottom:4px}
 .gdb{display:grid;gap:4px;padding:0 10px 10px 34px;font-size:.86rem;color:var(--muted)}.gdb p{margin:0}.gdb .btn{justify-self:start;margin-top:4px}
 /* research: header counter, the technique tree, the detail strip, material study */
 .meta .rp,.meta .rp .ic{color:var(--verd)}
-.tree{position:relative;height:316px;margin:8px 0 6px}
+.tree{position:relative;margin:8px 0 6px;max-height:min(68vh,540px);overflow-y:auto;overscroll-behavior:contain}
+.tgrid{position:relative;width:100%}.tbr{position:absolute;top:0;bottom:0;border-left:1px dashed var(--line2);padding:0 2px 0 5px;min-width:0;font-family:var(--mono);font-size:.62rem;color:var(--dim);letter-spacing:.04em;text-transform:uppercase}.tbr:first-of-type{border-left:0}.tbr b{display:block;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.2}
 .tree svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
 .tree line{stroke:var(--line2);stroke-width:1.5;stroke-dasharray:3 3;vector-effect:non-scaling-stroke}.tree line.on{stroke:var(--accent);stroke-dasharray:none}
-.tn{position:absolute;transform:translate(-50%,-50%);width:68px;min-height:62px;display:grid;justify-items:center;align-content:center;gap:3px;padding:6px 2px 5px;border:1px solid var(--line2);border-radius:12px;background:#17130f;color:var(--muted);font-size:.66rem;line-height:1.1;text-align:center}
+.tn{position:absolute;transform:translate(-50%,-50%);width:min(68px,calc(100% / var(--cols) - 6px));min-height:62px;display:grid;justify-items:center;align-content:center;gap:3px;padding:6px 2px 5px;border:1px solid var(--line2);border-radius:12px;background:#17130f;color:var(--muted);font-size:.66rem;line-height:1.1;text-align:center}
 .tn span{display:block;max-width:100%;overflow-wrap:anywhere}
 .tn .ic{width:22px;height:22px}
 .tn.learned{border-color:var(--accent);color:var(--accent);background:color-mix(in srgb,var(--accent) 10%,#17130f)}
@@ -725,7 +726,7 @@ details.howto[open]>summary{margin-bottom:4px}
 .treq{display:flex;flex-wrap:wrap;gap:4px 10px;font-size:.74rem;font-family:var(--mono)}.treq span{display:inline-flex;align-items:center;gap:3px}.treq .ok{color:var(--up)}.treq .no{color:var(--down)}
 .sty{margin:6px 0 2px;gap:6px}.sty1{min-height:36px;padding:3px 8px;cursor:pointer;font-size:.78rem;text-transform:none}.sty1.off{opacity:.5}
 .rx1.part{border:1px dashed var(--line2);cursor:pointer}.rx1 .chip.unk b{color:var(--dim)}
-@media (max-width:380px){.tn{width:64px;font-size:.62rem}}
+@media (max-width:380px){.tn{font-size:.6rem}}
 /* language picker, and Hangul: the Latin web fonts have no Korean, so the stacks add Noto Sans KR (loaded for ko by applyStatic) and the system Korean fonts; mono labels fall back to it too */
 select.lang{width:100%;margin-top:8px;background:#120f0c;color:var(--fg);border:1px solid var(--line);border-radius:8px;padding:10px;font:inherit}
 :root:lang(ko){--body:"Alegreya Sans","Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif;--mono:"IBM Plex Mono","Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic",ui-monospace,monospace;--display:"Grenze Gotisch","Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic",serif}
@@ -740,6 +741,32 @@ select.lang{width:100%;margin-top:8px;background:#120f0c;color:var(--fg);border:
 .slot.pslot{gap:2px;align-content:center;text-align:center}
 .slot.pslot>svg.ic{width:18px;height:18px}
 .slot.pslot small{font-size:.58rem;line-height:1.1;color:var(--muted)}
+/* crucible actions: the tab row above the crucible; a locked one shows its lock and the technique that opens it */
+.cacts{flex-wrap:nowrap;justify-content:flex-start;overflow-x:auto;scrollbar-width:none;padding:0 0 2px;-webkit-mask-image:linear-gradient(90deg,#000 88%,transparent);mask-image:linear-gradient(90deg,#000 88%,transparent)} /* one line that scrolls sideways: learned tabs first, locked ones after, never three rows at 360px */
+.cacts .tab.ti{flex:none;min-height:36px;padding:4px 10px;font-size:.78rem;color:var(--fg)}
+.cacts .tab.ti[aria-pressed="false"]{color:var(--muted)}
+.cacts .tab.ti.locked{border-style:dashed;color:var(--dim);background:#17130f}
+.cacts .tab.ti.locked span{font-size:.7rem}
+.cacts .tab.ti.locked .ic{width:14px;height:14px}
+/* what the crucible did: the header line and legend, before → after, the reaction line and the failure bar */
+.act-line{margin:0;font-size:.95rem;line-height:1.4;overflow-wrap:anywhere}
+.in-legend{margin:4px 0 0}
+.chip.in{cursor:default}
+.chip.in:focus-visible{outline:2px solid currentColor;outline-offset:2px}
+.ba{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+.ba-col{display:grid;gap:4px;align-content:start;min-width:0;padding:8px;border:1px solid var(--line);border-radius:8px}
+.ba-why{grid-column:1/-1}
+@media(max-width:380px){.ba{grid-template-columns:1fr}}
+.rx-line{margin:6px 0 0;font-size:.9rem}
+.rx-line.warn{color:var(--bad)}
+.res-changes{margin-top:8px}
+.risk-wrap{margin-top:8px}
+.risk{display:flex;height:12px;border-radius:6px;overflow:hidden;background:#120f0c;border:1px solid #2e2620;margin:4px 0}
+.risk .seg{display:block;height:100%;min-width:2px;transition:opacity .15s}
+.risk .seg.neg{background-image:repeating-linear-gradient(45deg,transparent 0 3px,rgba(0,0,0,.5) 3px 6px)}
+.risk .seg.dim{opacity:.2}
+.risk-list{margin:0;padding:0;list-style:none;display:flex;flex-wrap:wrap;gap:2px 10px;font-size:.8rem;color:var(--muted)}
+.risk-list b{color:var(--fg);font-weight:500}
 
 /* Keep the working ingredients beside the crucible; history never separates them. */
 .forge-workbench{position:sticky;top:8px;z-index:6;max-height:48dvh;overflow:auto}
@@ -749,8 +776,9 @@ select.lang{width:100%;margin-top:8px;background:#120f0c;color:var(--fg);border:
 @media(min-width:960px){
   .wrap:has(#v-forge:not([hidden])){max-width:1100px}
   #v-forge{grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-items:start}
-  #v-forge>.forge-workbench{grid-column:1;grid-row:1;max-height:75dvh}
-  #v-forge>.forge-inventory{grid-column:2;grid-row:1 / span 5}
+  #v-forge>.cacts{grid-column:1;grid-row:1}
+  #v-forge>.forge-workbench{grid-column:1;grid-row:2;max-height:75dvh}
+  #v-forge>.forge-inventory{grid-column:2;grid-row:1 / span 6}
   #v-forge>.panel:not(.forge-workbench),#v-forge>.forge-history{grid-column:1}
 }
 

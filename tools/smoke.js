@@ -133,16 +133,17 @@ async function run(label,setup,nat,steps=STEPS){
       go("forge");{const n=qa("#pats [data-pat]").length,k0=Math.floor(Math.random()*n); // a pattern or blueprint, auto-filled when it is picked: the first one (from a random start) whose materials are in the satchel, since a random pick often has none
         for(let k=0;k<n;k++){click(qa("#pats [data-pat]")[(k0+k)%n]);const sh=q("#shape:not([disabled])");if(!sh)continue;
           const n0=S.stats.shaped,inv0=JSON.stringify(S.inv);sh.click();await sleep(30);if(S.stats.shaped>n0)out.shaped++;else out.bad.push("a filled pattern did not forge");if(JSON.stringify(S.inv)===inv0)out.bad.push("pattern forging changed nothing in the satchel");break}}
-      go("forge");S.bench=[];
+      go("forge");S.bench=[];{const acts=qa("#cacts [data-cact]").map(b=>b.dataset.cact).filter(x=>CRUCIBLE_ACTS.includes(x)),want=nat&&acts.includes("infuse")?"infuse":acts.length?pick(acts):null;if(want)click(q(`#cacts [data-cact='${want}']`))} // a crucible action to craft with (a newcomer infuses, once Infusing is known)
       const can=qa("#finv [data-can='1']"),isE=b=>isEss(b.dataset.id),bases=can.filter(b=>!isE(b));
-      if(nat&&bases.length&&can.some(isE)&&Math.random()<.8){click(bases[Math.floor(Math.random()*bases.length)]);click(qa("#finv [data-can='1']").find(isE))} // a newcomer binds an essence into an item: the one forge Binding allows
+      if(nat&&bases.length&&can.some(isE)&&Math.random()<.8){click(bases[Math.floor(Math.random()*bases.length)]);click(qa("#finv [data-can='1']").find(isE))} // a newcomer infuses an essence into an item: once Infusing is known, the one forge it allows (refused until then, and counted as gated)
       else{
         for(const c of can.slice(0,1+Math.floor(Math.random()*2)))click(c);
         const can2=qa("#finv [data-can='1']");if(can2.length)click(can2[Math.floor(Math.random()*can2.length)])}
-      if(S.bench.length>=2){const j0=S.stats.forged+S.stats.fizzles;q("#combine").click();q("#combine").click();await sleep(30);out.forged++;if(S.stats.forged+S.stats.fizzles===j0&&craftMiss(S.bench.map(id=>S.items[id])).length)out.gated++} // twice: the first tap only arms the equipped-item warning; a craft that needs a technique you lack is refused
+      if(S.bench.length>=2){const j0=S.stats.forged+S.stats.fizzles;q("#combine").click();q("#combine").click();await sleep(30);out.forged++;if(S.stats.forged+S.stats.fizzles===j0&&actionOk(S.bench.map(id=>S.items[id])).length)out.gated++} // twice: the first tap only arms the equipped-item warning; a craft that needs a technique you lack is refused
       S.bench=[];save();
       if(isUnl("research")){go("forge");{const rd=q("#resd");if(rd)rd.open=true}
-        const av=qa("#restree .tn.can");if(av.length){click(av[Math.floor(Math.random()*av.length)]);const lb=q("#learn");if(lb&&lb.getAttribute("aria-disabled")!=="true"){click(lb);out.learned++}}
+        const av=qa("#restree .tn.can"),gear=b=>/^(weaponcraft|armorcraft|blade|spear|staff|helm|body|gloves|boots|shield)$/.test(b.dataset.tech),gc=av.filter(gear),saving=!gc.length&&qa("#restree .tn.avail").some(gear); // a newcomer buys gear first, and saves up for it rather than spending on the cheap ones
+        const pk=gc.length?gc:saving?[]:av;if(pk.length){click(pk[Math.floor(Math.random()*pk.length)]);const lb=q("#learn");if(lb&&lb.getAttribute("aria-disabled")!=="true"){click(lb);out.learned++}}
         const sb=qa("#restree [data-study]:not(.off)");if(sb.length){click(sb[Math.floor(Math.random()*sb.length)]);out.studied++}}
       S.embers+=40;{const t=pick(ESS_POOL);for(let k=0;k<3;k++)addItem(essG(t,1))}go("forge"); // upgrading a grade (3 Faint, Alchemy Lv 1 is enough), then a mishap to reforge
       const rf=q("#upgrows [data-upgrade]:not([disabled])");if(rf){rf.click();out.upgraded++}
@@ -189,7 +190,7 @@ async function loadPage(save,key){
   if(fs_.battles<3)fail("Too few battles completed; the loop got stuck.");
   if(!fs_.intros||fs_.unl.length<4)fail(`The natural run opened too little (${fs_.unl.length} unlocks, ${fs_.intros} intro cards read).`);
   if(fs_.tiles<30)fail("The bot barely explored the map.");
-  if(!fs_.unl.includes("patterns")||!fs_.shaped||!fs_.decon)fail(`The natural run did not deconstruct its raw finds and forge from a pattern (patterns open: ${fs_.unl.includes("patterns")}, deconstruct-all ${fs_.decon}, pattern forges ${fs_.shaped}).`);
+  if(!fs_.decon||!fs_.shaped)fail(`The natural run did not deconstruct its raw finds and forge from a pattern (deconstruct-all ${fs_.decon}, pattern forges ${fs_.shaped}).`);
   if(!fs_.unl.includes("research")||fs_.techs<2||!fs_.learned)fail(`The natural run did not progress into research and learn a technique (research open: ${fs_.unl.includes("research")}, techniques ${fs_.techs}, learned ${fs_.learned}).`);
   // 2. a save with everything unlocked (a fresh state with every UNLOCKS entry open and read): the feature checks that gating would keep out of a 400-step newcomer run (abilities, Heat, daily, buying, selling, upgrading, reforging, flee, affixes, chasers, tiles)
   const all=await run("unlocked",new Function(`S.unl=Object.fromEntries(UNLOCKS.map((u,i)=>[u.id,i+1]));UNLOCKS.forEach(u=>S.seen["i:"+u.id]=true);Object.keys(ABILITIES).forEach(k=>S.seen["a:"+k]=true);S.quest=TUTORIAL.length;S.techs=Object.fromEntries(TECHS.map((t,i)=>[t.id,i+1]));save()`)),st=all.stats;
@@ -208,17 +209,17 @@ async function loadPage(save,key){
   const saved=JSON.parse(st.save||"{}");
   const rt=await loadPage(st.save,st.key);
   if(rt.errors.length)fail(rt.errors.join("\n"));
-  if(rt.st.v!==17)fail(`the run's own save did not load as v17 (v${rt.st.v}).`);
+  if(rt.st.v!==18)fail(`the run's own save did not load as v18 (v${rt.st.v}).`);
   if(rt.st.wins!==saved.wins||rt.st.journal!==saved.journal.length)fail(`the run's own save lost its progress (wins ${rt.st.wins}/${saved.wins}, journal ${rt.st.journal}/${saved.journal.length}).`);
   const rt2=await run("roundtrip",new Function(`localStorage.clear();localStorage.setItem(${JSON.stringify(st.key)},${JSON.stringify(st.save)})`),false,150);
   if(rt2.errors.length)fail(rt2.errors.join("\n"));
-  if(rt2.stats.v!==17)fail(`the reloaded save is not v17 (v${rt2.stats.v}).`);
+  if(rt2.stats.v!==18)fail(`the reloaded save is not v18 (v${rt2.stats.v}).`);
   if(rt2.stats.battles<3)fail(`the reloaded save played too few battles (${rt2.stats.battles}).`);
   // 4. an older save is not loaded at all: the game starts fresh, without a page error
   const old=JSON.stringify({...saved,v:16}); // a real save with progress, only its version is old
   for(const key of [st.key,"everforge-v16"]){ // an old version under the current key (loadSave rejects it), and an old key (never read)
     const rj=await loadPage(old,key);
     if(rj.errors.length)fail(rj.errors.join("\n"));
-    if(rj.st.v!==17||rj.st.wins!==0||rj.st.journal!==0)fail(`a v16 save under ${key} did not start fresh (v${rj.st.v}, ${rj.st.wins} wins, ${rj.st.journal} journal entries).`)}
+    if(rj.st.v!==18||rj.st.wins!==0||rj.st.journal!==0)fail(`a v16 save under ${key} did not start fresh (v${rj.st.v}, ${rj.st.wins} wins, ${rj.st.journal} journal entries).`)}
   console.log(failed?"SMOKE FAILED":"SMOKE OK");process.exit(failed?1:0);
 })();

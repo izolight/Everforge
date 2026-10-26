@@ -82,7 +82,7 @@ function render(fresh){
   renderHeader();renderNav();renderGoal();renderPinnedGoal();renderIntro();
   if(S.view==="battle")renderBattle();
   if(S.view==="gear")renderGear();
-  if(S.view==="forge"){renderPatterns();renderBench();renderResearch();renderUpgrade();renderSkills();renderResult(fresh)}
+  if(S.view==="forge"){renderActs();renderPatterns();renderBench();renderResearch();renderUpgrade();renderSkills();renderResult(fresh)}
   renderSatchels();
   if(S.view==="recipes")renderRecipes();
   if(S.view==="codex")renderCodex();

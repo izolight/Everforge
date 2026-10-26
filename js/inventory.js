@@ -6,8 +6,8 @@ function inventoryMatch(it,mode){
   if(f==="new")return freshShown.has(it.id)||S.fresh.includes(it.id);
   if(f==="equipped")return eqCount(it.id)>0;
   if(f==="craftable"){
-    if(itemLocked(it.id)||avail(it.id)<=0||S.bench.length>=maxInputs())return false;
-    const can=parts=>checkMix(parts).ok&&!craftMiss(parts).length&&!combine(parts,{roll:100}).blocked;
+    if(itemLocked(it.id)||avail(it.id)<=0||!CRUCIBLE_ACTS.includes(S.act))return false;
+    const can=parts=>parts.every((x,i)=>!actFit(S.act,x,parts.slice(0,i)))&&checkMix(parts).ok&&!actionOk(parts).length&&!combine(parts,{roll:100}).blocked;
     return S.bench.length?can([...S.bench.map(id=>S.items[id]),it]):Object.keys(S.inv).some(id=>!itemLocked(id)&&avail(id)>(id===it.id?1:0)&&can([it,S.items[id]]));
   }
   return true;

@@ -8,7 +8,8 @@ const buyPrice=id=>{if(isEss(id))return Math.max(1,Math.round(EMB.ess*plainEq(gr
 const salvageEmbers=it=>isEss(it.id)?0:Math.max(1,Math.round(worth(it)*EMB.salv));
 function spendEmbers(n){S.embers-=n;S.stats.spent+=n}
 function gainEmbers(n){if(n>0){S.embers+=n;S.stats.earned+=n;if(isUnl("peddler"))floatFx("emb","+"+n,"ember")}return n}
-function fightEmbers(E,B){const base=E.boss?EMB.boss:B.id==="mimic"?EMB.elite:B.intr?EMB.fight:EMB.rar[B.rar]||EMB.fight;return gainEmbers(Math.round(base*(1+(B.heat||0)*EMB.heat)))}
+function fightEmbers(E,B){const base=E.boss?EMB.boss:B.id==="mimic"?EMB.elite:B.intr?EMB.fight:EMB.rar[B.rar]||EMB.fight,x=base*(1+(B.heat||0)*EMB.heat);
+  if(E.boss||B.id==="mimic")return gainEmbers(Math.round(x));const y=x*DENSITY_RW,n=Math.floor(y)+(Math.random()<y%1?1:0);return gainEmbers(n)} // a map fight rounds at random, so DENSITY_RW keeps its average (2 x .6 is not always 1)
 // The peddler's one-for-one offer: one of your spares for something of theirs.
 function makeOffer(){
   const free=Object.keys(S.inv).filter(id=>(S.inv[id]-eqCount(id)-benchCount(id))>0&&!S.items[id].legendary&&gradeOf(id)<4);if(!free.length)return null;
@@ -68,14 +69,14 @@ function reforge(id){
 // Salvage one piece of gear or a crafted item: half its materials back, the essences bound into it (never more) and embers.
 function salvageItem(id){
   if(itemLocked(id)||!(S.inv[id]>0)||!canSalvage(S.items[id]))return null;
-  const it=S.items[id],ys=salvageYield(it),sg=salvGrade(it),ms=salvageMats(it);S.inv[id]--;trimBench();settleGear(null);S.stats.salvaged++;
+  const it=S.items[id],ys=salvageYield(it),sg=salvGrade(it),ms=salvageMats(it);S.inv[id]--;trimBench();settleGear(null);salvDone(it);
   ys.forEach(t=>addItem(essG(t,sg)));ms.forEach(m=>addItem(gradedItem(baseIdOf(m),gradeOf(m))));const em=gainEmbers(salvageEmbers(it));
   return{ys,sg,em,ms};
 }
 // Deconstruct one raw find, food, potion, herb or relic (deconYield): its base material, Faint essence fragments and a chance of a full essence per trait. R is the roll source. Returns [[id, n, lucky]] (null for a locked item).
 function deconstruct(id,R=Math.random){
   if(itemLocked(id)||!(S.inv[id]>0)||!canDecon(S.items[id]))return null;
-  const y=deconYield(S.items[id]),got=[];S.inv[id]--;trimBench();settleGear(null);S.stats.salvaged++;
+  const y=deconYield(S.items[id]),got=[];S.inv[id]--;trimBench();settleGear(null);salvDone(S.items[id]);
   const give=(b,g,n,luck)=>{const x=gradedItem(b,g);addItem(x,n);const o=got.find(e=>e[0]===x&&!e[2]===!luck);if(o)o[1]+=n;else got.push([x,n,!!luck])};
   if(y.mat)give(baseIdOf(y.mat[0]),gradeOf(y.mat[0]),y.mat[1]);
   y.frag.forEach(([t,n,g])=>give("ess_"+t,g,n));

@@ -64,32 +64,34 @@
   </div>
 
   <div id="v-forge" class="view" hidden>
+    <div class="tabs cacts" id="cacts" role="group" aria-label="Crucible actions" data-ta="aria-label"></div>
     <section class="panel" id="patp" aria-label="Patterns" data-ta="aria-label">
       <div class="lrow" id="patlabel"></div>
       <div class="tabs pats" id="pats"></div>
       <div id="patbody" style="display:grid;gap:10px"></div>
     </section>
-    <section class="panel forge-workbench" aria-label="Crucible" data-ta="aria-label">
-      <div class="lrow"><p class="label" data-t>Crucible</p><button type="button" class="qm" data-tap data-ta="data-tip aria-label" data-tip="Crucible&#10;Tap gear or a material in the satchel to add it. Tap a filled slot to take it out again.&#10;Dimmed satchel items won't mix with what is already in. Essences mix with everything. The Recipes tab has the full table.&#10;More slots unlock as your Smith level rises." aria-label="Help: Crucible">?</button></div>
+    <section class="panel forge-workbench" id="crucible" aria-label="Crucible" data-ta="aria-label">
+      <div class="lrow" id="cruciblelabel"></div>
       <div class="slots" id="slots"></div>
       <div id="mixhint"></div>
       <div class="actions">
-        <button class="btn primary grow" id="combine" disabled data-t>Forge</button>
+        <button class="btn primary grow" id="combine" disabled>Forge</button>
         <button class="btn" id="clear" data-t>Clear</button>
       </div>
     </section>
+    <section class="panel" id="upgp" aria-label="Upgrading" data-ta="aria-label" hidden>
+      <div id="upglock" hidden></div>
+      <details id="upgd"><summary class="label" id="upgsum"></summary>
+      <div class="upgrows" id="upgrows"></div></details>
+    </section>
     <section class="forge-inventory" style="display:grid;gap:10px">
-      <div class="lrow"><p class="label" data-t>Satchel</p><button type="button" class="qm" data-tap data-ta="data-tip aria-label" data-tip="Satchel&#10;Tap an item to add it to the crucible. Dimmed items won't mix with what is already in; tap one to inspect it.&#10;Long-press or hover for its name and stats. The pips show its grade (Faint, Lesser, Plain, Greater, Pure), a tick means worn, a dot means new, a number is how many you hold." aria-label="Help: Satchel">?</button></div>
+      <div class="lrow"><p class="label" data-t>Satchel</p><button type="button" class="qm" data-tap data-ta="data-tip aria-label" data-tip="Satchel&#10;Tap an item to put it in the crucible of the action you chose. Dimmed items don't go in that action; tap one to inspect it and see where it goes.&#10;Long-press or hover for its name and stats. The pips show its grade (Faint, Lesser, Plain, Greater, Pure), a tick means worn, a dot means new, a number is how many you hold." aria-label="Help: Satchel">?</button></div>
       <div class="tabs" id="ftabs"></div>
       <div id="ftools"></div><div class="sqg" id="finv"></div>
     </section>
     <section class="panel" id="resp" aria-label="Research" data-ta="aria-label">
       <div id="reslock" hidden></div>
       <details id="resd"><summary class="label" id="ressum"></summary><div id="restree"></div></details>
-    </section>
-    <section class="panel" id="upgp" aria-label="Upgrading" data-ta="aria-label">
-      <details id="upgd"><summary class="label" id="upgsum"></summary>
-      <div class="upgrows" id="upgrows"></div></details>
     </section>
     <section class="panel" aria-label="Skills" data-ta="aria-label">
       <div id="sklock" hidden></div>

@@ -2,8 +2,8 @@
 const vary=()=>.85+Math.random()*.3;
 const zoneOpen=z=>S.unlocked.includes(z);
 function blog(t,c){S.battle.log.push({t,c:c||""});if(S.battle.log.length>50)S.battle.log.shift()}
-function pickEnemy(zone,R=Math.random){const pool=Object.entries(ENEMIES).filter(([,e])=>e.zone===zone&&!e.boss);let r=R()*pool.reduce((s,[,e])=>s+e.w,0);
-  for(const [id,e] of pool){r-=e.w;if(r<=0)return id}return pool[0][0]}
+function pickEnemy(zone,R=Math.random,fresh=false){const pool=Object.entries(ENEMIES).filter(([,e])=>e.zone===zone&&!e.boss),wt=([id,e])=>e.w*(fresh&&!know(id).mastered?SPAWN_NEW:1);let r=R()*pool.reduce((s,x)=>s+wt(x),0);
+  for(const x of pool){r-=wt(x);if(r<=0)return x[0]}return pool[0][0]} // fresh: a kind you have not mastered is more likely (the map's fights)
 function startBattle(forced,opt){
   opt=opt||{};const id=forced||opt.e||pickEnemy(S.zone),E=ENEMIES[id],sc=1+.06*(opt.row||0),h=heatNow(),tw=twistNow();
   const B={opening:opt.opening||0,id,name:E.name,el:E.el,hp:Math.round(E.hp*sc),max:Math.round(E.hp*sc),atk:Math.round(E.atk*sc),def:E.def,weak:[...E.weak],resist:[...E.resist],turn:1,
@@ -239,8 +239,8 @@ function enemyDown(){
   const mult=1+P.lure*.15+h*HEAT_T.loot;let got;
   const gh=h+(E.boss?GRADE_BOSS:0),gz=E.zone==="any"?S.zone:E.zone; // finds roll a grade for the zone and Heat (bosses a little hotter)
   if(B.id==="mimic"){const p=zonePool(S.zone);got=[gdrop(pick(p),gz,gh),gdrop(pick(p),gz,gh),gess(pick(ESS_POOL),gz,gh)]}
-  else{got=E.drops.filter(([,p])=>Math.random()<p*mult).map(([id])=>id);if(!got.length)got=[E.drops[0][0]];got=got.map(id=>gdrop(id,gz,gh))}
-  if(B.opening===1){got=["coal","bread"];S.onboarding=2;blog(tx("Deconstruct the Ember Coal, then bind a Fire essence into your sword."),"good")}
+  else{const rw=E.boss?1:DENSITY_RW;got=E.drops.filter(([,p])=>Math.random()<p*mult*rw).map(([id])=>id);if(!got.length&&Math.random()<rw)got=[E.drops[0][0]];got=got.map(id=>gdrop(id,gz,gh))}
+  if(B.opening===1){got=["coal","bread"];S.onboarding=2;blog(tx("Deconstruct the Ember Coal. Then research a technique to put the Fire essence into your sword."),"good")}
   if(B.opening===2){S.onboarding=5;blog(tx("Your first enchanted weapon has proved itself. The Woods are yours to explore."),"good")}
   if(twistNow()==="double")got=[...got,...got];
   if(!B.intr)B.afx.forEach(a=>got.push(afxDrop(E,a,gz,gh,RARITIES[B.rar].gs))); // each affix drops an affixed raw that deconstructs into its essence, a grade or two better by rarity (a wild creature's own affixes drop none)

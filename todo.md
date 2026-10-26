@@ -18,7 +18,7 @@ Ideas discussed but not yet scheduled.
 - **New essence sources.** Wood, Heavy, Runic, Light and Steam now also come from deconstructing (Heavy: hides and golem cores; Runic: Sentinel Plate; Light: Sprite Dust), but still never from the peddler, chests or shrines. Decide whether that's intended.
 
 ## Research (from G2)
-- **RP pacing (done in G2 review).** A career bot over 20 expeditions found 7 of 9 techniques affordable on expedition 1 and income gone by expedition 5, so salvage RP was dropped, forms pay 2, bosses 4/8/12/16 by region, Smith levels 2-9 and skill levels 3/5/7/9 pay 2 each, and costs rose (Layering 6 ... Precision I 20). Watch it in play; move `RP` and the `TECHS` costs, not the code.
+- **RP pacing (superseded by the crafting rework, below).** A career bot over 20 expeditions found 7 of 9 techniques affordable on expedition 1 and income gone by expedition 5, so salvage RP was dropped, forms pay 2, bosses 4/8/12/16 by region, Smith levels 2-9 and skill levels 3/5/7/9 pay 2 each, and costs rose (Layering 6 ... Precision I 20). Watch it in play; move `RP` and the `TECHS` costs, not the code.
 - **More to spend RP on.** Everything in the tree is a gate. Ideas: a second tier past Masterwork (a fifth trait-slot technique, grade 5 refining), a Study upgrade, naming recipes.
 - **Recipes tab and tech gates.** Loading a recipe in the crucible does not check techniques (a veteran knows them all, a newcomer only has recipes they forged); an imported save could show it.
 
@@ -31,3 +31,11 @@ Ideas discussed but not yet scheduled.
 - **Other essence sources.** Shrines, altars, the alchemist, chests and the peddler still hand out essences directly. Possible change: shrines boost your next deconstructs instead.
 - **Pattern skill.** Pattern forging never fails and gives a flat `SHAPE` XP. It could use the crafting skills' failure odds for higher-grade materials.
 
+## Crafting rework (done, `plan-crafting-rework.md`)
+- **Densities and what the sim says.** `DENSITY_RW` is 0.65, not the plan's 0.55: the sim's expedition walk stops after eight points of interest, so a dense map gives about 30% more fights (7.8 to 10.2 in the Woods), not twice as many, and 0.55 lost about 15% of the embers. Four seeds, 200 expeditions each: embers -4% to -6% per zone, embers with salvage -1% to -3%, materials +1% to +3%, essences from salvage +2% to +6%. Torch-outs fall. Smith XP stays at zero from fights (no fight gives XP; only heat spoils, bounties and dailies do), so nothing scales there.
+- **Visit cap.** `walkExped` in `tools/sim.js` stops at eight visits, which hides part of the new fights. Raising it shows the full value of the dense maps, but the embers and materials targets would need `DENSITY_RW` retuned.
+- **Ambushes.** Caught-by-roamer rises from about 1.0 to 1.9 per expedition (13% to 19% of fights). A cap of six movers per step made no measurable difference in the sim, so none was added. Add `ROAM.act` if play shows too many ambushes.
+- **Fusing timing is unmeasured.** The `--fresh` sim plays the Woods only (the starter kit seldom beats Gnarlhorn), so "Fusing around the second region" cannot be checked. In that run Fusing is affordable from expedition 9 at cost 20 (with Improving's chain). Check it in play, or make `--fresh` continue into the Pass.
+- **Research pace.** Weaponcraft and Armorcraft cost 14 (the first slot technique is affordable from expedition 2 or 3 across four seeds, not expedition 1), Infusing 8 (from expedition 2 to 5 across four seeds), Improving 10. Research per expedition in the Woods: mean 1.9 before, 2.1 after (30 expeditions, seed 7). Watch whether 14 RP for a group feels too long to wait on the first forge, and move the `TECHS` costs, not the code.
+- **Cheap techniques are bought first.** The `--fresh` bot buys the cheapest technique it can afford, so Cooking and Brewing come before the gear in its path. A real player may prefer the gear, which the intro cards point at.
+- **Essences from salvage in the Spire** came out about 16% above the old values on seed 7 over 30 expeditions (within 5% on average). Check it if the Spire's essence feels generous.

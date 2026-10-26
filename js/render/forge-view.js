@@ -9,30 +9,102 @@ function craftLine(r,items){
     ${b?"":ch("var(--up)",ic("ok","s"),`${100-r.fail}%`,tx("{n}% clean",{n:100-r.fail}),tx("A clean forge gives exactly the item previewed."))+ch("var(--accent)",ic("warn","s"),`${r.mis}%`,tx("{n}% mishap",{n:r.mis}),tx(isUnl("peddler")?"A mishap gives a flawed copy (Cursed, Brittle, Rust or Weakened) that you can reforge for embers.":"A mishap gives a flawed copy (Cursed, Brittle, Rust or Weakened)."))+ch("var(--down)",ic("smoke","s"),`${r.fiz}%`,tx("{n}% fizzle",{n:r.fiz}),tx(isUnl("peddler")?"A fizzle loses the ingredients but returns some embers.":"A fizzle loses the ingredients."))
       +helpBtn(tx("Forge odds"),S.journal.length?tx("Difficulty {d} against your skill {lv}{reach}. The higher your skill, the fewer mishaps and fizzles.",{d:r.diff,lv:r.lv,reach:r.diff-r.lv>2?tx(", a reach for you"):""})+(r.prec?" "+tx("Precision trims {n} points off the failure chance.",{n:r.prec}):""):tx("Your first forge never fails."))}</div>
     ${b?`<p class="warn-text">${blockText(b)}</p>`:""}
-    ${risk.length?`<p class="warn-text">${risk.length>1?tx("{list} are equipped. A fizzle would destroy them; tap Forge twice to confirm.",{list:risk.join(tx(" and "))}):tx("{list} is equipped. A fizzle would destroy it; tap Forge twice to confirm.",{list:risk[0]})}</p>`:""}</div>`;
+    ${risk.length?`<p class="warn-text">${risk.length>1?tx("{list} are equipped. A fizzle would destroy them; tap the button twice to confirm.",{list:risk.join(tx(" and "))}):tx("{list} is equipped. A fizzle would destroy it; tap the button twice to confirm.",{list:risk[0]})}</p>`:""}</div>`;
 }
 const skIcon=k=>`<svg class="ski" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">${G[SKILLS[k].g]}</svg>`;
 function renderSkills(){
   const su=isUnl("skills");$("skd").hidden=!su;$("sklock").hidden=su;if(!su){$("sklock").innerHTML=lockRow("skills");return}
   $("sksum").innerHTML=`${ic("hammer","s")} ${tx("Crafting skills")}${helpBtn(tx("Crafting skills"),tx("Every kind of thing has its own skill. A craft trains the skill of what you make, and a little of each other kind you put in. A higher skill raises the tier you can reach and lowers the chance a forge goes wrong."))}`;
   $("skills").innerHTML=Object.entries(SKILLS).map(([k,sk])=>{const l=skLv(k),cur=SK_LV[l-1],nxt=SK_LV[l],x=skXp(k);
-    const f=Math.round(Math.max(FAIL.min,Math.min(FAIL.max,FAIL.base+FAIL.slope*(CRAFT.base+CRAFT.tier-l)))); // a plain tier-2 craft with no clashes
-    return `<div class="sk" ${tt(tx("{skill} Lv {lv}",{skill:sk.name,lv:l}),tx("Makes {cats}.",{cats:sk.cats}),nxt?tx("{a}/{b} XP to Lv {n}.",{a:x-cur,b:nxt-cur,n:l+1}):tx("Highest level reached."),tx("Tier cap {c}; about {f}% base failure on a plain tier-2 craft.",{c:SK_CAP[l-1],f}))}>${skIcon(k)}<div class="skb"><span class="sn"><b>${sk.name}</b> <span class="foot">${tx("Lv {n}",{n:l})}</span></span>
-      <div class="bar know"><i style="width:${nxt?Math.min(100,(x-cur)/(nxt-cur)*100):100}%"></i></div></div><span class="skc"><span>${ic("tier","xs")}${SK_CAP[l-1]}</span><span>${ic("warn","xs")}${f}%</span></span></div>`}).join("");
+    const f=Math.round(Math.max(FAIL.min,Math.min(FAIL.max,FAIL.base+FAIL.slope*(CRAFT.base+CRAFT.tier-l)))),crafts=sk.forms.length>0; // a plain tier-2 craft with no clashes; salvaging (no forms) never fails
+    return `<div class="sk" ${tt(tx("{skill} Lv {lv}",{skill:sk.name,lv:l}),tx("Makes {cats}.",{cats:sk.cats}),nxt?tx("{a}/{b} XP to Lv {n}.",{a:x-cur,b:nxt-cur,n:l+1}):tx("Highest level reached."),crafts?tx("Tier cap {c}; about {f}% base failure on a plain tier-2 craft.",{c:SK_CAP[l-1],f}):tx("Tier cap {c}. Salvaging is never blocked: above the cap, materials come one grade lower.",{c:SK_CAP[l-1]}))}>${skIcon(k)}<div class="skb"><span class="sn"><b>${sk.name}</b> <span class="foot">${tx("Lv {n}",{n:l})}</span></span>
+      <div class="bar know"><i style="width:${nxt?Math.min(100,(x-cur)/(nxt-cur)*100):100}%"></i></div></div><span class="skc"><span>${ic("tier","xs")}${SK_CAP[l-1]}</span>${crafts?`<span>${ic("warn","xs")}${f}%</span>`:""}</span></div>`}).join("");
 }
+// ---- the action tabs above the crucible. A locked one shows its lock and the technique that opens it; its tip says what it is for.
+const actOpen=id=>{const A=ACTIONS.find(a=>a.id===id);return !A.tech||hasTech(A.tech)};
+function renderActs(){
+  if(!ACTIONS.some(A=>A.id===S.act))S.act="forge"; // a save without the field starts on Forge
+  if(S.act!=="forge"&&!actOpen(S.act))setAct("forge"); // a stale action (a save from before its technique) falls back to Forge
+  $("cacts").innerHTML=ACTIONS.map(A=>{const nm=tx(A.name),on=S.act===A.id;
+    if(!actOpen(A.id))return `<button class="tab ti locked" aria-disabled="true" data-tap aria-label="${esc(`${nm}: ${tx("Locked. Learn {tech} in Research to open it.",{tech:tx(TECH[A.tech].name)})}`)}" ${tt(nm,tx("Locked. Learn {tech} in Research to open it.",{tech:tx(TECH[A.tech].name)}),tx(TECH[A.tech].gate))}>${ic("lock","s")}<span>${tx(TECH[A.tech].name)}</span></button>`;
+    return `<button class="tab ti${on?" on":""}" data-cact="${A.id}" aria-pressed="${on}" aria-label="${esc(nm)}" ${tt(nm,A.tech?tx(TECH[A.tech].d):tx("Patterns and blueprints: gear from base materials."))}>${ic(A.ic,"s")}<span>${nm}</span></button>`}).join("");
+  $("patp").hidden=S.act!=="forge";$("upgp").hidden=S.act!=="refine";$("crucible").hidden=!CRUCIBLE_ACTS.includes(S.act);
+}
+// what each crucible action says: the empty crucible, and one item alone
+const ACT_EMPTY={infuse:()=>tx("Put in an item you want to strengthen, then an essence. Essences come from salvaging affixed materials."),improve:()=>tx("Put in an item, then the materials to improve it with."),fuse:()=>tx("Put in two gear items that fuse, like a spear and a shield."),cook:()=>tx("Put in food, herbs or essences to cook."),brew:()=>tx("Put in potions, herbs or essences to brew."),alchemy:()=>tx("Put in essences and materials to make a new material.")};
+const ACT_ONE={infuse:()=>tx("Add an essence to infuse it."),improve:()=>tx("Add materials to improve it."),cook:()=>tx("Add more food, herbs or essences."),brew:()=>tx("Add more potions, herbs or essences."),alchemy:()=>tx("Add more essences or materials.")};
+const ffn=f=>cap(formName(f));
+// ---- what each input did. Input n is the nth in combine's order (r.ins), and it has the colour INCOL[n] everywhere: the header's legend, the change chips, the reaction line and the failure bar.
+const INCOL=["#e8b04b","#6fb8e8","#d98bd6","#8fd49a","#f08f6a"],incol=n=>INCOL[n]||"var(--muted)"; // the mix itself (no input) is grey
+const RISK_FIX={base:"#5f574f",tier:"#b8a88a",prec:"var(--up)"}; // the parts that are not an input's; the rest take their input's colour
+const inLegend=r=>r.ins.map((id,n)=>`<span class="chip in" tabindex="0" data-inp="${n}" style="color:${incol(n)}" ${tt(iname(S.items[id]))}><b>${esc(iname(S.items[id]))}</b></span>`).join("");
+// the header: the action, the inputs (← for Infuse, + otherwise) and the result, then the legend for their colours
+function actLine(act,r,res){
+  const A=ACTIONS.find(a=>a.id===act);if(!A)return"";
+  const nm=r.ins.map(id=>esc(iname(S.items[id]))),items=act==="infuse"?nm.join(" ← "):nm.join(" + ");
+  return `<p class="act-line"><b>${esc(tx(A.tech?TECH[A.tech].name:A.name))}</b> · ${tx("{items} → {result}",{items,result:esc(iname(res))})}</p><div class="chips in-legend">${inLegend(r)}</div>`;
+}
+// one chip per trait or stat that changed from the base item to the result, in the colour of the input behind it
+function changeChips(r,res){
+  const base=S.items[r.baseId],src=r.src||{},ch=(c,txt,t)=>`<span class="chip" style="color:${incol(c)}" ${tt(t)}><b>${txt}</b></span>`,from=c=>c>=0?tx("From {input}.",{input:iname(S.items[r.ins[c]])}):tx("Changed by the mix itself."),out=[];
+  Object.keys({...base.traits,...res.traits}).forEach(t=>{const b=base.traits[t],a=res.traits[t];if(a===b)return;const d=r1((a??0)-(b??0));if(!d)return;
+    out.push(ch(src[t]??-1,`${trn(t)} ${d>0?"+":""}${d}`,`${trn(t)}\n${from(src[t]??-1)}`))});
+  if(isGear(res)){const sb=statsOf(base),sa=statsOf(res);Object.keys(STAT_NAMES).forEach(k=>{const d=sa[k]-sb[k];if(!d)return;const c=Object.keys(res.traits).filter(t=>TRAITS[t].s[k]!=null).map(t=>src[t]??-1)[0]??-1;out.push(ch(c,`${STAT_NAMES[k]} ${d>0?"+":""}${d}`,`${STAT_NAMES[k]}\n${from(c)}`))})}
+  return out.join("");
+}
+// before → after: the base item next to the result, with the changes as chips underneath
+function beforeAfter(r,res){
+  const base=S.items[r.baseId],gear=isGear(res),st=it=>gear?`<span class="foot">${statLine(shown(it))||tx("No stats")}</span>`:"",ch=changeChips(r,res);
+  return `<div class="ba"><div class="ba-col"><span class="label">${tx("Before")}</span><b>${nameHtml(base)}</b>${st(base)}<div class="chips">${chips(base,true)}</div></div>
+    <div class="ba-col"><span class="label">${tx("After")}</span><b>${nameHtml(res)}</b>${st(res)}<div class="chips">${chips(res,true)}</div></div>
+    <div class="chips ba-why">${ch||`<span class="foot">${tx("Nothing changes.")}</span>`}</div></div>`;
+}
+// reactions get their own line: the two inputs (in their colours) → the result, and any trait the reaction used up
+function rxLines(r){
+  return r.log.filter(l=>l.k==="Reaction").map(l=>{const [a,b,c]=l.rx,sp=(n,x)=>`<span style="color:${incol(n)}">${esc(trn(x))}</span>`,lost=(l.lost||[]).map(([t,v])=>tx("−{n} {trait}",{n:v,trait:trn(t)})).join(", ");
+    return `<p class="rx-line${l.warn?" warn":""}">${tx("{a} + {b} → {c}",{a:sp(l.src[0],a),b:sp(l.src[1],b),c:esc(trn(c))})}${lost?`, ${lost}`:""}</p>`}).join("");
+}
+// whole-number shares of the failure chance that add up to target (the shown percentage): the rounding goes to the parts that were cut closest
+function splitPct(parts,target){
+  const out=parts.map(p=>Math.floor(p.v)),fr=parts.map((p,i)=>p.v-out[i]),n=parts.length;let left=target-out.reduce((s,x)=>s+x,0);
+  const up=parts.map((_,i)=>i).sort((a,b)=>fr[b]-fr[a]),dn=parts.map((_,i)=>i).sort((a,b)=>out[b]-out[a]);
+  for(let g=0;left>0&&n;g++){out[up[g%n]]++;left--}
+  for(let g=0;left<0&&n;g++){out[dn[g%n]]--;left++}
+  return out;
+}
+// the failure chance as a stacked bar: each part a segment (its share is the number in the list), coloured by the input behind it. Hovering or focusing an input dims the parts that are not its.
+function riskBar(r){
+  if(!S.journal.length||!r.risk)return""; // the very first forge never fails
+  const sh=splitPct(r.risk,r.fail),segs=r.risk.map((p,i)=>({p,s:sh[i]})).filter(x=>x.s),tot=segs.reduce((n,x)=>n+Math.abs(x.s),0)||1;
+  const col=p=>RISK_FIX[p.k]||incol(p.who.find(x=>x!=null));
+  const sgn=s=>s>0?"+":s<0?"−":"";
+  const txt=segs.map(({p,s})=>`${p.t} ${sgn(s)}${Math.abs(s)}%`).join(", ");
+  return `<div class="risk-wrap"><p class="label">${tx("Failure chance")} · ${r.fail}%</p>
+    <div class="risk" role="img" aria-label="${esc(tx("Failure chance {n}%: {list}",{n:r.fail,list:txt}))}">${segs.map(({p,s})=>`<i class="seg${s<0?" neg":""}" data-o="${p.who.filter(x=>x!=null).join(" ")}" style="width:${Math.abs(s)/tot*100}%;background-color:${col(p)}"></i>`).join("")}</div>
+    <ul class="risk-list">${segs.map(({p,s})=>`<li>${esc(p.t)} <b>${sgn(s)}${Math.abs(s)}%</b></li>`).join("")}<li><b>= ${r.fail}%</b></li></ul></div>`;
+}
+function riskHl(n){document.querySelectorAll(".risk .seg").forEach(s=>s.classList.toggle("dim",n!=null&&!s.dataset.o.split(" ").includes(String(n))))}
 function renderBench(){
-  const max=maxInputs(),parts=[],items=S.bench.map(id=>S.items[id]),chk=checkMix(items);
-  for(let i=0;i<(level()>=2?4:3);i++){
-    if(i>0)parts.push('<span class="plus" aria-hidden="true">+</span>');
-    if(i>=max){parts.push(`<div class="slot locked" ${tt(tx("Slot {n}",{n:i+1}),tx("Unlocks at Smith Lv {n}",{n:INPUT_LV[i-2]}))}>${ic("lock")}<small>${tx("Lv {n}",{n:INPUT_LV[i-2]})}</small></div>`);continue}
-    const it=items[i];
-    parts.push(it?`<button class="slot full${!chk.ok&&chk.bad?.id===it.id?" bad":""}" style="${rcol(it)}" data-slot="${i}" aria-label="${esc(tx("Remove {item}",{item:iname(it)}))}" ${itemTip(it,tx("Tap to take it out."))}>${glyph(it)}</button>`:`<div class="slot" role="img" aria-label="${esc(tx("Empty slot"))}">${ic("plus","l")}</div>`);
+  const act=S.act,A=ACTIONS.find(a=>a.id===act),parts=[],items=S.bench.map(id=>S.items[id]),chk=checkMix(items);
+  if(!CRUCIBLE_ACTS.includes(act))return;
+  // the slots: infuse and improve take the item first, then essences or materials; fuse takes two items; the kitchen actions take ingredients in the order they were put in
+  const special=act==="infuse"||act==="improve",gi=special?items.findIndex(isGear):-1,shown=special?[gi,...items.map((_,i)=>i).filter(i=>i!==gi)]:items.map((_,i)=>i);
+  const role=i=>special?(i?tx(act==="infuse"?"Essence":"Material"):tx("Item")):act==="fuse"?tx("Item"):tx("Ingredient");
+  $("cruciblelabel").innerHTML=`<p class="label">${ic(A.ic,"s")} ${tx(A.name)} · ${tx("Crucible")}</p>${helpBtn(tx(A.name),tx(TECH[A.tech].d))}`;
+  for(let i=0;i<actCap(act);i++){
+    if(i>0)parts.push(`<span class="plus" aria-hidden="true">${act==="infuse"?"←":"+"}</span>`);
+    const bi=i<shown.length?shown[i]:-1,it=bi>=0?items[bi]:null;
+    parts.push(it?`<button class="slot full${!chk.ok&&chk.bad?.id===it.id?" bad":""}" style="${rcol(it)}" data-slot="${bi}" aria-label="${esc(tx("Remove {item}",{item:iname(it)}))}" ${itemTip(it,tx("Tap to take it out."))}>${glyph(it)}</button>`
+      :`<div class="slot pslot" role="img" aria-label="${esc(tx("Empty slot"))}" ${tt(tx("Empty slot"),role(i))}>${ic("plus")}<small>${role(i)}</small></div>`);
   }
-  $("slots").className=level()>=2?"slots s4":"slots";$("slots").innerHTML=parts.join("");
-  let hint="",crafting=null;const miss=chk.ok&&items.length>1?craftMiss(items):[]; // techniques this craft needs and you lack
-  if(!items.length)hint=`<p class="foot" style="text-align:center">${tx("Tap items below to add them.")}</p>`;
+  $("slots").className="slots";$("slots").innerHTML=parts.join("");
+  let hint="",crafting=null;const miss=chk.ok&&items.length>1?actionOk(items):[]; // techniques this craft needs and you lack
+  if(!items.length)hint=`<p class="foot" style="text-align:center">${ACT_EMPTY[act]()}</p>`;
   else if(!chk.ok)hint=`<p class="warn-text">${esc(chk.reason)}</p>`;
-  else if(items.length===1)hint=`<p class="foot">${tx("{item} takes {list}.",{item:esc(iname(items[0])),list:acceptsText(items[0])})}</p>`;
+  else if(items.length===1&&act==="fuse"){ // one side placed: the forms it fuses with, and what each makes
+    const ps=FUSIONS.filter(p=>p.slice(0,2).includes(items[0].form));
+    hint=ps.length?`<p class="foot">${tx("Add a second item to fuse it:")} ${ps.map(p=>tx("{a} + {b} → {c}",{a:ffn(p[0]),b:ffn(p[1]),c:ffn(p[2])})).join(", ")}</p>`:`<p class="foot">${tx("{a} doesn't fuse with anything.",{a:cap(formName(items[0].form))})}</p>`}
+  else if(items.length===1)hint=`<p class="foot">${ACT_ONE[act]()}</p>`;
   else if(miss.length)hint=`<p class="warn-text">${ic("lock","s")} ${techWhy(miss)}</p>${isUnl("research")?`<div class="actions"><button class="btn sm" data-gores="${miss[0]}">${ic("research","s")} ${tx("Open Research")}</button></div>`:""}`;
   else{
     const r=combine(items,{roll:100}),known=S.items[r.item.id],base=S.items[r.baseId];crafting=r;
@@ -47,12 +119,12 @@ function renderBench(){
       hint=`<div class="preview"><span class="ok-text">${ic("plus","s")} ${tx("New combination: a {form}.",{form:formName(r.item.form)})}</span>
         ${kr.length?`<span class="foot">${tx("Known reactions: {list}",{list:kr.map(k=>{const x=REACTIONS.find(([a,b])=>a+"+"+b===k);return `${trn(x[0])} + ${trn(x[1])} → ${trn(x[2])}`}).join(", ")})}</span>`:""}
         ${ur.length?`<span class="foot" style="color:var(--accent)" ${tt(tx("Unseen reaction"),tx("Something in this mix will react in a way you haven't seen yet."))}>${ic("warn","xs")} ${tx("An unseen reaction")}</span>`:""}
-        ${appraise}</div>`}
-    hint+=craftLine(r,items);
+        ${appraise}</div>${beforeAfter(r,r.item)}`}
+    hint=`${actLine(act,r,r.item)}${hint}${rxLines(r)}${riskBar(r)}`+craftLine(r,items);
     if(r.mw>=0)hint+=`<p class="warn-text">${ic("warn","s")} ${mwWarn()}</p>`;
   }
   $("mixhint").innerHTML=hint;
-  $("combine").textContent=isArmed("forge:"+S.bench.join())?tx("Tap again to forge"):tx("Forge");
+  $("combine").textContent=isArmed("forge:"+S.bench.join())?tx("Tap again to forge"):tx(A.name);
   $("combine").disabled=items.length<2||!chk.ok||!!crafting?.blocked;
   $("combine").setAttribute("aria-disabled",miss.length?"true":"false");if(miss.length)$("combine").setAttribute("aria-label",techWhy(miss));else $("combine").removeAttribute("aria-label"); // the reason is the warning above the button (and its label); a bubble on top would cover it
 }
@@ -70,14 +142,13 @@ function patFill(){ // empty slots take the standard (or blueprint) materials wh
   patSel.m.forEach((id,i)=>{if(id)return;const fits=mats.filter(x=>patFits(k,bp,i,x)&&patLeft(x)>0).sort((a,b)=>(b===std[i])-(a===std[i])||gradeOf(a)-gradeOf(b)||patLeft(b)-patLeft(a));patSel.m[i]=fits[0]||null});
 }
 function renderPatterns(){
-  if(!isUnl("patterns")){$("patlabel").innerHTML=lockRow("patterns");$("pats").innerHTML=$("patbody").innerHTML="";return}
-  patFix();const bps=knownBp(),k=patSel.k,bp=patSel.bp;
+  patFix();const bps=knownBp().filter(x=>formOk(BASE[x][1])),pats=Object.keys(PATTERNS).filter(x=>formOk(PATTERNS[x].form)),k=patSel.k,bp=patSel.bp; // a pattern (or blueprint) comes with its slot technique
   $("patlabel").innerHTML=`<p class="label">${ic("pattern","s")} ${tx("Patterns")}</p>${helpBtn(tx("Patterns"),tx("Pick what to forge, then fill its slots with base materials. Deconstruct hides, ores and wood in the Gear tab to get them."),tx("The standard materials make the familiar piece; anything else makes a new one from the materials' traits. Better grades make stronger gear."),tx("Blueprints for named gear come from studying creatures in a fight."))}`;
   const btn=(key,isBp)=>{const on=key===k&&!!isBp===bp,nm=patLabel(key,isBp);
     return `<button class="tab ti${isBp?" bpb":""}" data-pat="${key}" data-bp="${isBp?1:0}" aria-pressed="${on}" aria-label="${esc(nm)}" ${tt(nm,isBp?tx("Blueprint"):tx("Pattern"),patSlots(key,isBp).map(slotTxt).join(" + "))}>${isBp?glyph(S.items[key]):gIc(PATTERNS[key].form)}${on?`<span>${esc(nm)}</span>`:""}</button>`};
-  $("pats").innerHTML=Object.keys(PATTERNS).map(x=>btn(x,false)).join("")+bps.map(x=>btn(x,true)).join("")
-    +`<span class="foot bpn" ${tt(tx("Blueprints"),tx("Study a creature in a fight to learn the blueprint of the named gear it carries. Mastering it teaches them too."))}>${ic("scroll","xs")} ${bps.length}/${Object.keys(BLUEPRINTS).length}</span>`;
-  if(!k){$("patbody").innerHTML=`<p class="foot">${Object.keys(S.inv).some(id=>isBaseMat(id)&&S.inv[id]>0)?tx("Pick a pattern to forge."):tx("Pick a pattern to forge. Deconstruct raw finds in the Gear tab to get base materials.")}</p>`;return}
+  $("pats").innerHTML=pats.map(x=>btn(x,false)).join("")+bps.map(x=>btn(x,true)).join("")
+    +`<span class="foot bpn" ${tt(tx("Blueprints"),tx("Study a creature in a fight to learn the blueprint of the named gear it carries. Mastering it teaches them too."))}>${ic("scroll","xs")} ${knownBp().length}/${Object.keys(BLUEPRINTS).length}</span>`;
+  if(!k){$("patbody").innerHTML=!pats.length&&!bps.length?`<p class="foot">${tx("Learn a slot technique in Research (the Forge tab) to get its pattern.")}</p>`:`<p class="foot">${Object.keys(S.inv).some(id=>isBaseMat(id)&&S.inv[id]>0)?tx("Pick a pattern to forge."):tx("Pick a pattern to forge. Deconstruct raw finds in the Gear tab to get base materials.")}</p>`;return}
   const slots=patSlots(k,bp),its=patSel.m.map(id=>id&&S.items[id]);
   const parts=slots.map((t,i)=>{const it=its[i];return (i?'<span class="plus" aria-hidden="true">+</span>':"")+(it?`<button class="slot full" style="${rcol(it)}" data-pslot="${i}" aria-label="${esc(tx("Remove {item}",{item:iname(it)}))}" ${itemTip(it,tx("Tap to take it out."))}>${glyph(it)}</button>`
     :`<div class="slot pslot" role="img" aria-label="${esc(tx("Empty slot: {types}",{types:slotTxt(t)}))}" ${tt(tx("Empty slot"),slotTxt(t))}>${ic("plus")}<small>${slotTxt(t)}</small></div>`)}).join("");
@@ -109,7 +180,9 @@ function renderResult(fresh){
     <h2 class="rname">${nameHtml(it)}${r.isNew?`<span class="badge${it.legendary?" gold":""}">${it.legendary?tx("Legendary"):tx("New")}</span>`:""}</h2></div></div>
     ${itemProperties(it,base,false,"Compared to")}
     ${showEq?cmpBlock(it,eqIt,"Versus equipped"):""}
+    ${actLine(r.act,r,it)}
     <ul class="log"><li><strong>${tx("Recipe")}</strong> ${esc(recipeNames(r.id?it:r))}</li>${r.log.map(logLi).join("")}</ul>
+    ${r.src?`<div class="chips res-changes">${changeChips(r,it)}</div>`:""}
     ${gains}${ch(r.mishap?"var(--accent)":"var(--up)",ic(r.mishap?"warn":"ok","s"),`${r.inst}%`,r.mishap?tx("Flawed"):tx("Held together"),tx("{n}% was the chance to fail.",{n:r.inst}))}</div>
     ${r.autoEquipped&&eqCount(it.id)?`<p class="ok-text">${tx("Equipped automatically")}</p>`:""}
     ${S.inv[it.id]>0?`<div class="actions">${isGear(it)&&!eqCount(it.id)?`<button class="btn primary" data-result-equip="${it.id}">${tx("Equip")}</button>`:""}<button class="btn${isGear(it)&&!eqCount(it.id)?" primary":""}" data-open="${it.id}">${isGear(it)&&!eqCount(it.id)?tx("Equip or inspect"):tx("Inspect")}</button></div>`:""}`;

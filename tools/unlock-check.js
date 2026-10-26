@@ -37,15 +37,15 @@ async function flow(browser,w){
   ok(r.parry&&r.title==="It's winding up"&&r.on&&r.log,"the first telegraphed special opens Parry with its card and a log line");ok(r.cards===1,"exactly one card is on screen");
   await shot(p,w,"5-parry-intro");
   // the fight goes on with the card up (it never blocks input); win it
-  await p.evaluate(()=>{S.battle.hp=1});await p.click("#atk");
+  await p.evaluate(()=>{S.battle.hp=1;window._rnd=Math.random;Math.random=()=>0});await p.click("#atk");await p.evaluate(()=>{Math.random=window._rnd}); // a sure drop: map fights only drop at DENSITY_RW odds
   r=await p.evaluate(()=>({won:S.battle&&S.battle.over==="won",study:!!S.unl.study,roam:!!S.unl.roam,pend:pendingIntros().map(c=>c.id)}));
-  ok(r.won&&r.study&&r.roam,"the first win opens Study and roaming enemies");ok(r.pend.join()==="parry,study","intros queue in the order the systems opened ("+r.pend+")");
+  ok(r.won&&r.study&&r.roam,"the first win opens Study and roaming enemies");ok(r.pend.join()==="parry,salvage,study","intros queue in the order the systems opened: the first raw find opens Salvage ("+r.pend+")");
   r=await p.evaluate(()=>({top:$("intro").hidden}));ok(r.top,"a battle intro waits out of the fight instead of showing on the map");
   // Got it on the parry card, the next card is Study (queued, not stacked)
   await p.evaluate(()=>{S.battle=null;render();startBattle("boar")});
   r=await p.evaluate(()=>[...document.querySelectorAll(".intro:not([hidden]) b")].map(b=>b.textContent));ok(r.join()==="Study","one card at a time, the oldest that can show (the Parry card waits for its special) ("+r+")");
   await p.click("#introOk");r=await p.evaluate(()=>({cards:[...document.querySelectorAll(".intro:not([hidden]) b")].map(b=>b.textContent),seen:S.seen["i:study"],pend:pendingIntros().map(c=>c.id)}));
-  ok(r.cards.length===0&&r.seen,"Got it marks it read and no card is left on screen ("+r.pend+")");ok(r.pend.join()==="parry","... and the Parry card is still waiting for its special ("+r.pend+")");
+  ok(r.cards.length===0&&r.seen,"Got it marks it read and no card is left on screen ("+r.pend+")");ok(r.pend.join()==="parry,salvage","... and the Parry and Salvage cards are still waiting ("+r.pend+")");
   // --- abilities: need an equipped ability weapon and Smith Lv 2 or 3 wins; the button follows the intro
   await p.evaluate(()=>{S.battle=null;S.wins=2;render()});ok(!await p.evaluate(()=>S.unl.ability),"two wins and Lv 1: no abilities yet");
   await p.evaluate(()=>{S.wins=3;render();startBattle("boar")});
@@ -63,7 +63,7 @@ async function flow(browser,w){
     S.stats.exped=1;out.e1=types().t;S.stats.deaths=1;S.stats.exped=0;checkUnl(true);out.d1=S.unl.shrine?1:0; // a defeat counts like a boss kill
     S.stats.exped=1;S.stats.deaths=1;checkUnl(true);out.e2=types().t;
     S.xp=160;checkUnl(true);const x=types();out.lv3=x.t;out.reach=reach(x.m);
-    out.nf=[...Array(30)].map(()=>genMap({heat:0,zone:"woods"}).pois.filter(q=>q.t==="fight").length).filter(n=>n<6||n>9).length; // fights stay 5-7 plus the gate guard (and a bit of a spread)
+    out.nf=[...Array(30)].map(()=>genMap({heat:0,zone:"woods"}).pois.filter(q=>q.t==="fight").length).filter(n=>n<11||n>14).length; // fights stay 10-13 plus the gate guard (and a bit of a spread)
     const a=JSON.stringify(genMap({seed:77,zone:"pass",heat:2})),b=(S.unl={},JSON.stringify(genMap({seed:77,zone:"pass",heat:2})));out.det=a===b; // a seeded (daily) map ignores unlocks
     return out});
   ok(g.e0==="boss,camp,chest,fight","map 1: no shrine, peddler, mystery or elite ("+g.e0+")");
