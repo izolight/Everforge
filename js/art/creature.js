@@ -1,10 +1,10 @@
 // ================= ART: CREATURES (composition) =================
 function compose(A,c,afx,R){
-  const sk=A.skin||"#cfa784",B=BODY[A.b](c,{skin:sk,glow:A.glow}),parts=[...(A.p||[])],rest=[];
-  (afx||[]).forEach(id=>{const X=AFX_ART[id];if(X&&X.p&&!parts.includes(X.p)&&!(X.p==="halo"&&parts.includes("hood")))parts.push(X.p);else rest.push(id)});
+  const sk=A.skin||"#cfa784",B=BODY[A.b](c,{skin:sk,glow:A.glow}),parts=[...(A.p||[])],rest=[],els=[];
+  (afx||[]).forEach(id=>{const X=AFX_ART[id];if(X&&X.tat)els.push(id);else if(X&&X.p&&!parts.includes(X.p)&&!(X.p==="halo"&&parts.includes("hood")))parts.push(X.p);else rest.push(id)});
   const L=z=>parts.filter(p=>PART[p]&&PART[p].z===z).map(p=>PART[p].f(c,B.a)).join("");
   const pat=A.pat&&PAT[A.pat]?`<mask id="${c.id}k" maskUnits="userSpaceOnUse" x="0" y="0" width="120" height="120"><g filter="url(#${c.id}w)">${B.s}</g></mask><g mask="url(#${c.id}k)" opacity="${A.po||.6}">${PAT[A.pat](c,R)}</g>`:"";
-  return{s:L(-1)+B.s+pat+B.f+L(1),rest,fly:B.a.fly};
+  return{s:L(-1)+B.s+pat+B.f+tattoo(els,B.a.tt)+L(1),rest,fly:B.a.fly}; // the tattoo sits on the body, inside its bob and breath
 }
 
 // the glow filters: e = bloom on eyes, cores and runes; w = the silhouette as a white mask (eroded so patterns stay inside the outline); r = rim light for magic, rare and bosses
@@ -17,7 +17,7 @@ function portrait(id,o){
   let body,rest=o.afx||[],fly=FLOATS[id];
   if(A){const r=compose(A,c,rest,R);body=r.s;rest=r.rest;fly=fly||r.fly}else body=PORTRAITS[id](c);
   body=body.replace(new RegExp(`(fill|stroke)="${c.e}"`,"g"),`$1="${c.e}" filter="url(#${gidp}e)"`); // eyes, cores and runes bloom
-  let over=rest.map(a=>AFX_ART[a]&&AFX_ART[a].f?AFX_ART[a].f(c):"").join(""); // affix marks the body could not wear
+  const tats=rest.filter(a=>AFX_ART[a]&&AFX_ART[a].tat);let over=tattoo(tats,[60,68,14])+rest.filter(a=>!tats.includes(a)).map(a=>AFX_ART[a]&&AFX_ART[a].f?AFX_ART[a].f(c):"").join(""); // affix marks the body could not wear (a hand-drawn portrait takes its tattoo here)
   const ghost=rest.includes("elusive")?`<g opacity=".32" transform="translate(11 -4)">${body}</g>`:""; // Elusive: an afterimage
   if(o.frozen)over+=`<g><rect x="4" y="4" width="112" height="112" rx="20" fill="#bfeaff" opacity=".22"/><g stroke="#effbff" stroke-width="2.2" stroke-linecap="round"><path d="M16 14 v14 M9 21 h14 M11 16 l10 10 M21 16 l-10 10"/><path d="M98 92 v12 M92 98 h12"/><path d="M100 18 v8 M96 22 h8"/></g></g>`;
   if(o.burn)over+=`<g fill="#ff8a3d" opacity=".9"><path class="flick" d="M14 116 q4 -18 10 -6 q3 -14 8 0 q3 -10 8 2 Z"/><path class="flick" d="M80 116 q4 -16 9 -4 q4 -14 9 0 q3 -10 8 4 Z"/></g>`;
