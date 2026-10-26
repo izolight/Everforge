@@ -83,4 +83,4 @@ window.claude?.hot?.snapshot?.(()=>({S}));
 function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
 // The save code (Settings): the state is encoded as one text blob, and a pasted code is decoded and validated by loadSave().
 function exportSave(){return btoa(unescape(encodeURIComponent(JSON.stringify({...S,battle:null,event:null}))))}
-function importSave(code){const s=loadSave(JSON.parse(decodeURIComponent(escape(atob(code)))));return s||null}
+function importSave(code){const s=loadSave(JSON.parse(decodeURIComponent(escape(atob(code)))));return s?keepDaily(s):null} // keepDaily: an older code cannot hand back today's daily

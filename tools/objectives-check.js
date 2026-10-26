@@ -58,6 +58,15 @@ const {chromium}=require('playwright'),path=require('path'),assert=require('node
  await page.evaluate(()=>{S=freshState();S.quest=TUTORIAL.length;S.bounty={kind:'forge',need:2,base:0,reward:{items:['ess:Fire'],xp:20}};save()});await page.reload();
  assert(await page.evaluate(()=>S.bounty.kind==='forge'&&goal().prog==='0/2'));
  console.log('ok discarded opening fights recover; the follow-up waits for an equipped fire weapon; a save without the field opts out');
+ const daily=await page.evaluate(()=>{ // an older save code cannot hand back today's daily attempt
+   localStorage.removeItem(DAILY_KEY);S=freshState();S.quest=TUTORIAL.length;S.unlocked=ZONES.map(z=>z[0]);S.unl.daily=1;
+   const code=exportSave();startDaily();const ran=dailyState();finishDaily(0,false);const after=dailyState();
+   const s=importSave(code);S=s;const imp=dailyState(),card=dailyCard().includes('dailyStart');
+   const rec=JSON.parse(localStorage.getItem(DAILY_KEY));rec.done=0;localStorage.setItem(DAILY_KEY,JSON.stringify(rec)); // still running here: the import counts it as abandoned
+   S=importSave(code);const mid=dailyState()+'/'+S.daily.result.rows;localStorage.removeItem(DAILY_KEY);S=importSave(code);
+   return{ran,after,imp,card,mid,fresh:dailyState()}});
+ assert.deepEqual(daily,{ran:'run',after:'done',imp:'done',card:false,mid:'done/0',fresh:'ready'},'daily survives import: '+JSON.stringify(daily));
+ console.log('ok importing an older save code does not hand back today\'s daily attempt');
  for(const width of [360,390,1200]){await page.setViewportSize({width,height:844});for(const lang of ['en','de','ko']){
    await page.evaluate(lang=>{S=freshState();S.quest=TUTORIAL.length;S.hints=[0,0,0];window.__miss=new Set();setLang(lang);go('recipes');pinGoal('rumor',0)},lang);
    assert(await page.locator('[data-pin-rumor="0"]').evaluate(el=>el.getBoundingClientRect().width>=44&&el.getBoundingClientRect().height>=44));

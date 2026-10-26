@@ -7,17 +7,28 @@ function dailyPlan(date){ // zone, heat (1-3) and twist all come from the date; 
   return{date,seed,want,zone:S.unlocked.includes(want)?want:(open.pop()||DZ[0])[0],heat,twist};
 }
 // "run" (any day's, until it ends), "done" (today's attempt is used up) or "ready"
+// today's attempt is also logged outside the save, so importing an older save code cannot hand it back (see keepDaily)
+const DAILY_KEY="everforge-daily",dailyLog=()=>{try{return JSON.parse(localStorage.getItem(DAILY_KEY)||"null")}catch(e){return null}};
+const logDaily=(d,done)=>{try{const{map,...rec}=d;localStorage.setItem(DAILY_KEY,JSON.stringify({date:d.date,done,rec}))}catch(e){}};
+// an imported save gets today's attempt as used when this browser already played it (an attempt left running counts as abandoned)
+function keepDaily(s){
+  const u=dailyLog();if(!u||u.date!==today()||!u.rec)return s;
+  const d=s.daily;if(d&&d.date===u.date&&(d.state==="done"||!u.done))return s; // the code already knows today's attempt
+  if(d&&d.state==="run"&&d.date!==u.date)return s; // an older day's run still in progress: leave it to finish
+  if(s.run==="daily"){s.run=null;s.zone=d&&d.back||s.zone}
+  s.daily={...u.rec,state:"done",result:u.done&&u.rec.result||{rows:0,boss:false,turns:0}};return s;
+}
 const dailyState=()=>S.daily&&S.daily.state==="run"?"run":S.daily&&S.daily.date===today()?"done":"ready";
 function startDaily(){
   if(busy()||S.run||!dailyReady()||dailyState()!=="ready")return;
   const p=dailyPlan(today());
   S.daily={...p,map:genMap({seed:p.seed,heat:p.heat,zone:p.zone,twist:p.twist}),state:"run",turns:0,back:S.zone,result:null};
-  S.run="daily";S.zone=p.zone;S.battle=null;S.event=null;
+  S.run="daily";S.zone=p.zone;S.battle=null;S.event=null;logDaily(S.daily,0);
   toast(tx("Daily expedition: {name}.",{name:DAILY_TWISTS[p.twist].name}));save();render();
 }
 function finishDaily(rows,boss){
   const d=S.daily,st=S.stats,r={rows,boss:!!boss,turns:d.turns},b=st.dBest;d.state="done";d.result={rows,boss,turns:d.turns};S.run=null;S.zone=d.back;
-  st.dailies++;if(boss)st.dailyWins++;
+  st.dailies++;if(boss)st.dailyWins++;logDaily(d,1);
   if(!b||(r.boss&&!b.boss)||(r.boss===!!b.boss&&(r.boss?r.turns<b.turns:r.rows>b.rows||(r.rows===b.rows&&r.turns<b.turns))))st.dBest=r; // best daily: a boss kill beats any fall, then fewer turns / more rows
 }
 function abandonDaily(){
