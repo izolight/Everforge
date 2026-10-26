@@ -9,7 +9,7 @@ const lab=x=>{const n=parseInt(x.slice(1),16),f=v=>{v/=255;return (v>.04045?((v+
   X=(r*.4124+g*.3576+b*.1805)/95.047,Y=(r*.2126+g*.7152+b*.0722)/100,Z=(r*.0193+g*.1192+b*.9505)/108.883,q=t=>t>.008856?Math.cbrt(t):7.787*t+16/116,
   fx=q(X),fy=q(Y),fz=q(Z);return[116*fy-16,500*(fx-fy),200*(fy-fz)]};
 const dE=(a,b)=>{const p=lab(a),q=lab(b);return Math.hypot(p[0]-q[0],p[1]-q[1],p[2]-q[2])};
-// ---- element palette: each element's hue at a light, mid and dark lightness; a generated creature rolls one of the three as its body (the mids are the colour checks' reference)
-const ELPAL={fire:["#ea806e","#e0452b","#a62d18"],stone:["#cea069","#b07a3a","#765227"],holy:["#f7df93","#f2c94c","#e1ae10"],poison:["#cde57a","#b5d83a","#88a521"],
-  wood:["#65c070","#3f9a4a","#296430"],swift:["#7cdfc9","#3fd0b0","#269c82"],ice:["#ccefff","#9fe0ff","#52c7ff"],shadow:["#5e58b9","#3f3a8a","#262354"],
-  arcane:["#cb87e0","#b04ad0","#862aa3"],metal:["#c5cbd2","#9aa4b0","#6f7d8e"]};
+// ---- element palette: each element's hue at a light, mid and dark lightness (light and dark are the mid +/-12 L*, chroma kept or raised; shadow's dark is lifted to stay indigo); a generated creature rolls one of the three as its body (the mids are the colour checks' reference)
+const ELPAL={fire:["#ff5f3f","#e0452b","#ba1e0e"],stone:["#d6984f","#b07a3a","#8e5c1d"],holy:["#ffea5d","#f2c94c","#cea829"],poison:["#d4fc4a","#b5d83a","#93b70a"],
+  wood:["#57bc61","#3f9a4a","#177a2d"],swift:["#53f4d0","#3fd0b0","#00ae90"],ice:["#baffff","#9fe0ff","#7dbfdd"],shadow:["#5d55b2","#3f3a8a","#2b2a77"],
+  arcane:["#d864fc","#b04ad0","#8e27af"],metal:["#b9c5d2","#9aa4b0","#7b8590"]};
