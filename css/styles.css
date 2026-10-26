@@ -468,7 +468,7 @@ h1{font-size:1.7rem}
 .sq.gs{padding:3px;border-radius:9px;border-width:1.5px}
 .gear .sq.gs{height:62px;aspect-ratio:auto;grid-template-rows:41px 1fr;gap:0;box-shadow:inset 0 -3px 0 var(--rc,transparent),0 2px 8px #0006}
 .gear .sq.gs svg{width:41px;height:41px}
-.gear-slot-label{display:block;max-width:100%;font-family:var(--mono);font-size:.68rem;line-height:1.2;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.gear-slot-label{display:block;max-width:100%;font-family:var(--body);font-size:.68rem;line-height:1.15;color:var(--muted);text-align:center;hyphens:auto;overflow-wrap:anywhere} /* body font, wrapping: a long slot name ("Main hand", "Schmuckstück") fits a narrow tile without an ellipsis */
 .sq.gs.none{background:#17130f;border-style:dashed}
 .sq.gs.none svg{opacity:.8}
 .tl .hero svg.hero-mini{width:88%;height:88%;fill:none;fill-opacity:1}
