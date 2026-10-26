@@ -13,6 +13,7 @@ Backlog for monster coverage, biome variety and related balance/tooling work.
 - **M-04** — `Done`
 - **M-09** — `Implement` (see `plan-m-09.md`)
 - **V-01** — `Done`
+- **V-03** — `Done`
 - Everything else — `Planned`
 
 ---
@@ -88,9 +89,10 @@ Backlog for monster coverage, biome variety and related balance/tooling work.
   `blade`, `axe`, `staff`, `tusks` exist in `js/art/parts.js` but no wild pool uses them. Add them to appropriate biomes.
   **Done:** all four parts appear on generated creatures with sensible body gating.
 
-- [ ] **V-03 · More patterns per biome** — `Status: Planned` · `Size: S` · `js/monsters.js`
+- [x] **V-03 · More patterns per biome** — `Status: Done` · `Size: S` · `js/monsters.js`
   There are 9 patterns; each biome offers 4. Raise to 6–7 with thematic choices.
   **Done:** every biome has 6+ patterns; no biome uses all patterns identically.
+  **Done (V-03):** PAT has 8 keys (not 9; `spots` was removed). Each of the 8 `BIOMES` lists now holds 6 distinct keys, all valid in PAT, and no two biomes share the same set. `node tools/sim.js --wild --seed 1` completes with exit 0.
 
 - [ ] **V-04 · Expand region-name pools** — `Status: Planned` · `Size: XS` · `js/monsters.js`
   Increase each biome from 3 to 5–6 region names and avoid duplicates.
