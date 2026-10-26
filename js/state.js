@@ -9,7 +9,7 @@ function mkGraded(b,g){ // the item for base id b at grade g (pure: loadSave reb
 const statsDef=()=>({salvaged:0,studied:0,dealt:0,taken:0,big:0,bigW:"",crits:0,parries:0,abil:0,sufd:0,cured:0,elites:0,bosses:0,deaths:0,exped:0,heatBest:{},fast:{},forged:0,legend:0,mishaps:0,fizzles:0,earned:0,spent:0,refined:0,shaped:0,dailies:0,dailyWins:0,dBest:null});
 function freshState(){
   const items={};Object.keys(BASE).forEach(id=>items[id]=baseItem(id));
-  return {v:18,onboarding:0,pinned:null,bountyChoices:[],locked:[],recent:[],inventory:{layout:"grid",filter:"all",sort:"type"},embers:0,afx:{},unl:{},rp:0,techs:{},tpaid:{},rpd:{},rxh:{},infCredit:0,skills:{},maps:{},heat:{},daily:null,run:null,infuse:{},items,inv:{iron_sword:1},eq:{main:"iron_sword",off:null,head:null,body:null,hands:null,feet:null,charm:null},
+  return {v:18,onboarding:0,pinned:null,bountyChoices:[],locked:[],recent:[],inventory:{layout:"grid",sort:"type",gear:{category:"all",filter:"all"},forge:{category:"all",filter:"craftable"}},embers:0,afx:{},unl:{},rp:0,techs:{},tpaid:{},rpd:{},rxh:{},infCredit:0,skills:{},maps:{},heat:{},daily:null,run:null,infuse:{},items,inv:{iron_sword:1},eq:{main:"iron_sword",off:null,head:null,body:null,hands:null,feet:null,charm:null},
     hp:999,camp:2,campProg:0,xp:0,journal:[],knownR:[],hints:[0,1,2],bench:[],act:"forge",last:null,tab:"all",rtab:"all",view:"battle",zone:"woods",rift:{depth:1,best:0,seed:0,biome:"",name:"",pal:null,cleared:0},
     wins:0,kills:{},seen:{},codex:{},unlocked:["woods"],zoneKills:{},quest:0,bounty:null,stats:statsDef(),fresh:[],battle:null,event:null};
 }
@@ -70,8 +70,11 @@ function loadSave(s){
   s.bountyChoices=Array.isArray(s.bountyChoices)?s.bountyChoices.filter(b=>isObj(b)&&["hunt","forge"].includes(b.kind)&&Number.isInteger(b.need)&&b.need>0&&(b.kind==="forge"||typeof b.enemy==="string")&&isObj(b.reward)&&Array.isArray(b.reward.items)&&b.reward.items.every(id=>typeof id==="string"&&(s.items[id]||(/^ess:[A-Za-z]+(?:@[1-5])?$/.test(id)&&TRAITS[id.slice(4).split("@")[0]])))).slice(0,3):[];
   s.locked=Array.isArray(s.locked)?[...new Set(s.locked.filter(id=>s.items[id]))]:[];
   s.recent=Array.isArray(s.recent)?[...new Set(s.recent.filter(id=>s.items[id]))]:[];
-  const ip=isObj(s.inventory)?s.inventory:{};
-  s.inventory={layout:ip.layout==="list"?"list":"grid",filter:["all","new","equipped","craftable"].includes(ip.filter)?ip.filter:"all",sort:["type","recent","grade"].includes(ip.sort)?ip.sort:"type"};
+  const ip=isObj(s.inventory)?s.inventory:{},validFilter=f=>["all","new","equipped","craftable"].includes(f)?f:"all",validCat=c=>["all","weapon","armor","charm","consumable","material"].includes(c)?c:"all";
+  // v18 saves used one shared filter and S.tab for both Satchels. Seed both contexts from those values.
+  const legacyFilter=validFilter(ip.filter),legacyCategory=validCat(s.tab);
+  const context=k=>{const old=isObj(ip[k])?ip[k]:{};return{category:validCat(old.category??legacyCategory),filter:validFilter(old.filter??legacyFilter)}};
+  s.inventory={layout:ip.layout==="list"?"list":"grid",sort:["type","recent","grade"].includes(ip.sort)?ip.sort:"type",gear:context("gear"),forge:context("forge")};
   return s;
 }
 let migNote=false,S=null; // migNote: a map was dropped at load (shown once as a toast after load)

@@ -4,14 +4,14 @@ The status index for scoped work. Open tasks are below; implementation evidence 
 
 ## At a glance
 
-**56 tasks · 19 Done · 0 In Progress · 1 Implement · 36 Planned · 37 open.** No task is currently recorded as actively underway.
+**56 tasks · 22 Done · 0 In Progress · 1 Implement · 33 Planned · 34 open.** No task is currently recorded as actively underway.
 
 | Workstream | Done | In Progress | Implement | Planned |
 |---|---:|---:|---:|---:|
 | Monster coverage, balance and progression (M) | 4 | 0 | 1 | 7 |
 | Biome variety and mechanics (V) | 6 | 0 | 0 | 16 |
 | Art identity and readability (A) | 0 | 0 | 0 | 5 |
-| UI (U) | 1 | 0 | 0 | 8 |
+| UI (U) | 4 | 0 | 0 | 5 |
 | Crafting rework (C) | 8 | 0 | 0 | 0 |
 | **Total** | **19** | **0** | **1** | **36** |
 
@@ -23,7 +23,7 @@ The status index for scoped work. Open tasks are below; implementation evidence 
 
 | Focus | Tasks | Next step |
 |---|---|---|
-| UI simplification | U-02, U-05 → U-03; U-04; U-06 → U-07 | Expose the Forge action, fix misleading filters, simplify ingredient selection, and make Inventory and creature knowledge easy to reach. |
+| UI simplification | U-04; U-06 → U-07; U-08 → U-09 | Make Inventory and creature knowledge easy to reach, then clarify crafting language and item actions. |
 | Balance with an existing plan | M-09 | Refresh the baseline and reconcile the [implementation plan](plan-m-09.md) with current crafting before tuning. |
 | Starter progression | M-10 | Recheck the opening loop after the crafting/research rework. |
 | Most visible art improvements | A-01, A-02, A-03 | Distinct animal bodies, named equipment and Rift terrain; do these before multiplying biomes/roster sizes. |
@@ -42,11 +42,11 @@ Numbers retained under M-09–M-12 are historical seed-1 baselines, including th
 
 Scoped from the 2026-10-26 source and browser review at 390×844 and 1200×844. Measurements below came from a synthetic populated state, including all introductions unlocked; they are reproduction examples, not player telemetry. Preserve the forge theme, item artwork, U-01 grade/rarity semantics and existing gameplay rules. Priorities indicate recommended implementation order; all tasks remain Planned.
 
-- [ ] **U-02 · Keep the Forge result summary and action visible** — `Status: Planned` · `Size: M` · `Priority: High` · `js/render/forge-view.js`, `css/styles.css`
+- [x] **U-02 · Keep the Forge result summary and action visible** — `Status: Done` · `Size: M` · `Priority: High` · `js/render/forge-view.js`, `css/styles.css`
   The mobile crucible is capped at `48dvh` with its own scrollbar. An Infuse preview occupied 733px inside a 403px panel, hiding the primary button while the surrounding page also scrolled. Put the result name, useful stat/effect changes, success odds and primary action in a compact workbench. Move reactions, input contributions and detailed failure calculations into expandable details; keep ingredient selection usable alongside it.
   **Acceptance:** at 390×844, a completed Infuse or Improve selection exposes its result summary and enabled action without scrolling inside the preview. At 320px width and on desktop, long names, warnings and expanded explanations remain readable and the action remains reachable. Equipped-item destruction warnings stay visible before confirmation. Inspect known and new combinations, blocked crafts and nonzero failure odds; extend the browser usability check for the clipped-action regression.
 
-- [ ] **U-03 · Use one contextual ingredient picker per Forge task** — `Status: Planned` · `Size: L` · `Priority: High` · `js/render/forge-view.js`, `js/render/lists-view.js`, `js/events.js`, `js/crafting.js`, `css/styles.css` · `Depends: U-05`
+- [x] **U-03 · Use one contextual ingredient picker per Forge task** — `Status: Done` · `Size: L` · `Priority: High` · `js/render/forge-view.js`, `js/render/lists-view.js`, `js/events.js`, `js/crafting.js`, `css/styles.css` · `Depends: U-05`
   Patterns render a material picker as well as the full Satchel; crucible actions instead consume items from the Satchel. Replace those competing selectors with one picker driven by the selected pattern/action and empty slot. Show named compatible ingredients, available quantities and selected inputs. Keep incompatible items behind an explicit option with reasons. Add access to compatible saved recipes from the Forge and retain the existing Recipes view. Hide locked actions behind an expandable list that still explains how to unlock them.
   **Acceptance:** each Forge mode has one ingredient-selection surface; filling/removing slots updates availability, honors locks and reserved quantities, and explains missing requirements. Pattern fill and saved-recipe loading work through the same visible workflow. Loaded recipes select their matching action. Exercise patterns, Infuse, Improve, Fuse, Cook, Brew, Alchemy and Refine; Refine presents its grade-upgrade controls without an unrelated ingredient picker. Check first-use and fully unlocked states on phone and desktop.
 
@@ -54,7 +54,7 @@ Scoped from the 2026-10-26 source and browser review at 390×844 and 1200×844. 
   In the populated mobile review, the Satchel began around 892px down beneath the character and personal Infusions. Add a clearly labeled Inventory entry or subview at the top of Gear so players can reach their bag without scrolling past those panels. Default new players to named item rows with quantity, grade, equipped/locked/new state and a useful stat or consumable summary. Retain the compact grid and preserve explicitly saved layout preferences; keep layout settings secondary to finding items.
   **Acceptance:** Inventory opens from a visible control in the first mobile viewport. Players can identify gear, consumables and material grades without hover or long-press. Grid/list switching, category filtering, equipment inspection and bulk salvage remain available. Fresh saves use the readable layout; existing explicit preferences survive reload. Check long names and English, German and Korean at 320px, 390px and desktop widths.
 
-- [ ] **U-05 · Separate Inventory filters and explain empty results** — `Status: Planned` · `Size: M` · `Priority: High` · `js/inventory.js`, `js/render/lists-view.js`, `js/events.js`, `js/state.js`
+- [x] **U-05 · Separate Inventory filters and explain empty results** — `Status: Done` · `Size: M` · `Priority: High` · `js/inventory.js`, `js/render/lists-view.js`, `js/events.js`, `js/state.js`
   Gear and Forge share category/filter state. The current Craftable filter depends on the crucible action, returning no items during pattern forging even when usable pattern materials exist. Store task-specific category/filter preferences separately; define pattern compatibility from its slots and crucible compatibility from its action and current inputs. Replace filtered-out inventory's “Nothing here yet” message with an explanation and a reset control; distinguish this from genuinely owning no items.
   **Acceptance:** selecting a Gear category or filter does not unexpectedly hide Forge ingredients, and vice versa. A pattern with matching materials shows them under its compatibility filter; Refine has an appropriate filter or omits unsupported options. Empty filtered results expose Clear filters, which restores owned items. Existing saves with the shared preference shape load safely. Add browser regression coverage for cross-view filter state, pattern compatibility and empty-result recovery.
 
@@ -246,7 +246,7 @@ These are sequencing notes, not agent assignments. Completed V-02/V-03/V-04/V-12
 
 | Sequence | Reason |
 |---|---|
-| U-05 → U-03; U-06 → U-07; U-08 → U-09 | Establish contextual filtering, Codex structure and terminology before their dependent interfaces. U-02 and U-04 can start independently; coordinate shared inventory/render/CSS edits. |
+| U-05 → U-03 (completed); U-06 → U-07; U-08 → U-09 | Contextual filtering now supports the shared Forge ingredient picker. Codex structure and terminology still precede their dependent interfaces; U-04 can proceed independently. |
 | M-11 → M-12 → V-16 | Measure wild bands after master/rarity fixes; add alphas after the band is intentional. |
 | V-14 → V-15 → V-21 | Map and depth modifiers build on the combat hooks. |
 | V-11 → M-05 → M-06 → M-07 | Biome specials establish identity before promotion and new-region bosses. M-04 is already complete. |

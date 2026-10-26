@@ -42,9 +42,10 @@ $("arena").addEventListener("toggle",e=>{if(e.target.id==="legend")legendOpen=e.
 addEventListener("resize",()=>{if(S.view==="battle"&&!S.battle&&!S.event){fitMap();heroView()}});document.fonts&&document.fonts.ready.then(()=>{if(S.view==="battle"&&!S.battle&&!S.event){fitMap();heroView()}});
 $("gear").addEventListener("click",e=>{const b=e.target.closest("[data-gear]");if(!b)return;const s=b.dataset.gear,it=gearOf(s);
   if(it)return openSheet(it.id);
-  S.tab=s==="main"?"weapon":s==="charm"?"charm":s==="off"?"all":"armor";save();render();
+  inventoryPrefs("gear").category=s==="main"?"weapon":s==="charm"?"charm":s==="off"?"all":"armor";save();render();
   toast(s==="off"?tx("Equip a second weapon or a shield in your off hand."):tx("Tap a {slot} item below to equip it.",{slot:lc(tx(SLOTS.find(x=>x[0]===s)[1]))}))});
-document.querySelectorAll("#gtabs,#ftabs").forEach(el=>el.addEventListener("click",e=>{const b=e.target.closest("[data-tab]");if(!b)return;S.tab=b.dataset.tab;save();renderSatchels()}));
+document.querySelectorAll("#gtabs,#ftabs").forEach(el=>el.addEventListener("click",e=>{const b=e.target.closest("[data-tab-gear],[data-tab-forge]");if(!b)return;const mode=b.dataset.tabGear!==undefined?"gear":"forge";inventoryPrefs(mode).category=b.dataset.tabGear??b.dataset.tabForge;save();renderSatchels()}));
+document.querySelectorAll("#ginv,#finv").forEach(el=>el.addEventListener("click",e=>{const b=e.target.closest("[data-clear-invfilters]");if(!b)return;const mode=b.dataset.clearInvfilters;inventoryPrefs(mode).category="all";inventoryPrefs(mode).filter="all";save();renderSatchels()}));
 $("ginv").addEventListener("click",e=>{const b=e.target.closest("[data-id]");if(b){if(salvageMode){toggleSalvage(b.dataset.id);return}openSheet(b.dataset.id)}});
 $("gdecon").addEventListener("click",e=>{if(!e.target.closest("#deconAll"))return;if(!armTap("decon",3500,()=>{if(S.view==="gear")renderSatchels()}))return renderSatchels();deconAll()});
 function openResearch(id){techSel=id;$("resd").open=true;go("forge");$("resp").scrollIntoView({block:"start"})}
@@ -56,6 +57,9 @@ $("infbtns").addEventListener("click",e=>{const b=e.target.closest("[data-infuse
   const t=b.dataset.infuse;if(!armTap("infuse:"+t,3000,()=>{if(S.view==="gear")renderGear()}))return renderGear(); // infusing spends essences: the first tap only arms it
   infuse(t)});
 $("finv").addEventListener("click",e=>{const b=e.target.closest("[data-id]");if(!b)return;
+  if(S.act==="forge"&&patSel.k&&b.dataset.can==="1"&&!itemLocked(b.dataset.id)&&!inBattle()){
+    const id=b.dataset.id,i=patSel.m.findIndex((x,n)=>!x&&patFits(patSel.k,patSel.bp,n,id));if(i>=0&&patLeft(id)>0)patSel.m[i]=id;render();return;
+  }
   if(b.dataset.can==="1"&&!itemLocked(b.dataset.id)&&!inBattle()){S.bench.push(b.dataset.id);$("resultPanel").open=false;save();render()}else openSheet(b.dataset.id)});
 $("slots").addEventListener("click",e=>{const b=e.target.closest("[data-slot]");if(!b)return;S.bench.splice(+b.dataset.slot,1);save();render()});
 $("result").addEventListener("click",e=>{const eq=e.target.closest("[data-result-equip]");if(eq&&!inBattle()){const id=eq.dataset.resultEquip;if(S.inv[id]>0){equip(id,targetSlot(S.items[id]));save();render()}return}const b=e.target.closest("[data-open]");if(b)openSheet(b.dataset.open)});
@@ -68,6 +72,7 @@ document.addEventListener("pointerout",e=>{if(e.target.closest?.("[data-inp]"))r
 document.addEventListener("focusin",e=>{const t=e.target.closest?.("[data-inp]");if(t)riskHl(+t.dataset.inp)});
 document.addEventListener("focusout",e=>{if(e.target.closest?.("[data-inp]"))riskHl(null)});
 $("cacts").addEventListener("click",e=>{const b=e.target.closest("[data-cact]");if(!b||b.dataset.cact===S.act)return;setAct(b.dataset.cact);render()}); // a locked tab has no data-cact: its tip says what opens it
+$("forgeRecipeAccess").addEventListener("click",e=>{const b=e.target.closest("[data-forge-load]");if(!b)return;const it=S.items[b.dataset.forgeLoad];if(!it)return;setAct(actFor((it.recipeIds||[]).map(id=>S.items[id])),it.recipeIds||[]);save();render()});
 $("rlist").addEventListener("click",e=>{const b=e.target.closest("[data-pin-recipe]");if(b)pinGoal("recipe",b.dataset.pinRecipe)});
 $("secrets").addEventListener("click",e=>{const b=e.target.closest("[data-pin-rumor]");if(b)pinGoal("rumor",+b.dataset.pinRumor)});
 $("pinnedGoal").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;
@@ -81,10 +86,10 @@ $("clear").onclick=()=>{S.bench=[];save();render()};
 $("pats").addEventListener("click",e=>{const b=e.target.closest("[data-pat]");if(!b)return;const k=b.dataset.pat,bp=b.dataset.bp==="1";
   patSel=patSel.k===k&&patSel.bp===bp?{k:null,bp:false,m:[]}:{k,bp,m:[]};patFix();if(!inBattle())patFill();renderPatterns()});
 $("patbody").addEventListener("click",e=>{const b=e.target.closest("[data-pslot],[data-pm],#shape,#pfill,#pclear");if(!b)return;
-  if(b.dataset.pslot!=null){patSel.m[+b.dataset.pslot]=null;return renderPatterns()}
-  if(b.dataset.pm){const id=b.dataset.pm,i=patSel.m.findIndex((x,i)=>!x&&patFits(patSel.k,patSel.bp,i,id));if(i>=0&&patLeft(id)>0)patSel.m[i]=id;return renderPatterns()}
-  if(b.id==="pfill"){patFill();return renderPatterns()}
-  if(b.id==="pclear"){patSel.m=patSel.m.map(()=>null);return renderPatterns()}
+  if(b.dataset.pslot!=null){patSel.m[+b.dataset.pslot]=null;return render()}
+  if(b.dataset.pm){const id=b.dataset.pm,i=patSel.m.findIndex((x,i)=>!x&&patFits(patSel.k,patSel.bp,i,id));if(i>=0&&patLeft(id)>0)patSel.m[i]=id;return render()}
+  if(b.id==="pfill"){patFill();return render()}
+  if(b.id==="pclear"){patSel.m=patSel.m.map(()=>null);return render()}
   if(inBattle())return toast(tx("Finish the fight first."));
   const items=patSel.m.map(id=>S.items[id]),r=shapeIt(patSel.k,patSel.m,patSel.bp);if(!r)return;
   patSel.m=patSel.m.map(()=>null);const it=S.items[r.id];

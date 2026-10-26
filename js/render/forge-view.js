@@ -25,9 +25,9 @@ const actOpen=id=>{const A=ACTIONS.find(a=>a.id===id);return !A.tech||hasTech(A.
 function renderActs(){
   if(!ACTIONS.some(A=>A.id===S.act))S.act="forge"; // a save without the field starts on Forge
   if(S.act!=="forge"&&!actOpen(S.act))setAct("forge"); // a stale action (a save from before its technique) falls back to Forge
-  $("cacts").innerHTML=ACTIONS.map(A=>{const nm=tx(A.name),on=S.act===A.id;
-    if(!actOpen(A.id))return `<button class="tab ti locked" aria-disabled="true" data-tap aria-label="${esc(`${nm}: ${tx("Locked. Learn {tech} in Research to open it.",{tech:tx(TECH[A.tech].name)})}`)}" ${tt(nm,tx("Locked. Learn {tech} in Research to open it.",{tech:tx(TECH[A.tech].name)}),tx(TECH[A.tech].gate))}>${ic("lock","s")}<span>${tx(TECH[A.tech].name)}</span></button>`;
-    return `<button class="tab ti${on?" on":""}" data-cact="${A.id}" aria-pressed="${on}" aria-label="${esc(nm)}" ${tt(nm,A.tech?tx(TECH[A.tech].d):tx("Patterns and blueprints: gear from base materials."))}>${ic(A.ic,"s")}<span>${nm}</span></button>`}).join("");
+  const open=ACTIONS.filter(A=>actOpen(A.id)),locked=ACTIONS.filter(A=>!actOpen(A.id));
+  const button=A=>{const nm=tx(A.name),on=S.act===A.id;return `<button class="tab ti${on?" on":""}" data-cact="${A.id}" aria-pressed="${on}" aria-label="${esc(nm)}" ${tt(nm,A.tech?tx(TECH[A.tech].d):tx("Patterns and blueprints: gear from base materials."))}>${ic(A.ic,"s")}<span>${nm}</span></button>`};
+  $("cacts").innerHTML=open.map(button).join("")+(locked.length?`<details class="locked-forge-actions"><summary>${ic("lock","xs")} ${tx("Locked actions · {n}",{n:locked.length})}</summary><div class="tabs">${locked.map(A=>`<span class="tab ti locked" tabindex="0" aria-disabled="true" aria-label="${esc(tx("{action}: locked",{action:tx(A.name)}))}" ${tt(tx(A.name),tx("Locked. Learn {tech} in Research to open it.",{tech:tx(TECH[A.tech].name)}),tx(TECH[A.tech].gate))}>${ic("lock","s")}<span>${tx(A.name)} · ${tx(TECH[A.tech].name)}</span></span>`).join("")}</div></details>`:"");
   $("patp").hidden=S.act!=="forge";$("upgp").hidden=S.act!=="refine";$("crucible").hidden=!CRUCIBLE_ACTS.includes(S.act);
 }
 // what each crucible action says: the empty crucible, and one item alone
@@ -42,7 +42,7 @@ const inLegend=r=>r.ins.map((id,n)=>`<span class="chip in" tabindex="0" data-inp
 function actLine(act,r,res){
   const A=ACTIONS.find(a=>a.id===act);if(!A)return"";
   const nm=r.ins.map(id=>esc(iname(S.items[id]))),items=act==="infuse"?nm.join(" ← "):nm.join(" + ");
-  return `<p class="act-line"><b>${esc(tx(A.tech?TECH[A.tech].name:A.name))}</b> · ${tx("{items} → {result}",{items,result:esc(iname(res))})}</p><div class="chips in-legend">${inLegend(r)}</div>`;
+  return `<p class="act-line"><b>${esc(tx(A.tech?TECH[A.tech].name:A.name))}</b> · ${tx("{items} → {result}",{items,result:esc(iname(res))})}</p>`;
 }
 // one chip per trait or stat that changed from the base item to the result, in the colour of the input behind it
 function changeChips(r,res){
@@ -84,16 +84,26 @@ function riskBar(r){
     <ul class="risk-list">${segs.map(({p,s})=>`<li>${esc(p.t)} <b>${sgn(s)}${Math.abs(s)}%</b></li>`).join("")}<li><b>= ${r.fail}%</b></li></ul></div>`;
 }
 function riskHl(n){document.querySelectorAll(".risk .seg").forEach(s=>s.classList.toggle("dim",n!=null&&!s.dataset.o.split(" ").includes(String(n))))}
+function renderForgeRecipes(){
+  const recipes=S.journal.slice().reverse().map(j=>S.items[j.id]).filter(it=>{
+    const ids=it?.recipeIds||[],counts={};ids.forEach(id=>counts[id]=(counts[id]||0)+1);
+    if(ids.length<2||ids.some(id=>!S.items[id]))return false;
+    const parts=ids.map(id=>S.items[id]),act=actFor(parts);
+    return ids.length>1&&ids.length<=maxInputs()&&Object.entries(counts).every(([id,n])=>(S.inv[id]||0)>=n)&&actOpen(act)&&!actionOk(parts).length;
+  });
+  $("forgeRecipeAccess").innerHTML=recipes.length?`<details class="forge-recipes"><summary>${tx("Saved recipes you can make · {n}",{n:recipes.length})}</summary><div>${recipes.map(it=>`<button class="btn sm" data-forge-load="${it.id}">${esc(iname(it))}</button>`).join("")}</div></details>`:"";
+}
 function renderBench(){
+  renderForgeRecipes();
   const act=S.act,A=ACTIONS.find(a=>a.id===act),parts=[],items=S.bench.map(id=>S.items[id]),chk=checkMix(items);
   if(!CRUCIBLE_ACTS.includes(act))return;
   // the slots: infuse and improve take the item first, then essences or materials; fuse takes two items; the kitchen actions take ingredients in the order they were put in
-  const special=act==="infuse"||act==="improve",gi=special?items.findIndex(isGear):-1,shown=special?[gi,...items.map((_,i)=>i).filter(i=>i!==gi)]:items.map((_,i)=>i);
+  const special=act==="infuse"||act==="improve",gi=special?items.findIndex(isGear):-1,shownSlots=special?[gi,...items.map((_,i)=>i).filter(i=>i!==gi)]:items.map((_,i)=>i);
   const role=i=>special?(i?tx(act==="infuse"?"Essence":"Material"):tx("Item")):act==="fuse"?tx("Item"):tx("Ingredient");
   $("cruciblelabel").innerHTML=`<p class="label">${ic(A.ic,"s")} ${tx(A.name)} · ${tx("Crucible")}</p>${helpBtn(tx(A.name),tx(TECH[A.tech].d))}`;
   for(let i=0;i<actCap(act);i++){
     if(i>0)parts.push(`<span class="plus" aria-hidden="true">${act==="infuse"?"←":"+"}</span>`);
-    const bi=i<shown.length?shown[i]:-1,it=bi>=0?items[bi]:null;
+    const bi=i<shownSlots.length?shownSlots[i]:-1,it=bi>=0?items[bi]:null;
     parts.push(it?`<button class="slot full${!chk.ok&&chk.bad?.id===it.id?" bad":""}" style="${rcol(it)}" data-slot="${bi}" aria-label="${esc(tx("Remove {item}",{item:iname(it)}))}" ${itemTip(it,tx("Tap to take it out."))}>${glyph(it)}</button>`
       :`<div class="slot pslot" role="img" aria-label="${esc(tx("Empty slot"))}" ${tt(tx("Empty slot"),role(i))}>${ic("plus")}<small>${role(i)}</small></div>`);
   }
@@ -110,17 +120,17 @@ function renderBench(){
     const r=combine(items,{roll:100}),known=S.items[r.item.id],base=S.items[r.baseId];crafting=r;
     if(known){
       const ts=targetSlot(known),eqIt=ts&&gearOf(ts),showEq=eqIt&&eqIt.id!==known.id&&eqIt.id!==base.id;
-      hint=`<div class="preview"><div class="rhead sm">${glyph(known)}<div><div class="rform">${ic("ok","s")} ${tx("Known recipe")} · ${rarity(known)[0]} · ${labelOf(known)}</div><b>${nameHtml(known)}</b></div></div>
-        ${itemProperties(known,base,false,"Compared to")}${showEq?cmpBlock(known,eqIt,"Versus equipped"):""}</div>`}
+      hint=`<div class="preview compact-preview"><div class="rhead sm">${glyph(known)}<div><div class="rform">${ic("ok","s")} ${tx("Known recipe")} · ${rarity(known)[0]} · ${labelOf(known)}</div><b>${nameHtml(known)}</b><span class="foot">${statLine(shown(known))||tx("No stats")}</span></div></div>
+        <details><summary class="label">${tx("Result details")}</summary><div class="chips in-legend">${inLegend(r)}</div>${itemProperties(known,base,false,"Compared to")}${showEq?cmpBlock(known,eqIt,"Versus equipped"):""}<div class="craft-explanation">${rxLines(r)}${riskBar(r)}</div></details></div>`}
     else{
       const knownR=new Set(S.knownR),kr=r.rxKeys.filter(k=>knownR.has(k)),ur=r.rxKeys.filter(k=>!knownR.has(k));
       const hidden=new Set(REACTIONS.filter(([a,b])=>ur.includes(a+"+"+b)).map(x=>x[2]));
       const appraise=level()>=3?`<span class="foot">${tx("Appraisal: {list}",{list:Object.keys(r.item.traits).map(t=>hidden.has(t)?"???":trn(t)).join(", ")})}</span>`:`<span class="foot">${tx("Appraisal unlocks at Smith Lv 3.")}</span>`;
-      hint=`<div class="preview"><span class="ok-text">${ic("plus","s")} ${tx("New combination: a {form}.",{form:formName(r.item.form)})}</span>
-        ${kr.length?`<span class="foot">${tx("Known reactions: {list}",{list:kr.map(k=>{const x=REACTIONS.find(([a,b])=>a+"+"+b===k);return `${trn(x[0])} + ${trn(x[1])} → ${trn(x[2])}`}).join(", ")})}</span>`:""}
-        ${ur.length?`<span class="foot" style="color:var(--accent)" ${tt(tx("Unseen reaction"),tx("Something in this mix will react in a way you haven't seen yet."))}>${ic("warn","xs")} ${tx("An unseen reaction")}</span>`:""}
-        ${appraise}</div>${beforeAfter(r,r.item)}`}
-    hint=`${actLine(act,r,r.item)}${hint}${rxLines(r)}${riskBar(r)}`+craftLine(r,items);
+      hint=`<div class="preview compact-preview"><div class="rhead sm">${glyph(r.item)}<div><div class="rform">${tx("New combination: a {form}.",{form:formName(r.item.form)})}</div><b>${nameHtml(r.item)}</b><span class="foot">${statLine(shown(r.item))||tx("No stats")}</span></div></div>
+        <details><summary class="label">${tx("Result details")}</summary><div class="chips in-legend">${inLegend(r)}</div>${beforeAfter(r,r.item)}
+          ${kr.length?`<span class="foot">${tx("Known reactions: {list}",{list:kr.map(k=>{const x=REACTIONS.find(([a,b])=>a+"+"+b===k);return `${trn(x[0])} + ${trn(x[1])} → ${trn(x[2])}`}).join(", ")})}</span>`:""}
+          ${ur.length?`<span class="foot" style="color:var(--accent)" ${tt(tx("Unseen reaction"),tx("Something in this mix will react in a way you haven't seen yet."))}>${ic("warn","xs")} ${tx("An unseen reaction")}</span>`:""}${appraise}<div class="craft-explanation">${rxLines(r)}${riskBar(r)}</div></details></div>`}
+    hint=`${actLine(act,r,r.item)}${craftLine(r,items)}${hint}`;
     if(r.mw>=0)hint+=`<p class="warn-text">${ic("warn","s")} ${mwWarn()}</p>`;
   }
   $("mixhint").innerHTML=hint;
@@ -154,12 +164,12 @@ function renderPatterns(){
     :`<div class="slot pslot" role="img" aria-label="${esc(tx("Empty slot: {types}",{types:slotTxt(t)}))}" ${tt(tx("Empty slot"),slotTxt(t))}>${ic("plus")}<small>${slotTxt(t)}</small></div>`)}).join("");
   const r=its.every(Boolean)?shapeResult(k,patSel.m,bp):null;
   const fit=Object.keys(S.inv).filter(id=>isBaseMat(id)&&patLeft(id)>0&&slots.some((_,i)=>!patSel.m[i]&&patFits(k,bp,i,id))).sort((a,b)=>baseName(S.items[a]).localeCompare(baseName(S.items[b]))||gradeOf(a)-gradeOf(b));
-  const tiles=fit.map(id=>{const it=S.items[id],n=patLeft(id);return `<button class="sq" style="${rcol(it)}" data-pm="${id}" aria-label="${esc(iname(it)+(n!==1?`, ${n}`:""))}" ${itemTip(it,tx("You hold {n}.",{n}))}>${glyph(it)}${n!==1?`<span class="sq-n">${n}</span>`:""}</button>`}).join("");
   let pv="";
   if(r){const ts=targetSlot(r.item),eqIt=ts&&gearOf(ts);
     pv=`<div class="preview"><div class="rhead sm">${glyph(r.item)}<div><div class="rform">${r.named?(bp?tx("Blueprint"):tx("Standard recipe")):tx("New piece")} · ${labelOf(r.item)}</div><b>${nameHtml(r.item)}</b></div></div>${itemProperties(r.item,eqIt&&eqIt.id!==r.id?eqIt:null,false,"Versus equipped")}</div>`}
   else if(!fit.length&&!its.every(Boolean))pv=`<p class="foot">${tx("You have no {types} for the empty slots. Deconstruct raw finds in the Gear tab.",{types:[...new Set(slots.filter((_,i)=>!patSel.m[i]).flat())].map(t=>tx(MAT_T[t].label)).join(tx(" or "))})}</p>`;
-  $("patbody").innerHTML=`<div class="slots pslots">${parts}</div>${pv}${tiles?`<div class="sqg">${tiles}</div>`:""}
+  else if(!its.every(Boolean))pv=`<p class="foot">${tx("Choose compatible materials from the Forge Satchel below.")}</p>`;
+  $("patbody").innerHTML=`<div class="slots pslots">${parts}</div>${pv}
     <div class="actions"><button class="btn primary grow" id="shape" ${r&&!inBattle()?"":"disabled"}>${inBattle()?tx("Finish the fight to forge"):tx("Forge")}</button><button class="btn" id="pfill" ${its.every(Boolean)?"disabled":""}>${tx("Fill")}</button><button class="btn" id="pclear">${tx("Clear")}</button></div>`;
 }
 function renderResult(fresh){

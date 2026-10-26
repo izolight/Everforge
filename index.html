@@ -65,6 +65,7 @@
 
   <div id="v-forge" class="view" hidden>
     <div class="tabs cacts" id="cacts" role="group" aria-label="Crucible actions" data-ta="aria-label"></div>
+    <div id="forgeRecipeAccess"></div>
     <section class="panel" id="patp" aria-label="Patterns" data-ta="aria-label">
       <div class="lrow" id="patlabel"></div>
       <div class="tabs pats" id="pats"></div>
@@ -84,7 +85,7 @@
       <details id="upgd"><summary class="label" id="upgsum"></summary>
       <div class="upgrows" id="upgrows"></div></details>
     </section>
-    <section class="forge-inventory" style="display:grid;gap:10px">
+    <section class="forge-inventory" id="forgeInventory" style="display:grid;gap:10px">
       <div class="lrow"><p class="label" data-t>Satchel</p><button type="button" class="qm" data-tap data-ta="data-tip aria-label" data-tip="Satchel&#10;Tap an item to put it in the crucible of the action you chose. Dimmed items don't go in that action; tap one to inspect it and see where it goes.&#10;Long-press or hover for its name and stats. The pips show its grade (Faint, Lesser, Plain, Greater, Pure), a tick means worn, a dot means new, a number is how many you hold." aria-label="Help: Satchel">?</button></div>
       <div class="tabs" id="ftabs"></div>
       <div id="ftools"></div><div class="sqg" id="finv"></div>

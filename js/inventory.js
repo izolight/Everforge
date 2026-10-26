@@ -1,14 +1,19 @@
 // Inventory preferences live in the save; bulk selection is temporary and explicit.
 let salvageMode=false,salvageSelection=new Set(),salvageReview=null;
-const inventoryPrefs=()=>S.inventory||(S.inventory={layout:"grid",filter:"all",sort:"type"});
+const inventoryPrefs=mode=>{if(!S.inventory)S.inventory={layout:"grid",sort:"type",gear:{category:"all",filter:"all"},forge:{category:"all",filter:"craftable"}};if(mode)return S.inventory[mode]||(S.inventory[mode]={category:"all",filter:mode==="forge"?"craftable":"all"});return S.inventory};
 function inventoryMatch(it,mode){
-  const f=inventoryPrefs().filter;
+  const f=inventoryPrefs(mode).filter;
   if(f==="new")return freshShown.has(it.id)||S.fresh.includes(it.id);
   if(f==="equipped")return eqCount(it.id)>0;
   if(f==="craftable"){
-    if(itemLocked(it.id)||avail(it.id)<=0||!CRUCIBLE_ACTS.includes(S.act))return false;
-    const can=parts=>parts.every((x,i)=>!actFit(S.act,x,parts.slice(0,i)))&&checkMix(parts).ok&&!actionOk(parts).length&&!combine(parts,{roll:100}).blocked;
-    return S.bench.length?can([...S.bench.map(id=>S.items[id]),it]):Object.keys(S.inv).some(id=>!itemLocked(id)&&avail(id)>(id===it.id?1:0)&&can([it,S.items[id]]));
+    if(itemLocked(it.id)||avail(it.id)<=0)return false;
+    if(S.act==="forge"){
+      if(!isBaseMat(it.id))return false;
+      if(!patSel.k)return true;
+      const slots=patSlots(patSel.k,patSel.bp);return patSel.m.includes(it.id)||slots.some((_,i)=>!patSel.m[i]&&patFits(patSel.k,patSel.bp,i,it.id)&&patLeft(it.id)>0);
+    }
+    if(!CRUCIBLE_ACTS.includes(S.act))return false;
+    return !actFit(S.act,S.items[it.id],S.bench.map(id=>S.items[id]));
   }
   return true;
 }
@@ -20,9 +25,10 @@ function inventorySort(a,b){
 }
 function renderInventoryTools(){
   if(!["gear","forge"].includes(S.view))return;
-  const gear=S.view==="gear",pre=gear?"g":"f",prefs=inventoryPrefs(),select=(key,label,options)=>`<label>${label}<select data-invpref="${key}" aria-label="${label}">${options.map(([v,l])=>`<option value="${v}"${prefs[key]===v?" selected":""}>${l}</option>`).join("")}</select></label>`;
-  $(pre+"tools").innerHTML=`<div class="inventory-tools">${select("layout",tx("Inventory layout"),[["grid",tx("Grid")],["list",tx("List")]])}${select("filter",tx("Inventory filter"),[["all",tx("All")],["new",tx("New")],["equipped",tx("Equipped")],["craftable",tx("Craftable")]])}${select("sort",tx("Inventory order"),[["type",tx("Type")],["recent",tx("Recent")],["grade",tx("Grade")]])}</div>${gear?`<div class="actions"><button class="btn sm" data-bulk="toggle" ${inBattle()?"disabled":""}>${tx(salvageMode?"Cancel selection":"Select salvage")}</button>${salvageMode?`<button class="btn sm" data-bulk="review" ${salvageSelection.size?"":"disabled"}>${tx("Review salvage ({n})",{n:salvageSelection.size})}</button>`:""}</div>${salvageMode?`<p class="foot">${tx("Equipped, locked and legendary items are protected. Items in the crucible are reserved.")}</p>`:""}`:""}`;
-  $(pre+"inv").classList.toggle("inventory-list",prefs.layout==="list");
+  const gear=S.view==="gear",mode=gear?"gear":"forge",pre=gear?"g":"f",prefs=inventoryPrefs(mode),all=inventoryPrefs();if(!gear&&S.act==="refine"&&prefs.filter==="craftable")prefs.filter="all";const select=(key,label,options)=>`<label>${label}<select data-invpref="${key}" aria-label="${label}">${options.map(([v,l])=>`<option value="${v}"${(key==="layout"||key==="sort"?all[key]:prefs[key])===v?" selected":""}>${l}</option>`).join("")}</select></label>`;
+  const filterOptions=[["all",tx("All")],["new",tx("New")],["equipped",tx("Equipped")],...(S.act==="refine"?[]:[["craftable",tx("Compatible")]])];
+  $(pre+"tools").innerHTML=`<div class="inventory-tools">${select("layout",tx("Inventory layout"),[["grid",tx("Grid")],["list",tx("List")]])}${select("filter",tx("Inventory filter"),filterOptions)}${select("sort",tx("Inventory order"),[["type",tx("Type")],["recent",tx("Recent")],["grade",tx("Grade")]])}</div>${gear?`<div class="actions"><button class="btn sm" data-bulk="toggle" ${inBattle()?"disabled":""}>${tx(salvageMode?"Cancel selection":"Select salvage")}</button>${salvageMode?`<button class="btn sm" data-bulk="review" ${salvageSelection.size?"":"disabled"}>${tx("Review salvage ({n})",{n:salvageSelection.size})}</button>`:""}</div>${salvageMode?`<p class="foot">${tx("Equipped, locked and legendary items are protected. Items in the crucible are reserved.")}</p>`:""}`:""}`;
+  $(pre+"inv").classList.toggle("inventory-list",all.layout==="list");
 }
 const salvageCount=id=>!S.items[id]||itemLocked(id)||eqCount(id)||S.items[id].legendary||!canSalvage(S.items[id])?0:Math.max(0,avail(id));
 function toggleSalvage(id){
@@ -47,6 +53,6 @@ function confirmSalvage(){
   salvageSelection.clear();salvageMode=false;salvageReview=null;closeSheet();save();render();toast(tx("Salvaged {n} items.",{n:count}));
 }
 for(const id of ["gtools","ftools"]){
-  $(id).addEventListener("change",e=>{const k=e.target.dataset.invpref;if(!k)return;inventoryPrefs()[k]=e.target.value;save();renderSatchels()});
+  $(id).addEventListener("change",e=>{const k=e.target.dataset.invpref;if(!k)return;const mode=id==="gtools"?"gear":"forge";if(k==="layout"||k==="sort")inventoryPrefs()[k]=e.target.value;else inventoryPrefs(mode)[k]=e.target.value;save();renderSatchels()});
   $(id).addEventListener("click",e=>{const b=e.target.closest("[data-bulk]");if(!b)return;if(b.dataset.bulk==="review")return showSalvageReview();salvageMode=!salvageMode;salvageSelection.clear();renderSatchels()});
 }

@@ -605,5 +605,6 @@ DICT.ko=Object.assign(DICT.ko||{},{
 "{kind} go in Improve.":"{kind|은|는} 개량에 넣습니다.",
 "Food goes in Cook.":"음식은 요리에 넣습니다.",
 "Potions go in Brew.":"물약은 양조에 넣습니다.",
-"Gear goes in Infuse, Improve or Fuse.":"장비는 주입, 개량 또는 융합에 넣습니다."
+"Gear goes in Infuse, Improve or Fuse.":"장비는 주입, 개량 또는 융합에 넣습니다.",
+"Compatible":"호환 가능","Locked actions · {n}":"잠긴 작업 · {n}","{action}: locked":"{action}: 잠김","Saved recipes you can make · {n}":"만들 수 있는 저장된 조합 · {n}","Result details":"결과 상세 정보","Reactions and failure details":"반응 및 실패 상세 정보","Choose compatible materials from the Forge Satchel below.":"아래 대장간 가방에서 호환되는 재료를 선택하세요.","Choose a pattern first.":"먼저 패턴을 선택하세요.","This material does not fit an empty pattern slot.":"이 재료는 비어 있는 패턴 칸에 맞지 않습니다.","All available copies are already selected.":"사용 가능한 수량을 모두 선택했습니다.","No items match these filters.":"필터에 맞는 아이템이 없습니다.","Clear filters":"필터 지우기"
 });

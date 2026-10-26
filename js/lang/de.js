@@ -608,5 +608,6 @@ DICT.de=Object.assign(DICT.de||{},{
 "{kind} go in Improve.":"{kind} gehören zu Verbessern.",
 "Food goes in Cook.":"Essen gehört zu Kochen.",
 "Potions go in Brew.":"Tränke gehören zu Brauen.",
-"Gear goes in Infuse, Improve or Fuse.":"Ausrüstung gehört zu Infundieren, Verbessern oder Verschmelzen."
+"Gear goes in Infuse, Improve or Fuse.":"Ausrüstung gehört zu Infundieren, Verbessern oder Verschmelzen.",
+"Compatible":"Passend","Locked actions · {n}":"Gesperrte Aktionen · {n}","{action}: locked":"{action}: gesperrt","Saved recipes you can make · {n}":"Verfügbare gespeicherte Rezepte · {n}","Result details":"Ergebnisdetails","Reactions and failure details":"Reaktionen und Fehlschlagdetails","Choose compatible materials from the Forge Satchel below.":"Wähle passende Materialien aus dem Schmiedebeutel unten.","Choose a pattern first.":"Wähle zuerst ein Muster.","This material does not fit an empty pattern slot.":"Dieses Material passt in keinen freien Musterplatz.","All available copies are already selected.":"Alle verfügbaren Exemplare sind bereits ausgewählt.","No items match these filters.":"Keine Gegenstände entsprechen diesen Filtern.","Clear filters":"Filter zurücksetzen"
 });
