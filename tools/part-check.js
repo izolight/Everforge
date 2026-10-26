@@ -26,5 +26,8 @@ for(const [name,B] of Object.entries(BIOMES)){
     }
   }
 }
+// Authored animal variants are not in every biome pool, so exercise their advertised attachment anchors directly.
+const ANIMAL_PARTS={canine:["mane","horns","tail","spikes","armor","vines","wings","flames","frost","crystals"],feline:["mane","horns","tail","spikes","armor","vines","wings","flames","frost","crystals"],bear:["mane","horns","tail","spikes","armor","shell","vines","wings","flames","frost","crystals"],reptile:["horns","tail","spikes","armor","shell","vines","wings","flames","frost","crystals"]};
+for(const [body,parts] of Object.entries(ANIMAL_PARTS))for(const part of parts){checks++;const a=BODY[body](COL,{skin:"#cfa784",glow:false}).a;let one="";try{one=PART[part].f(COL,a)||""}catch(e){console.log("PART-THROW",body,part,e.stack);fail++;continue}if(!one.trim()){console.log("NO-DRAW",body,part);fail++}}
 console.log(`part-check: ${checks} renders, ${fail} problem(s), ${skip} SKIP (tail draws nothing on its body)`);
 process.exit(fail?1:0);

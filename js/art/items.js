@@ -36,6 +36,14 @@ const G={
   dust:'<path d="M8 8 H16 L18 19 Q12 22 6 19 Z"/><path d="M8 8 Q12 5 16 8 M10 4 L11 6 M14 3 L13.5 5.5" fill="none"/>',
   fists:'<path d="M6 10 V6 Q6 4 8 4 Q10 4 10 6 V9 M10 8 V5 Q10 3 12 3 Q14 3 14 5 V9 M14 8 V6 Q14 4 16 4 Q18 4 18 6 V14 Q18 21 12 21 Q6 21 6 14 Z"/>'
 };
+// Named equipment keeps its material and trait treatment while using a silhouette that names the item.
+const ITEM_GLYPH={
+  dagger:'<path d="M12 3 L16 7 L13 15 L10 14 Z"/><path d="M7 15 L15 17 L14 19 L6 17 Z"/><path d="M9 18 L12 19 L11 22 L8 21 Z"/>',
+  void_robe:'<path d="M8 3 L4 6 L6 11 L8 9 L7 22 H17 L16 9 L18 11 L20 6 L16 3 Q12 7 8 3 Z"/><path d="M9 4 Q12 -1 15 4 L14 8 H10 Z"/><path d="M12 8 V21 M8 15 Q12 17 16 15" fill="none"/>',
+  sprite_lantern:'<path d="M8 7 Q8 3 12 3 Q16 3 16 7" fill="none"/><path d="M7 8 H17 L16 19 H8 Z"/><path d="M9 10 H15 V17 H9 Z" fill="#fff0a5"/><path d="M10 21 H14 M12 19 V22" fill="none"/>',
+  fang_charm:'<path d="M6 4 Q12 11 18 4 Q19 15 12 22 Q5 15 6 4 Z"/><path d="M8 9 Q12 12 16 9" fill="none"/>',
+  witch_eye:'<path d="M2 12 Q12 1 22 12 Q12 23 2 12 Z"/><ellipse cx="12" cy="12" rx="4" ry="6"/><circle cx="12" cy="12" r="1.7" fill="#fff"/>'
+};
 const ART_ID={storm_feather:"feather",rune_shard:"shard",void_crystal:"crystal",star_heart:"starheart",scrap_iron:"ore",slag_iron:"ore",sentinel_plate:"shard",sprite_dust:"dust",oak_bough:"bough",witchwood:"bough",
   boar_leather:"leather",frost_leather:"leather",shroudcloth:"cloth",stormsilk:"cloth",iron_ingot:"ingot",slagsteel:"ingot",runesteel:"ingot",oak_timber:"timber",hexwood:"timber",golem_stone:"block",cinderstone:"block",glowglass:"crystal",rune_crystal:"crystal",void_shard:"shard"};
 const artKey=it=>ART_ID[plainId(it.id)]||(grp(it)==="material"?kindOf(it):it.form);
@@ -77,7 +85,7 @@ function art(it){
     if(gr===5)front+=`<g fill="${gc}" class="pip-glow">${pips.map(i=>`<circle cx="${17+i*7.5}" cy="59" r="4.6"/>`).join("")}</g>`;
     front+=pips.map(i=>i<gr?`<circle cx="${17+i*7.5}" cy="59" r="3" fill="${gc}" stroke="#14100c" stroke-width=".8"/>`:`<circle cx="${17+i*7.5}" cy="59" r="3" fill="#0d0a08" stroke="#4a3f35" stroke-width=".8"/>`).join("")}
   if(it.legendary)back+=`<circle cx="32" cy="32" r="30" fill="none" stroke="#f2a54a" stroke-width="1.2" opacity=".7"/>`;
-  return `<svg viewBox="0 0 64 64" aria-hidden="true"><defs>${defs}</defs>${back}<g transform="translate(6 6) scale(2.1667)" fill="url(#${id})" stroke="${shade(pal[2],-.55)}" stroke-width=".8" stroke-linejoin="round" stroke-linecap="round">${G[k]||G.material}</g>${front}</svg>`;
+  return `<svg viewBox="0 0 64 64" aria-hidden="true"><defs>${defs}</defs>${back}<g transform="translate(6 6) scale(2.1667)" fill="url(#${id})" stroke="${shade(pal[2],-.55)}" stroke-width=".8" stroke-linejoin="round" stroke-linecap="round">${ITEM_GLYPH[plainId(it.id)]||G[k]||G.material}</g>${front}</svg>`;
 }
 function glyph(item,kind){
   if(item)return art(item);

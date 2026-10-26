@@ -50,7 +50,7 @@ const KITS={
       ["feet","f1","trail_boots ess:Swift:4 ess:Swift:4"],["feet","boots","$f1 ess:Swift:4 ess:Swift:4 ess:Swift:4"],["off","shield","sentinel_aegis ess:Iron:4 ess:Iron:4 ess:Iron:4"]],inf:["Sharp","Sharp","Sharp","Swift"],carry:{bread:3}}}
 };
 // the fresh-save kit: arrival at the woods (a new player: the starting sword, nothing else)
-const STARTER={steps:[["main","sword","iron_sword"]],inf:[],carry:{}};
+const STARTER={steps:[["main","sword","iron_sword ess:Fire"]],inf:[],carry:{}};
 const ESS_BUDGET={woods:12,pass:24,hollow:36,spire:50}; // loose upper bound of essences a normal player has by then; stacked is exempt (it is the stress test)
 // ---------- CLI ----------
 const argv=process.argv.slice(2),has=f=>argv.includes("--"+f),opt=(f,d)=>{const i=argv.indexOf("--"+f);return i>=0&&argv[i+1]&&!argv[i+1].startsWith("--")?argv[i+1]:d};
@@ -214,8 +214,14 @@ function setup(){ // runs inside the game page; everything here uses the real ga
     const buy=t=>{if(s.techs[t.id])return;t.pre.forEach(p=>buy(TECH[p]));if(t.or&&!t.or.some(p=>s.techs[p]))buy(t.or.map(p=>TECH[p]).sort((a,b)=>techCost(a,s)-techCost(b,s))[0]);
       const c=techCost(t,s);total+=c;s.techs[t.id]=Math.max(0,...Object.values(s.techs))+1;s.tpaid[t.id]=c};
     buy(TECH[id]);return total};
-  SIM.fresh=(n,pol,seed)=>{
-    useSeed(seed,"fresh");S=freshState();S.hp=pstats().maxHp;const rows=[],seenU=new Set();
+  SIM.fresh=(n,pol,seed,starter)=>{
+    useSeed(seed,"fresh");const tutorialKit=SIM.build(starter,"woods",0,-1,0),ready=JSON.parse(tutorialKit.snap);S=freshState();
+    // The tutorial asks the player to equip the Fire-infused sword before
+    // exploring the Woods. Model that required preparation in the opening loop.
+    const fireId=ready.eq.main;
+    if(fireId){S.items[fireId]=ready.items[fireId];S.inv.iron_sword=0;S.inv[fireId]=1;S.eq.main=fireId}
+    S.techs.weaponcraft=1;S.tpaid.weaponcraft=techCost(TECHS.find(t=>t.id==="weaponcraft"));
+    S.hp=pstats().maxHp;const rows=[],seenU=new Set();
     for(let e=0;e<n;e++){
       S.zone="woods";S.maps.woods=newMap("woods");S.battle=null;S.event=null;S.hp=pstats().maxHp;S.camp=2;S.stats.earned=0;
       const m=curMap(),types={},w0=S.wins,rpE0=rpEarned();m.pois.forEach(p=>types[p.t]=(types[p.t]||0)+1);
@@ -290,8 +296,8 @@ async function main(){
   const gaps=cov.flatMap(c=>c.gap.filter(e=>!(EL_EXCEPT[c.z]||[]).includes(e)).map(e=>`${c.z}: ${e}`));
   if(gaps.length){console.error(`FAIL: biome elements with no authored enemy: ${gaps.join(", ")}`);await browser.close();process.exit(1)}
   if(has("fresh")){ // the first expeditions with gating, then done
-    const n=+opt("exped",5),rows=await P0.evaluate(([n,p,sd])=>SIM.fresh(n,p,sd),[n,POLS[0],SEED]);
-    console.log(`== Fresh save: ${n} expeditions in the Woods with the unlock gates on (starter kit, ${POLS[0]} policy) ==\nColumns: result, steps, fights, wins this run; POIs placed on the map (shown by type); POI types the bot walked into; what opened afterwards (smith Lv / total wins / expeditions finished).`);
+    const n=+opt("exped",5),rows=await P0.evaluate(([n,p,sd,starter])=>SIM.fresh(n,p,sd,starter),[n,POLS[0],SEED,STARTER]);
+    console.log(`== Fresh opening loop: ${n} Woods expeditions with unlock gates on (tutorial Fire sword and Weaponcraft prepared, ${POLS[0]} policy) ==\nColumns: result, steps, fights, wins this run; POIs placed on the map (shown by type); POI types the bot walked into; what opened afterwards (smith Lv / total wins / expeditions finished).`);
     rows.forEach(r=>console.log(`#${r.e} ${r.res.padEnd(11)} ${String(r.steps).padStart(3)} steps ${String(r.fights).padStart(2)} fights ${String(r.wins).padStart(2)} wins | map: ${Object.entries(r.pois).map(([t,c])=>t+" "+c).join(", ")}\n     met: ${Object.entries(r.visits).map(([t,c])=>t+" "+c).join(", ")||"nothing"} | then Lv ${r.sc.lv}, ${r.sc.wins} wins, ${r.sc.exps} expeditions -> opened: ${r.opened.join(", ")||"-"}\n     research: +${r.rp.gain} RP (${r.rp.earned} earned, ${r.rp.have} unspent; sources so far: ${Object.entries(r.rp.src).map(([k,n])=>k+" "+n).join(", ")})${r.rp.learned.length?` | learned: ${r.rp.learned.join(", ")}`:""}`));
     // the first expedition each technique is affordable (prerequisites learned, unspent RP covers its real cost), from the bot's own sequence
     const names=await P0.evaluate(()=>Object.fromEntries(TECHS.map(t=>[t.id,{n:t.name,c:S.techs[t.id]!=null?S.tpaid[t.id]:techCost(t),rq:rqT(t)}]))); // c: what it cost when bought (the free pick is 0), else what it costs now

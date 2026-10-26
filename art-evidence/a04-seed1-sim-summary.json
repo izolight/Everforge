@@ -1,0 +1,19 @@
+{
+  "baseRevision": "f01d69c",
+  "command": "node tools/sim.js --wild --seed 1 --n 1 --rift-seeds 1 --rift-depth 1 --no-econ",
+  "purpose": "Seeded generator smoke after A-01/A-04 body, name and attachment-selection changes; one fight per cell, not a balance estimate.",
+  "seed": 1,
+  "policy": ["smart", "basic", "passive"],
+  "heats": [0, 3, 5],
+  "regionalRosters": {
+    "woods": {"biome": "forest", "creatures": 10},
+    "pass": {"biome": "tundra", "creatures": 10},
+    "hollow": {"biome": "ember", "creatures": 10},
+    "spire": {"biome": "astral", "creatures": 10}
+  },
+  "rift": {"seed": 3608050713, "depth": 1, "biome": "deep", "region": "The Weeping Vaults", "master": "Pale Watcher"},
+  "wildFightCells": 10440,
+  "riftFightCells": 396,
+  "kitWarnings": 0,
+  "flaggedAggregateRows": 226
+}

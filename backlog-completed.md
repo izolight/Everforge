@@ -26,6 +26,32 @@ Completed task records and their implementation evidence. Test counts and simula
   **Done:** final runs on revision `4b0ef66` plus M-09 changes: `--rarity --seed 7 --n 100` and `--rarity --seed 11 --n 100`, smart policy, nine stage kits, magic/rare at Heat 0/3/5. The weakest stage-kit magic/rare wins were 99% at Heat 0 and 88% at Heat 3 across the two seeds. Staff/pass rare at Heat 3 was 88% on both seeds; staff/hollow rare was 90% on both. Each run had 2 `RARE_HARD` rows, both starter/M-10, and no `SLOG`; kits had zero warnings. `defensive/woods` basic/rare at Heat 5 averaged 28.9 turns (seed 7) and 28.8 (seed 11), below the 30-turn SLOG limit.
   `tools/sim.js` shares the game affix-pool helper; `--rarity` excludes wild creatures through M-04. The affix check covers 4,000 healer rolls and verifies the Heat 5 rare regeneration amount and UI value. Validation passed: affix-check (`ALL OK`), smoke (`SMOKE OK`), i18n (`I18N CHECK OK`), unlock (`UNLOCK CHECK OK`) and `--econ-only --seed 7` (completed). The `--elite --seed 7` matrix had no SLOG and no additional TOO_HARD cells, but TOO_EASY counts rose from baseline 62→65 ARRIVAL and 272→285 ON-STAGE. Full logs are scratch files under `/tmp/m09/`; this summary records the durable measurements.
 
+- [x] **M-10 · Tune the starter kit against magic/rare enemies** — `Status: Done` · `Size: S` · `tools/sim.js`, README/todo
+  **Decision:** the tutorial-prepared Fire-infused sword and Weaponcraft are required progression before exploring. No raw starter-stat buff. `--fresh` now creates that prepared kit but keeps unlock gates active.
+  **Baseline:** revision `f01d69c`, bare iron sword, smart policy, Heat 0, six Woods expeditions: seeds 1/7/11 won 0/6, 0/6 and 1/6.
+  **Final:** tutorial Fire sword + Weaponcraft, smart policy, Heat 0, six expeditions: seeds 1/7/11 each won 6/6. Research RP per expedition was 17, 7, 3, 6, 3, 3 (mean 6.5) on seed 1. Kit is `starter/start`; the tutorial sword is crafted by the sim from its configured Fire recipe.
+  **Rarity check:** `--rarity --kit starter --policy smart --seed 1 --n 100`, Heat 0/3/5: magic wins 99/91/72%; rare wins 96/79/58%. One Heat 3 rare row remains `RARE_HARD` (79%); the opening target is met at Heat 0 and the remaining boundary is explicit. No `SLOG` was reported.
+  **Validation:** fresh runs used explicit seeds 1, 7, 11 on code based on `f01d69c`; `tools/smoke.js` (`SMOKE OK`), `tools/i18n-check.js` (`I18N CHECK OK`) and `tools/unlock-check.js` (`UNLOCK CHECK OK`) passed. `git diff --check` passed.
+
+## Creature art and readability
+
+- [x] **A-01 · Give animal species distinct silhouettes** — `Status: Done` · `js/art/bodies.js`, `js/art/parts.js`, `js/data.js`, `js/monsters.js`
+  Added canine, feline, bulky bear and low reptile silhouettes; mapped Kindle Fox, Astral Lynx, Rimehide Bear and Magma Salamander to them while retaining the boar. Added body anchors, compatible parts and head-part conflict gating. Authored combat attributes were not changed. Visual evidence: [creature families at battle and Codex sizes](art-evidence/creature-size-review.png). `part-check` (530 renders) and `color-check` (701 accents) passed.
+
+- [x] **A-02 · Improve named item and equipment art** — `Status: Done` · `js/art/items.js`, `js/hero.js`
+  Added distinct dagger, Voidweave Robe, Sprite Lantern, Witch Eye and Fang Charm glyphs, with matching equipped hero forms. The dagger and sword remain distinct at inventory scale. Evidence: [item and equipped hero review](art-evidence/item-size-review.png). `hero-check` passed for mobile equipment and weapon forms.
+
+- [x] **A-03 · Add biome-specific Rift terrain motifs** — `Status: Done` · `js/art/map.js`
+  Added saved-biome and saved-palette floor ambience plus obstacle and water motifs for all eight existing Rift biomes, without changing collision or map generation. Evidence: [tile motifs](art-evidence/rift-tile-review.png) and [seeded mobile Rift maps](art-evidence/rift-map-review.png). `map-check` passed for 240 seeded maps and map independence.
+
+- [x] **A-04 · Make generated names match creature anatomy** — `Status: Done` · `js/monsters.js`, `tools/name-check.js`
+  Added anatomy nouns for the new body families and deterministic body-aware generated names. The new check covers 144 forced biome/body samples with no failures. Since body pools, compatible names and attachment selection change seeded rosters, ran and archived `node tools/sim.js --wild --seed 1 --n 1 --rift-seeds 1 --rift-depth 1 --no-econ`; it covered 10 creatures in each authored region and one Rift depth/biome with zero kit warnings. The one-fight sample's flagged rows are smoke output, not a balance estimate; see [compact seeded sim summary](art-evidence/a04-seed1-sim-summary.json).
+
+- [x] **A-05 · Review creature readability at actual UI sizes** — `Status: Done` · `js/art/`, `js/monsters.js`, `js/data.js`
+  Reviewed normal and rare-framed families at 76px battle and 96px Codex sizes, including affix treatment and crowded status icons. Mutually exclusive major head shapes prevent stacked hood/horn/crown/halo combinations; adjusted bear-part selection and normalized 15 authored part opacity values above the 0.35 cap. Evidence: [creature size review](art-evidence/creature-size-review.png). `part-check`, `color-check`, `affix-check` and `name-check` passed.
+
+  Art acceptance evidence and commands are indexed in [art-evidence/README.md](art-evidence/README.md).
+
 ## Creature variety and readability
 
 - [x] **V-01 · Expand biome part pools from 6 to 8–10** — `Status: Done` · `Size: S` · `js/monsters.js`

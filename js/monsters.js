@@ -7,19 +7,19 @@
 // The Rift (riftMake) is a random region: a biome, a palette, a name, ten wild creatures and a master, all rolled
 // from one seed. The seed is kept in the save, so a reloaded game rebuilds exactly the same region.
 const BIOMES={
-forest:{n:"Whispering Woods",els:["wood","poison","fire","swift","metal"],bodies:["beast","undead","humanoid","elemental","construct"],parts:["mane","antlers","horns","tail","vines","spikes","hood","wings","shell","tusks"],pats:["bands","stripes","rot","scales","cracks","swirl"],
+forest:{n:"Whispering Woods",els:["wood","poison","fire","swift","metal"],bodies:["beast","canine","feline","undead","humanoid","elemental","construct"],parts:["mane","antlers","horns","tail","vines","spikes","hood","wings","shell","tusks"],pats:["bands","stripes","rot","scales","cracks","swirl"],
   acc:["#b5b04a","#6e8a3a"],skins:["#c99b78","#b78a63"],verbs:["bites you","claws you","rakes you","slashes at you","lashes you","gores you"],
   pre:["Briar","Moss","Thorn","Fern","Oak","Rowan","Hazel","Grove","Bramble","Alder"],suf:["Stalker","Crawler","Watcher","Gnawer","Runner","Warden","Lurker","Creeper","Slasher","Hound"],
   regions:["The Old Grove","The Rootless Wood","Whispering Thicket","The Thornbriar Glade","The Canopy Deep","The Mossbound Copse"],lore:["It hunts where the light ends and the roots begin.","The forest grew it, and the forest keeps it.","It wears moss like a coat and never takes it off.","Old tracks end at it. Nothing else lives here."]},
-tundra:{n:"Frostfang Pass",els:["ice","swift","stone","arcane","metal"],bodies:["beast","elemental","construct","humanoid","undead"],parts:["frost","mane","horns","tail","spikes","armor","crystals","antlers","hood","tusks","staff"],pats:["facets","bands","swirl","scales","stars","stripes"],
+tundra:{n:"Frostfang Pass",els:["ice","swift","stone","arcane","metal"],bodies:["beast","canine","feline","bear","elemental","construct","humanoid","undead"],parts:["frost","mane","horns","tail","spikes","armor","crystals","antlers","hood","tusks","staff"],pats:["facets","bands","swirl","scales","stars","stripes"],
   acc:["#f4fbff","#bfe0ea"],skins:["#c99b78","#a8846a"],verbs:["bites you","claws you","mauls you","buffets you","hacks at you","slams you"],
   pre:["Rime","Frost","Glacier","Snow","Wind","Pale","Bitter","Hail"],suf:["Stalker","Razor","Howler","Drifter","Warden","Shredder","Lurker","Runner","Biter","Crusher"],
   regions:["The White Silence","The Grey Shelf","The Frostfang Expanse","The Rimebound Steppe","The Howling Drifts","The Glacier Teeth"],lore:["The cold got into it first; the rest is habit.","It waits where the wind funnels between the rocks.","Snow covers its tracks, but not for long.","It was born in a blizzard and never warmed up."]},
-ember:{n:"Cinder Hollow",els:["fire","poison","metal","stone"],bodies:["elemental","construct","humanoid","undead","beast"],parts:["flames","spikes","armor","chains","horns","crown","runes","wings","shell","blade"],pats:["cracks","bands","facets","swirl","stars","stripes"],
+ember:{n:"Cinder Hollow",els:["fire","poison","metal","stone"],bodies:["elemental","construct","humanoid","undead","beast","reptile"],parts:["flames","spikes","armor","chains","horns","crown","runes","wings","shell","blade"],pats:["cracks","bands","facets","swirl","stars","stripes"],
   acc:["#ff8a3d","#ff5a1f"],skins:["#c99b78","#9c6e43"],verbs:["scorches you","hammers you","scalds you","rakes you","claws you","strikes you"],
   pre:["Cinder","Ember","Slag","Ash","Forge","Molten","Kiln","Scoria"],suf:["Hound","Sentinel","Warden","Drake","Creeper","Tender","Hammer","Wretch","Thief","Creecher"],
   regions:["The Ashen Kilns","The Slag Flats","The Vent Fields","The Magma Shelf","The Smoulder Fields","The Brimstone Gorge"],lore:["It was forged, and then let go.","The Hollow's heat made it, and the Hollow forgets it.","Everything it touches keeps a little warmth.","It smells of coal and of old, old iron."]},
-astral:{n:"Starfall Spire",els:["arcane","holy","swift","shadow"],bodies:["construct","elemental","humanoid","beast","undead"],parts:["orbit","runes","halo","wings","crown","crystals","armor","chains","mane","staff","blade"],pats:["stars","bands","swirl","scales","facets","cracks"],
+astral:{n:"Starfall Spire",els:["arcane","holy","swift","shadow"],bodies:["construct","elemental","humanoid","beast","feline","undead"],parts:["orbit","runes","halo","wings","crown","crystals","armor","chains","mane","staff","blade"],pats:["stars","bands","swirl","scales","facets","cracks"],
   acc:["#f6d36b","#fff3c4"],skins:["#e9e0cf","#c9b9a8"],verbs:["strikes you","smites you","rakes you","touches you","chills you","hacks at you"],
   pre:["Star","Void","Astral","Rune","Halo","Fallen","Gilded","Umbral"],suf:["Watcher","Sentinel","Warden","Acolyte","Construct","Lynx","Seer","Wraith","Scribe","Herald"],
   regions:["The Starless Gallery","The Ossuary of Glass","The Vault of Falling Light","The Orrery Ring","The Comet Reach","The Dimming Sky"],lore:["It was a star that learned to walk.","Something up here rewrote it.","It keeps the hour it was made for.","The stars moved; it did not."]},
@@ -66,9 +66,22 @@ const GEN_DROP={
 // every string a generated creature shows (the translation check skips them: a procedural name has no dictionary entry)
 const PROC=new Set(),proc=s=>{PROC.add(s);return s};
 const pluralOf=n=>/(s|x|z|ch|sh)$/.test(n)?n+"es":/[^aeiou]y$/.test(n)?n.slice(0,-1)+"ies":n+"s";
-function genName(B,R,used){ // a name from the biome's words, unique inside its roster
-  for(let i=0;i<60;i++){const n=B.pre[Math.floor(R()*B.pre.length)]+" "+B.suf[Math.floor(R()*B.suf.length)];if(!used.has(n)){used.add(n);return n}}
-  const n=B.pre[0]+" "+B.suf[0]+" the "+used.size;used.add(n);return n}
+const BODY_NOUNS={
+  beast:["Stalker","Crawler","Watcher","Gnawer","Runner","Lurker","Creeper","Slasher","Hound","Wolf","Lynx","Bear","Drake","Salamander"],
+  canine:["Hound","Wolf","Stalker","Runner","Howler","Biter"],
+  feline:["Lynx","Cat","Stalker","Prowler","Runner"],
+  bear:["Bear","Hulk","Crusher","Warden","Stalker"],
+  reptile:["Drake","Salamander","Crawler","Lurker","Stalker"],
+  construct:["Construct","Sentinel","Warden","Watcher","Golem","Crawler","Hulk"],
+  undead:["Wraith","Thrall","Watcher","Warden","Choir","Crawler","Gnawer"],
+  elemental:["Spirit","Wraith","Watcher","Warden","Crawler","Herald"],
+  humanoid:["Raider","Warden","Watcher","Sentinel","Acolyte","Seer","Herald","Scribe"]
+};
+const nameWords=(B,body)=>{const allowed=BODY_NOUNS[body];const filtered=allowed?B.suf.filter(n=>allowed.includes(n)):B.suf;return filtered.length?filtered:(allowed||B.suf)};
+function genName(B,R,used,body){ // biome vocabulary stays intact while animal and construct nouns follow the selected anatomy
+  const words=nameWords(B,body);
+  for(let i=0;i<60;i++){const n=B.pre[Math.floor(R()*B.pre.length)]+" "+words[Math.floor(R()*words.length)];if(!used.has(n)){used.add(n);return n}}
+  const n=B.pre[0]+" "+words[0]+" the "+used.size;used.add(n);return n}
 function accFor(B,body,R){ // a biome accent at dE 25 or more from the body; else the accent moved in lightness until it is (the best seen)
   const n=B.acc.length,k=Math.floor(R()*n);
   for(let i=0;i<n;i++){const a=B.acc[(k+i)%n];if(dE(a,body)>=25)return a}
@@ -84,10 +97,16 @@ function genDrops(zone,el,R){ // one to three of the region's own materials
 // tail only a beast (its tail root t), hood and crown a head, halo a head that is not hooded, wings a body that can carry them. A part outside its body's list is never drawn.
 const BODY_PARTS={
   beast:["mane","antlers","horns","tail","tusks","spikes","armor","shell","vines","wings","flames","frost","crystals"],
+  canine:["mane","horns","tail","spikes","armor","vines","wings","flames","frost","crystals"],
+  feline:["mane","horns","tail","spikes","armor","vines","wings","flames","frost","crystals"],
+  bear:["mane","horns","tail","spikes","armor","shell","vines","wings","flames","frost","crystals"],
+  reptile:["horns","tail","spikes","armor","shell","vines","wings","flames","frost","crystals"],
   undead:["horns","crown","hood","chains","vines","spikes","wings","crystals"],
   humanoid:["blade","axe","staff","horns","crown","hood","halo","orbit","wings","armor","vines","runes","chains","crystals","frost","flames"],
   elemental:["horns","crown","halo","orbit","wings","armor","spikes","chains","shell","vines","flames","frost","crystals","runes"],
   construct:["blade","axe","staff","horns","crown","halo","orbit","armor","spikes","chains","shell","runes","crystals"]};
+// Headwear occupies the same silhouette space; allow at most one major head shape per generated creature.
+const PART_CONFLICTS={hood:["horns","antlers","crown","halo"],horns:["hood","antlers","crown","halo"],antlers:["hood","horns","crown","halo"],crown:["hood","horns","antlers","halo"],halo:["hood","horns","antlers","crown"]};
 // one wild creature: a body and parts from the biome, an element, a rarity with affixes of its own, and stats
 // that land on the region's band once the rarity multiplier is applied (the affix multipliers still count).
 function genCreature(o){ // o:{id,zone,biome,tier,R,used,boss,where,seed}
@@ -95,9 +114,9 @@ function genCreature(o){ // o:{id,zone,biome,tier,R,used,boss,where,seed}
   const el=B.els[Math.floor(R()*B.els.length)],nat=EL_NAT[el]||{w:[],r:[]};
   const mv=["still","wander","chase"][Math.floor(R()*3)],body=B.bodies[Math.floor(R()*B.bodies.length)];
   const pool=B.parts.filter(p=>BODY_PARTS[body].includes(p)),nparts=Math.min(1+Math.floor(R()*3),pool.length),parts=[]; // a body too bare for three parts wears what it can
-  while(parts.length<nparts){const p=pool[Math.floor(R()*pool.length)];if(!parts.includes(p))parts.push(p)}
+  while(parts.length<nparts){const available=pool.filter(p=>!parts.includes(p)&&!parts.some(q=>(PART_CONFLICTS[q]||[]).includes(p)));if(!available.length)break;parts.push(available[Math.floor(R()*available.length)])}
   const col=ELPAL[el][Math.floor(R()*3)],acc=accFor(B,col,R); // body: the element's light, mid or dark; accent: the biome's
-  const name=o.boss?proc(cap(B.pre[Math.floor(R()*B.pre.length)])+" "+cap(B.suf[Math.floor(R()*B.suf.length)])):genName(B,R,o.used);
+  const nouns=nameWords(B,body),name=o.boss?proc(cap(B.pre[Math.floor(R()*B.pre.length)])+" "+cap(nouns[Math.floor(R()*nouns.length)])):genName(B,R,o.used,body);
   const sp=GEN_SP[Math.floor(R()*GEN_SP.length)];
   const boss=o.boss?1.9:1,atkm=o.boss?1.25:1;
   const hp=Math.max(3,Math.round(o.tier.hp*(.8+R()*.45)*boss/rm.hp)),atk=Math.max(1,Math.round(o.tier.atk*(.85+R()*.3)*atkm/rm.atk));

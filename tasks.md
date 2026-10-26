@@ -4,16 +4,16 @@ The status index for scoped work. Open tasks are below; implementation evidence 
 
 ## At a glance
 
-**56 tasks · 28 Done · 0 In Progress · 0 Implement · 28 Planned · 28 open.**
+**56 tasks · 34 Done · 0 In Progress · 0 Implement · 22 Planned · 22 open.**
 
 | Workstream | Done | In Progress | Implement | Planned |
 |---|---:|---:|---:|---:|
-| Monster coverage, balance and progression (M) | 5 | 0 | 0 | 7 |
+| Monster coverage, balance and progression (M) | 6 | 0 | 0 | 6 |
 | Biome variety and mechanics (V) | 6 | 0 | 0 | 16 |
-| Art identity and readability (A) | 0 | 0 | 0 | 5 |
+| Art identity and readability (A) | 5 | 0 | 0 | 0 |
 | UI (U) | 9 | 0 | 0 | 0 |
 | Crafting rework (C) | 8 | 0 | 0 | 0 |
-| **Total** | **28** | **0** | **0** | **28** |
+| **Total** | **34** | **0** | **0** | **22** |
 
 **Statuses:** `Planned` = scoped backlog, not started; `Implement` = detailed implementation plan exists; `In Progress` = actively underway; `Done` = completed, with evidence in the archive. Dependencies are stated on task cards; Planned does not necessarily mean ready to start.
 
@@ -24,9 +24,8 @@ The status index for scoped work. Open tasks are below; implementation evidence 
 | Focus | Tasks | Next step |
 |---|---|---|
 | Balance with an existing plan | M-09 complete | See [completed evidence](backlog-completed.md#m-09). |
-| Starter progression | M-10 | Recheck the opening loop after the crafting/research rework. |
-| Most visible art improvements | A-01, A-02, A-03 | Distinct animal bodies, named equipment and Rift terrain; do these before multiplying biomes/roster sizes. |
-| Creature naming and readability | A-04, A-05 | Align nouns with bodies; establish visual examples early and finish acceptance after art changes. |
+| Starter progression | M-10 complete | See [completed evidence](backlog-completed.md#m-10). |
+| Creature art and readability | A-01–A-05 complete | See [completed evidence](backlog-completed.md#creature-art-and-readability) and [visual review sheets](art-evidence/README.md). |
 | Rift difficulty | M-11 → M-12 → V-16 | Fix masters, remeasure wild bands, then add alphas. |
 | Essence availability | M-08 | Decide and implement a non-affix Steam source, or document affix-only intent. |
 | Later gameplay expansion | V-14 → V-15 → V-21; V-11 → M-05 | Build combat/modifier foundations, then biome-specific behavior. |
@@ -51,16 +50,10 @@ U-02–U-09 are complete. See [Completed UI tasks](backlog-completed.md#ui) for 
 - [x] **M-09 · Rebalance affixed foes and staff kits** — `Status: Done` · `Size: M` · `js/data.js`, `js/affix.js`, `js/map.js`, `js/battle.js`, `js/monsters.js`, `tools/sim.js` · see [completed evidence](backlog-completed.md#m-09)
   On the `4b0ef66` baseline plus M-09 changes, `--rarity --seed 7/11 --n 100` (smart, stage kits, Heat 0/3/5) had weakest wins of 99%/88% at Heat 0/3, 2 starter-only `RARE_HARD` rows and no `SLOG`. `defensive/woods` basic/rare at Heat 5 averaged 28.9/28.8 turns. Final tuning and elite-matrix tradeoff are recorded in the archive.
 
-- [ ] **M-10 · Tune the starter kit against magic/rare enemies** — `Status: Planned` · `Size: S` · `js/data.js`, tutorial/forge flow
-  A starter without the tutorial Fire weapon loses to magic/rare foes. Decide whether that is intended.
-  **Acceptance:** `node tools/sim.js --fresh --exped 6` shows an intentional win curve; README/todo notes the decision.
-
-  <details>
-  <summary>Historical measurements — refresh before tuning</summary>
-
-  Historical seed 1 (`node tools/sim.js --rarity --seed 1`, smart, Heat 0): the starter wins 84% vs magic and 61% vs rare regulars (both `RARE_HARD`). Its wild creatures are a harder first test: in the woods' own row (`--wild --seed 1`, smart, native) the starter wins 95% / 67% / 30% at Heat 0 / 3 / 5, Δ −5 / −23 / −31 points against the woods regulars. Seed 1 `--fresh --exped 6`: 2 of 6 expeditions won; the Gnarlhorn figure from the earlier note is not reproduced by the seed-1 runs, so it is dropped.
-
-  </details>
+- [x] **M-10 · Tune the starter kit against magic/rare enemies** — `Status: Done` · `Size: S` · `tools/sim.js`, README/todo
+  Decision: tutorial preparation is part of the intended starter progression. The player equips the Fire-infused sword and learns Weaponcraft before exploring. Keep base starter stats unchanged; make `--fresh` start from this tutorial-prepared state with unlock gates still active.
+  **Done:** opening curve is intentional. Bare iron-sword baseline on `f01d69c` won 0/6, 0/6, 1/6 expeditions for seeds 1/7/11. With the tutorial Fire sword and Weaponcraft prepared, final code won 6/6 for each seed. Smart policy, Heat 0, six Woods expeditions per seed. Seed 1 `--rarity --kit starter --policy smart --n 100`: magic/rare wins 99%/96% at Heat 0, 91%/79% at Heat 3; one Heat 3 rare row remains `RARE_HARD`. README and todo record the decision and the limit.
+  **Validation:** `node -r /tmp/noFonts.js tools/sim.js --fresh --exped 6 --seed 1/7/11`; `node -r /tmp/noFonts.js tools/sim.js --rarity --kit starter --policy smart --seed 1 --n 100`; smoke, i18n, unlock checks passed.
 
 - [ ] **M-11 · Fix the Rift master's affixes and stat band** — `Status: Planned` · `Size: S` · `js/battle.js`, `js/monsters.js`
   `startBattle` skips the affix block for every boss (`js/battle.js:17`), so the Rift master — rolled as a rare with three affixes and its stats already divided by the rare multiplier — fights with no affixes at about 1.2× the region's HP band.
@@ -90,27 +83,27 @@ U-02–U-09 are complete. See [Completed UI tasks](backlog-completed.md#ui) for 
 
 ## Art identity and readability
 
-- [ ] **A-01 · Give animal species distinct silhouettes** — `Status: Planned` · `Size: L` · `Priority: High` · `js/art/bodies.js`, `js/art/parts.js`, `js/data.js`, `js/monsters.js`
+- [x] **A-01 · Give animal species distinct silhouettes** — `Status: Done` · `Size: L` · `Priority: High` · `js/art/bodies.js`, `js/art/parts.js`, `js/data.js`, `js/monsters.js` · see [completed evidence](backlog-completed.md#a-01)
   Review point 1. Add canine, feline, bulky bear and low reptile bodies or variants; update the Kindle Fox, Astral Lynx, Rimehide Bear and Magma Salamander, and review the stag's proportions. Retain the boar body for boar-like creatures. Supply compatible part and affix anchors and update `BODY_PARTS` for any new body keys.
   **Acceptance:** species are distinguishable by silhouette at the 76px mobile battle size and in the Codex, without relying on labels or hue; attached parts and affixes remain positioned correctly. Run part/color checks and visually inspect representative normal, elite and status-effect combinations. Keep combat data unchanged; remeasure seeded rosters if generator choices change.
   **Related:** V-12 is completed attachment gating, not species anatomy. Coordinate with A-04; V-16 can reuse the resulting bodies.
 
-- [ ] **A-02 · Give named equipment recognizable shapes** — `Status: Planned` · `Size: M` · `Priority: High` · `js/art/items.js`, `js/hero.js`
+- [x] **A-02 · Give named equipment recognizable shapes** — `Status: Done` · `Size: M` · `Priority: High` · `js/art/items.js`, `js/hero.js` · see [completed evidence](backlog-completed.md#a-02)
   Review point 2. Add item-specific glyph overrides: shorten the dagger relative to the sword, distinguish the Void Robe from a shirt, and draw a lantern, fang and eye for Sprite Lantern, Fang Charm and Witch Eye. Preserve shared material gradients, trait overlays and rarity presentation; keep inventory and held/worn hero representations consistent.
   **Acceptance:** those named items are distinguishable at actual satchel/slot sizes; dagger and sword proportions also read correctly when held. Inspect item sheets and the equipped hero on mobile; run `hero-check`. Preserve U-01's grade pips and rarity ownership.
   **Related:** U-01 is complete; C-01–C-08 changed crafting behavior, not equipment silhouettes.
 
-- [ ] **A-03 · Give Rift biomes distinct terrain art** — `Status: Planned` · `Size: M` · `Priority: High` · `js/art/map.js`
+- [x] **A-03 · Give Rift biomes distinct terrain art** — `Status: Done` · `Size: M` · `Priority: High` · `js/art/map.js` · see [completed evidence](backlog-completed.md#a-03)
   Review point 3. Select obstacle, water and ambient terrain motifs from the saved Rift biome, retaining its palette: reeds/roots for fen, slag/ruins for ash, ribs/gravestones for bone and submerged/crystalline forms for deep. Give forest, tundra, ember and astral Rift rolls motifs consistent with their authored counterparts.
   **Acceptance:** all eight current Rift biomes have distinct environmental shapes, not only recolors; floor, obstacles, water, fog, POIs and enemy markers remain readable at mobile tile size. Inspect seeded examples of every biome and run `map-check`; do not change map generation, collision or combat rules.
   **Related:** complements M-05's gameplay identity and V-15's modifiers, but requires neither. Reuse it for M-06; apply the same standard to future V-05–V-09 biomes.
 
-- [ ] **A-04 · Match generated creature names to anatomy** — `Status: Planned` · `Size: M` · `Priority: Medium` · `js/monsters.js`
+- [x] **A-04 · Match generated creature names to anatomy** — `Status: Done` · `Size: M` · `Priority: Medium` · `js/monsters.js`, `tools/name-check.js` · see [completed evidence](backlog-completed.md#a-04)
   Review point 4. Choose anatomy-specific nouns from compatible body/variant lists: hounds and lynxes need appropriate animals, constructs need construct bodies, and ambiguous nouns such as Watcher may span families. Apply the rules to wild creatures and Rift masters while preserving biome vocabulary, uniqueness and deterministic generation.
   **Acceptance:** inspect seeded samples of every biome and body; no humanoid or elemental is named Lynx/Hound and no skeleton is named Construct. Handle uniqueness fallback without breaking compatibility. Add a meaningful generator check, and rerun the seeded wild sim because changed random draws can alter rosters and stats.
   **Related:** V-12 already gates attachments; V-04 already expands region names. Neither solves anatomy-aware creature naming. Coordinate animal noun mappings with A-01; generic body-aware naming can start independently.
 
-- [ ] **A-05 · Verify creature visual hierarchy at gameplay sizes** — `Status: Planned` · `Size: M` · `Priority: Medium` · `js/art/creature.js`, `js/art/parts.js`, `js/art/affixes.js`, `tools/`
+- [x] **A-05 · Verify creature visual hierarchy at gameplay sizes** — `Status: Done` · `Size: M` · `Priority: Medium` · `js/art/creature.js`, `js/art/parts.js`, `js/art/affixes.js`, `tools/` · see [completed evidence](backlog-completed.md#creature-art-and-readability)
   Review point 5. Follow up on completed V-22 with a visual acceptance pass: prioritize the face and one defining silhouette feature, reduce conflicting head/attachment combinations where necessary, and verify that patterns, rank, affixes and statuses remain legible. Inspect authored creatures, generated body families and crowded elite/status examples at 76px battle and actual Codex sizes.
   **Acceptance:** record representative screenshots and findings for each body family and biome; resolve collisions or unreadable marks found in that pass. Preserve V-22's body hue = element, accent = biome, ring = rank, fixed affix placement and status badges. Keep the intentional `.35` pattern-opacity cap; remove or document redundant higher authored opacity values rather than raising the cap. Run affected part/color/affix checks.
   **Related:** establish the review examples early and apply them during A-01–A-04; finish the pass after those changes. V-22 remains Done. Animation and a 3D conversion are outside these five follow-ups.
