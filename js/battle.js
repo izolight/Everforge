@@ -240,7 +240,7 @@ function enemyDown(){
   const gh=h+(E.boss?GRADE_BOSS:0),gz=E.zone==="any"?S.zone:E.zone; // finds roll a grade for the zone and Heat (bosses a little hotter)
   if(B.id==="mimic"){const p=zonePool(S.zone);got=[gdrop(pick(p),gz,gh),gdrop(pick(p),gz,gh),gess(pick(ESS_POOL),gz,gh)]}
   else{got=E.drops.filter(([,p])=>Math.random()<p*mult).map(([id])=>id);if(!got.length)got=[E.drops[0][0]];got=got.map(id=>gdrop(id,gz,gh))}
-  if(B.opening===1){got=["coal","bread"];S.onboarding=2;blog(tx("Deconstruct the Ember Coal, then bind a Fire essence into your sword."),"good")}
+  if(B.opening===1){got=["coal","bread"];S.onboarding=2;blog(tx("Deconstruct the Ember Coal. Then research a technique to put the Fire essence into your sword."),"good")}
   if(B.opening===2){S.onboarding=5;blog(tx("Your first enchanted weapon has proved itself. The Woods are yours to explore."),"good")}
   if(twistNow()==="double")got=[...got,...got];
   if(!B.intr)B.afx.forEach(a=>got.push(afxDrop(E,a,gz,gh,RARITIES[B.rar].gs))); // each affix drops an affixed raw that deconstructs into its essence, a grade or two better by rarity (a wild creature's own affixes drop none)

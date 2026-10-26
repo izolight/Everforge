@@ -7,7 +7,7 @@ function inventoryMatch(it,mode){
   if(f==="equipped")return eqCount(it.id)>0;
   if(f==="craftable"){
     if(itemLocked(it.id)||avail(it.id)<=0||S.bench.length>=maxInputs())return false;
-    const can=parts=>checkMix(parts).ok&&!craftMiss(parts).length&&!combine(parts,{roll:100}).blocked;
+    const can=parts=>checkMix(parts).ok&&!actionOk(parts).length&&!combine(parts,{roll:100}).blocked;
     return S.bench.length?can([...S.bench.map(id=>S.items[id]),it]):Object.keys(S.inv).some(id=>!itemLocked(id)&&avail(id)>(id===it.id?1:0)&&can([it,S.items[id]]));
   }
   return true;

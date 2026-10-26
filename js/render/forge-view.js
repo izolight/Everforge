@@ -16,9 +16,9 @@ function renderSkills(){
   const su=isUnl("skills");$("skd").hidden=!su;$("sklock").hidden=su;if(!su){$("sklock").innerHTML=lockRow("skills");return}
   $("sksum").innerHTML=`${ic("hammer","s")} ${tx("Crafting skills")}${helpBtn(tx("Crafting skills"),tx("Every kind of thing has its own skill. A craft trains the skill of what you make, and a little of each other kind you put in. A higher skill raises the tier you can reach and lowers the chance a forge goes wrong."))}`;
   $("skills").innerHTML=Object.entries(SKILLS).map(([k,sk])=>{const l=skLv(k),cur=SK_LV[l-1],nxt=SK_LV[l],x=skXp(k);
-    const f=Math.round(Math.max(FAIL.min,Math.min(FAIL.max,FAIL.base+FAIL.slope*(CRAFT.base+CRAFT.tier-l)))); // a plain tier-2 craft with no clashes
-    return `<div class="sk" ${tt(tx("{skill} Lv {lv}",{skill:sk.name,lv:l}),tx("Makes {cats}.",{cats:sk.cats}),nxt?tx("{a}/{b} XP to Lv {n}.",{a:x-cur,b:nxt-cur,n:l+1}):tx("Highest level reached."),tx("Tier cap {c}; about {f}% base failure on a plain tier-2 craft.",{c:SK_CAP[l-1],f}))}>${skIcon(k)}<div class="skb"><span class="sn"><b>${sk.name}</b> <span class="foot">${tx("Lv {n}",{n:l})}</span></span>
-      <div class="bar know"><i style="width:${nxt?Math.min(100,(x-cur)/(nxt-cur)*100):100}%"></i></div></div><span class="skc"><span>${ic("tier","xs")}${SK_CAP[l-1]}</span><span>${ic("warn","xs")}${f}%</span></span></div>`}).join("");
+    const f=Math.round(Math.max(FAIL.min,Math.min(FAIL.max,FAIL.base+FAIL.slope*(CRAFT.base+CRAFT.tier-l)))),crafts=sk.forms.length>0; // a plain tier-2 craft with no clashes; salvaging (no forms) never fails
+    return `<div class="sk" ${tt(tx("{skill} Lv {lv}",{skill:sk.name,lv:l}),tx("Makes {cats}.",{cats:sk.cats}),nxt?tx("{a}/{b} XP to Lv {n}.",{a:x-cur,b:nxt-cur,n:l+1}):tx("Highest level reached."),crafts?tx("Tier cap {c}; about {f}% base failure on a plain tier-2 craft.",{c:SK_CAP[l-1],f}):tx("Tier cap {c}. Salvaging is never blocked: above the cap, materials come one grade lower.",{c:SK_CAP[l-1]}))}>${skIcon(k)}<div class="skb"><span class="sn"><b>${sk.name}</b> <span class="foot">${tx("Lv {n}",{n:l})}</span></span>
+      <div class="bar know"><i style="width:${nxt?Math.min(100,(x-cur)/(nxt-cur)*100):100}%"></i></div></div><span class="skc"><span>${ic("tier","xs")}${SK_CAP[l-1]}</span>${crafts?`<span>${ic("warn","xs")}${f}%</span>`:""}</span></div>`}).join("");
 }
 function renderBench(){
   const max=maxInputs(),parts=[],items=S.bench.map(id=>S.items[id]),chk=checkMix(items);
@@ -29,7 +29,7 @@ function renderBench(){
     parts.push(it?`<button class="slot full${!chk.ok&&chk.bad?.id===it.id?" bad":""}" style="${rcol(it)}" data-slot="${i}" aria-label="${esc(tx("Remove {item}",{item:iname(it)}))}" ${itemTip(it,tx("Tap to take it out."))}>${glyph(it)}</button>`:`<div class="slot" role="img" aria-label="${esc(tx("Empty slot"))}">${ic("plus","l")}</div>`);
   }
   $("slots").className=level()>=2?"slots s4":"slots";$("slots").innerHTML=parts.join("");
-  let hint="",crafting=null;const miss=chk.ok&&items.length>1?craftMiss(items):[]; // techniques this craft needs and you lack
+  let hint="",crafting=null;const miss=chk.ok&&items.length>1?actionOk(items):[]; // techniques this craft needs and you lack
   if(!items.length)hint=`<p class="foot" style="text-align:center">${tx("Tap items below to add them.")}</p>`;
   else if(!chk.ok)hint=`<p class="warn-text">${esc(chk.reason)}</p>`;
   else if(items.length===1)hint=`<p class="foot">${tx("{item} takes {list}.",{item:esc(iname(items[0])),list:acceptsText(items[0])})}</p>`;
@@ -70,14 +70,13 @@ function patFill(){ // empty slots take the standard (or blueprint) materials wh
   patSel.m.forEach((id,i)=>{if(id)return;const fits=mats.filter(x=>patFits(k,bp,i,x)&&patLeft(x)>0).sort((a,b)=>(b===std[i])-(a===std[i])||gradeOf(a)-gradeOf(b)||patLeft(b)-patLeft(a));patSel.m[i]=fits[0]||null});
 }
 function renderPatterns(){
-  if(!isUnl("patterns")){$("patlabel").innerHTML=lockRow("patterns");$("pats").innerHTML=$("patbody").innerHTML="";return}
-  patFix();const bps=knownBp(),k=patSel.k,bp=patSel.bp;
+  patFix();const bps=knownBp().filter(x=>formOk(BASE[x][1])),pats=Object.keys(PATTERNS).filter(x=>formOk(PATTERNS[x].form)),k=patSel.k,bp=patSel.bp; // a pattern (or blueprint) comes with its slot technique
   $("patlabel").innerHTML=`<p class="label">${ic("pattern","s")} ${tx("Patterns")}</p>${helpBtn(tx("Patterns"),tx("Pick what to forge, then fill its slots with base materials. Deconstruct hides, ores and wood in the Gear tab to get them."),tx("The standard materials make the familiar piece; anything else makes a new one from the materials' traits. Better grades make stronger gear."),tx("Blueprints for named gear come from studying creatures in a fight."))}`;
   const btn=(key,isBp)=>{const on=key===k&&!!isBp===bp,nm=patLabel(key,isBp);
     return `<button class="tab ti${isBp?" bpb":""}" data-pat="${key}" data-bp="${isBp?1:0}" aria-pressed="${on}" aria-label="${esc(nm)}" ${tt(nm,isBp?tx("Blueprint"):tx("Pattern"),patSlots(key,isBp).map(slotTxt).join(" + "))}>${isBp?glyph(S.items[key]):gIc(PATTERNS[key].form)}${on?`<span>${esc(nm)}</span>`:""}</button>`};
-  $("pats").innerHTML=Object.keys(PATTERNS).map(x=>btn(x,false)).join("")+bps.map(x=>btn(x,true)).join("")
-    +`<span class="foot bpn" ${tt(tx("Blueprints"),tx("Study a creature in a fight to learn the blueprint of the named gear it carries. Mastering it teaches them too."))}>${ic("scroll","xs")} ${bps.length}/${Object.keys(BLUEPRINTS).length}</span>`;
-  if(!k){$("patbody").innerHTML=`<p class="foot">${Object.keys(S.inv).some(id=>isBaseMat(id)&&S.inv[id]>0)?tx("Pick a pattern to forge."):tx("Pick a pattern to forge. Deconstruct raw finds in the Gear tab to get base materials.")}</p>`;return}
+  $("pats").innerHTML=pats.map(x=>btn(x,false)).join("")+bps.map(x=>btn(x,true)).join("")
+    +`<span class="foot bpn" ${tt(tx("Blueprints"),tx("Study a creature in a fight to learn the blueprint of the named gear it carries. Mastering it teaches them too."))}>${ic("scroll","xs")} ${knownBp().length}/${Object.keys(BLUEPRINTS).length}</span>`;
+  if(!k){$("patbody").innerHTML=!pats.length&&!bps.length?`<p class="foot">${tx("Learn a slot technique in Research (the Forge tab) to get its pattern.")}</p>`:`<p class="foot">${Object.keys(S.inv).some(id=>isBaseMat(id)&&S.inv[id]>0)?tx("Pick a pattern to forge."):tx("Pick a pattern to forge. Deconstruct raw finds in the Gear tab to get base materials.")}</p>`;return}
   const slots=patSlots(k,bp),its=patSel.m.map(id=>id&&S.items[id]);
   const parts=slots.map((t,i)=>{const it=its[i];return (i?'<span class="plus" aria-hidden="true">+</span>':"")+(it?`<button class="slot full" style="${rcol(it)}" data-pslot="${i}" aria-label="${esc(tx("Remove {item}",{item:iname(it)}))}" ${itemTip(it,tx("Tap to take it out."))}>${glyph(it)}</button>`
     :`<div class="slot pslot" role="img" aria-label="${esc(tx("Empty slot: {types}",{types:slotTxt(t)}))}" ${tt(tx("Empty slot"),slotTxt(t))}>${ic("plus")}<small>${slotTxt(t)}</small></div>`)}).join("");

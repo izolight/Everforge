@@ -1,5 +1,5 @@
 // ================= STATE =================
-const KEY="everforge-v17";
+const KEY="everforge-v18";
 function baseItem(id){const [b,a]=id.split("~"),[name,form,traits,kind]=BASE[b],A=a&&AFX[a],it={id,name,form,noun:name.split(" ").pop(),traits,tier:1,crafted:false,...(kind?{kind}:{})};
   return A?{...it,name:`${A.n} ${name}`,traits:{...traits,[A.tr]:Math.round(((traits[A.tr]||0)+AFX_RAW)*10)/10},afx:a}:it} // an affixed variant (boar_hide~vamp) carries its affix's trait on top
 function mkGraded(b,g){ // the item for base id b at grade g (pure: loadSave rebuilds graded items with it)
@@ -9,12 +9,12 @@ function mkGraded(b,g){ // the item for base id b at grade g (pure: loadSave reb
 const statsDef=()=>({salvaged:0,studied:0,dealt:0,taken:0,big:0,bigW:"",crits:0,parries:0,abil:0,sufd:0,cured:0,elites:0,bosses:0,deaths:0,exped:0,heatBest:{},fast:{},forged:0,legend:0,mishaps:0,fizzles:0,earned:0,spent:0,refined:0,shaped:0,dailies:0,dailyWins:0,dBest:null});
 function freshState(){
   const items={};Object.keys(BASE).forEach(id=>items[id]=baseItem(id));
-  return {v:17,onboarding:0,pinned:null,bountyChoices:[],locked:[],recent:[],inventory:{layout:"grid",filter:"all",sort:"type"},embers:0,afx:{},unl:{},rp:0,techs:{bind:1},rpd:{},rxh:{},infCredit:0,skills:{},maps:{},heat:{},daily:null,run:null,infuse:{},items,inv:{iron_sword:1},eq:{main:"iron_sword",off:null,head:null,body:null,hands:null,feet:null,charm:null},
+  return {v:18,onboarding:0,pinned:null,bountyChoices:[],locked:[],recent:[],inventory:{layout:"grid",filter:"all",sort:"type"},embers:0,afx:{},unl:{},rp:0,techs:{},tpaid:{},rpd:{},rxh:{},infCredit:0,skills:{},maps:{},heat:{},daily:null,run:null,infuse:{},items,inv:{iron_sword:1},eq:{main:"iron_sword",off:null,head:null,body:null,hands:null,feet:null,charm:null},
     hp:999,camp:2,campProg:0,xp:0,journal:[],knownR:[],hints:[0,1,2],bench:[],last:null,tab:"all",rtab:"all",view:"battle",zone:"woods",rift:{depth:1,best:0,seed:0,biome:"",name:"",pal:null,cleared:0},
     wins:0,kills:{},seen:{},codex:{},unlocked:["woods"],zoneKills:{},quest:0,bounty:null,stats:statsDef(),fresh:[],battle:null,event:null};
 }
 const isObj=v=>!!v&&typeof v==="object"&&!Array.isArray(v);
-const DEFAULTED=["maps","infuse","eq","kills","seen","codex","zoneKills","stats","journal","knownR","bench","unlocked","fresh","hp","xp","zone","heat","daily","run","hints","embers","skills","infCredit","afx","unl","rp","techs","rpd","rxh","rift"];
+const DEFAULTED=["maps","infuse","eq","kills","seen","codex","zoneKills","stats","journal","knownR","bench","unlocked","fresh","hp","xp","zone","heat","daily","run","hints","embers","skills","infCredit","afx","unl","rp","techs","tpaid","rpd","rxh","rift"];
 // Shape check for loaded or imported saves, so a malformed one is rejected instead of breaking every render.
 function sane(s){
   return ["maps","heat","infuse","items","inv","eq","kills","seen","codex","zoneKills","stats","unl"].every(k=>isObj(s[k]))
@@ -25,7 +25,7 @@ function sane(s){
 }
 // Saves are latest-only: a save of another version is not loaded at all (the game starts fresh). loadSave() only validates and clamps a current save.
 function loadSave(s){
-  if(!isObj(s)||s.v!==17)return null;
+  if(!isObj(s)||s.v!==18)return null;
   if(!isObj(s.items)||!isObj(s.inv))return null;
   const dflt=freshState();DEFAULTED.forEach(k=>{if(s[k]===undefined)s[k]=dflt[k]});if(!isObj(s.afx))s.afx={};
   Object.keys(BASE).forEach(id=>s.items[id]=baseItem(id));
@@ -62,7 +62,7 @@ function loadSave(s){
   s.hints=Array.isArray(s.hints)?s.hints.filter(i=>Number.isInteger(i)&&SECRETS[i]):[0,1,2];
   if(!VIEWS.includes(s.view))s.view="battle";
   s.rp=Math.max(0,Math.floor(Number(s.rp))||0);if(!isObj(s.rpd))s.rpd={};
-  {const tk=isObj(s.techs)?s.techs:{};s.techs=Object.fromEntries(TECHS.filter(t=>t.id==="bind"||Number.isFinite(tk[t.id])).map(t=>[t.id,Number.isFinite(tk[t.id])?tk[t.id]:1]))}
+  {const tk=isObj(s.techs)?s.techs:{},tp=isObj(s.tpaid)?s.tpaid:{};s.techs=Object.fromEntries(TECHS.filter(t=>Number.isFinite(tk[t.id])).map(t=>[t.id,tk[t.id]]));s.tpaid=Object.fromEntries(Object.keys(s.techs).map(id=>[id,Number.isFinite(tp[id])?Math.max(0,tp[id]):TECH[id].cost]))}
   s.rxh=Object.fromEntries(Object.entries(isObj(s.rxh)?s.rxh:{}).filter(([k,v])=>REACTIONS.some(r=>r[0]+"+"+r[1]===k)&&Array.isArray(v)).map(([k,v])=>[k,v.filter(t=>k.split("+").includes(t))]));
   s.onboarding=Number.isInteger(s.onboarding)&&s.onboarding>=0&&s.onboarding<=5?s.onboarding:null;
   const pin=s.pinned;

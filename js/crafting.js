@@ -12,7 +12,7 @@ function checkMix(items){
     const k=kindOf(x),bk=kindOf(base);
     if((ACCEPTS[bk]||[]).includes(k))continue;
     return{ok:false,bad:x,reason:k===bk
-      ?tx(hasTech("alloy")?"{x} and {base} are different {kind}. Only the same type or a fusion partner can merge. Salvage it into essences instead.":"{x} and {base} are different {kind}. Only the same type can merge. Salvage it into essences instead.",{x:iname(x),base:iname(base),kind:txc("kind",KIND_LABEL[k])})
+      ?tx(hasTech("fuse")?"{x} and {base} are different {kind}. Only the same type or a fusion partner can merge. Salvage it into essences instead.":"{x} and {base} are different {kind}. Only the same type can merge. Salvage it into essences instead.",{x:iname(x),base:iname(base),kind:txc("kind",KIND_LABEL[k])})
       :tx("{x} doesn't go into {base}. Salvage it into essences, which mix with anything.",{x:iname(x),base:iname(base)})};
   }
   return{ok:true};
@@ -21,7 +21,7 @@ function acceptsText(it){
   const k=kindOf(it);
   if(grp(it)==="material")return KIND_LABEL[k]==="essences"?tx("anything, essences and relics"):tx("other {kind}, essences and relics",{kind:txc("kind",KIND_LABEL[k])});
   const mass=f=>["gloves","boots","food","body armor","head armor","claws"].includes(f);
-  const fus=!hasTech("alloy")?[]:FUSIONS.filter(f=>f.slice(0,2).includes(it.form)).map(f=>f[0]===it.form?f[1]:f[0]).map(f=>mass(formEn(f))?formName(f):tx("a {form}",{form:formName(f)}));
+  const fus=FUSIONS.filter(f=>f.slice(0,2).includes(it.form)&&fusionOk(f)).map(f=>f[0]===it.form?f[1]:f[0]).map(f=>mass(formEn(f))?formName(f):tx("a {form}",{form:formName(f)}));
   const own=ACCEPTS[k].includes(k)?[]:[mass(formEn(it.form))?tx("other {form}",{form:formName(it.form)}):tx("another {form}",{form:formName(it.form)})];
   return [...ACCEPTS[k].map(a=>txc("kind",KIND_LABEL[a])),...own,...(fus.length?[tx("{list} (fusion)",{list:fus.join(tx(" or "))})]:[])].join(", ");
 }
@@ -100,11 +100,11 @@ function trimBench(){const seen={};S.bench=S.bench.filter(id=>{seen[id]=(seen[id
 const canDecon=it=>!!it&&!isGear(it)&&!it.crafted&&!isEss(it.id)&&!isBaseMat(it.id)&&!!BASE[plainId(it.id)];
 const canSalvage=it=>!!it&&(isGear(it)||it.crafted)&&!isEss(it.id);
 // What deconstructing gives: mat = [base material id, n] (an affixed raw gives the affixed material), frag = [[trait, n, grade]] fragments it always gives, ch = [[trait, chance, grade]] a full essence each. Counted from the Plain traits, so a grade changes the fragments' grade, not their number.
-function deconYield(it){
-  const p=plainId(it.id),d=DECON[p],g=gradeOf(it.id),a=afxOfId(it.id),A=a&&AFX[a],fg=Math.max(1,g-FRAG.step),skip=d?MAT_T[MATS[d[0]]].tr:null,frag=[],ch=[];
+function deconYield(it,lv=salvLv()){
+  const p=plainId(it.id),d=DECON[p],g=gradeOf(it.id),a=afxOfId(it.id),A=a&&AFX[a],fg=Math.max(1,g-FRAG.step),skip=d?MAT_T[MATS[d[0]]].tr:null,frag=[],ch=[],over=salvOver(it,lv);
   Object.entries(BASE[p][2]).forEach(([t,v])=>{if(t===skip||TRAITS[t].f==="bad")return;const n=Math.round(v);if(n>0){frag.push([t,n,fg]);ch.push([t,Math.min(FRAG.cap,Math.round(FRAG.ch*v*100)/100),g])}});
-  if(A){const f=frag.find(x=>x[0]===A.tr);if(f)f[1]+=FRAG.afx;else frag.push([A.tr,FRAG.afx,fg]);ch.push([A.tr,FRAG.afxCh,g])}
-  return{mat:d?[gradedId(a?d[0]+"~"+a:d[0],g),d[1]]:null,frag,ch};
+  if(A){const f=frag.find(x=>x[0]===A.tr);if(f)f[1]+=FRAG.afx;else frag.push([A.tr,FRAG.afx,fg]);ch.push([A.tr,salvEssP(lv),g])}
+  return{mat:d?[gradedId(a?d[0]+"~"+a:d[0],over?Math.max(1,g-1):g),d[1]+salvMatBonus(lv)]:null,frag,ch};
 }
 // The materials a piece of gear was shaped from: a pattern piece keeps them (recipeIds), a plain BASE item uses its standard recipe or blueprint (at its own grade), a crucible craft those of its gear and material inputs.
 function stdMats(p){for(const k in PATTERNS)for(const [m,r] of PATTERNS[k].std)if(r===p)return m;return BLUEPRINTS[p]?BLUEPRINTS[p].m:null}
@@ -115,11 +115,19 @@ function matsOf(it,d=0){
   return(it.recipeIds||[]).flatMap(r=>isBaseMat(r)?[r]:matsOf(S.items[r],d+1));
 }
 // salvaging gives back half of them (rounded down, at least one), the first slots first
-const salvageMats=it=>{if(!it||!(isGear(it)||it.crafted))return[];const m=matsOf(it);return m.slice(0,m.length?Math.max(1,Math.floor(m.length/2)):0)};
+// Salvaging (SKILLS.salvage) is never blocked: its level only sets the output. Above the cap (SK_CAP) materials come one grade lower; Lv 3 and 6 add a base material; an affixed raw's essence comes with salvEssP.
+const salvLv=()=>skLv("salvage"),salvOver=(it,lv=salvLv())=>it.tier>SK_CAP[lv-1],salvMatBonus=lv=>SALV.mat.filter(l=>lv>=l).length,salvEssP=lv=>Math.min(1,SALV.ess+(lv-1)*SALV.essStep);
+const salvageMats=(it,lv=salvLv())=>{if(!it||!(isGear(it)||it.crafted))return[];const m=matsOf(it),k=m.length?Math.max(1,Math.floor(m.length/2)):0,out=m.slice(0,k).map(x=>salvOver(it,lv)?gradedId(baseIdOf(x),Math.max(1,gradeOf(x)-1)):x);
+  return out.length?[...out,...Array(salvMatBonus(lv)).fill(out[0])]:out};
+// one salvage's XP: more above the cap (a reason to try)
+function salvGain(it){S.skills.salvage=skXp("salvage")+SALV.xp*(salvOver(it)?SALV.over:1)}
+// the first salvage of a run pays research points (RP.salv), once; every salvage counts and trains the skill
+function salvDone(it){S.stats.salvaged++;salvGain(it);rpGain("salv:first",RP.salv,tx("your first salvage"))}
 // Patterns: mats = material ids in slot order. A blueprint (bp) or a standard recipe makes its named BASE item at the lowest grade among the materials, with the first affix among them; anything else makes a new piece from the weighted material traits.
 const patSlots=(key,bp)=>bp?BLUEPRINTS[key].slots:PATTERNS[key].slots.map(s=>s[0]);
 const patFits=(key,bp,i,id)=>!!id&&patSlots(key,bp)[i]&&patSlots(key,bp)[i].includes(MATS[plainId(id)]);
 function shapeResult(key,mats,bp){
+  if(!formOk(bp?BASE[key][1]:PATTERNS[key].form))return null; // a slot you have not learned is not forged
   const slots=patSlots(key,bp);if(mats.length!==slots.length||!mats.every((m,i)=>patFits(key,bp,i,m)))return null;
   const g=Math.min(...mats.map(gradeOf)),a=mats.map(afxOfId).find(Boolean),P=bp?null:PATTERNS[key];
   const named=bp?key:(P.std.find(([m])=>m.join()===mats.map(plainId).join())||[])[1];

@@ -346,10 +346,10 @@ DICT.ko=Object.assign(DICT.ko||{},{
 "You have {n}.":"보유: {n}.",
 "Precision trims {n} points off the failure chance.":"정밀 기술이 실패 확률을 {n}포인트 낮춥니다.",
 "Open Research":"연구 열기",
-"Alloying (locked)":"합금 (잠김)",
-"Learn Alloying in Research (the Forge tab) to merge two kinds of gear.":"연구(대장간 탭)에서 합금을 익히면 두 종류의 장비를 합칠 수 있습니다.",
+
+
 "Something to learn later.":"나중에 배울 수 있습니다.",
-"Alloying":"합금",
+
 "Learn it in Research.":"연구에서 익히세요.",
 "Not yet known.":"아직 모릅니다.",
 "Studying a material in Research, or an insight while forging, shows part of a reaction first.":"연구에서 재료를 분석하거나 단조 중 통찰을 얻으면 반응의 일부가 먼저 드러납니다.",
@@ -367,7 +367,7 @@ DICT.ko=Object.assign(DICT.ko||{},{
 "+{n} research: {list}.":"연구 +{n}: {list}.",
 "These are the ingredients of something legendary. Without the Masterwork technique (Research) you would forge only an ordinary piece. Tap Forge twice to confirm.":"전설의 무언가를 만드는 재료입니다. 걸작 기술(연구)이 없으면 평범한 물건만 만들어집니다. 확인하려면 대장간 버튼을 두 번 탭하세요.",
 "Needs the {names} technique (Research).":"{names} 기술이 필요합니다 (연구).",
-"Start simple: bind one essence into an item.":"간단하게 시작하세요: 정수 하나를 아이템에 결속하세요.",
+
 "Learn {name} first.":"먼저 {name|을|를} 익히세요.",
 "Needs {rq}.":"{rq|이|가} 필요합니다.",
 "{name} costs {cost} research points. You have {rp}.":"{name|은|는} 연구 점수 {cost}점이 필요합니다. 보유: {rp}점.",
@@ -522,7 +522,7 @@ DICT.ko=Object.assign(DICT.ko||{},{
   "Settings": "설정",
   "Back to game": "게임으로 돌아가기",
   "Explore": "탐험",
-  "Deconstruct the Ember Coal, then bind a Fire essence into your sword.": "잉걸탄을 분해한 다음 불의 정수를 검에 결합하세요.",
+  
   "Your first enchanted weapon has proved itself. The Woods are yours to explore.": "첫 마법 무기의 위력을 확인했습니다. 이제 숲을 탐험하세요.",
   "Forge your first enchanted weapon": "첫 마법 무기 제작",
   "Prepare for the first boss": "첫 우두머리 준비",
@@ -554,4 +554,11 @@ DICT.ko=Object.assign(DICT.ko||{},{
   "Study {name} to learn this blueprint.": "{name} 연구로 이 설계도를 배우세요.",
   "Forge from materials: {items}.": "제작 재료: {items}.",
 "Deconstruct {items} into this material.":"{items} 분해로 이 재료를 얻으세요.",
+"Deconstruct the Ember Coal. Then research a technique to put the Fire essence into your sword.":"잿불 석탄을 분해하세요. 그다음 연구에서 기술을 익혀 화염 정수를 검에 넣으세요.",
+"your first salvage":"첫 회수",
+"Learn a slot technique in Research (the Forge tab) to get its pattern.":"연구(대장간 탭)에서 부위 기술을 익히면 그 패턴을 얻습니다.",
+"Fusing (locked)":"융합 (잠김)",
+"Learn Fusing in Research (the Forge tab) to merge two kinds of gear.":"연구(대장간 탭)에서 융합을 익히면 두 종류의 장비를 합칠 수 있습니다.",
+"Learn a technique in Research first.":"먼저 연구에서 기술을 익히세요.",
+"Learn one of {names} first.":"먼저 {names} 중 하나를 익히세요."
 });

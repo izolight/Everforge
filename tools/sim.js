@@ -199,15 +199,15 @@ function setup(){ // runs inside the game page; everything here uses the real ga
   const essCount=()=>Object.keys(S.inv).filter(isEss).reduce((a,id)=>a+S.inv[id]*plainEq(gradeOf(id)),0); // plain-essence equivalents
   const itemCount=()=>Object.values(S.inv).reduce((a,b)=>a+b,0);
   // --fresh: the first expeditions of a new save with the unlock gates on (the starter kit, one policy): what each map holds, what opens between them
-  // between expeditions the bot does what a newcomer does: deconstructs its raw finds, binds each essence it holds into the sword, studies up to three families, learns the cheapest technique it can afford. rpEarned() counts what research was worth.
+  // between expeditions the bot does what a newcomer does: deconstructs its raw finds, infuses each essence it holds into the sword once it knows Infusing, studies up to three families, learns the cheapest technique it can afford. rpEarned() counts what research was worth.
   const chores=()=>{
     const rp0=rpEarned(),learned=[];
     Object.keys(S.inv).filter(id=>S.inv[id]-eqCount(id)>0&&!isEss(id)&&(DECON[plainId(id)]&&canDecon(S.items[id])||salvageYield(S.items[id]).length)).forEach(id=>{while(S.inv[id]-eqCount(id)>0){if(canDecon(S.items[id]))deconstruct(id);else salvageItem(id)}}); // raw finds are deconstructed, gear with essences in it salvaged
     const sw=S.inv.iron_sword>0?"iron_sword":null;
-    if(sw)for(const f of [...new Set(Object.keys(S.inv).filter(id=>isEss(id)&&S.inv[id]>0).map(essTrait))].slice(0,2)){const id=studyPool(f)[0];if(!id)continue;S.bench=[sw,id];if(!craftMiss(S.bench.map(i=>S.items[i])).length&&checkMix(S.bench.map(i=>S.items[i])).ok)forgeIt(S.bench.map(i=>S.items[i]));S.bench=[]}
+    if(sw)for(const f of [...new Set(Object.keys(S.inv).filter(id=>isEss(id)&&S.inv[id]>0).map(essTrait))].slice(0,2)){const id=studyPool(f)[0];if(!id)continue;S.bench=[sw,id];if(!actionOk(S.bench.map(i=>S.items[i])).length&&checkMix(S.bench.map(i=>S.items[i])).ok)forgeIt(S.bench.map(i=>S.items[i]));S.bench=[]}
     checkUnl(true);rpSweep();
     if(isUnl("research")){[...new Set(Object.keys(S.inv).filter(id=>isEss(id)&&S.inv[id]>0).map(essTrait))].filter(canStudy).slice(0,3).forEach(studyFam);
-      for(let k=0;k<10;k++){const t=TECHS.filter(t=>techState(t)==="avail"&&S.rp>=t.cost).sort((a,b)=>a.cost-b.cost)[0];if(!t)break;learnTech(t.id);learned.push(t.name)}}
+      for(let k=0;k<10;k++){const t=TECHS.filter(t=>techState(t)==="avail"&&S.rp>=techCost(t)).sort((a,b)=>techCost(a)-techCost(b))[0];if(!t)break;learnTech(t.id);learned.push(t.name)}}
     rpQ=[];return{gain:rpEarned()-rp0,learned}};
   SIM.fresh=(n,pol,seed)=>{
     useSeed(seed,"fresh");S=freshState();S.hp=pstats().maxHp;const rows=[],seenU=new Set();
@@ -289,7 +289,7 @@ async function main(){
     console.log(`== Fresh save: ${n} expeditions in the Woods with the unlock gates on (starter kit, ${POLS[0]} policy) ==\nColumns: result, steps, fights, wins this run; POIs placed on the map (shown by type); POI types the bot walked into; what opened afterwards (smith Lv / total wins / expeditions finished).`);
     rows.forEach(r=>console.log(`#${r.e} ${r.res.padEnd(11)} ${String(r.steps).padStart(3)} steps ${String(r.fights).padStart(2)} fights ${String(r.wins).padStart(2)} wins | map: ${Object.entries(r.pois).map(([t,c])=>t+" "+c).join(", ")}\n     met: ${Object.entries(r.visits).map(([t,c])=>t+" "+c).join(", ")||"nothing"} | then Lv ${r.sc.lv}, ${r.sc.wins} wins, ${r.sc.exps} expeditions -> opened: ${r.opened.join(", ")||"-"}\n     research: +${r.rp.gain} RP (${r.rp.earned} earned, ${r.rp.have} unspent; sources so far: ${Object.entries(r.rp.src).map(([k,n])=>k+" "+n).join(", ")})${r.rp.learned.length?` | learned: ${r.rp.learned.join(", ")}`:""}`));
     const tc=await P0.evaluate(()=>TECHS.filter(t=>t.cost).map(t=>({n:t.name,c:t.cost,rq:rqT(t)})));
-    console.log(`\nResearch: RP earned per expedition: ${rows.map(r=>r.rp.gain).join(", ")} (mean ${f1(rows.reduce((a,r)=>a+r.rp.gain,0)/rows.length)}). The bot deconstructs raw finds, binds essences into the sword, studies up to three families per expedition and learns the cheapest technique it can afford.\nA technique is affordable on the first expedition whose cumulative RP earned reaches its cost (its Smith level or skill requirement may come later):\n${tc.map(t=>{const k=rows.find(r=>r.rp.earned>=t.c);return `  ${t.n.padEnd(13)} ${String(t.c).padStart(2)} RP  ${k?"expedition "+k.e:"not yet"}${t.rq?"  (needs "+t.rq+")":""}`}).join("\n")}`);
+    console.log(`\nResearch: RP earned per expedition: ${rows.map(r=>r.rp.gain).join(", ")} (mean ${f1(rows.reduce((a,r)=>a+r.rp.gain,0)/rows.length)}). The bot deconstructs raw finds, infuses essences into the sword, studies up to three families per expedition and learns the cheapest technique it can afford.\nA technique is affordable on the first expedition whose cumulative RP earned reaches its cost (its Smith level or skill requirement may come later). A slot technique costs 3 once its group is known, and the first one after a group technique is free:\n${tc.map(t=>{const k=rows.find(r=>r.rp.earned>=t.c);return `  ${t.n.padEnd(13)} ${String(t.c).padStart(2)} RP  ${k?"expedition "+k.e:"not yet"}${t.rq?"  (needs "+t.rq+")":""}`}).join("\n")}`);
     await browser.close();return}
   const zones=list("zone",ZN),kitSel=list("kit",null),mastered=!has("no-mastered");
   const eSel=list("enemy",null),pickE=e=>eSel?eSel.includes(e.id):(e.zone==="any"||zones.includes(e.zone));

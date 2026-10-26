@@ -68,14 +68,14 @@ function reforge(id){
 // Salvage one piece of gear or a crafted item: half its materials back, the essences bound into it (never more) and embers.
 function salvageItem(id){
   if(itemLocked(id)||!(S.inv[id]>0)||!canSalvage(S.items[id]))return null;
-  const it=S.items[id],ys=salvageYield(it),sg=salvGrade(it),ms=salvageMats(it);S.inv[id]--;trimBench();settleGear(null);S.stats.salvaged++;
+  const it=S.items[id],ys=salvageYield(it),sg=salvGrade(it),ms=salvageMats(it);S.inv[id]--;trimBench();settleGear(null);salvDone(it);
   ys.forEach(t=>addItem(essG(t,sg)));ms.forEach(m=>addItem(gradedItem(baseIdOf(m),gradeOf(m))));const em=gainEmbers(salvageEmbers(it));
   return{ys,sg,em,ms};
 }
 // Deconstruct one raw find, food, potion, herb or relic (deconYield): its base material, Faint essence fragments and a chance of a full essence per trait. R is the roll source. Returns [[id, n, lucky]] (null for a locked item).
 function deconstruct(id,R=Math.random){
   if(itemLocked(id)||!(S.inv[id]>0)||!canDecon(S.items[id]))return null;
-  const y=deconYield(S.items[id]),got=[];S.inv[id]--;trimBench();settleGear(null);S.stats.salvaged++;
+  const y=deconYield(S.items[id]),got=[];S.inv[id]--;trimBench();settleGear(null);salvDone(S.items[id]);
   const give=(b,g,n,luck)=>{const x=gradedItem(b,g);addItem(x,n);const o=got.find(e=>e[0]===x&&!e[2]===!luck);if(o)o[1]+=n;else got.push([x,n,!!luck])};
   if(y.mat)give(baseIdOf(y.mat[0]),gradeOf(y.mat[0]),y.mat[1]);
   y.frag.forEach(([t,n,g])=>give("ess_"+t,g,n));

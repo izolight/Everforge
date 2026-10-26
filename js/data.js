@@ -123,7 +123,7 @@ const MATS={boar_leather:"leather",frost_leather:"leather",shroudcloth:"cloth",s
 const DECON={boar_hide:["boar_leather",2],pelt:["frost_leather",2],shroud:["shroudcloth",2],storm_feather:["stormsilk",2],scrap_iron:["iron_ingot",2],slag_iron:["slagsteel",2],sentinel_plate:["runesteel",2],
   oak_bough:["oak_timber",2],witchwood:["hexwood",2],golem_core:["golem_stone",2],coal:["cinderstone",1],sprite_dust:["glowglass",1],rune_shard:["rune_crystal",2],void_crystal:["void_shard",2]};
 // Fragments: every trait a deconstructed item carries (except its material's base trait) gives that many Faint essences per point at Plain (FRAG grade steps below the item's grade, never under Faint), plus a ch-per-point chance (capped) of one essence at the item's own grade. An affixed raw always gives afx fragments of its affix's essence and an afxCh chance of a full one; its material keeps the affix trait at AFX_RAW.
-const FRAG={step:2,ch:.2,cap:.75,afx:3,afxCh:.3},AFX_RAW=1;
+const FRAG={step:2,ch:.2,cap:.75,afx:3},AFX_RAW=1;
 // Patterns (known from the start) shape base materials into plain gear. slots = [allowed material types, weight]: the result's traits are the materials' traits x their slot weight, plus the pattern's tr; traits under FRAG_MIN are dropped. std = standard recipes: those exact (Plain) materials make that BASE item instead, so secrets and old saves keep their ids; graded materials make it at the lowest grade among them (iron_sword@4), an affixed one adds its affix (iron_sword~vamp). noun = the noun of any other result, by the first slot's material type.
 const PAT_MIN=.5,SHAPE={xp:4,sk:4}; // SHAPE: smith XP and skill XP for one pattern forge
 const PATTERNS={
@@ -316,10 +316,10 @@ const SECRETS=[
 const TUTORIAL=[
   {text:"Win your first battle.",tab:"battle",done:s=>s.wins>=1,reward:{items:["bread"]}},
   {text:"Deconstruct a raw find into materials and essence. Open Gear and tap a hide, ore or loaf.",tab:"gear",done:s=>s.stats.salvaged>=1,reward:{items:["spring_water"]}},
-  {text:"Forge your sword with an essence in the Forge.",tab:"forge",done:s=>s.journal.length>=1,reward:{xp:20,items:["ess:Fire"]}},
-  {text:"Learn a technique: open Research in the Forge and spend your research points.",tab:"forge",need:"research",done:s=>Object.keys(s.techs).length>1,reward:{items:["ess:Ice"],xp:20}},
+  {text:"Learn a technique in Research (the Forge tab) and spend your research points.",tab:"forge",need:"research",done:s=>Object.keys(s.techs).length>=1,reward:{items:["ess:Ice"],xp:20}},
+  {text:"Learn a slot technique, then forge a piece from its pattern in the Forge.",tab:"forge",done:s=>s.stats.shaped>=1,reward:{items:["ess:Fire"],xp:20}},
   {text:"Use Study during a fight to learn something about an enemy.",tab:"battle",done:s=>s.stats.studied>=1,reward:{items:["ess:Sharp"]}},
-  {text:"Forge a piece of armor from a pattern in the Forge, then equip it.",tab:"gear",done:s=>["off","head","body","hands","feet"].some(k=>s.eq[k]&&s.items[s.eq[k]]&&FORMS[s.items[s.eq[k]].form].g==="armor"),reward:{camp:1}},
+  {text:"Learn an armor technique, forge a piece of armor from its pattern, then equip it.",tab:"gear",done:s=>["off","head","body","hands","feet"].some(k=>s.eq[k]&&s.items[s.eq[k]]&&FORMS[s.items[s.eq[k]].form].g==="armor"),reward:{camp:1}},
   {text:"Cross the Woods map and defeat Gnarlhorn at the end of it.",tab:"battle",done:s=>(s.kills.gnarlhorn||0)>=1,reward:{items:["ess:Swift","ess:Holy"],xp:30}},
   {text:"Infuse an essence into yourself in the Gear tab.",tab:"gear",done:s=>Object.keys(s.infuse||{}).length>0,reward:{camp:1,xp:20}},
   // steps 9-16 walk through the unlocks (see UNLOCKS). A step with need:"id" (an unlock) or ok(s) waits, showing how to open it (UNLOCKS txt, or wait), until its system is open
@@ -377,10 +377,13 @@ const LV_PERK={2:"Third crucible slot unlocked.",3:"Another trait slot, and you 
 const SKILLS={weapon:{get name(){return tx("Weaponsmithing")},g:"blade",forms:["blade","spear","staff","lance","spellblade","warstaff","claws"],get cats(){return tx("all weapons")}},shield:{get name(){return tx("Shieldwright")},g:"shield",forms:["shield"],get cats(){return tx("shields")}},helm:{get name(){return tx("Helmsmithing")},g:"helm",forms:["helm"],get cats(){return tx("head armor")}},
   body:{get name(){return tx("Armorsmithing")},g:"chest",forms:["chest","bulwark"],get cats(){return tx("body armor, bulwarks")}},gloves:{get name(){return tx("Glovemaking")},g:"gloves",forms:["gloves"],get cats(){return tx("gloves")}},boots:{get name(){return tx("Bootmaking")},g:"boots",forms:["boots"],get cats(){return tx("boots")}},
   trinket:{get name(){return tx("Trinketry")},g:"charm",forms:["charm"],get cats(){return tx("trinkets")}},cooking:{get name(){return tx("Cooking")},g:"food",forms:["food"],get cats(){return tx("food")}},brewing:{get name(){return tx("Brewing")},g:"potion",forms:["potion","elixir"],get cats(){return tx("potions, elixirs")}},
-  alchemy:{get name(){return tx("Alchemy")},g:"shard",forms:["material"],get cats(){return tx("essences, materials")}}};
+  alchemy:{get name(){return tx("Alchemy")},g:"shard",forms:["material"],get cats(){return tx("essences, materials")}},
+  salvage:{get name(){return tx("Salvaging")},g:"shard",forms:[],get cats(){return tx("anything salvaged")}}};
 function hash(str){let h=2166136261;for(let i=0;i<str.length;i++){h^=str.charCodeAt(i);h=Math.imul(h,16777619)}return h>>>0} // also needed by loadSave(), which runs before helpers.js loads
 const skillOf=it=>Object.keys(SKILLS).find(k=>SKILLS[k].forms.includes(it.form));
 const SK_LV=[0,30,80,160,280,450,680,980,1350,1800],SK_CAP=[3,4,5,6,7,8,9,9,9,9],SK_XP={self:1,input:.3,fizzle:.5};
+// Salvaging (SKILLS.salvage) is never blocked; its level sets the output (crafting.js). xp: skill XP per salvage (over: times that above the cap); ess: chance of an affix essence at Lv 1, rising by essStep a level (100% at Lv 6); mat: levels that add a base material.
+const SALV={xp:10,over:2,ess:.4,essStep:.12,mat:[3,6]};
 // Difficulty of a recipe, in skill levels: CRAFT.base + CRAFT.tier per result tier above 1 + the raw instability (conflicts, reactions, extra inputs) / CRAFT.inst + CRAFT.up per tier above CRAFT.upFrom of a crafted input of the result's own form (upgrading again). The failure chance is FAIL.base + FAIL.slope x (difficulty - skill level), kept between FAIL.min and FAIL.max, and the share of failures that fizzle (lose everything, FIZ.refund of the ingredients' worth back in embers) instead of becoming a mishap is FIZ.base + FIZ.slope x the gap (FIZ.min..FIZ.max). Trait merges gain half as much above SOFT.
 const CRAFT={base:1,tier:.8,inst:12,up:.5,upFrom:3},FAIL={base:10,slope:10,min:3,max:85},FIZ={base:.05,slope:.2,min:.05,max:.85,refund:.25},SOFT=8;
 const STAT_NAMES={get atk(){return tx("Attack")},get def(){return tx("Defense")},get mag(){return tx("Magic")},get heal(){return tx("Heal")},get spd(){return tx("Speed")}};
@@ -431,39 +434,71 @@ const DAILY_REWARD={ess:3,xp:80};
 const lvOf=xp=>XP_LV.filter(t=>xp>=t).length,exps=s=>s.stats.exped+s.stats.deaths,has_=(s,...ids)=>ids.every(i=>s.unl[i]); // exps: finished expeditions (a boss down or a defeat)
 const boss1=s=>(s.kills[ZONES[0][2]]|0)>0,abOf=s=>[s.eq.main,s.eq.off].some(id=>id&&s.items[id]&&ABILITIES[s.items[id].form]);
 // ================= RESEARCH =================
-// Research points (S.rp) come from discoveries: each source in RP pays once (S.rpd keeps which). They buy techniques (S.techs={id:order}); what you can craft depends on them (craftMiss in research.js).
-// A tech: id, name, ic, cost (RP), pre (techs needed first), rq/ok (a requirement over a state: Smith level or a skill), pos [column, row] in the tree, d (what it is), gate (what it opens, shown in tips) and i (the intro card, queued when learned).
-// Binding is known from the start. Refining is the grade upgrades; Mending is reforging; Precision lowers the failure chance by PREC points each; Masterwork lets legendary secrets succeed.
-const RP={form:2,rec:1,recCap:10,fam:1,rx:4,study:1,mast:2,boss:[4,8,12,16,20],afx:1,leg:4,lv:2,lvMax:9,sk:2,skLv:[3,5,7,9],bp:2},PREC=[5,5],INSIGHT={ch:35}; // INSIGHT.ch: % chance a craft with one side of an unseen reaction hints at it
+// Research points (S.rp) come from discoveries: each source in RP pays once (S.rpd keeps which). They buy techniques (S.techs={id:order}, S.tpaid={id:RP paid}); what you can craft depends on them (actionOk in research.js).
+// A technique: id, name, ic, cost (RP), pre (all needed), or (any one of these, if given), rq/ok (a requirement over a state: Smith level or a skill), pos [column, row] in the tree, d (what it is), gate (what it opens, shown in tips) and i (the intro card, queued when learned).
+// Gear: a group technique (weaponcraft, armorcraft: gr, group) makes the slot techniques of its group (gr: weapon or armor) cost half, and the first one after it is free (techCost). Each slot technique is the pattern (and blueprints) of one kind of gear: SLOT_TECH.
+// The forge actions: infuse (essences), improve (materials), fuse (two forms), refine (grades, see UP), mend (reforge), precision and masterwork. KITCHEN_TECH: food, potions and materials need cooking, brewing and alchemy. actionOk (research.js) reads these.
+const GROUP_TECH={weapon:"weaponcraft",armor:"armorcraft"},SLOT_TECH={blade:"blade",spear:"spear",staff:"staff",helm:"helm",chest:"body",bulwark:"body",gloves:"gloves",boots:"boots",shield:"shield",charm:"trinketry"},KITCHEN_TECH={food:"cooking",potion:"brewing",elixir:"brewing",material:"alchemy"};
+const SLOT_ALL=["blade","spear","staff","helm","body","gloves","boots","shield"];
+const RP={form:2,rec:1,recCap:10,fam:1,rx:4,study:1,mast:2,boss:[4,8,12,16,20],afx:1,leg:4,lv:2,lvMax:9,sk:2,skLv:[3,5,7,9],bp:2,salv:3},PREC=[5,5],INSIGHT={ch:35}; // INSIGHT.ch: % chance a craft with one side of an unseen reaction hints at it; RP.salv: the first salvage pays this much, enough for a group technique
 const skLvOf=(s,k)=>SK_LV.filter(t=>((s.skills||{})[k]|0)>=t).length,smLv=n=>({rq:"Smith Lv {l}",rv:{l:n},ok:s=>lvOf(s.xp)>=n});
 const TECHS=[
-  {id:"bind",name:"Binding",ic:"infuse",cost:0,pre:[],pos:[1.5,0],d:"Bind one essence into an item.",gate:"An item and one essence."},
-  {id:"layer",name:"Layering",ic:"tier",cost:6,pre:["bind"],pos:[0,1],d:"Forge on top of something you already crafted. The traits stack.",gate:"A crafted item as an ingredient.",
-    i:{t:"Layering",l:["You can forge on top of a crafted item: add another essence and the traits stack, up to your trait slots."],tab:"forge",sel:"#slots"}},
-  {id:"compound",name:"Compounding",ic:"bag",cost:10,pre:["bind"],pos:[1,1],d:"Forge with a second item or any ingredient that is not an essence: ores, herbs, hides, potions, relics.",gate:"A second item or non-essence ingredients (item + item, essence + essence).",
-    i:{t:"Compounding",l:["A second item or any non-essence ingredient can now go into the crucible: ores, herbs, hides, potions, relics. Until now only essences."],tab:"forge",sel:"#slots"}},
-  {id:"mend",name:"Mending",ic:"cleanse",cost:12,pre:["bind"],pos:[2,1],...smLv(2),d:"Mend a flawed craft (Cursed, Brittle, Rust or Weakened) by reforging it.",gate:"Reforging flawed items.",
-    i:{t:"Mending",l:["Open a flawed item and tap Reforge to strip its flaws. It costs embers, so it shows once you have some."],tab:"forge"}},
-  {id:"refine",name:"Refining",ic:"upgrade",cost:12,pre:["bind"],pos:[3,1],rq:"Alchemy Lv {l}",rv:{l:2},ok:s=>skLvOf(s,"alchemy")>=2,d:"Raise a grade: three essences or materials of one grade become one of the next.",gate:"The grade upgrade panel.",
+  {id:"weaponcraft",name:"Weaponcraft",ic:"attack",cost:3,pre:[],gr:"weapon",group:1,pos:[0,0],d:"Weapon slot techniques cost half. The first one you learn after this is free.",gate:"Blade, spear and staff: half price, and one free.",
+    i:{t:"Weaponcraft",l:["Weapon slot techniques cost half now. Your next weapon technique is free: pick the blade, spear or staff you want most."],tab:"forge"}},
+  {id:"blade",name:"Bladecraft",ic:"smith",cost:6,pre:[],gr:"weapon",pos:[0,1],d:"The blade pattern and its blueprints in the Forge.",gate:"Blades.",
+    i:{t:"Bladecraft",l:["Blades can be forged from the blade pattern in the Forge."],tab:"forge",sel:"#pats"}},
+  {id:"spear",name:"Spearcraft",ic:"smith",cost:6,pre:[],gr:"weapon",pos:[0,2],d:"The spear pattern and its blueprints in the Forge.",gate:"Spears.",
+    i:{t:"Spearcraft",l:["Spears can be forged from the spear pattern in the Forge."],tab:"forge",sel:"#pats"}},
+  {id:"staff",name:"Staffcraft",ic:"smith",cost:6,pre:[],gr:"weapon",pos:[0,3],d:"The staff pattern and its blueprints in the Forge.",gate:"Staves.",
+    i:{t:"Staffcraft",l:["Staves can be forged from the staff pattern in the Forge."],tab:"forge",sel:"#pats"}},
+  {id:"armorcraft",name:"Armorcraft",ic:"guard",cost:3,pre:[],gr:"armor",group:1,pos:[1,0],d:"Armor slot techniques cost half. The first one you learn after this is free.",gate:"Helm, body, gloves, boots and shield: half price, and one free.",
+    i:{t:"Armorcraft",l:["Armor slot techniques cost half now. Your next armor technique is free: pick the piece you need most."],tab:"forge"}},
+  {id:"helm",name:"Helmcraft",ic:"smith",cost:6,pre:[],gr:"armor",pos:[1,1],d:"The helm pattern and its blueprints in the Forge.",gate:"Head armor.",
+    i:{t:"Helmcraft",l:["Helms can be forged from the helm pattern in the Forge."],tab:"forge",sel:"#pats"}},
+  {id:"body",name:"Bodycraft",ic:"smith",cost:6,pre:[],gr:"armor",pos:[1,2],d:"The body pattern (jerkins, plate and bulwarks) in the Forge.",gate:"Body armor and bulwarks.",
+    i:{t:"Bodycraft",l:["Body armor and bulwarks can be forged from the body pattern in the Forge."],tab:"forge",sel:"#pats"}},
+  {id:"gloves",name:"Glovecraft",ic:"smith",cost:6,pre:[],gr:"armor",pos:[1,3],d:"The gloves pattern and its blueprints in the Forge.",gate:"Gloves.",
+    i:{t:"Glovecraft",l:["Gloves can be forged from the gloves pattern in the Forge."],tab:"forge",sel:"#pats"}},
+  {id:"boots",name:"Bootcraft",ic:"smith",cost:6,pre:[],gr:"armor",pos:[1,4],d:"The boots pattern and its blueprints in the Forge.",gate:"Boots.",
+    i:{t:"Bootcraft",l:["Boots can be forged from the boots pattern in the Forge."],tab:"forge",sel:"#pats"}},
+  {id:"shield",name:"Shieldcraft",ic:"smith",cost:6,pre:[],gr:"armor",pos:[1,5],d:"The shield pattern and its blueprints in the Forge.",gate:"Shields.",
+    i:{t:"Shieldcraft",l:["Shields can be forged from the shield pattern in the Forge."],tab:"forge",sel:"#pats"}},
+  {id:"trinketry",name:"Trinketry",ic:"amulet",cost:6,pre:[],or:["weaponcraft","armorcraft"],pos:[2,0],d:"Charms: trinkets made from crystal and ingots.",gate:"Trinkets (charms).",
+    i:{t:"Trinketry",l:["Trinkets are made from crystal and ingots. The charm pattern is in the Forge."],tab:"forge",sel:"#pats"}},
+  {id:"infuse",name:"Infusing",ic:"infuse",cost:8,pre:[],or:SLOT_ALL,pos:[2,1],d:"Infuse: one item and one essence. The essence's trait joins the item's traits.",gate:"An item and an essence.",
+    i:{t:"Infusing",l:["Put one item and one essence in the crucible: the essence's trait joins the item's traits."],tab:"forge",sel:"#combine"}},
+  {id:"infuse2",name:"Infusing II",ic:"infuse",cost:14,pre:["infuse"],...smLv(3),pos:[2,2],d:"Two essences go into one infusion.",gate:"Two essences at once.",
+    i:{t:"Infusing II",l:["Two essences can go into one infusion now."],tab:"forge",sel:"#combine"}},
+  {id:"infuse3",name:"Infusing III",ic:"infuse",cost:24,pre:["infuse2"],...smLv(5),pos:[2,3],d:"Infuse an item that is already infused: the traits stack.",gate:"An infused item, infused again.",
+    i:{t:"Infusing III",l:["An item that already holds essences can take another one. The traits stack."],tab:"forge",sel:"#combine"}},
+  {id:"improve",name:"Improving",ic:"bag",cost:10,pre:[],or:SLOT_ALL,pos:[3,1],d:"Improve: an item and materials (ore, hide, herb, relic). The item keeps its form.",gate:"An item and materials.",
+    i:{t:"Improving",l:["Ore, hide, herb and relics can go into an item in the crucible, and the item keeps its form."],tab:"forge",sel:"#combine"}},
+  {id:"improve2",name:"Improving II",ic:"bag",cost:18,pre:["improve"],...smLv(3),pos:[3,2],d:"More materials in one go, as far as the crucible has slots.",gate:"Several materials at once.",
+    i:{t:"Improving II",l:["Several materials can go into one improvement, as far as the crucible has slots."],tab:"forge",sel:"#combine"}},
+  {id:"fuse",name:"Fusing",ic:"alloy",cost:20,pre:["improve"],pos:[4,1],d:"Merge two kinds of gear into a new form, like a spear and a shield into a lance.",gate:"Form fusions, once both forms are known.",
+    i:{t:"Fusing",l:["Two kinds of gear can now merge into a new form, such as a spear and a shield into a lance.","The Recipes tab lists every fusion."],tab:"forge",sel:"#combine"}},
+  {id:"refine",name:"Refining",ic:"upgrade",cost:12,pre:[],rq:"Salvaging Lv {l}",rv:{l:2},ok:s=>skLvOf(s,"salvage")>=2,pos:[2,4],d:"Raise a grade: three essences or materials of one grade become one of the next.",gate:"The grade upgrade panel.",
     i:{t:"Refining",l:["{n} essences or materials of one grade, plus some embers, make one of the next grade: stronger traits in one slot.","The panel shows in the Forge once you have embers and crafting skills."],v:{n:UP.n},tab:"forge"}},
-  {id:"temper",name:"Tempering",ic:"forge",cost:16,pre:["layer"],pos:[0,2],...smLv(2),d:"Forge with three or more ingredients at once.",gate:"Three or more inputs (the crucible slots still come with Smith level).",
-    i:{t:"Tempering",l:["Three or more things in one forge, as many as your crucible has slots. More inputs make a forge harder."],tab:"forge",sel:"#slots"}},
-  {id:"alloy",name:"Alloying",ic:"alloy",cost:20,pre:["compound"],pos:[1,2],...smLv(3),d:"Merge two kinds of gear into a new form, like a spear and a shield into a lance.",gate:"Form fusions.",
-    i:{t:"Alloying",l:["Two kinds of gear can now merge into a new form, such as a spear and a shield into a lance.","The Recipes tab lists every fusion."],tab:"forge",sel:"#slots"}},
-  {id:"prec1",name:"Precision I",ic:"weak",cost:20,pre:["mend"],pos:[2,2],...smLv(3),d:"A steadier hand: {n} points fewer failures in every forge.",v:{n:PREC[0]},gate:"Lower failure odds.",
+  {id:"mend",name:"Mending",ic:"cleanse",cost:12,pre:[],or:["infuse","improve"],pos:[3,4],d:"Mend a flawed craft (Cursed, Brittle, Rust or Weakened) by reforging it.",gate:"Reforging flawed items.",
+    i:{t:"Mending",l:["Open a flawed item and tap Reforge to strip its flaws. It costs embers, so it shows once you have some."],tab:"forge"}},
+  {id:"prec1",name:"Precision I",ic:"weak",cost:20,pre:["mend"],...smLv(3),pos:[3,5],d:"A steadier hand: {n} points fewer failures in every forge.",v:{n:PREC[0]},gate:"Lower failure odds.",
     i:{t:"Precision I",l:["Your hand is steadier: every forge fails {n} points less often (never under {min}%)."],v:{n:PREC[0],min:FAIL.min},tab:"forge",sel:"#combine"}},
-  {id:"prec2",name:"Precision II",ic:"weak",cost:30,pre:["prec1"],pos:[2,3],...smLv(6),d:"Steadier still: another {n} points fewer failures.",v:{n:PREC[1]},gate:"Lower failure odds.",
+  {id:"prec2",name:"Precision II",ic:"weak",cost:30,pre:["prec1"],...smLv(6),pos:[3,6],d:"Steadier still: another {n} points fewer failures.",v:{n:PREC[1]},gate:"Lower failure odds.",
     i:{t:"Precision II",l:["Another {n} points off every forge's failure chance, {t} in all (never under {min}%)."],v:{n:PREC[1],t:PREC[0]+PREC[1],min:FAIL.min},tab:"forge",sel:"#combine"}},
-  {id:"master",name:"Masterwork",ic:"renown",cost:40,pre:["temper","prec1"],pos:[1,3],...smLv(5),d:"Legendary secrets can succeed: the exact ingredients forge a legendary.",gate:"Legendary secrets.",
-    i:{t:"Masterwork",l:["Legendary secrets can succeed now: forge the exact ingredients a rumor names and the result is legendary.","Until now the right ingredients only made an ordinary piece."],tab:"forge"}}
+  {id:"master",name:"Masterwork",ic:"renown",cost:40,pre:["fuse","infuse2"],...smLv(5),pos:[4,3],d:"Legendary secrets can succeed: the exact ingredients forge a legendary.",gate:"Legendary secrets.",
+    i:{t:"Masterwork",l:["Legendary secrets can succeed now: forge the exact ingredients a rumor names and the result is legendary.","Until now the right ingredients only made an ordinary piece."],tab:"forge"}},
+  {id:"cooking",name:"Cooking",ic:"heal_hit",cost:4,pre:[],pos:[5,0],d:"Food: ingredients only, in its own simple crucible.",gate:"Food, from herbs and essences.",
+    i:{t:"Cooking",l:["Food is cooked from herbs and essences. Eating it in a fight heals you."],tab:"forge",sel:"#combine"}},
+  {id:"brewing",name:"Brewing",ic:"water",cost:6,pre:[],pos:[5,1],d:"Potions and elixirs.",gate:"Potions and elixirs.",
+    i:{t:"Brewing",l:["Potions and elixirs are brewed from herbs and potions in the crucible."],tab:"forge",sel:"#combine"}},
+  {id:"alchemy",name:"Alchemy",ic:"ember",cost:8,pre:[],or:["brewing","infuse"],pos:[5,2],d:"Make essences and materials in the crucible.",gate:"Essences and materials.",
+    i:{t:"Alchemy",l:["Essences and materials can be made in the crucible from other essences and materials."],tab:"forge",sel:"#combine"}}
 ].map(t=>({ok:()=>true,rq:"",...t}));
 const TECH=Object.fromEntries(TECHS.map(t=>[t.id,t]));
 // one vague word per trait that takes part in a reaction: an insight says "X reacts with <this>" without naming the partner
 const VAGUE={Fire:"something hot",Ice:"something freezing",Water:"something wet",Poison:"something venomous",Nourishing:"something wholesome",Sweet:"something sweet",Light:"something bright",Holy:"something sacred",Shadow:"something dark",Iron:"something forged",Arcane:"something uncanny",Stone:"something heavy",Fur:"something warm",Sharp:"something keen",Steam:"something misty"};
 const UNLOCKS=[
   {id:"start",name:"The map",ic:"hero",q:1,when:()=>true,i:{t:"Your first expedition",l:["Tap a glowing tile next to you to step. Fights drop loot, and a camp waits before the boss.","In a fight: Attack, Guard or Flee. Your torch burns down as you walk."],tab:"battle",sel:".tl.adj"}},
-  {id:"patterns",name:"Patterns",ic:"pattern",when:s=>s.stats.shaped>0||Object.keys(s.inv).some(id=>s.inv[id]>0&&isBaseMat(id)),txt:"Deconstruct a raw find in the Gear tab.",w:"Open the Forge tab.",
-    i:{t:"Patterns",l:["Deconstructing gives base materials: leather, cloth, ingots, timber, stone and crystal.","Pick a pattern in the Forge and fill its slots to forge gear. Better grades make stronger pieces."],tab:"forge",sel:"#patp"}},
   {id:"blueprints",name:"Blueprints",ic:"scroll",when:s=>Object.values(s.codex).some(k=>k&&Array.isArray(k.bp)&&k.bp.length>0),txt:"Study a creature in a fight.",w:"Open the Forge tab.",
     i:{t:"Blueprints",l:["A blueprint forges a creature's named gear from base materials. It waits beside the patterns in the Forge.","Study creatures in a fight, or master them, to learn more."],tab:"forge",sel:"#pats .bpb"}},
   {id:"study",name:"Study",ic:"study",when:s=>s.wins>=1,txt:"Win your first battle.",w:"It joins the action buttons.",
@@ -487,8 +522,8 @@ const UNLOCKS=[
     i:{t:"Infusions",l:["Essences worth {cost} plain ones can be infused into you. The trait stays whatever you wield.","Feed it the same essence again to deepen it, up to {max}."],v:{cost:INF_COST,max:["I","II","III"][INF_MAX-1]},tab:"gear",sel:"#inflabel"}},
   {id:"skills",name:"Crafting skills",ic:"hammer",when:s=>s.journal.length>0||s.stats.forged>0,txt:"Forge something.",w:"Open the Forge tab.",
     i:{t:"Crafting skills",l:["Every kind of thing has its own skill, and forging it trains it.","A higher skill reaches higher tiers and fails less often."],tab:"forge",sel:"#skd"}},
-  {id:"research",name:"Research",ic:"research",when:s=>s.journal.length>0||s.stats.forged>0||lvOf(s.xp)>=2,txt:"Forge something, or reach Smith Lv 2.",w:"Open the Forge tab.",
-    i:{t:"Research",l:["Forging, salvaging, studying and meeting new things teach you something. Each first discovery earns research points, and so do reaching new smith and skill levels and defeating bosses.","Spend them in the Forge on techniques: they decide what you can craft. You know Binding, one essence into an item."],tab:"forge",sel:"#resd"}},
+  {id:"research",name:"Research",ic:"research",when:s=>s.stats.salvaged>0||lvOf(s.xp)>=2,txt:"Salvage something, or reach Smith Lv 2.",w:"Open the Forge tab.",
+    i:{t:"Research",l:["Forging, salvaging, studying and meeting new things teach you something. Each first discovery earns research points, and so do reaching new smith and skill levels and defeating bosses.","Spend them in the Forge on techniques: they decide what you can craft. Salvaging gave you your first points: Weaponcraft or Armorcraft is a good start."],tab:"forge",sel:"#resd"}},
   ...TECHS.filter(t=>t.i).map(t=>({id:"t:"+t.id,name:t.name,ic:t.ic,q:1,when:s=>!!s.techs[t.id],i:t.i})), // a technique's intro is queued when it is learned (the toast and sound come from learnTech)
   {id:"upgrade",name:"Grade upgrades",ic:"upgrade",when:s=>has_(s,"peddler","skills")&&!!s.techs.refine,txt:"Unlock embers and crafting skills, and learn Refining in Research.",w:"Open the Forge tab.",
     i:{t:"Grade upgrades",l:["{n} essences or materials of one grade and some embers make one of the next grade: stronger traits in one slot.","A miss costs the embers and one of the {n}."],v:{n:UP.n},tab:"forge",sel:"#upgd"}},

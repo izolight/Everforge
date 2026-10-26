@@ -108,7 +108,7 @@ $("combine").onclick=()=>{
   if(items.some(it=>itemLocked(it.id)))return toast(tx("Unlock these items before crafting."));
   if(items.length<2)return;if(!chk.ok){toast(chk.reason);return}
   if(inBattle()){toast(tx("Finish the fight first."));return}
-  const miss=craftMiss(items);if(miss.length){toast(techWhy(miss));return}
+  const miss=actionOk(items);if(miss.length){toast(techWhy(miss));return}
   const pre=combine(items,{roll:100}),bl=pre.blocked;if(bl){toast(blockText(bl));return}
   if(((pre.fiz>0&&equippedRisk(items).length)||pre.mw>=0)&&!armTap("forge:"+S.bench.join(),3500,()=>{if(S.view==="forge")renderBench()}))return renderBench(); // a fizzle would destroy something you wear, or a secret would come out ordinary: tap twice
   armClear("forge:"+S.bench.join());

@@ -349,10 +349,10 @@ DICT.de=Object.assign(DICT.de||{},{
 "You have {n}.":"Du hast {n}.",
 "Precision trims {n} points off the failure chance.":"Präzision senkt die Fehlerchance um {n} Punkte.",
 "Open Research":"Forschung öffnen",
-"Alloying (locked)":"Legierung (gesperrt)",
-"Learn Alloying in Research (the Forge tab) to merge two kinds of gear.":"Lerne Legierung in der Forschung (Schmiede-Ansicht), um zwei Ausrüstungsarten zu verschmelzen.",
+
+
 "Something to learn later.":"Etwas, das du später lernst.",
-"Alloying":"Legierung",
+
 "Learn it in Research.":"Lerne sie in der Forschung.",
 "Not yet known.":"Noch unbekannt.",
 "Studying a material in Research, or an insight while forging, shows part of a reaction first.":"Ein Material in der Forschung zu studieren oder eine Einsicht beim Schmieden zeigt zuerst einen Teil einer Reaktion.",
@@ -370,7 +370,7 @@ DICT.de=Object.assign(DICT.de||{},{
 "+{n} research: {list}.":"+{n} Forschung: {list}.",
 "These are the ingredients of something legendary. Without the Masterwork technique (Research) you would forge only an ordinary piece. Tap Forge twice to confirm.":"Das sind die Zutaten für etwas Legendäres. Ohne die Technik Meisterwerk (Forschung) schmiedest du nur ein gewöhnliches Stück. Tippe zweimal auf Schmieden, um zu bestätigen.",
 "Needs the {names} technique (Research).":"Benötigt die Technik {names} (Forschung).¦Benötigt die Techniken {names} (Forschung).",
-"Start simple: bind one essence into an item.":"Fang einfach an: Binde eine Essenz in einen Gegenstand.",
+
 "Learn {name} first.":"Lerne zuerst {name}.",
 "Needs {rq}.":"Benötigt {rq}.",
 "{name} costs {cost} research points. You have {rp}.":"{name} kostet {cost} Forschungspunkte. Du hast {rp}.",
@@ -525,7 +525,7 @@ DICT.de=Object.assign(DICT.de||{},{
   "Settings": "Einstellungen",
   "Back to game": "Zurück zum Spiel",
   "Explore": "Erkunden",
-  "Deconstruct the Ember Coal, then bind a Fire essence into your sword.": "Zerlege die Glutkohle und binde eine Feueressenz in dein Schwert.",
+  
   "Your first enchanted weapon has proved itself. The Woods are yours to explore.": "Deine erste verzauberte Waffe hat sich bewährt. Erkunde nun die Wälder.",
   "Forge your first enchanted weapon": "Schmiede deine erste verzauberte Waffe",
   "Prepare for the first boss": "Bereite dich auf den ersten Boss vor",
@@ -557,4 +557,11 @@ DICT.de=Object.assign(DICT.de||{},{
   "Study {name} to learn this blueprint.": "Studiere {name}, um diesen Bauplan zu lernen.",
   "Forge from materials: {items}.": "Schmiede aus Materialien: {items}.",
 "Deconstruct {items} into this material.":"Zerlege {items}, um dieses Material zu erhalten.",
+"Deconstruct the Ember Coal. Then research a technique to put the Fire essence into your sword.":"Zerlege die Glutkohle. Erforsche dann eine Technik, um die Feuer-Essenz in dein Schwert zu bringen.",
+"your first salvage":"deine erste Bergung",
+"Learn a slot technique in Research (the Forge tab) to get its pattern.":"Lerne eine Ausrüstungstechnik in der Forschung (Schmiede-Ansicht), um ihr Muster zu erhalten.",
+"Fusing (locked)":"Verschmelzung (gesperrt)",
+"Learn Fusing in Research (the Forge tab) to merge two kinds of gear.":"Lerne Verschmelzung in der Forschung (Schmiede-Ansicht), um zwei Ausrüstungsarten zu vereinen.",
+"Learn a technique in Research first.":"Lerne zuerst eine Technik in der Forschung.",
+"Learn one of {names} first.":"Lerne zuerst eine von {names}."
 });
