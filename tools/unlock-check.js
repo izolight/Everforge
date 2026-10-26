@@ -37,7 +37,7 @@ async function flow(browser,w){
   ok(r.parry&&r.title==="It's winding up"&&r.on&&r.log,"the first telegraphed special opens Parry with its card and a log line");ok(r.cards===1,"exactly one card is on screen");
   await shot(p,w,"5-parry-intro");
   // the fight goes on with the card up (it never blocks input); win it
-  await p.evaluate(()=>{S.battle.hp=1});await p.click("#atk");
+  await p.evaluate(()=>{S.battle.hp=1;window._rnd=Math.random;Math.random=()=>0});await p.click("#atk");await p.evaluate(()=>{Math.random=window._rnd}); // a sure drop: map fights only drop at DENSITY_RW odds
   r=await p.evaluate(()=>({won:S.battle&&S.battle.over==="won",study:!!S.unl.study,roam:!!S.unl.roam,pend:pendingIntros().map(c=>c.id)}));
   ok(r.won&&r.study&&r.roam,"the first win opens Study and roaming enemies");ok(r.pend.join()==="parry,salvage,study","intros queue in the order the systems opened: the first raw find opens Salvage ("+r.pend+")");
   r=await p.evaluate(()=>({top:$("intro").hidden}));ok(r.top,"a battle intro waits out of the fight instead of showing on the map");
