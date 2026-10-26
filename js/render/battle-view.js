@@ -63,7 +63,7 @@ function mapHead(){
 }
 function riftCard(){ // the Rift: the region you stand in, its depth and your record
   if(S.zone!==RIFT_ZONE)return "";
-  const r=S.rift||{},nm=r.name||tx("unknown");
+  const r=S.rift||{},nm=r.name?tx(r.name):tx("unknown");
   return `<div class="dcard rift"><div class="dtop"><b>${ic("mystery")} ${tx("The Wanderer's Rift")}</b><span class="dline"><span>${tx("Region: {name}",{name:esc(nm)})}</span><span class="heat">${tx("Depth {n}",{n:r.depth||1})}</span><span class="heat">${tx("Best {n}",{n:r.best||0})}</span></span>
     ${helpBtn(tx("The Wanderer's Rift"),tx("Every expedition rolls a new region: a biome, ten wild creatures and a master."),tx("Wild creatures carry affixes of their own, and the master carries three."),tx("Beat the master to go one depth deeper."))}</div>
     <p class="foot">${tx("A new region every time: ten wild creatures and a master. Beat the master, then descend.")}</p>

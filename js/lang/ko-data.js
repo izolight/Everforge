@@ -20,6 +20,12 @@ DICT.ko=Object.assign(DICT.ko||{},{
 // ---- grades, rarity, zones, stats, statuses
 "Faint":"희미한","Lesser":"하급","Plain":"보통","Greater":"상급","Pure":"순수","Common":"일반","Uncommon":"고급","Epic":"영웅","Mythic":"신화","Magic":"마법","Rare":"희귀",
 "Whispering Woods":"속삭이는 숲","Frostfang Pass":"서리송곳니 고개","Cinder Hollow":"잿불 골짜기","Starfall Spire":"별똥 첨탑",
+"The Old Grove":"오래된 숲","The Rootless Wood":"뿌리 없는 숲","Whispering Thicket":"속삭이는 덤불","The Thornbriar Glade":"가시덤불 공터","The Canopy Deep":"수관의 깊은 곳","The Mossbound Copse":"이끼 낀 덤불숲","The White Silence":"하얀 침묵","The Grey Shelf":"잿빛 암붕",
+"The Frostfang Expanse":"서리송곳니 평원","The Rimebound Steppe":"서리 낀 초원","The Howling Drifts":"울부짖는 눈더미","The Glacier Teeth":"빙하의 이빨","The Ashen Kilns":"잿빛 가마터","The Slag Flats":"광재 평원","The Vent Fields":"분출구 들판","The Magma Shelf":"마그마 암붕",
+"The Smoulder Fields":"그을음 들판","The Brimstone Gorge":"유황 협곡","The Starless Gallery":"별 없는 회랑","The Ossuary of Glass":"유리 납골당","The Vault of Falling Light":"떨어지는 빛의 궁륭","The Orrery Ring":"천체의 고리","The Comet Reach":"혜성의 영역","The Dimming Sky":"흐려지는 하늘",
+"The Weeping Fen":"눈물의 늪지","The Silt Marches":"진흙 습지","Rotmire Hollow":"썩은 늪 골짜기","The Sunken Reeds":"가라앉은 갈대밭","The Leech Shallows":"거머리 얕은 물","The Black Mere":"검은 호수","The Glass Desert":"유리 사막","The Rust Flats":"녹슨 평원",
+"The Salt Reach":"소금 평원","The Dune Sea":"모래 바다","The Brass Wastes":"놋쇠 황무지","The Scrapheap":"고철 더미","The Pallid Fields":"창백한 들판","The Ossuary Gate":"납골당 문","The Long Barrows":"긴 고분","The Charnel Moors":"유골 황야",
+"The Hushed Cairns":"고요한 돌무덤","The Ribcage Vale":"갈비뼈 계곡","The Weeping Vaults":"눈물의 지하묘실","The Glass Deeps":"유리의 심연","The Drowned Gallery":"가라앉은 회랑","The Sunless Sump":"햇빛 없는 웅덩이","The Lightless Shelf":"빛 없는 암붕","The Abyssal Choir":"심연의 성가대",
 "Defense":"방어력","Heal":"회복","Speed":"속도","Burn":"화상","Chill":"냉기","Poison":"중독","Curse":"저주","damage each turn":"매 턴 피해","no swift follow-ups, half dodge":"빠른 추가 공격 불가, 회피 절반","stacking damage each turn":"매 턴 중첩되는 피해","healing you receive is halved":"받는 회복량 절반",
 "Weaponsmithing":"무기 제작","Shieldwright":"방패 제작","Helmsmithing":"투구 제작","Armorsmithing":"갑옷 제작","Glovemaking":"장갑 제작","Bootmaking":"장화 제작","Trinketry":"장신구 제작","Cooking":"요리","Brewing":"양조","Alchemy":"연금술",
 "all weapons":"모든 무기","shields":"방패","head armor":"머리 방어구","body armor, bulwarks":"몸 방어구, 보루","gloves":"장갑","boots":"장화","trinkets":"장신구","food":"음식","potions, elixirs":"물약, 엘릭서","essences, materials":"정수, 재료",

@@ -13,6 +13,9 @@ Backlog for monster coverage, biome variety and related balance/tooling work.
 - **M-04** — `Done`
 - **M-09** — `Implement` (see `plan-m-09.md`)
 - **V-01** — `Done`
+- **V-03** — `Done`
+- **V-04** — `Done`
+- **V-12** — `Done`
 - Everything else — `Planned`
 
 ---
@@ -84,17 +87,20 @@ Backlog for monster coverage, biome variety and related balance/tooling work.
   `node tools/smoke.js` passes.
   **Note (seeded rosters):** M-01 and V-01 re-rolled every seeded wild creature and Rift region (the part loop draws a variable number of times). The M-04 numbers predate this; the seed-1 values in M-09 to M-12 are the current ones.
 
-- [ ] **V-02 · Use the four orphan parts** — `Status: Planned` · `Size: S` · `js/monsters.js` · `Depends: V-12`
+- [x] **V-02 · Use the four orphan parts** — `Status: Done` · `Size: S` · `js/monsters.js` · `Depends: V-12`
   `blade`, `axe`, `staff`, `tusks` exist in `js/art/parts.js` but no wild pool uses them. Add them to appropriate biomes.
   **Done:** all four parts appear on generated creatures with sensible body gating.
+  **Done (V-02):** data only. `tusks` added to forest, fen and tundra (beast); `blade` to ember and ash and astral (humanoid/construct); `axe` to ash and bone (humanoid/construct); `staff` to tundra, astral and deep (humanoid/construct). A headless check over 3,000 creatures per biome found each part on its allowed bodies only, no part drawing nothing, and no biome × body combo below 3 usable parts. `BODY_PARTS` and code unchanged.
 
-- [ ] **V-03 · More patterns per biome** — `Status: Planned` · `Size: S` · `js/monsters.js`
+- [x] **V-03 · More patterns per biome** — `Status: Done` · `Size: S` · `js/monsters.js`
   There are 9 patterns; each biome offers 4. Raise to 6–7 with thematic choices.
   **Done:** every biome has 6+ patterns; no biome uses all patterns identically.
+  **Done (V-03):** PAT has 8 keys (not 9; `spots` was removed). Each of the 8 `BIOMES` lists now holds 6 distinct keys, all valid in PAT, and no two biomes share the same set. `node tools/sim.js --wild --seed 1` completes with exit 0.
 
-- [ ] **V-04 · Expand region-name pools** — `Status: Planned` · `Size: XS` · `js/monsters.js`
+- [x] **V-04 · Expand region-name pools** — `Status: Done` · `Size: XS` · `js/monsters.js`
   Increase each biome from 3 to 5–6 region names and avoid duplicates.
   **Done:** no duplicate names across all biomes; Rift name variety increases.
+  **Done (V-04):** each of the 8 `BIOMES` lists now holds 6 region names (48 total, up from 24). No duplicates across biomes or with the 5 authored zone names in `js/data.js`, checked by a script outside the repo. `node tools/sim.js --wild --seed 1` completes with exit 0.
 
 - [ ] **V-05 · Add a Tidewrack coast biome** — `Status: Planned` · `Size: M` · `js/monsters.js`
   Elements ice/poison/shadow/swift; bodies beast/undead/elemental/humanoid; parts shell/frost/tail/vines/hood/crystals; names such as "The Drowned Coast", "Saltwind Cliffs", "The Tidewrack".
@@ -126,9 +132,10 @@ Backlog for monster coverage, biome variety and related balance/tooling work.
 
 ## Code variety
 
-- [ ] **V-12 · Make part pools body-aware** — `Status: Planned` · `Size: S` · `js/monsters.js`, `js/art/`
+- [x] **V-12 · Make part pools body-aware** — `Status: Done` · `Size: S` · `js/monsters.js`, `js/art/`
   Add a body→allowed-parts table. Weapons on humanoid/construct, tusks/antlers on beasts, halo/wings on appropriate bodies. Also stop `tail` silently disappearing on bodies without a tail anchor.
   **Done:** every generated creature draws its intended part count; no missing-anchor no-ops; screenshots checked.
+  **Done (V-12):** `BODY_PARTS` in `js/monsters.js` lists the parts each body can wear (anchors from `js/art/bodies.js`); `genCreature` draws only from the biome's parts that its body allows, so `tail` is beast-only. A body with fewer than three usable parts draws what it can (no combo is short after the elemental list was widened). A headless check over 24,000 generated creatures (every biome × body) found no part without its anchor and no part outside the table; part counts are uniform over 1–3. Screenshots not taken.
 
 - [ ] **V-13 · Weight biome elements** — `Status: Planned` · `Size: S` · `js/monsters.js`
   Add optional `elW` so each biome has common and rare elements instead of uniform rolls.
