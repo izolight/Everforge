@@ -1,6 +1,8 @@
 // Korean: interface, battle log, events. Game data is in ko-data.js.
 // {name|이|가} picks the particle from the last syllable of the value (받침 or not): 이/가, 은/는, 을/를, 과/와, 으로/로.
 DICT.ko=Object.assign(DICT.ko||{},{
+// ---- crafting: what each input did (header, before → after, reactions, failure bar)
+"Base":"기본","Tier over skill":"기술 대비 등급","{a} + {b} clash":"{a} + {b} 충돌","{a} + {b} reaction":"{a} + {b} 반응","Extra input: {name}":"추가 재료: {name}","{items} → {result}":"{items} → {result}","From {input}.":"{input} 쪽에서 온 것.","Changed by the mix itself.":"혼합 자체로 바뀌었습니다.","No stats":"능력치 없음","Before":"이전","After":"이후","Nothing changes.":"바뀌는 것이 없습니다.","−{n} {trait}":"−{n} {trait}","Failure chance":"실패 확률","Failure chance {n}%: {list}":"실패 확률 {n}%: {list}",
 // ---- static page
 "Satchel":"가방","Crucible":"도가니","Clear":"비우기","Fusions":"융합","HP":"HP","Lifetime stats":"누적 기록","Your save":"저장 데이터",
 "Your progress lives in this browser. Copy the save code to move it to another device or a local copy of the game.":"진행 상황은 이 브라우저에 저장됩니다. 저장 코드를 복사하면 다른 기기나 게임의 로컬 사본으로 옮길 수 있습니다.",

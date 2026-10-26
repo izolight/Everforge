@@ -34,6 +34,56 @@ function renderActs(){
 const ACT_EMPTY={infuse:()=>tx("Put in an item you want to strengthen, then an essence. Essences come from salvaging affixed materials."),improve:()=>tx("Put in an item, then the materials to improve it with."),fuse:()=>tx("Put in two gear items that fuse, like a spear and a shield."),cook:()=>tx("Put in food, herbs or essences to cook."),brew:()=>tx("Put in potions, herbs or essences to brew."),alchemy:()=>tx("Put in essences and materials to make a new material.")};
 const ACT_ONE={infuse:()=>tx("Add an essence to infuse it."),improve:()=>tx("Add materials to improve it."),cook:()=>tx("Add more food, herbs or essences."),brew:()=>tx("Add more potions, herbs or essences."),alchemy:()=>tx("Add more essences or materials.")};
 const ffn=f=>cap(formName(f));
+// ---- what each input did. Input n is the nth in combine's order (r.ins), and it has the colour INCOL[n] everywhere: the header's legend, the change chips, the reaction line and the failure bar.
+const INCOL=["#e8b04b","#6fb8e8","#d98bd6","#8fd49a","#f08f6a"],incol=n=>INCOL[n]||"var(--muted)"; // the mix itself (no input) is grey
+const RISK_FIX={base:"#5f574f",tier:"#b8a88a",prec:"var(--up)"}; // the parts that are not an input's; the rest take their input's colour
+const inLegend=r=>r.ins.map((id,n)=>`<span class="chip in" tabindex="0" data-inp="${n}" style="color:${incol(n)}" ${tt(iname(S.items[id]))}><b>${esc(iname(S.items[id]))}</b></span>`).join("");
+// the header: the action, the inputs (← for Infuse, + otherwise) and the result, then the legend for their colours
+function actLine(act,r,res){
+  const A=ACTIONS.find(a=>a.id===act);if(!A)return"";
+  const nm=r.ins.map(id=>esc(iname(S.items[id]))),items=act==="infuse"?nm.join(" ← "):nm.join(" + ");
+  return `<p class="act-line"><b>${esc(tx(A.tech?TECH[A.tech].name:A.name))}</b> · ${tx("{items} → {result}",{items,result:esc(iname(res))})}</p><div class="chips in-legend">${inLegend(r)}</div>`;
+}
+// one chip per trait or stat that changed from the base item to the result, in the colour of the input behind it
+function changeChips(r,res){
+  const base=S.items[r.baseId],src=r.src||{},ch=(c,txt,t)=>`<span class="chip" style="color:${incol(c)}" ${tt(t)}><b>${txt}</b></span>`,from=c=>c>=0?tx("From {input}.",{input:iname(S.items[r.ins[c]])}):tx("Changed by the mix itself."),out=[];
+  Object.keys({...base.traits,...res.traits}).forEach(t=>{const b=base.traits[t],a=res.traits[t];if(a===b)return;const d=r1((a??0)-(b??0));if(!d)return;
+    out.push(ch(src[t]??-1,`${trn(t)} ${d>0?"+":""}${d}`,`${trn(t)}\n${from(src[t]??-1)}`))});
+  if(isGear(res)){const sb=statsOf(base),sa=statsOf(res);Object.keys(STAT_NAMES).forEach(k=>{const d=sa[k]-sb[k];if(!d)return;const c=Object.keys(res.traits).filter(t=>TRAITS[t].s[k]!=null).map(t=>src[t]??-1)[0]??-1;out.push(ch(c,`${STAT_NAMES[k]} ${d>0?"+":""}${d}`,`${STAT_NAMES[k]}\n${from(c)}`))})}
+  return out.join("");
+}
+// before → after: the base item next to the result, with the changes as chips underneath
+function beforeAfter(r,res){
+  const base=S.items[r.baseId],gear=isGear(res),st=it=>gear?`<span class="foot">${statLine(shown(it))||tx("No stats")}</span>`:"",ch=changeChips(r,res);
+  return `<div class="ba"><div class="ba-col"><span class="label">${tx("Before")}</span><b>${nameHtml(base)}</b>${st(base)}<div class="chips">${chips(base,true)}</div></div>
+    <div class="ba-col"><span class="label">${tx("After")}</span><b>${nameHtml(res)}</b>${st(res)}<div class="chips">${chips(res,true)}</div></div>
+    <div class="chips ba-why">${ch||`<span class="foot">${tx("Nothing changes.")}</span>`}</div></div>`;
+}
+// reactions get their own line: the two inputs (in their colours) → the result, and any trait the reaction used up
+function rxLines(r){
+  return r.log.filter(l=>l.k==="Reaction").map(l=>{const [a,b,c]=l.rx,sp=(n,x)=>`<span style="color:${incol(n)}">${esc(trn(x))}</span>`,lost=(l.lost||[]).map(([t,v])=>tx("−{n} {trait}",{n:v,trait:trn(t)})).join(", ");
+    return `<p class="rx-line${l.warn?" warn":""}">${tx("{a} + {b} → {c}",{a:sp(l.src[0],a),b:sp(l.src[1],b),c:esc(trn(c))})}${lost?`, ${lost}`:""}</p>`}).join("");
+}
+// whole-number shares of the failure chance that add up to target (the shown percentage): the rounding goes to the parts that were cut closest
+function splitPct(parts,target){
+  const out=parts.map(p=>Math.floor(p.v)),fr=parts.map((p,i)=>p.v-out[i]),n=parts.length;let left=target-out.reduce((s,x)=>s+x,0);
+  const up=parts.map((_,i)=>i).sort((a,b)=>fr[b]-fr[a]),dn=parts.map((_,i)=>i).sort((a,b)=>out[b]-out[a]);
+  for(let g=0;left>0&&n;g++){out[up[g%n]]++;left--}
+  for(let g=0;left<0&&n;g++){out[dn[g%n]]--;left++}
+  return out;
+}
+// the failure chance as a stacked bar: each part a segment (its share is the number in the list), coloured by the input behind it. Hovering or focusing an input dims the parts that are not its.
+function riskBar(r){
+  if(!S.journal.length||!r.risk)return""; // the very first forge never fails
+  const sh=splitPct(r.risk,r.fail),segs=r.risk.map((p,i)=>({p,s:sh[i]})).filter(x=>x.s),tot=segs.reduce((n,x)=>n+Math.abs(x.s),0)||1;
+  const col=p=>RISK_FIX[p.k]||incol(p.who.find(x=>x!=null));
+  const sgn=s=>s>0?"+":s<0?"−":"";
+  const txt=segs.map(({p,s})=>`${p.t} ${sgn(s)}${Math.abs(s)}%`).join(", ");
+  return `<div class="risk-wrap"><p class="label">${tx("Failure chance")} · ${r.fail}%</p>
+    <div class="risk" role="img" aria-label="${esc(tx("Failure chance {n}%: {list}",{n:r.fail,list:txt}))}">${segs.map(({p,s})=>`<i class="seg${s<0?" neg":""}" data-o="${p.who.filter(x=>x!=null).join(" ")}" style="width:${Math.abs(s)/tot*100}%;background-color:${col(p)}"></i>`).join("")}</div>
+    <ul class="risk-list">${segs.map(({p,s})=>`<li>${esc(p.t)} <b>${sgn(s)}${Math.abs(s)}%</b></li>`).join("")}<li><b>= ${r.fail}%</b></li></ul></div>`;
+}
+function riskHl(n){document.querySelectorAll(".risk .seg").forEach(s=>s.classList.toggle("dim",n!=null&&!s.dataset.o.split(" ").includes(String(n))))}
 function renderBench(){
   const act=S.act,A=ACTIONS.find(a=>a.id===act),parts=[],items=S.bench.map(id=>S.items[id]),chk=checkMix(items);
   if(!CRUCIBLE_ACTS.includes(act))return;
@@ -69,8 +119,8 @@ function renderBench(){
       hint=`<div class="preview"><span class="ok-text">${ic("plus","s")} ${tx("New combination: a {form}.",{form:formName(r.item.form)})}</span>
         ${kr.length?`<span class="foot">${tx("Known reactions: {list}",{list:kr.map(k=>{const x=REACTIONS.find(([a,b])=>a+"+"+b===k);return `${trn(x[0])} + ${trn(x[1])} → ${trn(x[2])}`}).join(", ")})}</span>`:""}
         ${ur.length?`<span class="foot" style="color:var(--accent)" ${tt(tx("Unseen reaction"),tx("Something in this mix will react in a way you haven't seen yet."))}>${ic("warn","xs")} ${tx("An unseen reaction")}</span>`:""}
-        ${appraise}</div>`}
-    hint+=craftLine(r,items);
+        ${appraise}</div>${beforeAfter(r,r.item)}`}
+    hint=`${actLine(act,r,r.item)}${hint}${rxLines(r)}${riskBar(r)}`+craftLine(r,items);
     if(r.mw>=0)hint+=`<p class="warn-text">${ic("warn","s")} ${mwWarn()}</p>`;
   }
   $("mixhint").innerHTML=hint;
@@ -130,7 +180,9 @@ function renderResult(fresh){
     <h2 class="rname">${nameHtml(it)}${r.isNew?`<span class="badge${it.legendary?" gold":""}">${it.legendary?tx("Legendary"):tx("New")}</span>`:""}</h2></div></div>
     ${itemProperties(it,base,false,"Compared to")}
     ${showEq?cmpBlock(it,eqIt,"Versus equipped"):""}
+    ${actLine(r.act,r,it)}
     <ul class="log"><li><strong>${tx("Recipe")}</strong> ${esc(recipeNames(r.id?it:r))}</li>${r.log.map(logLi).join("")}</ul>
+    ${r.src?`<div class="chips res-changes">${changeChips(r,it)}</div>`:""}
     ${gains}${ch(r.mishap?"var(--accent)":"var(--up)",ic(r.mishap?"warn":"ok","s"),`${r.inst}%`,r.mishap?tx("Flawed"):tx("Held together"),tx("{n}% was the chance to fail.",{n:r.inst}))}</div>
     ${r.autoEquipped&&eqCount(it.id)?`<p class="ok-text">${tx("Equipped automatically")}</p>`:""}
     ${S.inv[it.id]>0?`<div class="actions">${isGear(it)&&!eqCount(it.id)?`<button class="btn primary" data-result-equip="${it.id}">${tx("Equip")}</button>`:""}<button class="btn${isGear(it)&&!eqCount(it.id)?" primary":""}" data-open="${it.id}">${isGear(it)&&!eqCount(it.id)?tx("Equip or inspect"):tx("Inspect")}</button></div>`:""}`;

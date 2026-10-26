@@ -1,6 +1,8 @@
 // German: interface, battle log, events. Game data (enemies, items, lore, tutorial) is in de-data.js.
 // Placeholders {x} stay as they are; "singular¦plural" is a plural pair. Context keys: "trait|", "fam|", "adj|", "noun|", "gender|", "form|", "kind|", "hit|".
 DICT.de=Object.assign(DICT.de||{},{
+// ---- crafting: what each input did (header, before → after, reactions, failure bar)
+"Base":"Basis","Tier over skill":"Stufe über Fertigkeit","{a} + {b} clash":"{a} + {b} Konflikt","{a} + {b} reaction":"{a} + {b} Reaktion","Extra input: {name}":"Zusatzzutat: {name}","{items} → {result}":"{items} → {result}","From {input}.":"Von {input}.","Changed by the mix itself.":"Durch die Mischung selbst verändert.","No stats":"Keine Werte","Before":"Vorher","After":"Nachher","Nothing changes.":"Nichts ändert sich.","−{n} {trait}":"−{n} {trait}","Failure chance":"Fehlschlagchance","Failure chance {n}%: {list}":"Fehlschlagchance {n}%: {list}",
 // ---- static page
 "Satchel":"Beutel","Crucible":"Tiegel","Clear":"Leeren","Fusions":"Verschmelzungen","HP":"LP","Lifetime stats":"Gesamtstatistik","Your save":"Dein Spielstand",
 "Your progress lives in this browser. Copy the save code to move it to another device or a local copy of the game.":"Dein Fortschritt liegt in diesem Browser. Kopiere den Speichercode, um ihn auf ein anderes Gerät oder in eine lokale Kopie des Spiels zu übertragen.",

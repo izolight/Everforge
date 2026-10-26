@@ -62,6 +62,11 @@ $("result").addEventListener("click",e=>{const eq=e.target.closest("[data-result
 $("rtabs").addEventListener("click",e=>{const b=e.target.closest("[data-rtab]");if(!b)return;S.rtab=b.dataset.rtab;save();renderRecipes()});
 $("rlist").addEventListener("click",e=>{const b=e.target.closest("[data-load]");if(!b)return;const it=S.items[b.dataset.load];
   setAct(actFor(it.recipeIds.map(id=>S.items[id])),it.recipeIds);go("forge");toast(tx("Loaded the recipe for {item}.",{item:iname(it)}))}); // the recipe loads into the action that takes its inputs
+// hovering or focusing an input (its chip in the header) highlights its share of the failure bar
+document.addEventListener("pointerover",e=>{const t=e.target.closest?.("[data-inp]");if(t)riskHl(+t.dataset.inp)});
+document.addEventListener("pointerout",e=>{if(e.target.closest?.("[data-inp]"))riskHl(null)});
+document.addEventListener("focusin",e=>{const t=e.target.closest?.("[data-inp]");if(t)riskHl(+t.dataset.inp)});
+document.addEventListener("focusout",e=>{if(e.target.closest?.("[data-inp]"))riskHl(null)});
 $("cacts").addEventListener("click",e=>{const b=e.target.closest("[data-cact]");if(!b||b.dataset.cact===S.act)return;setAct(b.dataset.cact);render()}); // a locked tab has no data-cact: its tip says what opens it
 $("rlist").addEventListener("click",e=>{const b=e.target.closest("[data-pin-recipe]");if(b)pinGoal("recipe",b.dataset.pinRecipe)});
 $("secrets").addEventListener("click",e=>{const b=e.target.closest("[data-pin-rumor]");if(b)pinGoal("rumor",+b.dataset.pinRumor)});

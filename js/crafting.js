@@ -66,30 +66,36 @@ function combine(raw,o={}){
   const inputs=sortInputs(raw);
   const key=inputs.map(i=>i.id).sort().join("+"),log=[];
   const base=inputs[0],forms=inputs.map(i=>i.form);let form=base.form;
-  for(const [a,b,f] of FUSIONS){if(forms.includes(a)&&forms.includes(b)){form=f;log.push({k:"Fusion",t:tx("{a} + {b} → {c}",{a:LANG==="en"?cap(a):txc("form",FORMS[a].label),b:LANG==="en"?cap(b):txc("form",FORMS[b].label),c:txc("noun",FORMS[f].noun)})});break}}
+  // src: which input a log line or trait came from (an index into inputs). owners lists the inputs that carry a trait; who picks the one that brings it in (the strongest non-base input, else the base). Only for display: the outcome never reads them.
+  const owners=t=>inputs.flatMap((i,n)=>i.traits[t]!=null?[n]:[]),who=t=>owners(t).sort((x,y)=>(x===0)-(y===0)||inputs[y].traits[t]-inputs[x].traits[t]||x-y)[0];
+  const risk=[],rsrc={}; // risk: the failure parts from inst (clashes, reactions, extra inputs), for the risk bar
+  for(const [a,b,f] of FUSIONS){if(forms.includes(a)&&forms.includes(b)){form=f;log.push({k:"Fusion",t:tx("{a} + {b} → {c}",{a:LANG==="en"?cap(a):txc("form",FORMS[a].label),b:LANG==="en"?cap(b):txc("form",FORMS[b].label),c:txc("noun",FORMS[f].noun)}),src:[forms.indexOf(a),forms.indexOf(b)]});break}}
   const vals={};inputs.forEach(i=>Object.entries(i.traits).forEach(([t,v])=>(vals[t]=vals[t]||[]).push(v)));
-  let tr={};Object.entries(vals).forEach(([t,vs])=>{const mx=Math.max(...vs),sum=vs.reduce((a,b)=>a+b,0);const g=.25*(sum-mx),lo=Math.max(0,Math.min(g,SOFT-mx));tr[t]=r1(mx+lo+(g-lo)/2);if(g>lo+.05)log.push({k:"Limit",t:tx("{t} is near its limit; gains above {soft} are halved.",{t:trn(t),soft:SOFT})})}); // merge gains above SOFT count half
-  let inst=0;CONFLICTS.forEach(([a,b])=>{if(tr[a]&&tr[b])inst+=Math.min(tr[a],tr[b])*7});
+  let tr={};Object.entries(vals).forEach(([t,vs])=>{const mx=Math.max(...vs),sum=vs.reduce((a,b)=>a+b,0);const g=.25*(sum-mx),lo=Math.max(0,Math.min(g,SOFT-mx));tr[t]=r1(mx+lo+(g-lo)/2);if(g>lo+.05)log.push({k:"Limit",t:tx("{t} is near its limit; gains above {soft} are halved.",{t:trn(t),soft:SOFT}),src:owners(t)})}); // merge gains above SOFT count half
+  let inst=0;CONFLICTS.forEach(([a,b])=>{if(tr[a]&&tr[b]){const x=Math.min(tr[a],tr[b])*7;inst+=x;risk.push({k:"clash",t:tx("{a} + {b} clash",{a:trn(a),b:trn(b)}),x,who:[who(a),who(b)]})}});
   const used=new Set(),reacted=new Set(),rxKeys=[];
   for(let pass=0;pass<3;pass++){let any=false;
     for(const [a,b,res,cons] of REACTIONS){const k=a+"+"+b;if(used.has(k)||!tr[a]||!tr[b])continue;
-      used.add(k);any=true;rxKeys.push(k);const v=r1((tr[a]+tr[b])/2);
-      cons.forEach(c=>delete tr[c]);tr[res]=r1(Math.max(tr[res]||0,v));reacted.add(res);
-      log.push({k:"Reaction",t:tx("{a} + {b} → {c}",{a:trn(a),b:trn(b),c:trn(res)}),warn:TRAITS[res].f==="bad"});inst+=3}
+      used.add(k);any=true;rxKeys.push(k);const v=r1((tr[a]+tr[b])/2),lost=cons.filter(c=>tr[c]!=null).map(c=>[c,tr[c]]);
+      cons.forEach(c=>delete tr[c]);tr[res]=r1(Math.max(tr[res]||0,v));reacted.add(res);rsrc[res]=who(a);
+      log.push({k:"Reaction",t:tx("{a} + {b} → {c}",{a:trn(a),b:trn(b),c:trn(res)}),warn:TRAITS[res].f==="bad",src:[who(a),who(b)],rx:[a,b,res],lost});inst+=3;
+      risk.push({k:"reaction",t:tx("{a} + {b} reaction",{a:trn(a),b:trn(b)}),x:3,who:[who(a),who(b)]})}
     if(!any)break}
   let secret=SECRETS.find(s=>s.ids.slice().sort().join("+")===key),mw=-1;
   if(secret&&!hasTech("master")){mw=SECRETS.indexOf(secret);secret=null} // without Masterwork the right ingredients make an ordinary piece (and an insight, see insights()); it gets its own id so the legendary can still be forged later
-  if(!secret&&inputs.some(i=>gradeOf(i.id)!==3)){const sk=inputs.map(i=>baseIdOf(i.id)).sort().join("+");if(SECRETS.some(s=>s.ids.slice().sort().join("+")===sk))log.push({k:"Grade",t:tx("A graded ingredient throws this secret off. Secrets want Plain ones.")})}
+  if(!secret&&inputs.some(i=>gradeOf(i.id)!==3)){const sk=inputs.map(i=>baseIdOf(i.id)).sort().join("+");if(SECRETS.some(s=>s.ids.slice().sort().join("+")===sk))log.push({k:"Grade",t:tx("A graded ingredient throws this secret off. Secrets want Plain ones."),src:inputs.flatMap((i,n)=>gradeOf(i.id)!==3?[n]:[])})}
   let bon=null; // the secret's bonus always keeps a slot
   if(secret&&secret.bonus){const {trait:bt,v:bv}=secret.bonus;bon=[bt,r1((tr[bt]||0)+bv)];delete tr[bt];log.push({k:"Legendary",t:tx("The secret lends it +{v} {trait}.",{v:bv,trait:trn(bt)})})}
   const slots=traitSlots()-(bon?1:0),sorted=topTraits(tr);
   if(sorted.length>slots)log.push({k:"Lost",t:tx("{list} (only {n} trait slots)",{list:sorted.slice(slots).map(x=>trn(x[0])).join(", "),n:traitSlots()})});
   tr=Object.fromEntries(sorted.slice(0,slots));if(bon)tr[bon[0]]=bon[1];
-  inst+=(inputs.length-2)*6;
+  inst+=(inputs.length-2)*6;inputs.slice(2).forEach((i,n)=>risk.push({k:"extra",t:tx("Extra input: {name}",{name:iname(i)}),x:6,who:[n+2]}));
   const tier=Math.min(9,Math.max(...inputs.map(i=>i.tier))+1),sk=skillOf({form}),lv=skLv(sk),ck=mw>=0?key+"|plain":key,cleanId="c_"+hash(ck).toString(36);
   const ups=inputs.filter(i=>i.crafted&&i.form===form),upg=ups.length?CRAFT.up*Math.max(0,Math.max(...ups.map(i=>i.tier))-CRAFT.upFrom):0;
   const diff=r1(CRAFT.base+(tier-1)*CRAFT.tier+inst/CRAFT.inst+upg),gap=diff-lv;
   const prec=PREC.reduce((n,p,i)=>n+(hasTech("prec"+(i+1))?p:0),0),fail=S.journal.length||o.full?Math.round(Math.max(FAIL.min,Math.min(FAIL.max,FAIL.base+FAIL.slope*gap-prec))):0; // the very first forge never fails
+  // the failure chance in parts that add up to the unrounded chance: base, tier over skill, then each risk part (its inst points times FAIL.slope / CRAFT.inst), then Precision
+  const parts=[{k:"base",t:tx("Base"),v:FAIL.base,who:[]},{k:"tier",t:tx("Tier over skill"),v:FAIL.slope*(CRAFT.base+(tier-1)*CRAFT.tier+upg-lv),who:[]},...risk.map(p=>({k:p.k,t:p.t,v:FAIL.slope*p.x/CRAFT.inst,who:p.who})),{k:"prec",t:tx("Precision"),v:-prec,who:[]}];
   const fiz=Math.round(fail*Math.max(FIZ.min,Math.min(FIZ.max,FIZ.base+FIZ.slope*gap))),mis=fail-fiz;
   const need=SK_CAP.findIndex(c=>c>=tier)+1,blocked=tier>SK_CAP[lv-1]?{skill:sk,lv,need,tier}:null;
   const roll=o.roll??Math.random()*100;let mishap=null,unweak=null,fizzle=false;
@@ -104,7 +110,9 @@ function combine(raw,o={}){
   const sg=Math.min(...inputs.map(i=>i.grade||i.sg||3)); // salvaging it never returns a better grade than the worst thing it was made from
   const item={id:mishap?"c_"+hash(ck+"|"+mishap).toString(36):cleanId,name,form,noun,traits:tr,tier,crafted:true,legendary:!!secret,recipe:inputs.map(i=>i.name),recipeIds:inputs.map(i=>i.id),ei:inputs.reduce((n,i)=>n+(isEss(i.id)?1:essIn(i)),0),...sg!==3?{sg}:{},...mishap?{clean:cleanId}:{},...unweak?{mishap,unweak}:{}}; // a mishap gets its own id, so clean and flawed copies never stack
   if(form==="material"){const core=inputs.map(kindOf).find(k=>k!=="essence"&&k!=="relic");item.kind=core||(inputs.some(i=>kindOf(i)==="relic")?"relic":"essence")}
-  return {item,log,inst:fail,fail,fiz,mis,diff,gap,skill:sk,lv,blocked,fizzle,mishap,cleanId,baseId:base.id,rxKeys,mw,key,prec};
+  const src={};new Set([...Object.keys(tr),...inputs.flatMap(i=>Object.keys(i.traits))]).forEach(t=>src[t]=rsrc[t]??who(t)??-1); // the input behind each trait, base's traits included (a removed one still shows where it came from); -1 is the mix itself
+  if(mishap&&mishap!=="Weakened")src[mishap]=-1;
+  return {item,log,inst:fail,fail,fiz,mis,diff,gap,skill:sk,lv,blocked,fizzle,mishap,cleanId,baseId:base.id,rxKeys,mw,key,prec,src,ins:inputs.map(i=>i.id),risk:parts};
 }
 function statsOf(item){
   const out={atk:0,def:0,mag:0,heal:0,spd:0},m=FORMS[item.form].m;
@@ -215,7 +223,7 @@ function forgeIt(items){
   const scaled=Object.keys(sx).some(k=>skFactor(diff,skLv(k))<1)||known;
   Object.entries(sx).forEach(([k,n])=>S.skills[k]=skXp(k)+n);
   const ups=Object.keys(sx).filter(k=>skLv(k)>sk0[k]);
-  S.last={autoEquipped:!fizzle&&SLOTS.some(([s])=>S.eq[s]===item.id&&eqBefore[s]!==item.id),id:fizzle?null:item.id,item,log:fizzle?log.filter(l=>l.k==="Fizzle"):log,inst,mishap,fizzle,refund,isNew,xpGain:gain,sx,scaled,baseId,recipe:items.map(i=>i.name),recipeIds:items.map(i=>i.id)};
+  S.last={autoEquipped:!fizzle&&SLOTS.some(([s])=>S.eq[s]===item.id&&eqBefore[s]!==item.id),id:fizzle?null:item.id,item,log:fizzle?log.filter(l=>l.k==="Fizzle"):log,inst,mishap,fizzle,refund,isNew,xpGain:gain,sx,scaled,baseId,recipe:items.map(i=>i.name),recipeIds:items.map(i=>i.id),src:r.src,ins:r.ins,act:S.act};
   save();
   return{lvBefore,sk0,ups,newRx,item,fizzle};
 }
