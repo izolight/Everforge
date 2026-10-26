@@ -16,6 +16,8 @@ async function run(label,setup,nat,steps=STEPS){
   const stats=await page.evaluate(async ({steps,nat})=>{
     const sleep=ms=>new Promise(r=>setTimeout(r,ms)),out={steps:0,battles:0,won:0,lost:0,forged:0,zones:new Set(),views:0,wields:0,abil:0,tiles:0,outs:0,byfoe:0,fled:0,script:0,intros:0,heat:0,daily:0,aband:0,bought:0,sold:0,upgraded:0,reforged:0,learned:0,studied:0,gated:0,afx:new Set(),split:0,boom:0,rare:0,decon:0,shaped:0,bad:[]};
     const legacy=UNLOCKS.filter(u=>u.id!=="rift"),pending=pendingIntros().filter(c=>c.id!=="rift"); // the Rift is new v16 content, still gated by the Archon
+    // the scripted chaser check always meets a hand-made chaser of one fixed zone: a wild creature brings its own affixes, and the Rift has no hand-made regulars
+    const CHECK_ZONE="pass",plain=(z,mv)=>Object.keys(ENEMIES).find(k=>ENEMIES[k].zone===z&&!ENEMIES[k].boss&&!k.startsWith("w_")&&(!mv||ENEMIES[k].mv===mv));
     out.vet0=legacy.every(u=>S.unl[u.id])&&TECHS.every(t=>S.techs[t.id])&&pending.length===0?1:`missing ${legacy.filter(u=>!S.unl[u.id]).map(u=>u.id)} pending ${pending.map(c=>c.id)}`; // as loaded, before the bot plays
     const click=el=>{el.click();return true};let wantZone=null,doChores=false,wantWield=false,wantHeat=false,wantDaily=false,wantAband=false,wantShop=false;
     const q=s=>document.querySelector(s),qa=s=>[...document.querySelectorAll(s)];
@@ -98,21 +100,20 @@ async function run(label,setup,nat,steps=STEPS){
       S=JSON.parse(bk);S.battle=null;save();render()}
     // a chaser next to you must walk into you, and fleeing it must leave it alive, dazed and unaware (the real state is put back afterwards)
     function scripted(){
-      const bk=JSON.stringify(S),rr=Math.random;let ok=false;
-      // the zone must hold a chaser (the Rift has none)
-      const zc=S.zone,chaser=Object.keys(ENEMIES).find(k=>ENEMIES[k].zone===zc&&ENEMIES[k].mv==="chase");
-      const z=chaser?zc:ZONES.map(x=>x[0]).find(x=>Object.keys(ENEMIES).some(k=>ENEMIES[k].zone===x&&ENEMIES[k].mv==="chase"))||zc;
-      if(z!==zc)S.zone=z;
+      const bk=JSON.stringify(S),rr=Math.random;let ok=false,st="no battle";
+      const z=CHECK_ZONE;S.zone=z; // a fixed zone with a hand-made chaser (the Rift has none, and a wild one brings its own affixes)
       try{S.battle=null;S.event=null;S.hp=9999;Object.keys(S.eq).forEach(s=>S.eq[s]=null); // a lunging foe strikes first (an ambush): the player has to be able to take that hit
-        const m=genMap({heat:0,zone:z});m.pois=m.pois.filter(p=>p.t==="boss"||p.t==="camp"||(p.x===m.gate.x&&p.y===m.gate.y));S.maps[z]=m;
+        const m=genMap({heat:0,zone:z,seed:7});m.pois=m.pois.filter(p=>p.t==="boss"||p.t==="camp"||(p.x===m.gate.x&&p.y===m.gate.y));S.maps[z]=m; // a seeded map: the same layout every run
         let pl,en;for(let y=3;y<m.h&&!en;y++)for(let x=0;x<m.w&&!en;x++){if(!walk(m,x,y)||fixed(m,x,y)||m.d[y*m.w+x]<5||m.pois.some(q=>q.x===x&&q.y===y))continue;
           const nb=DIRS.map(([dx,dy])=>[x+dx,y+dy]).find(([a,b])=>walk(m,a,b)&&!hard(m,a,b)&&!m.pois.some(q=>q.x===a&&q.y===b));if(nb){pl=[x,y];en=nb;break}}
-        const p={t:"fight",x:en[0],y:en[1],r:2,done:false,e:Object.keys(ENEMIES).find(k=>ENEMIES[k].zone===z&&ENEMIES[k].mv==="chase"),mv:"chase",rar:"normal",afx:[],aw:1};m.pois.push(p);
+        const p={t:"fight",x:en[0],y:en[1],r:2,done:false,e:plain(z,"chase"),mv:"chase",rar:"normal",afx:[],aw:1};m.pois.push(p);
         m.pos={x:pl[0],y:pl[1]};m.prev=null;m.steps=5;reveal(m);
         foesAct(m); // it walks into you
-        if(S.battle&&S.battle.by==="it"){Math.random=()=>.1;flee();ok=S.battle.over==="fled"&&!p.done&&p.dz===ROAM.daze&&!p.aw}}catch(e){out.bad.push("scripted check threw: "+e.message)}
+        st=S.battle?`battle by ${S.battle.by}, ${S.battle.id}`:"no battle";
+        if(S.battle&&S.battle.by==="it"){Math.random=()=>.1;flee();st=`fled ${S.battle.over}, dazed ${p.dz}, aware ${p.aw}, done ${p.done}`;ok=S.battle.over==="fled"&&!p.done&&p.dz===ROAM.daze&&!p.aw}}catch(e){out.bad.push("scripted check threw: "+e.message)}
       Math.random=rr;S=JSON.parse(bk);S.battle=null;save();render();
-      if(ok){out.script++;out.byfoe++;out.fled++}else out.bad.push("scripted chaser check failed")}
+      if(ok){out.script++;out.byfoe++;out.fled++} // the chaser caught you (hunted down) and you fled it: both counted here, so they never depend on the random encounters
+      else out.bad.push("scripted chaser check failed ("+st+")")}
     // explore: step towards the nearest unvisited POI (as last seen) or unexplored edge by BFS over seen tiles; the lair once most of the map is done or the bot has walked a while; sometimes a random step
     function explore(tiles){
       const m=curMap(),W=m.w,H=m.h;if(Math.random()<.1)return tiles[Math.floor(Math.random()*tiles.length)];
@@ -129,8 +130,9 @@ async function run(label,setup,nat,steps=STEPS){
     async function chores(){
       for(const v of VIEWS){go(v);out.views++}
       go("gear");{const da=q("#gdecon:not([hidden]) #deconAll");if(da&&Math.random()<.6){const n0=S.stats.salvaged;da.click();q("#gdecon:not([hidden]) #deconAll")?.click();if(S.stats.salvaged>n0)out.decon++;else out.bad.push("Deconstruct all did nothing")}} // twice: the first tap arms it
-      go("forge");{const pb=qa("#pats [data-pat]");if(pb.length){click(pb[Math.floor(Math.random()*pb.length)]);const sh=q("#shape:not([disabled])"); // a pattern or blueprint, auto-filled when it is picked
-        if(sh){const n0=S.stats.shaped,inv0=JSON.stringify(S.inv);sh.click();await sleep(30);if(S.stats.shaped>n0)out.shaped++;else out.bad.push("a filled pattern did not forge");if(JSON.stringify(S.inv)===inv0)out.bad.push("pattern forging changed nothing in the satchel")}}}
+      go("forge");{const n=qa("#pats [data-pat]").length,k0=Math.floor(Math.random()*n); // a pattern or blueprint, auto-filled when it is picked: the first one (from a random start) whose materials are in the satchel, since a random pick often has none
+        for(let k=0;k<n;k++){click(qa("#pats [data-pat]")[(k0+k)%n]);const sh=q("#shape:not([disabled])");if(!sh)continue;
+          const n0=S.stats.shaped,inv0=JSON.stringify(S.inv);sh.click();await sleep(30);if(S.stats.shaped>n0)out.shaped++;else out.bad.push("a filled pattern did not forge");if(JSON.stringify(S.inv)===inv0)out.bad.push("pattern forging changed nothing in the satchel");break}}
       go("forge");S.bench=[];
       const can=qa("#finv [data-can='1']"),isE=b=>isEss(b.dataset.id),bases=can.filter(b=>!isE(b));
       if(nat&&bases.length&&can.some(isE)&&Math.random()<.8){click(bases[Math.floor(Math.random()*bases.length)]);click(qa("#finv [data-can='1']").find(isE))} // a newcomer binds an essence into an item: the one forge Binding allows

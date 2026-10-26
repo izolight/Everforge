@@ -10,7 +10,7 @@ const {PART,BODY,compose}=vm.runInContext("({PART,BODY,compose})",ctx);
 const BIOMES=ctx.BIOMES;
 const COL={id:"x",o:"#0d0a08",d:"#333",m:"#444",D:"#222",l:"#666",g:"#777",e:"#ff0",a:"#f80",b:"#a80",ph:false};
 const R=()=>.5;
-let fail=0,checks=0;
+let fail=0,checks=0,skip=0;
 for(const [name,B] of Object.entries(BIOMES)){
   for(const body of B.bodies){
     for(const part of B.parts){
@@ -21,9 +21,10 @@ for(const [name,B] of Object.entries(BIOMES)){
       // every part must draw on its own, not just ride on the body silhouette
       const a=BODY[body](COL,{skin:"#cfa784",glow:false}).a;let one="";
       try{one=PART[part].f(COL,a)||""}catch(e){console.log("PART-THROW",name,body,part,e.stack);fail++;continue}
-      if(part!=="tail"&&!one.trim()){console.log("NO-DRAW",name,body,part);fail++}
+      if(part==="tail"&&!one.trim()){skip++;continue} // tail has no anchor on some bodies (V-12 fixes it): counted as SKIP, never a failure
+      if(!one.trim()){console.log("NO-DRAW",name,body,part);fail++}
     }
   }
 }
-console.log(`part-check: ${checks} renders, ${fail} problem(s)`);
+console.log(`part-check: ${checks} renders, ${fail} problem(s), ${skip} SKIP (tail draws nothing on its body)`);
 process.exit(fail?1:0);
