@@ -62,6 +62,18 @@ Completed task records and their implementation evidence. Test counts and simula
 
 ## UI
 
+- [x] **U-04 · Make Inventory immediately accessible and readable** — `Status: Done` · `Size: M` · `index.html`, `js/render/lists-view.js`, `js/events.js`, `js/state.js`, `css/styles.css`
+  Added an Inventory shortcut to the top of Gear and made named rows the fresh-save default. Rows show grade/type, stats or consumable effects, quantity, and equipped/locked/new state; grid mode remains available and saved grid choices survive load.
+  **Done:** browser checks cover shortcut navigation, row content, locked state, two-slot equipment, German/Korean labels and 320/390/1200px widths. Existing category controls and salvage review remain in the Gear view. `node tools/usability-check.js`, `node tools/i18n-check.js`, and `npm test` (14/14) pass.
+
+- [x] **U-08 · Explain crafting actions with consistent outcome language** — `Status: Done` · `Size: M` · `js/render/forge-view.js`, `js/render/gear-view.js`, `js/sheets.js`, `js/lang/`, `ui-terminology.md`
+  Added short action captions and explicit Create gear, Modify gear and Process ingredients groups. Gear actions say Infuse gear and Improve gear; character-bound infusions are Personal Infusions. Recorded the terminology mapping, including Deconstruct/Salvage and Pattern/Blueprint/Recipe distinctions, in `ui-terminology.md`. German and Korean strings are translated; action IDs, mechanics, gates and save fields are unchanged.
+  **Done:** `node tools/i18n-check.js`, `node tools/usability-check.js`, and `npm test` (14/14) pass. Playwright confirmed the group headings and no horizontal page overflow at 320, 390, 960 and 1200px.
+
+- [x] **U-09 · Give item sheets a clear primary action** — `Status: Done` · `Size: M` · `js/sheets.js`, `css/styles.css`, `tools/usability-check.js` · `Depends: U-08`
+  Item sheets place identity and comparison/effects before a prominent Equip or Use action. Two-slot weapons show the slot choice together. Crafting actions have their own group; lock, salvage/deconstruction and reforge live in a collapsed management area. Salvage's second-tap confirmation reopens that area automatically; formulas remain expandable.
+  **Done:** visually inspected the 390×844 item sheet and populated Inventory, plus the 1200px Forge selector. Browser checks cover two-slot actions, management access, lock handling, bulk salvage review, Escape and focus behavior; `node tools/usability-check.js` and `npm test` (14/14) pass.
+
 - [x] **U-01 · Grade pips and rarity frames** — `Status: Done` · `Size: S` · `js/art/items.js`, `js/helpers.js`, `js/render/`, `js/gear.js`, `js/hero.js`, `css/styles.css`, `js/lang/`
   Every essence and basic material shows its grade as five pips in the art (filled = grade; Plain is 3 and has no grade field, so `itemGrade` in `helpers.js` reads it as 3). The grade colour (new metal ramp: Faint, Lesser, Plain, Greater, Pure) is on the pips only; Pure's pips glow (off under reduced motion). The frame and stripe are rarity's, the name takes the rarity colour, and the grade ring and grade frame are gone. Removed the Roman-numeral grade badges in the satchel list and the forge tiles. Gear's grade row reads "Greater (4/5)" with `×1.4`; item lines read the same. Hero trim is rarity's (gear is never graded). Satchel help now says the pips show the grade (en, de, ko).
   **Done:** `node tools/i18n-check.js` and `node tools/run-checks.js` pass (13/13). Rendered each grade of `ess_Fire` and `golem_core` to SVG and a screenshot sheet: 1 to 5 pips read clearly on the satchel tile.

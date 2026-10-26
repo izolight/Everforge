@@ -22,12 +22,16 @@ function renderSkills(){
 }
 // ---- the action tabs above the crucible. A locked one shows its lock and the technique that opens it; its tip says what it is for.
 const actOpen=id=>{const A=ACTIONS.find(a=>a.id===id);return !A.tech||hasTech(A.tech)};
+const ACT_HINT={forge:"Create gear from a pattern",infuse:"Add an essence to gear",improve:"Change gear with materials",fuse:"Combine two gear items",refine:"Upgrade material grade",cook:"Make food from ingredients",brew:"Make potions from ingredients",alchemy:"Make materials from essences"};
+const ACT_GROUPS=[["Create gear",["forge","fuse"]],["Modify gear",["infuse","improve","refine"]],["Process ingredients",["cook","brew","alchemy"]]];
 function renderActs(){
   if(!ACTIONS.some(A=>A.id===S.act))S.act="forge"; // a save without the field starts on Forge
   if(S.act!=="forge"&&!actOpen(S.act))setAct("forge"); // a stale action (a save from before its technique) falls back to Forge
-  $("cacts").innerHTML=ACTIONS.map(A=>{const nm=tx(A.name),on=S.act===A.id;
+  const renderAction=A=>{const nm=tx(A.name),on=S.act===A.id;
     if(!actOpen(A.id))return `<button class="tab ti locked" aria-disabled="true" data-tap aria-label="${esc(`${nm}: ${tx("Locked. Learn {tech} in Research to open it.",{tech:tx(TECH[A.tech].name)})}`)}" ${tt(nm,tx("Locked. Learn {tech} in Research to open it.",{tech:tx(TECH[A.tech].name)}),tx(TECH[A.tech].gate))}>${ic("lock","s")}<span>${tx(TECH[A.tech].name)}</span></button>`;
-    return `<button class="tab ti${on?" on":""}" data-cact="${A.id}" aria-pressed="${on}" aria-label="${esc(nm)}" ${tt(nm,A.tech?tx(TECH[A.tech].d):tx("Patterns and blueprints: gear from base materials."))}>${ic(A.ic,"s")}<span>${nm}</span></button>`}).join("");
+    const hint=tx(ACT_HINT[A.id]);
+    return `<button class="tab ti${on?" on":""}" data-cact="${A.id}" aria-pressed="${on}" aria-label="${esc(nm+": "+hint)}" ${tt(nm,hint,A.tech?tx(TECH[A.tech].d):tx("Patterns and blueprints: gear from base materials."))}>${ic(A.ic,"s")}<span class="act-copy"><b>${nm}</b><small>${hint}</small></span></button>`};
+  $("cacts").innerHTML=ACT_GROUPS.map(([group,ids])=>`<span class="act-group">${tx(group)}</span>${ids.map(id=>renderAction(ACTIONS.find(A=>A.id===id))).join("")}`).join("");
   $("patp").hidden=S.act!=="forge";$("upgp").hidden=S.act!=="refine";$("crucible").hidden=!CRUCIBLE_ACTS.includes(S.act);
 }
 // what each crucible action says: the empty crucible, and one item alone

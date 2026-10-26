@@ -19,6 +19,7 @@ const {chromium}=require('playwright'),path=require('path'),assert=require('node
  assert(await page.evaluate(()=>curIntro(true)?.id==='parry'));
  console.log('ok guaranteed forge needs one click; parry lesson follows current enemy intent');
  await page.evaluate(()=>{S=freshState();addItem('leather_cap',3);addItem('bread');addItem('oak_staff');S.locked=['oak_staff'];go('gear')});
+ assert.deepEqual(await page.evaluate(()=>{const fresh=freshState(),saved={...fresh,inventory:{...fresh.inventory,layout:'grid'}};return [fresh.inventory.layout,loadSave(saved).inventory.layout]}),['list','grid']);
  await page.locator('#gtools [data-invpref="layout"]').selectOption('list');
  assert.equal(await page.locator('#ginv.inventory-list .item-caption').count(),4);
  await page.locator('#gtools [data-invpref="filter"]').selectOption('equipped');assert.equal(await page.locator('#ginv [data-id]').count(),1);
@@ -33,6 +34,7 @@ const {chromium}=require('playwright'),path=require('path'),assert=require('node
  assert(await page.evaluate(()=>S.inv.leather_cap===1&&S.inv.iron_sword===1&&S.inv.oak_staff===1&&S.bench[0]==='leather_cap'));
  await page.reload();assert(await page.evaluate(()=>itemLocked('oak_staff')&&S.inventory.layout==='list'));
  await page.evaluate(()=>go('gear'));await page.locator('#ginv [data-id="oak_staff"]').click();
+ assert(await page.locator('.sheet-management').isVisible());await page.locator('.sheet-management summary').click();
  await page.locator('[data-act="lock"]').click();assert(!await page.evaluate(()=>itemLocked('oak_staff')));await page.locator('[data-act="close"]').click();
  console.log('ok list/filter preferences, item locking, reserved ingredients and bulk salvage preview survive reload');
  await page.locator('#settingsBtn').click();assert(await page.locator('#v-settings').isVisible());assert(await page.locator('#exportBtn').isVisible());
@@ -70,7 +72,7 @@ const {chromium}=require('playwright'),path=require('path'),assert=require('node
  // the crucible actions: the locked ones name their technique; a satchel item the chosen action does not take is dimmed and says where it goes; the item sheet opens Infuse with its item in place
  await page.evaluate(()=>{S=freshState();S.rp=30;learnTech('weaponcraft');learnTech('blade');learnTech('infuse');addItem('iron_sword');addItem('coal');addItem(essG('Fire',3));go('forge')});
  const tabs=await page.evaluate(()=>({open:[...document.querySelectorAll('#cacts [data-cact]')].map(b=>b.dataset.cact),locked:[...document.querySelectorAll('#cacts .locked')].map(b=>b.textContent.trim())}));
- assert.deepEqual(tabs.open,['forge','infuse']);assert.deepEqual(tabs.locked,['Improving','Fusing','Refining','Cooking','Brewing','Alchemy']);
+ assert.deepEqual(tabs.open,['forge','infuse']);assert.deepEqual(tabs.locked,['Fusing','Improving','Refining','Cooking','Brewing','Alchemy']);
  await page.locator('[data-cact="infuse"]').click();assert.equal(await page.evaluate(()=>S.act),'infuse');assert(await page.locator('#crucible').isVisible()&&await page.locator('#patp').isHidden()&&await page.locator('#upgp').isHidden());
  await page.locator('#finv [data-id="iron_sword"]').click();assert.deepEqual(await page.evaluate(()=>S.bench),['iron_sword']);
  assert(/go in Improve/.test(await page.locator('#finv [data-id="coal"]').getAttribute('data-tip'))&&await page.locator('#finv [data-id="coal"]').getAttribute('data-can')==='0');
