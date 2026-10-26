@@ -1,21 +1,28 @@
 // ================= ART: CREATURES (affix marks) =================
+// Where an affix is drawn is fixed by what it does, so two affixes on one rare never share a spot:
+// elemental = particles around the creature in the element's colour (fire top-left edge, ice right edge, holy top-left corner,
+// arcane top-right corner, poison bottom-left, shadow bottom-right); defence = on the body (iron plates, ward hexagon, regen cross
+// on the chest, thorn spikes at the sides); aggression = the head (frenzy red eyes and steam, vamp fangs and drip); on-death =
+// cracks (boom orange cracks low on the body, split a pale seam down the middle); movement = behind or under (swift speed lines
+// on the left, swiftfoot dust at the feet, elusive afterimage).
+const snow=(x,y)=>`<path d="M${x} ${y-5} v10 M${x-5} ${y} h10 M${x-3.5} ${y-3.5} l7 7 M${x+3.5} ${y-3.5} l-7 7"/>`;
 const AFX_ART={
-  fire:{p:"flames",f:c=>`<g fill="#ffb347"><path class="flick" d="M10 44 q-4 -8 2 -14 q0 6 5 7 q-1 5 -7 7 Z"/><path class="flick" d="M110 40 q4 -8 -2 -14 q0 6 -5 7 q1 5 7 7 Z"/></g>`},
-  ice:{p:"frost",f:c=>`<g stroke="#effbff" stroke-width="2" stroke-linecap="round"><path d="M12 30 v12 M6 36 h12 M8 32 l8 8 M16 32 l-8 8"/><path d="M106 24 v10 M101 29 h10"/></g>`},
-  poison:{f:c=>`<g fill="${FAM.poison}" stroke="#0d0a08" stroke-width="1.4"><path class="flt" d="M14 18 q-6 9 0 13 q6 -4 0 -13 Z"/><path class="flt" d="M104 14 q-6 9 0 13 q6 -4 0 -13 Z"/><path class="flt" d="M110 42 q-4 7 0 10 q4 -3 0 -10 Z"/></g>`},
-  holy:{p:"halo",f:c=>`<ellipse cx="60" cy="8" rx="20" ry="5" fill="none" stroke="#f6e7a6" stroke-width="3" opacity=".9"/>`},
-  shadow:{f:c=>`<g fill="none" stroke="#a385dc" stroke-width="2.2" stroke-linecap="round" opacity=".75"><path class="flt" d="M8 60 q-2 -12 8 -18 q-6 10 2 16"/><path class="flt" d="M112 70 q2 -12 -8 -18 q6 10 -2 16"/><path class="flt" d="M98 14 q8 4 6 12"/></g>`},
-  iron:{p:"armor",f:c=>`<g fill="#8d989c" stroke="#0d0a08" stroke-width="2" stroke-linejoin="round"><path d="M4 92 L14 86 L18 100 L8 108 Z"/><path d="M116 92 L106 86 L102 100 L112 108 Z"/></g><g fill="#d6dde0"><circle cx="11" cy="97" r="1.6"/><circle cx="109" cy="97" r="1.6"/></g>`},
-  swift:{f:c=>`<path d="M2 50 H18 M4 60 H22 M2 70 H16" stroke="${FAM.swift}" stroke-width="2.2" stroke-linecap="round" opacity=".8"/>`},
-  arcane:{p:"runes",f:c=>`<g fill="${FAM.arcane}" stroke="#0d0a08" stroke-width="1.2"><path class="flt" d="M12 22 l4 -6 4 6 -4 6 Z"/><path class="flt" d="M104 30 l4 -6 4 6 -4 6 Z"/></g>`},
-  vamp:{f:c=>`<g fill="#c43c4f" stroke="#0d0a08" stroke-width="1.4"><path class="flt" d="M16 12 q-6 9 0 13 q6 -4 0 -13 Z"/><path class="flt" d="M104 8 q-6 9 0 13 q6 -4 0 -13 Z"/><path class="flt" d="M111 32 q-4 7 0 10 q4 -3 0 -10 Z"/></g>`},
-  thorn:{p:"spikes",f:c=>`<path d="M6 116 L12 100 L18 116 M100 116 L108 98 L114 116 M2 84 L14 88 L4 96 M118 80 L106 86 L116 94" fill="#b8a45a" stroke="#0d0a08" stroke-width="1.8" stroke-linejoin="round"/>`},
-  regen:{p:"vines",f:c=>`<g fill="#7cc47c" stroke="#0d0a08" stroke-width="1.2"><path class="flt" d="M10 96 h4 v-4 h4 v4 h4 v4 h-4 v4 h-4 v-4 h-4 Z"/><path class="flt" d="M98 104 q2 -8 10 -8 q-1 8 -10 8 Z"/></g>`},
-  frenzy:{f:c=>`<g stroke="#e8573b" stroke-width="2.6" stroke-linecap="round"><path d="M98 12 l4 6 M106 10 l0 8 M112 14 l-4 5"/><path d="M8 18 l5 4 M14 12 l2 7"/></g>`},
-  ward:{f:c=>`<path d="M60 4 A58 58 0 0 1 116 50 M60 4 A58 58 0 0 0 4 50" fill="none" stroke="#6fb5c4" stroke-width="3" stroke-dasharray="12 4" opacity=".8"/>`},
+  fire:{f:c=>`<g fill="#ffd04a" stroke="#0d0a08" stroke-width=".8">${[[9,40,2.8],[14,26,2.2],[6,22,1.6],[16,34,1.8]].map(([x,y,r],i)=>`<circle ${an("amb-rise",2.2+i*.5,i/4)} cx="${x}" cy="${y}" r="${r}"/>`).join("")}</g>`},
+  ice:{f:c=>`<g stroke="#effbff" stroke-width="2" stroke-linecap="round">${snow(106,26)}${snow(111,44)}${snow(102,56)}</g>`},
+  poison:{f:c=>`<g fill="${FAM.poison}" fill-opacity=".3" stroke="${FAM.poison}" stroke-width="1.2">${[[10,106,3.2],[20,114,2],[5,116,1.6],[22,100,1.6]].map(([x,y,r],i)=>`<circle ${an("amb-rise",2.6+i*.4,i/4)} cx="${x}" cy="${y}" r="${r}"/>`).join("")}</g>`},
+  holy:{f:c=>`<g fill="#fff2b8">${[[9,10,4],[22,7,2.6],[18,21,2]].map(([x,y,r],i)=>`<path ${an("amb-tw",1.8+i*.3,i/3)} d="${star4(x,y,r)}"/>`).join("")}</g>`},
+  shadow:{f:c=>`<g fill="none" stroke="#a385dc" stroke-width="2.2" stroke-linecap="round" opacity=".75"><path class="flt" d="M96 116 q-2 -10 8 -16 q-6 10 2 16"/><path class="flt" d="M110 116 q2 -9 -6 -14 q5 8 1 14"/></g>`},
+  iron:{p:"armor"},
+  swift:{f:c=>`<path d="M2 48 H16 M4 55 H22 M2 62 H14" stroke="${FAM.swift}" stroke-width="2.2" stroke-linecap="round" opacity=".8"/>`},
+  arcane:{f:c=>`<g fill="${FAM.arcane}" stroke="#0d0a08" stroke-width="1.2"><path class="flt" d="M100 12 l3 -5 3 5 -3 5 Z"/><path class="flt" d="M110 28 l3 -5 3 5 -3 5 Z"/></g>`},
+  vamp:{f:c=>`<path d="M44 44 l4 9 l4 -9 Z M54 44 l4 9 l4 -9 Z" fill="#f2ece0" stroke="#0d0a08" stroke-width="1.2" stroke-linejoin="round"/><path d="M55 53 q-1 4 0 7" stroke="#c43c4f" stroke-width="2" fill="none" stroke-linecap="round"/><circle class="flt" cx="55" cy="63" r="2.2" fill="#c43c4f"/>`},
+  thorn:{f:c=>`<path d="M2 78 L14 82 L4 90 M118 78 L106 82 L116 90" fill="#b8a45a" stroke="#0d0a08" stroke-width="1.8" stroke-linejoin="round"/>`},
+  regen:{f:c=>`<path class="amb-tw" d="M31 50 h6 v6 h6 v8 h-6 v6 h-6 v-6 h-6 v-8 h6 Z" fill="#b6ff9a" stroke="#0d0a08" stroke-width="1.6"/>`},
+  frenzy:{f:c=>`<g><circle cx="50" cy="36" r="3.2" fill="#e8573b" stroke="#0d0a08" stroke-width="1.2"/><circle cx="68" cy="36" r="3.2" fill="#e8573b" stroke="#0d0a08" stroke-width="1.2"/></g><g fill="#e9e4dc" opacity=".7">${[[46,14,4],[58,8,5],[72,14,4]].map(([x,y,r],i)=>`<circle ${an("amb-rise",2.4+i*.4,i/3)} cx="${x}" cy="${y}" r="${r}"/>`).join("")}</g>`},
+  ward:{f:c=>`<path d="M100 62 L80 96.6 L40 96.6 L20 62 L40 27.4 L80 27.4 Z" fill="none" stroke="#6fb5c4" stroke-width="2.6" stroke-dasharray="7 4" stroke-linejoin="round" opacity=".85"/>`},
   elusive:{ghost:1},
   split:{f:c=>`<path d="M74 6 L66 26 L76 34 L62 56 L72 66 L58 92" fill="none" stroke="#0d0a08" stroke-width="3.2" opacity=".75"/><path d="M74 6 L66 26 L76 34 L62 56 L72 66 L58 92" fill="none" stroke="#c39cf7" stroke-width="1.4"/>`},
-  boom:{f:c=>`<g stroke="#ffb142" stroke-width="2" stroke-linecap="round"><path class="flick" d="M100 98 l6 -6 M106 104 l8 0 M100 106 l4 6"/><path class="flick" d="M14 102 l-6 -6 M12 110 l-8 2"/></g><circle class="flick" cx="104" cy="102" r="3" fill="#ffb142"/>`},
-  swiftfoot:{f:c=>`<path d="M2 82 H20 M6 92 H24 M2 102 H18" stroke="#6fd8b6" stroke-width="2.2" stroke-linecap="round" opacity=".8"/>`}
+  boom:{f:c=>`<g stroke="#ffb142" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"><path class="flick" d="M50 80 l-6 7 l7 4 l-5 9"/><path class="flick" d="M40 90 l4 -2"/></g>`},
+  swiftfoot:{f:c=>`<g fill="#6fd8b6" opacity=".55"><circle cx="30" cy="110" r="3.4"/><circle cx="24" cy="112" r="2.4"/><circle cx="86" cy="110" r="3.4"/><circle cx="94" cy="112" r="2.4"/></g>`}
 };
 // one composed creature: parts behind, the silhouette, its pattern (masked to the silhouette), details, parts in front; affixes the body cannot wear are returned for frame marks
