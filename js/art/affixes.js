@@ -19,11 +19,14 @@ const TATS={ // each emblem sits in a 30-unit box centred on (0,0); a tattoo sca
 // tattoo(ids,t): the elemental emblems side by side on the tattoo anchor t=[x,y,r] (r = the emblem's radius on a single-affix creature; 2 or 3 shrink to fit). A dark disc fades the pattern under them and the emblems glow slowly.
 function tattoo(ids,t){
   const n=ids.length;if(!n)return "";
-  const[x,y,r]=t,s=r/12.5*(n===1?1:n===2?.8:.62),sp=30*s+1.5,half=(n-1)*sp/2,ex=half+15*s+2.5;
-  return `<ellipse cx="${x}" cy="${y}" rx="${P2(ex)}" ry="${P2(15*s+2.5)}" fill="#0d0a08" opacity=".42"/>`+ids.map((id,i)=>`<g transform="translate(${P2(x-half+i*sp,y)}) scale(${P2(s)})"><g class="amb-glow">${TATS[id]()}</g></g>`).join("");
+  const[x,y,r,flip]=t,k=r/12.5*(n===1?1:n===2?.8:.75),
+    P=n===1?[[0,0]]:n===2?[[-(15*k+.75),0],[15*k+.75,0]]:[[0,-10.6*k],[-15.5*k,10.6*k],[15.5*k,10.6*k]]; // 3: a triangle, apex up (or down with flip)
+  const ex=Math.max(...P.map(q=>Math.abs(q[0])))+15*k+2,ey=Math.max(...P.map(q=>Math.abs(q[1])))+15*k+2;
+  return `<ellipse cx="${x}" cy="${y}" rx="${P2(ex)}" ry="${P2(ey)}" fill="#0d0a08" opacity=".36"/>`+ids.map((id,i)=>{const col=AFX_ART[id].col,cx=x+P[i][0],cy=y+P[i][1]*(flip?-1:1);
+    return `<g transform="translate(${P2(cx,cy)}) scale(${P2(k)})"><circle r="15" fill="${col}" opacity=".22"/><circle class="amb-pulse" style="transform-box:fill-box;transform-origin:center" r="15" fill="none" stroke="${col}" stroke-width="2.4"/>${TATS[id]()}</g>`}).join("");
 }
 const AFX_ART={
-  fire:{tat:1},ice:{tat:1},poison:{tat:1},holy:{tat:1},shadow:{tat:1},arcane:{tat:1},
+  fire:{tat:1,col:ELPAL.fire[0]},ice:{tat:1,col:ELPAL.ice[0]},poison:{tat:1,col:ELPAL.poison[0]},holy:{tat:1,col:ELPAL.holy[0]},shadow:{tat:1,col:"#c4a8ff"},arcane:{tat:1,col:ELPAL.arcane[0]},
   iron:{p:"armor"},
   swift:{f:c=>`<path d="M2 48 H16 M4 55 H22 M2 62 H14" stroke="${FAM.swift}" stroke-width="2.2" stroke-linecap="round" opacity=".8"/>`},
   vamp:{f:c=>`<path d="M44 44 l4 9 l4 -9 Z M54 44 l4 9 l4 -9 Z" fill="#f2ece0" stroke="#0d0a08" stroke-width="1.2" stroke-linejoin="round"/><path d="M55 53 q-1 4 0 7" stroke="#c43c4f" stroke-width="2" fill="none" stroke-linecap="round"/><circle class="flt" cx="55" cy="63" r="2.2" fill="#c43c4f"/>`},

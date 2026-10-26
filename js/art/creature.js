@@ -3,7 +3,7 @@ function compose(A,c,afx,R){
   const sk=A.skin||"#cfa784",B=BODY[A.b](c,{skin:sk,glow:A.glow}),parts=[...(A.p||[])],rest=[],els=[];
   (afx||[]).forEach(id=>{const X=AFX_ART[id];if(X&&X.tat)els.push(id);else if(X&&X.p&&!parts.includes(X.p)&&!(X.p==="halo"&&parts.includes("hood")))parts.push(X.p);else rest.push(id)});
   const L=z=>parts.filter(p=>PART[p]&&PART[p].z===z).map(p=>PART[p].f(c,B.a)).join("");
-  const pat=A.pat&&PAT[A.pat]?`<mask id="${c.id}k" maskUnits="userSpaceOnUse" x="0" y="0" width="120" height="120"><g filter="url(#${c.id}w)">${B.s}</g></mask><g mask="url(#${c.id}k)" opacity="${A.po||.6}">${PAT[A.pat](c,R)}</g>`:"";
+  const pat=A.pat&&PAT[A.pat]?`<mask id="${c.id}k" maskUnits="userSpaceOnUse" x="0" y="0" width="120" height="120"><g filter="url(#${c.id}w)">${B.s}</g></mask><g mask="url(#${c.id}k)" opacity="${Math.min(A.po||.6,.35)}">${PAT[A.pat](c,R)}</g>`:"";
   return{s:L(-1)+B.s+pat+B.f+tattoo(els,B.a.tt)+L(1),rest,fly:B.a.fly}; // the tattoo sits on the body, inside its bob and breath
 }
 

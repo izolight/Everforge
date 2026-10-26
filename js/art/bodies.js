@@ -7,7 +7,7 @@
 // h=[x,y,r] head, s=[x,y,w] shoulders/back line (w = half width), c=[x,y] chest, k=[x,y] weapon hand, t=[x,y] tail root, side=1 for a side view, fly=1 floats,
 // tt=[x,y,r] where the elemental tattoo sits on the flank or chest (r = the emblem's radius), g=[x,y] where the regen cross sits on the upper body.
 const BODY={
-  beast:c=>({a:{h:[26,60,17],s:[70,44,28],c:[70,68],k:[18,86],t:[104,62],side:1,tt:[72,75,15],g:[49,74]},s:`<g stroke="${c.o}" stroke-width="2.5" stroke-linejoin="round">
+  beast:c=>({a:{h:[26,60,17],s:[70,44,28],c:[70,68],k:[18,86],t:[104,62],side:1,tt:[72,72,15],g:[49,74]},s:`<g stroke="${c.o}" stroke-width="2.5" stroke-linejoin="round">
     <path d="M80 86 L80 108 H90 L92 86 Z M44 84 L42 106 H52 L56 86 Z" fill="${c.d}"/>
     <path d="M36 58 Q44 40 70 40 Q104 40 108 64 Q108 90 80 92 Q48 94 38 82 Z" fill="${c.m}"/>
     <path d="M92 84 L96 110 H106 L104 78 Z M54 86 L56 110 H66 L66 88 Z" fill="${c.d}"/>
@@ -25,7 +25,7 @@ const BODY={
     <path d="M44 32 Q44 13 60 13 Q76 13 76 32 Q76 42 70 47 V52 H50 V47 Q44 42 44 32 Z" fill="${c.l}" stroke="${c.o}" stroke-width="2.5" stroke-linejoin="round"/><path d="M48 22 Q54 16 62 16" stroke="#fff" stroke-width="1.6" fill="none" opacity=".45"/>
     <ellipse cx="53" cy="31" rx="5" ry="6" fill="#0b0907"/><ellipse cx="67" cy="31" rx="5" ry="6" fill="#0b0907"/><circle cx="53" cy="32" r="2.2" fill="${c.e}"/><circle cx="67" cy="32" r="2.2" fill="${c.e}"/>
     <path d="M58 40 L60 37 L62 40 Z" fill="#0b0907"/><path d="M52 47 H68 M55 45 V49 M60 45 V49 M65 45 V49" stroke="#0b0907" stroke-width="1.6"/>`}),
-  construct:c=>({a:{h:[60,26,16],s:[60,44,30],c:[60,68],k:[100,90],tt:[60,80,14],g:[40,62]},s:`<g stroke="${c.o}" stroke-width="2.5" stroke-linejoin="round">
+  construct:c=>({a:{h:[60,26,16],s:[60,44,30],c:[60,68],k:[100,90],tt:[60,82,14],g:[40,62]},s:`<g stroke="${c.o}" stroke-width="2.5" stroke-linejoin="round">
     <rect x="38" y="92" width="16" height="20" rx="4" fill="${c.d}"/><rect x="66" y="92" width="16" height="20" rx="4" fill="${c.d}"/>
     <rect x="10" y="46" width="20" height="34" rx="6" fill="${c.d}"/><rect x="90" y="46" width="20" height="34" rx="6" fill="${c.d}"/>
     <rect x="7" y="78" width="26" height="18" rx="5" fill="${c.m}"/><rect x="87" y="78" width="26" height="18" rx="5" fill="${c.m}"/>
@@ -33,14 +33,14 @@ const BODY={
     <rect x="48" y="20" width="24" height="9" rx="3" fill="#0b0907" stroke="${c.o}" stroke-width="2"/><rect x="53" y="23" width="14" height="3.6" rx="1.5" fill="${c.e}"/>
     <circle cx="60" cy="54" r="11" fill="${c.a}" stroke="${c.o}" stroke-width="2"/><circle cx="60" cy="54" r="8" fill="#0b0907"/><circle class="flick" cx="60" cy="54" r="5" fill="${c.e}"/>
     <path d="M34 54 H86 M38 84 H82" stroke="${c.D}" stroke-width="2"/><path d="M32 46 H88" stroke="${c.l}" stroke-width="1.6" opacity=".7"/><g fill="${c.a}" stroke="${c.o}" stroke-width="1"><circle cx="34" cy="48" r="2.2"/><circle cx="86" cy="48" r="2.2"/><circle cx="40" cy="92" r="2.2"/><circle cx="80" cy="92" r="2.2"/></g>`}),
-  elemental:c=>({a:{h:[60,56,22],s:[60,34,22],c:[60,72],k:[100,58],fly:1,tt:[60,88,11],g:[38,82]},s:`<g stroke="${c.o}" stroke-width="2.5" stroke-linejoin="round">
+  elemental:c=>({a:{h:[60,56,22],s:[60,34,22],c:[60,72],k:[100,58],fly:1,tt:[60,90,10],g:[38,82]},s:`<g stroke="${c.o}" stroke-width="2.5" stroke-linejoin="round">
     <path d="M48 90 Q48 106 62 116 Q60 104 72 94 Z" fill="${c.d}"/>
     <path class="flt" d="M12 56 L22 46 L30 58 L20 66 Z" fill="${c.d}"/><path class="flt" d="M108 56 L98 46 L90 58 L100 66 Z" fill="${c.d}"/>
     <path d="M60 12 Q92 30 92 62 Q92 90 60 98 Q28 90 28 62 Q28 30 60 12 Z" fill="${c.m}"/></g>`,f:`
     <ellipse cx="60" cy="62" rx="22" ry="27" fill="url(#${c.id}c)"/><path d="M60 22 Q74 34 72 46" stroke="${c.l}" stroke-width="2" fill="none" opacity=".7"/>
     <ellipse cx="52" cy="56" rx="4.2" ry="5.4" fill="${c.e}" stroke="${c.o}" stroke-width="1.6"/><ellipse cx="68" cy="56" rx="4.2" ry="5.4" fill="${c.e}" stroke="${c.o}" stroke-width="1.6"/>
     <path d="M53 72 Q60 77 67 72" stroke="${c.o}" stroke-width="2" fill="none" stroke-linecap="round"/>`}),
-  humanoid:(c,o)=>({a:{h:[60,30,14],s:[60,52,28],c:[60,74],k:[90,88],tt:[60,72,14],g:[40,94]},s:`<g stroke="${c.o}" stroke-width="2.5" stroke-linejoin="round">
+  humanoid:(c,o)=>({a:{h:[60,30,14],s:[60,52,28],c:[60,74],k:[90,88],tt:[60,74,14],g:[40,94]},s:`<g stroke="${c.o}" stroke-width="2.5" stroke-linejoin="round">
     <path d="M60 44 Q86 46 88 64 L98 114 H22 L32 64 Q34 46 60 44 Z" fill="${c.d}"/><path d="M46 52 H74 L78 108 H42 Z" fill="${c.m}"/>
     <path d="M34 58 Q22 74 26 92 L35 92 Q35 76 43 66 Z M86 58 Q98 74 94 90 L85 90 Q85 76 77 66 Z" fill="${c.d}"/></g>`,f:`
     <path d="M24 112 H96 M46 52 L42 108 M74 52 L78 108" stroke="${c.a}" stroke-width="1.8" opacity=".75"/>
