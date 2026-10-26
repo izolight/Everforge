@@ -144,7 +144,7 @@ Backlog for monster coverage, biome variety and related balance/tooling work.
   Add roles such as bruiser, skirmisher, caster, support, with role-specific special pools and stat bias.
   **Done:** roles documented; every role represented in sim; existing enemies mapped without breaking balance.
 
-- [ ] **V-18 · Add multi-enemy encounters** — `Status: Planned` · `Size: XL` · `js/battle.js`, `js/render.js`, `js/state.js`, `js/map.js` · `Depends: V-17`
+- [ ] **V-18 · Add multi-enemy encounters** — `Status: Planned` · `Size: XL` · `js/battle.js`, `js/render/`, `js/state.js`, `js/map.js` · `Depends: V-17`
   Support 2–3 foes with targeting, turn order, AoE abilities, pack-aware affixes and saves.
   **Done:** packs work in normal/daily/Rift; UI and save shape updated; sim policies updated.
 
