@@ -13,7 +13,11 @@ The starter kit is not a stage kit and now has its own task, **M-10**. See "Out 
 
 ## 0. Current context and related tasks
 
-M-09 remains `Implement` in [tasks.md](tasks.md), but the investigation below is historical. Refresh the baseline on the current revision before tuning: V-12/V-02 changed generated rosters and C-01–C-08 changed crafting, research and encounter density. Reconcile any kit construction assumptions with the current technique gates; record the revision and seed with new results.
+M-09 is `Done` in [tasks.md](tasks.md). This plan retains historical hypotheses; final implementation and validation evidence are archived in [backlog-completed.md](backlog-completed.md#m-09). The live baseline was refreshed on `4b0ef66` after V-12/V-02 and C-01–C-08. Current crafting makes `iron_helmet` and `stone_plate` available by Hollow, so the repaired staff kit no longer regresses to leather armor.
+
+### Final result
+
+The final working-tree measurements were run on the `4b0ef66` baseline plus M-09 changes. Rare foes use 1.45x HP; Regenerating heals 3% normally and 0.5% for rare foes at Heat 5+; authored self-healing species cannot roll Vampiric, Regenerating or Warded; regular rare foes gain a third affix at Heat 6. The Hollow Staff kit now uses craftable iron and stone armor. On `--rarity --seed 7/11 --n 100` with smart policy, all nine stage kits cleared magic and rare at Heat 0–3 with minimum wins of 99% at Heat 0 and 88% at Heat 3; both runs had only the two starter/M-10 `RARE_HARD` rows and no SLOG. The `defensive/woods` basic/rare Heat 5 row averaged 28.9/28.8 turns. The elite matrix added 3 ARRIVAL and 13 ON-STAGE `TOO_EASY` cells versus baseline, with no increase in `TOO_HARD`; this is recorded as a balance limitation, not a M-09 acceptance failure.
 
 - **M-04 is Done.** The simulator separates authored enemies from wild creatures; `--rarity` covers authored foes and `--wild` reports native and forced rarity rows. Check which parts of step 1 already landed rather than implementing a duplicate filter.
 - **M-03 is Done.** Authored elemental coverage is complete. Use the current enemy tables for the arrival-zone lists.

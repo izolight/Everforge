@@ -9,6 +9,8 @@ let fails=0;const ok=(c,m)=>{if(!c){fails++;console.log("FAIL",m)}else console.l
   const errs=[];p.on("pageerror",e=>errs.push(e.message));p.on("console",m=>{if(m.type()==="error"&&!/fonts|net::/.test(m.text()))errs.push(m.text())});
   await p.goto(URL);
   const E=(f,a)=>p.evaluate(f,a);
+  const healerBad=await E(()=>{let bad=0;for(let i=0;i<4000;i++){const a=rollAfx(Math.random,"rare",{mv:"chase",heat:4,e:"witch"});if(a.some(x=>["vamp","regen","ward"].includes(x)))bad++}return bad});
+  ok(healerBad===0,`self-healing Witch never rolls Vampiric, Regenerating or Warded (${healerBad}/4000)`);
   const {AFX_T,EMB,RARITIES,DENSITY_RW}=await E(()=>({AFX_T,EMB,RARITIES,DENSITY_RW}));
   // helpers inside the page
   await E(()=>{
@@ -37,8 +39,10 @@ let fails=0;const ok=(c,m)=>{if(!c){fails++;console.log("FAIL",m)}else console.l
   ok(r.lg&&r.h1>r.h0,`vampiric heals (${r.h0} -> ${r.h1}) and logs`);
   r=await E(()=>{fresh();const B=fight("bandit",["thorn"]);const h=S.hp;R(.5,()=>strike(null,30,"Test blow",false));const lost=h-S.hp;S.hp=1;R(.5,()=>strike(null,30,"Test blow",false));return{lost,cap:Math.round(pstats().maxHp*AFX_T.thorn.cap),lg:logs(B).some(t=>/thorns bite/.test(t)),still:S.hp}});
   ok(r.lg&&r.lost>=1&&r.lost<=r.cap&&r.still===1,`thorned reflects ${r.lost} (cap ${r.cap}) and never kills (hp ${r.still})`);
-  r=await E(()=>{fresh();const B=fight("bandit",["regen"]);B.hp=Math.round(B.max/2);const h0=B.hp;R(.5,()=>enemyTurn());return{h0,h1:B.hp,exp:Math.round(B.max*AFX_T.regen),lg:logs(B).some(t=>/regrows/.test(t))}});
+  r=await E(()=>{fresh();const B=fight("bandit",["regen"]);B.hp=Math.round(B.max/2);const h0=B.hp;R(.5,()=>enemyTurn());return{h0,h1:B.hp,exp:Math.max(1,Math.round(B.max*AFX_T.regen)),lg:logs(B).some(t=>/regrows/.test(t))}});
   ok(r.lg&&r.h1-r.h0===r.exp,`regenerating heals ${r.h1-r.h0} (= ${r.exp})`);
+  r=await E(()=>{fresh();const B=fight("bandit",["regen"],"rare");B.heat=5;B.hp=Math.round(B.max/2);const h0=B.hp;R(.5,()=>enemyTurn());return{h0,h1:B.hp,exp:Math.max(1,Math.round(B.max*AFX_T.regenRareHeat5)),val:afxVal("regen",B),tip:AFX.regen.d(B)}});
+  ok(r.h1-r.h0===r.exp&&r.val==="+0.5%"&&r.tip.includes("0.5%"),`Heat 5 rare regenerates at 0.5% and reports the matching value (${r.h1-r.h0} HP)`);
   r=await E(()=>{fresh();const B=fight("bandit",["frenzy"]);const a0=B.atk;B.hp=Math.floor(B.max*AFX_T.frenzy.at)+3;R(.5,()=>strike(null,16,"Test blow",false));const a1=B.atk;R(.5,()=>strike(null,16,"Test blow",false));return{a0,a1,a2:B.atk,lg:logs(B).filter(t=>/frenzy/.test(t)).length,hp:B.hp,max:B.max}});
   ok(r.lg===1&&r.a1===Math.round(r.a0*AFX_T.frenzy.x)&&r.a2===r.a1,`frenzied: atk ${r.a0} -> ${r.a1}, once, log line ${r.lg}`);
   r=await E(()=>{fresh();const B=fight("bandit",["ward"]);const w0=B.wd,h0=B.hp;const chip=document.querySelector("#enemyHud .chips.afx .chip b").textContent;
@@ -106,11 +110,11 @@ let fails=0;const ok=(c,m)=>{if(!c){fails++;console.log("FAIL",m)}else console.l
   r=await E(()=>{let bad=0;for(let i=0;i<500;i++){const a=rollAfx(Math.random,"rare",{mv:"still",heat:4});if(a.includes("swiftfoot"))bad++}let good=0;for(let i=0;i<500;i++)if(rollAfx(Math.random,"magic",{mv:"chase",heat:0}).includes("swiftfoot"))good++;return{bad,good}});
   ok(r.bad===0&&r.good>0,`swiftfoot: never on still species (${r.bad}), rolled on movers (${r.good}/500)`);
   // ---- 3. rolls: compatibility, counts, chances
-  r=await E(()=>{let viol=0,n2=0,n3=0,bad3=0;const ids=Object.keys(AFX);for(let i=0;i<4000;i++){const h=i%2?4:2,a=rollAfx(Math.random,"rare",{mv:"chase",heat:h});if(a.length!==(h>=4?3:2))bad3++;for(const x of a)for(const y of a)if(x!==y&&!afxOk(x,y))viol++;if(new Set(a).size!==a.length)viol++}
+  r=await E(()=>{let viol=0,n2=0,n3=0,bad3=0;const ids=Object.keys(AFX);for(let i=0;i<4000;i++){const h=i%2?6:2,a=rollAfx(Math.random,"rare",{mv:"chase",heat:h});if(a.length!==(h>=6?3:2))bad3++;for(const x of a)for(const y of a)if(x!==y&&!afxOk(x,y))viol++;if(new Set(a).size!==a.length)viol++}
     const f={magic:0,rare:0,normal:0};for(let i=0;i<20000;i++)f[rollFoe(Math.random,{elite:true,heat:2,row:3,mv:"chase"}).rar]++;
     const g={magic:0,normal:0};for(let i=0;i<20000;i++)g[rollFoe(Math.random,{elite:false,heat:3,row:3,mv:"chase"}).rar]++;const z=rollFoe(Math.random,{elite:false,heat:1,row:3,mv:"chase"});
     return{viol,bad3,rareShare:f.rare/20000,exp:rareCh(2,3),fm:g.magic/20000,expm:magicCh(3),z,h0:magicCh(0),h1:magicCh(1),cap:rareCh(5,5)}});
-  ok(r.viol===0&&r.bad3===0,"rolls: no conflicting or duplicate affixes; rares carry 2 (3 from Heat 4)");
+  ok(r.viol===0&&r.bad3===0,"rolls: no conflicting or duplicate affixes; rares carry 2 (3 from Heat 6)");
   ok(Math.abs(r.rareShare-r.exp)<.02&&Math.abs(r.fm-r.expm)<.02&&r.h0===0&&r.h1===0&&r.cap<=.6,`rolls: elite rare share ${r.rareShare.toFixed(3)} (exp ${r.exp.toFixed(2)}), fight magic share at Heat 3 ${r.fm.toFixed(3)} (exp ${r.expm}), cap ${r.cap}`);
   // ---- 4. grades: one step per magic, two per rare, capped by the zone table
   r=await E(()=>{const avg=(z,up)=>{let s=0,mx=0;for(let i=0;i<4000;i++){const g=rollGrade(z,0,undefined,up);s+=g;mx=Math.max(mx,g)}return[s/4000,mx]};const gm=RARITIES.magic.gs,gr=RARITIES.rare.gs;return{gm,gr,w0:avg("woods",0),w1:avg("woods",gm),w2:avg("woods",gr),w3:avg("woods",2),s2:avg("spire",2),p2:avg("pass",2),txt:dropLine("vamp",{rar:"magic"})+"|"+dropLine("vamp",{rar:"rare"})+"|"+dropLine("vamp")}});
@@ -129,7 +133,7 @@ let fails=0;const ok=(c,m)=>{if(!c){fails++;console.log("FAIL",m)}else console.l
   ok(!r.bleed&&r.cd&&!r.stun&&!r.open&&/keep ticking/.test(r.tip),"dodged ability strikes apply no bleed/stun/exposure, cooldown still spent");
   r=await E(()=>{fresh();const B=fight("bandit",["thorn"]);S.hp=pstats().maxHp;const h=S.hp;R(.5,()=>{strike(null,30,"a",false);strike(null,30,"b",false);strike(null,30,"c",false)});return{lost:h-S.hp,cap:Math.round(pstats().maxHp*AFX_T.thorn.cap)}});
   ok(r.lost<=r.cap&&r.lost>=1,`thorned cap is per round: 3 blows cost ${r.lost} (cap ${r.cap})`);
-  r=await E(()=>{let bad=0;for(let i=0;i<4000;i++){const a=rollAfx(Math.random,"rare",{mv:"chase",heat:4});if(a.filter(x=>["vamp","regen","ward"].includes(x)).length>1)bad++}return bad});
+  r=await E(()=>{let bad=0;for(let i=0;i<4000;i++){const a=rollAfx(Math.random,"rare",{mv:"chase",heat:4,e:"witch"});if(a.some(x=>["vamp","regen","ward"].includes(x)))bad++}return bad});
   ok(r===0,"at most one of Vampiric/Regenerating/Warded per rare");
   // ---- 5. daily determinism: two different Math.random streams, same map affixes and rarities, same dark ambush
   r=await E(()=>{const mul=a=>()=>{a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296};

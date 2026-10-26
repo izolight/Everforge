@@ -102,6 +102,7 @@ function genCreature(o){ // o:{id,zone,biome,tier,R,used,boss,where,seed}
   const boss=o.boss?1.9:1,atkm=o.boss?1.25:1;
   const hp=Math.max(3,Math.round(o.tier.hp*(.8+R()*.45)*boss/rm.hp)),atk=Math.max(1,Math.round(o.tier.atk*(.85+R()*.3)*atkm/rm.atk));
   const def=Math.max(0,o.tier.def+Math.floor(R()*2)+(o.boss?2:0));
+  // Keep the wild generation pool unchanged: filtering here would shift its seeded roster and Rift masters.
   const afx=rollAfx(R,rar,{mv,heat:o.boss?RAR_CH.k3:0}); // a master carries three affixes
   const verb=B.verbs[Math.floor(R()*B.verbs.length)],place="the "+(o.where||B.n).toLowerCase().replace(/^the /,""),drops=genDrops(o.zone,el,R);
   const E={id:o.id,name:proc(name),plural:proc(pluralOf(name)),zone:o.zone,mv,el,hp,atk,def,weak:[...nat.w],resist:[...nat.r],w:1,verb,

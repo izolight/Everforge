@@ -6,7 +6,7 @@ For scoped work, status and dependencies, use [tasks.md](tasks.md). Finished wor
 
 | Topic | Canonical tasks |
 |---|---|
-| Affix/staff balance, starter difficulty | M-09, M-10 |
+| Starter difficulty | M-10; M-09 affix/staff balance is complete ([evidence](backlog-completed.md#m-09)) |
 | Rift masters and wild creature strength | M-11, M-12, V-16 |
 | Steam essence availability | M-08; Heavy, Runic and Light already have deconstruction sources. Wood has a boss-only non-affix source. |
 | More authored regions and biome identity | M-05, M-06, V-11 |

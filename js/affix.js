@@ -7,13 +7,14 @@ const speciesAfx=E=>E&&E.afx&&E.afx.length?{rar:E.rar||"magic",afx:E.afx}:null;
 const rareCh=(h,row)=>Math.min(RAR_CH.rare.cap,RAR_CH.rare.base+RAR_CH.rare.heat*h+RAR_CH.rare.row*row),magicCh=h=>h>=RAR_CH.magic.from?RAR_CH.magic.base+RAR_CH.magic.heat*(h-RAR_CH.magic.from):0;
 // two affixes combine unless they share a group (one elemental; one of Warded/Regenerating/Elusive; one of Vampiric/Regenerating/Warded; one of Splitting/Volatile) or drop the same essence
 const grpOf=a=>(AFX[a].g||"").split(" ").filter(Boolean),afxOk=(a,b)=>!grpOf(a).some(g=>grpOf(b).includes(g))&&AFX[a].tr!==AFX[b].tr;
-function rollAfx(R,rar,o){ // o: {mv: the species' way of moving, heat}; R is the seeded rng on the daily
-  const k=rar==="rare"&&(o.heat|0)>=RAR_CH.k3?3:RARITIES[rar]?RARITIES[rar].k:0,pool=Object.keys(AFX).filter(a=>!AFX[a].roam||(o.mv&&o.mv!=="still")),out=[];
+const afxPool=(E,mv)=>Object.keys(AFX).filter(a=>(!AFX[a].roam||(mv&&mv!=="still"))&&!(E&&E.sp&&E.sp.kind==="heal"&&grpOf(a).includes("sustain")));
+function rollAfx(R,rar,o){ // o: {mv, heat, e: species id}; R is the seeded rng on the daily
+  const E=o.e&&ENEMIES[o.e],k=rar==="rare"&&(o.heat|0)>=RAR_CH.k3?3:RARITIES[rar]?RARITIES[rar].k:0,pool=afxPool(E,o.mv),out=[];
   for(let i=0;i<k;i++){const c=pool.filter(a=>!out.includes(a)&&out.every(b=>afxOk(a,b)));if(!c.length)break;out.push(c[Math.floor(R()*c.length)])}
   return out}
 function rollFoe(R,o){ // rarity and affixes of one regular enemy: o {elite (an elite tile: magic or rare), heat, row (depth), mv}
   const h=o.heat||0,rar=o.elite?(R()<rareCh(h,o.row||0)?"rare":"magic"):R()<magicCh(h)?"magic":"normal";
-  return{rar,afx:rollAfx(R,rar,{mv:o.mv,heat:h})}}
+  return{rar,afx:rollAfx(R,rar,{mv:o.mv,heat:h,e:o.e})}}
 const afxCol=a=>AFX[a].col||FAM[TRAITS[AFX[a].tr].f],afxIc=(a,c)=>AFX[a].t==="el"?famIc(TRAITS[AFX[a].tr].f,c):ic(AFX[a].ic,c);
 const elTr=B=>{const a=afxOn(B).find(x=>AFX[x].t==="el");return a?AFX[a].tr:null}; // the trait of its elemental affix, if any
 const bname=B=>{const E=ENEMIES[B.id];if(B.split)return tx("{name} remnant",{name:tx(E.name)});return B.afx&&B.afx.length?tx("{affix} {name}",{affix:tx(AFX[B.afx[0]].n),name:tx(E.name)}):tx(E.name)}; // the name shown: an affix prefix, a remnant after a split (B.name keeps the English)
@@ -40,7 +41,7 @@ const dropLine=(a,B)=>{const ess=tx("{trait} Essence",{trait:trn(AFX[a].tr)});re
 const afxTip=(a,B)=>[tx(AFX[a].n),AFX[a].d(B),dropLine(a,B)];
 function afxVal(a,B){ // the number on an affix chip
   if(!B)return"";
-  return{vamp:()=>pcn(AFX_T.vamp)+"%",thorn:()=>pcn(AFX_T.thorn.x)+"%",regen:()=>"+"+pcn(AFX_T.regen)+"%",frenzy:()=>B.fz?"!":"",ward:()=>Math.max(0,B.wd),elusive:()=>dodgeNow(B)+"%",boom:()=>B.hp<=B.max*AFX_T.boom.warn?"~"+blastOf(B):""}[a]?.()??""}
+  return{vamp:()=>pcn(AFX_T.vamp)+"%",thorn:()=>pcn(AFX_T.thorn.x)+"%",regen:()=>"+"+(B.rar==="rare"&&B.heat>=5?"0.5":pcn(AFX_T.regen))+"%",frenzy:()=>B.fz?"!":"",ward:()=>Math.max(0,B.wd),elusive:()=>dodgeNow(B)+"%",boom:()=>B.hp<=B.max*AFX_T.boom.warn?"~"+blastOf(B):""}[a]?.()??""}
 const afxChip=(a,B)=>ci(afxCol(a),afxIc(a,"s"),afxVal(a,B),...afxTip(a,B));
 // first sight of an affix fills its Codex entry (S.afx[id]={s: fights met in, b: enemies beaten})
 function noteAfx(B,won){(B.afx||[]).forEach(a=>{const o=S.afx[a]||(S.afx[a]={s:0,b:0});if(won){o.b++;o.s=Math.max(o.s,1)}else{if(!o.s){blog(tx("Codex: new affix, {name}.",{name:tx(AFX[a].n)}),"lore");rpGain("afx:"+a,RP.afx,tx("a new affix"))}o.s++}})}
@@ -56,7 +57,7 @@ function leech(B,dmg){ // Vampiric
   if(!hasAfx(B,"vamp")||dmg<=0||B.hp<=0)return;const h=Math.min(B.max-B.hp,Math.max(1,Math.round(dmg*AFX_T.vamp)));
   if(h>0){B.hp+=h;floatFx("enemyHud","+"+h,"heal");blog(tx("The {name} drinks in {n} HP.",{name:bname(B),n:h}),"foe")}}
 function afxTick(B){ // start of its turn: Regenerating mends it, a broken ward comes back, Frenzied checks its health
-  if(hasAfx(B,"regen")&&B.hp<B.max){const h=Math.min(B.max-B.hp,Math.max(1,Math.round(B.max*AFX_T.regen)));B.hp+=h;floatFx("enemyHud","+"+h,"heal");blog(tx("The {name} regrows {n} HP.",{name:bname(B),n:h}),"foe")}
+  if(hasAfx(B,"regen")&&B.hp<B.max){const rate=B.rar==="rare"&&B.heat>=5?AFX_T.regenRareHeat5:AFX_T.regen,h=Math.min(B.max-B.hp,Math.max(1,Math.round(B.max*rate)));B.hp+=h;floatFx("enemyHud","+"+h,"heal");blog(tx("The {name} regrows {n} HP.",{name:bname(B),n:h}),"foe")}
   if(hasAfx(B,"ward")&&B.wd<=0&&B.wb!=null&&B.turn-B.wb>=AFX_T.ward.every){B.wd=B.wm;B.wb=null;blog(tx("Its ward flares back ({n}).",{n:B.wd}),"foe")}
   frenzy(B)}
 function blast(B){ // Volatile: it bursts as it dies. Guard cuts the blast, your rune ward soaks it. Returns false if it kills you

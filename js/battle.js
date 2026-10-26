@@ -17,7 +17,7 @@ function startBattle(forced,opt){
   if(first)B.log.push({t:opt.amsg||tx("Ambush! Something leaps out at you."),c:"big"});
   if(!E.boss&&id!=="mimic"){ // a map enemy brings its rolled rarity and affixes; a wild creature brings its own
     const sa=speciesAfx(E);
-    const f=sa||(opt.rar!=null?{rar:opt.rar,afx:opt.afx||rollAfx(Math.random,opt.rar,{mv:E.mv,heat:h})}:rollFoe(Math.random,{elite:opt.elite||tw==="elites",heat:h,row:opt.row,mv:E.mv}));
+    const f=sa||(opt.rar!=null?{rar:opt.rar,afx:opt.afx||rollAfx(Math.random,opt.rar,{mv:E.mv,heat:h,e:id})}:rollFoe(Math.random,{elite:opt.elite||tw==="elites",heat:h,row:opt.row,mv:E.mv,e:id}));
     applyAfx(B,E,f.rar,f.afx);B.intr=!!sa}
   const nd=foeNode(opt.pi,E.boss);if(nd&&nd.st)restoreFoe(B,nd.st); // a foe you fled from keeps its wounds
   S.battle=B;S.event=null;S.seen[id]=true;cx(id);

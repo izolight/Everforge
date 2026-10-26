@@ -31,11 +31,11 @@ const KITS={
       ["hands","gloves","hide_gloves golem_core ess:Iron"],["feet","boots","ember_treads golem_core ess:Stone"],["charm","charm","fang_charm ess:Stone ess:Arcane"],["","potion","holy_water spring_water ess:Nourishing"]],inf:["Stone","Iron","Arcane"],carry:{potion:3,bread:2}},
     spire:{steps:[["main","sword","iron_sword golem_core@4 ess:Iron"],["off","shield","sentinel_aegis golem_core@4 ess:Stone"],["head","helm","iron_helmet golem_core ess:Arcane:4"],["body","body","stone_plate rune_shard ess:Stone"],
       ["hands","gloves","hide_gloves golem_core ess:Iron"],["feet","boots","ember_treads golem_core ess:Stone"],["charm","charm","fang_charm ess:Stone ess:Arcane"],["","potion","holy_water spring_water ess:Nourishing"]],inf:["Stone","Arcane","Iron","Stone"],carry:{potion:3,storm_draught:1}}},
-  staff:{ // Magic-heavy staff caster: Arcane stacked into the staff, a shield, lighter armor
+  staff:{ // Magic-heavy staff caster: Arcane stacked into the staff, a shield, lighter armor, but never a step back
     woods:{steps:[["main","s1","oak_staff oak_staff ess:Arcane"],["main","staff","$s1 ess:Arcane ess:Arcane"],["off","shield","wood_shield boar_hide"],["head","helm","leather_cap"],["body","body","jerkin"],["feet","boots","trail_boots"],["charm","charm","sprite_lantern"]],inf:["Arcane"],carry:{bread:3,honey:2}},
     pass:{steps:[["main","s1","oak_staff oak_staff ess:Arcane"],["main","s2","$s1 ess:Arcane ess:Arcane"],["main","staff","$s2 ess:Arcane ess:Arcane"],["off","shield","wood_shield pelt"],["head","helm","iron_helmet pelt"],["body","body","stone_plate pelt"],["hands","gloves","wraith_wraps"],["feet","boots","trail_boots"],
       ["charm","charm","sprite_lantern ess:Arcane"],["","potion","holy_water spring_water"]],inf:["Arcane","Arcane"],carry:{bread:3,potion:2}},
-    hollow:{steps:[["main","s1","oak_staff oak_staff ess:Arcane"],["main","s2","$s1 phoenix ess:Arcane"],["main","staff","$s2 ess:Arcane ess:Arcane"],["off","shield","wood_shield golem_core"],["head","helm","leather_cap shroud"],["body","body","jerkin shroud ess:Arcane"],["hands","gloves","wraith_wraps"],["feet","boots","ember_treads"],
+    hollow:{steps:[["main","s1","oak_staff oak_staff ess:Arcane"],["main","s2","$s1 phoenix ess:Arcane"],["main","staff","$s2 ess:Arcane ess:Arcane"],["off","shield","wood_shield golem_core"],["head","helm","iron_helmet shroud"],["body","body","stone_plate shroud ess:Arcane"],["hands","gloves","wraith_wraps"],["feet","boots","ember_treads"],
       ["charm","charm","witch_eye"],["","potion","holy_water spring_water ess:Nourishing"]],inf:["Arcane","Fire","Holy"],carry:{potion:3,bread:2}},
     spire:{steps:[["main","s1","oak_staff rune_shard ess:Arcane"],["main","s2","$s1 phoenix ess:Arcane:4"],["main","s3","$s2 star_heart ess:Arcane ess:Holy"],["main","staff","$s3 ess:Arcane ess:Arcane"],["off","shield","sentinel_aegis"],["head","helm","leather_cap void_crystal"],["body","body","void_robe"],
       ["hands","gloves","wraith_wraps rune_shard ess:Arcane"],["feet","boots","gale_boots"],["charm","charm","witch_eye void_crystal ess:Arcane"],["","potion","holy_water spring_water ess:Nourishing"]],inf:["Arcane","Arcane","Fire","Holy"],carry:{potion:3,storm_draught:1}}},
@@ -132,7 +132,7 @@ function setup(){ // runs inside the game page; everything here uses the real ga
   // one fight on a fresh copy of the kit's save; returns {w,t,hp}
   // the affixes a magic/rare variant carries: the first cycles through every affix the species can roll (Swift-footed needs a mover), the rest are rolled
   SIM.afxFor=(id,rar,i,heat)=>{
-    if(!rar||rar==="normal")return[];const E=ENEMIES[id],pool=Object.keys(AFX).filter(a=>!AFX[a].roam||(E.mv&&E.mv!=="still")),k=rar==="rare"&&heat>=RAR_CH.k3?3:RARITIES[rar].k,out=[pool[i%pool.length]];
+    if(!rar||rar==="normal")return[];const E=ENEMIES[id],pool=afxPool(E,E.mv),k=rar==="rare"&&heat>=RAR_CH.k3?3:RARITIES[rar].k,out=[pool[i%pool.length]];
     while(out.length<k){const c=pool.filter(a=>!out.includes(a)&&out.every(b=>afxOk(a,b)));if(!c.length)break;out.push(c[Math.floor(Math.random()*c.length)])}
     return out};
   // ---- the Rift: a region rolled from one seed (its ten wild creatures and its master)

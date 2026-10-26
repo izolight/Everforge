@@ -51,10 +51,10 @@ function genMap(o){
     // pre-rolled so the same day plays out alike: rarity and affixes (their own seeded rng per tile), chest (mimic, loot, scroll), pack loot and four rolls (rv) for choice events and six (sh) for the peddler's stock (the one-for-one offer, what you can sell and satchel-based event choices depend on you, so they vary)
     const zp=zonePool(o.zone),pk=a=>a[Math.floor(rn()*a.length)];
     nd.ch={m:rn()<CHEST_T.mimic,l:[pk(zp),pk(zp)],e:rn()<CHEST_T.ess?pk(ESS_POOL):null,s:rn()<CHEST_T.scroll,sx:rn()};nd.pk=[pk(zp),...rn()<.5?[pk(zp)]:[]];nd.rv=[rn(),rn(),rn(),rn()];nd.sh=[rn(),rn(),rn(),rn(),rn(),rn()];nd.gr=Array.from({length:8},rn);nd.ch.g=nd.gr;
-    if(fe(nd.t)||nd.t==="mystery")Object.assign(nd,speciesAfx(ENEMIES[nd.e])||rollFoe(rng(hash(o.seed+":r:"+nd.x+","+nd.y)),{elite:nd.t==="elite"||(o.twist==="elites"&&nd.t==="mystery"),heat:h,row:nd.r,mv:nd.x===bx&&nd.y===1?"still":ENEMIES[nd.e].mv}))}); // gr: grade rolls for chest, pack and event finds
+    if(fe(nd.t)||nd.t==="mystery")Object.assign(nd,speciesAfx(ENEMIES[nd.e])||rollFoe(rng(hash(o.seed+":r:"+nd.x+","+nd.y)),{elite:nd.t==="elite"||(o.twist==="elites"&&nd.t==="mystery"),heat:h,row:nd.r,mv:nd.x===bx&&nd.y===1?"still":ENEMIES[nd.e].mv,e:nd.e}))}); // gr: grade rolls for chest, pack and event finds
   m.pois.forEach(p=>{if(!fe(p.t))return;if(o.zone&&!p.e)p.e=pickEnemy(o.zone,R,!sd); // each enemy is picked now (so its way of moving is known); the gate guard never moves, elites stalk slowly
     p.mv=!o.zone||(p.x===bx&&p.y===1)?"still":ENEMIES[p.e].mv||"still";
-    if(p.rar==null)Object.assign(p,speciesAfx(ENEMIES[p.e])||rollFoe(R,{elite:p.t==="elite",heat:h,row:p.r,mv:p.mv}))}); // rarity and affixes are rolled once, so fleeing and coming back meets the same foe (elites keep their species' way of moving, only slower)
+    if(p.rar==null)Object.assign(p,speciesAfx(ENEMIES[p.e])||rollFoe(R,{elite:p.t==="elite",heat:h,row:p.r,mv:p.mv,e:p.e}))}); // rarity and affixes are rolled once, so fleeing and coming back meets the same foe (elites keep their species' way of moving, only slower)
   m.torch=m.tmax;m.mem[key(bx,0)]="boss";m.sn[bx]=1;reveal(m);
   return m;
 }
@@ -86,7 +86,7 @@ function step(x,y){
   }
   if(nd&&!nd.done)return enter(nd);
   if(m.torch<=0){const ra=m.sd?rng(hash(m.seed+":a:"+m.steps)):Math.random; // a seeded map rolls the dark's ambush by step number, so the same path meets the same things
-    if(ra()<TORCH.amb){const e=pickEnemy(S.zone,ra),sa=speciesAfx(ENEMIES[e]),f=sa||rollFoe(ra,{elite:twistNow()==="elites",heat:m.heat||0,row:depthOf(m,x,y),mv:ENEMIES[e].mv});return startBattle(null,{row:depthOf(m,x,y),ambush:true,amsg:tx("Ambush! Something finds you in the dark."),e,...f})}}
+    if(ra()<TORCH.amb){const e=pickEnemy(S.zone,ra),sa=speciesAfx(ENEMIES[e]),f=sa||rollFoe(ra,{elite:twistNow()==="elites",heat:m.heat||0,row:depthOf(m,x,y),mv:ENEMIES[e].mv,e});return startBattle(null,{row:depthOf(m,x,y),ambush:true,amsg:tx("Ambush! Something finds you in the dark."),e,...f})}}
   if(foesAct(m))return;
   save();render();
 }
@@ -130,7 +130,7 @@ function enter(nd,by,from){ // the one place a POI is resolved into a battle or 
   const m=curMap();nd.done=true;delete m.mem[nd.x+","+nd.y];S.battle=null;S.event=null;
   let t=nd.t;
   if(t==="mystery")t=nd.my||mystery(Math.random());
-  if(isFoe(nd)){if(!nd.e)nd.e=pickEnemy(S.zone);if(nd.rar==null)Object.assign(nd,speciesAfx(ENEMIES[nd.e])||rollFoe(Math.random,{elite:nd.t==="elite",heat:m.heat||0,row:nd.r,mv:nd.mv}))} // an older map: pick once and keep
+  if(isFoe(nd)){if(!nd.e)nd.e=pickEnemy(S.zone);if(nd.rar==null)Object.assign(nd,speciesAfx(ENEMIES[nd.e])||rollFoe(Math.random,{elite:nd.t==="elite",heat:m.heat||0,row:nd.r,mv:nd.mv,e:nd.e}))} // an older map: pick once and keep
   const src=isFoe(nd)?{pi:m.pois.indexOf(nd),by:by||"you",ef:from,...by==="it"?{amsg:tx("The {nm} lunges out of the dark!",{nm:tx(ENEMIES[nd.e].name)}),lunge:1}:{}}:{},P=pstats(),hl=m.heat||0,amb=!!m.amb&&["fight","elite"].includes(t),r=nd.r; // m.amb: a robbed traveller's friends make your next fight an ambush; it ends with the next stop whatever it is
   m.amb=false;
   if(t==="fight")return startBattle(null,{row:r,ambush:amb,e:nd.e,rar:nd.rar,afx:nd.afx,...src});

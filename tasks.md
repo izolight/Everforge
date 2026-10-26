@@ -4,16 +4,16 @@ The status index for scoped work. Open tasks are below; implementation evidence 
 
 ## At a glance
 
-**56 tasks · 27 Done · 0 In Progress · 1 Implement · 28 Planned · 29 open.** No task is currently recorded as actively underway.
+**56 tasks · 28 Done · 0 In Progress · 0 Implement · 28 Planned · 28 open.**
 
 | Workstream | Done | In Progress | Implement | Planned |
 |---|---:|---:|---:|---:|
-| Monster coverage, balance and progression (M) | 4 | 0 | 1 | 7 |
+| Monster coverage, balance and progression (M) | 5 | 0 | 0 | 7 |
 | Biome variety and mechanics (V) | 6 | 0 | 0 | 16 |
 | Art identity and readability (A) | 0 | 0 | 0 | 5 |
 | UI (U) | 9 | 0 | 0 | 0 |
 | Crafting rework (C) | 8 | 0 | 0 | 0 |
-| **Total** | **27** | **0** | **1** | **28** |
+| **Total** | **28** | **0** | **0** | **28** |
 
 **Statuses:** `Planned` = scoped backlog, not started; `Implement` = detailed implementation plan exists; `In Progress` = actively underway; `Done` = completed, with evidence in the archive. Dependencies are stated on task cards; Planned does not necessarily mean ready to start.
 
@@ -23,7 +23,7 @@ The status index for scoped work. Open tasks are below; implementation evidence 
 
 | Focus | Tasks | Next step |
 |---|---|---|
-| Balance with an existing plan | M-09 | Refresh the baseline and reconcile the [implementation plan](plan-m-09.md) with current crafting before tuning. |
+| Balance with an existing plan | M-09 complete | See [completed evidence](backlog-completed.md#m-09). |
 | Starter progression | M-10 | Recheck the opening loop after the crafting/research rework. |
 | Most visible art improvements | A-01, A-02, A-03 | Distinct animal bodies, named equipment and Rift terrain; do these before multiplying biomes/roster sizes. |
 | Creature naming and readability | A-04, A-05 | Align nouns with bodies; establish visual examples early and finish acceptance after art changes. |
@@ -35,7 +35,7 @@ Navigation: [UI](#ui-simplification) · [Balance](#balance-and-progression) · [
 
 ## Measurement freshness
 
-Numbers retained under M-09–M-12 are historical seed-1 baselines, including the noted V-22 rerun. V-12/V-02 changed generated rosters, and C-01–C-08 changed crafting, research and encounter density. They have not been revalidated by this backlog cleanup. Refresh relevant measurements before tuning; do not read “today” in older plans as the current build. Record seed, revision, kit, policy and Heat for new results.
+M-09's current seed-7/11 measurements are archived in [completed evidence](backlog-completed.md#m-09). Older M-10–M-12 measurements remain historical: V-12/V-02 changed generated rosters, and C-01–C-08 changed crafting, research and encounter density. Refresh relevant measurements before tuning; do not read “today” in older plans as the current build. Record seed, revision, kit, policy and Heat for new results.
 
 ## UI simplification
 
@@ -46,20 +46,10 @@ U-02–U-09 are complete. See [Completed UI tasks](backlog-completed.md#ui) for 
 - [ ] **M-08 · Add non-affix sources for Steam essence** — `Status: Planned` · `Size: M` · `js/data.js`, `js/monsters.js`, `js/map.js`, `js/encounters.js`
   Checked against `DECON` and the drop tables in `js/data.js`: Heavy (`boar_hide`, `golem_core`), Runic (`sentinel_plate`) and Light (`sprite_dust`) already come from deconstructing, so they are out of scope. Wood has no `DECON` item (`oak_bough` and `witchwood` carry Wood in their material, which `deconYield` skips); its only non-affix source is Gnarlhorn's guaranteed `gnarl_tusk`, a boss drop. Steam has no non-affix source at all: only the Volatile affix (`tr:"Steam"`) gives it.
   Add peddler stock, chest/shrine rewards, a `DECON` entry or a drop for Steam, or document affix-only intent. Wood's boss-only source is a note, not a blocker.
-  **Acceptance:** Steam has at least one non-affix source or an explicit note; economy sim unchanged.
+  **Acceptance:** Steam has at least one non-affix source or an explicit note; economy sim unchanged. When evaluating essence mix, account for M-09's reduced Nourishing, Wood and Runic affix drops from healing species.
 
-- [ ] **M-09 · Rebalance affixed foes and staff kits** — `Status: Implement` · `Size: M` · `js/data.js`, `js/affix.js` · see `plan-m-09.md`
-  Use `node tools/sim.js --rarity --seed 1`. Staff kits are weakest against affixed foes; rare fights can slog past 30 turns.
-  **Acceptance:** stage kits beat rares >85% at Heat 0–3 with smart play; no `SLOG` above the stated turn limit; rarity table updated.
-
-  <details>
-  <summary>Historical measurements — refresh before tuning</summary>
-
-  Historical seed-1 baseline: `staff/hollow` smart wins 59% vs rare and 81% vs magic at Heat 3 (`RARE_HARD`), so the Heat 0–3 criterion fails there; `defensive/woods` smart, basic and passive rare rows are `SLOG` at Heat 5 (30.8, 40.7 and 30.5 turns). The other stage kits clear 85% at Heat 0–3.
-
-  Note: `--rarity` covers the hand-made regulars only since M-04; the wild creatures' rarity rows are in `node tools/sim.js --wild --seed 1`.
-
-  </details>
+- [x] **M-09 · Rebalance affixed foes and staff kits** — `Status: Done` · `Size: M` · `js/data.js`, `js/affix.js`, `js/map.js`, `js/battle.js`, `js/monsters.js`, `tools/sim.js` · see [completed evidence](backlog-completed.md#m-09)
+  On the `4b0ef66` baseline plus M-09 changes, `--rarity --seed 7/11 --n 100` (smart, stage kits, Heat 0/3/5) had weakest wins of 99%/88% at Heat 0/3, 2 starter-only `RARE_HARD` rows and no `SLOG`. `defensive/woods` basic/rare at Heat 5 averaged 28.9/28.8 turns. Final tuning and elite-matrix tradeoff are recorded in the archive.
 
 - [ ] **M-10 · Tune the starter kit against magic/rare enemies** — `Status: Planned` · `Size: S` · `js/data.js`, tutorial/forge flow
   A starter without the tutorial Fire weapon loses to magic/rare foes. Decide whether that is intended.
