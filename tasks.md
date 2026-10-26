@@ -15,6 +15,7 @@ Backlog for monster coverage, biome variety and related balance/tooling work.
 - **V-01** — `Done`
 - **V-03** — `Done`
 - **V-04** — `Done`
+- **V-12** — `Done`
 - Everything else — `Planned`
 
 ---
@@ -130,9 +131,10 @@ Backlog for monster coverage, biome variety and related balance/tooling work.
 
 ## Code variety
 
-- [ ] **V-12 · Make part pools body-aware** — `Status: Planned` · `Size: S` · `js/monsters.js`, `js/art/`
+- [x] **V-12 · Make part pools body-aware** — `Status: Done` · `Size: S` · `js/monsters.js`, `js/art/`
   Add a body→allowed-parts table. Weapons on humanoid/construct, tusks/antlers on beasts, halo/wings on appropriate bodies. Also stop `tail` silently disappearing on bodies without a tail anchor.
   **Done:** every generated creature draws its intended part count; no missing-anchor no-ops; screenshots checked.
+  **Done (V-12):** `BODY_PARTS` in `js/monsters.js` lists the parts each body can wear (anchors from `js/art/bodies.js`); `genCreature` draws only from the biome's parts that its body allows, so `tail` is beast-only. A body with fewer than three usable parts draws what it can (no combo is short after the elemental list was widened). A headless check over 24,000 generated creatures (every biome × body) found no part without its anchor and no part outside the table; part counts are uniform over 1–3. Screenshots not taken.
 
 - [ ] **V-13 · Weight biome elements** — `Status: Planned` · `Size: S` · `js/monsters.js`
   Add optional `elW` so each biome has common and rare elements instead of uniform rolls.

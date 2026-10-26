@@ -80,13 +80,22 @@ function genDrops(zone,el,R){ // one to three of the region's own materials
   for(let i=0;i<n;i++){const id=list[Math.floor(R()*list.length)];if(seen.has(id))continue;seen.add(id);out.push([id,.35+R()*.45])}
   if(!out.length)out.push([t.any[0],.6]);
   return out}
+// the parts each body can wear, from the anchors in js/art/bodies.js: weapons need a hand on a torso (humanoid, construct), tusks and antlers a beast's head,
+// tail only a beast (its tail root t), hood and crown a head, halo a head that is not hooded, wings a body that can carry them. A part outside its body's list is never drawn.
+const BODY_PARTS={
+  beast:["mane","antlers","horns","tail","tusks","spikes","armor","shell","vines","wings","flames","frost","crystals"],
+  undead:["horns","crown","hood","chains","vines","spikes","wings","crystals"],
+  humanoid:["blade","axe","staff","horns","crown","hood","halo","orbit","wings","armor","vines","runes","chains","crystals","frost","flames"],
+  elemental:["horns","crown","halo","orbit","wings","armor","spikes","chains","shell","vines","flames","frost","crystals","runes"],
+  construct:["blade","axe","staff","horns","crown","halo","orbit","armor","spikes","chains","shell","runes","crystals"]};
 // one wild creature: a body and parts from the biome, an element, a rarity with affixes of its own, and stats
 // that land on the region's band once the rarity multiplier is applied (the affix multipliers still count).
 function genCreature(o){ // o:{id,zone,biome,tier,R,used,boss,where,seed}
   const B=BIOMES[o.biome],R=o.R,rar=o.boss?"rare":(R()<.3?"rare":"magic"),rm=RARITIES[rar];
   const el=B.els[Math.floor(R()*B.els.length)],nat=EL_NAT[el]||{w:[],r:[]};
   const mv=["still","wander","chase"][Math.floor(R()*3)],body=B.bodies[Math.floor(R()*B.bodies.length)];
-  const nparts=1+Math.floor(R()*3),parts=[];while(parts.length<nparts){const p=B.parts[Math.floor(R()*B.parts.length)];if(!parts.includes(p))parts.push(p)}
+  const pool=B.parts.filter(p=>BODY_PARTS[body].includes(p)),nparts=Math.min(1+Math.floor(R()*3),pool.length),parts=[]; // a body too bare for three parts wears what it can
+  while(parts.length<nparts){const p=pool[Math.floor(R()*pool.length)];if(!parts.includes(p))parts.push(p)}
   const col=ELPAL[el][Math.floor(R()*3)],acc=accFor(B,col,R); // body: the element's light, mid or dark; accent: the biome's
   const name=o.boss?proc(cap(B.pre[Math.floor(R()*B.pre.length)])+" "+cap(B.suf[Math.floor(R()*B.suf.length)])):genName(B,R,o.used);
   const sp=GEN_SP[Math.floor(R()*GEN_SP.length)];
