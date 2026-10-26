@@ -18,7 +18,7 @@ tundra:{n:"Frostfang Pass",els:["ice","swift","stone","arcane","metal"],bodies:[
 ember:{n:"Cinder Hollow",els:["fire","poison","metal","stone"],bodies:["elemental","construct","humanoid","undead","beast"],parts:["flames","spikes","armor","chains","horns","crown","runes","wings","shell"],pats:["cracks","bands","facets","swirl","stars","stripes"],
   acc:["#ff8a3d","#ff5a1f"],skins:["#c99b78","#9c6e43"],verbs:["scorches you","hammers you","scalds you","rakes you","claws you","strikes you"],
   pre:["Cinder","Ember","Slag","Ash","Forge","Molten","Kiln","Scoria"],suf:["Hound","Sentinel","Warden","Drake","Creeper","Tender","Hammer","Wretch","Thief","Creecher"],
-  regions:["The Ashen Kilns","The Slag Flats","The Vent Fields","The Magma Shelf","The Cinderwaste","The Brimstone Gorge"],lore:["It was forged, and then let go.","The Hollow's heat made it, and the Hollow forgets it.","Everything it touches keeps a little warmth.","It smells of coal and of old, old iron."]},
+  regions:["The Ashen Kilns","The Slag Flats","The Vent Fields","The Magma Shelf","The Smoulder Fields","The Brimstone Gorge"],lore:["It was forged, and then let go.","The Hollow's heat made it, and the Hollow forgets it.","Everything it touches keeps a little warmth.","It smells of coal and of old, old iron."]},
 astral:{n:"Starfall Spire",els:["arcane","holy","swift","shadow"],bodies:["construct","elemental","humanoid","beast","undead"],parts:["orbit","runes","halo","wings","crown","crystals","armor","chains","mane"],pats:["stars","bands","swirl","scales","facets","cracks"],
   acc:["#f6d36b","#fff3c4"],skins:["#e9e0cf","#c9b9a8"],verbs:["strikes you","smites you","rakes you","touches you","chills you","hacks at you"],
   pre:["Star","Void","Astral","Rune","Halo","Fallen","Gilded","Umbral"],suf:["Watcher","Sentinel","Warden","Acolyte","Construct","Lynx","Seer","Wraith","Scribe","Herald"],
@@ -132,6 +132,6 @@ function riftDescend(){ // one region deeper: the depth goes up, a new region is
   const r=S.rift;if(!r||S.zone!==RIFT_ZONE)return;
   r.depth=(r.depth||1)+1;r.best=Math.max(r.best||0,r.depth);r.cleared=0;r.seed=hash("rift:"+r.depth+":"+Math.floor(Math.random()*1e9));
   riftEnsure();S.maps[RIFT_ZONE]=newMap(RIFT_ZONE);S.battle=null;S.event=null;save();render();
-  toast(tx("You descend to depth {n}: {name}.",{n:r.depth,name:r.name||tx("unknown")}))}
+  toast(tx("You descend to depth {n}: {name}.",{n:r.depth,name:r.name?tx(r.name):tx("unknown")}))}
 // The wild roster (buildRoster) and the Rift's region (riftEnsure) are built in boot(), once every script has loaded.
 
