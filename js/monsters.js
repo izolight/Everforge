@@ -40,6 +40,20 @@ deep:{n:"The Weeping Deep",els:["arcane","ice","shadow","poison"],bodies:["eleme
   pre:["Deep","Weeping","Glass","Abyss","Silent","Pale","Vault","Drowned"],suf:["Warden","Sentinel","Watcher","Husk","Seeker","Lurker","Chorus","Creeper","Thrall","Drifter"],
   regions:["The Weeping Vaults","The Glass Deeps","The Drowned Gallery","The Sunless Sump","The Lightless Shelf","The Abyssal Choir"],lore:["It came up from a place that has no floor.","The water there keeps its shape.","It remembers a door that no longer exists.","Every sound in the deep answers itself."]}
 };
+// Optional element weights: common entries receive weight 3, rare entries weight 1.
+// The Rift-only signatures from M-05 use the same field: their signature element
+// has weight 2 and peers weight 1, so the old 2:1 bias is represented once.
+const BIOME_ELW={
+  forest:{wood:3,poison:3,swift:3,fire:1,metal:1},
+  tundra:{ice:3,swift:3,stone:3,arcane:1,metal:1},
+  ember:{fire:3,poison:3,metal:3,stone:1},
+  astral:{arcane:3,holy:3,swift:3,shadow:1},
+  fen:{poison:2,wood:1,shadow:1,swift:1},
+  ash:{fire:2,metal:1,stone:1,poison:1},
+  bone:{shadow:2,holy:1,stone:1,poison:1},
+  deep:{ice:2,arcane:1,shadow:1,poison:1}
+};
+Object.keys(BIOME_ELW).forEach(k=>BIOMES[k].elW=BIOME_ELW[k]);
 // the element a creature is born to: what it is weak to, what it shrugs off, and what it inflicts on a hit
 const EL_NAT={fire:{w:["ice"],r:["fire"],i:"burn"},ice:{w:["fire"],r:["ice"],i:"chill"},poison:{w:["fire"],r:["poison"],i:"poison"},holy:{w:["shadow"],r:["holy"],i:null},
   shadow:{w:["holy"],r:["shadow"],i:"curse"},wood:{w:["fire"],r:["wood"],i:null},metal:{w:["arcane"],r:["metal"],i:null},arcane:{w:["holy"],r:["arcane"],i:null},
@@ -102,13 +116,15 @@ const RIFT_IDENTITY={
   deep:{el:"ice",drop:"holy_water",trait:"Undertow Chill",inf:{s:"chill",ch:.25}}
 };
 const biomeSpecialFor=(biome,R)=>{const pool=BIOME_SP[biome]||GEN_SP;return pool[Math.floor(R()*pool.length)]};
-function biomeElement(zone,biome,B,R){
-  const identity=zone===RIFT_ZONE&&RIFT_IDENTITY[biome];
-  if(!identity||!B.els.includes(identity.el))return B.els[Math.floor(R()*B.els.length)];
-  // Weight the signature element 2:1 while reusing the original single element draw.
-  let n=R()*(B.els.length+1);
-  for(const el of B.els){n-=el===identity.el?2:1;if(n<0)return el}
-  return B.els[0];
+function biomeElement(zone,biome,B,R,elW=B.elW,rollInfo){
+  const roll=R();if(rollInfo)rollInfo.uniform=B.els[Math.min(B.els.length-1,Math.floor(roll*B.els.length))];
+  const identity=zone===RIFT_ZONE&&RIFT_IDENTITY[biome],weights=B.els.map(el=>{
+    const configured=elW&&Number.isFinite(elW[el])&&elW[el]>0?elW[el]:1;
+    return identity ? (identity.el===el?Math.max(configured,2):configured) : configured;
+  }),total=weights.reduce((a,w)=>a+w,0);
+  let n=roll*total;
+  for(let i=0;i<B.els.length;i++){n-=weights[i];if(n<0)return B.els[i]}
+  return B.els[B.els.length-1];
 }
 // what a wild creature can carry: the region's own materials, so a region's economy does not move
 const GEN_DROP={
@@ -170,7 +186,7 @@ const PART_CONFLICTS={hood:["horns","antlers","crown","halo"],horns:["hood","ant
 // at its region tier after rarity normalization (affix multipliers still count).
 function genCreature(o){ // o:{id,zone,biome,tier,R,used,boss,where,seed}
   const B=BIOMES[o.biome],R=o.R,rar=o.boss?"rare":(R()<.3?"rare":"magic"),rm=RARITIES[rar],identity=o.zone===RIFT_ZONE?RIFT_IDENTITY[o.biome]:null;
-  const el=biomeElement(o.zone,o.biome,B,R),nat=EL_NAT[el]||{w:[],r:[]};
+  const elementPick={},el=biomeElement(o.zone,o.biome,B,R,B.elW,elementPick),nat=EL_NAT[el]||{w:[],r:[]};
   const mv=["still","wander","chase"][Math.floor(R()*3)],body=B.bodies[Math.floor(R()*B.bodies.length)];
   const pool=B.parts.filter(p=>BODY_PARTS[body].includes(p)),nparts=Math.min(1+Math.floor(R()*3),pool.length),parts=[]; // a body too bare for three parts wears what it can
   while(parts.length<nparts){const available=pool.filter(p=>!parts.includes(p)&&!parts.some(q=>(PART_CONFLICTS[q]||[]).includes(p)));if(!available.length)break;parts.push(available[Math.floor(R()*available.length)])}
@@ -184,7 +200,7 @@ function genCreature(o){ // o:{id,zone,biome,tier,R,used,boss,where,seed}
   const def=Math.max(0,o.tier.def+Math.floor(R()*2)+(o.boss?2:0));
   // Keep the wild generation pool unchanged: filtering here would shift its seeded roster and Rift masters.
   const afx=rollAfx(R,rar,{mv,heat:o.boss?RAR_CH.k3:0,boss:!!o.boss,sp}); // masters use the full rare count with boss/special compatibility rules
-  const verb=B.verbs[Math.floor(R()*B.verbs.length)],place="the "+(o.where||B.n).toLowerCase().replace(/^the /,""),drops=genDrops(o.zone,el,R,o.biome);
+  const verb=B.verbs[Math.floor(R()*B.verbs.length)],place="the "+(o.where||B.n).toLowerCase().replace(/^the /,""),dropEl=identity?el:elementPick.uniform,drops=genDrops(o.zone,dropEl,R,o.biome);
   const E={id:o.id,name:proc(name),plural:proc(pluralOf(name)),zone:o.zone,mv,el,hp,atk,def,weak:[...nat.w],resist:[...nat.r],w:1,verb,
     intro:proc(o.boss?`${name} waits for you in ${place}.`:`${name} steps out of ${place}.`),
     lore:proc(B.lore[Math.floor(R()*B.lore.length)]),

@@ -4,16 +4,16 @@ The status index for scoped work. Open tasks are below; implementation evidence 
 
 ## At a glance
 
-**56 tasks · 43 Done · 0 In Progress · 0 Implement · 13 Planned · 13 open.**
+**56 tasks · 44 Done · 0 In Progress · 0 Implement · 12 Planned · 12 open.**
 
 | Workstream | Done | In Progress | Implement | Planned |
 |---|---:|---:|---:|---:|
 | Monster coverage, balance and progression (M) | 10 | 0 | 0 | 2 |
-| Biome variety and mechanics (V) | 11 | 0 | 0 | 11 |
+| Biome variety and mechanics (V) | 12 | 0 | 0 | 10 |
 | Art identity and readability (A) | 5 | 0 | 0 | 0 |
 | UI (U) | 9 | 0 | 0 | 0 |
 | Crafting rework (C) | 8 | 0 | 0 | 0 |
-| **Total** | **43** | **0** | **0** | **13** |
+| **Total** | **44** | **0** | **0** | **12** |
 
 **Statuses:** `Planned` = scoped backlog, not started; `Implement` = detailed implementation plan exists; `In Progress` = actively underway; `Done` = completed, with evidence in the archive. Dependencies are stated on task cards; Planned does not necessarily mean ready to start.
 
@@ -123,9 +123,9 @@ U-02–U-09 are complete. See [Completed UI tasks](backlog-completed.md#ui) for 
   All eight biomes have three translated signature specials for ordinary wild creatures, with `GEN_SP` fallback for unknown biomes and generated Rift masters. Selection consumes the existing single draw; all non-special roster fields and accepted master results remain unchanged.
   **Validation:** updated biome-special and i18n checks pass; full suite passed 24/24. Paired seed-1/7 n=30 reference samples and live modifier coverage are recorded in [V-11 evidence](rift-evidence/v11-biome-specials.md).
 
-- [ ] **V-13 · Weight biome elements** — `Status: Planned` · `Size: S` · `js/monsters.js`
-  Add optional `elW` so each biome has common and rare elements instead of uniform rolls.
-  **Acceptance:** seeded output stays deterministic; daily pre-rolls unaffected; sim reflects intended element mix.
+- [x] **V-13 · Weight biome elements** — `Status: Done` · `Size: S` · `js/monsters.js`, `tools/element-weight-check.js`
+  Optional `elW` maps give each biome weighted common and rare creature elements with uniform fallback. The four M-05 signature Rift rates remain 40% without applying the signature bias twice; ordinary generated-creature drops retain the uniform element selected by the same roll.
+  **Validation:** seeded weighted distributions, one-draw budget, uniform fallback, repeated rosters, and daily pre-roll determinism pass. Paired n=30 seeds 1/7, Heat 0, smart-policy simulator samples are archived in [V-13 evidence](rift-evidence/v13-element-weights.md). The integrated suite reported 27/28 before the parent fixed a V-14 assertion that rejected Fen additions; its focused rerun passed. The full suite was not rerun after that test-only fix.
 
 - [x] **V-14 · Add new enemy special kinds** — `Status: Done` · `Size: M` · `js/battle.js`, `js/data.js`, `js/render/battle-view.js`, `js/sheets.js`, `js/lang/`
   Add `guard` (temporary ward), `inflict` (guaranteed status), `enrage` (Attack up below half HP), `burrow` (untargetable for one turn), and `summon` (calls a weaker wild creature).

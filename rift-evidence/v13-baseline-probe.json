@@ -1,0 +1,110 @@
+{
+  "base": "4133e11",
+  "command": "node tools/sim.js --wild --n 10 --heat 0 --policy smart --seed 1 --no-biome-mods --no-depth-mods --rift-wild --rift-depth 1 --jobs 4",
+  "sample": {
+    "n": 10000,
+    "prng": "LCG seed 0x51313 reset per biome"
+  },
+  "distribution": {
+    "forest": {
+      "n": 10000,
+      "counts": {
+        "wood": 1946,
+        "metal": 2026,
+        "fire": 2052,
+        "poison": 1951,
+        "swift": 2025
+      }
+    },
+    "tundra": {
+      "n": 10000,
+      "counts": {
+        "ice": 1946,
+        "metal": 2026,
+        "stone": 2052,
+        "swift": 1951,
+        "arcane": 2025
+      }
+    },
+    "ember": {
+      "n": 10000,
+      "counts": {
+        "fire": 2417,
+        "stone": 2510,
+        "poison": 2497,
+        "metal": 2576
+      }
+    },
+    "astral": {
+      "n": 10000,
+      "counts": {
+        "arcane": 2417,
+        "shadow": 2510,
+        "holy": 2497,
+        "swift": 2576
+      }
+    },
+    "fen": {
+      "n": 10000,
+      "counts": {
+        "poison": 3897,
+        "swift": 2026,
+        "wood": 2052,
+        "shadow": 2025
+      }
+    },
+    "ash": {
+      "n": 10000,
+      "counts": {
+        "fire": 3897,
+        "poison": 2026,
+        "metal": 2052,
+        "stone": 2025
+      }
+    },
+    "bone": {
+      "n": 10000,
+      "counts": {
+        "shadow": 3897,
+        "poison": 2026,
+        "holy": 2052,
+        "stone": 2025
+      }
+    },
+    "deep": {
+      "n": 10000,
+      "counts": {
+        "arcane": 1946,
+        "poison": 2026,
+        "ice": 4003,
+        "shadow": 2025
+      }
+    }
+  },
+  "daily": [
+    {
+      "date": "2026-10-28",
+      "seed": 3497510848,
+      "want": "woods",
+      "zone": "woods",
+      "heat": 1,
+      "twist": "double"
+    },
+    {
+      "date": "2026-10-29",
+      "seed": 3514288467,
+      "want": "pass",
+      "zone": "woods",
+      "heat": 3,
+      "twist": "cinder"
+    },
+    {
+      "date": "2026-11-01",
+      "seed": 1897800060,
+      "want": "spire",
+      "zone": "woods",
+      "heat": 3,
+      "twist": "double"
+    }
+  ]
+}
