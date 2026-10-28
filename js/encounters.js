@@ -12,7 +12,7 @@ const takeOne=id=>{S.inv[id]--;trimBench()};
 const hurtYou=n=>{S.hp=Math.max(1,S.hp-n)};
 const RIDDLES=[["What is born in flame, sleeps in water, and wakes as a blade?","Steel",["Ash","Smoke"]],["The more you take from me, the larger I grow. What am I?","A hole",["A shadow","A fire"]],
   ["I am struck and never complain, and everything you make begins on me.","An anvil",["A bellows","A hammer"]],["Light as a feather, yet no hero can hold me for long.","Breath",["A grudge","A sword"]]];
-const ALTAR_ESS=["Arcane","Shadow","Holy","Fire"];
+const ALTAR_ESS=["Arcane","Shadow","Holy","Fire","Steam"];
 const ENC={
   shrine:{make:(rv,hl)=>{const n=Math.round(pstats().maxHp*.35*(hl>=5?HEAT_T.shrine:1)),g=spareGoods();
       return evt("shrine","shrine",tx("A quiet shrine"),tx("Moss-covered stones hum softly.")+(hl>=5?" "+tx("The Inferno has scorched them, so they offer less."):"")+" "+tx("Pray for strength, or give the stones something of yours."),
@@ -27,7 +27,7 @@ const ENC={
       return evt("altar","altar",tx("A cursed altar"),tx("A black slab, slick with old offerings. Something that isn't quite a voice says: \"Blood buys power.\""),
         [...S.hp>a?[["small",tx("Prick a finger (-{n} HP, 1 essence)",{n:a})]]:[],...S.hp>b?[["deep",tx("Open a vein (-{n} HP, 3 essences)",{n:b})]]:[],["leave",tx("Back away")]],{rv,a,b})},
     pick:(c,ev)=>{const cost=c==="deep"?ev.b:ev.a,n=c==="deep"?3:1;if(S.hp<=cost){toast(tx("You're too weak for that."));return endEv("altar",tx("The altar waits"),tx("You hesitate, and the moment passes."))}
-      hurtYou(cost);const k=Math.floor(ev.rv[0]*4),got=Array.from({length:n},(_,i)=>essNow(ALTAR_ESS[(k+i)%4],ev.rv[4+i]));got.forEach(id=>addItem(id));
+      hurtYou(cost);const k=Math.floor(ev.rv[0]*ALTAR_ESS.length),got=Array.from({length:n},(_,i)=>essNow(ALTAR_ESS[(k+i)%ALTAR_ESS.length],ev.rv[4+i]));got.forEach(id=>addItem(id));
       endEv("altar",tx("The altar drinks"),tx("Your blood runs black across the stone. You lose {n} HP. The slab gives back what it owes.",{n:cost}),got)}},
   alchemist:{make:rv=>{const g=spareGoods(),nm=g&&iname(S.items[g]),unk=REACTIONS.some(([a,b])=>!S.knownR.includes(a+"+"+b));
       return evt("alchemist","alchemist",tx("A wandering alchemist"),tx("A hooded alchemist stirs a pot that smells of three different weathers. \"Knowledge or essence, friend. Both cost something.\""),

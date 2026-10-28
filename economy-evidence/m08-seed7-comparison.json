@@ -1,0 +1,507 @@
+{
+  "task": "M-08",
+  "baselineRevision": "ddb9730",
+  "commands": {
+    "baseline": "node -r /tmp/noFonts.js tools/sim.js --econ-only --seed 7 --exped 30",
+    "after": "node -r /tmp/noFonts.js tools/sim.js --econ-only --seed 7 --exped 30"
+  },
+  "conditions": {
+    "seed": 7,
+    "expeditionsPerZone": 30,
+    "policy": "smart",
+    "kit": "melee stage kit",
+    "heat": 0
+  },
+  "source": "Optional cursed-altar offering can return Steam; no reward quantity, RNG draw, or generic reward pool changed.",
+  "fieldsCompared": [
+    "clear",
+    "lost",
+    "fights",
+    "cont",
+    "mags",
+    "rares",
+    "embers",
+    "salvEmb",
+    "ess",
+    "salvEss",
+    "items",
+    "shops",
+    "steps",
+    "dark",
+    "torch",
+    "xp",
+    "embAtShop",
+    "affordable"
+  ],
+  "exactMatch": true,
+  "zones": [
+    {
+      "zone": "woods",
+      "fields": {
+        "clear": {
+          "baseline": 1,
+          "after": 1,
+          "delta": 0
+        },
+        "lost": {
+          "baseline": 0,
+          "after": 0,
+          "delta": 0
+        },
+        "fights": {
+          "baseline": 10.933333333333334,
+          "after": 10.933333333333334,
+          "delta": 0
+        },
+        "cont": {
+          "baseline": 2.7,
+          "after": 2.7,
+          "delta": 0
+        },
+        "mags": {
+          "baseline": 2.7333333333333334,
+          "after": 2.7333333333333334,
+          "delta": 0
+        },
+        "rares": {
+          "baseline": 1.3333333333333333,
+          "after": 1.3333333333333333,
+          "delta": 0
+        },
+        "embers": {
+          "baseline": 31.033333333333335,
+          "after": 31.033333333333335,
+          "delta": 0
+        },
+        "salvEmb": {
+          "baseline": 17.9,
+          "after": 17.9,
+          "delta": 0
+        },
+        "ess": {
+          "baseline": 0.6111111111111112,
+          "after": 0.6111111111111112,
+          "delta": 0
+        },
+        "salvEss": {
+          "baseline": 13.359555555555556,
+          "after": 13.359555555555556,
+          "delta": 0
+        },
+        "items": {
+          "baseline": 16.666666666666668,
+          "after": 16.666666666666668,
+          "delta": 0
+        },
+        "shops": {
+          "baseline": 0.6666666666666666,
+          "after": 0.6666666666666666,
+          "delta": 0
+        },
+        "steps": {
+          "baseline": 38.333333333333336,
+          "after": 38.333333333333336,
+          "delta": 0
+        },
+        "dark": {
+          "baseline": 0.3,
+          "after": 0.3,
+          "delta": 0
+        },
+        "torch": {
+          "baseline": 22.8,
+          "after": 22.8,
+          "delta": 0
+        },
+        "xp": {
+          "baseline": 0,
+          "after": 0,
+          "delta": 0
+        },
+        "embAtShop": {
+          "baseline": 6.8,
+          "after": 6.8,
+          "delta": 0
+        },
+        "affordable": {
+          "baseline": 2.1275362318840583,
+          "after": 2.1275362318840583,
+          "delta": 0
+        }
+      },
+      "gearPrice": {
+        "baseline": [
+          9,
+          23,
+          50
+        ],
+        "after": [
+          9,
+          23,
+          50
+        ]
+      },
+      "essencePrice": {
+        "baseline": [
+          4,
+          108
+        ],
+        "after": [
+          4,
+          108
+        ]
+      }
+    },
+    {
+      "zone": "pass",
+      "fields": {
+        "clear": {
+          "baseline": 1,
+          "after": 1,
+          "delta": 0
+        },
+        "lost": {
+          "baseline": 0,
+          "after": 0,
+          "delta": 0
+        },
+        "fights": {
+          "baseline": 8.933333333333334,
+          "after": 8.933333333333334,
+          "delta": 0
+        },
+        "cont": {
+          "baseline": 1.9666666666666666,
+          "after": 1.9666666666666666,
+          "delta": 0
+        },
+        "mags": {
+          "baseline": 2.6666666666666665,
+          "after": 2.6666666666666665,
+          "delta": 0
+        },
+        "rares": {
+          "baseline": 0.9,
+          "after": 0.9,
+          "delta": 0
+        },
+        "embers": {
+          "baseline": 28.1,
+          "after": 28.1,
+          "delta": 0
+        },
+        "salvEmb": {
+          "baseline": 13.733333333333333,
+          "after": 13.733333333333333,
+          "delta": 0
+        },
+        "ess": {
+          "baseline": 0.837037037037037,
+          "after": 0.837037037037037,
+          "delta": 0
+        },
+        "salvEss": {
+          "baseline": 12.575259259259262,
+          "after": 12.575259259259262,
+          "delta": 0
+        },
+        "items": {
+          "baseline": 11.966666666666667,
+          "after": 11.966666666666667,
+          "delta": 0
+        },
+        "shops": {
+          "baseline": 0.7666666666666667,
+          "after": 0.7666666666666667,
+          "delta": 0
+        },
+        "steps": {
+          "baseline": 39.86666666666667,
+          "after": 39.86666666666667,
+          "delta": 0
+        },
+        "dark": {
+          "baseline": 1,
+          "after": 1,
+          "delta": 0
+        },
+        "torch": {
+          "baseline": 29.633333333333333,
+          "after": 29.633333333333333,
+          "delta": 0
+        },
+        "xp": {
+          "baseline": 0,
+          "after": 0,
+          "delta": 0
+        },
+        "embAtShop": {
+          "baseline": 5.478260869565218,
+          "after": 5.478260869565218,
+          "delta": 0
+        },
+        "affordable": {
+          "baseline": 1.818840579710145,
+          "after": 1.818840579710145,
+          "delta": 0
+        }
+      },
+      "gearPrice": {
+        "baseline": [
+          9,
+          23,
+          61
+        ],
+        "after": [
+          9,
+          23,
+          61
+        ]
+      },
+      "essencePrice": {
+        "baseline": [
+          4,
+          108
+        ],
+        "after": [
+          4,
+          108
+        ]
+      }
+    },
+    {
+      "zone": "hollow",
+      "fields": {
+        "clear": {
+          "baseline": 1,
+          "after": 1,
+          "delta": 0
+        },
+        "lost": {
+          "baseline": 0,
+          "after": 0,
+          "delta": 0
+        },
+        "fights": {
+          "baseline": 9.4,
+          "after": 9.4,
+          "delta": 0
+        },
+        "cont": {
+          "baseline": 1.9333333333333333,
+          "after": 1.9333333333333333,
+          "delta": 0
+        },
+        "mags": {
+          "baseline": 3.3,
+          "after": 3.3,
+          "delta": 0
+        },
+        "rares": {
+          "baseline": 0.7666666666666667,
+          "after": 0.7666666666666667,
+          "delta": 0
+        },
+        "embers": {
+          "baseline": 29.266666666666666,
+          "after": 29.266666666666666,
+          "delta": 0
+        },
+        "salvEmb": {
+          "baseline": 15.266666666666667,
+          "after": 15.266666666666667,
+          "delta": 0
+        },
+        "ess": {
+          "baseline": 1.6259259259259262,
+          "after": 1.6259259259259262,
+          "delta": 0
+        },
+        "salvEss": {
+          "baseline": 19.425925925925924,
+          "after": 19.425925925925924,
+          "delta": 0
+        },
+        "items": {
+          "baseline": 12.6,
+          "after": 12.6,
+          "delta": 0
+        },
+        "shops": {
+          "baseline": 0.7666666666666667,
+          "after": 0.7666666666666667,
+          "delta": 0
+        },
+        "steps": {
+          "baseline": 39,
+          "after": 39,
+          "delta": 0
+        },
+        "dark": {
+          "baseline": 0.43333333333333335,
+          "after": 0.43333333333333335,
+          "delta": 0
+        },
+        "torch": {
+          "baseline": 31.033333333333335,
+          "after": 31.033333333333335,
+          "delta": 0
+        },
+        "xp": {
+          "baseline": 0,
+          "after": 0,
+          "delta": 0
+        },
+        "embAtShop": {
+          "baseline": 2.347826086956522,
+          "after": 2.347826086956522,
+          "delta": 0
+        },
+        "affordable": {
+          "baseline": 1.9362318840579709,
+          "after": 1.9362318840579709,
+          "delta": 0
+        }
+      },
+      "gearPrice": {
+        "baseline": [
+          9,
+          23,
+          63
+        ],
+        "after": [
+          9,
+          23,
+          63
+        ]
+      },
+      "essencePrice": {
+        "baseline": [
+          4,
+          108
+        ],
+        "after": [
+          4,
+          108
+        ]
+      }
+    },
+    {
+      "zone": "spire",
+      "fields": {
+        "clear": {
+          "baseline": 1,
+          "after": 1,
+          "delta": 0
+        },
+        "lost": {
+          "baseline": 0,
+          "after": 0,
+          "delta": 0
+        },
+        "fights": {
+          "baseline": 9.6,
+          "after": 9.6,
+          "delta": 0
+        },
+        "cont": {
+          "baseline": 2.2,
+          "after": 2.2,
+          "delta": 0
+        },
+        "mags": {
+          "baseline": 2.2,
+          "after": 2.2,
+          "delta": 0
+        },
+        "rares": {
+          "baseline": 1.9666666666666666,
+          "after": 1.9666666666666666,
+          "delta": 0
+        },
+        "embers": {
+          "baseline": 28.233333333333334,
+          "after": 28.233333333333334,
+          "delta": 0
+        },
+        "salvEmb": {
+          "baseline": 18.5,
+          "after": 18.5,
+          "delta": 0
+        },
+        "ess": {
+          "baseline": 1.7481481481481482,
+          "after": 1.7481481481481482,
+          "delta": 0
+        },
+        "salvEss": {
+          "baseline": 21.970370370370365,
+          "after": 21.970370370370365,
+          "delta": 0
+        },
+        "items": {
+          "baseline": 13.2,
+          "after": 13.2,
+          "delta": 0
+        },
+        "shops": {
+          "baseline": 0.7333333333333333,
+          "after": 0.7333333333333333,
+          "delta": 0
+        },
+        "steps": {
+          "baseline": 36.8,
+          "after": 36.8,
+          "delta": 0
+        },
+        "dark": {
+          "baseline": 1.4,
+          "after": 1.4,
+          "delta": 0
+        },
+        "torch": {
+          "baseline": 25.466666666666665,
+          "after": 25.466666666666665,
+          "delta": 0
+        },
+        "xp": {
+          "baseline": 0,
+          "after": 0,
+          "delta": 0
+        },
+        "embAtShop": {
+          "baseline": 3.9545454545454546,
+          "after": 3.9545454545454546,
+          "delta": 0
+        },
+        "affordable": {
+          "baseline": 1.2981481481481483,
+          "after": 1.2981481481481483,
+          "delta": 0
+        }
+      },
+      "gearPrice": {
+        "baseline": [
+          14,
+          36,
+          63
+        ],
+        "after": [
+          14,
+          36,
+          63
+        ]
+      },
+      "essencePrice": {
+        "baseline": [
+          12,
+          324
+        ],
+        "after": [
+          12,
+          324
+        ]
+      }
+    }
+  ]
+}
