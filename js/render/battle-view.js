@@ -10,21 +10,21 @@ function youHud(){ // compact: weapon, HP bar, then icon chips (words in tips)
     ...Object.entries(S.infuse).map(([t,r])=>ci(tColor(t),traitIc(t,"s"),["I","II","III"][r-1],tx("Infused {trait} {rank}",{trait:trn(t),rank:["I","II","III"][r-1]}),tx("Acts as if it were on your weapon."))),
     live&&B.guard&&ci("var(--verd)",ic("guard","s"),"",tx("Guarding"),tx("Cuts every hit in the enemy's action by {p}% and blocks new statuses.",{p:pcn(GUARD_T.cut)})),
     live&&B.braced&&ci("var(--verd)",ic("guard","s"),`+${pcn(GUARD_T.braced)}%`,tx("Braced"),tx("Your next Attack or ability deals {p}% more damage, including follow-up and off-hand strikes. Does not stack.",{p:pcn(GUARD_T.braced)})),
-    live&&B.off>0&&ci("var(--down)",ic("warn","s"),"",tx("Off balance"),tx("A mistimed parry cost you your guard.")),
+    live&&B.off>0&&ci("var(--down)",ic("warn","s"),"",tx("Off balance"),tx(B.biome==="bone"&&B.biomeFearTurn===B.turn-1?"Grave fear leaves you off balance for your next action.":"A mistimed parry cost you your guard.")),
     live&&P.rs[B.el]&&ci(FAM[B.el],famIc(B.el,"s")+ic("resist","xs"),`${P.rs[B.el]}%`,tx("Resists {fam} {v}%",{fam:famN(B.el),v:P.rs[B.el]}),tx("Cuts damage from {fam} attacks.",{fam:famL(B.el)})),
     live&&B.ward>0&&ci("var(--verd)",ic("ward","s"),B.ward,tx("Ward {n}",{n:B.ward}),tx("Absorbs this much damage.")),
     ...(live?Object.entries(B.you||{}).map(([s,x])=>stChip(s,x)):[])].filter(Boolean).join("");
   return `<div class="you" id="youHud"><span class="yg" ${tt(tx("You"),P.main?iname(P.main):tx("Bare fists"))}>${heroMini()}</span><div class="hpline" ${tt(`${tx("HP")} ${S.hp}/${P.maxHp}`)}>${hpBar(S.hp,P.maxHp)}<span class="hpnum">${S.hp}<small>/${P.maxHp}</small></span></div><div class="chips">${c}</div></div>`;
 }
 function foeStage(B){
-  const E=ENEMIES[B.id],K=cx(B.id),kn=know(B.id),live=afxOn(B),RC=RARITIES[rarOf(B)],et=elTr(B),eliteF=et?TRAITS[et].f:null;
+  const E=ENEMIES[B.id],K=cx(B.id),kn=know(B.id),live=afxOn(B),RC=RARITIES[rarOf(B)],et=elTr(B),eliteF=et?TRAITS[et].f:null,mod=riftModifier(B);
   const kw=B.weak.filter(f=>K.weak.includes(f)),kr=B.resist.filter(f=>K.resist.includes(f)||f===eliteF);
   const F=foeOf(B),unknown=F.weak.filter(f=>!K.weak.includes(f)).length+F.resist.filter(f=>!K.resist.includes(f)).length;
   const st=[B.burn&&ci(FAM.fire,famIc("fire","s"),B.burn.d,tx("Burning {n}",{n:B.burn.d}),tx("Takes {n} damage each turn.",{n:B.burn.d})),B.poison&&ci(FAM.poison,famIc("poison","s"),B.poison,tx("Poison {n}",{n:B.poison}),tx("Takes {n} damage each turn.",{n:B.poison})),B.frozen&&ci(FAM.ice,famIc("ice","s"),"",tx("Frozen"),tx("It loses its next turn.")),B.bleed&&ci("var(--bad)",ic("rend","s"),B.bleed.d*B.bleed.n,tx("Bleed {n}",{n:B.bleed.d*B.bleed.n}),tx("Damage each turn that ignores armor.")),B.spWard>0&&ci("var(--verd)",ic("ward","s"),B.spWard,tx("Rune ward {n}",{n:B.spWard}),tx("Absorbs incoming damage for {n} more enemy turns; refreshes, never stacks.",{n:B.spWardTurns})),B.burrowed&&ci("var(--accent)",ic("warn","s"),"",tx("Burrowed"),tx("Untargetable until it emerges at the start of its next turn.")),B.enraged&&ci("var(--down)",ic("warn","s"),"",tx("Enraged"),tx("Attack is permanently increased by {p}%.",{p:30}))].filter(Boolean).join("");
   const winding=!B.over&&!B.frozen&&isSpecial(B)&&F.sp.kind!=="heal";
   const cls=`portrait${B.over==="won"?" down":""}${winding?" winding":""}`;
   const bd=[E.boss&&ci("var(--accent)",ic("boss","s"),"",tx("Boss"),tx("Beat it to open the next region.")),B.phased&&ci("var(--bad)",ic("warn","s"),"",tx(E.phase.label),tx("Its second form.")),RC&&ci(RC.col,ic("elite","s"),"",RC.name,txn("{n} affix. Up to {hp}x HP and {atk}x Attack before the affixes' own changes.","{n} affixes. Up to {hp}x HP and {atk}x Attack before the affixes' own changes.",live.length,{hp:RC.hp,atk:RC.atk}),tx("Each affix drops its linked essence, {gs} than usual.",{gs:gsTxt(RC.gs)})),
-    B.heat?ci("var(--ember)",ic("heat","s"),B.heat,tx("Heat {n}",{n:B.heat}),HEAT[B.heat-1].name):"",kn.mastered&&ci("var(--verd)",ic("renown","s"),"",tx("Mastered"),tx("You deal {p}% more damage to it.",{p:MASTERY_PCT}))].filter(Boolean).join("");
+    mod&&ci("var(--accent)",ic("mystery","s"),tx(mod.name),tx(mod.desc)),B.heat?ci("var(--ember)",ic("heat","s"),B.heat,tx("Heat {n}",{n:B.heat}),HEAT[B.heat-1].name):"",kn.mastered&&ci("var(--verd)",ic("renown","s"),"",tx("Mastered"),tx("You deal {p}% more damage to it.",{p:MASTERY_PCT}))].filter(Boolean).join("");
   return `<div class="stage${RC?" rar":""}" id="enemyHud" style="--el:${FAM[B.el]}${RC?`;--rc:${RC.col}`:""}">
     <button class="${cls}" id="foeArt" data-codex="${B.id}" aria-label="${esc(fullName(B))}${RC?`, ${esc(lc(RC.name))}, ${esc(live.map(a=>tx(AFX[a].n)).join(", "))}`:""}. ${esc(tx("Open codex entry"))}">${portrait(B.id,{el:B.el,afx:live,aura:RC&&RC.col,rare:rarOf(B)==="rare",frozen:B.frozen,burn:!!B.burn&&!B.over,poison:B.poison>0&&!B.over,phased:B.phased,stun:B.stun>0&&!B.over,weak:B.shred>0&&!B.over,bleed:!!B.bleed&&!B.over,shield:(B.wd>0||B.spWard>0)&&!B.over})}</button>
     <div class="foeinfo"><div class="fname"><span class="fn"${RC?` style="color:${RC.col}"`:""}>${bname(B)}</span>${B.title&&!B.split?`<span class="ti" style="color:${RC.col}">${btitle(B)}</span>`:""}<span class="bd">${bd}</span></div>
@@ -48,7 +48,7 @@ function mapHead(){
   const m=curMap(),dl=S.run==="daily",d=S.daily,h=m.heat||0,hz=heatOf(S.zone),P=pstats(),zi=zoneIdx(S.zone);
   const tp=Math.round(100*m.torch/m.tmax),out=m.torch<=0&&!m.cleared,tc=out?" out":m.torch<=TORCH.max/6?" low":"";
   const torch=m.cleared?"":`<span class="torchb${tc}" ${tt(tx("Torch {a} of {b}",{a:m.torch,b:m.tmax}),out?tx("Your torch has guttered out. You see only one tile around you, and every step risks an ambush. A camp or shrine will relight it. Hunters notice you from 6 steps away instead of 4."):tx("Every step burns it. Camps, shrine prayers and campfire rests relight it. At 0 you see one tile and risk ambushes."))}>${icon("torch")}<span class="tbar"><i style="width:${tp}%"></i></span><b>${m.torch}</b></span>`;
-  const mods=[...dl?[`${DAILY_TWISTS[d.twist].name}: ${DAILY_TWISTS[d.twist].desc}`]:[],...HEAT.slice(0,h).map((x,i)=>tx("Heat {n}, {name}: {desc}",{n:i+1,name:x.name,desc:x.desc}))];
+  const rmod=S.zone===RIFT_ZONE&&S.rift&&RIFT_BIOME_MODS[S.rift.biome],mods=[...rmod?[`${tx(rmod.name)}: ${tx(rmod.desc)}`]:[],...dl?[`${DAILY_TWISTS[d.twist].name}: ${DAILY_TWISTS[d.twist].desc}`]:[],...HEAT.slice(0,h).map((x,i)=>tx("Heat {n}, {name}: {desc}",{n:i+1,name:x.name,desc:x.desc}))];
   const lair=tx(isUnl("roam")?"{boss} waits in the lair at the top. Every step burns your torch, and some creatures roam and hunt you.":"{boss} waits in the lair at the top. Every step burns your torch.",{boss:shortName(ZONES[zi][2])});
   const help=helpBtn(zoneName(S.zone),m.cleared?tx("Cleared. Explore a fresh map for more loot."):`${m.steps?tx("Tap a glowing tile next to you to step."):tx("Tap a glowing tile next to you to set out.")} ${lair}`,dl?tx("Daily expedition, {date}{old}, {n} turns so far.",{date:d.date,old:d.date!==today()?tx(" (still going from an earlier day)"):"",n:d.turns}):"",...mods);
   const badges=(dl?`<span class="heat daily" ${tt(tx("Daily expedition"),DAILY_TWISTS[d.twist].name,DAILY_TWISTS[d.twist].desc)}>${ic("daily","s")}</span>`:"")
@@ -63,9 +63,9 @@ function mapHead(){
 }
 function riftCard(){ // the Rift: the region you stand in, its depth and your record
   if(S.zone!==RIFT_ZONE)return "";
-  const r=S.rift||{},nm=r.name?tx(r.name):tx("unknown");
-  return `<div class="dcard rift"><div class="dtop"><b>${ic("mystery")} ${tx("The Wanderer's Rift")}</b><span class="dline"><span>${tx("Region: {name}",{name:esc(nm)})}</span><span class="heat">${tx("Depth {n}",{n:r.depth||1})}</span><span class="heat">${tx("Best {n}",{n:r.best||0})}</span></span>
-    ${helpBtn(tx("The Wanderer's Rift"),tx("Every expedition rolls a new region: a biome, ten wild creatures and a master."),tx("Wild creatures carry affixes of their own, and the master carries three."),tx("Beat the master to go one depth deeper."))}</div>
+  const r=S.rift||{},nm=r.name?tx(r.name):tx("unknown"),mod=RIFT_BIOME_MODS[r.biome];
+  return `<div class="dcard rift"><div class="dtop"><b>${ic("mystery")} ${tx("The Wanderer's Rift")}</b><span class="dline"><span>${tx("Region: {name}",{name:esc(nm)})}</span><span class="heat">${tx("Depth {n}",{n:r.depth||1})}</span><span class="heat">${tx("Best {n}",{n:r.best||0})}</span>${mod?`<span class="heat daily" ${tt(tx(mod.name),tx(mod.desc))}>${tx(mod.name)}</span>`:`<span class="heat" ${tt(tx("Neutral biome"),tx("Forest has no Rift modifier."))}>${tx("Neutral")}</span>`}</span>
+    ${helpBtn(tx("The Wanderer's Rift"),tx("Every expedition rolls a new region: a biome, ten wild creatures and a master."),tx("Wild creatures carry affixes of their own, and the master carries three."),mod?`${tx(mod.name)}: ${tx(mod.desc)}`:tx("Forest is the neutral Rift biome: it has no extra combat modifier."),tx("Beat the master to go one depth deeper."))}</div>
     <p class="foot">${tx("A new region every time: ten wild creatures and a master. Beat the master, then descend.")}</p>
     ${r.cleared?`<div class="actions"><button class="btn primary sm grow" id="riftNext">${tx("Descend deeper")}</button></div>`:""}</div>`}
 function dailyCard(){

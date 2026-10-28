@@ -4,16 +4,16 @@ The status index for scoped work. Open tasks are below; implementation evidence 
 
 ## At a glance
 
-**56 tasks · 37 Done · 0 In Progress · 0 Implement · 19 Planned · 19 open.**
+**56 tasks · 38 Done · 1 In Progress · 0 Implement · 17 Planned · 18 open.**
 
 | Workstream | Done | In Progress | Implement | Planned |
 |---|---:|---:|---:|---:|
-| Monster coverage, balance and progression (M) | 8 | 0 | 0 | 4 |
-| Biome variety and mechanics (V) | 7 | 0 | 0 | 15 |
+| Monster coverage, balance and progression (M) | 8 | 1 | 0 | 3 |
+| Biome variety and mechanics (V) | 8 | 0 | 0 | 14 |
 | Art identity and readability (A) | 5 | 0 | 0 | 0 |
 | UI (U) | 9 | 0 | 0 | 0 |
 | Crafting rework (C) | 8 | 0 | 0 | 0 |
-| **Total** | **37** | **0** | **0** | **19** |
+| **Total** | **38** | **1** | **0** | **17** |
 
 **Statuses:** `Planned` = scoped backlog, not started; `Implement` = detailed implementation plan exists; `In Progress` = actively underway; `Done` = completed, with evidence in the archive. Dependencies are stated on task cards; Planned does not necessarily mean ready to start.
 
@@ -34,7 +34,7 @@ Navigation: [UI](#ui-simplification) · [Balance](#balance-and-progression) · [
 
 ## Measurement freshness
 
-M-09's current seed-7/11 measurements are archived in [completed evidence](backlog-completed.md#m-09). Older M-10–M-12 measurements remain historical: V-12/V-02 changed generated rosters, and C-01–C-08 changed crafting, research and encounter density. Refresh relevant measurements before tuning; do not read “today” in older plans as the current build. Record seed, revision, kit, policy and Heat for new results.
+M-09's current seed-7/11 measurements are archived in [completed evidence](backlog-completed.md#m-09). M-12's refreshed baseline and unaccepted candidate are in [balance review](balance-evidence/m12-review.md). Older M-10/M-11 plans and historical measurements may predate V-12/V-02 generated rosters and C-01–C-08 crafting, research and encounter density. Refresh relevant measurements before tuning; record seed, revision, kit, policy and Heat.
 
 ## UI simplification
 
@@ -69,9 +69,11 @@ U-02–U-09 are complete. See [Completed UI tasks](backlog-completed.md#ui) for 
 
   </details>
 
-- [ ] **M-12 · Give the wild creatures a fight of their own** — `Status: Planned` · `Size: M` · `js/monsters.js`
+- [ ] **M-12 · Give the wild creatures a fight of their own** — `Status: In Progress` · `Size: M` · `js/monsters.js`, `tools/sim.js`
   The wild creatures are meant to be a fight, not a free win, but with their own region's kit every one of them still wins 100% at Heat 0.
   **Acceptance:** `node tools/sim.js --wild --seed 1` shows the wild creatures as a real fight with a stage kit: with a stage kit, the region's wild creatures take at least the regulars' mean turns and leave no more HP than the regulars (Δ turns ≥ 0, Δ HP ≤ 0, at Heat 0; met by the melee kits above, not by every stage kit: `defensive/pass` −0.7 turns, `staff/hollow` −0.3, `staff/spire` −0.4 turns and +1 HP); at most a third of a region's roster `TOO_EASY` (not met: woods 10 of 10, pass 4 of 10); no essence from wild affixes (holds: a wild creature's affixes drop no essence, `js/battle.js` `!B.intr`). The region's economy does not move.
+
+  **Current review evidence (not accepted):** refreshed seed-1/7 samples and the 2× HP / 1.2× attack candidate are recorded in [M-12 balance review](balance-evidence/m12-review.md). Turn and HP deltas pass and all 32 authored region-stage rows win 100%, but Woods still exceeds the `TOO_EASY` cutoff (4/10 melee, 9/10 stacked). The heavier Woods trial cleared the sampled roster threshold but reduced the tutorial-prepared seed-1 opening from 6/6 to 0/6; the current candidate is 4/6. M-12 remains In Progress while these acceptance constraints conflict.
 
   <details>
   <summary>Historical measurements — refresh before tuning</summary>
@@ -130,9 +132,13 @@ U-02–U-09 are complete. See [Completed UI tasks](backlog-completed.md#ui) for 
   **Done:** Rune Aegis gives the Stone Golem a 20%-max-HP ward for two player actions; it refreshes to its cap, does not stack, and is separate from affix wards. Poisoned Edge guarantees poison after a landed Woods Bandit hit; Guard blocks it, Parry interrupts it, and status resistance shortens its duration. Rimehide Bear enrages once below half HP for a permanent +30% Attack. Mossback Stag burrows for one player action, cannot be hit, then surfaces at the start of its next enemy turn. Storm Harpy calls one weaker Squall Spirit for a single 0.65× strike. Added intent tells, active-state HUD chips, effect-specific Codex text and German/Korean strings. The generated Rift special pool is unchanged; the common opening Boar retains its original charge so the Parry lesson remains available.
   **Validation:** `node tools/special-check.js`, `node tools/guard-check.js`, `node tools/unlock-check.js`, `node tools/smoke.js`, `node tools/i18n-check.js`, `node tools/sim.js`, and `node tools/run-checks.js`; durable mobile captures, the focused regression output and full simulator output are archived in [combat evidence](combat-evidence/v14-specials.md).
 
-- [ ] **V-15 · Add biome modifiers to the map** — `Status: Planned` · `Size: L` · `js/map.js`, `js/battle.js`, `js/data.js` · `Depends: V-14`
+- [x] **V-15 · Add biome modifiers to the map** — `Status: Done` · `Size: L` · `js/map.js`, `js/battle.js`, `js/data.js` · `Depends: V-14`
   One passive per biome: poison fog (fen), chill (tundra), burn (ember), arcane surges (astral), sandstorm (ash), fear (bone), drowning pressure (deep).
+  **Done:** the Rift's seeded biome determines its passive; forest is the neutral eighth biome. Fen Poison adds one mild stack, Tundra Chill and Ember Burn last up to two turns, Astral adds 25% Arcane attack power every third enemy turn, Ash reduces player damage by 20% every third player turn, Bone causes one recoverable off-balance action after an unguarded hit, and Deep deals 4% max-HP pressure every third enemy turn even through Guard, Parry, or Stun. The active passive appears in the battle HUD and Codex. Biome statuses merge with daily/status effects by keeping the longer duration and strongest damage; Poison still respects its stack cap, resistance shortens guaranteed status, Guard blocks statuses, and successful Parry interrupts telegraphed special hits. Daily Cinder strengthens the single merged Burn instead of adding a duplicate.
   **Acceptance:** modifiers are visible in UI/Codex, seeded, and have documented stacking rules with daily twists.
+  **Validation:** `node tools/biome-check.js`, `node tools/map-check.js` (240 seeds), `node tools/run-checks.js` (22/22), and `node tools/i18n-check.js` pass. Paired simulator runs used HEAD `2c9b1a0` with the uncommitted M-12 review candidate, `--wild --n 100 --seed 1 --heat 0 --policy smart --rift-seeds 1,7 --rift-depth 1,3 --jobs 2`, once live and once with `--no-biome-mods`. Seeds 1/7 map to deep/ember (Rift seeds 3608050713/3641605951); each of four spire kits was sampled at depths 1/3, 100 fights per cell. Native Rift-master mean wins: deep 83.5% live vs 93.3% reference; ember 95.2% vs 98.8%. The biome check covers every passive; the paired sim is a two-biome sample, not a full balance sweep. Deep pressure remains the largest measured difficulty change: defensive/spire wins 55% vs 91% at depth 1 and 27% vs 64% at depth 3.
+
+  **All-biome impact sample:** the automatic seeded Rift fixture set covered all eight biomes at depth 1 (`--wild --n 25 --seed 1 --heat 0 --policy smart --rift-depth 1 --rift-wild --jobs 4`), live and again with `--no-biome-mods`. Under the same uncommitted M-12 review candidate, native Rift-master rows averaged 97.5% wins live vs 99.9% reference (32 cells, 25 fights each); native Rift-wild rows averaged 99.7% vs 99.8% (320 cells, 25 fights each). This is one seed/depth impact sample, not a balance sweep; JSON and logs are archived in [V-15 evidence](rift-evidence/v15-biome-modifiers.md). The M-12 candidate remains unaccepted and In Progress.
 
 - [ ] **V-21 · Add seeded Rift depth modifiers** — `Status: Planned` · `Size: M` · `js/monsters.js`, `js/battle.js` · `Depends: V-15`
   Each Rift depth rolls one modifier (e.g. burning air, thin wards, fast foes) from the seed.

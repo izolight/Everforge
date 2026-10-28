@@ -2,7 +2,7 @@
 // Balance simulator: plays battles and whole expeditions in the real game code (startBattle, attack, parry, ability, useItem, visit, pstats...)
 // in headless Chromium, with render/save/floatFx/sfx/toast stubbed. Kits are crafted with the real combine().
 // Usage: node tools/sim.js [--n 40] [--zone woods,pass] [--enemy wolf,archon] [--kit melee,spire-end] [--heat 0,3,5] [--policy smart,basic,passive,guard,parry]
-//        [--fresh (the first expeditions with the unlock gates on, --exped 5)] [--seed 7] [--trace (prints one battle log per cell, then exits)] [--elite (adds magic + and rare * variants)] [--rarity (the rarity table only)] [--row 3] [--all] [--attrition] [--no-mastered] [--jobs 4] [--out sim.json] [--econ-only | --no-econ] [--exped 30]
+//        [--fresh (the first expeditions with the unlock gates on, --exped 5)] [--seed 7] [--trace (prints one battle log per cell, then exits)] [--elite (adds magic + and rare * variants)] [--rarity (the rarity table only)] [--row 3] [--all] [--attrition] [--no-mastered] [--no-biome-mods (disable V-15 passives for a stable balance reference)] [--jobs 4] [--out sim.json] [--econ-only | --no-econ] [--exped 30]
 //        [--wild (only the wild and Rift sections, with the forced rarity variants)] [--no-wild (skip them)] [--rift-seeds 1,2,3] [--rift-depth 1,3] [--rift-wild (the Rift's own wild creatures too)] [--force rare (the forced variants to trace)]
 const {chromium}=require("playwright"),path=require("path"),fs=require("fs"),os=require("os");
 const URL="file://"+path.resolve(__dirname,"..","index.html");
@@ -57,6 +57,7 @@ const argv=process.argv.slice(2),has=f=>argv.includes("--"+f),opt=(f,d)=>{const 
 const list=(f,d)=>{const v=opt(f,null);return v?v.split(","):d};
 const N=+opt("n",40),SEED=opt("seed",null),ROW=+opt("row",3),JOBS=Math.max(1,+opt("jobs",Math.min(4,os.cpus().length))),HEATS=list("heat",["0","3","5"]).map(Number),POLS=list("policy",["smart","basic","passive"]),EXPED=+opt("exped",30);
 const OUT=opt("out",null);
+const BIOME_MODS=!has("no-biome-mods");
 // the wild sections: the wild creatures of the four regions and the Rift masters (they are not part of the regular matrix)
 // --wild: only these sections, with the forced rarity variants; --no-wild: none of them; --elite: the forced variants in a default run too
 const WILD_ONLY=has("wild"),NO_WILD=has("no-wild"),ELITE=has("elite");
@@ -67,7 +68,8 @@ const ONLY_ECON=has("econ-only"),RARITY=has("rarity");
 const RUN_MATRIX=!ONLY_ECON&&!RARITY&&!WILD_ONLY,RUN_WILD=!ONLY_ECON&&!RARITY&&!NO_WILD,RUN_ECON=!has("no-econ")&&!RARITY&&!WILD_ONLY;
 
 // ---------- in-page simulator ----------
-function setup(){ // runs inside the game page; everything here uses the real game functions
+function setup(opts){ // runs inside the game page; everything here uses the real game functions
+  const BIOME_MODS=!!(opts&&opts.biomeMods);
   ["render","save","floatFx","sfx","toast","closeSheet","flushFx"].forEach(f=>window[f]=()=>{});
   const mulberry=a=>()=>{a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296};
   const realRandom=Math.random,seedFor=(seed,key)=>seed==null?null:mulberry(hash(seed+"|"+key));
@@ -164,7 +166,7 @@ function setup(){ // runs inside the game page; everything here uses the real ga
     S=JSON.parse(snap);const{E,restore}=prep(id,o);
     try{
       S.zone=id==="mimic"?o.zone:E.zone;S.hp=pstats().maxHp;S.maps[S.zone]=genMap({heat,zone:S.zone==="rift"?"rift":undefined});S.run=null;
-      startBattle(id,{row:E.boss||id==="mimic"?0:o.row,rar:o.rar||"normal",afx:id==="rift_boss"&&o.force!=="magic"?[]:SIM.afxFor(id,o.rar,o.i||0,heat)});
+      startBattle(id,{row:E.boss||id==="mimic"?0:o.row,rar:o.rar||"normal",afx:id==="rift_boss"&&o.force!=="magic"?[]:SIM.afxFor(id,o.rar,o.i||0,heat),biomeMods:BIOME_MODS});
       after(id,o,E,restore);
       const B=S.battle;let g=0;while(S.battle===B&&!B.over&&B.turn<150&&g++<600)POL[pol](B);
       const won=B.over==="won";return{w:won?1:0,t:B.turn,hp:won?S.hp/pstats().maxHp:0,a:B.afx[0]};
@@ -174,7 +176,7 @@ function setup(){ // runs inside the game page; everything here uses the real ga
   SIM.trace=(snap,id,heat,pol,o)=>{useSeed(o.seed,"trace"+id+heat+pol+(o.force||"")+(o.rs!=null?o.rs:""));S=JSON.parse(snap);const{E,restore}=prep(id,o);
     try{
       S.zone=id==="mimic"?o.zone:E.zone;S.hp=pstats().maxHp;S.maps[S.zone]=genMap({heat,zone:S.zone==="rift"?"rift":undefined});S.run=null;
-      startBattle(id,{row:E.boss||id==="mimic"?0:o.row,rar:o.rar||"normal",afx:id==="rift_boss"&&o.force!=="magic"?[]:SIM.afxFor(id,o.rar,0,heat)});after(id,o,E,restore);
+      startBattle(id,{row:E.boss||id==="mimic"?0:o.row,rar:o.rar||"normal",afx:id==="rift_boss"&&o.force!=="magic"?[]:SIM.afxFor(id,o.rar,0,heat),biomeMods:BIOME_MODS});after(id,o,E,restore);
       const B=S.battle,hps=[];let g=0;while(S.battle===B&&!B.over&&B.turn<150&&g++<600){const t=B.turn,n=B.log.length;POL[pol](B);hps.push(`T${t} you ${S.hp}/${pstats().maxHp} foe ${Math.max(0,B.hp)}/${B.max}`)}
       return{log:B.log.map(l=>l.t),hps,over:B.over,turns:B.turn};
     }finally{if(restore)ENEMIES[id]=restore}};
@@ -191,7 +193,7 @@ function setup(){ // runs inside the game page; everything here uses the real ga
   SIM.attr=(snap,zone,heat,pol,n,o)=>{
     useSeed(o.seed,["attr",zone,heat,pol,o.kit].join());let clear=0,fights=0;
     for(let i=0;i<n;i++){S=JSON.parse(snap);S.zone=zone;S.hp=pstats().maxHp;S.maps[zone]=genMap({heat});let ok=true;
-      for(let f=0;f<5&&ok;f++){const id=f<4?pickEnemy(zone):ZONES[zoneIdx(zone)][2];startBattle(id,{row:f<4?f+1:0,rar:"normal"});
+      for(let f=0;f<5&&ok;f++){const id=f<4?pickEnemy(zone):ZONES[zoneIdx(zone)][2];startBattle(id,{row:f<4?f+1:0,rar:"normal",biomeMods:BIOME_MODS});
         const B=S.battle;let g=0;while(S.battle===B&&!B.over&&B.turn<150&&g++<600)POL[pol](B);
         if(B.over!=="won"){ok=false;break}fights++;if(f===1||f===3)healYou(Math.round(pstats().maxHp*.35))}
       if(ok)clear++}
@@ -283,7 +285,7 @@ function flagsOf(c,mode,E){
   if(c.h===0&&c.win===1&&c.hp>HP_EASY&&c.turns<(boss?TURN_EASY_BOSS:TURN_EASY))fl.push("TOO_EASY");
   if(c.h===0&&c.win<.5)fl.push("TOO_HARD");
   if(c.turns>(boss?50:30))fl.push("SLOG");return fl}
-async function newPage(browser){const p=await browser.newPage();p.on("pageerror",e=>{console.error("pageerror:",e.message)});await p.goto(URL);await p.waitForFunction(()=>typeof S==="object"&&S);await p.evaluate(setup);return p}
+async function newPage(browser){const p=await browser.newPage();p.on("pageerror",e=>{console.error("pageerror:",e.message)});await p.goto(URL);await p.waitForFunction(()=>typeof S==="object"&&S);await p.evaluate(setup,{biomeMods:BIOME_MODS});return p}
 async function main(){
   const t0=Date.now(),browser=await chromium.launch();
   const pages=await Promise.all(Array.from({length:JOBS},()=>newPage(browser))),P0=pages[0];

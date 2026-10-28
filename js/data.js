@@ -426,6 +426,17 @@ const DAILY_TWISTS={
   nocamp:{get name(){return tx("No campfires")},get desc(){return tx("Camps become fights, and you can't rest at the fire.")}},
   double:{get name(){return tx("Double loot, double damage")},get desc(){return tx("Enemies hit twice as hard. Every drop is doubled.")}}
 };
+// Rift passives are selected by the region's saved biome, never by a map/combat random draw.
+// Forest is deliberately the neutral biome. Status effects use ordinary Guard/Parry/resistance rules.
+const RIFT_BIOME_MODS={
+  fen:{name:"Poison fog",desc:"A landed foe hit adds one Poison stack (up to three). Guard blocks it; a successful Parry interrupts a telegraphed special; Poison resistance shortens it.",status:"poison",turns:3,damage:.06},
+  tundra:{name:"Killing chill",desc:"A landed foe hit applies Chill for up to two turns. Guard blocks it; a successful Parry interrupts a telegraphed special; Ice resistance shortens it.",status:"chill",turns:2},
+  ember:{name:"Cinder air",desc:"A landed foe hit applies Burn for up to two turns. Guard blocks it; a successful Parry interrupts a telegraphed special; Fire resistance shortens it.",status:"burn",turns:2,damage:.06},
+  astral:{name:"Arcane surge",desc:"On every third enemy turn, its next attack (if any) has 25% more power and uses Arcane. Guard and Parry work as usual; Arcane resistance reduces it.",surgeEvery:3,surge:1.25},
+  ash:{name:"Blinding sand",desc:"Your attacks deal 20% less damage on every third turn. The cadence is fixed by the battle turn.",strikeEvery:3,strike:.8},
+  bone:{name:"Grave fear",desc:"A landed, unguarded foe hit leaves you off balance for your next action. Guard blocks it; a successful Parry interrupts a telegraphed special.",fear:1},
+  deep:{name:"Drowning pressure",desc:"At the end of every third enemy turn, pressure deals 4% of your maximum HP, reduced by Stone resistance. It bypasses Defense and Guard, even if the attack was parried.",pressureEvery:3,pressure:.04}
+};
 const DAILY_REWARD={ess:3,xp:80};
 
 // ================= UNLOCKS =================

@@ -1,0 +1,22 @@
+ok   all seven named passives map to seeded Rift biomes; forest is the neutral eighth biome
+biome fixture seeds {"fen":7,"ash":8,"bone":12,"deep":14,"forest":6,"tundra":1,"ember":20,"astral":4}
+ok   rebuilding a saved biome seed selects the same passive without adding map-generation draws
+ok   Fen fog adds one mild Poison stack on a landed hit
+ok   Tundra and Ember apply their short Chill and Burn statuses
+ok   Guard blocks biome status effects
+ok   matching resistance shortens guaranteed biome status instead of making it fail
+ok   a successful Parry interrupts a telegraphed special before biome statuses apply
+ok   Ash sandstorm weakens every third player turn while explicit reference mode disables it
+ok   Bone fear gives one recoverable off-balance action after an unguarded hit
+ok   Astral surge adds its Arcane attack multiplier on every third enemy turn
+ok   Deep pressure ignores Guard and Parry and still pulses on a stunned turn
+ok   lethal deep pressure uses the normal defeat and map-reset path
+ok   active and pre-feature Rift saves retain the biome without a save-version bump
+ok   if a future daily overlaps Ember, cinder strengthens one merged Burn application rather than duplicating it
+ok   descending rebuilds the seeded map and selects the next biome passive
+ok   explicit reference mode disables passives; daily maps keep their independent twist rules
+ok   the active passive stays visible in the live battle HUD without mobile overflow
+ok   active biome and passive are visible on the Rift card at 390×844
+ok   Codex explains the current Rift modifier without horizontal overflow
+ok   no browser errors ()
+All V-15 biome checks passed.
