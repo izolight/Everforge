@@ -235,6 +235,7 @@ function enemyDown(){
   const st=S.stats;if(E.boss){st.bosses++;st.fast[B.id]=Math.min(st.fast[B.id]||1e9,B.turn);if(!dl){if(E.zone!==RIFT_ZONE)st.heatBest[E.zone]=Math.max(st.heatBest[E.zone]??-1,h);st.exped++}}else if(B.afx.length){st.elites++;noteAfx(B,true)}
   sfx("win",.3);sfx("loot",.9);
   B.hp=0;B.over="won";S.kills[B.id]=(S.kills[B.id]||0)+1;S.wins+=E.boss?3:1;
+  if(!dl&&!E.boss&&B.pi!=null){const m=S.maps[S.zone],nd=m&&m.pois[B.pi];if(m&&!m.cleared&&nd&&nd.t==="fight"){nd.rd=m.steps+FOE_RESPAWN_STEPS;delete nd.st;delete nd.aw;delete nd.dz;delete nd.pa;delete nd.ms}}
   if(!E.boss&&B.id!=="mimic")S.zoneKills[E.zone]=(S.zoneKills[E.zone]||0)+1;
   const mult=1+P.lure*.15+h*HEAT_T.loot;let got;
   const gh=h+(E.boss?GRADE_BOSS:0),gz=E.zone==="any"?S.zone:E.zone; // finds roll a grade for the zone and Heat (bosses a little hotter)
