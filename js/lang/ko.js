@@ -1,5 +1,32 @@
 // Korean: interface, battle log, events. Game data is in ko-data.js.
 // {name|이|가} picks the particle from the last syllable of the value (받침 or not): 이/가, 은/는, 을/를, 과/와, 으로/로.
+// V-11 generated biome-special names and telegraph tells.
+DICT.ko=Object.assign(DICT.ko||{},{
+  "Mire Leech":"늪지 흡혈벌레","pulling at your warmth":"온기를 빨아들이려 듭니다",
+  "Silt Snare":"진흙 덫","drawing back from the mud":"진흙 속에서 몸을 뒤로 젖힙니다",
+  "Reedstorm":"갈대 폭풍","gathering reeds in a spinning ring":"갈대를 회오리 고리처럼 모읍니다",
+  "Glassfall":"유리 파쇄","cracking the scorched earth":"그을린 땅을 깨뜨립니다",
+  "Cinder Shards":"잿불 파편","spinning a ring of hot grit":"뜨거운 모래 고리를 만들어 돌립니다",
+  "Cinder Mend":"잿불 회복","drawing heat back into its core":"열기를 핵으로 끌어들입니다",
+  "Grave Rattle":"무덤의 덜그럭임","shaking its loose bones":"헐거운 뼈를 흔듭니다",
+  "Ossuary Crush":"납골당 강타","lifting a cairn stone":"돌무더기 돌을 들어 올립니다",
+  "Marrow Knit":"골수 결속","pulling its broken bones together":"부러진 뼈를 끌어모읍니다",
+  "Undertow":"밑물살","drawing water through its grasp":"물을 움켜쥐고 끌어당깁니다",
+  "Pressure Wave":"수압파","compressing the water around it":"주변의 물을 압축합니다",
+  "Rifted Wake":"균열 물결","rolling a wave toward you":"물결을 당신 쪽으로 밀어냅니다",
+  "Briar Flurry":"가시덩굴 연타","drawing back thorned vines":"가시덩굴을 뒤로 당깁니다",
+  "Stag Crash":"사슴돌진","lowering its antlers":"뿔을 낮춥니다",
+  "Barkskin Mend":"나무껍질 회복","drawing sap into its wounds":"상처로 수액을 끌어옵니다",
+  "Rime Volley":"서리 파편","gathering a fan of ice":"부채꼴 얼음을 모읍니다",
+  "Glacier Drop":"빙하 낙하","raising a slab of ice":"얼음판을 들어 올립니다",
+  "Snowdrift Mend":"눈더미 회복","sealing its cracks with snow":"눈으로 갈라진 틈을 메웁니다",
+  "Kiln Flurry":"가마 연타","spinning up its furnace":"가마를 달굽니다",
+  "Foundry Blow":"용광로 일격","drawing back a molten fist":"녹아내린 주먹을 뒤로 당깁니다",
+  "Coalheart Drain":"숯심 흡수","siphoning warmth from the air":"공기에서 온기를 빨아들입니다",
+  "Void Leech":"공허 흡수","reaching through the dark":"어둠 사이로 손을 뻗습니다",
+  "Starfall Burst":"별똥별 폭발","drawing power from above":"위에서 힘을 모읍니다",
+  "Starless Crush":"별 없는 압박","folding the dark around you":"어둠을 당신 주위로 접어 넣습니다"
+});
 DICT.ko=Object.assign(DICT.ko||{},{
 // ---- crafting: what each input did (header, before → after, reactions, failure bar)
 "Base":"기본","Tier over skill":"기술 대비 등급","{a} + {b} clash":"{a} + {b} 충돌","{a} + {b} reaction":"{a} + {b} 반응","Extra input: {name}":"추가 재료: {name}","{items} → {result}":"{items} → {result}","From {input}.":"{input} 쪽에서 온 것.","Changed by the mix itself.":"혼합 자체로 바뀌었습니다.","No stats":"능력치 없음","Before":"이전","After":"이후","Nothing changes.":"바뀌는 것이 없습니다.","−{n} {trait}":"−{n} {trait}","Failure chance":"실패 확률","Failure chance {n}%: {list}":"실패 확률 {n}%: {list}",

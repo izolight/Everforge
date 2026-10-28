@@ -191,3 +191,9 @@ Completed task records and their implementation evidence. Test counts and simula
   Rift seed and depth choose one of three deterministic combat effects without changing generation draws or save shape. The modifier is visible in the battle HUD, Rift card, and Codex. `--no-depth-mods` provides an independent simulator reference path and does not disable V-15 biome passives.
   **Done:** `node tools/depth-check.js`, `node tools/biome-check.js`, `node tools/i18n-check.js`, and `node tools/run-checks.js` pass (23/23). Paired modifier-on/off simulator settings, results, screenshots, and the M-12 candidate state at the time of sampling are in [V-21 evidence](rift-evidence/v21-depth-modifiers.md). M-12 was later accepted; see [M-12 balance evidence](balance-evidence/m12-review.md).
 
+
+## Biome special pools
+
+- [x] **V-11 · Add per-biome special pools** — `Status: Done` · `js/monsters.js`, `js/lang/de.js`, `js/lang/ko.js`, `tools/biome-special-check.js`
+  Each of eight biomes supplies three signature specials to ordinary wild creatures; missing keys and generated Rift masters use `GEN_SP`. The selection retains one RNG draw and preserves all other roster fields. German/Korean names and tells are included.
+  **Validation:** full suite passed 24/24; the updated authored-roster assertion and i18n check also passed parent review. Paired seed-1/7 n=30, Heat 0, smart-policy reference samples at depths 1–3 preserve Rift-master results exactly. Live biome/depth integration and all measured effects are documented in [V-11 evidence](rift-evidence/v11-biome-specials.md).

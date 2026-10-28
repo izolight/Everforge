@@ -56,6 +56,44 @@ const GEN_SP=[
   {every:3,name:"Soul Drain",kind:"drain",x:1.1,tell:"reaching for your life"},
   {every:4,name:"Savage Charge",kind:"heavy",x:2.1,tell:"lowering its head"},
   {every:3,name:"Bolt",kind:"multi",n:3,x:.6,tell:"drawing power together"}];
+// Each biome carries signature specials for ordinary wild creatures. Unknown
+// keys and generated masters keep the shared pool to protect the accepted
+// generated-master profile; each selection still consumes exactly one draw.
+const BIOME_SP={
+  fen:[
+    {every:3,name:"Mire Leech",kind:"drain",x:1.05,tell:"pulling at your warmth"},
+    {every:4,name:"Silt Snare",kind:"heavy",x:1.8,tell:"drawing back from the mud"},
+    {every:4,name:"Reedstorm",kind:"multi",n:3,x:.56,tell:"gathering reeds in a spinning ring"}],
+  ash:[
+    {every:3,name:"Glassfall",kind:"heavy",x:1.9,tell:"cracking the scorched earth"},
+    {every:4,name:"Cinder Shards",kind:"multi",n:3,x:.58,tell:"spinning a ring of hot grit"},
+    {every:4,name:"Cinder Mend",kind:"heal",x:.2,tell:"drawing heat back into its core"}],
+  bone:[
+    {every:3,name:"Grave Rattle",kind:"multi",n:2,x:.82,tell:"shaking its loose bones"},
+    {every:4,name:"Ossuary Crush",kind:"heavy",x:1.9,tell:"lifting a cairn stone"},
+    {every:4,name:"Marrow Knit",kind:"heal",x:.2,tell:"pulling its broken bones together"}],
+  deep:[
+    {every:4,name:"Undertow",kind:"drain",x:1.05,tell:"drawing water through its grasp"},
+    {every:5,name:"Pressure Wave",kind:"heavy",x:1.9,tell:"compressing the water around it"},
+    {every:4,name:"Rifted Wake",kind:"multi",n:2,x:.8,tell:"rolling a wave toward you"}],
+  forest:[
+    {every:3,name:"Briar Flurry",kind:"multi",n:2,x:.82,tell:"drawing back thorned vines"},
+    {every:4,name:"Stag Crash",kind:"heavy",x:1.9,tell:"lowering its antlers"},
+    {every:4,name:"Barkskin Mend",kind:"heal",x:.2,tell:"drawing sap into its wounds"}],
+  tundra:[
+    {every:3,name:"Rime Volley",kind:"multi",n:3,x:.58,tell:"gathering a fan of ice"},
+    {every:4,name:"Glacier Drop",kind:"heavy",x:1.9,tell:"raising a slab of ice"},
+    {every:4,name:"Snowdrift Mend",kind:"heal",x:.2,tell:"sealing its cracks with snow"}],
+  ember:[
+    {every:3,name:"Kiln Flurry",kind:"multi",n:2,x:.82,tell:"spinning up its furnace"},
+    {every:4,name:"Foundry Blow",kind:"heavy",x:1.9,tell:"drawing back a molten fist"},
+    {every:4,name:"Coalheart Drain",kind:"drain",x:1.05,tell:"siphoning warmth from the air"}],
+  astral:[
+    {every:3,name:"Void Leech",kind:"drain",x:1.05,tell:"reaching through the dark"},
+    {every:4,name:"Starfall Burst",kind:"multi",n:3,x:.58,tell:"drawing power from above"},
+    {every:4,name:"Starless Crush",kind:"heavy",x:1.9,tell:"folding the dark around you"}]
+};
+const biomeSpecialFor=(biome,R)=>{const pool=BIOME_SP[biome]||GEN_SP;return pool[Math.floor(R()*pool.length)]};
 // what a wild creature can carry: the region's own materials, so a region's economy does not move
 const GEN_DROP={
   woods:{any:["boar_hide","mushroom","honey","bread","scrap_iron"],fire:["chili","boar_hide"],poison:["mushroom","honey"],wood:["boar_hide","honey"],swift:["boar_hide","oak_bough"],metal:["scrap_iron"],holy:["sprite_dust","bread"],shadow:["boar_hide","bread"],arcane:["oak_bough","sprite_dust"],ice:["boar_hide","bread"],stone:["boar_hide","bread"]},
@@ -117,7 +155,7 @@ function genCreature(o){ // o:{id,zone,biome,tier,R,used,boss,where,seed}
   while(parts.length<nparts){const available=pool.filter(p=>!parts.includes(p)&&!parts.some(q=>(PART_CONFLICTS[q]||[]).includes(p)));if(!available.length)break;parts.push(available[Math.floor(R()*available.length)])}
   const col=ELPAL[el][Math.floor(R()*3)],acc=accFor(B,col,R); // body: the element's light, mid or dark; accent: the biome's
   const nouns=nameWords(B,body),name=o.boss?proc(cap(B.pre[Math.floor(R()*B.pre.length)])+" "+cap(nouns[Math.floor(R()*nouns.length)])):genName(B,R,o.used,body);
-  const sp=GEN_SP[Math.floor(R()*GEN_SP.length)];
+  const sp=biomeSpecialFor(o.boss?null:o.biome,R);
   // The region tier already climbs by depth; taper the master's bonus so it doesn't compound the whole HP/ATK ramp again.
   const depth=Math.max(1,o.depth||1),boss=o.boss?Math.max(3.2,4.4-.6*(depth-1)):1,atkm=o.boss?Math.max(.95,1-.025*(depth-1)):1;
   const wildHp=o.boss?boss:1,wildAtk=o.boss?atkm:1;

@@ -1,5 +1,32 @@
 // German: interface, battle log, events. Game data (enemies, items, lore, tutorial) is in de-data.js.
 // Placeholders {x} stay as they are; "singular¦plural" is a plural pair. Context keys: "trait|", "fam|", "adj|", "noun|", "gender|", "form|", "kind|", "hit|".
+// V-11 generated biome-special names and telegraph tells.
+DICT.de=Object.assign(DICT.de||{},{
+  "Mire Leech":"Moorblutegel","pulling at your warmth":"saugt an deiner Wärme",
+  "Silt Snare":"Schlickfalle","drawing back from the mud":"zieht sich aus dem Schlamm zurück",
+  "Reedstorm":"Schilfsturm","gathering reeds in a spinning ring":"sammelt Schilf in einem wirbelnden Ring",
+  "Glassfall":"Glassturz","cracking the scorched earth":"lässt die verbrannte Erde aufbrechen",
+  "Cinder Shards":"Glutsplitter","spinning a ring of hot grit":"wirbelt einen Ring aus heißem Sand auf",
+  "Cinder Mend":"Glutheilung","drawing heat back into its core":"zieht Wärme zurück in seinen Kern",
+  "Grave Rattle":"Grabrasseln","shaking its loose bones":"schüttelt seine losen Knochen",
+  "Ossuary Crush":"Beinhausbruch","lifting a cairn stone":"hebt einen Cairn-Stein an",
+  "Marrow Knit":"Markgeflecht","pulling its broken bones together":"fügt seine gebrochenen Knochen zusammen",
+  "Undertow":"Sog","drawing water through its grasp":"zieht Wasser durch seinen Griff",
+  "Pressure Wave":"Druckwelle","compressing the water around it":"presst das Wasser um sich zusammen",
+  "Rifted Wake":"Risswoge","rolling a wave toward you":"lässt eine Welle auf dich zurollen",
+  "Briar Flurry":"Dornenhagel","drawing back thorned vines":"spannt dornige Ranken zurück",
+  "Stag Crash":"Hirschsturz","lowering its antlers":"senkt sein Geweih",
+  "Barkskin Mend":"Rindenheilung","drawing sap into its wounds":"zieht Saft in seine Wunden",
+  "Rime Volley":"Reifsalve","gathering a fan of ice":"sammelt einen Fächer aus Eis",
+  "Glacier Drop":"Gletschersturz","raising a slab of ice":"hebt eine Eisplatte an",
+  "Snowdrift Mend":"Schneewallheilung","sealing its cracks with snow":"versiegelt seine Risse mit Schnee",
+  "Kiln Flurry":"Ofenwirbel","spinning up its furnace":"heizt seinen Brennofen an",
+  "Foundry Blow":"Schmiedeschlag","drawing back a molten fist":"zieht eine geschmolzene Faust zurück",
+  "Coalheart Drain":"Kohlenherzzehrung","siphoning warmth from the air":"saugt Wärme aus der Luft",
+  "Void Leech":"Leerenzehrer","reaching through the dark":"greift durch die Dunkelheit",
+  "Starfall Burst":"Sternenfall","drawing power from above":"bündelt Kraft von oben",
+  "Starless Crush":"Sternenloser Druck","folding the dark around you":"faltet die Dunkelheit um dich"
+});
 DICT.de=Object.assign(DICT.de||{},{
 // ---- crafting: what each input did (header, before → after, reactions, failure bar)
 "Base":"Basis","Tier over skill":"Stufe über Fertigkeit","{a} + {b} clash":"{a} + {b} Konflikt","{a} + {b} reaction":"{a} + {b} Reaktion","Extra input: {name}":"Zusatzzutat: {name}","{items} → {result}":"{items} → {result}","From {input}.":"Von {input}.","Changed by the mix itself.":"Durch die Mischung selbst verändert.","No stats":"Keine Werte","Before":"Vorher","After":"Nachher","Nothing changes.":"Nichts ändert sich.","−{n} {trait}":"−{n} {trait}","Failure chance":"Fehlschlagchance","Failure chance {n}%: {list}":"Fehlschlagchance {n}%: {list}",

@@ -4,16 +4,16 @@ The status index for scoped work. Open tasks are below; implementation evidence 
 
 ## At a glance
 
-**56 tasks · 40 Done · 0 In Progress · 0 Implement · 16 Planned · 16 open.**
+**56 tasks · 41 Done · 1 In Progress · 0 Implement · 14 Planned · 15 open.**
 
 | Workstream | Done | In Progress | Implement | Planned |
 |---|---:|---:|---:|---:|
 | Monster coverage, balance and progression (M) | 9 | 0 | 0 | 3 |
-| Biome variety and mechanics (V) | 9 | 0 | 0 | 13 |
+| Biome variety and mechanics (V) | 10 | 1 | 0 | 11 |
 | Art identity and readability (A) | 5 | 0 | 0 | 0 |
 | UI (U) | 9 | 0 | 0 | 0 |
 | Crafting rework (C) | 8 | 0 | 0 | 0 |
-| **Total** | **40** | **0** | **0** | **16** |
+| **Total** | **41** | **1** | **0** | **14** |
 
 **Statuses:** `Planned` = scoped backlog, not started; `Implement` = detailed implementation plan exists; `In Progress` = actively underway; `Done` = completed, with evidence in the archive. Dependencies are stated on task cards; Planned does not necessarily mean ready to start.
 
@@ -119,9 +119,9 @@ U-02–U-09 are complete. See [Completed UI tasks](backlog-completed.md#ui) for 
   Give fen/ash/bone/deep 2–3 thematic specials, an element/drop bias, and one signature trait each instead of only shared `GEN_SP` and Rift drops.
   **Acceptance:** each biome plays differently; all still work in Rift depths; sim covers them.
 
-- [ ] **V-11 · Add per-biome special pools** — `Status: Planned` · `Size: M` · `js/monsters.js` · `Depends: V-14 (soft)`
-  Add `B.sp` (or `BIOME_SP`) with 2–3 signature specials per biome, falling back to `GEN_SP`.
-  **Acceptance:** no biome relies only on the shared six; names/tells translated; sim passes.
+- [x] **V-11 · Add per-biome special pools** — `Status: Done` · `Size: M` · `js/monsters.js`, `js/lang/`, `tools/biome-special-check.js` · `Depends: V-14 (soft)`
+  All eight biomes have three translated signature specials for ordinary wild creatures, with `GEN_SP` fallback for unknown biomes and generated Rift masters. Selection consumes the existing single draw; all non-special roster fields and accepted master results remain unchanged.
+  **Validation:** updated biome-special and i18n checks pass; full suite passed 24/24. Paired seed-1/7 n=30 reference samples and live modifier coverage are recorded in [V-11 evidence](rift-evidence/v11-biome-specials.md).
 
 - [ ] **V-13 · Weight biome elements** — `Status: Planned` · `Size: S` · `js/monsters.js`
   Add optional `elW` so each biome has common and rare elements instead of uniform rolls.
@@ -178,7 +178,7 @@ U-02–U-09 are complete. See [Completed UI tasks](backlog-completed.md#ui) for 
   Raise `GEN_N` from 10 to 12–14 and `RIFT_N` if needed; retune wild encounter weight so they stay ~40% of encounters.
   **Acceptance:** more variety per region without changing overall encounter mix; `sim` and `map-check` pass.
 
-- [ ] **V-16 · Add one alpha wild creature per roster** — `Status: Planned` · `Size: M` · `js/monsters.js`, `js/art/`
+- [ ] **V-16 · Add one alpha wild creature per roster** — `Status: In Progress` · `Size: M` · `js/monsters.js`, `js/art/`
   A deterministic mini-boss variant: three affixes, boosted stats, unique name, distinct map frame, defined rewards without shifting regional economy.
   **Acceptance:** exactly one per region; same every run; sim and economy checks pass.
 
