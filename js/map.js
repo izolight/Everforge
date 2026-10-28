@@ -1,4 +1,5 @@
 // ================= MAP =================
+const FOE_RESPAWN_STEPS=30;
 const NODE_INFO={get fight(){return tx("Fight")},get elite(){return tx("Elite")},get boss(){return tx("Boss")},get chest(){return tx("Chest")},get shrine(){return tx("Shrine")},get peddler(){return tx("Peddler")},get camp(){return tx("Camp")},get mystery(){return tx("Mystery")}};
 const MYSTERY=[[.14,"ambush"],[.26,"shrine"],[.38,"pack"],[.5,"chest"],[.6,"peddler"],[.68,"altar"],[.76,"alchemist"],[.84,"traveller"],[.92,"forge"],[1,"riddle"]],mystery=x=>MYSTERY.find(([p])=>x<p)[1];
 // ---- grid helpers: m.g = tile rows ("." floor, "," brush, "#" rock/tree, "~" water), m.pois = things on tiles, m.sn = seen flags, m.mem = last-seen POI types
@@ -87,8 +88,19 @@ function step(x,y){
   if(nd&&!nd.done)return enter(nd);
   if(m.torch<=0){const ra=m.sd?rng(hash(m.seed+":a:"+m.steps)):Math.random; // a seeded map rolls the dark's ambush by step number, so the same path meets the same things
     if(ra()<TORCH.amb){const e=pickEnemy(S.zone,ra),sa=speciesAfx(ENEMIES[e]),f=sa||rollFoe(ra,{elite:twistNow()==="elites",heat:m.heat||0,row:depthOf(m,x,y),mv:ENEMIES[e].mv,e});return startBattle(null,{row:depthOf(m,x,y),ambush:true,amsg:tx("Ambush! Something finds you in the dark."),e,...f})}}
-  if(foesAct(m))return;
+  const respawned=respawnFoes(m);
+  if(foesAct(m,respawned))return;
   save();render();
+}
+// ---- regular map fights return after 30 map steps, if their tile is dark and empty
+function respawnFoes(m){
+  const revived=new Set();if(S.run==="daily"||m.cleared)return revived;
+  for(const p of m.pois){
+    if(p.t!=="fight"||!p.done||!Number.isFinite(p.rd)||m.steps<p.rd)continue;
+    if(litAt(m,p.x,p.y)||p.x===m.pos.x&&p.y===m.pos.y||m.pois.some(q=>q!==p&&q.x===p.x&&q.y===p.y))continue;
+    p.done=false;delete p.rd;delete p.st;delete p.aw;delete p.dz;delete p.pa;delete p.ms;revived.add(p);
+  }
+  return revived;
 }
 // ---- roaming enemies: after each step that met nothing, every live mover acts once, in map order
 const isFoe=p=>p.t==="fight"||p.t==="elite",roamer=p=>isFoe(p)&&p.mv&&p.mv!=="still"&&!p.done,mlog=(m,t)=>{m.ls=m.steps;(m.log||(m.log=[])).push(t);if(m.log.length>20)m.log.shift()};
@@ -96,9 +108,9 @@ const fixed=(m,x,y)=>[m.start,m.gate,m.lair].some(q=>q.x===x&&q.y===y);
 // a tile no enemy may ever stand on: rock, water, the start, the gate, the lair, any POI that is not an enemy (dead or alive) or a defeated one's corpse
 const hard=(m,x,y)=>!walk(m,x,y)||fixed(m,x,y)||m.pois.some(p=>p.x===x&&p.y===y&&!(isFoe(p)&&(p.done||roamer(p))));
 const vacant=(m,x,y,me)=>!hard(m,x,y)&&!m.pois.some(p=>p!==me&&p.x===x&&p.y===y&&!p.done); // ... and one nobody stands on
-function foesAct(m){
+function foesAct(m,skip=new Set()){
   if(m.steps<2||!isUnl("roam"))return false; // the first step of an expedition is safe; before your first win nothing moves
-  const rs=m.pois.filter(roamer);if(!rs.length)return false;
+  const rs=m.pois.filter(p=>roamer(p)&&!skip.has(p));if(!rs.length)return false;
   const R=m.sd?rng(hash(m.seed+":e:"+m.steps)):Math.random,dp=bfs(m,m.pos.x,m.pos.y),dm=bfs(m,m.pos.x,m.pos.y,(m,x,y)=>!hard(m,x,y)),W=m.w,dark=m.torch<=0;
   for(const p of rs){
     if(p.dz>0){p.dz--;continue}
