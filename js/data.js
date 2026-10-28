@@ -437,6 +437,18 @@ const RIFT_BIOME_MODS={
   bone:{name:"Grave fear",desc:"A landed, unguarded foe hit leaves you off balance for your next action. Guard blocks it; a successful Parry interrupts a telegraphed special.",fear:1},
   deep:{name:"Drowning pressure",desc:"At the end of every third enemy turn, pressure deals 4% of your maximum HP, reduced by Stone resistance. It bypasses Defense and Guard, even if the attack was parried.",pressureEvery:3,pressure:.04}
 };
+// A Rift depth modifier is derived from the saved seed and depth, without drawing
+// from the region/roster RNG stream. Forest and biome passives remain independent.
+const RIFT_DEPTH_MODS=[
+  {id:"burning_air",name:"Burning air",desc:"Fire attacks deal 15% more damage. Fire resistance, Defense and Guard still apply; enemy damage boosts combine multiplicatively.",fire:1.15},
+  {id:"thin_wards",name:"Thin wards",desc:"Your rune ward can absorb at most half of each enemy hit; the rest of its ward points remain for later hits.",ward:.5},
+  {id:"fast_foes",name:"Fast foes",desc:"Enemy specials recur one turn sooner, to a minimum interval of two turns; their tells and Parry windows remain intact.",fast:1}
+];
+function riftDepthModFor(seed,depth){
+  if(seed==null)return null;
+  const d=Math.max(1,Math.floor(Number(depth)||1)),i=hash("rift-depth:"+seed+":"+d)%RIFT_DEPTH_MODS.length;
+  return RIFT_DEPTH_MODS[i];
+}
 const DAILY_REWARD={ess:3,xp:80};
 
 // ================= UNLOCKS =================

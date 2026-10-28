@@ -58,6 +58,7 @@ const list=(f,d)=>{const v=opt(f,null);return v?v.split(","):d};
 const N=+opt("n",40),SEED=opt("seed",null),ROW=+opt("row",3),JOBS=Math.max(1,+opt("jobs",Math.min(4,os.cpus().length))),HEATS=list("heat",["0","3","5"]).map(Number),POLS=list("policy",["smart","basic","passive"]),EXPED=+opt("exped",30);
 const OUT=opt("out",null);
 const BIOME_MODS=!has("no-biome-mods");
+const DEPTH_MODS=!has("no-depth-mods");
 // the wild sections: the wild creatures of the four regions and the Rift masters (they are not part of the regular matrix)
 // --wild: only these sections, with the forced rarity variants; --no-wild: none of them; --elite: the forced variants in a default run too
 const WILD_ONLY=has("wild"),NO_WILD=has("no-wild"),ELITE=has("elite");
@@ -67,9 +68,11 @@ const FORCED=WILD_ONLY||ELITE; // the forced normal/magic/rare variants of a wil
 const ONLY_ECON=has("econ-only"),RARITY=has("rarity");
 const RUN_MATRIX=!ONLY_ECON&&!RARITY&&!WILD_ONLY,RUN_WILD=!ONLY_ECON&&!RARITY&&!NO_WILD,RUN_ECON=!has("no-econ")&&!RARITY&&!WILD_ONLY;
 
+//        [--no-depth-mods (disable V-21 passives for a modifier-free Rift reference)]
 // ---------- in-page simulator ----------
 function setup(opts){ // runs inside the game page; everything here uses the real game functions
   const BIOME_MODS=!!(opts&&opts.biomeMods);
+  const DEPTH_MODS=!!(opts&&opts.depthMods);
   ["render","save","floatFx","sfx","toast","closeSheet","flushFx"].forEach(f=>window[f]=()=>{});
   const mulberry=a=>()=>{a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296};
   const realRandom=Math.random,seedFor=(seed,key)=>seed==null?null:mulberry(hash(seed+"|"+key));
@@ -144,7 +147,7 @@ function setup(opts){ // runs inside the game page; everything here uses the rea
     const r=riftMake(seed,depth);
     S.rift.biome=r.biome;S.rift.name=r.name;S.rift.pal=r.pal;S.rift.tier=r.tier;
     const M=ENEMIES.rift_boss;
-    return{seed,depth,biome:r.biome,name:r.name,tier:r.tier,
+    return{seed,depth,biome:r.biome,name:r.name,tier:r.tier,depthMod:riftDepthModFor(seed,depth)?.id||null,
       master:{name:M.name,el:M.el,hp:M.hp,atk:M.atk,def:M.def,afx:M.afx||[],affixNames:(M.afx||[]).map(id=>AFX[id]?.n||id),sp:M.sp},
       wild:Object.keys(ENEMIES).filter(id=>/^w_rift_\d+$/.test(id)).sort()};
   };
@@ -166,7 +169,7 @@ function setup(opts){ // runs inside the game page; everything here uses the rea
     S=JSON.parse(snap);const{E,restore}=prep(id,o);
     try{
       S.zone=id==="mimic"?o.zone:E.zone;S.hp=pstats().maxHp;S.maps[S.zone]=genMap({heat,zone:S.zone==="rift"?"rift":undefined});S.run=null;
-      startBattle(id,{row:E.boss||id==="mimic"?0:o.row,rar:o.rar||"normal",afx:id==="rift_boss"&&o.force!=="magic"?[]:SIM.afxFor(id,o.rar,o.i||0,heat),biomeMods:BIOME_MODS});
+      startBattle(id,{row:E.boss||id==="mimic"?0:o.row,rar:o.rar||"normal",afx:id==="rift_boss"&&o.force!=="magic"?[]:SIM.afxFor(id,o.rar,o.i||0,heat),biomeMods:BIOME_MODS,depthMods:DEPTH_MODS});
       after(id,o,E,restore);
       const B=S.battle;let g=0;while(S.battle===B&&!B.over&&B.turn<150&&g++<600)POL[pol](B);
       const won=B.over==="won";return{w:won?1:0,t:B.turn,hp:won?S.hp/pstats().maxHp:0,a:B.afx[0]};
@@ -176,7 +179,7 @@ function setup(opts){ // runs inside the game page; everything here uses the rea
   SIM.trace=(snap,id,heat,pol,o)=>{useSeed(o.seed,"trace"+id+heat+pol+(o.force||"")+(o.rs!=null?o.rs:""));S=JSON.parse(snap);const{E,restore}=prep(id,o);
     try{
       S.zone=id==="mimic"?o.zone:E.zone;S.hp=pstats().maxHp;S.maps[S.zone]=genMap({heat,zone:S.zone==="rift"?"rift":undefined});S.run=null;
-      startBattle(id,{row:E.boss||id==="mimic"?0:o.row,rar:o.rar||"normal",afx:id==="rift_boss"&&o.force!=="magic"?[]:SIM.afxFor(id,o.rar,0,heat),biomeMods:BIOME_MODS});after(id,o,E,restore);
+      startBattle(id,{row:E.boss||id==="mimic"?0:o.row,rar:o.rar||"normal",afx:id==="rift_boss"&&o.force!=="magic"?[]:SIM.afxFor(id,o.rar,0,heat),biomeMods:BIOME_MODS,depthMods:DEPTH_MODS});after(id,o,E,restore);
       const B=S.battle,hps=[];let g=0;while(S.battle===B&&!B.over&&B.turn<150&&g++<600){const t=B.turn,n=B.log.length;POL[pol](B);hps.push(`T${t} you ${S.hp}/${pstats().maxHp} foe ${Math.max(0,B.hp)}/${B.max}`)}
       return{log:B.log.map(l=>l.t),hps,over:B.over,turns:B.turn};
     }finally{if(restore)ENEMIES[id]=restore}};
@@ -193,7 +196,7 @@ function setup(opts){ // runs inside the game page; everything here uses the rea
   SIM.attr=(snap,zone,heat,pol,n,o)=>{
     useSeed(o.seed,["attr",zone,heat,pol,o.kit].join());let clear=0,fights=0;
     for(let i=0;i<n;i++){S=JSON.parse(snap);S.zone=zone;S.hp=pstats().maxHp;S.maps[zone]=genMap({heat});let ok=true;
-      for(let f=0;f<5&&ok;f++){const id=f<4?pickEnemy(zone):ZONES[zoneIdx(zone)][2];startBattle(id,{row:f<4?f+1:0,rar:"normal",biomeMods:BIOME_MODS});
+      for(let f=0;f<5&&ok;f++){const id=f<4?pickEnemy(zone):ZONES[zoneIdx(zone)][2];startBattle(id,{row:f<4?f+1:0,rar:"normal",biomeMods:BIOME_MODS,depthMods:DEPTH_MODS});
         const B=S.battle;let g=0;while(S.battle===B&&!B.over&&B.turn<150&&g++<600)POL[pol](B);
         if(B.over!=="won"){ok=false;break}fights++;if(f===1||f===3)healYou(Math.round(pstats().maxHp*.35))}
       if(ok)clear++}
@@ -285,7 +288,7 @@ function flagsOf(c,mode,E){
   if(c.h===0&&c.win===1&&c.hp>HP_EASY&&c.turns<(boss?TURN_EASY_BOSS:TURN_EASY))fl.push("TOO_EASY");
   if(c.h===0&&c.win<.5)fl.push("TOO_HARD");
   if(c.turns>(boss?50:30))fl.push("SLOG");return fl}
-async function newPage(browser){const p=await browser.newPage();p.on("pageerror",e=>{console.error("pageerror:",e.message)});await p.goto(URL);await p.waitForFunction(()=>typeof S==="object"&&S);await p.evaluate(setup,{biomeMods:BIOME_MODS});return p}
+async function newPage(browser){const p=await browser.newPage();p.on("pageerror",e=>{console.error("pageerror:",e.message)});await p.goto(URL);await p.waitForFunction(()=>typeof S==="object"&&S);await p.evaluate(setup,{biomeMods:BIOME_MODS,depthMods:DEPTH_MODS});return p}
 async function main(){
   const t0=Date.now(),browser=await chromium.launch();
   const pages=await Promise.all(Array.from({length:JOBS},()=>newPage(browser))),P0=pages[0];
@@ -341,7 +344,7 @@ async function main(){
         const info=await P0.evaluate(([seed,dep])=>SIM.rift(seed,dep),[sd.seed,d]);
         for(const f of ["",...forceSel])await show(k,{id:"rift_boss"},0,p,{seed:SEED,row:ROW,zone:"rift",rs:sd.seed,rd:d,rar:f||"normal",force:f||undefined},`(seed ${sd.seed}, ${info.biome} · ${info.name}, depth ${d}${f?" forced "+f:""})`)}}
     await browser.close();return}
-  const result={args:{n:N,seed:SEED,row:ROW,heats:HEATS,policies:POLS,elite:ELITE,mastered,wild:!NO_WILD,riftSeeds:RIFT_SEEDS,riftDepth:RIFT_DEPTH},kits:sums,cells:[],wild:[],wildByRegion:[],rift:[],attr:[],econ:[]};
+  const result={args:{n:N,seed:SEED,row:ROW,heats:HEATS,policies:POLS,elite:ELITE,mastered,wild:!NO_WILD,biomeMods:BIOME_MODS,depthMods:DEPTH_MODS,riftSeeds:RIFT_SEEDS,riftDepth:RIFT_DEPTH},kits:sums,cells:[],wild:[],wildByRegion:[],rift:[],attr:[],econ:[]};
   const E=Object.fromEntries(enemiesAll.map(e=>[e.id,e])),K=Object.fromEntries(kits.map(k=>[k.name,k]));
   // the shared cell runner: the cells are grouped by rarity, so every chunk holds one rarity at a time
   const runCells=async(todo,label)=>{
@@ -472,14 +475,14 @@ async function main(){
         const info=await P0.evaluate(([seed,dep])=>SIM.rift(seed,dep),[sd.seed,d]);
         rinfo[sd.seed+":"+d]=info;
         const aff=info.master.affixNames.join(", ")||"none",sp=info.master.sp?`${info.master.sp.name} every ${info.master.sp.every}`:"none";
-        console.log(`\n-- seed ${sd.seed} (${info.biome} · ${info.name}) · ${info.master.name} (${info.master.el}; ${aff}; ${sp}) · depth ${d} · tier HP ${info.tier.hp} ATK ${info.tier.atk} DEF ${info.tier.def} --`);
+        console.log(`\n-- seed ${sd.seed} (${info.biome} · ${info.name}) · ${info.master.name} (${info.master.el}; ${aff}; ${sp}) · depth ${d} · ${info.depthMod} · tier HP ${info.tier.hp} ATK ${info.tier.atk} DEF ${info.tier.def} --`);
         const line=(k,p,id,label)=>{
           const cs=rvars.map(vr=>rres.find(x=>x.k===k.name&&x.p===p&&x.rs===sd.seed&&x.rd===d&&x.e===id&&x.vr===vr));
           const txt=cs.map((c,i)=>c?`${rvars[i].padEnd(6)} ${String(pct(c.win)).padStart(3)}% ${f1(c.turns).padStart(5)}t ${String(pct(c.hp)).padStart(3)}%${c.flags.length?" "+c.flags.join(" "):""}`:`${rvars[i].padEnd(6)} -`).join(" | ");
           console.log(`${label.padEnd(20)}${k.name.padEnd(17)}${p.padEnd(8)}${txt}`)};
         for(const k of rk)for(const p of POLS)line(k,p,"rift_boss",info.master.name);
         if(RIFT_WILD)for(const id of rids)for(const k of rk)for(const p of POLS)line(k,p,id,"   "+id);
-        result.rift.push({seed:sd.seed,depth:d,biome:info.biome,region:info.name,master:info.master,cells:rres.filter(x=>x.rs===sd.seed&&x.rd===d)})}
+        result.rift.push({seed:sd.seed,depth:d,biome:info.biome,depthMod:info.depthMod,region:info.name,master:info.master,cells:rres.filter(x=>x.rs===sd.seed&&x.rd===d)})}
       // the summary: the master (native row) by biome and by depth
       const nat=rres.filter(x=>x.e==="rift_boss"&&x.vr==="native");
       const mean=xs=>xs.length?pct(xs.reduce((a,c)=>a+c.win,0)/xs.length):null;

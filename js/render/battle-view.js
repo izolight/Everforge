@@ -48,7 +48,7 @@ function mapHead(){
   const m=curMap(),dl=S.run==="daily",d=S.daily,h=m.heat||0,hz=heatOf(S.zone),P=pstats(),zi=zoneIdx(S.zone);
   const tp=Math.round(100*m.torch/m.tmax),out=m.torch<=0&&!m.cleared,tc=out?" out":m.torch<=TORCH.max/6?" low":"";
   const torch=m.cleared?"":`<span class="torchb${tc}" ${tt(tx("Torch {a} of {b}",{a:m.torch,b:m.tmax}),out?tx("Your torch has guttered out. You see only one tile around you, and every step risks an ambush. A camp or shrine will relight it. Hunters notice you from 6 steps away instead of 4."):tx("Every step burns it. Camps, shrine prayers and campfire rests relight it. At 0 you see one tile and risk ambushes."))}>${icon("torch")}<span class="tbar"><i style="width:${tp}%"></i></span><b>${m.torch}</b></span>`;
-  const rmod=S.zone===RIFT_ZONE&&S.rift&&RIFT_BIOME_MODS[S.rift.biome],mods=[...rmod?[`${tx(rmod.name)}: ${tx(rmod.desc)}`]:[],...dl?[`${DAILY_TWISTS[d.twist].name}: ${DAILY_TWISTS[d.twist].desc}`]:[],...HEAT.slice(0,h).map((x,i)=>tx("Heat {n}, {name}: {desc}",{n:i+1,name:x.name,desc:x.desc}))];
+  const rmod=S.zone===RIFT_ZONE&&S.rift&&RIFT_BIOME_MODS[S.rift.biome],dmod=S.zone===RIFT_ZONE&&S.rift&&riftDepthModFor(S.rift.seed,S.rift.depth),mods=[...rmod?[`${tx(rmod.name)}: ${tx(rmod.desc)}`]:[],...dmod?[`${tx(dmod.name)}: ${tx(dmod.desc)}`]:[],...dl?[`${DAILY_TWISTS[d.twist].name}: ${DAILY_TWISTS[d.twist].desc}`]:[],...HEAT.slice(0,h).map((x,i)=>tx("Heat {n}, {name}: {desc}",{n:i+1,name:x.name,desc:x.desc}))];
   const lair=tx(isUnl("roam")?"{boss} waits in the lair at the top. Every step burns your torch, and some creatures roam and hunt you.":"{boss} waits in the lair at the top. Every step burns your torch.",{boss:shortName(ZONES[zi][2])});
   const help=helpBtn(zoneName(S.zone),m.cleared?tx("Cleared. Explore a fresh map for more loot."):`${m.steps?tx("Tap a glowing tile next to you to step."):tx("Tap a glowing tile next to you to set out.")} ${lair}`,dl?tx("Daily expedition, {date}{old}, {n} turns so far.",{date:d.date,old:d.date!==today()?tx(" (still going from an earlier day)"):"",n:d.turns}):"",...mods);
   const badges=(dl?`<span class="heat daily" ${tt(tx("Daily expedition"),DAILY_TWISTS[d.twist].name,DAILY_TWISTS[d.twist].desc)}>${ic("daily","s")}</span>`:"")
@@ -63,10 +63,10 @@ function mapHead(){
 }
 function riftCard(){ // the Rift: the region you stand in, its depth and your record
   if(S.zone!==RIFT_ZONE)return "";
-  const r=S.rift||{},nm=r.name?tx(r.name):tx("unknown"),mod=RIFT_BIOME_MODS[r.biome];
+  const r=S.rift||{},nm=r.name?tx(r.name):tx("unknown"),mod=RIFT_BIOME_MODS[r.biome],dmod=riftDepthModFor(r.seed,r.depth);
   return `<div class="dcard rift"><div class="dtop"><b>${ic("mystery")} ${tx("The Wanderer's Rift")}</b><span class="dline"><span>${tx("Region: {name}",{name:esc(nm)})}</span><span class="heat">${tx("Depth {n}",{n:r.depth||1})}</span><span class="heat">${tx("Best {n}",{n:r.best||0})}</span>${mod?`<span class="heat daily" ${tt(tx(mod.name),tx(mod.desc))}>${tx(mod.name)}</span>`:`<span class="heat" ${tt(tx("Neutral biome"),tx("Forest has no Rift modifier."))}>${tx("Neutral")}</span>`}</span>
-    ${helpBtn(tx("The Wanderer's Rift"),tx("Every expedition rolls a new region: a biome, ten wild creatures and a master."),tx("Wild creatures carry affixes of their own, and the master carries three."),mod?`${tx(mod.name)}: ${tx(mod.desc)}`:tx("Forest is the neutral Rift biome: it has no extra combat modifier."),tx("Beat the master to go one depth deeper."))}</div>
-    <p class="foot">${tx("A new region every time: ten wild creatures and a master. Beat the master, then descend.")}</p>
+    ${helpBtn(tx("The Wanderer's Rift"),tx("Every expedition rolls a new region: a biome, ten wild creatures and a master."),tx("Wild creatures carry affixes of their own, and the master carries three."),mod?`${tx(mod.name)}: ${tx(mod.desc)}`:tx("Forest is the neutral Rift biome: it has no extra combat modifier."),dmod?`${tx(dmod.name)}: ${tx(dmod.desc)}`:"",tx("Beat the master to go one depth deeper."))}</div>
+    ${dmod?`<div class="heat daily" ${tt(tx(dmod.name),tx(dmod.desc))}>${tx(dmod.name)}</div>`:""}<p class="foot">${tx("A new region every time: ten wild creatures and a master. Beat the master, then descend.")}</p>
     ${r.cleared?`<div class="actions"><button class="btn primary sm grow" id="riftNext">${tx("Descend deeper")}</button></div>`:""}</div>`}
 function dailyCard(){
   if(S.run==="daily")return "";

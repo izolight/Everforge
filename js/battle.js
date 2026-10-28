@@ -7,7 +7,7 @@ function pickEnemy(zone,R=Math.random,fresh=false){const pool=Object.entries(ENE
 function startBattle(forced,opt){
   opt=opt||{};const id=forced||opt.e||pickEnemy(S.zone),E=ENEMIES[id],sc=1+.06*(opt.row||0),h=heatNow(),tw=twistNow();
   const B={opening:opt.opening||0,id,name:E.name,el:E.el,hp:Math.round(E.hp*sc),max:Math.round(E.hp*sc),atk:Math.round(E.atk*sc),def:E.def,weak:[...E.weak],resist:[...E.resist],turn:1,
-    burn:null,poison:0,bleed:null,stun:0,open:false,cd:{},you:{},off:0,parry:false,shred:0,ward:null,spWard:0,spWardTurns:0,enraged:false,burrowed:false,frozen:false,guard:false,reborn:false,phased:false,rar:"normal",afx:[],intr:false,title:"",log:[],over:null,loot:[],biomeMods:opt.biomeMods!==false,biome:opt.biomeMods===false||S.zone!==RIFT_ZONE?null:(S.rift&&S.rift.biome)||null};
+    burn:null,poison:0,bleed:null,stun:0,open:false,cd:{},you:{},off:0,parry:false,shred:0,ward:null,spWard:0,spWardTurns:0,enraged:false,burrowed:false,frozen:false,guard:false,reborn:false,phased:false,rar:"normal",afx:[],intr:false,title:"",log:[],over:null,loot:[],biomeMods:opt.biomeMods!==false,biome:opt.biomeMods===false||S.zone!==RIFT_ZONE?null:(S.rift&&S.rift.biome)||null,depthMods:opt.depthMods!==false&&S.zone===RIFT_ZONE,depthMod:opt.depthMods===false||S.zone!==RIFT_ZONE?null:riftDepthModFor(S.rift&&S.rift.seed,S.rift&&S.rift.depth)};
   if(id==="mimic"){const zi=zoneIdx(S.zone),at=(a,i)=>a[Math.min(i,a.length-1)];B.max=B.hp=Math.round(E.hp*at(MIMIC_HP,zi));B.atk=Math.round(E.atk*at(MIMIC_ATK,zi));B.def=E.def+zi*2}
   B.heat=h;if(opt.pi!=null){B.pi=opt.pi;B.by=opt.by;B.ef=opt.ef} // a map enemy: which one, who moved, where it came from (see slip)
   if(h){B.max=B.hp=Math.round(B.max*(1+h*HEAT_T.hp));B.atk=Math.round(B.atk*(1+h*HEAT_T.atk))}
@@ -24,6 +24,7 @@ function startBattle(forced,opt){
   blog(tx(E.intro),E.boss||B.afx.length?"big":"");
   if(B.afx.length){blog(tx("{rarity}: {name}.",{rarity:RARITIES[B.rar].name,name:fullName(B)}),"big");noteAfx(B);if(B.wd)blog(tx("A ward shimmers around it ({n}).",{n:B.wd}),"foe")}
   if(riftModifier(B))blog(tx("Rift biome: {name}. {desc}",{name:tx(riftModifier(B).name),desc:tx(riftModifier(B).desc)}),"good");
+  const depthMod=riftDepthModifier(B);if(depthMod)blog(tx("Rift depth modifier: {name}. {desc}",{name:tx(depthMod.name),desc:tx(depthMod.desc)}),"good");
   if(h)blog(tx("The heat is on: Heat {h}, {name}.",{h,name:HEAT[h-1].name}),"foe");
   if(h>=5)blog(tx("Its blows bite through {p}% of your Defense.",{p:Math.round(HEAT_T.bite*100)}),"foe");
   const P=pstats(),rp=P.rs[B.el];if(rp)blog(tx("{msg} (-{p}% damage)",{msg:tx(RES_MSG[B.el]),p:rp}),"good");
@@ -43,9 +44,11 @@ const spEvery=(E,h)=>E.boss&&h>=4?Math.max(2,E.sp.every-1):E.sp.every;
 // the enemy as it fights now: a phased boss swaps in its second form's fields
 const foeOf=B=>{const E=ENEMIES[B.id];return B.phased&&E.phase?{...E,...E.phase.to}:E};
 const riftModifier=B=>{const bi=B&&B.biomeMods===false?null:B&&B.biome||(S.zone===RIFT_ZONE&&S.rift&&S.rift.biome);return RIFT_BIOME_MODS[bi]||null};
+const riftDepthModifier=B=>{if(!B||B.depthMods===false)return null;if(B.depthMod)return B.depthMod;if((B.depthMods===true||B.depthMods==null&&B.id)&&S.zone===RIFT_ZONE&&S.rift)return riftDepthModFor(S.rift.seed,S.rift.depth);return null};
+const riftWardAbsorbCap=(B,dmg)=>Math.round(dmg*(riftDepthModifier(B)?.ward||1));
 function riftOnHit(B){const mod=riftModifier(B);if(!mod||!mod.fear||B.guard||B.off>0||B.biomeFearTurn===B.turn)return;B.biomeFearTurn=B.turn;B.off=2;blog(tx("Grave fear leaves you off balance for your next action."),"foe")}
 function riftPressure(B,P){const mod=riftModifier(B);if(!mod||!mod.pressureEvery||B.turn%mod.pressureEvery!==0)return;const resist=P.rs.stone||0,d=Math.max(1,Math.round(P.maxHp*mod.pressure*(1-resist/100)));S.stats.taken+=Math.min(d,S.hp);S.hp-=d;floatFx("youHud","-"+d,"hurt",{el:"stone"});blog(tx("Drowning pressure crushes you for {n} damage.",{n:d}),"foe")}
-const isSpecial=B=>{const sp=foeOf(B).sp;return sp&&B.turn%(B.spEvery||sp.every)===0&&!(sp.kind==="enrage"&&(B.enraged||B.hp>=B.max*(sp.at||.5)))};
+const isSpecial=B=>{const sp=foeOf(B).sp,mod=riftDepthModifier(B),base=B.spEvery||sp?.every||2,every=mod&&mod.fast?Math.max(2,base-mod.fast):base;return sp&&B.turn%every===0&&!(sp.kind==="enrage"&&(B.enraged||B.hp>=B.max*(sp.at||.5)))};
 function absorbSpecialWard(B,n){const a=Math.min(B.spWard||0,n);if(!a)return 0;B.spWard-=a;if(!B.spWard){B.spWardTurns=0;blog(tx("Its rune ward absorbs {n} and breaks.",{n:a}),"good")}else blog(tx("Its rune ward absorbs {n}.",{n:a}),"good");return a}
 // a boss's second form: the fields the fight shifts to when it changes
 function phaseShift(B){const E=ENEMIES[B.id],ph=E&&E.phase;if(!ph)return;B.phased=true;B.el=ph.to.el;B.weak=[...ph.to.weak];B.resist=[...ph.to.resist];B.spEvery=spEvery(foeOf(B),B.heat||0)}
@@ -185,7 +188,7 @@ function afterPlayer(){if(S.battle.hp<=0)return enemyDown();enemyTurn()}
 // the line for a plain enemy hit: English splices the species' verb ("gores you"), other languages have one template per verb with {name}, {n} and {g} (the guard note)
 const hitMsg=(B,E,n)=>LANG==="en"?`The ${bname(B)} ${E.verb} for ${n}${B.guard?" through your guard":""}.`:fmt(txc("hit",E.verb),{name:bname(B),n,g:B.guard?" "+tx("through your guard"):""});
 // one enemy hit after resist, armor, Stone and guard/parry (vf = damage variance)
-const foeHit=(B,P,mult,vf)=>{const raw=B.atk*(B.enraged?(B.enrageX||1.3):1)*mult*vf*(B.guard?1-GUARD_T.cut:1)*(B.open?1+ABILITIES.lance.open:1)*(B.parry?PARRY_FAIL:1),red=heatRed(P,B);
+const foeHit=(B,P,mult,vf)=>{const mod=riftDepthModifier(B),fire=mod&&mod.fire&&B.el==="fire"?mod.fire:1,raw=B.atk*(B.enraged?(B.enrageX||1.3):1)*mult*vf*fire*(B.guard?1-GUARD_T.cut:1)*(B.open?1+ABILITIES.lance.open:1)*(B.parry?PARRY_FAIL:1),red=heatRed(P,B);
   return Math.max(1,Math.round(raw*HIT_MIN),Math.round(raw*(1-(P.rs[B.el]||0)/100)*(1-red)-(P.dr||0)))}; // resist, armor and Stone together never take more than 1-HIT_MIN of a hit; Heat 5 bites through part of your Defense
 // true when this zone's regular enemies (at map row 3) already hit you for the HIT_MIN floor, so more Defense, resist or Stone would change nothing here
 const atFloor=P=>{const es=Object.values(ENEMIES).filter(e=>e.zone===S.zone&&!e.boss);return es.length>0&&es.every(e=>{const a=Math.round(e.atk*ATK_FLOOR);return foeHit({atk:a,heat:0,el:e.el},P,1,1)<=Math.max(1,Math.round(a*HIT_MIN))})};
@@ -234,7 +237,7 @@ function enemyTurn(){
       let hitter=summon?{...B,atk:summon.atk,el:summon.el}:B;if(surge)hitter={...hitter,atk:hitter.atk*mod.surge,el:"arcane"};
       let dmg=foeHit(hitter,P,ml[i],vary());
       if(B.ward==null)B.ward=0; // battles saved before wards have none
-      const tot=dmg,ab=Math.min(B.ward,dmg);B.ward-=ab;dmg-=ab;S.stats.taken+=Math.min(dmg,S.hp);S.hp-=dmg;
+      const tot=dmg,ab=Math.min(B.ward,riftWardAbsorbCap(B,dmg));B.ward-=ab;dmg-=ab;S.stats.taken+=Math.min(dmg,S.hp);S.hp-=dmg;
       floatFx("youHud",dmg?"-"+dmg:"","hurt",{el:hitter.el});floatFx("youHud","","shake",{el:hitter.el});floatFx("vig","","on");
       if(ab)vfx("youHud","guard");
       blog(sp?(B.guard?tx("It hits you for {n} through your guard.",{n:tot}):tx("It hits you for {n}.",{n:tot})):hitMsg(B,E,tot),"foe");

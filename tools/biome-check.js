@@ -14,7 +14,7 @@ let fails=0;const ok=(c,m)=>{if(!c)fails++;console.log(c?"ok  ":"FAIL",m)};
       window.biomeState=(biome,seed)=>{
         S=freshState();S.zone=RIFT_ZONE;S.unlocked=ZONES.map(z=>z[0]);S.unl=Object.fromEntries(UNLOCKS.map((u,i)=>[u.id,i+1]));UNLOCKS.forEach(u=>S.seen["i:"+u.id]=true);
         S.rift.seed=seed;S.rift.depth=1;ENEMIES.rift_boss.seed=-1;riftEnsure();if(S.rift.biome!==biome)throw Error(`seed ${seed} is ${S.rift.biome}, expected ${biome}`);
-        S.maps.rift=genMap({seed:hash("v15-map:"+seed),zone:RIFT_ZONE,heat:0});Object.keys(S.eq).forEach(k=>S.eq[k]=null);S.hp=pstats().maxHp;startBattle("w_rift_0",{rar:"normal",afx:[]});return S.battle;
+        S.maps.rift=genMap({seed:hash("v15-map:"+seed),zone:RIFT_ZONE,heat:0});Object.keys(S.eq).forEach(k=>S.eq[k]=null);S.hp=pstats().maxHp;startBattle("w_rift_0",{rar:"normal",afx:[],depthMods:false});return S.battle;
       };
       window.findBiomeSeed=biome=>{for(let n=1;n<500;n++)if(riftMake(n,1).biome===biome)return n;throw Error("no seed for "+biome)};
     });

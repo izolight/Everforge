@@ -178,3 +178,9 @@ Completed task records and their implementation evidence. Test counts and simula
 - [x] **C-08 · Text and docs** — `Status: Done` · `Size: S` · `js/lang/`, `README.md`, `todo.md`
   German and Korean entries for every new string (`node tools/i18n-check.js`). README describes the path: salvage, research, slot techniques, then Infuse, Improve, Fuse and Refine.
 
+## Rift depth modifiers
+
+- [x] **V-21 · Seeded Rift depth modifiers** — `Status: Done` · `Size: M` · `js/data.js`, `js/battle.js`, `js/render/battle-view.js`, `js/sheets.js`, `js/lang/de.js`, `js/lang/ko.js`, `tools/sim.js`
+  Rift seed and depth choose one of three deterministic combat effects without changing generation draws or save shape. The modifier is visible in the battle HUD, Rift card, and Codex. `--no-depth-mods` provides an independent simulator reference path and does not disable V-15 biome passives.
+  **Done:** `node tools/depth-check.js`, `node tools/biome-check.js`, `node tools/i18n-check.js`, and `node tools/run-checks.js` pass (23/23). Paired modifier-on/off simulator settings, results, screenshots, and the unaccepted M-12 candidate caveat are in [V-21 evidence](rift-evidence/v21-depth-modifiers.md). M-12 remains In Progress.
+

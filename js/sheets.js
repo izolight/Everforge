@@ -52,7 +52,7 @@ function openCodex(id,refresh){
   const weak=[...K.weak.map(f=>famChip(f)),...Array(allFacts(E,"weak").length-K.weak.length).fill(unkChip("???"))].join("")||`<span class="foot">${tx("None")}</span>`;
   const res=[...K.resist.map(f=>famChip(f)),...Array(allFacts(E,"resist").length-K.resist.length).fill(unkChip("???"))].join("")||`<span class="foot">${tx("None")}</span>`;
   const drops=E.drops.length?E.drops.map(([d])=>K.drops.includes(d)?`<span class="chip" style="color:var(--accent)">${esc(iname(S.items[d]))}</span>`:unkChip("???")).join(""):`<span class="foot">${tx("Treasure from the region it lurks in")}</span>`;
-  const hn=E.zone===S.zone?heatNow():(S.heat[E.zone]?.sel||0),ph=E.phase&&K.ph?E.phase.to:null,rmod=E.zone===RIFT_ZONE&&RIFT_BIOME_MODS[E.biome||(S.rift&&S.rift.biome)];
+  const hn=E.zone===S.zone?heatNow():(S.heat[E.zone]?.sel||0),ph=E.phase&&K.ph?E.phase.to:null,rmod=E.zone===RIFT_ZONE&&RIFT_BIOME_MODS[E.biome||(S.rift&&S.rift.biome)],dmod=E.zone===RIFT_ZONE&&S.rift&&riftDepthModFor(S.rift.seed,S.rift.depth);
   const spText=sp=>sp.kind==="heal"?tx("heals itself"):sp.kind==="multi"?tx("{n} quick hits",{n:sp.n}):sp.kind==="drain"?tx("steals your HP"):sp.kind==="guard"?tx("a ward that absorbs {p}% of its HP for {n} turns",{p:Math.round(sp.ward*100),n:sp.turns}):sp.kind==="inflict"?tx("a hit that always inflicts {status}",{status:lc(STATUS[sp.status].n)}):sp.kind==="enrage"?tx("Attack rises {p}% below half HP",{p:Math.round((sp.x-1)*100)}):sp.kind==="burrow"?tx("burrows out of reach for one turn"):sp.kind==="summon"?tx("one weaker {name} strike",{name:tx(ENEMIES[sp.summon].name)}):tx("a heavy hit (×{x})",{x:sp.x});
   const spLine=sp=>tx("{name}: {what}, every {n} turns.",{name:tx(sp.name),what:spText(sp),n:spEvery(sp===E.sp?E:{...E,...ph},hn)});
   const mvTxt={chase:"Hunts you once it catches your scent (from 4 steps, 6 with your torch out). Elite ones move every other step and notice you within 2.",wander:"Drifts about the region. Elite ones move every other step.",still:"Holds its ground."};
@@ -66,6 +66,7 @@ function openCodex(id,refresh){
       <dt>${tx("Weak to")}</dt><dd>${weak}</dd>
       <dt>${tx("Resists")}</dt><dd>${res}</dd>
       ${E.zone===RIFT_ZONE?`<dt>${tx("Rift modifier")}</dt><dd>${rmod?`<b>${tx(rmod.name)}</b> · ${tx(rmod.desc)}`:tx("Forest is the neutral Rift biome: it has no extra combat modifier.")}</dd>`:""}
+      ${E.zone===RIFT_ZONE&&dmod?`<dt>${tx("Rift depth modifier")}</dt><dd><b>${tx(dmod.name)}</b> · ${tx(dmod.desc)}</dd>`:""}
       ${E.mv?`<dt>${tx("On the map")}</dt><dd>${tx(mvTxt[E.mv])}</dd>`:""}
       <dt>${tx("Special")}</dt><dd>${K.sp?`<span>${spLine(E.sp)} ${tx("Watch for it {tell}.",{tell:tx(E.sp.tell)})}</span>`:unkChip(tx("Survive it to learn"))}</dd>
       ${E.phase?`<dt>${tx("Second form")}</dt><dd>${ph?`<span>${tx("Below half health it turns {el}.",{el:famL(ph.el)})} ${K.sp2?spLine(ph.sp)+" ":tx("Its new special is still a mystery.")+" "}${tx("Its weak points change too.")}</span>`:unkChip(tx("Wound it badly to learn"))}</dd>`:""}

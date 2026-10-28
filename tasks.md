@@ -4,16 +4,16 @@ The status index for scoped work. Open tasks are below; implementation evidence 
 
 ## At a glance
 
-**56 tasks · 38 Done · 1 In Progress · 0 Implement · 17 Planned · 18 open.**
+**56 tasks · 39 Done · 1 In Progress · 0 Implement · 16 Planned · 17 open.**
 
 | Workstream | Done | In Progress | Implement | Planned |
 |---|---:|---:|---:|---:|
 | Monster coverage, balance and progression (M) | 8 | 1 | 0 | 3 |
-| Biome variety and mechanics (V) | 8 | 0 | 0 | 14 |
+| Biome variety and mechanics (V) | 9 | 0 | 0 | 13 |
 | Art identity and readability (A) | 5 | 0 | 0 | 0 |
 | UI (U) | 9 | 0 | 0 | 0 |
 | Crafting rework (C) | 8 | 0 | 0 | 0 |
-| **Total** | **38** | **1** | **0** | **17** |
+| **Total** | **39** | **1** | **0** | **16** |
 
 **Statuses:** `Planned` = scoped backlog, not started; `Implement` = detailed implementation plan exists; `In Progress` = actively underway; `Done` = completed, with evidence in the archive. Dependencies are stated on task cards; Planned does not necessarily mean ready to start.
 
@@ -140,9 +140,9 @@ U-02–U-09 are complete. See [Completed UI tasks](backlog-completed.md#ui) for 
 
   **All-biome impact sample:** the automatic seeded Rift fixture set covered all eight biomes at depth 1 (`--wild --n 25 --seed 1 --heat 0 --policy smart --rift-depth 1 --rift-wild --jobs 4`), live and again with `--no-biome-mods`. Under the same uncommitted M-12 review candidate, native Rift-master rows averaged 97.5% wins live vs 99.9% reference (32 cells, 25 fights each); native Rift-wild rows averaged 99.7% vs 99.8% (320 cells, 25 fights each). This is one seed/depth impact sample, not a balance sweep; JSON and logs are archived in [V-15 evidence](rift-evidence/v15-biome-modifiers.md). The M-12 candidate remains unaccepted and In Progress.
 
-- [ ] **V-21 · Add seeded Rift depth modifiers** — `Status: Planned` · `Size: M` · `js/monsters.js`, `js/battle.js` · `Depends: V-15`
-  Each Rift depth rolls one modifier (e.g. burning air, thin wards, fast foes) from the seed.
-  **Acceptance:** same seed shows the same modifier; HUD/Codex explains it; sim covers each modifier.
+- [x] **V-21 · Add seeded Rift depth modifiers** — `Status: Done` · `Size: M` · `js/data.js`, `js/battle.js`, `js/render/battle-view.js`, `js/sheets.js`, `tools/sim.js` · `Depends: V-15`
+  Rift seed and depth select Burning air, Thin wards, or Fast foes deterministically without consuming RNG draws. The selected effect appears in the battle HUD, Rift card, and Codex; V-15 biome passives remain independently active.
+  **Done:** `node tools/depth-check.js`, `node tools/biome-check.js`, `node tools/i18n-check.js`, and `node tools/run-checks.js` pass (23/23). Paired modifier-on/off samples and their M-12 candidate caveat are recorded in [V-21 evidence](rift-evidence/v21-depth-modifiers.md).
 
 ## World and roster expansion
 
