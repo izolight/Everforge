@@ -118,11 +118,12 @@ function genCreature(o){ // o:{id,zone,biome,tier,R,used,boss,where,seed}
   const col=ELPAL[el][Math.floor(R()*3)],acc=accFor(B,col,R); // body: the element's light, mid or dark; accent: the biome's
   const nouns=nameWords(B,body),name=o.boss?proc(cap(B.pre[Math.floor(R()*B.pre.length)])+" "+cap(nouns[Math.floor(R()*nouns.length)])):genName(B,R,o.used,body);
   const sp=GEN_SP[Math.floor(R()*GEN_SP.length)];
-  const boss=o.boss?3.2:1,atkm=o.boss?1.1:1;
+  // The region tier already climbs by depth; taper the master's bonus so it doesn't compound the whole HP/ATK ramp again.
+  const depth=Math.max(1,o.depth||1),boss=o.boss?Math.max(3.2,4.4-.6*(depth-1)):1,atkm=o.boss?Math.max(.95,1-.025*(depth-1)):1;
   const hp=Math.max(3,Math.round(o.tier.hp*(.8+R()*.45)*boss/rm.hp)),atk=Math.max(1,Math.round(o.tier.atk*(.85+R()*.3)*atkm/rm.atk));
   const def=Math.max(0,o.tier.def+Math.floor(R()*2)+(o.boss?2:0));
   // Keep the wild generation pool unchanged: filtering here would shift its seeded roster and Rift masters.
-  const afx=rollAfx(R,rar,{mv,heat:o.boss?RAR_CH.k3:0}); // a master carries three affixes
+  const afx=rollAfx(R,rar,{mv,heat:o.boss?RAR_CH.k3:0,boss:!!o.boss,sp}); // masters use the full rare count with boss/special compatibility rules
   const verb=B.verbs[Math.floor(R()*B.verbs.length)],place="the "+(o.where||B.n).toLowerCase().replace(/^the /,""),drops=genDrops(o.zone,el,R);
   const E={id:o.id,name:proc(name),plural:proc(pluralOf(name)),zone:o.zone,mv,el,hp,atk,def,weak:[...nat.w],resist:[...nat.r],w:1,verb,
     intro:proc(o.boss?`${name} waits for you in ${place}.`:`${name} steps out of ${place}.`),
@@ -149,7 +150,7 @@ function riftMake(seed,depth){ // a random region: biome, palette, name, ten wil
   const[ph,ps]=toHsl(B.acc[0]),pal={tf:fromHsl(ph,ps*.6,.09),tl:fromHsl(ph,ps*.6,.17),tb:B.acc[0]}; // the map's floor, lit floor and border, from the biome accent
   const used=new Set(),list=[];
   for(let i=0;i<RIFT_N;i++)list.push(genCreature({id:"w_rift_"+i,zone:RIFT_ZONE,biome:bi,tier,R:rng(hash(seed+":w"+i)),used,where:reg,seed}));
-  list.push(genCreature({id:"rift_boss",zone:RIFT_ZONE,biome:bi,tier,R:rng(hash(seed+":boss")),used,boss:1,where:reg,seed}));
+  list.push(genCreature({id:"rift_boss",zone:RIFT_ZONE,biome:bi,tier,R:rng(hash(seed+":boss")),used,boss:1,depth,where:reg,seed}));
   regMon(list);
   return{seed,depth,biome:bi,name:reg,pal,tier}}
 function riftEnsure(){ // the Rift's region is rebuilt from the save (its seed) on every load

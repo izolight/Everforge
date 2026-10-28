@@ -143,7 +143,7 @@ function setup(){ // runs inside the game page; everything here uses the real ga
     S.rift.biome=r.biome;S.rift.name=r.name;S.rift.pal=r.pal;S.rift.tier=r.tier;
     const M=ENEMIES.rift_boss;
     return{seed,depth,biome:r.biome,name:r.name,tier:r.tier,
-      master:{name:M.name,el:M.el,hp:M.hp,atk:M.atk,def:M.def,afx:M.afx||[],sp:M.sp},
+      master:{name:M.name,el:M.el,hp:M.hp,atk:M.atk,def:M.def,afx:M.afx||[],affixNames:(M.afx||[]).map(id=>AFX[id]?.n||id),sp:M.sp},
       wild:Object.keys(ENEMIES).filter(id=>/^w_rift_\d+$/.test(id)).sort()};
   };
   // the seeds the sim tests by default: one per Rift biome, the lowest s whose roll lands there (the biome is the first draw of the roll)
@@ -157,15 +157,15 @@ function setup(){ // runs inside the game page; everything here uses the real ga
     if(o.rs!=null)SIM.rift(o.rs,o.rd||1); // the Rift region is rebuilt from its seed before every fight (cheap and deterministic)
     const E0=ENEMIES[id];let E=E0,restore=null;
     if(o.force&&!E0.boss){const rm=RARITIES[E0.rar]||{hp:1,atk:1};const cp={...E0,hp:Math.round(E0.hp*rm.hp),atk:Math.round(E0.atk*rm.atk),afx:[],rar:undefined};restore=E0;ENEMIES[id]=cp;E=cp}
-    else if(o.force&&E0.gen&&E0.boss){const cp={...E0,gen:undefined,afx:[],rar:undefined};restore=E0;ENEMIES[id]=cp;E=cp}
+    else if(o.force&&E0.gen&&E0.boss&&!(id==="rift_boss"&&o.force==="rare")){const cp={...E0,gen:undefined,afx:[],rar:undefined};restore=E0;ENEMIES[id]=cp;E=cp}
     return{E,restore}};
-  const after=(id,o,E)=>{if(o.force&&E.boss){const M=ENEMIES[id],af=(M.afx||[]).slice(0,o.force==="rare"?3:1);if(af.length)applyAfx(S.battle,M,o.force,af)}};
+  const after=(id,o,E,restore)=>{if(o.force&&E.boss&&!(id==="rift_boss"&&o.force==="rare")){const M=restore||E,af=(M.afx||[]).slice(0,o.force==="rare"?3:1);if(af.length)applyAfx(S.battle,M,o.force,af)}};
   SIM.fight=(snap,id,heat,pol,o)=>{
     S=JSON.parse(snap);const{E,restore}=prep(id,o);
     try{
       S.zone=id==="mimic"?o.zone:E.zone;S.hp=pstats().maxHp;S.maps[S.zone]=genMap({heat,zone:S.zone==="rift"?"rift":undefined});S.run=null;
-      startBattle(id,{row:E.boss||id==="mimic"?0:o.row,rar:o.rar||"normal",afx:SIM.afxFor(id,o.rar,o.i||0,heat)});
-      after(id,o,E);
+      startBattle(id,{row:E.boss||id==="mimic"?0:o.row,rar:o.rar||"normal",afx:id==="rift_boss"&&o.force!=="magic"?[]:SIM.afxFor(id,o.rar,o.i||0,heat)});
+      after(id,o,E,restore);
       const B=S.battle;let g=0;while(S.battle===B&&!B.over&&B.turn<150&&g++<600)POL[pol](B);
       const won=B.over==="won";return{w:won?1:0,t:B.turn,hp:won?S.hp/pstats().maxHp:0,a:B.afx[0]};
     }finally{if(restore)ENEMIES[id]=restore}
@@ -174,17 +174,18 @@ function setup(){ // runs inside the game page; everything here uses the real ga
   SIM.trace=(snap,id,heat,pol,o)=>{useSeed(o.seed,"trace"+id+heat+pol+(o.force||"")+(o.rs!=null?o.rs:""));S=JSON.parse(snap);const{E,restore}=prep(id,o);
     try{
       S.zone=id==="mimic"?o.zone:E.zone;S.hp=pstats().maxHp;S.maps[S.zone]=genMap({heat,zone:S.zone==="rift"?"rift":undefined});S.run=null;
-      startBattle(id,{row:E.boss||id==="mimic"?0:o.row,rar:o.rar||"normal",afx:SIM.afxFor(id,o.rar,0,heat)});after(id,o,E);
+      startBattle(id,{row:E.boss||id==="mimic"?0:o.row,rar:o.rar||"normal",afx:id==="rift_boss"&&o.force!=="magic"?[]:SIM.afxFor(id,o.rar,0,heat)});after(id,o,E,restore);
       const B=S.battle,hps=[];let g=0;while(S.battle===B&&!B.over&&B.turn<150&&g++<600){const t=B.turn,n=B.log.length;POL[pol](B);hps.push(`T${t} you ${S.hp}/${pstats().maxHp} foe ${Math.max(0,B.hp)}/${B.max}`)}
       return{log:B.log.map(l=>l.t),hps,over:B.over,turns:B.turn};
     }finally{if(restore)ENEMIES[id]=restore}};
   // run a list of cells [{k,e,h,p}] n times each, deterministic per cell if seeded
   SIM.cells=(cells,n,o)=>cells.map(c=>{
     const kit=SIM.kits[c.k],rar=c.rar||o.rar||"normal";
-    const key=[c.k,c.e,c.h,c.p,c.mz,rar]; // the same key as before, so an unchanged run keeps its numbers
-    if(c.force||c.rs!=null||c.rd!=null)key.push(c.force||"",c.rs==null?"":c.rs,c.rd==null?"":c.rd);
+    const sameMasterRoll=c.e==="rift_boss"&&c.rs!=null&&(!c.force||c.force==="rare");
+    const key=[c.k,c.e,c.h,c.p,c.mz,sameMasterRoll?"normal":rar]; // generated rare master native/forced rows share one deterministic fight stream
+    if(c.force||c.rs!=null||c.rd!=null)key.push(sameMasterRoll?"":c.force||"",c.rs==null?"":c.rs,c.rd==null?"":c.rd);
     useSeed(o.seed,key.join());let w=0,t=0,hp=0;const ba={};
-    for(let i=0;i<n;i++){const r=SIM.fight(kit.snap,c.e,c.h,c.p,{...o,i,zone:c.mz||kit.zone,rar,force:c.force,rs:c.rs,rd:c.rd});w+=r.w;t+=r.t;hp+=r.hp;if(r.a){const x=ba[r.a]||(ba[r.a]=[0,0]);x[0]++;x[1]+=r.w}}
+    for(let i=0;i<n;i++){if(c.e==="rift_boss"&&c.rs!=null)useSeed(o.seed,key.join()+":"+i);const r=SIM.fight(kit.snap,c.e,c.h,c.p,{...o,i,zone:c.mz||kit.zone,rar,force:c.force,rs:c.rs,rd:c.rd});w+=r.w;t+=r.t;hp+=r.hp;if(r.a){const x=ba[r.a]||(ba[r.a]=[0,0]);x[0]++;x[1]+=r.w}}
     return{...c,n,win:w/n,turns:t/n,hp:hp/n,ba}});
   // attrition: a typical expedition (4 regulars at rows 1-4, then the boss) on one HP bar; a 35% heal after fights 2 and 4 stands in for shrine/camp
   SIM.attr=(snap,zone,heat,pol,n,o)=>{
@@ -468,7 +469,8 @@ async function main(){
       for(const sd of seeds)for(const d of RIFT_DEPTH){
         const info=await P0.evaluate(([seed,dep])=>SIM.rift(seed,dep),[sd.seed,d]);
         rinfo[sd.seed+":"+d]=info;
-        console.log(`\n-- seed ${sd.seed} (${info.biome} · ${info.name}) · ${info.master.name} (${info.master.el}) · depth ${d} · tier HP ${info.tier.hp} ATK ${info.tier.atk} DEF ${info.tier.def} --`);
+        const aff=info.master.affixNames.join(", ")||"none",sp=info.master.sp?`${info.master.sp.name} every ${info.master.sp.every}`:"none";
+        console.log(`\n-- seed ${sd.seed} (${info.biome} · ${info.name}) · ${info.master.name} (${info.master.el}; ${aff}; ${sp}) · depth ${d} · tier HP ${info.tier.hp} ATK ${info.tier.atk} DEF ${info.tier.def} --`);
         const line=(k,p,id,label)=>{
           const cs=rvars.map(vr=>rres.find(x=>x.k===k.name&&x.p===p&&x.rs===sd.seed&&x.rd===d&&x.e===id&&x.vr===vr));
           const txt=cs.map((c,i)=>c?`${rvars[i].padEnd(6)} ${String(pct(c.win)).padStart(3)}% ${f1(c.turns).padStart(5)}t ${String(pct(c.hp)).padStart(3)}%${c.flags.length?" "+c.flags.join(" "):""}`:`${rvars[i].padEnd(6)} -`).join(" | ");

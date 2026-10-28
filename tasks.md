@@ -4,16 +4,16 @@ The status index for scoped work. Open tasks are below; implementation evidence 
 
 ## At a glance
 
-**56 tasks · 34 Done · 1 In Progress · 0 Implement · 21 Planned · 22 open.**
+**56 tasks · 37 Done · 0 In Progress · 0 Implement · 19 Planned · 19 open.**
 
 | Workstream | Done | In Progress | Implement | Planned |
 |---|---:|---:|---:|---:|
-| Monster coverage, balance and progression (M) | 6 | 1 | 0 | 5 |
-| Biome variety and mechanics (V) | 6 | 0 | 0 | 16 |
+| Monster coverage, balance and progression (M) | 8 | 0 | 0 | 4 |
+| Biome variety and mechanics (V) | 7 | 0 | 0 | 15 |
 | Art identity and readability (A) | 5 | 0 | 0 | 0 |
 | UI (U) | 9 | 0 | 0 | 0 |
 | Crafting rework (C) | 8 | 0 | 0 | 0 |
-| **Total** | **34** | **1** | **0** | **21** |
+| **Total** | **37** | **0** | **0** | **19** |
 
 **Statuses:** `Planned` = scoped backlog, not started; `Implement` = detailed implementation plan exists; `In Progress` = actively underway; `Done` = completed, with evidence in the archive. Dependencies are stated on task cards; Planned does not necessarily mean ready to start.
 
@@ -26,9 +26,9 @@ The status index for scoped work. Open tasks are below; implementation evidence 
 | Balance with an existing plan | M-09 complete | See [completed evidence](backlog-completed.md#m-09). |
 | Starter progression | M-10 complete | See [completed evidence](backlog-completed.md#m-10). |
 | Creature art and readability | A-01–A-05 complete | See [completed evidence](backlog-completed.md#creature-art-and-readability) and [visual review sheets](art-evidence/README.md). |
-| Rift difficulty | M-11 → M-12 → V-16 | Fix masters, remeasure wild bands, then add alphas. |
-| Essence availability | M-08 | Decide and implement a non-affix Steam source, or document affix-only intent. |
-| Later gameplay expansion | V-14 → V-15 → V-21; V-11 → M-05 | Build combat/modifier foundations, then biome-specific behavior. |
+| Rift difficulty | M-12 → V-16 | Remeasure wild bands after master fixes, then add alphas. |
+| Essence availability | M-08 complete | The Cursed Altar can return Steam; see [completed evidence](backlog-completed.md#m-08). |
+| Later gameplay expansion | V-15 → V-21; V-11 → M-05 | Build biome modifiers, then depth-specific behavior. |
 
 Navigation: [UI](#ui-simplification) · [Balance](#balance-and-progression) · [Art](#art-identity-and-readability) · [Biome gameplay](#biome-gameplay-and-combat-foundations) · [Expansion](#world-and-roster-expansion) · [Dependencies](#dependencies-and-coordination) · [Completed](backlog-completed.md).
 
@@ -42,10 +42,9 @@ U-02–U-09 are complete. See [Completed UI tasks](backlog-completed.md#ui) for 
 
 ## Balance and progression
 
-- [ ] **M-08 · Add non-affix sources for Steam essence** — `Status: Planned` · `Size: M` · `js/data.js`, `js/monsters.js`, `js/map.js`, `js/encounters.js`
-  Checked against `DECON` and the drop tables in `js/data.js`: Heavy (`boar_hide`, `golem_core`), Runic (`sentinel_plate`) and Light (`sprite_dust`) already come from deconstructing, so they are out of scope. Wood has no `DECON` item (`oak_bough` and `witchwood` carry Wood in their material, which `deconYield` skips); its only non-affix source is Gnarlhorn's guaranteed `gnarl_tusk`, a boss drop. Steam has no non-affix source at all: only the Volatile affix (`tr:"Steam"`) gives it.
-  Add peddler stock, chest/shrine rewards, a `DECON` entry or a drop for Steam, or document affix-only intent. Wood's boss-only source is a note, not a blocker.
-  **Acceptance:** Steam has at least one non-affix source or an explicit note; economy sim unchanged. When evaluating essence mix, account for M-09's reduced Nourishing, Wood and Runic affix drops from healing species.
+- [x] **M-08 · Add non-affix sources for Steam essence** — `Status: Done` · `Size: M` · `js/encounters.js` · see [completed evidence](backlog-completed.md#m-08)
+  Steam previously came only from the Volatile affix. The existing optional Cursed Altar now includes Steam in its essence rotation: the small blood offering gives one essence for 1 HP, and the larger one gives three consecutive essences for its existing HP cost. The generic reward pool and reward quantity are unchanged.
+  **Validation:** `node tools/steam-source-check.js` confirms the altar returns one Steam essence for the small offering. Economy sim before/after (`--econ-only --seed 7 --exped 30`, smart, Heat 0) matched exactly across all four zones for clear/loss, fights, direct and salvage essences, embers, item drops, shops, steps, torch use, XP, and displayed price ranges; see [comparison evidence](economy-evidence/m08-seed7-comparison.json). Smoke and unlock checks passed.
 
 - [x] **M-09 · Rebalance affixed foes and staff kits** — `Status: Done` · `Size: M` · `js/data.js`, `js/affix.js`, `js/map.js`, `js/battle.js`, `js/monsters.js`, `tools/sim.js` · see [completed evidence](backlog-completed.md#m-09)
   On the `4b0ef66` baseline plus M-09 changes, `--rarity --seed 7/11 --n 100` (smart, stage kits, Heat 0/3/5) had weakest wins of 99%/88% at Heat 0/3, 2 starter-only `RARE_HARD` rows and no `SLOG`. `defensive/woods` basic/rare at Heat 5 averaged 28.9/28.8 turns. Final tuning and elite-matrix tradeoff are recorded in the archive.
@@ -55,13 +54,13 @@ U-02–U-09 are complete. See [Completed UI tasks](backlog-completed.md#ui) for 
   **Done:** opening curve is intentional. Bare iron-sword baseline on `f01d69c` won 0/6, 0/6, 1/6 expeditions for seeds 1/7/11. With the tutorial Fire sword and Weaponcraft prepared, final code won 6/6 for each seed. Smart policy, Heat 0, six Woods expeditions per seed. Seed 1 `--rarity --kit starter --policy smart --n 100`: magic/rare wins 99%/96% at Heat 0, 91%/79% at Heat 3; one Heat 3 rare row remains `RARE_HARD`. README and todo record the decision and the limit.
   **Validation:** `node -r /tmp/noFonts.js tools/sim.js --fresh --exped 6 --seed 1/7/11`; `node -r /tmp/noFonts.js tools/sim.js --rarity --kit starter --policy smart --seed 1 --n 100`; smoke, i18n, unlock checks passed.
 
-- [ ] **M-11 · Fix the Rift master's affixes and stat band** — `Status: In Progress` · `Size: S` · `js/battle.js`, `js/monsters.js`
-  `startBattle` skips the affix block for every boss (`js/battle.js:17`), so the Rift master — rolled as a rare with three affixes and its stats already divided by the rare multiplier — fights with no affixes at about 1.2× the region's HP band.
-  **Acceptance:** the master is a real fight (`node tools/sim.js --wild --seed 1`: no `TOO_EASY` at depth 1 with a `*/spire` kit, smart play wins over 90%); the master's stats and affixes match the roll it was built from; the sim's native row agrees with the forced rows. The historical seed-1 baseline fails the first clause (the melee, staff and stacked kits are `TOO_EASY` at depth 1).
+- [x] **M-11 · Fix the Rift master's affixes and stat band** — `Status: Done` · `Size: S` · `js/battle.js`, `js/affix.js`, `js/monsters.js`, `tools/sim.js`, `tools/rift-boss-check.js`
+  Generated Rift masters now apply their stored rare rarity and three compatible affixes once in native combat; authored bosses retain their authored behavior. Rift master affix rolls exclude recurring Warded/Regenerating sustain and max-HP Volatile bursts, and do not pair Frenzied with multi-hit or heavy specials. The simulator's forced rare row now uses the same master and deterministic fight stream as native, while forced magic remains a separate what-if.
+  **Acceptance:** the master is a real fight (`node tools/sim.js --wild --seed 1`: no `TOO_EASY` at depth 1 with a `*/spire` kit, smart play wins over 90%); the master's stats and affixes match the roll it was built from; the sim's native row agrees with the forced rare row. The historical seed-1 baseline fails the first clause (the melee, staff and stacked kits are `TOO_EASY` at depth 1).
 
-  **Current implementation and gate status:** generated Rift masters now apply their generated rarity and compatible affixes in native combat; authored bosses retain the authored boss path. The forced simulator row reuses the master's stored rarity, stats and compatible affixes. `tools/rift-boss-check.js` asserts those native/forced values and authored-boss behavior. The current shared master band is 3.2× HP / 1.1× attack before rarity and affixes. This is still **In Progress** because the difficulty gate is not met: on the refreshed all-biome sample below, depth-1 native master wins were 93% overall, but 19 of the 32 biome/kit rows were tagged `TOO_EASY`. A 4.0× HP / 1.25× attack trial reduced tagged rows to 12/32 but lowered wins to 86%; a 3.8× HP / 1.0× attack trial produced 90% wins and 18/32 easy rows. These measured bands do not meet both gate clauses together. Do not archive as Done until both pass.
+  **Done:** the depth-1 master band is 4.4× HP / 1.0× attack before rare and affix multipliers; the bonus tapers with depth to at least 3.2× HP / 0.95× attack, alongside the region's own tier growth. The four `/spire` kits are all above 90% win in the sample, every biome mean is above 90%, and no depth-1 master row is flagged `TOO_EASY`. Depth-1 kit means: melee 100%, defensive 98.9%, staff 99.8%, stacked 100%. Biome means: deep 97.5%, fen 100%, astral 100%, forest 100%, ember 99.8%, tundra 100%, bone 100%, ash 100%. Native and forced rare results match in all 64 master rows across depths 1 and 3. The regression also checks the exact generated rarity/affix stats and preserves authored boss behavior.
 
-  **Refreshed sample:** base revision `1abbaf9` plus the uncommitted M-11 working tree; `node -r /tmp/noFonts.js tools/sim.js --wild --enemy rift_boss --kit spire --policy smart --seed 1 --n 100 --rift-depth 1 --no-econ`. This is 100 fights per row, smart policy, all four `/spire` kits, depth 1, Heat 0 (Rift does not use Heat), across the eight deterministic biome Rift seeds. Native master win rate by biome: deep 99%, fen 100%, astral 100%, forest 100%, ember 80%, tundra 100%, bone 75%, ash 92%; aggregate 93%. The forced rare row reuses each biome's stored master roll; exact native/forced combat stats and affix count are checked by `node tools/rift-boss-check.js` (deep seed roll: rare, 3 affixes). Sample limitations: this is one explicit fight seed and 100 trials per row, not a broad seed sweep; 19/32 rows remain `TOO_EASY`, and ember/bone win rates remain low, so the difficulty gate is unresolved.
+  **Validation evidence:** base revision `6f803be` plus the uncommitted M-11 and parallel V-14 working tree. `node -r /tmp/noFonts.js tools/sim.js --wild --enemy rift_boss --kit spire --policy smart --seed 1 --n 100 --rift-depth 1,3 --no-econ`: 100 fights per cell, smart policy, Heat 0, all four `/spire` kits, eight deterministic biome seeds, depths 1 and 3. Depth-1 master win was 99.7% overall; per-kit and per-biome means above. Depth 3 won 96.5% overall (deep 89%, ash 92.8%, other biomes 97.5–100%); defensive-kit mean was 90.9%. There were no depth-1 `TOO_EASY`/`TOO_HARD` master rows and three `SLOG` rows; depth 3 also had three `SLOG` rows. Native/forced rare displayed win, turn and HP metrics matched in 64/64 master rows. Rift biome seeds: deep 3608050713, fen 3574495475, astral 3675161189, forest 3624828332, ember 3641605951, tundra 3742271665, bone 3033363595, ash 3100474071. `node tools/rift-boss-check.js`, `node tools/affix-check.js`, and `git diff --check` pass. The sample is one explicit simulator seed with 100 fights per cell, not a broad seed sweep.
 
   <details>
   <summary>Historical measurements — refresh before tuning</summary>
@@ -126,9 +125,10 @@ U-02–U-09 are complete. See [Completed UI tasks](backlog-completed.md#ui) for 
   Add optional `elW` so each biome has common and rare elements instead of uniform rolls.
   **Acceptance:** seeded output stays deterministic; daily pre-rolls unaffected; sim reflects intended element mix.
 
-- [ ] **V-14 · Add new enemy special kinds** — `Status: Planned` · `Size: M` · `js/battle.js`, `js/monsters.js`, `js/data.js`, `lang/`
+- [x] **V-14 · Add new enemy special kinds** — `Status: Done` · `Size: M` · `js/battle.js`, `js/data.js`, `js/render/battle-view.js`, `js/sheets.js`, `js/lang/`
   Add `guard` (temporary ward), `inflict` (guaranteed status), `enrage` (Attack up below half HP), `burrow` (untargetable for one turn), and `summon` (calls a weaker wild creature).
-  **Acceptance:** each kind resolves correctly against Guard/Parry/status; tells and Codex entries work; i18n and sim pass.
+  **Done:** Rune Aegis gives the Stone Golem a 20%-max-HP ward for two player actions; it refreshes to its cap, does not stack, and is separate from affix wards. Poisoned Edge guarantees poison after a landed Woods Bandit hit; Guard blocks it, Parry interrupts it, and status resistance shortens its duration. Rimehide Bear enrages once below half HP for a permanent +30% Attack. Mossback Stag burrows for one player action, cannot be hit, then surfaces at the start of its next enemy turn. Storm Harpy calls one weaker Squall Spirit for a single 0.65× strike. Added intent tells, active-state HUD chips, effect-specific Codex text and German/Korean strings. The generated Rift special pool is unchanged; the common opening Boar retains its original charge so the Parry lesson remains available.
+  **Validation:** `node tools/special-check.js`, `node tools/guard-check.js`, `node tools/unlock-check.js`, `node tools/smoke.js`, `node tools/i18n-check.js`, `node tools/sim.js`, and `node tools/run-checks.js`; durable mobile captures, the focused regression output and full simulator output are archived in [combat evidence](combat-evidence/v14-specials.md).
 
 - [ ] **V-15 · Add biome modifiers to the map** — `Status: Planned` · `Size: L` · `js/map.js`, `js/battle.js`, `js/data.js` · `Depends: V-14`
   One passive per biome: poison fog (fen), chill (tundra), burn (ember), arcane surges (astral), sandstorm (ash), fear (bone), drowning pressure (deep).
@@ -199,7 +199,7 @@ These are sequencing notes, not agent assignments. Completed V-02/V-03/V-04/V-12
 | Sequence | Reason |
 |---|---|
 | U-05 → U-03 (completed); U-06 → U-07; U-08 → U-09 | Contextual filtering now supports the shared Forge ingredient picker. Codex structure and terminology still precede their dependent interfaces; U-04 can proceed independently. |
-| M-11 → M-12 → V-16 | Measure wild bands after master/rarity fixes; add alphas after the band is intentional. |
+| M-12 → V-16 | Measure wild bands after master/rarity fixes; add alphas after the band is intentional. |
 | V-14 → V-15 → V-21 | Map and depth modifiers build on the combat hooks. |
 | V-11 → M-05 → M-06 → M-07 | Biome specials establish identity before promotion and new-region bosses. M-04 is already complete. |
 | V-14 → V-11 or V-17, when needed | Soft dependency only: existing special kinds can support an earlier implementation. |

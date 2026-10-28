@@ -342,5 +342,10 @@ DICT.ko=Object.assign(DICT.ko||{},{
 "Deconstruct a raw find for base materials, embers and sometimes an essence.":"원재료를 분해해 기본 재료, 불씨, 때로는 정수를 얻으세요.",
 "Salvaging trains its own skill, and a higher level gives better materials.":"회수는 자체 기술을 단련하며, 레벨이 높을수록 좋은 재료를 얻습니다.",
 "Forge actions":"대장간 행동",
-"Kitchen":"주방"
+"Kitchen":"주방",
+"Rime Fury":"서리 분노","gathering strength as it weakens":"약해지며 힘을 모으고",
+"Poisoned Edge":"독칼날","coating its blade with venom":"칼날에 독을 바르며",
+"Root Dive":"뿌리 잠복","folding into the roots":"뿌리 사이로 몸을 접어 숨으며",
+"Rune Aegis":"룬 방패","tracing a warding rune across its chest":"가슴에 보호 룬을 그리며",
+"Call Squall Spirit":"돌풍 정령 부르기","calling a weaker Squall Spirit to strike":"더 약한 돌풍 정령을 불러 공격하게 하며"
 });

@@ -1,0 +1,22 @@
+ok   golem special intent renders at 390×844 mobile size
+ok   bandit special intent renders at 390×844 mobile size
+ok   bear special intent renders at 390×844 mobile size
+ok   stag special intent renders at 390×844 mobile size
+ok   harpy special intent renders at 390×844 mobile size
+ok   all five kinds are authored; the summoned wild creature is weaker; generated special pool is unaffected
+ok   guard special creates a two-turn ward that absorbs player damage without stacking HP
+ok   guard refreshes its cap and duration; ward protects two player actions before expiring
+ok   inflict applies its guaranteed poison on a landed special and records its Codex special
+ok   Guard still cuts the special hit and blocks its forced status
+ok   a successful Parry interrupts inflict before damage and status
+ok   status resistance shortens a guaranteed infliction instead of making it fail
+ok   enrage is telegraphed and resolves only below half HP
+ok   enrage permanently raises subsequent Attack by its configured 30%
+ok   a riposte that defeats a setup special resolves the victory immediately
+ok   burrow spends a turn without attacking and cannot be hit by a direct strike
+ok   burrow ends at the start of its next enemy turn
+ok   summon calls the named weaker wild and makes one scaled hit handled by normal Guard/Parry/dodge rules
+ok   Codex special entries show each learned special, effect, tell, and cadence
+ok   the Codex effect fits the mobile sheet without horizontal overflow
+ok   no browser errors ()
+All V-14 special checks passed.

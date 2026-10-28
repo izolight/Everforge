@@ -7,8 +7,8 @@ For scoped work, status and dependencies, use [tasks.md](tasks.md). Finished wor
 | Topic | Canonical tasks |
 |---|---|
 | Starter difficulty | M-10 complete: tutorial Fire sword and Weaponcraft are required prep; no raw starter stat buff ([evidence](backlog-completed.md#m-10)); M-09 affix/staff balance is complete ([evidence](backlog-completed.md#m-09)) |
-| Rift masters and wild creature strength | M-11, M-12, V-16 |
-| Steam essence availability | M-08; Heavy, Runic and Light already have deconstruction sources. Wood has a boss-only non-affix source. |
+| Rift masters and wild creature strength | M-11 complete ([evidence](backlog-completed.md#m-11)); next M-12, then V-16 |
+| Steam essence availability | M-08 complete: the optional Cursed Altar can return Steam without increasing reward quantity ([evidence](backlog-completed.md#m-08)). |
 | More authored regions and biome identity | M-05, M-06, V-11 |
 | Species silhouettes, equipment shapes, terrain, creature names, visual hierarchy | A-01–A-05 |
 | Completed creature composition, wild rosters, element coverage, Rift, crafting rework | [Completed backlog](backlog-completed.md); no follow-up to add `--wild` or save migration remains. |

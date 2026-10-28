@@ -44,9 +44,9 @@ const near=(a,b)=>Math.abs(a-b)<1e-9;
     ok(near(r.base,.65)&&near(r.known,.7)&&near(r.trained,.8),`parry: 65% base, 70% known, 80% trained (${JSON.stringify(r)})`);
     ok(near(r.light,.85)&&near(r.heavy,.75)&&near(r.cap,.9)&&r.off===0,"weapon form, capped speed bonus and off-balance affect parry chance");
     r=await E(()=>{
-      const B=fresh("harpy");B.turn=ENEMIES.harpy.sp.every;B.atk=20;
+      const B=fresh("squall");B.turn=ENEMIES.squall.sp.every;B.atk=20;
       const h=S.hp;R(.5,()=>guard());
-      return{lost:h-S.hp,expected:4*Math.round(20*.55*.4),status:Object.keys(B.you),braced:B.braced,guard:B.guard};
+      return{lost:h-S.hp,expected:ENEMIES.squall.sp.n*Math.max(1,Math.round(20*ENEMIES.squall.sp.x*(1-GUARD_T.cut))),status:Object.keys(B.you),braced:B.braced,guard:B.guard};
     });
     ok(r.lost===r.expected&&r.status.length===0&&r.braced&&!r.guard,`guard cuts every multi-hit, blocks chill, grants Braced (${r.lost} damage)`);
     r=await E(()=>{
@@ -98,12 +98,12 @@ const near=(a,b)=>Math.abs(a-b)<1e-9;
     ok(r.kept&&r.one===true&&r.repeated===true&&r.afterParry,"consumables, repeated guards and parry preserve a single Braced bonus");
     r=await E(()=>{
       const run=delta=>{
-        const B=fresh();B.max=B.hp=1000;B.atk=1;B.turn=ENEMIES[B.id].sp.every;const ch=parryChance(B);
+        const B=fresh("boar");B.max=B.hp=1000;B.atk=1;B.turn=ENEMIES[B.id].sp.every;const ch=parryChance(B);
         R(ch+delta,()=>parry());return{parries:S.stats.parries,off:B.off};
       };
       return{success:run(-.0001),fail:run(.0001)};
     });
-    ok(r.success.parries===1&&r.success.off===0&&r.fail.parries===0&&r.fail.off===1,"parry success/failure uses the displayed chance boundary and failure leaves off balance");
+    ok(r.success.parries===1&&r.success.off===0&&r.fail.parries===0&&r.fail.off===1,`parry success/failure uses the displayed chance boundary and failure leaves off balance (${JSON.stringify(r)})`);
     r=await E(()=>{
       const B=fresh("witch");B.hp=Math.round(B.max/2);B.turn=ENEMIES.witch.sp.every;
       const hp=B.hp;R(0,()=>parry());return{hp,after:B.hp,off:B.off,known:cx("witch").sp};

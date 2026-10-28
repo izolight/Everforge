@@ -7,7 +7,7 @@ function pickEnemy(zone,R=Math.random,fresh=false){const pool=Object.entries(ENE
 function startBattle(forced,opt){
   opt=opt||{};const id=forced||opt.e||pickEnemy(S.zone),E=ENEMIES[id],sc=1+.06*(opt.row||0),h=heatNow(),tw=twistNow();
   const B={opening:opt.opening||0,id,name:E.name,el:E.el,hp:Math.round(E.hp*sc),max:Math.round(E.hp*sc),atk:Math.round(E.atk*sc),def:E.def,weak:[...E.weak],resist:[...E.resist],turn:1,
-    burn:null,poison:0,bleed:null,stun:0,open:false,cd:{},you:{},off:0,parry:false,shred:0,ward:null,frozen:false,guard:false,reborn:false,phased:false,rar:"normal",afx:[],intr:false,title:"",log:[],over:null,loot:[]};
+    burn:null,poison:0,bleed:null,stun:0,open:false,cd:{},you:{},off:0,parry:false,shred:0,ward:null,spWard:0,spWardTurns:0,enraged:false,burrowed:false,frozen:false,guard:false,reborn:false,phased:false,rar:"normal",afx:[],intr:false,title:"",log:[],over:null,loot:[]};
   if(id==="mimic"){const zi=zoneIdx(S.zone),at=(a,i)=>a[Math.min(i,a.length-1)];B.max=B.hp=Math.round(E.hp*at(MIMIC_HP,zi));B.atk=Math.round(E.atk*at(MIMIC_ATK,zi));B.def=E.def+zi*2}
   B.heat=h;if(opt.pi!=null){B.pi=opt.pi;B.by=opt.by;B.ef=opt.ef} // a map enemy: which one, who moved, where it came from (see slip)
   if(h){B.max=B.hp=Math.round(B.max*(1+h*HEAT_T.hp));B.atk=Math.round(B.atk*(1+h*HEAT_T.atk))}
@@ -41,7 +41,8 @@ function restoreFoe(B,st){
 const spEvery=(E,h)=>E.boss&&h>=4?Math.max(2,E.sp.every-1):E.sp.every;
 // the enemy as it fights now: a phased boss swaps in its second form's fields
 const foeOf=B=>{const E=ENEMIES[B.id];return B.phased&&E.phase?{...E,...E.phase.to}:E};
-const isSpecial=B=>{const sp=foeOf(B).sp;return sp&&B.turn%(B.spEvery||sp.every)===0};
+const isSpecial=B=>{const sp=foeOf(B).sp;return sp&&B.turn%(B.spEvery||sp.every)===0&&!(sp.kind==="enrage"&&(B.enraged||B.hp>=B.max*(sp.at||.5)))};
+function absorbSpecialWard(B,n){const a=Math.min(B.spWard||0,n);if(!a)return 0;B.spWard-=a;if(!B.spWard){B.spWardTurns=0;blog(tx("Its rune ward absorbs {n} and breaks.",{n:a}),"good")}else blog(tx("Its rune ward absorbs {n}.",{n:a}),"good");return a}
 // a boss's second form: the fields the fight shifts to when it changes
 function phaseShift(B){const E=ENEMIES[B.id],ph=E&&E.phase;if(!ph)return;B.phased=true;B.el=ph.to.el;B.weak=[...ph.to.weak];B.resist=[...ph.to.resist];B.spEvery=spEvery(foeOf(B),B.heat||0)}
 // Keep the displayed percentage and the actual roll identical (whole percentage points).
@@ -58,13 +59,14 @@ const stOf=()=>S.battle.you||(S.battle.you={});
 const cures=tr=>[...new Set(Object.keys(tr).filter(t=>tr[t]>0&&CURES[t]).flatMap(t=>CURES[t]))];
 function inflict(B,P,sp){ // enemy hit landed: maybe afflict you; your element resist lowers the odds
   if(B.guard)return; // Guard prevents new statuses, but does not cleanse existing ones.
-  const Y=stOf(),E=foeOf(B);let l=E.inf?[E.inf]:[];const et=elTr(B);if(et&&ELITE_INF[et]&&!(E.inf&&E.inf.s===ELITE_INF[et]))l.push({s:ELITE_INF[et],ch:ELITE_INF_CH});
+  const Y=stOf(),E=foeOf(B);let l=sp&&sp.kind==="inflict"?[{s:sp.status,ch:1,forced:true}]:E.inf?[E.inf]:[];const et=elTr(B);if(sp?.kind!=="inflict"&&et&&ELITE_INF[et]&&!(E.inf&&E.inf.s===ELITE_INF[et]))l.push({s:ELITE_INF[et],ch:ELITE_INF_CH});
   const hot=twistNow()==="cinder",hm=B.heat>=3?HEAT_T.inf:1;
-  if(hot)l=l.some(x=>x.s==="burn")?l.map(x=>x.s==="burn"?{...x,ch:x.ch*2}:x):[...l,{s:"burn",ch:.3}];
-  l.forEach(({s,ch})=>{const T=STATUS[s];if(Math.random()>=Math.min(1,ch*hm*(sp?2:1))*(1-(P.rs[T.el]||0)/100))return;
-    if(s==="poison"){const o=Y.poison||{n:0};Y.poison={n:Math.min(POISON_STACK,o.n+1),t:T.t,d:Math.max(1,Math.round(B.atk*.12))}}
-    else Y[s]={t:T.t,d:Math.max(1,Math.round(B.atk*.2*(hot&&s==="burn"?1.5:1)))};
-    S.stats.sufd++;sfx("status",0,{el:T.el});blog(tx("{msg} ({detail}).",{msg:tx(INF_MSG[s]),detail:s==="burn"||s==="poison"?tx("{n} damage per turn",{n:s==="poison"?Y.poison.d*Y.poison.n:Y[s].d})+(s==="poison"&&Y.poison.n>1?`, x${Y.poison.n}`:""):STATUS[s].tip}),"foe");if(E.inf&&E.inf.s===s)learn(B.id,"inf",s)})}
+  if(hot&&!(sp&&sp.kind==="inflict"))l=l.some(x=>x.s==="burn")?l.map(x=>x.s==="burn"?{...x,ch:x.ch*2}:x):[...l,{s:"burn",ch:.3}];
+  l.forEach(({s,ch,forced})=>{const T=STATUS[s],resist=P.rs[T.el]||0;if(!forced&&Math.random()>=Math.min(1,ch*hm*(sp?2:1))*(1-resist/100))return;
+    const duration=forced?Math.max(1,Math.round(T.t*(1-resist/100))):T.t;
+    if(s==="poison"){const o=Y.poison||{n:0};Y.poison={n:Math.min(POISON_STACK,o.n+1),t:duration,d:Math.max(1,Math.round(B.atk*.12))}}
+    else Y[s]={t:duration,d:Math.max(1,Math.round(B.atk*.2*(hot&&s==="burn"?1.5:1)))};
+    S.stats.sufd++;sfx("status",0,{el:T.el});blog(tx("{msg} ({detail}).",{msg:tx(INF_MSG[s]),detail:s==="burn"||s==="poison"?tx("{n} damage per turn",{n:s==="poison"?Y.poison.d*Y.poison.n:Y[s].d})+(s==="poison"&&Y.poison.n>1?`, x${Y.poison.n}`:""):STATUS[s].tip}),"foe");if(E.inf&&E.inf.s===s||sp&&sp.kind==="inflict"&&sp.status===s)learn(B.id,"inf",s)})}
 function tickYou(B,P){
   const Y=stOf();
   ["burn","poison"].forEach(s=>{const x=Y[s];if(!x||S.hp<=0)return;const d=s==="poison"?x.d*x.n:x.d;S.stats.taken+=Math.min(d,S.hp);S.hp-=d;floatFx("youHud","-"+d,"hurt",{el:STATUS[s].el});
@@ -82,11 +84,12 @@ function bracedAttack(B,fn){ // scoped to this action: all its strikes, never th
 function strike(W,pow,label,inn,o){
   o=o||{};
   const B=S.battle,E=foeOf(B),tr=inn?withInnate(W?W.traits:{}):(W?W.traits:{}),v=t=>tr[t]||0,mast=know(B.id).mastered?MASTERY_X:1;
+  if(B.burrowed){blog(tx("The {name} is beneath the roots; your strike passes overhead.",{name:bname(B)}),"foe");floatFx("enemyHud","miss","");return{dmg:0,crit:false,miss:true}}
   if(!o.sure&&hasAfx(B,"elusive")&&Math.random()*100<dodgeOf(B,tr)){blog(tx("It slips aside."),"foe");floatFx("enemyHud","miss","");vfx("foeArt","dodge");return{dmg:0,crit:false,miss:true}} // Elusive: a visible dodge chance (a riposte always lands)
   let ef=eff(tr,B);const arc=ef.k==="resist"&&v("Arcane")&&Math.random()*100<Math.min(ARC_CAP,v("Arcane")*ARC_PER);if(arc){ef={m:1};blog(tx("Arcane power cuts through its resistance."),"you")}
   const crit=Math.random()*100<Math.min(CRIT_CAP,CRIT_T.base+v("Sharp")*CRIT_T.sharp),pierce=Math.min(v("Heavy")?.4:1,1-(o.pen||0));
   const base=Math.max(0,Number.isFinite(pow)?pow:0)*.5,arm=Math.max(0,B.def-(B.shred||0))*pierce,dmg=Math.max(1,Math.round((base+arm>0?base*base/(base+arm):0)*ef.m*mast*(crit?1.75:1)*vary()*(1+strikeBonus))); // armor takes a share of a blow, never all of it; a zero power still lands 1 damage (no 0/0)
-  const st=S.stats,ab=wardCut(B,dmg),real=dmg-ab; // a Warded foe's shield soaks the blow first
+  const st=S.stats,ab=wardCut(B,dmg),sab=absorbSpecialWard(B,dmg-ab),real=dmg-ab-sab; // affix and special wards soak damage in that order
   dealt(B,real);B.hp-=real;if(crit)st.crits++;if(dmg>st.big){st.big=dmg;st.bigW=W?W.id:o.bw||"Fists"}
   floatFx("enemyHud",real?"-"+real:"ward",crit?"crit":"",{el:strikeFamily(tr),form:W?W.form:o.bw==="Shield bash"?"shield":""});floatFx("foeArt","","hit");
   if(real)strikeFx(W,tr);
@@ -155,7 +158,8 @@ function useItem(id){
   if(cu.length){S.stats.cured+=cu.length;cu.forEach(s=>delete Y[s]);blog(tx("{item} clears your {list}.",{item:iname(it),list:cu.map(s=>lc(STATUS[s].n)).join(tx(" and "))}),"good");did=true}
   if(st.heal>0){healYou(medHeal(it),tx("You use {item}",{item:iname(it)}));did=true}
   const d=Math.max(0,Math.round(((st.atk||0)+(st.mag||0))*WEAK_X));
-  if(d>=3){const ef=eff(it.traits,B),dmg=Math.max(1,Math.round(d*ef.m*vary())),st=S.stats,ab=wardCut(B,dmg);dealt(B,dmg-ab);B.hp-=dmg-ab;if(dmg>st.big){st.big=dmg;st.bigW=it.id}floatFx("enemyHud",dmg-ab?"-"+(dmg-ab):"ward","",{el:strikeFamily(it.traits)});floatFx("foeArt","","hit");
+  if(d>=3&&B.burrowed){blog(tx("The {name} is beneath the roots; the burst passes overhead.",{name:bname(B)}),"foe");did=true}
+  else if(d>=3){const ef=eff(it.traits,B),dmg=Math.max(1,Math.round(d*ef.m*vary())),st=S.stats,ab=wardCut(B,dmg),sab=absorbSpecialWard(B,dmg-ab);dealt(B,dmg-ab-sab);B.hp-=dmg-ab-sab;if(dmg>st.big){st.big=dmg;st.bigW=it.id}floatFx("enemyHud",dmg-ab-sab?"-"+(dmg-ab-sab):"ward","",{el:strikeFamily(it.traits)});floatFx("foeArt","","hit");
     blog(tx("{item} bursts against the {name} for {dmg}.",{item:iname(it),name:bname(B),dmg})+(ef.k==="weak"?" "+tx("Super effective!"):""),"you");noteEff(ef);if(ab)blog(wardMsg(B,ab),"you");if(B.hp>0)frenzy(B);did=true}
   if(!did)blog(tx("You use {item}. Nothing happens.",{item:iname(it)}));
   afterPlayer();
@@ -173,7 +177,7 @@ function afterPlayer(){if(S.battle.hp<=0)return enemyDown();enemyTurn()}
 // the line for a plain enemy hit: English splices the species' verb ("gores you"), other languages have one template per verb with {name}, {n} and {g} (the guard note)
 const hitMsg=(B,E,n)=>LANG==="en"?`The ${bname(B)} ${E.verb} for ${n}${B.guard?" through your guard":""}.`:fmt(txc("hit",E.verb),{name:bname(B),n,g:B.guard?" "+tx("through your guard"):""});
 // one enemy hit after resist, armor, Stone and guard/parry (vf = damage variance)
-const foeHit=(B,P,mult,vf)=>{const raw=B.atk*mult*vf*(B.guard?1-GUARD_T.cut:1)*(B.open?1+ABILITIES.lance.open:1)*(B.parry?PARRY_FAIL:1),red=heatRed(P,B);
+const foeHit=(B,P,mult,vf)=>{const raw=B.atk*(B.enraged?(B.enrageX||1.3):1)*mult*vf*(B.guard?1-GUARD_T.cut:1)*(B.open?1+ABILITIES.lance.open:1)*(B.parry?PARRY_FAIL:1),red=heatRed(P,B);
   return Math.max(1,Math.round(raw*HIT_MIN),Math.round(raw*(1-(P.rs[B.el]||0)/100)*(1-red)-(P.dr||0)))}; // resist, armor and Stone together never take more than 1-HIT_MIN of a hit; Heat 5 bites through part of your Defense
 // true when this zone's regular enemies (at map row 3) already hit you for the HIT_MIN floor, so more Defense, resist or Stone would change nothing here
 const atFloor=P=>{const es=Object.values(ENEMIES).filter(e=>e.zone===S.zone&&!e.boss);return es.length>0&&es.every(e=>{const a=Math.round(e.atk*ATK_FLOOR);return foeHit({atk:a,heat:0,el:e.el},P,1,1)<=Math.max(1,Math.round(a*HIT_MIN))})};
@@ -187,6 +191,8 @@ function enemyTurn(){
   if(B.bleed&&B.hp>0){const d=B.bleed.d*B.bleed.n;dealt(B,d);B.hp-=d;floatFx("enemyHud","-"+d,"hurt");blog(tx("The {name} bleeds for {n}.",{name:bname(B),n:d}),"you");if(--B.bleed.t<=0)B.bleed=null}
   if(B.hp<=0)return enemyDown();
   afxTick(B);
+  if(B.burrowed){B.burrowed=false;blog(tx("The {name} rises from the roots again.",{name:bname(B)}),"foe")}
+  if(B.spWardTurns>0&&--B.spWardTurns===0&&B.spWard>0){B.spWard=0;blog(tx("The {name}'s rune ward fades.",{name:bname(B)}),"good")}
   if(ENEMIES[B.id].phase&&!B.phased&&B.hp<=B.max*ENEMIES[B.id].phase.at){ // second form: it spends the turn changing
     const ph=ENEMIES[B.id].phase;phaseShift(B);B.stun=0;B.frozen=false;B.guard=false;B.parry=false;B.burn=null;B.poison=0;B.bleed=null;
     blog(tx(ph.msg),"big");learn(B.id,"ph",1);return endShift(B)}
@@ -195,10 +201,20 @@ function enemyTurn(){
   else if(B.stun){blog(B.stun===2&&sp?tx("{sp} is cancelled. The {name} can't act.",{sp:tx(sp.name),name:bname(B)}):tx("The {name} is stunned and can't act.",{name:bname(B)}),"good");B.stun=0}
   else if(sp&&sp.kind==="heal"&&pr){vfx("youHud","parry");blog(tx("You break the {name}'s concentration. {sp} fizzles!",{name:bname(B),sp:tx(sp.name)}),"good");learn(B.id,B.phased?"sp2":"sp",1)}
   else if(sp&&sp.kind==="heal"){if(B.parry){blog(tx("Your parry is mistimed! The spell goes off."),"foe");B.off=2}const h=Math.min(B.max-B.hp,Math.round(B.max*sp.x));B.hp+=h;if(h)floatFx("enemyHud","+"+h,"heal");blog(tx("The {name} uses {sp} and recovers {n} HP.",{name:bname(B),sp:tx(sp.name),n:h}),"foe");learn(B.id,B.phased?"sp2":"sp",1)}
+  else if(sp&&["guard","enrage","burrow"].includes(sp.kind)){
+    learn(B.id,B.phased?"sp2":"sp",1);
+    if(pr){S.stats.parries++;sfx("parry");vfx("youHud","parry");blog(tx("Perfect parry! You interrupt {sp}.",{sp:tx(sp.name)}),"big");strike(P.main,strikePower(P)*PARRY_X,tx("You riposte"),true,{sure:1});if(B.hp<=0)return enemyDown()}
+    else{
+      if(B.parry){blog(tx("Your parry is mistimed! You're left open."),"foe");B.off=2}
+      if(sp.kind==="guard"){const cap=Math.max(1,Math.round(B.max*sp.ward)),ward=Math.max(B.spWard||0,cap);B.spWard=ward;B.spWardTurns=sp.turns;blog(tx("The {name} raises a rune ward ({n}) for {turns} turns.",{name:bname(B),n:ward,turns:sp.turns}),"foe")}
+      else if(sp.kind==="enrage"){B.enraged=true;B.enrageX=sp.x;blog(tx("The {name} flies into a fury! (+{p}% Attack)",{name:bname(B),p:Math.round((sp.x-1)*100)}),"foe")}
+      else{B.burrowed=true;blog(tx("The {name} burrows out of reach for one turn.",{name:bname(B)}),"foe")}
+    }
+  }
   else{
-    const hits=sp&&sp.kind==="multi"?sp.n:1,mult=sp?sp.x:1,perfect=pr,dg=Y.chill?Math.round(P.dodge/2):P.dodge,ml=Array(hits).fill(mult);
+    const hits=sp&&sp.kind==="multi"?sp.n:1,mult=sp?sp.x:1,perfect=pr,dg=Y.chill?Math.round(P.dodge/2):P.dodge,ml=Array(hits).fill(mult),summon=sp&&sp.kind==="summon"?ENEMIES[sp.summon]:null;
     if(!sp&&hasAfx(B,"swiftfoot")&&Math.random()<AFX_T.swift.fol)ml.push(AFX_T.swift.fx); // Swift-footed: now and then a quick follow-up
-    if(sp){blog(tx("The {name} uses {sp}!",{name:bname(B),sp:tx(sp.name)}),"foe");learn(B.id,B.phased?"sp2":"sp",1)}
+    if(sp){blog(summon?tx("The {name} calls {summon} to strike!",{name:bname(B),summon:tx(summon.name)}):tx("The {name} uses {sp}!",{name:bname(B),sp:tx(sp.name)}),"foe");learn(B.id,B.phased?"sp2":"sp",1)}
     if(perfect){S.stats.parries++;sfx("parry");vfx("youHud","parry");blog(tx("Perfect parry! You turn {sp} aside.",{sp:tx(sp.name)}),"big");strike(P.main,strikePower(P)*PARRY_X,tx("You riposte"),true,{sure:1})}
     else if(B.parry){blog(tx("Your parry is mistimed! You're left open."),"foe");B.off=2}
     for(let i=0;i<ml.length&&S.hp>0&&!perfect&&B.hp>0;i++){
@@ -206,7 +222,7 @@ function enemyTurn(){
       if(P.blind&&Math.random()<Math.min(STEAM_T.cap,STEAM_T.per*P.blind)/100){blog(tx("Steam clouds its eyes. It misses."),"good");sfx("dodge");continue}
       if(P.shield&&!B.guard&&Math.random()<(BLOCK_T.base+(P.shield.traits.Heavy||0)*BLOCK_T.per)/100){blog(tx("You block with {shield}.",{shield:iname(P.shield)}),"good");sfx("block");vfx("youHud","guard");continue}
       if(dg&&Math.random()*100<dg){blog(tx("You dodge aside. It misses."),"good");sfx("dodge");vfx("youHud","dodge");continue}
-      let dmg=foeHit(B,P,ml[i],vary());
+      let dmg=foeHit(summon?{...B,atk:summon.atk,el:summon.el}:B,P,ml[i],vary());
       if(B.ward==null)B.ward=0; // battles saved before wards have none
       const tot=dmg,ab=Math.min(B.ward,dmg);B.ward-=ab;dmg-=ab;S.stats.taken+=Math.min(dmg,S.hp);S.hp-=dmg;
       floatFx("youHud",dmg?"-"+dmg:"","hurt",{el:E.el});floatFx("youHud","","shake",{el:E.el});floatFx("vig","","on");

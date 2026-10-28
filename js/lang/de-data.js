@@ -357,5 +357,10 @@ DICT.de=Object.assign(DICT.de||{},{
 "Deconstruct a raw find for base materials, embers and sometimes an essence.":"Zerlege einen Rohfund in Grundmaterialien, Glut und manchmal eine Essenz.",
 "Salvaging trains its own skill, and a higher level gives better materials.":"Bergen trainiert eine eigene Fertigkeit, und eine höhere Stufe gibt bessere Materialien.",
 "Forge actions":"Schmiedeaktionen",
-"Kitchen":"Küche"
+"Kitchen":"Küche",
+"Rime Fury":"Reiffellwut","gathering strength as it weakens":"sammelt Kraft, während es schwächer wird",
+"Poisoned Edge":"Giftklinge","coating its blade with venom":"bestreicht seine Klinge mit Gift",
+"Root Dive":"Wurzeltauchgang","folding into the roots":"taucht zwischen den Wurzeln ab",
+"Rune Aegis":"Runenbastion","tracing a warding rune across its chest":"zeichnet eine Schutzrune auf seine Brust",
+"Call Squall Spirit":"Ruf des Böengeists","calling a weaker Squall Spirit to strike":"ruft einen schwächeren Böengeist zum Angriff"
 });
