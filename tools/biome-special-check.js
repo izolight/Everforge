@@ -21,7 +21,7 @@ let fails=0;const ok=(c,m)=>{if(!c)fails++;console.log(c?"ok  ":"FAIL",m)};
       for(const zone of zones){
         const biome=ZONE_BIOME[zone],pool=BIOME_SP[biome];
         BIOME_SP[biome]=null;const oldRoster=pureRoster(zone);BIOME_SP[biome]=pool;
-        const roster=pureRoster(zone),repeat=pureRoster(zone),withoutSp=x=>x.map(({sp,...fields})=>JSON.stringify(fields));
+        const roster=pureRoster(zone),repeat=pureRoster(zone),withoutSp=x=>x.filter(e=>!e.alpha).map(({sp,...fields})=>JSON.stringify(fields));
         regionCoverage=regionCoverage&&roster.length===GEN_N&&roster.every(e=>pool.some(sp=>sp.name===e.sp?.name));
         regionDeterministic=regionDeterministic&&JSON.stringify(roster)===JSON.stringify(repeat);
         specialOnly=specialOnly&&JSON.stringify(withoutSp(oldRoster))===JSON.stringify(withoutSp(roster));

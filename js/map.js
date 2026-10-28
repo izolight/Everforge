@@ -3,7 +3,7 @@ const FOE_RESPAWN_STEPS=30;
 const NODE_INFO={get fight(){return tx("Fight")},get elite(){return tx("Elite")},get boss(){return tx("Boss")},get chest(){return tx("Chest")},get shrine(){return tx("Shrine")},get peddler(){return tx("Peddler")},get camp(){return tx("Camp")},get mystery(){return tx("Mystery")}};
 const MYSTERY=[[.14,"ambush"],[.26,"shrine"],[.38,"pack"],[.5,"chest"],[.6,"peddler"],[.68,"altar"],[.76,"alchemist"],[.84,"traveller"],[.92,"forge"],[1,"riddle"]],mystery=x=>MYSTERY.find(([p])=>x<p)[1];
 // ---- grid helpers: m.g = tile rows ("." floor, "," brush, "#" rock/tree, "~" water), m.pois = things on tiles, m.sn = seen flags, m.mem = last-seen POI types
-const inb=(m,x,y)=>x>=0&&y>=0&&x<m.w&&y<m.h,walk=(m,x,y)=>inb(m,x,y)&&!"#~".includes(m.g[y][x]),poiAt=(m,x,y)=>m.pois.find(p=>p.x===x&&p.y===y&&!p.done)||m.pois.find(p=>p.x===x&&p.y===y),DIRS=[[0,-1],[1,0],[0,1],[-1,0]];
+const inb=(m,x,y)=>x>=0&&y>=0&&x<m.w&&y<m.h,walk=(m,x,y)=>inb(m,x,y)&&!"#~".includes(m.g[y][x]),poiAt=(m,x,y)=>{const p=m.pois.find(p=>p.x===x&&p.y===y&&!p.done)||m.pois.find(p=>p.x===x&&p.y===y),E=p&&ENEMIES[p.e];if(E&&E.alpha)Object.assign(p,speciesAfx(E),{alpha:true});return p},DIRS=[[0,-1],[1,0],[0,1],[-1,0]];
 function bfs(m,x,y,ok=walk){const d=Array(m.w*m.h).fill(-1),q=[[x,y]];d[y*m.w+x]=0;
   for(let k=0;k<q.length;k++){const [a,b]=q[k];DIRS.forEach(([dx,dy])=>{const u=a+dx,v=b+dy;if(ok(m,u,v)&&d[v*m.w+u]<0){d[v*m.w+u]=d[b*m.w+a]+1;q.push([u,v])}})}return d}
 const depthOf=(m,x,y)=>x===m.lair.x&&y===m.lair.y?MAP_ROWS-1:Math.max(0,Math.min(MAP_ROWS-2,Math.floor((MAP_ROWS-1)*m.d[y*m.w+x]/m.D)));

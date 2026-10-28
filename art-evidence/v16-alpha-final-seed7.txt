@@ -1,0 +1,241 @@
+== Element coverage (authored, non-boss): woods 5/5, pass 5/5, hollow 4/4, spire 4/4 ==
+== Kits (16); codex mastery on for the kit's zone and earlier ==
+melee/woods       Lv3 HP65  ATK33  MAG3   DEF25 (33%) SPD3  crit26% | Keen Weighty Sword [blade,shield] | ward0 thorn0% dr0 dodge12% regen0 root8 cl0 res{"ice":40,"wood":40,"swift":15,"shadow":5,"metal":13,"holy":10,"arcane":5,"stone":12} inf{"Sharp":1} ess4 refine0emb | 2 crafts ~2.1 tries (~0 fizzles)
+melee/pass        Lv5 HP76  ATK37  MAG1   DEF44 (47%) SPD9  crit25% | Frozen Keen Sword [blade,shield] | ward0 thorn28% dr1.8 dodge24% regen0 root5 cl0 res{"metal":40,"stone":40,"ice":40,"wood":40,"swift":20} inf{"Sharp":1,"Iron":1} ess9 refine0emb | 5 crafts ~5.2 tries (~0 fizzles)
+melee/hollow      Lv7 HP78  ATK38  MAG8   DEF47 (48%) SPD11 crit24% | Sunforged Swift Sword [blade,shield] | ward0 thorn30% dr2.8 dodge25% regen0 root5 cl0 res{"metal":40,"ice":40,"stone":40,"wood":40,"shadow":20,"swift":23,"fire":10,"arcane":10} inf{"Sharp":1,"Iron":1,"Swift":1} ess17 refine12emb | 6 crafts ~6.2 tries (~0 fizzles)
+melee/spire       Lv9 HP88  ATK45  MAG9   DEF63 (56%) SPD14 crit33% | Keen Iron Sword [blade,shield] | ward22 thorn24% dr6 dodge25% regen0 root0 cl0 res{"stone":40,"metal":40,"swift":35,"arcane":40,"shadow":22,"ice":5} inf{"Sharp":2,"Iron":1,"Swift":1} ess23 refine12emb | 7 crafts ~7.2 tries (~0 fizzles)
+defensive/woods   Lv3 HP85  ATK21  MAG3   DEF58 (54%) SPD0  crit17% | Iron Keen Sword [blade,shield] | ward7 thorn20% dr6 dodge12% regen0 root5 cl0 res{"ice":40,"wood":40,"metal":30,"stone":40,"swift":15,"shadow":5,"arcane":9,"holy":8} inf{"Stone":1} ess11 refine0emb | 7 crafts ~7.4 tries (~0 fizzles)
+defensive/pass    Lv5 HP102 ATK30  MAG0   DEF87 (64%) SPD0  crit17% | Stone Weighty Sword [blade,shield] | ward0 thorn30% dr6 dodge12% regen0 root5 cl0 res{"metal":40,"stone":40,"ice":20,"wood":30,"swift":15} inf{"Stone":1,"Iron":1} ess15 refine0emb | 8 crafts ~8.2 tries (~0 fizzles)
+defensive/hollow  Lv7 HP106 ATK30  MAG4   DEF94 (65%) SPD0  crit17% | Stone Weighty Sword [blade,shield] | ward25 thorn30% dr6 dodge4% regen0 root5 cl0 res{"metal":40,"stone":40,"arcane":39,"ice":15,"wood":25,"fire":10,"swift":5} inf{"Stone":1,"Iron":1,"Arcane":1} ess18 refine0emb | 8 crafts ~8.2 tries (~0 fizzles)
+defensive/spire   Lv9 HP108 ATK17  MAG6   DEF97 (66%) SPD0  crit17% | Stone Weighty Sword [blade,shield] | ward40 thorn30% dr6 dodge4% regen0 root0 cl0 res{"stone":40,"arcane":40,"metal":40,"ice":15,"wood":10,"fire":10,"swift":5} inf{"Stone":2,"Arcane":1,"Iron":1} ess23 refine12emb | 8 crafts ~8.2 tries (~0 fizzles)
+staff/woods       Lv3 HP63  ATK4   MAG26  DEF22 (31%) SPD6  crit5% | Arcane Oaken Staff [staff,shield] | ward0 thorn0% dr0 dodge12% regen0 root8 cl0 res{"ice":40,"wood":40,"swift":15,"shadow":5,"holy":10,"arcane":13,"stone":12} inf{"Arcane":1} ess6 refine0emb | 3 crafts ~3.2 tries (~0 fizzles)
+staff/pass        Lv5 HP73  ATK7   MAG37  DEF38 (43%) SPD2  crit5% | Arcane Oaken Staff [staff,shield] | ward0 thorn12% dr1.8 dodge8% regen0 root8 cl0 res{"metal":15,"ice":40,"stone":40,"wood":40,"shadow":10,"swift":10,"arcane":29,"holy":12} inf{"Arcane":2} ess12 refine0emb | 8 crafts ~8.2 tries (~0 fizzles)
+staff/hollow      Lv7 HP75  ATK11  MAG38  DEF41 (45%) SPD0  crit5% | Arcane Oaken Staff [staff,shield] | ward11 thorn12% dr4.2 dodge8% regen0 root8 cl0 res{"metal":15,"shadow":40,"stone":40,"ice":15,"arcane":32,"fire":18,"wood":15,"holy":8} inf{"Arcane":1,"Fire":1,"Holy":1} ess15 refine0emb | 7 crafts ~7.2 tries (~0 fizzles)
+staff/spire       Lv9 HP62  ATK10  MAG38  DEF20 (29%) SPD12 crit5% | Runic Oaken Staff [staff,shield] | ward36 thorn4% dr1.2 dodge25% regen0 root5 cl0 res{"shadow":40,"ice":15,"wood":10,"arcane":40,"swift":25,"stone":10,"metal":5,"fire":8,"holy":8} inf{"Arcane":2,"Fire":1,"Holy":1} ess23 refine12emb | 8 crafts ~8.2 tries (~0 fizzles)
+stacked/woods     Lv3 HP72  ATK47  MAG1   DEF37 (43%) SPD6  crit34% | Keen Iron Sword [blade,shield] | ward0 thorn25% dr0 dodge14% regen0 root8 cl0 res{"metal":39,"ice":33,"wood":40,"stone":22,"shadow":5,"swift":18} inf{"Sharp":1} ess14 refine0emb | 7 crafts ~7.6 tries (~0.1 fizzles)
+stacked/pass      Lv5 HP81  ATK54  MAG0   DEF51 (50%) SPD18 crit40% | Keen Iron Sword [blade,shield] | ward0 thorn30% dr4.1 dodge25% regen0 root5 cl0 res{"metal":40,"stone":40,"swift":32,"ice":5,"wood":20} inf{"Sharp":2,"Swift":1} ess26 refine0emb | 10 crafts ~10.4 tries (~0 fizzles)
+stacked/hollow    Lv7 HP103 ATK61  MAG0   DEF89 (64%) SPD22 crit46% | Keen Iron Sword [blade,shield] | ward0 thorn30% dr5.9 dodge25% regen0 root5 cl0 res{"metal":40,"stone":40,"swift":40,"ice":5,"wood":20} inf{"Sharp":3,"Swift":1} ess70 refine228emb | 12 crafts ~12.4 tries (~0 fizzles)
+stacked/spire     Lv9 HP113 ATK75  MAG1   DEF105(68%) SPD28 crit53% | Keen Iron Sword [blade,shield] | ward12 thorn30% dr4.1 dodge25% regen0 root0 cl0 res{"metal":40,"stone":40,"swift":40,"ice":5,"wood":5,"arcane":15} inf{"Sharp":3,"Swift":1} ess106 refine372emb | 15 crafts ~15.5 tries (~0 fizzles)
+kit warnings: 0
+
+== Matrix, ARRIVAL (previous stage's kit meets this zone; starter kit meets the woods): the main pairing: 50 fights per cell, seed 7, map row 3. Per heat: win% / mean turns / mean HP left% (losses count 0) ==
+enemy      kit              policy  H0               flags
+
+== Matrix, ON-STAGE (the kit's own zone): 50 fights per cell, seed 7, map row 3. Per heat: win% / mean turns / mean HP left% (losses count 0) ==
+enemy      kit              policy  H0               flags
+
+== Win% grid (policy smart, Heat 0; rows = kits, columns = enemies; mimic on-stage) ==
+
+melee/woods
+melee/pass
+melee/hollow
+melee/spire
+defensive/woods
+defensive/pass
+defensive/hollow
+defensive/spire
+staff/woods
+staff/pass
+staff/hollow
+staff/spire
+stacked/woods
+stacked/pass
+stacked/hollow
+stacked/spire
+
+== Kit strength, ARRIVAL (row = stage the kit is from; it meets the next zone) (policy smart): mean turns / mean HP left% / win% ==
+Heat 0    melee                 defensive             staff                 stacked               starter
+
+== Kit strength, ON-STAGE (policy smart): mean turns / mean HP left% / win% ==
+Heat 0    melee                 defensive             staff                 stacked               starter
+
+== Flagged cells, ARRIVAL: 0. TOO_EASY: win 100%, HP left >85% and turns <4 (boss <10) at Heat 0; TOO_HARD: win <50% at Heat 0; SLOG: mean turns >30 (boss >50) ==
+TOO_EASY: 0 cells
+TOO_HARD: 0 cells
+SLOG: 0 cells
+
+== Flagged cells, ON-STAGE: 0. TOO_EASY: win 100%, HP left >85% and turns <4 (boss <10) at Heat 0; TOO_HARD: win <50% at Heat 0; SLOG: mean turns >30 (boss >50) ==
+TOO_EASY: 0 cells
+TOO_HARD: 0 cells
+SLOG: 0 cells
+
+== Wild creatures, ARRIVAL (previous stage's kit meets this zone; starter kit meets the woods): the main pairing: 50 fights per cell, seed 7, map row 3. "native" is the creature as the game rolls it (its own rarity and affixes); the forced rows put its stats back on the region band and roll the affixes like a regular's. Per heat: win% / mean turns / mean HP left% (losses count 0) ==
+creature                                      kit              policy  rarity  H0               flags
+w_pass_0 Frosthorn Alpha (rare: iron, split, frenzy)defensive/woods  smart   native  100%  24.8t  66%
+w_spire_4 Starcrown Alpha (rare: vamp, thorn, swiftfoot)defensive/hollow smart   native  100%   8.1t  73%
+w_hollow_6 Cinderback Alpha (rare: shadow, boom, regen)stacked/pass     smart   native  100%   9.2t  58%
+w_pass_0 Frosthorn Alpha (rare: iron, split, frenzy)melee/woods      smart   native  100%  12.8t  57%
+w_spire_4 Starcrown Alpha (rare: vamp, thorn, swiftfoot)melee/hollow     smart   native  100%   8.3t  45%
+w_hollow_6 Cinderback Alpha (rare: shadow, boom, regen)staff/pass       smart   native  100%   5.6t  43%
+w_hollow_6 Cinderback Alpha (rare: shadow, boom, regen)defensive/pass   smart   native  100%  23.5t  41%
+w_pass_0 Frosthorn Alpha (rare: iron, split, frenzy)stacked/woods    smart   native  100%   7.6t  75%
+w_spire_4 Starcrown Alpha (rare: vamp, thorn, swiftfoot)stacked/hollow   smart   native  100%   5.9t  67%
+w_hollow_6 Cinderback Alpha (rare: shadow, boom, regen)melee/pass       smart   native  100%  18.6t  28%
+w_pass_0 Frosthorn Alpha (rare: iron, split, frenzy)staff/woods      smart   native  100%  15.1t  58%
+w_spire_4 Starcrown Alpha (rare: vamp, thorn, swiftfoot)staff/hollow     smart   native  100%   8.9t  53%
+
+== Wild creatures, ON-STAGE (the kit's own zone): 50 fights per cell, seed 7, map row 3. "native" is the creature as the game rolls it (its own rarity and affixes); the forced rows put its stats back on the region band and roll the affixes like a regular's. Per heat: win% / mean turns / mean HP left% (losses count 0) ==
+creature                                      kit              policy  rarity  H0               flags
+w_woods_3 Thornheart Alpha (rare: swiftfoot, elusive, shadow)melee/woods      smart   native  100%   9.1t  65%
+w_hollow_6 Cinderback Alpha (rare: shadow, boom, regen)melee/hollow     smart   native  100%  34.3t  39% SLOG
+w_pass_0 Frosthorn Alpha (rare: iron, split, frenzy)staff/pass       smart   native  100%  16.8t  55%
+w_spire_4 Starcrown Alpha (rare: vamp, thorn, swiftfoot)staff/spire      smart   native  100%   9.2t  79%
+w_pass_0 Frosthorn Alpha (rare: iron, split, frenzy)defensive/pass   smart   native  100%  26.7t  63%
+w_spire_4 Starcrown Alpha (rare: vamp, thorn, swiftfoot)defensive/spire  smart   native  100%  19.9t  41%
+w_woods_3 Thornheart Alpha (rare: swiftfoot, elusive, shadow)stacked/woods    smart   native  100%   6.5t  77%
+w_hollow_6 Cinderback Alpha (rare: shadow, boom, regen)stacked/hollow   smart   native  100%  15.1t  41%
+w_pass_0 Frosthorn Alpha (rare: iron, split, frenzy)melee/pass       smart   native  100%  23.2t  60%
+w_spire_4 Starcrown Alpha (rare: vamp, thorn, swiftfoot)melee/spire      smart   native  100%  10.9t  49%
+w_woods_3 Thornheart Alpha (rare: swiftfoot, elusive, shadow)staff/woods      smart   native  100%  11.8t  57%
+w_hollow_6 Cinderback Alpha (rare: shadow, boom, regen)staff/hollow     smart   native  100%   9.1t  40%
+w_woods_3 Thornheart Alpha (rare: swiftfoot, elusive, shadow)defensive/woods  smart   native  100%  15.7t  87%
+w_hollow_6 Cinderback Alpha (rare: shadow, boom, regen)defensive/hollow smart   native  100%  15.5t  55%
+w_pass_0 Frosthorn Alpha (rare: iron, split, frenzy)stacked/pass     smart   native  100%  13.1t  84%
+w_spire_4 Starcrown Alpha (rare: vamp, thorn, swiftfoot)stacked/spire    smart   native  100%   7.3t  61%
+
+== Wild by region/biome: the mean over the region's wild creatures. "Δ vs regulars" is the difference from the same zone's hand-made regulars (same kit, policy, Heat): win in points, turns in turns, HP left in points. A forced magic/rare row is compared with the regulars of that same rarity (the --elite rows); without them the Δ is "-". The flags count the region's creatures flagged at Heat 0. ==
+
+-- woods (forest), 1 wild creatures --
+kit              policy  rarity  H0                 ΔH0             flags
+melee/woods      smart   native  100%   9.1t  65%   -
+defensive/woods  smart   native  100%  15.7t  87%   -
+staff/woods      smart   native  100%  11.8t  57%   -
+stacked/woods    smart   native  100%   6.5t  77%   -
+
+-- pass (tundra), 1 wild creatures --
+kit              policy  rarity  H0                 ΔH0             flags
+melee/woods      smart   native  100%  12.8t  57%   -
+melee/pass       smart   native  100%  23.2t  60%   -
+defensive/woods  smart   native  100%  24.8t  66%   -
+defensive/pass   smart   native  100%  26.7t  63%   -
+staff/woods      smart   native  100%  15.1t  58%   -
+staff/pass       smart   native  100%  16.8t  55%   -
+stacked/woods    smart   native  100%   7.6t  75%   -
+stacked/pass     smart   native  100%  13.1t  84%   -
+
+-- hollow (ember), 1 wild creatures --
+kit              policy  rarity  H0                 ΔH0             flags
+melee/pass       smart   native  100%  18.6t  28%   -
+melee/hollow     smart   native  100%  34.3t  39%   -
+defensive/pass   smart   native  100%  23.5t  41%   -
+defensive/hollow smart   native  100%  15.5t  55%   -
+staff/pass       smart   native  100%   5.6t  43%   -
+staff/hollow     smart   native  100%   9.1t  40%   -
+stacked/pass     smart   native  100%   9.2t  58%   -
+stacked/hollow   smart   native  100%  15.1t  41%   -
+
+-- spire (astral), 1 wild creatures --
+kit              policy  rarity  H0                 ΔH0             flags
+melee/hollow     smart   native  100%   8.3t  45%   -
+melee/spire      smart   native  100%  10.9t  49%   -
+defensive/hollow smart   native  100%   8.1t  73%   -
+defensive/spire  smart   native  100%  19.9t  41%   -
+staff/hollow     smart   native  100%   8.9t  53%   -
+staff/spire      smart   native  100%   9.2t  79%   -
+stacked/hollow   smart   native  100%   5.9t  67%   -
+stacked/spire    smart   native  100%   7.3t  61%   -
+
+== Rift masters: 8 seeds × 1,3 depths × 4 kits × 1 policies, 50 fights per cell. Heat 0 (the Rift has no Heat), the Rift not mastered, map row 0 (as for bosses). "native" is the generated master's rolled rare rarity and affixes; forced magic/rare rows reuse its own compatible affixes and rarity-scaled band. ==
+
+-- seed 3608050713 (deep · The Weeping Vaults) · Pale Watcher (poison; Ironclad, Thorned, Vampiric; Wild Rush every 3) · depth 1 · fast_foes · tier HP 120 ATK 21 DEF 6 --
+Pale Watcher        melee/spire      smart   native 100%  11.4t  52% | magic  100%   9.8t  98% TOO_EASY | rare   100%  11.4t  52%
+Pale Watcher        defensive/spire  smart   native 100%  40.7t  40% | magic  100%  34.6t  65% | rare   100%  40.7t  40%
+Pale Watcher        staff/spire      smart   native 100%  12.8t  75% | magic  100%  11.0t  80% | rare   100%  12.8t  75%
+Pale Watcher        stacked/spire    smart   native 100%  15.5t  42% | magic  100%  13.8t  90% | rare   100%  15.5t  42%
+
+-- seed 3608050713 (deep · The Weeping Vaults) · Pale Watcher (poison; Ironclad, Thorned, Vampiric; Wild Rush every 3) · depth 3 · thin_wards · tier HP 163 ATK 26 DEF 7 --
+Pale Watcher        melee/spire      smart   native 100%  11.7t  50% | magic  100%  10.6t  94% | rare   100%  11.7t  50%
+Pale Watcher        defensive/spire  smart   native  96%  42.0t  32% | magic  100%  34.9t  53% | rare    96%  42.0t  32%
+Pale Watcher        staff/spire      smart   native 100%  15.0t  68% | magic  100%  12.3t  72% | rare   100%  15.0t  68%
+Pale Watcher        stacked/spire    smart   native 100%  16.2t  41% | magic  100%  14.0t  87% | rare   100%  16.2t  41%
+
+-- seed 3574495475 (fen · The Weeping Fen) · Fen Crawler (shadow; Thorned, Elusive, Umbral; Heavy Slam every 3) · depth 1 · burning_air · tier HP 120 ATK 21 DEF 6 --
+Fen Crawler         melee/spire      smart   native 100%  17.5t  40% | magic  100%  18.1t  41% | rare   100%  17.5t  40%
+Fen Crawler         defensive/spire  smart   native  88%  43.3t  28% | magic   84%  43.6t  27% | rare    88%  43.3t  28%
+Fen Crawler         staff/spire      smart   native  98%  14.1t  80% | magic  100%  13.1t  83% | rare    98%  14.1t  80%
+Fen Crawler         stacked/spire    smart   native 100%  12.5t  44% | magic  100%  11.1t  46% | rare   100%  12.5t  44%
+
+-- seed 3574495475 (fen · The Weeping Fen) · Fen Crawler (shadow; Thorned, Elusive, Umbral; Heavy Slam every 3) · depth 3 · thin_wards · tier HP 163 ATK 26 DEF 7 --
+Fen Crawler         melee/spire      smart   native 100%  17.4t  40% | magic  100%  18.4t  42% | rare   100%  17.4t  40%
+Fen Crawler         defensive/spire  smart   native  46%  41.9t  14% TOO_HARD | magic   52%  41.1t  13% | rare    46%  41.9t  14% TOO_HARD
+Fen Crawler         staff/spire      smart   native 100%  15.1t  69% | magic  100%  13.5t  84% | rare   100%  15.1t  69%
+Fen Crawler         stacked/spire    smart   native 100%  12.6t  43% | magic  100%  11.8t  44% | rare   100%  12.6t  43%
+
+-- seed 3675161189 (astral · The Starless Gallery) · Astral Lynx (holy; Venomous, Vampiric, Splitting; Soul Drain every 3) · depth 1 · thin_wards · tier HP 120 ATK 21 DEF 6 --
+Astral Lynx         melee/spire      smart   native 100%  23.2t  80% | magic  100%  18.5t  84% | rare   100%  23.2t  80%
+Astral Lynx         defensive/spire  smart   native 100%  60.4t  44% SLOG | magic  100%  46.9t  45% | rare   100%  60.4t  44% SLOG
+Astral Lynx         staff/spire      smart   native  98%  19.1t  89% | magic  100%  14.3t  76% | rare    98%  19.1t  89%
+Astral Lynx         stacked/spire    smart   native 100%  14.8t  93% | magic  100%  12.2t  92% | rare   100%  14.8t  93%
+
+-- seed 3675161189 (astral · The Starless Gallery) · Astral Lynx (holy; Venomous, Vampiric, Splitting; Soul Drain every 3) · depth 3 · burning_air · tier HP 163 ATK 26 DEF 7 --
+Astral Lynx         melee/spire      smart   native 100%  24.3t  62% | magic  100%  18.4t  75% | rare   100%  24.3t  62%
+Astral Lynx         defensive/spire  smart   native  92%  60.0t  35% SLOG | magic   94%  47.1t  39% | rare    92%  60.0t  35% SLOG
+Astral Lynx         staff/spire      smart   native 100%  19.5t  87% | magic   98%  15.5t  71% | rare   100%  19.5t  87%
+Astral Lynx         stacked/spire    smart   native 100%  15.4t  86% | magic  100%  12.1t  89% | rare   100%  15.4t  86%
+
+-- seed 3624828332 (forest · The Mossbound Copse) · Fern Warden (metal; Burning, Swift-footed, Splitting; Bolt every 3) · depth 1 · fast_foes · tier HP 120 ATK 21 DEF 6 --
+Fern Warden         melee/spire      smart   native 100%  40.2t  46% | magic  100%  32.6t  50% | rare   100%  40.2t  46%
+Fern Warden         defensive/spire  smart   native  98%  43.7t  49% | magic  100%  34.7t  62% | rare    98%  43.7t  49%
+Fern Warden         staff/spire      smart   native 100%  20.4t  88% | magic  100%  16.7t  81% | rare   100%  20.4t  88%
+Fern Warden         stacked/spire    smart   native 100%  23.7t  71% | magic  100%  19.0t  78% | rare   100%  23.7t  71%
+
+-- seed 3624828332 (forest · The Mossbound Copse) · Fern Warden (metal; Burning, Swift-footed, Splitting; Bolt every 3) · depth 3 · burning_air · tier HP 163 ATK 26 DEF 7 --
+Fern Warden         melee/spire      smart   native  96%  40.6t  40% | magic  100%  33.3t  47% | rare    96%  40.6t  40%
+Fern Warden         defensive/spire  smart   native  94%  43.4t  40% | magic  100%  36.0t  46% | rare    94%  43.4t  40%
+Fern Warden         staff/spire      smart   native  96%  22.3t  82% | magic   98%  17.6t  68% | rare    96%  22.3t  82%
+Fern Warden         stacked/spire    smart   native 100%  24.2t  63% | magic  100%  19.1t  71% | rare   100%  24.2t  63%
+
+-- seed 3641605951 (ember · The Smoulder Fields) · Slag Drake (stone; Burning, Swift-footed, Splitting; Wild Rush every 3) · depth 1 · fast_foes · tier HP 120 ATK 21 DEF 6 --
+Slag Drake          melee/spire      smart   native 100%  19.8t  65% | magic  100%  16.4t  75% | rare   100%  19.8t  65%
+Slag Drake          defensive/spire  smart   native 100%  33.5t  49% | magic  100%  27.1t  69% | rare   100%  33.5t  49%
+Slag Drake          staff/spire      smart   native  98%  16.7t  80% | magic   98%  14.1t  68% | rare    98%  16.7t  80%
+Slag Drake          stacked/spire    smart   native 100%  12.7t  89% | magic  100%  10.1t  89% | rare   100%  12.7t  89%
+
+-- seed 3641605951 (ember · The Smoulder Fields) · Slag Drake (stone; Burning, Swift-footed, Splitting; Wild Rush every 3) · depth 3 · fast_foes · tier HP 163 ATK 26 DEF 7 --
+Slag Drake          melee/spire      smart   native 100%  20.6t  64% | magic  100%  16.2t  70% | rare   100%  20.6t  64%
+Slag Drake          defensive/spire  smart   native 100%  33.9t  50% | magic  100%  27.7t  58% | rare   100%  33.9t  50%
+Slag Drake          staff/spire      smart   native  96%  18.0t  69% | magic  100%  14.3t  67% | rare    96%  18.0t  69%
+Slag Drake          stacked/spire    smart   native 100%  12.8t  85% | magic  100%   9.9t  89% TOO_EASY | rare   100%  12.8t  85%
+
+-- seed 3742271665 (tundra · The White Silence) · Snow Stalker (metal; Ironclad, Swift-footed, Splitting; Heavy Slam every 3) · depth 1 · fast_foes · tier HP 120 ATK 21 DEF 6 --
+Snow Stalker        melee/spire      smart   native 100%  27.2t  64% | magic  100%  21.0t  72% | rare   100%  27.2t  64%
+Snow Stalker        defensive/spire  smart   native 100%  32.1t  61% | magic  100%  26.1t  72% | rare   100%  32.1t  61%
+Snow Stalker        staff/spire      smart   native 100%  15.6t  82% | magic  100%  12.4t  77% | rare   100%  15.6t  82%
+Snow Stalker        stacked/spire    smart   native 100%  18.0t  83% | magic  100%  13.9t  89% | rare   100%  18.0t  83%
+
+-- seed 3742271665 (tundra · The White Silence) · Snow Stalker (metal; Ironclad, Swift-footed, Splitting; Heavy Slam every 3) · depth 3 · burning_air · tier HP 163 ATK 26 DEF 7 --
+Snow Stalker        melee/spire      smart   native 100%  27.4t  54% | magic  100%  22.2t  61% | rare   100%  27.4t  54%
+Snow Stalker        defensive/spire  smart   native 100%  31.6t  56% | magic  100%  26.0t  67% | rare   100%  31.6t  56%
+Snow Stalker        staff/spire      smart   native  96%  17.7t  66% | magic  100%  13.0t  70% | rare    96%  17.7t  66%
+Snow Stalker        stacked/spire    smart   native 100%  17.6t  81% | magic  100%  14.4t  84% | rare   100%  17.6t  81%
+
+-- seed 3033363595 (bone · The Long Barrows) · Grave Gnawer (shadow; Arcane, Splitting, Elusive; Bolt every 3) · depth 1 · burning_air · tier HP 120 ATK 21 DEF 6 --
+Grave Gnawer        melee/spire      smart   native 100%  22.0t  85% | magic  100%  19.4t  90% | rare   100%  22.0t  85%
+Grave Gnawer        defensive/spire  smart   native 100%  54.7t  49% SLOG | magic  100%  49.0t  49% | rare   100%  54.7t  49% SLOG
+Grave Gnawer        staff/spire      smart   native 100%  18.8t  96% | magic  100%  15.4t  91% | rare   100%  18.8t  96%
+Grave Gnawer        stacked/spire    smart   native 100%  14.8t  94% | magic  100%  13.1t  93% | rare   100%  14.8t  94%
+
+-- seed 3033363595 (bone · The Long Barrows) · Grave Gnawer (shadow; Arcane, Splitting, Elusive; Bolt every 3) · depth 3 · thin_wards · tier HP 163 ATK 26 DEF 7 --
+Grave Gnawer        melee/spire      smart   native 100%  22.7t  74% | magic  100%  19.6t  78% | rare   100%  22.7t  74%
+Grave Gnawer        defensive/spire  smart   native 100%  55.0t  43% SLOG | magic  100%  49.2t  45% | rare   100%  55.0t  43% SLOG
+Grave Gnawer        staff/spire      smart   native 100%  18.6t  89% | magic  100%  15.7t  87% | rare   100%  18.6t  89%
+Grave Gnawer        stacked/spire    smart   native 100%  15.0t  89% | magic  100%  12.9t  92% | rare   100%  15.0t  89%
+
+-- seed 3100474071 (ash · The Dune Sea) · Cinder Warden (stone; Arcane, Vampiric, Frenzied; Soul Drain every 3) · depth 1 · fast_foes · tier HP 120 ATK 21 DEF 6 --
+Cinder Warden       melee/spire      smart   native 100%  15.5t  77% | magic  100%  14.1t  87% | rare   100%  15.5t  77%
+Cinder Warden       defensive/spire  smart   native  46%  55.5t  12% TOO_HARD SLOG | magic  100%  47.9t  41% | rare    46%  55.5t  12% TOO_HARD SLOG
+Cinder Warden       staff/spire      smart   native  96%  25.2t  62% | magic  100%  20.4t  76% | rare    96%  25.2t  62%
+Cinder Warden       stacked/spire    smart   native 100%  10.2t  87% | magic  100%   9.5t  93% TOO_EASY | rare   100%  10.2t  87%
+
+-- seed 3100474071 (ash · The Dune Sea) · Cinder Warden (stone; Arcane, Vampiric, Frenzied; Soul Drain every 3) · depth 3 · burning_air · tier HP 163 ATK 26 DEF 7 --
+Cinder Warden       melee/spire      smart   native 100%  15.6t  60% | magic  100%  14.6t  76% | rare   100%  15.6t  60%
+Cinder Warden       defensive/spire  smart   native  16%  50.2t   4% TOO_HARD SLOG | magic   84%  48.8t  31% | rare    16%  50.2t   4% TOO_HARD SLOG
+Cinder Warden       staff/spire      smart   native  78%  26.1t  45% | magic   98%  21.5t  67% | rare    78%  26.1t  45%
+Cinder Warden       stacked/spire    smart   native 100%   9.9t  81% | magic  100%   9.3t  91% TOO_EASY | rare   100%   9.9t  81%
+
+-- Rift summary (the master, native row) ==
+by biome: deep 100%  fen 92%  astral 99%  forest 98%  ember 99%  tundra 100%  bone 100%  ash 80%
+by depth: depth 1 98%  depth 3 94%
+
+wrote art-evidence/v16-alpha-final-seed7.json
+done in 7s

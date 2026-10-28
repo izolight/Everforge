@@ -670,3 +670,13 @@ Object.assign(DICT.ko,{
 "Rift biome":"균열 생태계","Rift modifier":"균열 변형 효과","Neutral":"중립","Neutral biome":"중립 생태계","Forest has no Rift modifier.":"숲에는 균열 변형 효과가 없습니다.","Forest is the neutral Rift biome: it has no extra combat modifier.":"숲은 중립 균열 생태계이며 추가 전투 효과가 없습니다.",
 "Rift biome: {name}. {desc}":"균열 생태계: {name}. {desc}","Rift depth modifier":"균열 심층 변형","Rift depth modifier: {name}. {desc}":"균열 심층 변형: {name}. {desc}","Burning air":"불타는 공기","Fire attacks deal 15% more damage after daily and biome attack modifiers; normal resistance, Defense and Guard still apply.":"불 공격은 일일 및 생태계 공격 효과가 적용된 뒤 피해가 15% 증가합니다. 저항, 방어력, 막기는 평소처럼 적용됩니다.","Thin wards":"얇아진 보호막","Your rune ward can absorb at most half of each enemy hit; the rest of its ward points remain for later hits.":"룬 보호막은 적의 공격마다 피해의 절반까지만 흡수합니다. 남은 보호막 수치는 다음 공격에 유지됩니다.","Fast foes":"재빠른 적","Enemy specials recur one turn sooner, to a minimum interval of two turns; their tells and Parry windows remain intact.":"적의 특수 공격 주기가 한 턴 짧아지며 최소 두 턴입니다. 공격 예고와 받아치기 기회는 그대로 유지됩니다.","Grave fear leaves you off balance for your next action.":"무덤의 공포로 다음 행동까지 균형을 잃습니다.","The sandstorm blunts your strikes by {p}%.":"모래폭풍이 공격력을 {p}% 낮춥니다.","An arcane surge charges the strike: +{p}% power.":"비전 쇄도가 공격에 힘을 더합니다: 위력 +{p}%.","Drowning pressure crushes you for {n} damage.":"익사 압력이 짓눌러 피해 {n}을 줍니다."
 });
+// V-16 authored-region alpha labels and reward rule.
+DICT.ko=Object.assign(DICT.ko||{},{
+  "Alpha":"알파",
+  "A named regional wild mini-boss with three fixed affixes.":"지역 야생 미니 보스로, 이름과 세 가지 고정 속성이 있습니다.",
+  "Alpha rewards follow the region's normal wild drop rules; no affix essences.":"알파 보상은 지역 야생 생물의 일반 전리품 규칙을 따르며 속성 정수는 주지 않습니다.",
+  "Thornheart Alpha":"가시심장 알파",
+  "Frosthorn Alpha":"서리뿔 알파",
+  "Cinderback Alpha":"잿불등 알파",
+  "Starcrown Alpha":"별왕관 알파"
+});

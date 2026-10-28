@@ -93,7 +93,23 @@ const BIOME_SP={
     {every:4,name:"Starfall Burst",kind:"multi",n:3,x:.58,tell:"drawing power from above"},
     {every:4,name:"Starless Crush",kind:"heavy",x:1.9,tell:"folding the dark around you"}]
 };
+// Four Rift-only biomes lean on one element, material, and natural status trait.
+// These reuse existing elements/items/status rules and do not add RNG calls.
+const RIFT_IDENTITY={
+  fen:{el:"poison",drop:"witchwood",trait:"Mire Venom",inf:{s:"poison",ch:.25}},
+  ash:{el:"fire",drop:"storm_feather",trait:"Cinder Brand",inf:{s:"burn",ch:.25}},
+  bone:{el:"shadow",drop:"void_crystal",trait:"Grave Curse",inf:{s:"curse",ch:.25}},
+  deep:{el:"ice",drop:"holy_water",trait:"Undertow Chill",inf:{s:"chill",ch:.25}}
+};
 const biomeSpecialFor=(biome,R)=>{const pool=BIOME_SP[biome]||GEN_SP;return pool[Math.floor(R()*pool.length)]};
+function biomeElement(zone,biome,B,R){
+  const identity=zone===RIFT_ZONE&&RIFT_IDENTITY[biome];
+  if(!identity||!B.els.includes(identity.el))return B.els[Math.floor(R()*B.els.length)];
+  // Weight the signature element 2:1 while reusing the original single element draw.
+  let n=R()*(B.els.length+1);
+  for(const el of B.els){n-=el===identity.el?2:1;if(n<0)return el}
+  return B.els[0];
+}
 // what a wild creature can carry: the region's own materials, so a region's economy does not move
 const GEN_DROP={
   woods:{any:["boar_hide","mushroom","honey","bread","scrap_iron"],fire:["chili","boar_hide"],poison:["mushroom","honey"],wood:["boar_hide","honey"],swift:["boar_hide","oak_bough"],metal:["scrap_iron"],holy:["sprite_dust","bread"],shadow:["boar_hide","bread"],arcane:["oak_bough","sprite_dust"],ice:["boar_hide","bread"],stone:["boar_hide","bread"]},
@@ -126,9 +142,14 @@ function accFor(B,body,R){ // a biome accent at dE 25 or more from the body; els
   const[h,s,l]=toHsl(B.acc[k]);let best=B.acc[k],bd=dE(best,body);
   for(const dir of[1,-1])for(let i=1;i<=12;i++){const c=fromHsl(h,s,l+dir*i*.04),d=dE(c,body);if(d>=25)return c;if(d>bd){best=c;bd=d}}
   return best}
-function genDrops(zone,el,R){ // one to three of the region's own materials
+function genDrops(zone,el,R,biome){ // one to three of the region's own materials
   const t=GEN_DROP[zone]||GEN_DROP.spire,list=t[el]&&t[el].length?t[el]:t.any,n=1+Math.floor(R()*2.6),out=[],seen=new Set();
-  for(let i=0;i<n;i++){const id=list[Math.floor(R()*list.length)];if(seen.has(id))continue;seen.add(id);out.push([id,.35+R()*.45])}
+  const identity=zone===RIFT_ZONE&&RIFT_IDENTITY[biome];
+  for(let i=0;i<n;i++){
+    const id=list[Math.floor(R()*list.length)];if(seen.has(id))continue;seen.add(id);
+    const p=.35+R()*.45,bonus=identity&&id===identity.drop ? .12 : 0;
+    out.push([id,Math.min(.9,p+bonus)]);
+  }
   if(!out.length)out.push([t.any[0],.6]);
   return out}
 // the parts each body can wear, from the anchors in js/art/bodies.js: weapons need a hand on a torso (humanoid, construct), tusks and antlers a beast's head,
@@ -148,8 +169,8 @@ const PART_CONFLICTS={hood:["horns","antlers","crown","halo"],horns:["hood","ant
 // one wild creature: a body and parts from the biome, an element, a rarity with affixes of its own, and stats
 // at its region tier after rarity normalization (affix multipliers still count).
 function genCreature(o){ // o:{id,zone,biome,tier,R,used,boss,where,seed}
-  const B=BIOMES[o.biome],R=o.R,rar=o.boss?"rare":(R()<.3?"rare":"magic"),rm=RARITIES[rar];
-  const el=B.els[Math.floor(R()*B.els.length)],nat=EL_NAT[el]||{w:[],r:[]};
+  const B=BIOMES[o.biome],R=o.R,rar=o.boss?"rare":(R()<.3?"rare":"magic"),rm=RARITIES[rar],identity=o.zone===RIFT_ZONE?RIFT_IDENTITY[o.biome]:null;
+  const el=biomeElement(o.zone,o.biome,B,R),nat=EL_NAT[el]||{w:[],r:[]};
   const mv=["still","wander","chase"][Math.floor(R()*3)],body=B.bodies[Math.floor(R()*B.bodies.length)];
   const pool=B.parts.filter(p=>BODY_PARTS[body].includes(p)),nparts=Math.min(1+Math.floor(R()*3),pool.length),parts=[]; // a body too bare for three parts wears what it can
   while(parts.length<nparts){const available=pool.filter(p=>!parts.includes(p)&&!parts.some(q=>(PART_CONFLICTS[q]||[]).includes(p)));if(!available.length)break;parts.push(available[Math.floor(R()*available.length)])}
@@ -163,19 +184,30 @@ function genCreature(o){ // o:{id,zone,biome,tier,R,used,boss,where,seed}
   const def=Math.max(0,o.tier.def+Math.floor(R()*2)+(o.boss?2:0));
   // Keep the wild generation pool unchanged: filtering here would shift its seeded roster and Rift masters.
   const afx=rollAfx(R,rar,{mv,heat:o.boss?RAR_CH.k3:0,boss:!!o.boss,sp}); // masters use the full rare count with boss/special compatibility rules
-  const verb=B.verbs[Math.floor(R()*B.verbs.length)],place="the "+(o.where||B.n).toLowerCase().replace(/^the /,""),drops=genDrops(o.zone,el,R);
+  const verb=B.verbs[Math.floor(R()*B.verbs.length)],place="the "+(o.where||B.n).toLowerCase().replace(/^the /,""),drops=genDrops(o.zone,el,R,o.biome);
   const E={id:o.id,name:proc(name),plural:proc(pluralOf(name)),zone:o.zone,mv,el,hp,atk,def,weak:[...nat.w],resist:[...nat.r],w:1,verb,
     intro:proc(o.boss?`${name} waits for you in ${place}.`:`${name} steps out of ${place}.`),
     lore:proc(B.lore[Math.floor(R()*B.lore.length)]),
-    sp:{...sp},drops,
+    sp:{...sp},drops,biomeTrait:identity?.trait||null,
     art:{b:body,p:parts,c:col,a:acc,pat:B.pats[Math.floor(R()*B.pats.length)],pc:acc,po:.5+R()*.4,skin:B.skins[Math.floor(R()*B.skins.length)]},
     afx,rar,gen:1,seed:o.seed};
   if(o.boss){E.boss=true;E.short=proc("the "+name.split(" ").pop());E.w=3;E.drops=[...drops,["star_heart",.3]]}
-  if(nat.i)E.inf={s:nat.i,ch:.25};
+  if(identity?.inf)E.inf={...identity.inf};else if(nat.i)E.inf={s:nat.i,ch:.25};
   return E}
 // the ten wild creatures of a region: the same in every playthrough (the seed is the region's id)
+const WILD_ALPHA={woods:"Thornheart Alpha",pass:"Frosthorn Alpha",hollow:"Cinderback Alpha",spire:"Starcrown Alpha"};
+const WILD_ALPHA_AFX={woods:["swiftfoot","elusive","shadow"],pass:["iron","split","frenzy"],hollow:["shadow","boom","regen"],spire:["vamp","thorn","swiftfoot"]};
+function alphaAfx(E,zone){ // curated deterministic trio; register the species so the shared compatibility filter sees its special
+  const old=ENEMIES[E.id];ENEMIES[E.id]=E;
+  try{const ids=WILD_ALPHA_AFX[zone],pool=afxPool(E,E.mv,false,E.sp);if(!ids||ids.length!==3||ids.some(a=>!pool.includes(a))||ids.some((a,i)=>ids.slice(i+1).some(b=>!afxOk(a,b))))throw Error("invalid alpha affix profile: "+zone);return [...ids]}
+  finally{if(old)ENEMIES[E.id]=old;else delete ENEMIES[E.id]}}
 function genRoster(zone){const bi=ZONE_BIOME[zone],R=rng(hash("wild:"+zone)),used=new Set(),t=GEN_T[zone],out=[];
   for(let i=0;i<GEN_N;i++)out.push(genCreature({id:"w_"+zone+"_"+i,zone,biome:bi,tier:t,R,used,seed:zone}));
+  // Promote an existing deterministic roster slot. This post-generation pass
+  // leaves all other names, body parts, specials, stats and roster size stable.
+  if(WILD_ALPHA[zone]&&out.length){const E=out[hash("wild-alpha-slot:"+zone)%out.length];
+    E.alpha=true;E.name=WILD_ALPHA[zone];E.plural=E.name;E.rar="rare";E.afx=alphaAfx(E,zone);
+    E.hp=Math.round(E.hp*1.3);E.atk=Math.round(E.atk*1.1);E.def+=2;}
   return out}
 // Wild foes use a tutorial profile below the zone's stage-kit's Smith level,
 // then a stronger combat-only band when the player reaches that progression.

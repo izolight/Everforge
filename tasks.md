@@ -4,16 +4,16 @@ The status index for scoped work. Open tasks are below; implementation evidence 
 
 ## At a glance
 
-**56 tasks · 41 Done · 1 In Progress · 0 Implement · 14 Planned · 15 open.**
+**56 tasks · 43 Done · 0 In Progress · 0 Implement · 13 Planned · 13 open.**
 
 | Workstream | Done | In Progress | Implement | Planned |
 |---|---:|---:|---:|---:|
-| Monster coverage, balance and progression (M) | 9 | 0 | 0 | 3 |
-| Biome variety and mechanics (V) | 10 | 1 | 0 | 11 |
+| Monster coverage, balance and progression (M) | 10 | 0 | 0 | 2 |
+| Biome variety and mechanics (V) | 11 | 0 | 0 | 11 |
 | Art identity and readability (A) | 5 | 0 | 0 | 0 |
 | UI (U) | 9 | 0 | 0 | 0 |
 | Crafting rework (C) | 8 | 0 | 0 | 0 |
-| **Total** | **41** | **1** | **0** | **14** |
+| **Total** | **43** | **0** | **0** | **13** |
 
 **Statuses:** `Planned` = scoped backlog, not started; `Implement` = detailed implementation plan exists; `In Progress` = actively underway; `Done` = completed, with evidence in the archive. Dependencies are stated on task cards; Planned does not necessarily mean ready to start.
 
@@ -26,9 +26,9 @@ The status index for scoped work. Open tasks are below; implementation evidence 
 | Balance with an existing plan | M-09 complete | See [completed evidence](backlog-completed.md#m-09). |
 | Starter progression | M-10 complete | See [completed evidence](backlog-completed.md#m-10). |
 | Creature art and readability | A-01–A-05 complete | See [completed evidence](backlog-completed.md#creature-art-and-readability) and [visual review sheets](art-evidence/README.md). |
-| Rift difficulty | M-12 → V-16 | Remeasure wild bands after master fixes, then add alphas. |
+| Regional wilds and alphas | M-12, V-16 complete | See completed evidence; Hollow melee alpha fights retain a SLOG limitation. |
 | Essence availability | M-08 complete | The Cursed Altar can return Steam; see [completed evidence](backlog-completed.md#m-08). |
-| Later gameplay expansion | V-15 → V-21; V-11 → M-05 | Build biome modifiers, then depth-specific behavior. |
+| Later gameplay expansion | M-06 → M-07; V-13 | Promote a Rift biome to a full region; add weighted biome elements. |
 
 Navigation: [UI](#ui-simplification) · [Balance](#balance-and-progression) · [Art](#art-identity-and-readability) · [Biome gameplay](#biome-gameplay-and-combat-foundations) · [Expansion](#world-and-roster-expansion) · [Dependencies](#dependencies-and-coordination) · [Completed](backlog-completed.md).
 
@@ -115,9 +115,9 @@ U-02–U-09 are complete. See [Completed UI tasks](backlog-completed.md#ui) for 
 
 ## Biome gameplay and combat foundations
 
-- [ ] **M-05 · Give each Rift-only biome a signature identity** — `Status: Planned` · `Size: L` · `js/monsters.js`, `js/battle.js`, `js/data.js` · `Depends: V-11`
+- [x] **M-05 · Give each Rift-only biome a signature identity** — `Status: Done` · `Size: L` · `js/monsters.js`, `js/battle.js`, `js/data.js` · `Depends: V-11`
   Give fen/ash/bone/deep 2–3 thematic specials, an element/drop bias, and one signature trait each instead of only shared `GEN_SP` and Rift drops.
-  **Acceptance:** each biome plays differently; all still work in Rift depths; sim covers them.
+  **Done:** Fen/ash/bone/deep have weighted elements, favored existing drops and signature hit statuses, building on V-11 special pools. Paired seed-1/7 simulations cover depths 1/3/9; focused checks and full suite (26/26) pass. Fen/ash master difficulty changes and depth-9 limits are recorded in [M-05 evidence](rift-evidence/m05-identity.md).
 
 - [x] **V-11 · Add per-biome special pools** — `Status: Done` · `Size: M` · `js/monsters.js`, `js/lang/`, `tools/biome-special-check.js` · `Depends: V-14 (soft)`
   All eight biomes have three translated signature specials for ordinary wild creatures, with `GEN_SP` fallback for unknown biomes and generated Rift masters. Selection consumes the existing single draw; all non-special roster fields and accepted master results remain unchanged.
@@ -178,9 +178,9 @@ U-02–U-09 are complete. See [Completed UI tasks](backlog-completed.md#ui) for 
   Raise `GEN_N` from 10 to 12–14 and `RIFT_N` if needed; retune wild encounter weight so they stay ~40% of encounters.
   **Acceptance:** more variety per region without changing overall encounter mix; `sim` and `map-check` pass.
 
-- [ ] **V-16 · Add one alpha wild creature per roster** — `Status: In Progress` · `Size: M` · `js/monsters.js`, `js/art/`
+- [x] **V-16 · Add one alpha wild creature per roster** — `Status: Done` · `Size: M` · `js/monsters.js`, `js/art/`
   A deterministic mini-boss variant: three affixes, boosted stats, unique name, distinct map frame, defined rewards without shifting regional economy.
-  **Acceptance:** exactly one per region; same every run; sim and economy checks pass.
+  **Done:** exactly one deterministic promoted alpha in each of four authored regions; Rift rosters are excluded. Fixed compatible affixes, boosts and mobile marker are verified. Reward tables/weight and intrinsic essence suppression stay unchanged; the generic economy sim does not exercise alphas. Stage kits win 100% on seeds 1/7; Hollow melee retains a 34-turn `SLOG`. See [V-16 evidence](art-evidence/v16-alpha-review.md).
 
 - [ ] **V-17 · Introduce enemy roles** — `Status: Planned` · `Size: L` · `js/data.js`, `js/monsters.js`, `js/battle.js` · `Depends: V-14` (if roles use new kinds)
   Add roles such as bruiser, skirmisher, caster, support, with role-specific special pools and stat bias.

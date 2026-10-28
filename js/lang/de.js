@@ -673,3 +673,13 @@ Object.assign(DICT.de,{
 "Rift biome":"Rift-Biom","Rift modifier":"Rift-Modifikator","Neutral":"Neutral","Neutral biome":"Neutrales Biom","Forest has no Rift modifier.":"Im Wald gibt es keinen Rift-Modifikator.","Forest is the neutral Rift biome: it has no extra combat modifier.":"Der Wald ist das neutrale Rift-Biom und hat keinen zusätzlichen Kampfmodifikator.",
 "Rift biome: {name}. {desc}":"Rift-Biom: {name}. {desc}","Rift depth modifier":"Rift-Tiefenmodifikator","Rift depth modifier: {name}. {desc}":"Rift-Tiefenmodifikator: {name}. {desc}","Burning air":"Brennende Luft","Fire attacks deal 15% more damage after daily and biome attack modifiers; normal resistance, Defense and Guard still apply.":"Feuerangriffe verursachen 15 % mehr Schaden nach täglichen und Biom-Angriffsmodifikatoren; normale Resistenz, Verteidigung und Blocken gelten weiterhin.","Thin wards":"Dünne Barrieren","Your rune ward can absorb at most half of each enemy hit; the rest of its ward points remain for later hits.":"Deine Runenbarriere fängt höchstens die Hälfte jedes gegnerischen Treffers ab; übrige Barrierepunkte bleiben für spätere Treffer erhalten.","Fast foes":"Schnelle Gegner","Enemy specials recur one turn sooner, to a minimum interval of two turns; their tells and Parry windows remain intact.":"Spezialangriffe der Gegner kommen eine Runde früher wieder, mindestens aber alle zwei Runden; Warnzeichen und Parierfenster bleiben erhalten.","Grave fear leaves you off balance for your next action.":"Die Grabesfurcht bringt dich für deine nächste Aktion aus dem Gleichgewicht.","The sandstorm blunts your strikes by {p}%.":"Der Sandsturm schwächt deine Angriffe um {p} %.","An arcane surge charges the strike: +{p}% power.":"Eine arkane Woge verstärkt den Angriff: +{p} % Kraft.","Drowning pressure crushes you for {n} damage.":"Der Tiefendruck quetscht dich und verursacht {n} Schaden."
 });
+// V-16 authored-region alpha labels and reward rule.
+DICT.de=Object.assign(DICT.de||{},{
+  "Alpha":"Alpha",
+  "A named regional wild mini-boss with three fixed affixes.":"Ein benannter regionaler Wild-Miniboss mit drei festen Affixen.",
+  "Alpha rewards follow the region's normal wild drop rules; no affix essences.":"Alpha-Belohnungen folgen den normalen regionalen Beuteraten; es gibt keine Affixessenzen.",
+  "Thornheart Alpha":"Dornherz-Alpha",
+  "Frosthorn Alpha":"Frosthorn-Alpha",
+  "Cinderback Alpha":"Glutpanzer-Alpha",
+  "Starcrown Alpha":"Sternkrone-Alpha"
+});

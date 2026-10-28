@@ -197,3 +197,11 @@ Completed task records and their implementation evidence. Test counts and simula
 - [x] **V-11 · Add per-biome special pools** — `Status: Done` · `js/monsters.js`, `js/lang/de.js`, `js/lang/ko.js`, `tools/biome-special-check.js`
   Each of eight biomes supplies three signature specials to ordinary wild creatures; missing keys and generated Rift masters use `GEN_SP`. The selection retains one RNG draw and preserves all other roster fields. German/Korean names and tells are included.
   **Validation:** full suite passed 24/24; the updated authored-roster assertion and i18n check also passed parent review. Paired seed-1/7 n=30, Heat 0, smart-policy reference samples at depths 1–3 preserve Rift-master results exactly. Live biome/depth integration and all measured effects are documented in [V-11 evidence](rift-evidence/v11-biome-specials.md).
+
+## Rift identities and regional alphas
+
+- [x] **M-05 · Give each Rift-only biome a signature identity** — `Status: Done` · `js/monsters.js`, `tools/rift-identity-check.js`
+  Fen, ash, bone and deep favor distinct elements and existing drops and have signature hit statuses, retaining V-11 special pools. Paired simulator seeds 1/7 cover depths 1/3/9. Focused identity/alpha/i18n checks and the combined full suite (26/26) pass. Fen/ash master win rates decline in the sample; depth 9 remains difficult. See [implementation and measured limitations](rift-evidence/m05-identity.md).
+
+- [x] **V-16 · Add one alpha wild creature per roster** — `Status: Done` · `js/monsters.js`, map/battle art, `tools/alpha-check.js`
+  One existing entry in each authored region becomes a named, boosted rare alpha with three fixed compatible affixes and a mobile map marker. Rift wilds/masters are outside this task's approved scope. Seeded selection, non-alpha entries, regional drops/weights and no-affix-essence rewards are checked. Seeds 1/7, n=50, smart, Heat 0: all 16 regional stage-kit alpha cells win 100%; Hollow melee is SLOG at 33.94/34.28 turns. The generic economy-only smoke does not fight alphas; economy evidence establishes unchanged sources, not measured expedition parity. Full suite passed 26/26; parent focused checks pass. See [review and artifacts](art-evidence/v16-alpha-review.md).
