@@ -4,16 +4,16 @@ The status index for scoped work. Open tasks are below; implementation evidence 
 
 ## At a glance
 
-**56 tasks · 39 Done · 1 In Progress · 0 Implement · 16 Planned · 17 open.**
+**56 tasks · 40 Done · 0 In Progress · 0 Implement · 16 Planned · 16 open.**
 
 | Workstream | Done | In Progress | Implement | Planned |
 |---|---:|---:|---:|---:|
-| Monster coverage, balance and progression (M) | 8 | 1 | 0 | 3 |
+| Monster coverage, balance and progression (M) | 9 | 0 | 0 | 3 |
 | Biome variety and mechanics (V) | 9 | 0 | 0 | 13 |
 | Art identity and readability (A) | 5 | 0 | 0 | 0 |
 | UI (U) | 9 | 0 | 0 | 0 |
 | Crafting rework (C) | 8 | 0 | 0 | 0 |
-| **Total** | **39** | **1** | **0** | **16** |
+| **Total** | **40** | **0** | **0** | **16** |
 
 **Statuses:** `Planned` = scoped backlog, not started; `Implement` = detailed implementation plan exists; `In Progress` = actively underway; `Done` = completed, with evidence in the archive. Dependencies are stated on task cards; Planned does not necessarily mean ready to start.
 
@@ -69,11 +69,11 @@ U-02–U-09 are complete. See [Completed UI tasks](backlog-completed.md#ui) for 
 
   </details>
 
-- [ ] **M-12 · Give the wild creatures a fight of their own** — `Status: In Progress` · `Size: M` · `js/monsters.js`, `tools/sim.js`
-  The wild creatures are meant to be a fight, not a free win, but with their own region's kit every one of them still wins 100% at Heat 0.
+- [x] **M-12 · Give the wild creatures a fight of their own** — `Status: Done` · `Size: M` · `js/monsters.js`, `js/battle.js`, `tools/sim.js`
+  Before M-12, the wild creatures were meant to be a fight, but with their own region's kit every one still won 100% at Heat 0.
   **Acceptance:** `node tools/sim.js --wild --seed 1` shows the wild creatures as a real fight with a stage kit: with a stage kit, the region's wild creatures take at least the regulars' mean turns and leave no more HP than the regulars (Δ turns ≥ 0, Δ HP ≤ 0, at Heat 0; met by the melee kits above, not by every stage kit: `defensive/pass` −0.7 turns, `staff/hollow` −0.3, `staff/spire` −0.4 turns and +1 HP); at most a third of a region's roster `TOO_EASY` (not met: woods 10 of 10, pass 4 of 10); no essence from wild affixes (holds: a wild creature's affixes drop no essence, `js/battle.js` `!B.intr`). The region's economy does not move.
 
-  **Current review evidence (not accepted):** refreshed seed-1/7 samples and the 2× HP / 1.2× attack candidate are recorded in [M-12 balance review](balance-evidence/m12-review.md). Turn and HP deltas pass and all 32 authored region-stage rows win 100%, but Woods still exceeds the `TOO_EASY` cutoff (4/10 melee, 9/10 stacked). The heavier Woods trial cleared the sampled roster threshold but reduced the tutorial-prepared seed-1 opening from 6/6 to 0/6; the current candidate is 4/6. M-12 remains In Progress while these acceptance constraints conflict.
+  **Done:** rarity-normalized generator stats stay at the region tier. A combat-only profile strengthens generated nonboss regional wilds at the matching stage-kit Smith level (Woods HP 4.5×; Pass/Hollow/Spire HP 2×; ATK unchanged); the tutorial remains at 1× and Rift foes/M-11 masters are excluded. Two seeded n=100 smart-policy, Heat 0 stage-kit samples meet every turn/HP delta and roster `TOO_EASY` criterion. Results, economy comparison, opening-loop outcomes, and limitations are in [M-12 balance evidence](balance-evidence/m12-review.md).
 
   <details>
   <summary>Historical measurements — refresh before tuning</summary>

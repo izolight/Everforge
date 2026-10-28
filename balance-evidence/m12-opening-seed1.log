@@ -1,0 +1,49 @@
+== Element coverage (authored, non-boss): woods 5/5, pass 5/5, hollow 4/4, spire 4/4 ==
+== Fresh opening loop: 6 Woods expeditions with unlock gates on (tutorial Fire sword and Weaponcraft prepared, smart policy) ==
+Columns: result, steps, fights, wins this run; POIs placed on the map (shown by type); POI types the bot walked into; what opened afterwards (smith Lv / total wins / expeditions finished).
+#1 won          46 steps 10 fights 12 wins | map: boss 1, fight 12, camp 1, chest 2
+     met: chest 2, fight 8, camp 1, boss 1 | then Lv 1, 12 wins, 1 expeditions -> opened: start, t:weaponcraft, parry, salvage, study, ability, roam, shrine, elite, infuse, research, heat, afx, stats, t:blade, t:spear, t:staff, t:trinketry, t:cooking
+     research: +18 RP (32 earned, 2 unspent; sources so far: fam 4, afx 2, boss 1, salv 1, sk 1, study 3) | learned: Bladecraft, Spearcraft, Staffcraft, Cooking, Trinketry
+#2 won          36 steps  9 fights 11 wins | map: boss 1, fight 13, camp 1, elite 2, shrine 2, chest 2
+     met: fight 5, shrine 2, chest 1, camp 1, boss 1 | then Lv 1, 23 wins, 2 expeditions -> opened: hunt, peddler, mystery
+     research: +2 RP (34 earned, 4 unspent; sources so far: fam 5, afx 3, boss 1, salv 1, sk 1, study 3)
+#3 won          42 steps  7 fights  9 wins | map: boss 1, fight 11, camp 1, elite 2, peddler 1, shrine 2, chest 2, mystery 3
+     met: chest 1, fight 6, mystery 1, shrine 1, peddler 1, camp 1, boss 1 | then Lv 1, 32 wins, 3 expeditions -> opened: t:brewing
+     research: +3 RP (37 earned, 1 unspent; sources so far: fam 6, afx 4, boss 1, salv 1, sk 1, study 4) | learned: Brewing
+#4 won          36 steps 11 fights 13 wins | map: boss 1, fight 12, camp 1, elite 2, peddler 1, shrine 2, chest 2, mystery 3
+     met: chest 2, fight 4, shrine 1, elite 1, mystery 2, boss 1 | then Lv 1, 45 wins, 4 expeditions -> opened: t:infuse
+     research: +8 RP (45 earned, 1 unspent; sources so far: fam 7, afx 6, boss 1, salv 1, sk 2, study 5, mast 1) | learned: Infusing
+#5 won          28 steps  7 fights  9 wins | map: boss 1, fight 13, camp 1, elite 3, peddler 1, shrine 2, chest 2, mystery 3
+     met: mystery 2, fight 4, elite 1, peddler 1, chest 1, boss 1 | then Lv 1, 54 wins, 5 expeditions -> opened: -
+     research: +5 RP (50 earned, 6 unspent; sources so far: fam 8, afx 8, boss 1, salv 1, sk 2, study 7, mast 1)
+#6 won          42 steps  9 fights 11 wins | map: boss 1, fight 11, camp 1, elite 2, peddler 1, shrine 2, chest 2, mystery 3
+     met: chest 1, fight 3, mystery 2, shrine 1, elite 1, peddler 1, camp 1, boss 1 | then Lv 1, 65 wins, 6 expeditions -> opened: t:alchemy
+     research: +5 RP (55 earned, 3 unspent; sources so far: fam 10, afx 11, boss 1, salv 1, sk 2, study 7, mast 1) | learned: Alchemy
+
+Research: RP earned per expedition: 18, 2, 3, 8, 5, 5 (mean 6.8). The bot deconstructs raw finds, infuses essences into the sword, studies up to three families per expedition and learns the cheapest technique it can afford.
+Affordable = the first expedition whose cumulative RP earned covers the technique with what it needs first (the group technique, for a slot), at the real techCost (a slot technique costs 3 once its group is known, and the first one after a group technique is free). Learned = the expedition the bot bought it:
+  Weaponcraft   14 RP  affordable from expedition 1
+  Bladecraft     0 RP  affordable from expedition 1, learned on 1
+  Spearcraft     3 RP  affordable from expedition 1, learned on 1
+  Staffcraft     3 RP  affordable from expedition 1, learned on 1
+  Armorcraft    14 RP  affordable from expedition 1
+  Helmcraft      6 RP  affordable from expedition 1
+  Bodycraft      6 RP  affordable from expedition 1
+  Glovecraft     6 RP  affordable from expedition 1
+  Bootcraft      6 RP  affordable from expedition 1
+  Shieldcraft    6 RP  affordable from expedition 1
+  Trinketry      6 RP  affordable from expedition 1, learned on 1
+  Infusing       8 RP  affordable from expedition 1, learned on 4
+  Infusing II   14 RP  affordable from expedition 1  (needs Smith Lv 3)
+  Infusing III  24 RP  affordable from expedition 4  (needs Smith Lv 5)
+  Improving     10 RP  affordable from expedition 1
+  Improving II  18 RP  affordable from expedition 1  (needs Smith Lv 3)
+  Fusing        20 RP  affordable from expedition 1
+  Refining      12 RP  affordable from expedition 1  (needs Salvaging Lv 2)
+  Mending       12 RP  affordable from expedition 1
+  Precision I   20 RP  affordable from expedition 4  (needs Smith Lv 3)
+  Precision II  30 RP  not affordable in 6 expeditions  (needs Smith Lv 6)
+  Masterwork    40 RP  not affordable in 6 expeditions  (needs Smith Lv 5)
+  Cooking        4 RP  affordable from expedition 1, learned on 1
+  Brewing        6 RP  affordable from expedition 1, learned on 3
+  Alchemy        8 RP  affordable from expedition 1, learned on 6

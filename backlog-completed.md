@@ -178,9 +178,16 @@ Completed task records and their implementation evidence. Test counts and simula
 - [x] **C-08 · Text and docs** — `Status: Done` · `Size: S` · `js/lang/`, `README.md`, `todo.md`
   German and Korean entries for every new string (`node tools/i18n-check.js`). README describes the path: salvage, research, slot techniques, then Infuse, Improve, Fuse and Refine.
 
+## Monster coverage, balance and progression
+
+- [x] **M-12 · Give the wild creatures a fight of their own** — `Status: Done` · `Size: M` · `js/monsters.js`, `js/battle.js`, `tools/sim.js`
+  Restored generated nonboss foes to their rarity-normalized region tier and added a deterministic combat-only profile at the matching stage-kit Smith level: Woods HP 4.5×; Pass, Hollow, and Spire HP 2×; ATK unchanged. Smith Lv 1 tutorial fights remain at 1×. The band excludes Rift creatures and bosses, leaves seeded roster generation/RNG and drops unchanged, and preserves the M-11 master profile.
+  **Validation:** modifier-free Heat 0, smart-policy samples with 100 fights per creature for seeds 1 and 7 show positive turn deltas and negative HP deltas for all 32 region/stage-kit native rows. All stage-kit native rows win 100% except staff/Spire (98% and 97%); the largest native `TOO_EASY` roster share is 1/10 in Pass stacked. Fresh six-expedition runs win 6/6 for seeds 1 and 7; seed 11 wins 5/6, with M-12 inactive at Smith Lv 1. A 30-expedition seed-1 economy comparison keeps 30/30 clears and 0 losses in each region; economy sources, prices, reward quantities, and drop pools are unchanged, while observed RNG-dependent loot totals vary slightly. The M-12 review, command lines, per-seed simulation JSON, and opening logs are in [balance evidence](balance-evidence/m12-review.md).
+  `node tools/rift-boss-check.js`, `node tools/v14-special-check.js`, `node tools/special-check.js`, JS syntax checks, and `git diff --check` pass. Rift wild difficulty remains outside M-12's authored-region acceptance scope.
+
 ## Rift depth modifiers
 
 - [x] **V-21 · Seeded Rift depth modifiers** — `Status: Done` · `Size: M` · `js/data.js`, `js/battle.js`, `js/render/battle-view.js`, `js/sheets.js`, `js/lang/de.js`, `js/lang/ko.js`, `tools/sim.js`
   Rift seed and depth choose one of three deterministic combat effects without changing generation draws or save shape. The modifier is visible in the battle HUD, Rift card, and Codex. `--no-depth-mods` provides an independent simulator reference path and does not disable V-15 biome passives.
-  **Done:** `node tools/depth-check.js`, `node tools/biome-check.js`, `node tools/i18n-check.js`, and `node tools/run-checks.js` pass (23/23). Paired modifier-on/off simulator settings, results, screenshots, and the unaccepted M-12 candidate caveat are in [V-21 evidence](rift-evidence/v21-depth-modifiers.md). M-12 remains In Progress.
+  **Done:** `node tools/depth-check.js`, `node tools/biome-check.js`, `node tools/i18n-check.js`, and `node tools/run-checks.js` pass (23/23). Paired modifier-on/off simulator settings, results, screenshots, and the M-12 candidate state at the time of sampling are in [V-21 evidence](rift-evidence/v21-depth-modifiers.md). M-12 was later accepted; see [M-12 balance evidence](balance-evidence/m12-review.md).
 

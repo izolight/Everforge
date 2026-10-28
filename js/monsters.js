@@ -46,7 +46,7 @@ const EL_NAT={fire:{w:["ice"],r:["fire"],i:"burn"},ice:{w:["fire"],r:["ice"],i:"
   swift:{w:["stone"],r:["swift"],i:null},stone:{w:["arcane"],r:["stone"],i:null}};
 // the biome of each hand-made region, and its element pool: every element of the pool needs an authored (non-boss) enemy of that region, or a documented exception (tools/sim.js checks it). The enemies outside their pool are additions, not gaps: Woods holy (Glowcap Sprite) and shadow (Barrow Ghoul), Pass and Hollow shadow (Ice Wraith, Ash Revenant), Spire metal (Orrery Construct).
 const ZONE_BIOME={woods:"forest",pass:"tundra",hollow:"ember",spire:"astral"},GEN_N=10,RIFT_N=10,RIFT_ZONE="rift";
-// the stat band of a region's wild creatures (the rarity multiplier is put back when they are rolled)
+// authored wilds are deliberately stronger than regulars; their affix rarity is still normalized out
 const GEN_T={woods:{hp:30,atk:6,def:2},pass:{hp:58,atk:11,def:4},hollow:{hp:92,atk:14,def:5},spire:{hp:120,atk:21,def:6}};
 // six specials the wild creatures share; their names and tells are translated like any other
 const GEN_SP=[
@@ -108,7 +108,7 @@ const BODY_PARTS={
 // Headwear occupies the same silhouette space; allow at most one major head shape per generated creature.
 const PART_CONFLICTS={hood:["horns","antlers","crown","halo"],horns:["hood","antlers","crown","halo"],antlers:["hood","horns","crown","halo"],crown:["hood","horns","antlers","halo"],halo:["hood","horns","antlers","crown"]};
 // one wild creature: a body and parts from the biome, an element, a rarity with affixes of its own, and stats
-// that land on the region's band once the rarity multiplier is applied (the affix multipliers still count).
+// at its region tier after rarity normalization (affix multipliers still count).
 function genCreature(o){ // o:{id,zone,biome,tier,R,used,boss,where,seed}
   const B=BIOMES[o.biome],R=o.R,rar=o.boss?"rare":(R()<.3?"rare":"magic"),rm=RARITIES[rar];
   const el=B.els[Math.floor(R()*B.els.length)],nat=EL_NAT[el]||{w:[],r:[]};
@@ -120,7 +120,8 @@ function genCreature(o){ // o:{id,zone,biome,tier,R,used,boss,where,seed}
   const sp=GEN_SP[Math.floor(R()*GEN_SP.length)];
   // The region tier already climbs by depth; taper the master's bonus so it doesn't compound the whole HP/ATK ramp again.
   const depth=Math.max(1,o.depth||1),boss=o.boss?Math.max(3.2,4.4-.6*(depth-1)):1,atkm=o.boss?Math.max(.95,1-.025*(depth-1)):1;
-  const hp=Math.max(3,Math.round(o.tier.hp*(.8+R()*.45)*boss/rm.hp)),atk=Math.max(1,Math.round(o.tier.atk*(.85+R()*.3)*atkm/rm.atk));
+  const wildHp=o.boss?boss:1,wildAtk=o.boss?atkm:1;
+  const hp=Math.max(3,Math.round(o.tier.hp*(.8+R()*.45)*wildHp/rm.hp)),atk=Math.max(1,Math.round(o.tier.atk*(.85+R()*.3)*wildAtk/rm.atk));
   const def=Math.max(0,o.tier.def+Math.floor(R()*2)+(o.boss?2:0));
   // Keep the wild generation pool unchanged: filtering here would shift its seeded roster and Rift masters.
   const afx=rollAfx(R,rar,{mv,heat:o.boss?RAR_CH.k3:0,boss:!!o.boss,sp}); // masters use the full rare count with boss/special compatibility rules
@@ -138,6 +139,15 @@ function genCreature(o){ // o:{id,zone,biome,tier,R,used,boss,where,seed}
 function genRoster(zone){const bi=ZONE_BIOME[zone],R=rng(hash("wild:"+zone)),used=new Set(),t=GEN_T[zone],out=[];
   for(let i=0;i<GEN_N;i++)out.push(genCreature({id:"w_"+zone+"_"+i,zone,biome:bi,tier:t,R,used,seed:zone}));
   return out}
+// Wild foes use a tutorial profile below the zone's stage-kit's Smith level,
+// then a stronger combat-only band when the player reaches that progression.
+// This is deterministic and does not rewrite the seeded roster or consume RNG.
+const WILD_STAGE_LV={woods:3,pass:5,hollow:7,spire:9};
+function m12WildBand(E,smithLevel){
+  const stage=WILD_STAGE_LV[E&&E.zone];
+  if(!E||!E.gen||E.boss||E.zone===RIFT_ZONE||!stage||smithLevel<stage)return{hp:1,atk:1};
+  return{hp:E.zone==="woods"?4.5:2,atk:1};
+}
 const regMon=list=>list.forEach(E=>{ENEMIES[E.id]=E});
 function buildRoster(){ // the wild creatures of the four hand-made regions
   ZONES.forEach(z=>{if(z[0]===RIFT_ZONE)return;regMon(genRoster(z[0]))})}
