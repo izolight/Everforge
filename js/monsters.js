@@ -228,15 +228,15 @@ function genRoster(zone){const bi=ZONE_BIOME[zone],R=rng(hash("wild:"+zone)),use
 // Wild foes use a tutorial profile below the zone's stage-kit's Smith level,
 // then a stronger combat-only band when the player reaches that progression.
 // This is deterministic and does not rewrite the seeded roster or consume RNG.
-const WILD_STAGE_LV={woods:3,pass:5,hollow:7,spire:9};
+const WILD_STAGE_LV={woods:3,pass:5,hollow:7,spire:9,fen:10};
 function m12WildBand(E,smithLevel){
   const stage=WILD_STAGE_LV[E&&E.zone];
   if(!E||!E.gen||E.boss||E.zone===RIFT_ZONE||!stage||smithLevel<stage)return{hp:1,atk:1};
   return{hp:E.zone==="woods"?4.5:2,atk:1};
 }
 const regMon=list=>list.forEach(E=>{ENEMIES[E.id]=E});
-function buildRoster(){ // the wild creatures of the four hand-made regions
-  ZONES.forEach(z=>{if(z[0]===RIFT_ZONE)return;regMon(genRoster(z[0]))})}
+function buildRoster(){ // authored regions use their fixed rosters; Fen is not Rift Fen
+  ZONES.forEach(z=>{if(z[0]===RIFT_ZONE||z[0]==="fen")return;regMon(genRoster(z[0]))})}
 // ---- the Rift: a random region, rolled from one seed
 const RIFT_BIOMES=["fen","ash","bone","deep","forest","tundra","ember","astral"];
 function riftMake(seed,depth){ // a random region: biome, palette, name, ten wild creatures and a master

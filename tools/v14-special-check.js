@@ -23,9 +23,10 @@ const ok=(c,m)=>{if(!c)fails++;console.log(c?"ok  ":"FAIL",m)};
       };
       window.weapon=()=>{const id="v14_test_blade";S.items[id]={id,name:"Test blade",form:"blade",noun:"Weapon",traits:{Iron:1},tier:1,crafed:true};S.inv[id]=1;S.eq.main=id;return pstats().main};
     });
-    let r=await E(()=>Object.entries(ENEMIES).filter(([,e])=>e.sp&&["guard","inflict","enrage","burrow","summon"].includes(e.sp.kind)).map(([id,e])=>[id,e.sp.kind,e.boss===true]));
+    let r=await E(()=>Object.entries(ENEMIES).filter(([,e])=>e.sp&&["guard","inflict","enrage","burrow","summon"].includes(e.sp.kind)).map(([id,e])=>[id,e.sp.kind,e.boss===true,!!e.gen]));
     const boar=await E(()=>ENEMIES.boar.sp.kind==="heavy"&&ENEMIES.boar.sp.name==="Tusk Charge");
-    ok(r.length===5&&r.every(x=>!x[2])&&new Set(r.map(x=>x[1])).size===5&&boar,"five new kinds are assigned only to authored non-boss enemies; Boar keeps its Tusk Charge");
+    const originalKinds={golem:"guard",bandit:"inflict",bear:"enrage",stag:"burrow",harpy:"summon"};
+    ok(Object.entries(originalKinds).every(([id,kind])=>r.some(x=>x[0]===id&&x[1]===kind))&&r.every(x=>!x[2]&&!x[3])&&boar,"original five special assignments remain on authored non-boss enemies, including new regional users; Boar keeps its Tusk Charge");
     const tells=await E(()=>Object.values(ENEMIES).filter(e=>e.sp&&["guard","inflict","enrage","burrow","summon"].includes(e.sp.kind)).every(e=>e.sp.name&&e.sp.tell));
     ok(tells,"each new special has a name and a visible tell for the battle/Codex entry");
 

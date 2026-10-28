@@ -23,6 +23,10 @@ const MUSIC_SCENES={
     chords:[[0,4,7,11],[2,6,9,14],[4,7,11,14],[-1,2,6,11],[-3,0,4,9],[-5,-1,2,9],[0,4,6,11],[2,6,9,16]],
     melody:[[12,null,11,null,7,null,4,null],[6,null,9,null,14,null,null,null],[16,null,14,null,11,null,7,null],[11,null,null,6,null,2,null,null],
       [9,null,12,null,16,null,12,null],[14,null,11,null,7,null,9,null],[18,null,16,null,11,null,null,null],[14,null,9,null,null,null,null,null]]},
+  // "Lanterns in the Mire": low D minor drone, reed flute and slow water pulses.
+  fen:{bpm:62,root:50,pad:620,lead:"flute",space:2,wind:true,harp:true,
+    chords:[[0,3,7,14],[-2,2,5,12],[-5,-2,2,7],[-7,-3,0,5],[0,3,7,12],[-5,-2,2,9],[-9,-5,-2,5],[-2,2,5,10]],
+    melody:[[7,null,3,null,2,null,7,null],[5,null,null,2,null,0,null,null],[3,null,7,null,5,null,null,null],[2,null,0,null,-2,null,null,null]]},
   // "Hammer and Hearth": C Mixolydian, sturdy plucked tune with a tuned anvil.
   forge:{bpm:84,root:48,pad:1250,lead:"pluck",space:1,harp:true,anvil:true,
     chords:[[0,4,7,12],[-2,2,5,10],[5,9,12,17],[0,7,12,16],[-3,0,4,9],[5,9,12,16],[7,10,14,17],[-2,2,5,9]],

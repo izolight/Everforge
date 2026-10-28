@@ -59,7 +59,7 @@ const N=+opt("n",40),SEED=opt("seed",null),ROW=+opt("row",3),JOBS=Math.max(1,+op
 const OUT=opt("out",null);
 const BIOME_MODS=!has("no-biome-mods");
 const DEPTH_MODS=!has("no-depth-mods");
-// the wild sections: the wild creatures of the four regions and the Rift masters (they are not part of the regular matrix)
+// the wild sections: generated creatures for the four original stages and Rift masters; Fen is measured in the authored regular matrix
 // --wild: only these sections, with the forced rarity variants; --no-wild: none of them; --elite: the forced variants in a default run too
 const WILD_ONLY=has("wild"),NO_WILD=has("no-wild"),ELITE=has("elite");
 const RIFT_SEEDS=list("rift-seeds",null),RIFT_DEPTH=list("rift-depth",["1","3"]).map(Number),RIFT_WILD=has("rift-wild")||WILD_ONLY;
@@ -280,7 +280,7 @@ function setup(opts){ // runs inside the game page; everything here uses the rea
 // ---------- node side ----------
 const pct=x=>Math.round(x*100),f1=x=>(Math.round(x*10)/10).toFixed(1),median=a=>{const s=[...a].sort((x,y)=>x-y);return s.length?s[Math.floor(s.length/2)]:0};
 const sg=(v,f)=>(v>0?"+":"")+(f?f(v):v); // a signed number with its sign kept ("+5", "-1.9")
-const RK=["","magic","rare"],ZN=["woods","pass","hollow","spire"],kitName=(t,z)=>`${t}/${z}`;
+const RK=["","magic","rare"],ZN=["woods","pass","hollow","spire","fen"],kitName=(t,z)=>`${t}/${z}`;
 // Flags use bands, not win% alone. mode "arr" (arrival: the kit of the previous stage meets this zone, or the starter kit meets the woods) is the main pairing; "on" is the kit's own zone.
 const TURN_EASY=4,TURN_EASY_BOSS=10,HP_EASY=.85;
 function flagsOf(c,mode,E){
@@ -315,7 +315,7 @@ async function main(){
   const zones=list("zone",ZN),kitSel=list("kit",null),mastered=!has("no-mastered");
   const eSel=list("enemy",null),pickE=e=>eSel?eSel.includes(e.id):(e.zone==="any"||zones.includes(e.zone));
   const enemies=enemiesAll.filter(e=>!e.gen&&pickE(e)); // the hand-made regulars (the wild creatures have their own section)
-  const wild=enemiesAll.filter(e=>e.gen&&pickE(e)); // the ten wild creatures of every region
+  const wild=enemiesAll.filter(e=>e.gen&&pickE(e)); // generator-driven wilds; Fen's regulars are authored and appear in the main matrix
   // kits: each stage kit has an on-stage zone and an arrival zone (the next one); the starter kit only arrives (at the woods). --zone keeps kits whose on-stage or arrival zone is listed
   const defs=[...Object.entries(KITS).flatMap(([type,by])=>Object.entries(by).map(([z,def])=>({name:kitName(type,z),type,zone:z,on:z,arr:ZN[ZN.indexOf(z)+1]||null,xp:STAGES[z].xp,sk:STAGES[z].sk,mast:mastered?ZN.indexOf(z):-1,def}))),
     {name:"starter/start",type:"starter",zone:"woods",on:null,arr:"woods",xp:0,mast:-1,def:STARTER}];

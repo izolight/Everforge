@@ -683,3 +683,19 @@ DICT.de=Object.assign(DICT.de||{},{
   "Cinderback Alpha":"Glutpanzer-Alpha",
   "Starcrown Alpha":"Sternkrone-Alpha"
 });
+DICT.de=Object.assign(DICT.de||{},{
+  "Reed Snare":"Schilfschlinge","coiling its vines around the reeds":"windet seine Ranken um das Schilf",
+  "Silt Hex":"Schlickfluch","drawing a circle in the silt":"zieht einen Kreis in den Schlick",
+  "Rooted Guard":"Verwurzelte Deckung","sinking its roots deep":"senkt seine Wurzeln tief in den Grund",
+  "Spore Burst":"Sporenstoß","swelling with pale green light":"schwillt in blassgrünem Licht an",
+  "Sunk Aegis":"Versunkener Schild","locking its shield into the mud":"verankert seinen Schild im Schlamm",
+  "Cattail Rush":"Rohrkolbensturm","lowering its crown of antlers":"senkt sein Geweih",
+  "The Drowned Matriarch":"Die ertrunkene Matriarchin","the Matriarch":"die Matriarchin",
+  "The reeds part. The Drowned Matriarch rises from the Fen's deepest pool.":"Das Schilf teilt sich. Die ertrunkene Matriarchin erhebt sich aus dem tiefsten Tümpel des Moors.",
+  "The Fen remembers every name given to the water. She remembers who gave them.":"Das Moor bewahrt jeden Namen, den man dem Wasser gab. Sie erinnert sich an jene, die ihn aussprachen.",
+  "Flood of Spores":"Sporenflut","drawing a slow breath through the reeds":"holt langsam zwischen dem Schilf Atem",
+  "The Sinking Fen":"Das versinkende Moor",
+  "The old road ends in black water. Follow the reed-markers to the far bank; the Drowned Matriarch waits beyond them.":"Der alte Weg endet im schwarzen Wasser. Folge den Schilfmarkierungen zum anderen Ufer; dahinter wartet die ertrunkene Matriarchin.",
+  "The Fen is open because you brought down the Starfallen Archon. Its boss guards the next descent.":"Das Moor ist offen, weil du den Sternenfürsten besiegt hast. Sein Boss bewacht den nächsten Abstieg.",
+  "hit|spores you":"{name} spuckt dir {n} {g} Sporen entgegen","hit|drowns you in spore-cloud":"{name} ertränkt dich mit {n} {g} in einer Sporenwolke"
+});

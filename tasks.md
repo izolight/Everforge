@@ -4,16 +4,16 @@ The status index for scoped work. Open tasks are below; implementation evidence 
 
 ## At a glance
 
-**56 tasks · 44 Done · 0 In Progress · 0 Implement · 12 Planned · 12 open.**
+**56 tasks · 45 Done · 0 In Progress · 0 Implement · 11 Planned · 11 open.**
 
 | Workstream | Done | In Progress | Implement | Planned |
 |---|---:|---:|---:|---:|
-| Monster coverage, balance and progression (M) | 10 | 0 | 0 | 2 |
+| Monster coverage, balance and progression (M) | 11 | 0 | 0 | 1 |
 | Biome variety and mechanics (V) | 12 | 0 | 0 | 10 |
 | Art identity and readability (A) | 5 | 0 | 0 | 0 |
 | UI (U) | 9 | 0 | 0 | 0 |
 | Crafting rework (C) | 8 | 0 | 0 | 0 |
-| **Total** | **44** | **0** | **0** | **12** |
+| **Total** | **45** | **0** | **0** | **11** |
 
 **Statuses:** `Planned` = scoped backlog, not started; `Implement` = detailed implementation plan exists; `In Progress` = actively underway; `Done` = completed, with evidence in the archive. Dependencies are stated on task cards; Planned does not necessarily mean ready to start.
 
@@ -28,7 +28,7 @@ The status index for scoped work. Open tasks are below; implementation evidence 
 | Creature art and readability | A-01–A-05 complete | See [completed evidence](backlog-completed.md#creature-art-and-readability) and [visual review sheets](art-evidence/README.md). |
 | Regional wilds and alphas | M-12, V-16 complete | See completed evidence; Hollow melee alpha fights retain a SLOG limitation. |
 | Essence availability | M-08 complete | The Cursed Altar can return Steam; see [completed evidence](backlog-completed.md#m-08). |
-| Later gameplay expansion | M-06 → M-07; V-13 | Promote a Rift biome to a full region; add weighted biome elements. |
+| Later gameplay expansion | M-07; V-05–V-10 | Add missing-element bosses and new Rift biomes. |
 
 Navigation: [UI](#ui-simplification) · [Balance](#balance-and-progression) · [Art](#art-identity-and-readability) · [Biome gameplay](#biome-gameplay-and-combat-foundations) · [Expansion](#world-and-roster-expansion) · [Dependencies](#dependencies-and-coordination) · [Completed](backlog-completed.md).
 
@@ -146,9 +146,10 @@ U-02–U-09 are complete. See [Completed UI tasks](backlog-completed.md#ui) for 
 
 ## World and roster expansion
 
-- [ ] **M-06 · Promote `fen` or `bone` to a full region** — `Status: Planned` · `Size: XL` · `js/data.js`, `js/monsters.js`, `js/map.js`, `js/audio.js`, `lang/` · `Depends: M-04, M-05`
+- [x] **M-06 · Promote Fen to a full region** — `Status: Done` · `Size: XL` · `js/data.js`, `js/monsters.js`, `js/map.js`, `js/audio.js`, `lang/` · `Depends: M-04, M-05`
   Add a `ZONES` entry, unlock gate, six authored regulars, a boss, map palette, music, quest intro, and translations.
-  **Acceptance:** region is playable end-to-end; boss/quest/unlocks work; `smoke`, `map-check`, `audio-check`, `i18n-check`, `sim` pass; save `KEY` bumped if the shape changed.
+  **Done:** Chose Fen, reusing the established Rift biome identity. Added the gated full-region progression, six authored regulars and the Fen Matriarch boss, dedicated palette and music, Fen quest intro, and English/German/Korean strings. Authored Fen enemies are not mislabeled as generated; the drowned guard uses the supported Shadow affinity. Old saves migrate safely without a schema change, retain the v18 save key, and prune Codex entries only after the roster exists. The Fen intro and boss victory unlock flow are covered end-to-end.
+  **Validation:** `node tools/fen-region-check.js`, `node tools/smoke.js` (SMOKE OK), `node tools/map-check.js`, `node tools/audio-check.js`, `node tools/i18n-check.js`, syntax checks, and `git diff --check` pass. A scoped seed-1, Heat 0, smart-policy simulator sample at the Spire-stage kit ran 20 fights for each of six Fen regulars and the boss; all seven rows won 100%, with no TOO_HARD or SLOG flags. Three regulars (Reedstalker, Mire Witch, Murk Wisp) were flagged TOO_EASY in this arrival-kit sample; see JSON and console output in [Fen region evidence](region-evidence/m06-fen-sim-seed1.json). The focused check also verifies Fen and Rift Codex records, wins, journal, depth and seed survive a real save reload. No save shape changed, so no key bump was needed. The full suite was not rerun after the parent’s V-14 assertion fix; its focused rerun passed.
 
 - [ ] **M-07 · Boss coverage for missing elements** — `Status: Planned` · `Size: L` · `js/data.js` · `Depends: M-06` (first boss)
   Poison, holy, shadow, metal, arcane and stone have no boss. Add bosses through new regions or variants; if deliberately excluded, document why.

@@ -176,7 +176,7 @@ $("lang").addEventListener("change",e=>setLang(e.target.value));
 // the wild roster and the Rift's region (monsters.js), the reduced-motion listener (motion.js), the sound
 // buttons (audio.js), the static markup and its numbers (i18n.js, events.js), then the first render.
 function boot(){
-  buildRoster();riftEnsure();
+  buildRoster();riftEnsure();pruneCodex(S);
   motionWatch();
   applyStatic();fillStatic();sndUi();
   try{render()}catch(e){ // a bad stored run should not cost the whole save: drop the transient parts first

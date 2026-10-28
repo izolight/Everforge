@@ -680,3 +680,19 @@ DICT.ko=Object.assign(DICT.ko||{},{
   "Cinderback Alpha":"잿불등 알파",
   "Starcrown Alpha":"별왕관 알파"
 });
+DICT.ko=Object.assign(DICT.ko||{},{
+  "Reed Snare":"갈대 덫","coiling its vines around the reeds":"덩굴을 갈대에 감습니다",
+  "Silt Hex":"진흙 주술","drawing a circle in the silt":"진흙 위에 원을 그립니다",
+  "Rooted Guard":"뿌리 방어","sinking its roots deep":"뿌리를 깊이 내립니다",
+  "Spore Burst":"포자 폭발","swelling with pale green light":"희미한 녹색 빛으로 부풉니다",
+  "Sunk Aegis":"가라앉은 방패","locking its shield into the mud":"방패를 진흙에 고정합니다",
+  "Cattail Rush":"부들 돌진","lowering its crown of antlers":"뿔 달린 머리를 낮춥니다",
+  "The Drowned Matriarch":"익사한 여족장","the Matriarch":"여족장",
+  "The reeds part. The Drowned Matriarch rises from the Fen's deepest pool.":"갈대가 갈라지고 익사한 여족장이 늪의 가장 깊은 웅덩이에서 솟아오릅니다.",
+  "The Fen remembers every name given to the water. She remembers who gave them.":"늪은 물에 붙인 모든 이름을 기억합니다. 그녀는 그 이름을 지은 이도 기억합니다.",
+  "Flood of Spores":"포자 범람","drawing a slow breath through the reeds":"갈대 사이로 천천히 숨을 들이쉽니다",
+  "The Sinking Fen":"가라앉는 늪",
+  "The old road ends in black water. Follow the reed-markers to the far bank; the Drowned Matriarch waits beyond them.":"옛길은 검은 물에서 끝납니다. 갈대 표식을 따라 건너편 둑으로 가세요. 그 너머에 익사한 여족장이 기다립니다.",
+  "The Fen is open because you brought down the Starfallen Archon. Its boss guards the next descent.":"별의 대군주를 쓰러뜨려 늪이 열렸습니다. 늪의 우두머리가 다음 하강로를 지키고 있습니다.",
+  "hit|spores you":"{name}이(가) 포자를 뿜어 {n} {g} 피해를 줍니다","hit|drowns you in spore-cloud":"{name}이(가) 포자 구름으로 {n} {g} 피해를 줍니다"
+});

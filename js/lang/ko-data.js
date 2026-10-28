@@ -347,5 +347,11 @@ DICT.ko=Object.assign(DICT.ko||{},{
 "Poisoned Edge":"독칼날","coating its blade with venom":"칼날에 독을 바르며",
 "Root Dive":"뿌리 잠복","folding into the roots":"뿌리 사이로 몸을 접어 숨으며",
 "Rune Aegis":"룬 방패","tracing a warding rune across its chest":"가슴에 보호 룬을 그리며",
-"Call Squall Spirit":"돌풍 정령 부르기","calling a weaker Squall Spirit to strike":"더 약한 돌풍 정령을 불러 공격하게 하며"
+"Call Squall Spirit":"돌풍 정령 부르기","calling a weaker Squall Spirit to strike":"더 약한 돌풍 정령을 불러 공격하게 하며",
+"Reedstalker":"갈대 추적자","Reedstalkers":"갈대 추적자들","A Reedstalker slips between the reeds and strikes.":"갈대 추적자가 갈대 사이를 미끄러지듯 지나가며 공격합니다.","It follows the channels beneath the water, where footsteps cannot be heard.":"발자국 소리조차 들리지 않는 물밑 물길을 따라갑니다.",
+"Mire Witch":"늪마녀","Mire Witches":"늪마녀들","A Mire Witch raises its mask from the black water.":"늪마녀가 검은 물속에서 가면을 들어 올립니다.","The Fen's old paths still know her name. The living do not.":"늪의 오래된 길은 아직 그녀의 이름을 기억합니다. 살아 있는 자들은 그렇지 않습니다.",
+"Peatback Brute":"토탄등 괴수","Peatback Brutes":"토탄등 괴수들","A mound of peat and roots pulls itself upright.":"토탄과 뿌리 더미가 몸을 일으킵니다.","A fallen tree can keep walking here long after its roots have drowned.":"뿌리가 썩어버린 뒤에도 쓰러진 나무는 이곳에서 한참 더 걸어 다닐 수 있습니다.",
+"Murk Wisp":"수렁불빛","Murk Wisps":"수렁불빛들","A green light drifts low over the water. It turns toward you.":"초록빛이 물 위를 낮게 떠다니다가 당신 쪽으로 돌아섭니다.","The glow marks a place where something sank and did not stay dead.":"그 빛은 무언가가 가라앉고도 죽지 않은 곳을 가리킵니다.",
+"Drowned Guard":"익사한 경비병","Drowned Guards":"익사한 경비병들","A rusted helm rises from the shallows, then its owner follows.":"녹슨 투구가 얕은 물에서 솟아오르고, 주인이 뒤따라 올라옵니다.","The old causeway was guarded once. The guard has forgotten the road is gone.":"옛 둑길은 한때 경비를 섰습니다. 그 경비병은 자신이 누구를 섬겼는지 잊었습니다.",
+"Fen Antlerwolf":"늪뿔늑대","Fen Antlerwolves":"늪뿔늑대들","A many-antlered wolf leaps from the cattails.":"뿔이 여러 갈래로 자란 늑대가 부들 사이에서 뛰어오릅니다.","It hunts the paths between islands, where the water is deep enough to hide a whole pack.":"섬 사이의 길을 사냥합니다. 물이 무리 전체를 숨길 만큼 깊은 곳에서요."
 });

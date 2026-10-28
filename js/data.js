@@ -151,7 +151,7 @@ const BLUEPRINTS={
   void_robe:{e:"acolyte",slots:[["cloth"],["cloth"],["crystal"]],m:["stormsilk","stormsilk","void_shard"]}
 };
 const bpOf=e=>Object.keys(BLUEPRINTS).filter(id=>BLUEPRINTS[id].e===e);
-const ZONES=[["woods","Whispering Woods","gnarlhorn"],["pass","Frostfang Pass","rimeclaw"],["hollow","Cinder Hollow","phoenix"],["spire","Starfall Spire","archon"],["rift","The Wanderer's Rift","rift_boss"]];
+const ZONES=[["woods","Whispering Woods","gnarlhorn"],["pass","Frostfang Pass","rimeclaw"],["hollow","Cinder Hollow","phoenix"],["spire","Starfall Spire","archon"],["fen","The Sinking Fen","fen_matriarch"],["rift","The Wanderer's Rift","rift_boss"]];
 const ENEMIES={
   boar:{name:"Thornback Boar",plural:"Thornback Boars",zone:"woods",mv:"chase",el:"wood",hp:30,atk:6,def:2,weak:["fire"],resist:[],w:3,verb:"gores you",intro:"A Thornback Boar bursts out of the brush.",
     lore:"Bristled forest boars that sharpen their tusks on oak bark. They charge when cornered, and often when not.",
@@ -264,6 +264,27 @@ const ENEMIES={
     phase:{at:.5,label:"VOID FORM",msg:"The storm collapses inward. The Archon turns to the dark behind it!",
       to:{el:"shadow",weak:["holy","metal"],resist:["shadow","arcane"],inf:{s:"curse",ch:0.4},verb:"unmakes you",sp:{every:3,name:"Void Collapse",kind:"drain",x:1.5,tell:"folding the air around a black point"}}},
     drops:[["star_heart",1],["storm_feather",.8]]},
+  fen_reedstalker:{name:"Reedstalker",plural:"Reedstalkers",zone:"fen",mv:"chase",el:"poison",hp:112,atk:23,def:6,weak:["fire"],resist:["poison"],w:3,verb:"lashes you",intro:"A Reedstalker slips between the reeds and strikes.",
+    lore:"It follows the channels beneath the water, where footsteps cannot be heard.",art:{b:"beast",p:["vines","tail","spikes"],c:"#6d8540",a:"#bdcd69",pat:"stripes",po:.35},inf:{s:"poison",ch:.25},
+    sp:{every:3,name:"Reed Snare",kind:"heavy",x:1.9,tell:"coiling its vines around the reeds"},drops:[["witchwood",.7],["nightshade",.35]]},
+  fen_mirewitch:{name:"Mire Witch",plural:"Mire Witches",zone:"fen",mv:"still",el:"shadow",hp:92,atk:24,def:4,weak:["holy","fire"],resist:["shadow","poison"],w:2,verb:"hexes you",intro:"A Mire Witch raises its mask from the black water.",
+    lore:"The Fen's old paths still know her name. The living do not.",art:{b:"humanoid",p:["hood","staff","runes"],skin:"#a89b7a",c:"#46563a",a:"#a4c76b",pat:"bands",po:.35},inf:{s:"curse",ch:.25},
+    sp:{every:3,name:"Silt Hex",kind:"drain",x:1.2,tell:"drawing a circle in the silt"},drops:[["witch_eye",.55],["nightshade",.45]]},
+  fen_peatbrute:{name:"Peatback Brute",plural:"Peatback Brutes",zone:"fen",mv:"wander",el:"wood",hp:150,atk:22,def:10,weak:["fire","ice"],resist:["wood","poison"],w:2,verb:"slams you",intro:"A mound of peat and roots pulls itself upright.",
+    lore:"A fallen tree can keep walking here long after its roots have drowned.",art:{b:"construct",p:["armor","vines","horns"],c:"#594b32",a:"#9e8750",pat:"cracks",po:.4},
+    sp:{every:4,name:"Rooted Guard",kind:"guard",ward:.18,turns:2,tell:"sinking its roots deep"},drops:[["witchwood",.65],["golem_core",.3]]},
+  fen_murk_wisp:{name:"Murk Wisp",plural:"Murk Wisps",zone:"fen",mv:"wander",el:"poison",hp:84,atk:25,def:3,weak:["fire","holy"],resist:["poison","shadow"],w:2,verb:"spores you",intro:"A green light drifts low over the water. It turns toward you.",
+    lore:"The glow marks a place where something sank and did not stay dead.",art:{b:"elemental",p:["orbit","spikes"],c:"#729447",a:"#d3ef7a",pat:"swirl",po:.45},inf:{s:"poison",ch:.3},
+    sp:{every:3,name:"Spore Burst",kind:"multi",n:2,x:.75,tell:"swelling with pale green light"},drops:[["nightshade",.6],["spring_water",.3]]},
+  fen_drowned_guard:{name:"Drowned Guard",plural:"Drowned Guards",zone:"fen",mv:"still",el:"shadow",hp:136,atk:21,def:9,weak:["arcane","swift"],resist:["shadow","poison"],w:2,verb:"hammers you",intro:"A rusted helm rises from the shallows, then its owner follows.",
+    lore:"The old causeway was guarded once. The guard has forgotten the road is gone.",art:{b:"undead",p:["armor","hood","chains"],c:"#59675a",a:"#9fb89a",pat:"bands",po:.35},
+    sp:{every:4,name:"Sunk Aegis",kind:"guard",ward:.2,turns:2,tell:"locking its shield into the mud"},drops:[["shroud",.55],["spring_water",.35]]},
+  fen_antlerwolf:{name:"Fen Antlerwolf",plural:"Fen Antlerwolves",zone:"fen",mv:"chase",el:"swift",hp:118,atk:26,def:5,weak:["stone"],resist:["wood","swift"],w:2,verb:"gores you",intro:"A many-antlered wolf leaps from the cattails.",
+    lore:"It hunts the paths between islands, where the water is deep enough to hide a whole pack.",art:{b:"beast",p:["antlers","mane","tail"],c:"#77765c",a:"#c8ca83",pat:"stripes",po:.35},
+    sp:{every:3,name:"Cattail Rush",kind:"multi",n:2,x:.85,tell:"lowering its crown of antlers"},drops:[["pelt",.5],["witchwood",.35]]},
+  fen_matriarch:{name:"The Drowned Matriarch",short:"the Matriarch",zone:"fen",el:"poison",boss:true,hp:390,atk:34,def:12,weak:["fire","ice"],resist:["poison","wood"],verb:"drowns you in spore-cloud",intro:"The reeds part. The Drowned Matriarch rises from the Fen's deepest pool.",
+    lore:"The Fen remembers every name given to the water. She remembers who gave them.",art:{b:"humanoid",p:["hood","staff","runes"],skin:"#a89b7a",c:"#33472f",a:"#c5d879",pat:"bands",po:.35},inf:{s:"poison",ch:.35},
+    sp:{every:3,name:"Flood of Spores",kind:"multi",n:3,x:.75,tell:"drawing a slow breath through the reeds"},drops:[["witchwood",1],["nightshade",.8],["witch_eye",.4]]},
   mimic:{name:"Mimic",zone:"any",el:"metal",hp:36,atk:6,def:3,weak:["arcane"],resist:["metal"],verb:"bites you",intro:"The lid creaks open into a mouth. It's a Mimic!",
     lore:"A chest with teeth. It has learned that travellers cannot resist opening things.",
     sp:{every:3,name:"Chomp",kind:"heavy",x:2.2,tell:"opening its lid very wide"},drops:[]}
@@ -569,6 +590,8 @@ const UNLOCKS=[
     i:{t:"Bounties",l:["With the first steps behind you, the goal bar offers bounties: hunts and forging jobs that pay in essences.","Claim one to get the next."],tab:"battle"}},
   {id:"afx",name:"Affixes",ic:"elite",when:s=>Object.keys(s.afx).length>0,txt:"Meet a magic or rare enemy.",w:"See the Codex tab.",
     i:{t:"Affixes",l:["The Codex now records every affix you meet: what it does and which essence it drops."],tab:"codex",sel:"#aflabel"}},
-  {id:"stats",name:"Lifetime stats",ic:"renown",q:1,when:s=>s.wins>=3,txt:"Win 3 battles."}
+  {id:"stats",name:"Lifetime stats",ic:"renown",q:1,when:s=>s.wins>=3,txt:"Win 3 battles."},
+  {id:"fen_intro",name:"The Sinking Fen",ic:"shrine",q:1,when:s=>s.unlocked.includes("fen"),
+    i:{t:"The Sinking Fen",l:["The old road ends in black water. Follow the reed-markers to the far bank; the Drowned Matriarch waits beyond them.","The Fen is open because you brought down the Starfallen Archon. Its boss guards the next descent."],tab:"battle"}}
 ];
 const UNL=Object.fromEntries(UNLOCKS.map(u=>[u.id,u]));
