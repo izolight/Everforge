@@ -264,7 +264,7 @@ function youFall(){
   const B=S.battle,P=pstats();if(B.opening)S.onboarding=B.opening===1?0:3;S.hp=0;B.over="lost";S.stats.deaths++;sfx("lose",.25);
   const pool=[];Object.keys(S.inv).forEach(id=>{const free=(S.inv[id]||0)-eqCount(id);for(let i=0;i<free;i++)pool.push(id)});
   let lost=null;if(pool.length){lost=pick(pool);S.inv[lost]--;trimBench()}
-  S.hp=Math.round(P.maxHp*.3);const dl=S.run==="daily",zn=zoneName(S.zone);
+  S.hp=P.maxHp;const dl=S.run==="daily",zn=zoneName(S.zone);
   if(dl){S.daily.turns+=B.turn;finishDaily(S.daily.map.steps?S.daily.map.dp:0,false)}else S.maps[S.zone]=newMap(S.zone);
   blog(tx("You collapse and wake at the edge of {zone} with {hp} HP.",{zone:zn,hp:S.hp})+" "+(dl?tx("Your daily expedition is over."):tx("The paths have shifted."))+(lost?" "+tx("A scavenger made off with your {item}.",{item:iname(S.items[lost])}):""),"foe");
   save();render();
