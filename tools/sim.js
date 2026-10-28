@@ -151,13 +151,13 @@ function setup(){ // runs inside the game page; everything here uses the real ga
     const out=[],seen={};
     for(let s=1;out.length<n&&s<1000000;s++){const R=rng(hash("sim-rift:"+s)),bi=RIFT_BIOMES[Math.floor(R()*RIFT_BIOMES.length)];if(seen[bi])continue;seen[bi]=1;out.push({s,seed:hash("sim-rift:"+s),biome:bi})}
     return out};
-  // a wild creature forced to a rarity: its stored stats (its own rarity divided out) go back onto the region band,
-  // and the affix rules of a regular apply. A Rift master keeps its stored stats: the game gives bosses no affixes
-  // at all, so its forced rows apply them after the fight has started (sim-only).
+  // A forced wild row puts stored rarity-scaled stats back on the region band. For a generated boss,
+  // keep its stored base stats and let the forced rarity apply the same multiplier as its native roll.
   const prep=(id,o)=>{
     if(o.rs!=null)SIM.rift(o.rs,o.rd||1); // the Rift region is rebuilt from its seed before every fight (cheap and deterministic)
     const E0=ENEMIES[id];let E=E0,restore=null;
     if(o.force&&!E0.boss){const rm=RARITIES[E0.rar]||{hp:1,atk:1};const cp={...E0,hp:Math.round(E0.hp*rm.hp),atk:Math.round(E0.atk*rm.atk),afx:[],rar:undefined};restore=E0;ENEMIES[id]=cp;E=cp}
+    else if(o.force&&E0.gen&&E0.boss){const cp={...E0,gen:undefined,afx:[],rar:undefined};restore=E0;ENEMIES[id]=cp;E=cp}
     return{E,restore}};
   const after=(id,o,E)=>{if(o.force&&E.boss){const M=ENEMIES[id],af=(M.afx||[]).slice(0,o.force==="rare"?3:1);if(af.length)applyAfx(S.battle,M,o.force,af)}};
   SIM.fight=(snap,id,heat,pol,o)=>{
@@ -463,7 +463,7 @@ async function main(){
         for(const id of ids)rtodo.push({c:{k:k.name,e:id,h:0,p,mz:"rift",rs:sd.seed,rd:d,rar:f?vr:"normal",force:f?vr:undefined,nat:!f},vr})}
       const rres=await runCells(rtodo,"rift");
       rres.forEach(c=>{c.flags=flagsOf(c,"on",{boss:c.e==="rift_boss"})});
-      console.log(`\n== Rift masters: ${seeds.length} seeds × ${RIFT_DEPTH.join(",")} depths × ${rk.length} kits × ${POLS.length} policies, ${N} fights per cell. Heat 0 (the Rift has no Heat), the Rift not mastered, map row 0 (as for bosses). "native" is the master as the game fights it today (a boss gets no affixes); "magic" and "rare" apply the master's own affixes to the fight (sim-only). ==`);
+      console.log(`\n== Rift masters: ${seeds.length} seeds × ${RIFT_DEPTH.join(",")} depths × ${rk.length} kits × ${POLS.length} policies, ${N} fights per cell. Heat 0 (the Rift has no Heat), the Rift not mastered, map row 0 (as for bosses). "native" is the generated master's rolled rare rarity and affixes; forced magic/rare rows reuse its own compatible affixes and rarity-scaled band. ==`);
       const rinfo={};
       for(const sd of seeds)for(const d of RIFT_DEPTH){
         const info=await P0.evaluate(([seed,dep])=>SIM.rift(seed,dep),[sd.seed,d]);

@@ -15,7 +15,7 @@ function startBattle(forced,opt){
   if(tw==="double")B.atk*=2;
   const first=!!(opt.ambush||opt.lunge); // the foe strikes before your first action (an ambush, or a hunter that lunges at you)
   if(first)B.log.push({t:opt.amsg||tx("Ambush! Something leaps out at you."),c:"big"});
-  if(!E.boss&&id!=="mimic"){ // a map enemy brings its rolled rarity and affixes; a wild creature brings its own
+  if((!E.boss||E.gen)&&id!=="mimic"){ // authored bosses keep their boss rules; generated Rift bosses carry their own rarity and affixes
     const sa=speciesAfx(E);
     const f=sa||(opt.rar!=null?{rar:opt.rar,afx:opt.afx||rollAfx(Math.random,opt.rar,{mv:E.mv,heat:h,e:id})}:rollFoe(Math.random,{elite:opt.elite||tw==="elites",heat:h,row:opt.row,mv:E.mv,e:id}));
     applyAfx(B,E,f.rar,f.afx);B.intr=!!sa}

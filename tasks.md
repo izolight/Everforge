@@ -4,16 +4,16 @@ The status index for scoped work. Open tasks are below; implementation evidence 
 
 ## At a glance
 
-**56 tasks · 34 Done · 0 In Progress · 0 Implement · 22 Planned · 22 open.**
+**56 tasks · 34 Done · 1 In Progress · 0 Implement · 21 Planned · 22 open.**
 
 | Workstream | Done | In Progress | Implement | Planned |
 |---|---:|---:|---:|---:|
-| Monster coverage, balance and progression (M) | 6 | 0 | 0 | 6 |
+| Monster coverage, balance and progression (M) | 6 | 1 | 0 | 5 |
 | Biome variety and mechanics (V) | 6 | 0 | 0 | 16 |
 | Art identity and readability (A) | 5 | 0 | 0 | 0 |
 | UI (U) | 9 | 0 | 0 | 0 |
 | Crafting rework (C) | 8 | 0 | 0 | 0 |
-| **Total** | **34** | **0** | **0** | **22** |
+| **Total** | **34** | **1** | **0** | **21** |
 
 **Statuses:** `Planned` = scoped backlog, not started; `Implement` = detailed implementation plan exists; `In Progress` = actively underway; `Done` = completed, with evidence in the archive. Dependencies are stated on task cards; Planned does not necessarily mean ready to start.
 
@@ -55,9 +55,13 @@ U-02–U-09 are complete. See [Completed UI tasks](backlog-completed.md#ui) for 
   **Done:** opening curve is intentional. Bare iron-sword baseline on `f01d69c` won 0/6, 0/6, 1/6 expeditions for seeds 1/7/11. With the tutorial Fire sword and Weaponcraft prepared, final code won 6/6 for each seed. Smart policy, Heat 0, six Woods expeditions per seed. Seed 1 `--rarity --kit starter --policy smart --n 100`: magic/rare wins 99%/96% at Heat 0, 91%/79% at Heat 3; one Heat 3 rare row remains `RARE_HARD`. README and todo record the decision and the limit.
   **Validation:** `node -r /tmp/noFonts.js tools/sim.js --fresh --exped 6 --seed 1/7/11`; `node -r /tmp/noFonts.js tools/sim.js --rarity --kit starter --policy smart --seed 1 --n 100`; smoke, i18n, unlock checks passed.
 
-- [ ] **M-11 · Fix the Rift master's affixes and stat band** — `Status: Planned` · `Size: S` · `js/battle.js`, `js/monsters.js`
+- [ ] **M-11 · Fix the Rift master's affixes and stat band** — `Status: In Progress` · `Size: S` · `js/battle.js`, `js/monsters.js`
   `startBattle` skips the affix block for every boss (`js/battle.js:17`), so the Rift master — rolled as a rare with three affixes and its stats already divided by the rare multiplier — fights with no affixes at about 1.2× the region's HP band.
   **Acceptance:** the master is a real fight (`node tools/sim.js --wild --seed 1`: no `TOO_EASY` at depth 1 with a `*/spire` kit, smart play wins over 90%); the master's stats and affixes match the roll it was built from; the sim's native row agrees with the forced rows. The historical seed-1 baseline fails the first clause (the melee, staff and stacked kits are `TOO_EASY` at depth 1).
+
+  **Current implementation and gate status:** generated Rift masters now apply their generated rarity and compatible affixes in native combat; authored bosses retain the authored boss path. The forced simulator row reuses the master's stored rarity, stats and compatible affixes. `tools/rift-boss-check.js` asserts those native/forced values and authored-boss behavior. The current shared master band is 3.2× HP / 1.1× attack before rarity and affixes. This is still **In Progress** because the difficulty gate is not met: on the refreshed all-biome sample below, depth-1 native master wins were 93% overall, but 19 of the 32 biome/kit rows were tagged `TOO_EASY`. A 4.0× HP / 1.25× attack trial reduced tagged rows to 12/32 but lowered wins to 86%; a 3.8× HP / 1.0× attack trial produced 90% wins and 18/32 easy rows. These measured bands do not meet both gate clauses together. Do not archive as Done until both pass.
+
+  **Refreshed sample:** base revision `1abbaf9` plus the uncommitted M-11 working tree; `node -r /tmp/noFonts.js tools/sim.js --wild --enemy rift_boss --kit spire --policy smart --seed 1 --n 100 --rift-depth 1 --no-econ`. This is 100 fights per row, smart policy, all four `/spire` kits, depth 1, Heat 0 (Rift does not use Heat), across the eight deterministic biome Rift seeds. Native master win rate by biome: deep 99%, fen 100%, astral 100%, forest 100%, ember 80%, tundra 100%, bone 75%, ash 92%; aggregate 93%. The forced rare row reuses each biome's stored master roll; exact native/forced combat stats and affix count are checked by `node tools/rift-boss-check.js` (deep seed roll: rare, 3 affixes). Sample limitations: this is one explicit fight seed and 100 trials per row, not a broad seed sweep; 19/32 rows remain `TOO_EASY`, and ember/bone win rates remain low, so the difficulty gate is unresolved.
 
   <details>
   <summary>Historical measurements — refresh before tuning</summary>
