@@ -736,7 +736,7 @@ DICT.ko=Object.assign(DICT.ko||{}, {
   "Crownfall":"왕관 낙하","raising its crown of branches":"나뭇가지 왕관을 들어 올립니다",
   "Sunward Mend":"햇살 치유","turning its halo to gather light":"빛을 모으려 후광을 돌립니다"
 });
-DICT.ko||{}, {
+DICT.ko=Object.assign(DICT.ko||{}, {
   "Geyser Field":"간헐천 지대",
   "The Steam Vents":"증기 분출구","The Boiling Shelf":"끓어오르는 대지",
   "The White Caldera":"하얀 칼데라","The Sinter Fields":"규화 들판",

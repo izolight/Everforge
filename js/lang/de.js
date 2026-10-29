@@ -739,7 +739,7 @@ DICT.de=Object.assign(DICT.de||{}, {
   "Crownfall":"Kronensturz","raising its crown of branches":"hebt seine Krone aus Ästen",
   "Sunward Mend":"Sonnenheilung","turning its halo to gather light":"wendet seinen Heiligenschein, um Licht zu sammeln"
 });
-DICT.de||{}, {
+DICT.de=Object.assign(DICT.de||{}, {
   "Geyser Field":"Geysirfeld",
   "The Steam Vents":"Die Dampfschlote","The Boiling Shelf":"Das siedende Plateau",
   "The White Caldera":"Die Weiße Caldera","The Sinter Fields":"Die Sinterfelder",
