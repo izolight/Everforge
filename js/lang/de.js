@@ -715,7 +715,7 @@ DICT.de=Object.assign(DICT.de||{}, {
   "Brine Volley":"Salzsalve","gathering salt spray":"sammelt salzige Gischt",
   "Breakwater Slam":"Wellenbrecherwucht","lifting a cresting wave":"hebt eine brechende Welle"
 });
-DICT.de||{}, {
+DICT.de=Object.assign(DICT.de||{}, {
   "Windcut Crags":"Windschartige Klippen","The Windcut Crags":"Die windgeschliffenen Klippen",
   "The Iron Highlands":"Das Eisenhochland","The Skyward Pass":"Der Himmelsgrat",
   "The Shattered Ridge":"Der zersplitterte Grat","The Chainwind Shelf":"Die Kettenwindkante","The Highstone Reach":"Die Hochsteinweite",
@@ -726,4 +726,16 @@ DICT.de||{}, {
   "Crosswind Rend":"Querwindhieb","sweeping its wings through the gale":"fegt mit den Flügeln durch den Sturm",
   "Cragfall Crush":"Klippensturz","heaving a slab of the ridge":"wuchtet eine Felsplatte des Grats empor",
   "Chainlash":"Kettenpeitsche","drawing the iron chains taut":"spannt die Eisenketten straff"
+});
+DICT.de=Object.assign(DICT.de||{}, {
+  "Radiant Garden":"Strahlender Garten",
+  "The Sunken Garden":"Der versunkene Garten","The Gilded Grove":"Der vergoldete Hain","The Orchard of Bones":"Der Knochenobstgarten",
+  "The Amber Conservatory":"Das Bernsteingewächshaus","The Haloed Bower":"Die Heiligenscheinlaube","The Briar Crown":"Die Dornenkrone",
+  "Sunlight pools here where no sky can reach.":"Hier sammelt sich Sonnenlicht, wohin kein Himmel reicht.",
+  "The garden keeps every bloom that ever fell.":"Der Garten bewahrt jede Blüte, die je gefallen ist.",
+  "A bright halo circles the oldest roots.":"Ein heller Schein umkreist die ältesten Wurzeln.",
+  "The orchard bears fruit that remembers its pickers.":"Der Obstgarten trägt Früchte, die sich an ihre Pflücker erinnern.",
+  "Briarwheel":"Dornenwirbel","drawing thorned vines into a shining ring":"zieht dornige Ranken zu einem leuchtenden Ring",
+  "Crownfall":"Kronensturz","raising its crown of branches":"hebt seine Krone aus Ästen",
+  "Sunward Mend":"Sonnenheilung","turning its halo to gather light":"wendet seinen Heiligenschein, um Licht zu sammeln"
 });

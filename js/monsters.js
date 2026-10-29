@@ -47,7 +47,10 @@ deep:{n:"The Weeping Deep",els:["arcane","ice","shadow","poison"],bodies:["eleme
   acc:["#8296a2","#c29b62"],skins:["#b99a7c","#897866"],verbs:["buffets you","hammers you","slashes at you","rakes you","strikes you","slams you"],
   pre:["Windcut","Ironwind","Crag","Gale","Highland","Skyshard","Chainfall","Ridge"],suf:["Warden","Sentinel","Stalker","Runner","Razor","Watcher","Golem","Drifter"],
   regions:["The Windcut Crags","The Iron Highlands","The Skyward Pass","The Shattered Ridge","The Chainwind Shelf","The Highstone Reach"],lore:["The wind carved the ridges and left the hardest things standing.","Iron chains sing between cliffs when the gale turns.","The high pass belongs to whatever can keep its footing.","Crystals ring beneath the stone whenever the sky breaks open."]},
-
+  garden:{n:"Radiant Garden",els:["holy","wood","poison","swift"],bodies:["beast","humanoid","elemental","undead"],parts:["antlers","vines","halo","wings","crown","mane"],pats:["bands","swirl","stars","veins","stripes","cracks"],
+  acc:["#dc91c7","#79c86e"],skins:["#e5c79c","#b9a37d"],verbs:["lashes you","strikes you","rakes you","smites you","bites you","claws you","slams you"],
+  pre:["Sunlit","Gilded","Briar","Honeyed","Dewfall","Orchard","Crownleaf","Pollen"],suf:["Warden","Stalker","Watcher","Hound","Wraith","Herald","Creeper","Choir"],
+  regions:["The Sunken Garden","The Gilded Grove","The Orchard of Bones","The Amber Conservatory","The Haloed Bower","The Briar Crown"],lore:["Sunlight pools here where no sky can reach.","The garden keeps every bloom that ever fell.","A bright halo circles the oldest roots.","The orchard bears fruit that remembers its pickers."]}
 };
 // Optional element weights: common entries receive weight 3, rare entries weight 1.
 // The Rift-only signatures from M-05 use the same field: their signature element
@@ -63,6 +66,7 @@ const BIOME_ELW={
   deep:{ice:2,arcane:1,shadow:1,poison:1},
   tidewrack:{ice:3,poison:3,shadow:1,swift:1},
   windcut:{stone:3,metal:3,swift:3,arcane:1},
+  garden:{holy:3,wood:3,poison:1,swift:1}
 };
 Object.keys(BIOME_ELW).forEach(k=>BIOMES[k].elW=BIOME_ELW[k]);
 // the element a creature is born to: what it is weak to, what it shrugs off, and what it inflicts on a hit
@@ -125,7 +129,10 @@ const BIOME_SP={
     {every:3,name:"Crosswind Rend",kind:"multi",n:2,x:.82,tell:"sweeping its wings through the gale"},
     {every:4,name:"Cragfall Crush",kind:"heavy",x:1.9,tell:"heaving a slab of the ridge"},
     {every:4,name:"Chainlash",kind:"drain",x:1.05,tell:"drawing the iron chains taut"}],
-
+  garden:[
+    {every:3,name:"Briarwheel",kind:"multi",n:2,x:.8,tell:"drawing thorned vines into a shining ring"},
+    {every:4,name:"Crownfall",kind:"heavy",x:1.8,tell:"raising its crown of branches"},
+    {every:4,name:"Sunward Mend",kind:"heal",x:.2,tell:"turning its halo to gather light"}]
 };
 // Four Rift-only biomes lean on one element, material, and natural status trait.
 // These reuse existing elements/items/status rules and do not add RNG calls.
@@ -258,7 +265,7 @@ const regMon=list=>list.forEach(E=>{ENEMIES[E.id]=E});
 function buildRoster(){ // authored regions use their fixed rosters; Fen is not Rift Fen
   ZONES.forEach(z=>{if(z[0]===RIFT_ZONE||z[0]==="fen")return;regMon(genRoster(z[0]))})}
 // ---- the Rift: a random region, rolled from one seed
-const RIFT_BIOMES=["fen","ash","bone","deep","forest","tundra","ember","astral","tidewrack","windcut"];
+const RIFT_BIOMES=["fen","ash","bone","deep","forest","tundra","ember","astral","tidewrack","windcut","garden"];
 function riftMake(seed,depth){ // a random region: biome, palette, name, ten wild creatures and a master
   const R=rng(seed),bi=RIFT_BIOMES[Math.floor(R()*RIFT_BIOMES.length)],B=BIOMES[bi];
   const reg=B.regions[Math.floor(R()*B.regions.length)];

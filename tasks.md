@@ -4,16 +4,16 @@ The status index for scoped work. Open tasks are below; implementation evidence 
 
 ## At a glance
 
-**56 tasks · 48 Done · 1 In Progress · 0 Implement · 7 Planned · 8 open.**
+**56 tasks · 49 Done · 1 In Progress · 0 Implement · 6 Planned · 7 open.**
 
 | Workstream | Done | In Progress | Implement | Planned |
 |---|---:|---:|---:|---:|
 | Monster coverage, balance and progression (M) | 12 | 0 | 0 | 0 |
-| Biome variety and mechanics (V) | 14 | 1 | 0 | 7 |
+| Biome variety and mechanics (V) | 15 | 1 | 0 | 6 |
 | Art identity and readability (A) | 5 | 0 | 0 | 0 |
 | UI (U) | 9 | 0 | 0 | 0 |
 | Crafting rework (C) | 8 | 0 | 0 | 0 |
-| **Total** | **48** | **1** | **0** | **7** |
+| **Total** | **49** | **1** | **0** | **6** |
 
 **Statuses:** `Planned` = scoped backlog, not started; `Implement` = detailed implementation plan exists; `In Progress` = actively underway; `Done` = completed, with evidence in the archive. Dependencies are stated on task cards; Planned does not necessarily mean ready to start.
 
@@ -167,11 +167,13 @@ U-02–U-09 are complete. See [Completed UI tasks](backlog-completed.md#ui) for 
   **Done:** Added Windcut as a generated Rift biome with the specified existing elements, bodies and attachable parts; a weighted 3:3:3:1 element pool; themed translated regions/lore; and three translated V-11-compatible specials using existing combat kinds. No family, authored region or roster slot was added.
   **Validation:** deterministic pool/roster/name/special and 390×844 map/battle checks pass. Paired seed-1/7 smart Heat 0 n=30 stage-kit matrices cover depths 1 and 3 for all 11 current biomes, including Windcut and Garden. `node tools/run-checks.js` passed 32/32, including smoke. Raw outputs, baselines, screenshots and observed difficulty flags are in [V-06 evidence](rift-evidence/v06-windcut.md).
 
-- [ ] **V-07 · Add a Radiant garden biome** — `Status: In Progress` · `Size: M` · `js/monsters.js`
+- [x] **V-07 · Add a Radiant garden biome** — `Status: Done` · `Size: M` · `js/monsters.js` · see [completed evidence](backlog-completed.md#v-07--radiant-garden)
   Elements holy/wood/poison/swift; bodies beast/humanoid/elemental/undead; parts antlers/vines/halo/wings/crown/mane; names such as "The Sunken Garden", "The Gilded Grove", "The Orchard of Bones".
   **Acceptance:** biome appears in `RIFT_BIOMES`; generated creatures render; sim sample passes.
+  **Done:** Added Radiant Garden with the specified existing elements, bodies and attachable parts, 3:3:1:1 weighted elements, a floral palette, translated regions/lore, and three translated V-11-compatible specials. No new family, authored region or roster slot was added.
+  **Validation:** Seeded roster, name/attachment, special translation and 390×844 map/battle checks pass. Color, biome-neutrality, i18n and focused Garden checks pass; `node tools/run-checks.js` passed 32/32 including smoke. Paired seed-1/7 smart Heat 0 n=30 samples cover depths 1/3 for all 11 biomes with modifiers disabled; Garden master rows won 99%. Broad Rift-wild matrices retain many `TOO_EASY` flags and a few `TOO_HARD` depth-3 cells. The expanded selector remaps seeds, so these are coverage samples, not exact same-seed parity. See [V-07 evidence](rift-evidence/v07-garden.md) and [raw integrated runs](rift-evidence/v06-integrated-seed1.json).
 
-- [ ] **V-08 · Add a Geyser field biome** — `Status: Planned` · `Size: M` · `js/monsters.js`
+- [ ] **V-08 · Add a Geyser field biome** — `Status: In Progress` · `Size: M` · `js/monsters.js`
   Elements fire/ice/stone/arcane; bodies elemental/construct/beast/humanoid; parts flames/frost/crystals/armor/horns/runes; names such as "The Steam Vents", "The Boiling Shelf", "The White Caldera".
   **Acceptance:** biome appears in `RIFT_BIOMES`; generated creatures render; sim sample passes.
 

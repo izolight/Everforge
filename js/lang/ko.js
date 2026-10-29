@@ -712,7 +712,7 @@ DICT.ko=Object.assign(DICT.ko||{}, {
   "Brine Volley":"염수 연사","gathering salt spray":"짠 물보라를 모읍니다",
   "Breakwater Slam":"방파제 강타","lifting a cresting wave":"부서지는 파도를 들어 올립니다"
 });
-DICT.ko||{}, {
+DICT.ko=Object.assign(DICT.ko||{}, {
   "Windcut Crags":"바람 깎인 바위산","The Windcut Crags":"바람 깎인 바위산",
   "The Iron Highlands":"철의 고원","The Skyward Pass":"하늘길 고개",
   "The Shattered Ridge":"부서진 산등성이","The Chainwind Shelf":"사슬바람 절벽","The Highstone Reach":"높은 바위 지대",
@@ -723,4 +723,16 @@ DICT.ko||{}, {
   "Crosswind Rend":"맞바람 가르기","sweeping its wings through the gale":"강풍 속에서 날개를 휘두릅니다",
   "Cragfall Crush":"벼랑 붕괴","heaving a slab of the ridge":"산등성이 바위판을 들어 올립니다",
   "Chainlash":"사슬 채찍","drawing the iron chains taut":"쇠사슬을 팽팽히 당깁니다"
+});
+DICT.ko=Object.assign(DICT.ko||{}, {
+  "Radiant Garden":"빛나는 정원",
+  "The Sunken Garden":"가라앉은 정원","The Gilded Grove":"금빛 숲","The Orchard of Bones":"뼈 과수원",
+  "The Amber Conservatory":"호박빛 온실","The Haloed Bower":"후광의 정자","The Briar Crown":"가시관",
+  "Sunlight pools here where no sky can reach.":"하늘이 닿지 않는 이곳에 햇빛이 고입니다.",
+  "The garden keeps every bloom that ever fell.":"정원은 떨어진 모든 꽃을 간직합니다.",
+  "A bright halo circles the oldest roots.":"오래된 뿌리를 밝은 후광이 감쌉니다.",
+  "The orchard bears fruit that remembers its pickers.":"과수원은 자신을 딴 이들을 기억하는 열매를 맺습니다.",
+  "Briarwheel":"가시덩굴 바퀴","drawing thorned vines into a shining ring":"가시덩굴을 빛나는 고리로 모읍니다",
+  "Crownfall":"왕관 낙하","raising its crown of branches":"나뭇가지 왕관을 들어 올립니다",
+  "Sunward Mend":"햇살 치유","turning its halo to gather light":"빛을 모으려 후광을 돌립니다"
 });
