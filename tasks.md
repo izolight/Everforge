@@ -9,7 +9,7 @@ The status index for scoped work. Open tasks are below; implementation evidence 
 | Workstream | Done | In Progress | Implement | Planned |
 |---|---:|---:|---:|---:|
 | Monster coverage, balance and progression (M) | 12 | 0 | 0 | 0 |
-| Biome variety and mechanics (V) | 17 | 1 | 0 | 5 |
+| Biome variety and mechanics (V) | 17 | 0 | 0 | 5 |
 | Art identity and readability (A) | 5 | 0 | 0 | 0 |
 | UI (U) | 9 | 0 | 0 | 0 |
 | Crafting rework (C) | 8 | 0 | 0 | 0 |
