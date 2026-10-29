@@ -736,6 +736,7 @@ DICT.ko=Object.assign(DICT.ko||{}, {
   "Crownfall":"왕관 낙하","raising its crown of branches":"나뭇가지 왕관을 들어 올립니다",
   "Sunward Mend":"햇살 치유","turning its halo to gather light":"빛을 모으려 후광을 돌립니다"
 });
+
 DICT.ko=Object.assign(DICT.ko||{}, {
   "Geyser Field":"간헐천 지대",
   "The Steam Vents":"증기 분출구","The Boiling Shelf":"끓어오르는 대지",
@@ -748,4 +749,15 @@ DICT.ko=Object.assign(DICT.ko||{}, {
   "Fumarole Burst":"분기공 폭발","drawing heat from below":"땅속의 열기를 끌어옵니다",
   "Basalt Quake":"현무암 지진","raising a slab of heated stone":"달궈진 돌판을 들어 올립니다",
   "Steam Mend":"증기 치유","drawing vapor through its cracks":"갈라진 틈으로 증기를 끌어옵니다"
+});
+
+DICT.ko=Object.assign(DICT.ko||{}, {
+  "The Sporewood":"포자숲","The Hollow Bloom":"텅 빈 꽃","The Weeping Canopy":"눈물의 수관",
+  "Spores drift beneath a canopy that never sees daylight.":"햇빛을 본 적 없는 숲 그늘 아래로 포자가 떠다닙니다.",
+  "Each bloom opens only when something dies.":"무언가 죽을 때에만 꽃이 피어납니다.",
+  "The roots remember everything buried here.":"뿌리는 이곳에 묻힌 모든 것을 기억합니다.",
+  "A pale dust settles over every path.":"옅은 가루가 모든 길 위에 내려앉습니다.",
+  "Sporeburst":"포자 폭발","releasing a cloud of spores":"포자 구름을 내뿜습니다",
+  "Thornroot Crush":"가시뿌리 강타","coiling its thorned roots":"가시 돋친 뿌리를 휘감습니다",
+  "Mycelial Mend":"균사 치유","drawing life through the fungal web":"균사망으로 생명력을 끌어옵니다"
 });

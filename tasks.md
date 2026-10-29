@@ -4,7 +4,7 @@ The status index for scoped work. Open tasks are below; implementation evidence 
 
 ## At a glance
 
-**56 tasks · 50 Done · 1 In Progress · 0 Implement · 5 Planned · 6 open.**
+**56 tasks · 51 Done · 0 In Progress · 0 Implement · 5 Planned · 5 open.**
 
 | Workstream | Done | In Progress | Implement | Planned |
 |---|---:|---:|---:|---:|
@@ -13,7 +13,7 @@ The status index for scoped work. Open tasks are below; implementation evidence 
 | Art identity and readability (A) | 5 | 0 | 0 | 0 |
 | UI (U) | 9 | 0 | 0 | 0 |
 | Crafting rework (C) | 8 | 0 | 0 | 0 |
-| **Total** | **50** | **1** | **0** | **5** |
+| **Total** | **51** | **0** | **0** | **5** |
 
 **Statuses:** `Planned` = scoped backlog, not started; `Implement` = detailed implementation plan exists; `In Progress` = actively underway; `Done` = completed, with evidence in the archive. Dependencies are stated on task cards; Planned does not necessarily mean ready to start.
 
@@ -177,9 +177,9 @@ U-02–U-09 are complete. See [Completed UI tasks](backlog-completed.md#ui) for 
   Elements fire/ice/stone/arcane; bodies elemental/construct/beast/humanoid; parts flames/frost/crystals/armor/horns/runes; names such as "The Steam Vents", "The Boiling Shelf", "The White Caldera".
   **Validation:** Added Geyser to `RIFT_BIOMES` with fire/ice/stone/arcane weights 3:3:3:1 and three translated existing-kind specials. The focused browser check verifies all 10 generated wilds plus master, deterministic names/parts/elements, translations, and 390×844 map/battle fit. Name, part, color, map, biome, Rift boss, affix, i18n, element-weight, and Geyser/Sporewood checks pass. Paired seed-1/7 smart Heat 0 n=30 simulations cover depths 1/3 across all 13 biomes with biome/depth modifiers disabled; Geyser master rows won 100% in both seeds, while Geyser ordinary-wild rows retained `TOO_EASY` flags and one seed-7 `TOO_HARD` cell. The integrated suite passed 34/34. Selector growth remaps seeded biome selection; this is coverage, not exact same-seed parity. See [baseline and integrated results](rift-evidence/v08-baseline.md) and [raw paired runs](rift-evidence/v08-v09-integrated-seed1.json), [seed 7](rift-evidence/v08-v09-integrated-seed7.json).
 
-- [ ] **V-09 · Add a Sporewood biome** — `Status: In Progress` · `Size: M` · `js/monsters.js` · see [current evidence](rift-evidence/v09-sporewood.md)
+- [x] **V-09 · Add a Sporewood biome** — `Status: Done` · `Size: M` · `js/monsters.js` · see [current evidence](rift-evidence/v09-sporewood.md)
   Elements poison/wood/shadow/holy; bodies undead/beast/elemental/humanoid; parts vines/hood/mane/tail/horns/crystals; names such as "The Sporewood", "The Hollow Bloom", "The Weeping Canopy".
-  **Acceptance:** biome appears in `RIFT_BIOMES`; generated creatures render; sim sample passes.
+  **Done:** Sporewood uses the requested existing pools, weighted elements, translated specials and compatible names. Focused seeded/mobile checks pass; integrated suite passed 34/34 before a screenshot-only check update, whose focused rerun passed. Paired seed-1/7 n=30, Heat 0, smart depth-1/3 samples report 98% master and 99% wild wins with four TOO_EASY cells per seed. Seed remapping and remaining difficulty limits are recorded in [V-09 evidence](rift-evidence/v09-sporewood.md).
 
 - [ ] **V-10 · Increase seeded roster size** — `Status: Planned` · `Size: S` · `js/monsters.js`
   Raise `GEN_N` from 10 to 12–14 and `RIFT_N` if needed; retune wild encounter weight so they stay ~40% of encounters.

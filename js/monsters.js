@@ -55,7 +55,10 @@ deep:{n:"The Weeping Deep",els:["arcane","ice","shadow","poison"],bodies:["eleme
   acc:["#e9874e","#83cfd3"],skins:["#c18c68","#899397"],verbs:["scalds you","chills you","strikes you","hammers you","rakes you","cracks against you"],
   pre:["Geyser","Steam","Basalt","Fumarole","Boiling","Caldera","Sinter","Whitecap"],suf:["Warden","Sentinel","Watcher","Stalker","Wraith","Golem","Hulk","Drifter"],
     regions:["The Steam Vents","The Boiling Shelf","The White Caldera","The Sinter Fields","The Fumarole Reach","The Glasscone Basin"],lore:["The mountain breathes through every crack.","Steam hides the paths and gives away the hunters.","Basalt cools only after the next eruption.","A thin crust covers water hot enough to melt stone."]},
-
+  sporewood:{n:"The Sporewood",els:["poison","wood","shadow","holy"],bodies:["undead","beast","elemental","humanoid"],parts:["vines","hood","mane","tail","horns","crystals"],pats:["rot","veins","swirl","stars","cracks","scales"],
+    acc:["#b4d64e","#9b72c9"],skins:["#b59a78","#786b82"],verbs:["spores you","lashes you","claws you","rakes you","hammers you","smites you","strikes you"],
+    pre:["Spore","Mycel","Pale","Hollow","Rotbloom","Underroot","Weeping","Mossbound"],suf:["Warden","Stalker","Watcher","Creeper","Hound","Wraith","Herald","Choir"],
+    regions:["The Sporewood","The Hollow Bloom","The Weeping Canopy"],lore:["Spores drift beneath a canopy that never sees daylight.","Each bloom opens only when something dies.","The roots remember everything buried here.","A pale dust settles over every path."]}
 };
 // Optional element weights: common entries receive weight 3, rare entries weight 1.
 // The Rift-only signatures from M-05 use the same field: their signature element
@@ -73,6 +76,7 @@ const BIOME_ELW={
   windcut:{stone:3,metal:3,swift:3,arcane:1},
   garden:{holy:3,wood:3,poison:1,swift:1},
   geyser:{fire:3,ice:3,stone:3,arcane:1},
+  sporewood:{poison:3,wood:3,shadow:1,holy:1}
 };
 Object.keys(BIOME_ELW).forEach(k=>BIOMES[k].elW=BIOME_ELW[k]);
 // the element a creature is born to: what it is weak to, what it shrugs off, and what it inflicts on a hit
@@ -143,7 +147,10 @@ const BIOME_SP={
     {every:3,name:"Fumarole Burst",kind:"multi",n:3,x:.56,tell:"drawing heat from below"},
     {every:4,name:"Basalt Quake",kind:"heavy",x:1.9,tell:"raising a slab of heated stone"},
     {every:4,name:"Steam Mend",kind:"heal",x:.2,tell:"drawing vapor through its cracks"}],
-
+  sporewood:[
+    {every:3,name:"Sporeburst",kind:"multi",n:3,x:.54,tell:"releasing a cloud of spores"},
+    {every:4,name:"Thornroot Crush",kind:"heavy",x:1.9,tell:"coiling its thorned roots"},
+    {every:4,name:"Mycelial Mend",kind:"heal",x:.2,tell:"drawing life through the fungal web"}]
 };
 // Four Rift-only biomes lean on one element, material, and natural status trait.
 // These reuse existing elements/items/status rules and do not add RNG calls.
@@ -276,7 +283,7 @@ const regMon=list=>list.forEach(E=>{ENEMIES[E.id]=E});
 function buildRoster(){ // authored regions use their fixed rosters; Fen is not Rift Fen
   ZONES.forEach(z=>{if(z[0]===RIFT_ZONE||z[0]==="fen")return;regMon(genRoster(z[0]))})}
 // ---- the Rift: a random region, rolled from one seed
-const RIFT_BIOMES=["fen","ash","bone","deep","forest","tundra","ember","astral","tidewrack","windcut","garden","geyser"];
+const RIFT_BIOMES=["fen","ash","bone","deep","forest","tundra","ember","astral","tidewrack","windcut","garden","geyser","sporewood"];
 function riftMake(seed,depth){ // a random region: biome, palette, name, ten wild creatures and a master
   const R=rng(seed),bi=RIFT_BIOMES[Math.floor(R()*RIFT_BIOMES.length)],B=BIOMES[bi];
   const reg=B.regions[Math.floor(R()*B.regions.length)];

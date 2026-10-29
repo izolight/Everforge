@@ -739,6 +739,7 @@ DICT.de=Object.assign(DICT.de||{}, {
   "Crownfall":"Kronensturz","raising its crown of branches":"hebt seine Krone aus Ästen",
   "Sunward Mend":"Sonnenheilung","turning its halo to gather light":"wendet seinen Heiligenschein, um Licht zu sammeln"
 });
+
 DICT.de=Object.assign(DICT.de||{}, {
   "Geyser Field":"Geysirfeld",
   "The Steam Vents":"Die Dampfschlote","The Boiling Shelf":"Das siedende Plateau",
@@ -751,4 +752,15 @@ DICT.de=Object.assign(DICT.de||{}, {
   "Fumarole Burst":"Fumarolenausbruch","drawing heat from below":"zieht Hitze aus der Tiefe",
   "Basalt Quake":"Basaltbeben","raising a slab of heated stone":"hebt eine Platte aus erhitztem Stein an",
   "Steam Mend":"Dampfheilung","drawing vapor through its cracks":"zieht Dampf durch seine Risse"
+});
+
+DICT.de=Object.assign(DICT.de||{}, {
+  "The Sporewood":"Der Sporenwald","The Hollow Bloom":"Die Hohle Blüte","The Weeping Canopy":"Das Tränendach",
+  "Spores drift beneath a canopy that never sees daylight.":"Sporen treiben unter einem Blätterdach, das nie Tageslicht sieht.",
+  "Each bloom opens only when something dies.":"Jede Blüte öffnet sich erst, wenn etwas stirbt.",
+  "The roots remember everything buried here.":"Die Wurzeln erinnern sich an alles, was hier begraben wurde.",
+  "A pale dust settles over every path.":"Blasser Staub legt sich auf jeden Pfad.",
+  "Sporeburst":"Sporenausbruch","releasing a cloud of spores":"stößt eine Sporenwolke aus",
+  "Thornroot Crush":"Dornwurzel-Schmettern","coiling its thorned roots":"windet seine Dornenwurzeln",
+  "Mycelial Mend":"Myzelheilung","drawing life through the fungal web":"zieht Leben durch das Pilzgeflecht"
 });

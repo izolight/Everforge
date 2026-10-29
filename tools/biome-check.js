@@ -19,7 +19,7 @@ let fails=0;const ok=(c,m)=>{if(!c)fails++;console.log(c?"ok  ":"FAIL",m)};
       window.findBiomeSeed=biome=>{for(let n=1;n<500;n++)if(riftMake(n,1).biome===biome)return n;throw Error("no seed for "+biome)};
     });
     const meta=await E(()=>({count:RIFT_BIOMES.length,seeds:Object.fromEntries(RIFT_BIOMES.map(b=>[b,findBiomeSeed(b)])),mods:Object.keys(RIFT_BIOME_MODS).sort()})),seeds=meta.seeds;
-    ok(Object.keys(seeds).length===meta.count&&meta.mods.join(",")==="ash,astral,bone,deep,ember,fen,tundra"&&seeds.forest!==undefined&&seeds.tidewrack!==undefined&&seeds.windcut!==undefined&&seeds.garden!==undefined&&seeds.geyser!==undefined,"the seven named passives map to seeded Rift biomes; Forest, Tidewrack, Windcut, Radiant Garden, and Geyser Field remain neutral");
+    ok(Object.keys(seeds).length===meta.count&&meta.mods.join(",")==="ash,astral,bone,deep,ember,fen,tundra"&&seeds.forest!==undefined&&seeds.tidewrack!==undefined&&seeds.windcut!==undefined&&seeds.garden!==undefined&&seeds.geyser!==undefined&&seeds.sporewood!==undefined,"the seven named passives map to seeded Rift biomes; Forest, Tidewrack, Windcut, Radiant Garden, Geyser Field, and Sporewood remain neutral");
     console.log("biome fixture seeds",JSON.stringify(seeds));
     const deterministic=await E(seeds=>Object.entries(seeds).every(([biome,seed])=>riftMake(seed,1).biome===biome&&riftMake(seed,1).biome===riftMake(seed,1).biome),seeds);
     ok(deterministic,"rebuilding a saved biome seed selects the same passive without adding map-generation draws");
