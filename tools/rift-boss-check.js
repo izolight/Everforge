@@ -31,10 +31,10 @@ const ok=(c,m)=>{if(!c){fails++;console.log("FAIL",m)}else console.log("ok  ",m)
     }
     setup();startBattle("gnarlhorn");
     const authored={rar:S.battle.rar,afx:[...S.battle.afx],hp:S.battle.max,atk:S.battle.atk};
-    return{rows,authored,authoredRaw:{hp:ENEMIES.gnarlhorn.hp,atk:ENEMIES.gnarlhorn.atk}};
+    return{rows,biomeCount:RIFT_BIOMES.length,authored,authoredRaw:{hp:ENEMIES.gnarlhorn.hp,atk:ENEMIES.gnarlhorn.atk}};
   });
   const depth1=r.rows.filter(x=>x.depth===1),bySeed=new Map();r.rows.forEach(x=>{const xs=bySeed.get(x.seed)||[];xs.push(x);bySeed.set(x.seed,xs)});
-  ok(depth1.length===8&&new Set(depth1.map(x=>x.biome)).size===8&&r.rows.length===16,"regression sample covers all eight deterministic Rift biomes at depths 1 and 3");
+  ok(depth1.length===r.biomeCount&&new Set(depth1.map(x=>x.biome)).size===r.biomeCount&&r.rows.length===r.biomeCount*2,"regression sample covers every deterministic Rift biome at depths 1 and 3");
   ok(r.rows.every(x=>x.native.rar==="rare"&&x.native.afx.length===3),"each generated master carries its three-affix rare roll");
   ok(r.rows.every(x=>!x.native.afx.some(id=>["ward","boom","regen"].includes(id))),"Rift masters avoid recurring shield, regeneration, and lethal max-HP burst interactions");
   ok(r.rows.every(x=>!(["multi","heavy"].includes(x.specialKind)&&x.affixIds.includes("frenzy"))),"Frenzied is not paired with multi-hit or heavy specials");

@@ -696,3 +696,19 @@ DICT.ko=Object.assign(DICT.ko||{},{
   "The Fen is open because you brought down the Starfallen Archon. Its boss guards the next descent.":"별의 대군주를 쓰러뜨려 늪이 열렸습니다. 늪의 우두머리가 다음 하강로를 지키고 있습니다.",
   "hit|spores you":"{name}이(가) 포자를 뿜어 {n} {g} 피해를 줍니다","hit|drowns you in spore-cloud":"{name}이(가) 포자 구름으로 {n} {g} 피해를 줍니다"
 });
+
+DICT.ko=Object.assign(DICT.ko||{}, {
+  "The Tidewrack":"파도에 휩쓸린 해안",
+  "The Drowned Coast":"익사한 해안",
+  "Saltwind Cliffs":"소금바람 절벽",
+  "The Wreck Shoals":"난파선 여울",
+  "The Silt Reach":"실트 강어귀",
+  "The Frosted Shoals":"서리 낀 여울",
+  "The tide took the village, then came back for the bones.":"밀물이 마을을 삼킨 뒤 뼈를 거두러 다시 돌아왔습니다.",
+  "A salt wind worries every name off the stones.":"짠 바람이 돌에 새긴 이름을 하나씩 지워냅니다.",
+  "The wrecks drift with no water beneath them.":"난파선들이 밑에 물도 없이 떠다닙니다.",
+  "Something patient waits where the tide turns.":"조수가 바뀌는 곳에서 끈질긴 무언가가 기다립니다.",
+  "Undertow Grasp":"저류의 손아귀","pulling you into the surf":"너를 파도 속으로 끌어당깁니다",
+  "Brine Volley":"염수 연사","gathering salt spray":"짠 물보라를 모읍니다",
+  "Breakwater Slam":"방파제 강타","lifting a cresting wave":"부서지는 파도를 들어 올립니다"
+});

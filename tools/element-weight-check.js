@@ -34,7 +34,7 @@ let fails=0;const ok=(c,m)=>{if(!c)fails++;console.log(c?"ok  ":"FAIL",m)};
       return{rows,oneDraw,weighted,fallbackUniform,customMix,dropElementStable,fallback,custom,stable,dailyStable,ambientCalls};
     });
     ok(r.oneDraw,"each weighted or fallback element selection consumes exactly one RNG draw");
-    ok(r.weighted,"8 biome distributions match common/rare and M-05 signature weights");
+    ok(r.weighted,"all biome distributions match common/rare and M-05 signature weights");
     ok(r.fallbackUniform&&r.customMix,"missing elW stays uniform; optional custom elW controls the intended mix");
     ok(r.dropElementStable,"the single roll keeps non-signature drop selection on its pre-V-13 uniform result");
     ok(r.stable&&r.dailyStable,"authored rosters are seed stable and the daily pre-roll is unaffected by ambient RNG");

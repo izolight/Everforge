@@ -4,16 +4,16 @@ The status index for scoped work. Open tasks are below; implementation evidence 
 
 ## At a glance
 
-**56 tasks · 45 Done · 0 In Progress · 0 Implement · 11 Planned · 11 open.**
+**56 tasks · 47 Done · 0 In Progress · 0 Implement · 9 Planned · 9 open.**
 
 | Workstream | Done | In Progress | Implement | Planned |
 |---|---:|---:|---:|---:|
-| Monster coverage, balance and progression (M) | 11 | 0 | 0 | 1 |
-| Biome variety and mechanics (V) | 12 | 0 | 0 | 10 |
+| Monster coverage, balance and progression (M) | 12 | 0 | 0 | 0 |
+| Biome variety and mechanics (V) | 13 | 0 | 0 | 9 |
 | Art identity and readability (A) | 5 | 0 | 0 | 0 |
 | UI (U) | 9 | 0 | 0 | 0 |
 | Crafting rework (C) | 8 | 0 | 0 | 0 |
-| **Total** | **45** | **0** | **0** | **11** |
+| **Total** | **47** | **0** | **0** | **9** |
 
 **Statuses:** `Planned` = scoped backlog, not started; `Implement` = detailed implementation plan exists; `In Progress` = actively underway; `Done` = completed, with evidence in the archive. Dependencies are stated on task cards; Planned does not necessarily mean ready to start.
 
@@ -28,7 +28,7 @@ The status index for scoped work. Open tasks are below; implementation evidence 
 | Creature art and readability | A-01–A-05 complete | See [completed evidence](backlog-completed.md#creature-art-and-readability) and [visual review sheets](art-evidence/README.md). |
 | Regional wilds and alphas | M-12, V-16 complete | See completed evidence; Hollow melee alpha fights retain a SLOG limitation. |
 | Essence availability | M-08 complete | The Cursed Altar can return Steam; see [completed evidence](backlog-completed.md#m-08). |
-| Later gameplay expansion | M-07; V-05–V-10 | Add missing-element bosses and new Rift biomes. |
+| Later gameplay expansion | V-06–V-10 | Add four more Rift biomes and increase generated roster size. |
 
 Navigation: [UI](#ui-simplification) · [Balance](#balance-and-progression) · [Art](#art-identity-and-readability) · [Biome gameplay](#biome-gameplay-and-combat-foundations) · [Expansion](#world-and-roster-expansion) · [Dependencies](#dependencies-and-coordination) · [Completed](backlog-completed.md).
 
@@ -151,13 +151,15 @@ U-02–U-09 are complete. See [Completed UI tasks](backlog-completed.md#ui) for 
   **Done:** Chose Fen, reusing the established Rift biome identity. Added the gated full-region progression, six authored regulars and the Fen Matriarch boss, dedicated palette and music, Fen quest intro, and English/German/Korean strings. Authored Fen enemies are not mislabeled as generated; the drowned guard uses the supported Shadow affinity. Old saves migrate safely without a schema change, retain the v18 save key, and prune Codex entries only after the roster exists. The Fen intro and boss victory unlock flow are covered end-to-end.
   **Validation:** `node tools/fen-region-check.js`, `node tools/smoke.js` (SMOKE OK), `node tools/map-check.js`, `node tools/audio-check.js`, `node tools/i18n-check.js`, syntax checks, and `git diff --check` pass. A scoped seed-1, Heat 0, smart-policy simulator sample at the Spire-stage kit ran 20 fights for each of six Fen regulars and the boss; all seven rows won 100%, with no TOO_HARD or SLOG flags. Three regulars (Reedstalker, Mire Witch, Murk Wisp) were flagged TOO_EASY in this arrival-kit sample; see JSON and console output in [Fen region evidence](region-evidence/m06-fen-sim-seed1.json). The focused check also verifies Fen and Rift Codex records, wins, journal, depth and seed survive a real save reload. No save shape changed, so no key bump was needed. The full suite was not rerun after the parent’s V-14 assertion fix; its focused rerun passed.
 
-- [ ] **M-07 · Boss coverage for missing elements** — `Status: Planned` · `Size: L` · `js/data.js` · `Depends: M-06` (first boss)
-  Poison, holy, shadow, metal, arcane and stone have no boss. Add bosses through new regions or variants; if deliberately excluded, document why.
-  **Acceptance:** every element has a boss or a stated design exception.
+- [x] **M-07 · Boss coverage for missing elements** — `Status: Done` · `Size: L` · `js/data.js`, `js/lang/de-data.js`, `js/lang/ko-data.js`, `tools/boss-element-check.js` · `Depends: M-06`
+  **Done:** Added six playable boss forms through five existing authored bosses: Fen Matriarch first form (Poison), Gnarlhorn phase (Stone), Rimeclaw phase (Shadow), Phoenix phase (Holy), Archon phase (Arcane), and Fen Matriarch phase (Metal). The Archon's former Shadow phase became Arcane; Shadow has a playable phase on Rimeclaw. Each second form has its own translated tell/special, affinity, weaknesses, and resistances. Existing phase, Codex, and save fields handle transitions; progression gates, save schema, and generation draws are unchanged.
+  **Validation:** `node tools/boss-element-check.js`, `node tools/i18n-check.js`, and `node tools/fen-region-check.js` pass. The focused check drives each phase threshold, checks the phase affinity/special/Codex fact and regional boss mapping, and reloads a saved Rimeclaw second form. Seed-1, Heat 0, smart-policy simulations ran 20 fights per boss at each matching region-stage kit; all cells won 20/20. Gnarlhorn, Rimeclaw, and Archon have `TOO_EASY` on-stage flags in the sample; results and JSON/text logs are in [M-07 evidence](rift-evidence/m07-boss-elements.md). [Mobile phase screenshot](rift-evidence/m07-boss-phase-mobile.png). V-05 updated the Rift coverage check to derive the biome count; the integrated full suite subsequently passed 30/30.
 
-- [ ] **V-05 · Add a Tidewrack coast biome** — `Status: Planned` · `Size: M` · `js/monsters.js`
+- [x] **V-05 · Add a Tidewrack coast biome** — `Status: Done` · `Size: M` · `js/monsters.js`, `js/lang/de.js`, `js/lang/ko.js`, `tools/tidewrack-check.js`
   Elements ice/poison/shadow/swift; bodies beast/undead/elemental/humanoid; parts shell/frost/tail/vines/hood/crystals; names such as "The Drowned Coast", "Saltwind Cliffs", "The Tidewrack".
   **Acceptance:** biome appears in `RIFT_BIOMES`; generated creatures render; sim sample passes.
+  **Done:** Added the ninth Rift biome, Tidewrack, with existing elements/bodies/parts, a marine palette, coast regions and compatible names/lore. Added 3:1 common/rare element weighting and three translated V-11-compatible specials while preserving the existing selection draw. No new element family, authored region, or roster-size change.
+  **Validation:** Tidewrack generator/name/attachment/browser coverage and mobile screenshots, all-biome name/part/color/element/map checks, V-11 special, V-15 biome, Rift-master and i18n checks pass. The full suite passed 30/30, including smoke. Paired modifier-free seed-1/7 smart Heat 0 n=30 depth-1 Rift samples cover all nine biomes: Tidewrack wins 100% in both; broad Rift-wild means are 98% and 96%. Existing `TOO_EASY` flags remain in the Rift-masters' wild rows, and Tidewrack's Drowned Wraith defensive/Spire native row is `SLOG` at 59.6/59.4 turns. The added biome changes the seed-to-biome denominator, so these are coverage/balance samples rather than exact same-seed parity. Commands, source fingerprints, raw logs, and visual evidence are in [V-05 evidence](rift-evidence/v05-tidewrack.md).
 
 - [ ] **V-06 · Add a Windcut crags biome** — `Status: Planned` · `Size: M` · `js/monsters.js`
   Elements stone/metal/swift/arcane; bodies beast/humanoid/construct/elemental; parts armor/horns/chains/crystals/wings/tail; names such as "The Windcut Crags", "The Iron Highlands", "The Skyward Pass".

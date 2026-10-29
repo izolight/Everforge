@@ -699,3 +699,19 @@ DICT.de=Object.assign(DICT.de||{},{
   "The Fen is open because you brought down the Starfallen Archon. Its boss guards the next descent.":"Das Moor ist offen, weil du den Sternenfürsten besiegt hast. Sein Boss bewacht den nächsten Abstieg.",
   "hit|spores you":"{name} spuckt dir {n} {g} Sporen entgegen","hit|drowns you in spore-cloud":"{name} ertränkt dich mit {n} {g} in einer Sporenwolke"
 });
+
+DICT.de=Object.assign(DICT.de||{}, {
+  "The Tidewrack":"Die Tidewrackküste",
+  "The Drowned Coast":"Die ertrunkene Küste",
+  "Saltwind Cliffs":"Salzwindklippen",
+  "The Wreck Shoals":"Die Wrackriffe",
+  "The Silt Reach":"Die Schlickweite",
+  "The Frosted Shoals":"Die frostigen Untiefen",
+  "The tide took the village, then came back for the bones.":"Die Flut nahm das Dorf und kehrte dann für die Gebeine zurück.",
+  "A salt wind worries every name off the stones.":"Ein salziger Wind nagt jeden Namen aus den Steinen.",
+  "The wrecks drift with no water beneath them.":"Die Wracks treiben, obwohl unter ihnen kein Wasser ist.",
+  "Something patient waits where the tide turns.":"Etwas Geduldiges wartet dort, wo sich die Flut wendet.",
+  "Undertow Grasp":"Soggriff","pulling you into the surf":"zieht dich in die Brandung",
+  "Brine Volley":"Salzsalve","gathering salt spray":"sammelt salzige Gischt",
+  "Breakwater Slam":"Wellenbrecherwucht","lifting a cresting wave":"hebt eine brechende Welle"
+});

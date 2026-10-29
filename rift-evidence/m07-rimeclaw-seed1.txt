@@ -1,0 +1,41 @@
+== Element coverage (authored, non-boss): woods 5/5, pass 5/5, hollow 4/4, spire 4/4 ==
+== Kits (2); codex mastery on for the kit's zone and earlier ==
+melee/woods       Lv3 HP65  ATK33  MAG3   DEF25 (33%) SPD3  crit26% | Keen Weighty Sword [blade,shield] | ward0 thorn0% dr0 dodge12% regen0 root8 cl0 res{"ice":40,"wood":40,"swift":15,"shadow":5,"metal":13,"holy":10,"arcane":5,"stone":12} inf{"Sharp":1} ess4 refine0emb | 2 crafts ~2.1 tries (~0 fizzles)
+melee/pass        Lv5 HP76  ATK37  MAG1   DEF44 (47%) SPD9  crit25% | Frozen Keen Sword [blade,shield] | ward0 thorn28% dr1.8 dodge24% regen0 root5 cl0 res{"metal":40,"stone":40,"ice":40,"wood":40,"swift":20} inf{"Sharp":1,"Iron":1} ess9 refine0emb | 5 crafts ~5.2 tries (~0 fizzles)
+kit warnings: 0
+
+== Matrix, ARRIVAL (previous stage's kit meets this zone; starter kit meets the woods): the main pairing: 20 fights per cell, seed 1, map row 3. Per heat: win% / mean turns / mean HP left% (losses count 0) ==
+enemy      kit              policy  H0               flags
+rimeclaw   melee/woods      smart   100%   7.1t  74%
+
+== Matrix, ON-STAGE (the kit's own zone): 20 fights per cell, seed 1, map row 3. Per heat: win% / mean turns / mean HP left% (losses count 0) ==
+enemy      kit              policy  H0               flags
+rimeclaw   melee/pass       smart   100%   6.4t  87% TOO_EASY
+
+== Win% grid (policy smart, Heat 0; rows = kits, columns = enemies; mimic on-stage) ==
+                  rime
+melee/woods        100
+melee/pass         100
+
+== Kit strength, ARRIVAL (row = stage the kit is from; it meets the next zone) (policy smart): mean turns / mean HP left% / win% ==
+Heat 0    melee                 defensive             staff                 stacked               starter
+woods     7.1t 74% 100%         -                     -                     -                     -
+
+== Kit strength, ON-STAGE (policy smart): mean turns / mean HP left% / win% ==
+Heat 0    melee                 defensive             staff                 stacked               starter
+pass      6.4t 87% 100%         -                     -                     -                     -
+
+== Flagged cells, ARRIVAL: 0. TOO_EASY: win 100%, HP left >85% and turns <4 (boss <10) at Heat 0; TOO_HARD: win <50% at Heat 0; SLOG: mean turns >30 (boss >50) ==
+TOO_EASY: 0 cells
+TOO_HARD: 0 cells
+SLOG: 0 cells
+
+== Flagged cells, ON-STAGE: 1. TOO_EASY: win 100%, HP left >85% and turns <4 (boss <10) at Heat 0; TOO_HARD: win <50% at Heat 0; SLOG: mean turns >30 (boss >50) ==
+TOO_EASY: 1 cells
+  [smart] 1
+    melee/pass@H0        rimeclaw
+TOO_HARD: 0 cells
+SLOG: 0 cells
+
+wrote rift-evidence/m07-rimeclaw-seed1.json
+done in 0s

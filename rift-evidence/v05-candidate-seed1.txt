@@ -1,0 +1,1743 @@
+== Element coverage (authored, non-boss): woods 5/5, pass 5/5, hollow 4/4, spire 4/4 ==
+== Kits (17); codex mastery on for the kit's zone and earlier ==
+melee/woods       Lv3 HP65  ATK33  MAG3   DEF25 (33%) SPD3  crit26% | Keen Weighty Sword [blade,shield] | ward0 thorn0% dr0 dodge12% regen0 root8 cl0 res{"ice":40,"wood":40,"swift":15,"shadow":5,"metal":13,"holy":10,"arcane":5,"stone":12} inf{"Sharp":1} ess4 refine0emb | 2 crafts ~2.1 tries (~0 fizzles)
+melee/pass        Lv5 HP76  ATK37  MAG1   DEF44 (47%) SPD9  crit25% | Frozen Keen Sword [blade,shield] | ward0 thorn28% dr1.8 dodge24% regen0 root5 cl0 res{"metal":40,"stone":40,"ice":40,"wood":40,"swift":20} inf{"Sharp":1,"Iron":1} ess9 refine0emb | 5 crafts ~5.2 tries (~0 fizzles)
+melee/hollow      Lv7 HP78  ATK38  MAG8   DEF47 (48%) SPD11 crit24% | Sunforged Swift Sword [blade,shield] | ward0 thorn30% dr2.8 dodge25% regen0 root5 cl0 res{"metal":40,"ice":40,"stone":40,"wood":40,"shadow":20,"swift":23,"fire":10,"arcane":10} inf{"Sharp":1,"Iron":1,"Swift":1} ess17 refine12emb | 6 crafts ~6.2 tries (~0 fizzles)
+melee/spire       Lv9 HP88  ATK45  MAG9   DEF63 (56%) SPD14 crit33% | Keen Iron Sword [blade,shield] | ward22 thorn24% dr6 dodge25% regen0 root0 cl0 res{"stone":40,"metal":40,"swift":35,"arcane":40,"shadow":22,"ice":5} inf{"Sharp":2,"Iron":1,"Swift":1} ess23 refine12emb | 7 crafts ~7.2 tries (~0 fizzles)
+defensive/woods   Lv3 HP85  ATK21  MAG3   DEF58 (54%) SPD0  crit17% | Iron Keen Sword [blade,shield] | ward7 thorn20% dr6 dodge12% regen0 root5 cl0 res{"ice":40,"wood":40,"metal":30,"stone":40,"swift":15,"shadow":5,"arcane":9,"holy":8} inf{"Stone":1} ess11 refine0emb | 7 crafts ~7.4 tries (~0 fizzles)
+defensive/pass    Lv5 HP102 ATK30  MAG0   DEF87 (64%) SPD0  crit17% | Stone Weighty Sword [blade,shield] | ward0 thorn30% dr6 dodge12% regen0 root5 cl0 res{"metal":40,"stone":40,"ice":20,"wood":30,"swift":15} inf{"Stone":1,"Iron":1} ess15 refine0emb | 8 crafts ~8.2 tries (~0 fizzles)
+defensive/hollow  Lv7 HP106 ATK30  MAG4   DEF94 (65%) SPD0  crit17% | Stone Weighty Sword [blade,shield] | ward25 thorn30% dr6 dodge4% regen0 root5 cl0 res{"metal":40,"stone":40,"arcane":39,"ice":15,"wood":25,"fire":10,"swift":5} inf{"Stone":1,"Iron":1,"Arcane":1} ess18 refine0emb | 8 crafts ~8.2 tries (~0 fizzles)
+defensive/spire   Lv9 HP108 ATK17  MAG6   DEF97 (66%) SPD0  crit17% | Stone Weighty Sword [blade,shield] | ward40 thorn30% dr6 dodge4% regen0 root0 cl0 res{"stone":40,"arcane":40,"metal":40,"ice":15,"wood":10,"fire":10,"swift":5} inf{"Stone":2,"Arcane":1,"Iron":1} ess23 refine12emb | 8 crafts ~8.2 tries (~0 fizzles)
+staff/woods       Lv3 HP63  ATK4   MAG26  DEF22 (31%) SPD6  crit5% | Arcane Oaken Staff [staff,shield] | ward0 thorn0% dr0 dodge12% regen0 root8 cl0 res{"ice":40,"wood":40,"swift":15,"shadow":5,"holy":10,"arcane":13,"stone":12} inf{"Arcane":1} ess6 refine0emb | 3 crafts ~3.2 tries (~0 fizzles)
+staff/pass        Lv5 HP73  ATK7   MAG37  DEF38 (43%) SPD2  crit5% | Arcane Oaken Staff [staff,shield] | ward0 thorn12% dr1.8 dodge8% regen0 root8 cl0 res{"metal":15,"ice":40,"stone":40,"wood":40,"shadow":10,"swift":10,"arcane":29,"holy":12} inf{"Arcane":2} ess12 refine0emb | 8 crafts ~8.2 tries (~0 fizzles)
+staff/hollow      Lv7 HP75  ATK11  MAG38  DEF41 (45%) SPD0  crit5% | Arcane Oaken Staff [staff,shield] | ward11 thorn12% dr4.2 dodge8% regen0 root8 cl0 res{"metal":15,"shadow":40,"stone":40,"ice":15,"arcane":32,"fire":18,"wood":15,"holy":8} inf{"Arcane":1,"Fire":1,"Holy":1} ess15 refine0emb | 7 crafts ~7.2 tries (~0 fizzles)
+staff/spire       Lv9 HP62  ATK10  MAG38  DEF20 (29%) SPD12 crit5% | Runic Oaken Staff [staff,shield] | ward36 thorn4% dr1.2 dodge25% regen0 root5 cl0 res{"shadow":40,"ice":15,"wood":10,"arcane":40,"swift":25,"stone":10,"metal":5,"fire":8,"holy":8} inf{"Arcane":2,"Fire":1,"Holy":1} ess23 refine12emb | 8 crafts ~8.2 tries (~0 fizzles)
+stacked/woods     Lv3 HP72  ATK47  MAG1   DEF37 (43%) SPD6  crit34% | Keen Iron Sword [blade,shield] | ward0 thorn25% dr0 dodge14% regen0 root8 cl0 res{"metal":39,"ice":33,"wood":40,"stone":22,"shadow":5,"swift":18} inf{"Sharp":1} ess14 refine0emb | 7 crafts ~7.6 tries (~0.1 fizzles)
+stacked/pass      Lv5 HP81  ATK54  MAG0   DEF51 (50%) SPD18 crit40% | Keen Iron Sword [blade,shield] | ward0 thorn30% dr4.1 dodge25% regen0 root5 cl0 res{"metal":40,"stone":40,"swift":32,"ice":5,"wood":20} inf{"Sharp":2,"Swift":1} ess26 refine0emb | 10 crafts ~10.4 tries (~0 fizzles)
+stacked/hollow    Lv7 HP103 ATK61  MAG0   DEF89 (64%) SPD22 crit46% | Keen Iron Sword [blade,shield] | ward0 thorn30% dr5.9 dodge25% regen0 root5 cl0 res{"metal":40,"stone":40,"swift":40,"ice":5,"wood":20} inf{"Sharp":3,"Swift":1} ess70 refine228emb | 12 crafts ~12.4 tries (~0 fizzles)
+stacked/spire     Lv9 HP113 ATK75  MAG1   DEF105(68%) SPD28 crit53% | Keen Iron Sword [blade,shield] | ward12 thorn30% dr4.1 dodge25% regen0 root0 cl0 res{"metal":40,"stone":40,"swift":40,"ice":5,"wood":5,"arcane":15} inf{"Sharp":3,"Swift":1} ess106 refine372emb | 15 crafts ~15.5 tries (~0 fizzles)
+starter/start     Lv1 HP51  ATK28  MAG0   DEF1  (2%) SPD0  crit17% | Tempered Smoldering Sword [blade] | ward0 thorn0% dr0 dodge0% regen0 root0 cl0 res{} inf{} ess1 refine0emb | 1 crafts ~1.3 tries (~0.1 fizzles)
+kit warnings: 0
+
+== Wild creatures, ARRIVAL (previous stage's kit meets this zone; starter kit meets the woods): the main pairing: 30 fights per cell, seed 1, map row 3. "native" is the creature as the game rolls it (its own rarity and affixes); the forced rows put its stats back on the region band and roll the affixes like a regular's. Per heat: win% / mean turns / mean HP left% (losses count 0) ==
+creature                                      kit              policy  rarity  H0               flags
+w_pass_0 Frosthorn Alpha (rare: iron, split, frenzy)melee/woods      smart   native  100%  12.7t  56%
+w_pass_1 Wind Stalker (magic: arcane)         melee/woods      smart   native  100%   3.8t  75%
+w_pass_2 Hail Warden (magic: poison)          melee/woods      smart   native  100%   2.8t  85% TOO_EASY
+w_pass_3 Snow Warden (magic: arcane)          melee/woods      smart   native  100%   3.6t  76%
+w_pass_4 Wind Warden (magic: ward)            melee/woods      smart   native  100%   4.0t  78%
+w_pass_5 Glacier Warden (magic: poison)       melee/woods      smart   native  100%   5.9t  65%
+w_pass_6 Hail Howler (rare: boom, fire)       melee/woods      smart   native  100%   5.3t  58%
+w_pass_7 Rime Warden (magic: elusive)         melee/woods      smart   native  100%   5.7t  72%
+w_pass_8 Pale Warden (magic: holy)            melee/woods      smart   native  100%   3.2t  83%
+w_pass_9 Frost Stalker (magic: elusive)       melee/woods      smart   native  100%   4.5t  73%
+w_hollow_0 Kiln Drake (magic: swift)          melee/pass       smart   native  100%   6.3t  81%
+w_hollow_1 Ash Drake (magic: arcane)          melee/pass       smart   native  100%   7.7t  66%
+w_hollow_2 Ash Creeper (magic: regen)         melee/pass       smart   native  100%  10.3t  87%
+w_hollow_3 Forge Drake (rare: shadow, thorn)  melee/pass       smart   native  100%   4.1t  72%
+w_hollow_4 Ember Hound (magic: boom)          melee/pass       smart   native  100%   7.6t  64%
+w_hollow_5 Forge Sentinel (magic: poison)     melee/pass       smart   native  100%   4.2t  79%
+w_hollow_6 Cinderback Alpha (rare: shadow, boom, regen)melee/pass       smart   native  100%  18.7t  25%
+w_hollow_7 Cinder Sentinel (rare: arcane, regen)melee/pass       smart   native  100%   5.5t  82%
+w_hollow_8 Ash Warden (magic: ward)           melee/pass       smart   native  100%  11.1t  86%
+w_hollow_9 Ash Hound (magic: regen)           melee/pass       smart   native  100%   7.4t  81%
+w_spire_0 Rune Lynx (rare: swiftfoot, fire)   melee/hollow     smart   native  100%   5.9t  69%
+w_spire_1 Void Warden (magic: shadow)         melee/hollow     smart   native  100%   6.1t  80%
+w_spire_2 Void Watcher (magic: arcane)        melee/hollow     smart   native  100%   6.4t  74%
+w_spire_3 Rune Wraith (rare: swiftfoot, boom) melee/hollow     smart   native  100%   5.6t  50%
+w_spire_4 Starcrown Alpha (rare: vamp, thorn, swiftfoot)melee/hollow     smart   native  100%   9.7t  47%
+w_spire_5 Astral Watcher (rare: arcane, vamp) melee/hollow     smart   native  100%   5.5t  76%
+w_spire_6 Astral Lynx (rare: split, arcane)   melee/hollow     smart   native  100%   7.2t  71%
+w_spire_7 Gilded Wraith (magic: ward)         melee/hollow     smart   native  100%   6.8t  69%
+w_spire_8 Gilded Lynx (magic: boom)           melee/hollow     smart   native  100%   6.0t  35%
+w_spire_9 Star Wraith (magic: swift)          melee/hollow     smart   native  100%   5.1t  74%
+w_pass_0 Frosthorn Alpha (rare: iron, split, frenzy)defensive/woods  smart   native  100%  22.9t  68%
+w_pass_1 Wind Stalker (magic: arcane)         defensive/woods  smart   native  100%   6.3t  97%
+w_pass_2 Hail Warden (magic: poison)          defensive/woods  smart   native  100%   6.0t  97%
+w_pass_3 Snow Warden (magic: arcane)          defensive/woods  smart   native  100%   5.9t  95%
+w_pass_4 Wind Warden (magic: ward)            defensive/woods  smart   native  100%   7.5t  93%
+w_pass_5 Glacier Warden (magic: poison)       defensive/woods  smart   native  100%  11.7t  82%
+w_pass_6 Hail Howler (rare: boom, fire)       defensive/woods  smart   native  100%  10.4t  80%
+w_pass_7 Rime Warden (magic: elusive)         defensive/woods  smart   native  100%  10.5t  92%
+w_pass_8 Pale Warden (magic: holy)            defensive/woods  smart   native  100%   5.0t  98%
+w_pass_9 Frost Stalker (magic: elusive)       defensive/woods  smart   native  100%   6.6t  97%
+w_hollow_0 Kiln Drake (magic: swift)          defensive/pass   smart   native  100%   8.0t  80%
+w_hollow_1 Ash Drake (magic: arcane)          defensive/pass   smart   native  100%   8.8t  75%
+w_hollow_2 Ash Creeper (magic: regen)         defensive/pass   smart   native  100%  12.7t  81%
+w_hollow_3 Forge Drake (rare: shadow, thorn)  defensive/pass   smart   native  100%   6.2t  76%
+w_hollow_4 Ember Hound (magic: boom)          defensive/pass   smart   native  100%   8.4t  70%
+w_hollow_5 Forge Sentinel (magic: poison)     defensive/pass   smart   native  100%   6.0t  79%
+w_hollow_6 Cinderback Alpha (rare: shadow, boom, regen)defensive/pass   smart   native  100%  23.1t  41%
+w_hollow_7 Cinder Sentinel (rare: arcane, regen)defensive/pass   smart   native  100%   6.8t  85%
+w_hollow_8 Ash Warden (magic: ward)           defensive/pass   smart   native  100%  13.9t  79%
+w_hollow_9 Ash Hound (magic: regen)           defensive/pass   smart   native  100%   8.2t  82%
+w_spire_0 Rune Lynx (rare: swiftfoot, fire)   defensive/hollow smart   native  100%   7.7t  95%
+w_spire_1 Void Warden (magic: shadow)         defensive/hollow smart   native  100%   8.9t  98%
+w_spire_2 Void Watcher (magic: arcane)        defensive/hollow smart   native  100%   9.2t  98%
+w_spire_3 Rune Wraith (rare: swiftfoot, boom) defensive/hollow smart   native  100%   8.3t  81%
+w_spire_4 Starcrown Alpha (rare: vamp, thorn, swiftfoot)defensive/hollow smart   native  100%  11.6t  63%
+w_spire_5 Astral Watcher (rare: arcane, vamp) defensive/hollow smart   native  100%   7.5t  99%
+w_spire_6 Astral Lynx (rare: split, arcane)   defensive/hollow smart   native  100%  10.1t  98%
+w_spire_7 Gilded Wraith (magic: ward)         defensive/hollow smart   native  100%  10.2t  94%
+w_spire_8 Gilded Lynx (magic: boom)           defensive/hollow smart   native  100%   9.0t  73%
+w_spire_9 Star Wraith (magic: swift)          defensive/hollow smart   native  100%   7.4t  95%
+w_pass_0 Frosthorn Alpha (rare: iron, split, frenzy)staff/woods      smart   native  100%   9.3t  62%
+w_pass_1 Wind Stalker (magic: arcane)         staff/woods      smart   native  100%   6.5t  63%
+w_pass_2 Hail Warden (magic: poison)          staff/woods      smart   native  100%   5.5t  65%
+w_pass_3 Snow Warden (magic: arcane)          staff/woods      smart   native  100%   6.3t  63%
+w_pass_4 Wind Warden (magic: ward)            staff/woods      smart   native  100%   7.3t  61%
+w_pass_5 Glacier Warden (magic: poison)       staff/woods      smart   native  100%   8.5t  54%
+w_pass_6 Hail Howler (rare: boom, fire)       staff/woods      smart   native  100%   7.3t  44%
+w_pass_7 Rime Warden (magic: elusive)         staff/woods      smart   native  100%  10.0t  60%
+w_pass_8 Pale Warden (magic: holy)            staff/woods      smart   native  100%   5.0t  66%
+w_pass_9 Frost Stalker (magic: elusive)       staff/woods      smart   native  100%   6.0t  64%
+w_hollow_0 Kiln Drake (magic: swift)          staff/pass       smart   native  100%   5.6t  71%
+w_hollow_1 Ash Drake (magic: arcane)          staff/pass       smart   native  100%   7.4t  67%
+w_hollow_2 Ash Creeper (magic: regen)         staff/pass       smart   native  100%   4.0t  88%
+w_hollow_3 Forge Drake (rare: shadow, thorn)  staff/pass       smart   native  100%   4.6t  68%
+w_hollow_4 Ember Hound (magic: boom)          staff/pass       smart   native  100%   3.4t  60%
+w_hollow_5 Forge Sentinel (magic: poison)     staff/pass       smart   native  100%   4.5t  63%
+w_hollow_6 Cinderback Alpha (rare: shadow, boom, regen)staff/pass       smart   native  100%   5.8t  45%
+w_hollow_7 Cinder Sentinel (rare: arcane, regen)staff/pass       smart   native  100%   5.9t  73%
+w_hollow_8 Ash Warden (magic: ward)           staff/pass       smart   native  100%   4.6t  82%
+w_hollow_9 Ash Hound (magic: regen)           staff/pass       smart   native  100%   3.0t  86% TOO_EASY
+w_spire_0 Rune Lynx (rare: swiftfoot, fire)   staff/hollow     smart   native  100%   4.1t  88%
+w_spire_1 Void Warden (magic: shadow)         staff/hollow     smart   native  100%   4.5t  97%
+w_spire_2 Void Watcher (magic: arcane)        staff/hollow     smart   native  100%   4.4t  98%
+w_spire_3 Rune Wraith (rare: swiftfoot, boom) staff/hollow     smart   native  100%   4.3t  72%
+w_spire_4 Starcrown Alpha (rare: vamp, thorn, swiftfoot)staff/hollow     smart   native  100%   8.3t  56%
+w_spire_5 Astral Watcher (rare: arcane, vamp) staff/hollow     smart   native  100%   5.5t  95%
+w_spire_6 Astral Lynx (rare: split, arcane)   staff/hollow     smart   native  100%   5.5t  97%
+w_spire_7 Gilded Wraith (magic: ward)         staff/hollow     smart   native  100%   4.7t  94%
+w_spire_8 Gilded Lynx (magic: boom)           staff/hollow     smart   native  100%   5.7t  50%
+w_spire_9 Star Wraith (magic: swift)          staff/hollow     smart   native  100%   4.1t  85%
+w_pass_0 Frosthorn Alpha (rare: iron, split, frenzy)stacked/woods    smart   native  100%   8.0t  74%
+w_pass_1 Wind Stalker (magic: arcane)         stacked/woods    smart   native  100%   2.8t  88% TOO_EASY
+w_pass_2 Hail Warden (magic: poison)          stacked/woods    smart   native  100%   1.5t  96% TOO_EASY
+w_pass_3 Snow Warden (magic: arcane)          stacked/woods    smart   native  100%   2.6t  88% TOO_EASY
+w_pass_4 Wind Warden (magic: ward)            stacked/woods    smart   native  100%   2.8t  90% TOO_EASY
+w_pass_5 Glacier Warden (magic: poison)       stacked/woods    smart   native  100%   3.9t  80%
+w_pass_6 Hail Howler (rare: boom, fire)       stacked/woods    smart   native  100%   3.1t  72%
+w_pass_7 Rime Warden (magic: elusive)         stacked/woods    smart   native  100%   3.4t  86% TOO_EASY
+w_pass_8 Pale Warden (magic: holy)            stacked/woods    smart   native  100%   2.1t  93% TOO_EASY
+w_pass_9 Frost Stalker (magic: elusive)       stacked/woods    smart   native  100%   3.0t  84%
+w_hollow_0 Kiln Drake (magic: swift)          stacked/pass     smart   native  100%   4.2t  93%
+w_hollow_1 Ash Drake (magic: arcane)          stacked/pass     smart   native  100%   4.8t  90%
+w_hollow_2 Ash Creeper (magic: regen)         stacked/pass     smart   native  100%   5.9t  93%
+w_hollow_3 Forge Drake (rare: shadow, thorn)  stacked/pass     smart   native  100%   2.9t  86% TOO_EASY
+w_hollow_4 Ember Hound (magic: boom)          stacked/pass     smart   native  100%   4.7t  76%
+w_hollow_5 Forge Sentinel (magic: poison)     stacked/pass     smart   native  100%   3.0t  92% TOO_EASY
+w_hollow_6 Cinderback Alpha (rare: shadow, boom, regen)stacked/pass     smart   native  100%   9.9t  57%
+w_hollow_7 Cinder Sentinel (rare: arcane, regen)stacked/pass     smart   native  100%   3.6t  93% TOO_EASY
+w_hollow_8 Ash Warden (magic: ward)           stacked/pass     smart   native  100%   6.6t  91%
+w_hollow_9 Ash Hound (magic: regen)           stacked/pass     smart   native  100%   4.6t  91%
+w_spire_0 Rune Lynx (rare: swiftfoot, fire)   stacked/hollow   smart   native  100%   4.2t  86%
+w_spire_1 Void Warden (magic: shadow)         stacked/hollow   smart   native  100%   4.5t  94%
+w_spire_2 Void Watcher (magic: arcane)        stacked/hollow   smart   native  100%   4.7t  94%
+w_spire_3 Rune Wraith (rare: swiftfoot, boom) stacked/hollow   smart   native  100%   4.4t  72%
+w_spire_4 Starcrown Alpha (rare: vamp, thorn, swiftfoot)stacked/hollow   smart   native  100%   5.6t  68%
+w_spire_5 Astral Watcher (rare: arcane, vamp) stacked/hollow   smart   native  100%   4.1t  95%
+w_spire_6 Astral Lynx (rare: split, arcane)   stacked/hollow   smart   native  100%   5.5t  93%
+w_spire_7 Gilded Wraith (magic: ward)         stacked/hollow   smart   native  100%   4.6t  93%
+w_spire_8 Gilded Lynx (magic: boom)           stacked/hollow   smart   native  100%   4.4t  69%
+w_spire_9 Star Wraith (magic: swift)          stacked/hollow   smart   native  100%   3.9t  92% TOO_EASY
+w_woods_0 Moss Warden (magic: holy)           starter/start    smart   native  100%   2.0t  86% TOO_EASY
+w_woods_1 Grove Hound (magic: split)          starter/start    smart   native  100%   3.7t  71%
+w_woods_2 Briar Stalker (rare: swiftfoot, boom)starter/start    smart   native  100%   1.9t  72%
+w_woods_3 Thornheart Alpha (rare: swiftfoot, elusive, shadow)starter/start    smart   native  100%   2.6t  71%
+w_woods_4 Grove Watcher (magic: split)        starter/start    smart   native  100%   2.8t  89% TOO_EASY
+w_woods_5 Oak Stalker (magic: shadow)         starter/start    smart   native  100%   1.7t  88% TOO_EASY
+w_woods_6 Grove Slasher (rare: split, shadow) starter/start    smart   native  100%   3.9t  75%
+w_woods_7 Fern Stalker (magic: split)         starter/start    smart   native  100%   3.8t  74%
+w_woods_8 Thorn Warden (magic: arcane)        starter/start    smart   native  100%   2.5t  80%
+w_woods_9 Briar Runner (magic: swift)         starter/start    smart   native  100%   3.0t  73%
+w_pass_0 Frosthorn Alpha (rare: iron, split, frenzy)melee/woods      smart   normal  100%   7.2t  63%
+w_pass_1 Wind Stalker (magic: arcane)         melee/woods      smart   normal  100%   3.6t  79%
+w_pass_2 Hail Warden (magic: poison)          melee/woods      smart   normal  100%   2.6t  89%
+w_pass_3 Snow Warden (magic: arcane)          melee/woods      smart   normal  100%   3.7t  78%
+w_pass_4 Wind Warden (magic: ward)            melee/woods      smart   normal  100%   3.4t  81%
+w_pass_5 Glacier Warden (magic: poison)       melee/woods      smart   normal  100%   5.4t  78%
+w_pass_6 Hail Howler (rare: boom, fire)       melee/woods      smart   normal  100%   5.0t  85%
+w_pass_7 Rime Warden (magic: elusive)         melee/woods      smart   normal  100%   5.3t  75%
+w_pass_8 Pale Warden (magic: holy)            melee/woods      smart   normal  100%   3.0t  87%
+w_pass_9 Frost Stalker (magic: elusive)       melee/woods      smart   normal  100%   4.2t  78%
+w_hollow_0 Kiln Drake (magic: swift)          melee/pass       smart   normal  100%   6.2t  72%
+w_hollow_1 Ash Drake (magic: arcane)          melee/pass       smart   normal  100%   7.3t  66%
+w_hollow_2 Ash Creeper (magic: regen)         melee/pass       smart   normal  100%   9.2t  88%
+w_hollow_3 Forge Drake (rare: shadow, thorn)  melee/pass       smart   normal  100%   3.9t  86%
+w_hollow_4 Ember Hound (magic: boom)          melee/pass       smart   normal  100%   7.1t  84%
+w_hollow_5 Forge Sentinel (magic: poison)     melee/pass       smart   normal  100%   3.8t  84%
+w_hollow_6 Cinderback Alpha (rare: shadow, boom, regen)melee/pass       smart   normal  100%  13.7t  73%
+w_hollow_7 Cinder Sentinel (rare: arcane, regen)melee/pass       smart   normal  100%   5.0t  82%
+w_hollow_8 Ash Warden (magic: ward)           melee/pass       smart   normal  100%   7.8t  89%
+w_hollow_9 Ash Hound (magic: regen)           melee/pass       smart   normal  100%   7.0t  84%
+w_spire_0 Rune Lynx (rare: swiftfoot, fire)   melee/hollow     smart   normal  100%   5.1t  75%
+w_spire_1 Void Warden (magic: shadow)         melee/hollow     smart   normal  100%   6.1t  79%
+w_spire_2 Void Watcher (magic: arcane)        melee/hollow     smart   normal  100%   6.0t  78%
+w_spire_3 Rune Wraith (rare: swiftfoot, boom) melee/hollow     smart   normal  100%   6.0t  77%
+w_spire_4 Starcrown Alpha (rare: vamp, thorn, swiftfoot)melee/hollow     smart   normal  100%   8.1t  61%
+w_spire_5 Astral Watcher (rare: arcane, vamp) melee/hollow     smart   normal  100%   5.3t  74%
+w_spire_6 Astral Lynx (rare: split, arcane)   melee/hollow     smart   normal  100%   6.0t  70%
+w_spire_7 Gilded Wraith (magic: ward)         melee/hollow     smart   normal  100%   4.8t  75%
+w_spire_8 Gilded Lynx (magic: boom)           melee/hollow     smart   normal  100%   6.3t  61%
+w_spire_9 Star Wraith (magic: swift)          melee/hollow     smart   normal  100%   4.9t  77%
+w_pass_0 Frosthorn Alpha (rare: iron, split, frenzy)defensive/woods  smart   normal  100%  15.1t  82%
+w_pass_1 Wind Stalker (magic: arcane)         defensive/woods  smart   normal  100%   5.8t  98%
+w_pass_2 Hail Warden (magic: poison)          defensive/woods  smart   normal  100%   5.3t  99%
+w_pass_3 Snow Warden (magic: arcane)          defensive/woods  smart   normal  100%   5.6t  97%
+w_pass_4 Wind Warden (magic: ward)            defensive/woods  smart   normal  100%   5.5t  96%
+w_pass_5 Glacier Warden (magic: poison)       defensive/woods  smart   normal  100%  10.7t  90%
+w_pass_6 Hail Howler (rare: boom, fire)       defensive/woods  smart   normal  100%  10.2t  95%
+w_pass_7 Rime Warden (magic: elusive)         defensive/woods  smart   normal  100%  10.2t  94%
+w_pass_8 Pale Warden (magic: holy)            defensive/woods  smart   normal  100%   4.8t  99%
+w_pass_9 Frost Stalker (magic: elusive)       defensive/woods  smart   normal  100%   6.7t  96%
+w_hollow_0 Kiln Drake (magic: swift)          defensive/pass   smart   normal  100%   7.0t  82%
+w_hollow_1 Ash Drake (magic: arcane)          defensive/pass   smart   normal  100%   8.4t  76%
+w_hollow_2 Ash Creeper (magic: regen)         defensive/pass   smart   normal  100%  10.6t  85%
+w_hollow_3 Forge Drake (rare: shadow, thorn)  defensive/pass   smart   normal  100%   6.3t  85%
+w_hollow_4 Ember Hound (magic: boom)          defensive/pass   smart   normal  100%   8.2t  84%
+w_hollow_5 Forge Sentinel (magic: poison)     defensive/pass   smart   normal  100%   6.1t  82%
+w_hollow_6 Cinderback Alpha (rare: shadow, boom, regen)defensive/pass   smart   normal  100%  15.7t  75%
+w_hollow_7 Cinder Sentinel (rare: arcane, regen)defensive/pass   smart   normal  100%   5.9t  88%
+w_hollow_8 Ash Warden (magic: ward)           defensive/pass   smart   normal  100%   9.3t  86%
+w_hollow_9 Ash Hound (magic: regen)           defensive/pass   smart   normal  100%   7.9t  84%
+w_spire_0 Rune Lynx (rare: swiftfoot, fire)   defensive/hollow smart   normal  100%   7.7t  95%
+w_spire_1 Void Warden (magic: shadow)         defensive/hollow smart   normal  100%   8.6t  98%
+w_spire_2 Void Watcher (magic: arcane)        defensive/hollow smart   normal  100%   9.0t  96%
+w_spire_3 Rune Wraith (rare: swiftfoot, boom) defensive/hollow smart   normal  100%   8.7t  97%
+w_spire_4 Starcrown Alpha (rare: vamp, thorn, swiftfoot)defensive/hollow smart   normal  100%  11.6t  92%
+w_spire_5 Astral Watcher (rare: arcane, vamp) defensive/hollow smart   normal  100%   7.6t  99%
+w_spire_6 Astral Lynx (rare: split, arcane)   defensive/hollow smart   normal  100%   7.9t  98%
+w_spire_7 Gilded Wraith (magic: ward)         defensive/hollow smart   normal  100%   7.4t  98%
+w_spire_8 Gilded Lynx (magic: boom)           defensive/hollow smart   normal  100%   9.1t  94%
+w_spire_9 Star Wraith (magic: swift)          defensive/hollow smart   normal  100%   7.1t  98%
+w_pass_0 Frosthorn Alpha (rare: iron, split, frenzy)staff/woods      smart   normal  100%   6.8t  61%
+w_pass_1 Wind Stalker (magic: arcane)         staff/woods      smart   normal  100%   5.4t  71%
+w_pass_2 Hail Warden (magic: poison)          staff/woods      smart   normal  100%   5.2t  76%
+w_pass_3 Snow Warden (magic: arcane)          staff/woods      smart   normal  100%   5.7t  63%
+w_pass_4 Wind Warden (magic: ward)            staff/woods      smart   normal  100%   5.2t  70%
+w_pass_5 Glacier Warden (magic: poison)       staff/woods      smart   normal  100%   8.1t  68%
+w_pass_6 Hail Howler (rare: boom, fire)       staff/woods      smart   normal  100%   7.2t  76%
+w_pass_7 Rime Warden (magic: elusive)         staff/woods      smart   normal  100%   8.8t  61%
+w_pass_8 Pale Warden (magic: holy)            staff/woods      smart   normal  100%   4.9t  72%
+w_pass_9 Frost Stalker (magic: elusive)       staff/woods      smart   normal  100%   5.5t  69%
+w_hollow_0 Kiln Drake (magic: swift)          staff/pass       smart   normal  100%   5.4t  69%
+w_hollow_1 Ash Drake (magic: arcane)          staff/pass       smart   normal  100%   6.5t  62%
+w_hollow_2 Ash Creeper (magic: regen)         staff/pass       smart   normal  100%   4.0t  85%
+w_hollow_3 Forge Drake (rare: shadow, thorn)  staff/pass       smart   normal  100%   4.6t  72%
+w_hollow_4 Ember Hound (magic: boom)          staff/pass       smart   normal  100%   3.4t  82%
+w_hollow_5 Forge Sentinel (magic: poison)     staff/pass       smart   normal  100%   4.7t  61%
+w_hollow_6 Cinderback Alpha (rare: shadow, boom, regen)staff/pass       smart   normal  100%   5.7t  77%
+w_hollow_7 Cinder Sentinel (rare: arcane, regen)staff/pass       smart   normal  100%   4.2t  76%
+w_hollow_8 Ash Warden (magic: ward)           staff/pass       smart   normal  100%   4.1t  82%
+w_hollow_9 Ash Hound (magic: regen)           staff/pass       smart   normal  100%   3.5t  80%
+w_spire_0 Rune Lynx (rare: swiftfoot, fire)   staff/hollow     smart   normal  100%   4.1t  97%
+w_spire_1 Void Warden (magic: shadow)         staff/hollow     smart   normal  100%   4.2t  99%
+w_spire_2 Void Watcher (magic: arcane)        staff/hollow     smart   normal  100%   4.3t  97%
+w_spire_3 Rune Wraith (rare: swiftfoot, boom) staff/hollow     smart   normal  100%   4.1t  98%
+w_spire_4 Starcrown Alpha (rare: vamp, thorn, swiftfoot)staff/hollow     smart   normal  100%   7.4t  71%
+w_spire_5 Astral Watcher (rare: arcane, vamp) staff/hollow     smart   normal  100%   5.3t  87%
+w_spire_6 Astral Lynx (rare: split, arcane)   staff/hollow     smart   normal  100%   4.2t  95%
+w_spire_7 Gilded Wraith (magic: ward)         staff/hollow     smart   normal  100%   4.3t  93%
+w_spire_8 Gilded Lynx (magic: boom)           staff/hollow     smart   normal  100%   5.7t  79%
+w_spire_9 Star Wraith (magic: swift)          staff/hollow     smart   normal  100%   4.1t  96%
+w_pass_0 Frosthorn Alpha (rare: iron, split, frenzy)stacked/woods    smart   normal  100%   4.8t  82%
+w_pass_1 Wind Stalker (magic: arcane)         stacked/woods    smart   normal  100%   3.0t  86%
+w_pass_2 Hail Warden (magic: poison)          stacked/woods    smart   normal  100%   1.5t  97%
+w_pass_3 Snow Warden (magic: arcane)          stacked/woods    smart   normal  100%   2.5t  88%
+w_pass_4 Wind Warden (magic: ward)            stacked/woods    smart   normal  100%   2.5t  91%
+w_pass_5 Glacier Warden (magic: poison)       stacked/woods    smart   normal  100%   3.5t  88%
+w_pass_6 Hail Howler (rare: boom, fire)       stacked/woods    smart   normal  100%   3.4t  91%
+w_pass_7 Rime Warden (magic: elusive)         stacked/woods    smart   normal  100%   3.3t  89%
+w_pass_8 Pale Warden (magic: holy)            stacked/woods    smart   normal  100%   2.0t  96%
+w_pass_9 Frost Stalker (magic: elusive)       stacked/woods    smart   normal  100%   3.2t  83%
+w_hollow_0 Kiln Drake (magic: swift)          stacked/pass     smart   normal  100%   3.8t  91%
+w_hollow_1 Ash Drake (magic: arcane)          stacked/pass     smart   normal  100%   4.5t  88%
+w_hollow_2 Ash Creeper (magic: regen)         stacked/pass     smart   normal  100%   5.9t  94%
+w_hollow_3 Forge Drake (rare: shadow, thorn)  stacked/pass     smart   normal  100%   2.9t  97%
+w_hollow_4 Ember Hound (magic: boom)          stacked/pass     smart   normal  100%   4.7t  93%
+w_hollow_5 Forge Sentinel (magic: poison)     stacked/pass     smart   normal  100%   2.9t  93%
+w_hollow_6 Cinderback Alpha (rare: shadow, boom, regen)stacked/pass     smart   normal  100%   8.3t  87%
+w_hollow_7 Cinder Sentinel (rare: arcane, regen)stacked/pass     smart   normal  100%   3.7t  93%
+w_hollow_8 Ash Warden (magic: ward)           stacked/pass     smart   normal  100%   5.1t  92%
+w_hollow_9 Ash Hound (magic: regen)           stacked/pass     smart   normal  100%   4.5t  93%
+w_spire_0 Rune Lynx (rare: swiftfoot, fire)   stacked/hollow   smart   normal  100%   3.5t  96%
+w_spire_1 Void Warden (magic: shadow)         stacked/hollow   smart   normal  100%   4.2t  94%
+w_spire_2 Void Watcher (magic: arcane)        stacked/hollow   smart   normal  100%   4.4t  95%
+w_spire_3 Rune Wraith (rare: swiftfoot, boom) stacked/hollow   smart   normal  100%   4.3t  94%
+w_spire_4 Starcrown Alpha (rare: vamp, thorn, swiftfoot)stacked/hollow   smart   normal  100%   5.5t  91%
+w_spire_5 Astral Watcher (rare: arcane, vamp) stacked/hollow   smart   normal  100%   3.9t  94%
+w_spire_6 Astral Lynx (rare: split, arcane)   stacked/hollow   smart   normal  100%   4.4t  91%
+w_spire_7 Gilded Wraith (magic: ward)         stacked/hollow   smart   normal  100%   3.7t  93%
+w_spire_8 Gilded Lynx (magic: boom)           stacked/hollow   smart   normal  100%   4.9t  91%
+w_spire_9 Star Wraith (magic: swift)          stacked/hollow   smart   normal  100%   4.0t  91%
+w_woods_0 Moss Warden (magic: holy)           starter/start    smart   normal  100%   1.8t  90%
+w_woods_1 Grove Hound (magic: split)          starter/start    smart   normal  100%   3.1t  60%
+w_woods_2 Briar Stalker (rare: swiftfoot, boom)starter/start    smart   normal  100%   1.9t  88%
+w_woods_3 Thornheart Alpha (rare: swiftfoot, elusive, shadow)starter/start    smart   normal  100%   2.8t  70%
+w_woods_4 Grove Watcher (magic: split)        starter/start    smart   normal  100%   1.8t  89%
+w_woods_5 Oak Stalker (magic: shadow)         starter/start    smart   normal  100%   1.7t  89%
+w_woods_6 Grove Slasher (rare: split, shadow) starter/start    smart   normal  100%   3.1t  73%
+w_woods_7 Fern Stalker (magic: split)         starter/start    smart   normal  100%   2.9t  74%
+w_woods_8 Thorn Warden (magic: arcane)        starter/start    smart   normal  100%   2.1t  85%
+w_woods_9 Briar Runner (magic: swift)         starter/start    smart   normal  100%   2.8t  76%
+w_pass_0 Frosthorn Alpha (rare: iron, split, frenzy)melee/woods      smart   magic   100%  11.7t  52%
+w_pass_1 Wind Stalker (magic: arcane)         melee/woods      smart   magic   100%   4.5t  69%
+w_pass_2 Hail Warden (magic: poison)          melee/woods      smart   magic   100%   4.1t  74%
+w_pass_3 Snow Warden (magic: arcane)          melee/woods      smart   magic   100%   4.6t  63%
+w_pass_4 Wind Warden (magic: ward)            melee/woods      smart   magic   100%   4.2t  67%
+w_pass_5 Glacier Warden (magic: poison)       melee/woods      smart   magic   100%   8.7t  59%
+w_pass_6 Hail Howler (rare: boom, fire)       melee/woods      smart   magic   100%   7.5t  67%
+w_pass_7 Rime Warden (magic: elusive)         melee/woods      smart   magic   100%   7.7t  62%
+w_pass_8 Pale Warden (magic: holy)            melee/woods      smart   magic   100%   4.1t  73%
+w_pass_9 Frost Stalker (magic: elusive)       melee/woods      smart   magic   100%   5.6t  63%
+w_hollow_0 Kiln Drake (magic: swift)          melee/pass       smart   magic   100%   9.4t  58%
+w_hollow_1 Ash Drake (magic: arcane)          melee/pass       smart   magic   100%  10.0t  56%
+w_hollow_2 Ash Creeper (magic: regen)         melee/pass       smart   magic   100%  12.6t  67%
+w_hollow_3 Forge Drake (rare: shadow, thorn)  melee/pass       smart   magic   100%   5.5t  81%
+w_hollow_4 Ember Hound (magic: boom)          melee/pass       smart   magic   100%  10.6t  65%
+w_hollow_5 Forge Sentinel (magic: poison)     melee/pass       smart   magic   100%   5.7t  66%
+w_hollow_6 Cinderback Alpha (rare: shadow, boom, regen)melee/pass       smart   magic   100%  21.5t  52%
+w_hollow_7 Cinder Sentinel (rare: arcane, regen)melee/pass       smart   magic   100%   7.5t  69%
+w_hollow_8 Ash Warden (magic: ward)           melee/pass       smart   magic   100%  11.7t  68%
+w_hollow_9 Ash Hound (magic: regen)           melee/pass       smart   magic   100%   9.7t  66%
+w_spire_0 Rune Lynx (rare: swiftfoot, fire)   melee/hollow     smart   magic   100%   7.8t  56%
+w_spire_1 Void Warden (magic: shadow)         melee/hollow     smart   magic   100%   8.5t  61%
+w_spire_2 Void Watcher (magic: arcane)        melee/hollow     smart   magic   100%   8.9t  57%
+w_spire_3 Rune Wraith (rare: swiftfoot, boom) melee/hollow     smart   magic   100%   8.2t  60%
+w_spire_4 Starcrown Alpha (rare: vamp, thorn, swiftfoot)melee/hollow     smart   magic    97%  11.4t  47%
+w_spire_5 Astral Watcher (rare: arcane, vamp) melee/hollow     smart   magic   100%   7.3t  63%
+w_spire_6 Astral Lynx (rare: split, arcane)   melee/hollow     smart   magic   100%   8.1t  54%
+w_spire_7 Gilded Wraith (magic: ward)         melee/hollow     smart   magic   100%   6.7t  64%
+w_spire_8 Gilded Lynx (magic: boom)           melee/hollow     smart   magic   100%   9.6t  53%
+w_spire_9 Star Wraith (magic: swift)          melee/hollow     smart   magic   100%   7.1t  55%
+w_pass_0 Frosthorn Alpha (rare: iron, split, frenzy)defensive/woods  smart   magic   100%  25.9t  58%
+w_pass_1 Wind Stalker (magic: arcane)         defensive/woods  smart   magic   100%   8.0t  89%
+w_pass_2 Hail Warden (magic: poison)          defensive/woods  smart   magic   100%   7.6t  91%
+w_pass_3 Snow Warden (magic: arcane)          defensive/woods  smart   magic   100%   7.8t  87%
+w_pass_4 Wind Warden (magic: ward)            defensive/woods  smart   magic   100%   7.4t  91%
+w_pass_5 Glacier Warden (magic: poison)       defensive/woods  smart   magic   100%  17.4t  71%
+w_pass_6 Hail Howler (rare: boom, fire)       defensive/woods  smart   magic   100%  15.0t  79%
+w_pass_7 Rime Warden (magic: elusive)         defensive/woods  smart   magic   100%  15.9t  81%
+w_pass_8 Pale Warden (magic: holy)            defensive/woods  smart   magic   100%   6.4t  95%
+w_pass_9 Frost Stalker (magic: elusive)       defensive/woods  smart   magic   100%  10.5t  84%
+w_hollow_0 Kiln Drake (magic: swift)          defensive/pass   smart   magic   100%  11.3t  62%
+w_hollow_1 Ash Drake (magic: arcane)          defensive/pass   smart   magic   100%  12.2t  60%
+w_hollow_2 Ash Creeper (magic: regen)         defensive/pass   smart   magic   100%  15.5t  71%
+w_hollow_3 Forge Drake (rare: shadow, thorn)  defensive/pass   smart   magic   100%   9.1t  77%
+w_hollow_4 Ember Hound (magic: boom)          defensive/pass   smart   magic   100%  11.8t  72%
+w_hollow_5 Forge Sentinel (magic: poison)     defensive/pass   smart   magic   100%   8.8t  70%
+w_hollow_6 Cinderback Alpha (rare: shadow, boom, regen)defensive/pass   smart   magic   100%  24.0t  56%
+w_hollow_7 Cinder Sentinel (rare: arcane, regen)defensive/pass   smart   magic   100%   8.4t  79%
+w_hollow_8 Ash Warden (magic: ward)           defensive/pass   smart   magic   100%  12.9t  75%
+w_hollow_9 Ash Hound (magic: regen)           defensive/pass   smart   magic   100%  11.3t  70%
+w_spire_0 Rune Lynx (rare: swiftfoot, fire)   defensive/hollow smart   magic   100%  10.6t  83%
+w_spire_1 Void Warden (magic: shadow)         defensive/hollow smart   magic   100%  12.5t  85%
+w_spire_2 Void Watcher (magic: arcane)        defensive/hollow smart   magic   100%  12.9t  86%
+w_spire_3 Rune Wraith (rare: swiftfoot, boom) defensive/hollow smart   magic   100%  12.3t  84%
+w_spire_4 Starcrown Alpha (rare: vamp, thorn, swiftfoot)defensive/hollow smart   magic   100%  17.1t  68%
+w_spire_5 Astral Watcher (rare: arcane, vamp) defensive/hollow smart   magic   100%  10.4t  93%
+w_spire_6 Astral Lynx (rare: split, arcane)   defensive/hollow smart   magic   100%  11.5t  79%
+w_spire_7 Gilded Wraith (magic: ward)         defensive/hollow smart   magic   100%  10.3t  86%
+w_spire_8 Gilded Lynx (magic: boom)           defensive/hollow smart   magic   100%  13.0t  72%
+w_spire_9 Star Wraith (magic: swift)          defensive/hollow smart   magic   100%   9.8t  88%
+w_pass_0 Frosthorn Alpha (rare: iron, split, frenzy)staff/woods      smart   magic   100%  10.2t  56%
+w_pass_1 Wind Stalker (magic: arcane)         staff/woods      smart   magic   100%   9.0t  55%
+w_pass_2 Hail Warden (magic: poison)          staff/woods      smart   magic   100%   7.9t  58%
+w_pass_3 Snow Warden (magic: arcane)          staff/woods      smart   magic   100%   8.3t  57%
+w_pass_4 Wind Warden (magic: ward)            staff/woods      smart   magic   100%   7.6t  57%
+w_pass_5 Glacier Warden (magic: poison)       staff/woods      smart   magic   100%  11.6t  56%
+w_pass_6 Hail Howler (rare: boom, fire)       staff/woods      smart   magic   100%  10.6t  57%
+w_pass_7 Rime Warden (magic: elusive)         staff/woods      smart   magic   100%  13.1t  54%
+w_pass_8 Pale Warden (magic: holy)            staff/woods      smart   magic   100%   6.7t  63%
+w_pass_9 Frost Stalker (magic: elusive)       staff/woods      smart   magic   100%   9.2t  55%
+w_hollow_0 Kiln Drake (magic: swift)          staff/pass       smart   magic   100%   8.2t  54%
+w_hollow_1 Ash Drake (magic: arcane)          staff/pass       smart   magic   100%   9.7t  54%
+w_hollow_2 Ash Creeper (magic: regen)         staff/pass       smart   magic   100%   5.5t  74%
+w_hollow_3 Forge Drake (rare: shadow, thorn)  staff/pass       smart   magic   100%   6.3t  64%
+w_hollow_4 Ember Hound (magic: boom)          staff/pass       smart   magic   100%   4.7t  72%
+w_hollow_5 Forge Sentinel (magic: poison)     staff/pass       smart   magic   100%   6.4t  59%
+w_hollow_6 Cinderback Alpha (rare: shadow, boom, regen)staff/pass       smart   magic   100%   8.4t  61%
+w_hollow_7 Cinder Sentinel (rare: arcane, regen)staff/pass       smart   magic   100%   6.3t  65%
+w_hollow_8 Ash Warden (magic: ward)           staff/pass       smart   magic   100%   5.1t  74%
+w_hollow_9 Ash Hound (magic: regen)           staff/pass       smart   magic   100%   4.7t  64%
+w_spire_0 Rune Lynx (rare: swiftfoot, fire)   staff/hollow     smart   magic   100%   5.5t  84%
+w_spire_1 Void Warden (magic: shadow)         staff/hollow     smart   magic   100%   6.1t  88%
+w_spire_2 Void Watcher (magic: arcane)        staff/hollow     smart   magic   100%   6.2t  85%
+w_spire_3 Rune Wraith (rare: swiftfoot, boom) staff/hollow     smart   magic   100%   6.0t  87%
+w_spire_4 Starcrown Alpha (rare: vamp, thorn, swiftfoot)staff/hollow     smart   magic   100%  11.4t  61%
+w_spire_5 Astral Watcher (rare: arcane, vamp) staff/hollow     smart   magic   100%   7.5t  75%
+w_spire_6 Astral Lynx (rare: split, arcane)   staff/hollow     smart   magic   100%   5.8t  81%
+w_spire_7 Gilded Wraith (magic: ward)         staff/hollow     smart   magic   100%   5.1t  86%
+w_spire_8 Gilded Lynx (magic: boom)           staff/hollow     smart   magic   100%   9.1t  57%
+w_spire_9 Star Wraith (magic: swift)          staff/hollow     smart   magic   100%   5.4t  77%
+w_pass_0 Frosthorn Alpha (rare: iron, split, frenzy)stacked/woods    smart   magic   100%   6.9t  63%
+w_pass_1 Wind Stalker (magic: arcane)         stacked/woods    smart   magic   100%   3.3t  81%
+w_pass_2 Hail Warden (magic: poison)          stacked/woods    smart   magic   100%   2.6t  87%
+w_pass_3 Snow Warden (magic: arcane)          stacked/woods    smart   magic   100%   3.3t  79%
+w_pass_4 Wind Warden (magic: ward)            stacked/woods    smart   magic   100%   3.2t  83%
+w_pass_5 Glacier Warden (magic: poison)       stacked/woods    smart   magic   100%   5.7t  74%
+w_pass_6 Hail Howler (rare: boom, fire)       stacked/woods    smart   magic   100%   5.1t  80%
+w_pass_7 Rime Warden (magic: elusive)         stacked/woods    smart   magic   100%   5.1t  72%
+w_pass_8 Pale Warden (magic: holy)            stacked/woods    smart   magic   100%   2.8t  86%
+w_pass_9 Frost Stalker (magic: elusive)       stacked/woods    smart   magic   100%   4.0t  80%
+w_hollow_0 Kiln Drake (magic: swift)          stacked/pass     smart   magic   100%   5.3t  83%
+w_hollow_1 Ash Drake (magic: arcane)          stacked/pass     smart   magic   100%   6.6t  74%
+w_hollow_2 Ash Creeper (magic: regen)         stacked/pass     smart   magic   100%   8.2t  85%
+w_hollow_3 Forge Drake (rare: shadow, thorn)  stacked/pass     smart   magic   100%   3.5t  90%
+w_hollow_4 Ember Hound (magic: boom)          stacked/pass     smart   magic   100%   6.1t  86%
+w_hollow_5 Forge Sentinel (magic: poison)     stacked/pass     smart   magic   100%   3.5t  89%
+w_hollow_6 Cinderback Alpha (rare: shadow, boom, regen)stacked/pass     smart   magic   100%  12.3t  73%
+w_hollow_7 Cinder Sentinel (rare: arcane, regen)stacked/pass     smart   magic   100%   4.4t  87%
+w_hollow_8 Ash Warden (magic: ward)           stacked/pass     smart   magic   100%   6.9t  84%
+w_hollow_9 Ash Hound (magic: regen)           stacked/pass     smart   magic   100%   6.2t  83%
+w_spire_0 Rune Lynx (rare: swiftfoot, fire)   stacked/hollow   smart   magic   100%   5.6t  81%
+w_spire_1 Void Warden (magic: shadow)         stacked/hollow   smart   magic   100%   5.9t  87%
+w_spire_2 Void Watcher (magic: arcane)        stacked/hollow   smart   magic   100%   6.5t  87%
+w_spire_3 Rune Wraith (rare: swiftfoot, boom) stacked/hollow   smart   magic   100%   5.8t  87%
+w_spire_4 Starcrown Alpha (rare: vamp, thorn, swiftfoot)stacked/hollow   smart   magic   100%   7.9t  81%
+w_spire_5 Astral Watcher (rare: arcane, vamp) stacked/hollow   smart   magic   100%   5.3t  87%
+w_spire_6 Astral Lynx (rare: split, arcane)   stacked/hollow   smart   magic   100%   5.7t  86%
+w_spire_7 Gilded Wraith (magic: ward)         stacked/hollow   smart   magic   100%   5.2t  86%
+w_spire_8 Gilded Lynx (magic: boom)           stacked/hollow   smart   magic   100%   6.3t  84%
+w_spire_9 Star Wraith (magic: swift)          stacked/hollow   smart   magic   100%   5.2t  82%
+w_woods_0 Moss Warden (magic: holy)           starter/start    smart   magic   100%   2.5t  75%
+w_woods_1 Grove Hound (magic: split)          starter/start    smart   magic    90%   3.8t  44%
+w_woods_2 Briar Stalker (rare: swiftfoot, boom)starter/start    smart   magic   100%   3.0t  62%
+w_woods_3 Thornheart Alpha (rare: swiftfoot, elusive, shadow)starter/start    smart   magic    97%   3.6t  48%
+w_woods_4 Grove Watcher (magic: split)        starter/start    smart   magic   100%   2.5t  75%
+w_woods_5 Oak Stalker (magic: shadow)         starter/start    smart   magic   100%   2.2t  78%
+w_woods_6 Grove Slasher (rare: split, shadow) starter/start    smart   magic   100%   3.7t  63%
+w_woods_7 Fern Stalker (magic: split)         starter/start    smart   magic    93%   4.4t  38%
+w_woods_8 Thorn Warden (magic: arcane)        starter/start    smart   magic   100%   3.0t  69%
+w_woods_9 Briar Runner (magic: swift)         starter/start    smart   magic   100%   4.3t  45%
+w_pass_0 Frosthorn Alpha (rare: iron, split, frenzy)melee/woods      smart   rare    100%  12.9t  48%
+w_pass_1 Wind Stalker (magic: arcane)         melee/woods      smart   rare    100%   5.3t  61%
+w_pass_2 Hail Warden (magic: poison)          melee/woods      smart   rare    100%   4.5t  67%
+w_pass_3 Snow Warden (magic: arcane)          melee/woods      smart   rare    100%   5.1t  59%
+w_pass_4 Wind Warden (magic: ward)            melee/woods      smart   rare    100%   4.9t  61%
+w_pass_5 Glacier Warden (magic: poison)       melee/woods      smart   rare    100%  10.4t  50%
+w_pass_6 Hail Howler (rare: boom, fire)       melee/woods      smart   rare    100%   8.5t  54%
+w_pass_7 Rime Warden (magic: elusive)         melee/woods      smart   rare    100%   9.2t  53%
+w_pass_8 Pale Warden (magic: holy)            melee/woods      smart   rare    100%   4.3t  73%
+w_pass_9 Frost Stalker (magic: elusive)       melee/woods      smart   rare    100%   7.6t  55%
+w_hollow_0 Kiln Drake (magic: swift)          melee/pass       smart   rare    100%  10.4t  55%
+w_hollow_1 Ash Drake (magic: arcane)          melee/pass       smart   rare     97%  12.2t  49%
+w_hollow_2 Ash Creeper (magic: regen)         melee/pass       smart   rare    100%  14.5t  59%
+w_hollow_3 Forge Drake (rare: shadow, thorn)  melee/pass       smart   rare    100%   5.7t  70%
+w_hollow_4 Ember Hound (magic: boom)          melee/pass       smart   rare    100%  12.3t  55%
+w_hollow_5 Forge Sentinel (magic: poison)     melee/pass       smart   rare    100%   5.9t  67%
+w_hollow_6 Cinderback Alpha (rare: shadow, boom, regen)melee/pass       smart   rare    100%  25.2t  48%
+w_hollow_7 Cinder Sentinel (rare: arcane, regen)melee/pass       smart   rare    100%   8.5t  63%
+w_hollow_8 Ash Warden (magic: ward)           melee/pass       smart   rare    100%  14.7t  57%
+w_hollow_9 Ash Hound (magic: regen)           melee/pass       smart   rare    100%  11.8t  55%
+w_spire_0 Rune Lynx (rare: swiftfoot, fire)   melee/hollow     smart   rare    100%   9.3t  53%
+w_spire_1 Void Warden (magic: shadow)         melee/hollow     smart   rare    100%   9.8t  53%
+w_spire_2 Void Watcher (magic: arcane)        melee/hollow     smart   rare    100%  11.0t  52%
+w_spire_3 Rune Wraith (rare: swiftfoot, boom) melee/hollow     smart   rare    100%  10.6t  55%
+w_spire_4 Starcrown Alpha (rare: vamp, thorn, swiftfoot)melee/hollow     smart   rare     97%  15.7t  47%
+w_spire_5 Astral Watcher (rare: arcane, vamp) melee/hollow     smart   rare     97%   9.0t  50%
+w_spire_6 Astral Lynx (rare: split, arcane)   melee/hollow     smart   rare    100%  10.0t  50%
+w_spire_7 Gilded Wraith (magic: ward)         melee/hollow     smart   rare    100%   8.1t  50%
+w_spire_8 Gilded Lynx (magic: boom)           melee/hollow     smart   rare    100%  11.2t  48%
+w_spire_9 Star Wraith (magic: swift)          melee/hollow     smart   rare    100%   8.9t  51%
+w_pass_0 Frosthorn Alpha (rare: iron, split, frenzy)defensive/woods  smart   rare    100%  28.5t  56%
+w_pass_1 Wind Stalker (magic: arcane)         defensive/woods  smart   rare    100%   9.4t  82%
+w_pass_2 Hail Warden (magic: poison)          defensive/woods  smart   rare    100%   8.9t  85%
+w_pass_3 Snow Warden (magic: arcane)          defensive/woods  smart   rare    100%   9.1t  81%
+w_pass_4 Wind Warden (magic: ward)            defensive/woods  smart   rare    100%   9.1t  79%
+w_pass_5 Glacier Warden (magic: poison)       defensive/woods  smart   rare    100%  19.5t  60%
+w_pass_6 Hail Howler (rare: boom, fire)       defensive/woods  smart   rare    100%  16.7t  74%
+w_pass_7 Rime Warden (magic: elusive)         defensive/woods  smart   rare    100%  19.4t  68%
+w_pass_8 Pale Warden (magic: holy)            defensive/woods  smart   rare    100%   7.8t  86%
+w_pass_9 Frost Stalker (magic: elusive)       defensive/woods  smart   rare    100%  12.2t  76%
+w_hollow_0 Kiln Drake (magic: swift)          defensive/pass   smart   rare    100%  14.4t  56%
+w_hollow_1 Ash Drake (magic: arcane)          defensive/pass   smart   rare    100%  16.1t  48%
+w_hollow_2 Ash Creeper (magic: regen)         defensive/pass   smart   rare    100%  22.0t  59%
+w_hollow_3 Forge Drake (rare: shadow, thorn)  defensive/pass   smart   rare    100%  10.2t  70%
+w_hollow_4 Ember Hound (magic: boom)          defensive/pass   smart   rare    100%  12.9t  59%
+w_hollow_5 Forge Sentinel (magic: poison)     defensive/pass   smart   rare    100%  10.2t  61%
+w_hollow_6 Cinderback Alpha (rare: shadow, boom, regen)defensive/pass   smart   rare    100%  29.3t  49%
+w_hollow_7 Cinder Sentinel (rare: arcane, regen)defensive/pass   smart   rare    100%  10.0t  69%
+w_hollow_8 Ash Warden (magic: ward)           defensive/pass   smart   rare    100%  15.8t  66%
+w_hollow_9 Ash Hound (magic: regen)           defensive/pass   smart   rare    100%  13.0t  60%
+w_spire_0 Rune Lynx (rare: swiftfoot, fire)   defensive/hollow smart   rare    100%  12.5t  73%
+w_spire_1 Void Warden (magic: shadow)         defensive/hollow smart   rare    100%  14.7t  76%
+w_spire_2 Void Watcher (magic: arcane)        defensive/hollow smart   rare    100%  15.6t  73%
+w_spire_3 Rune Wraith (rare: swiftfoot, boom) defensive/hollow smart   rare    100%  13.8t  70%
+w_spire_4 Starcrown Alpha (rare: vamp, thorn, swiftfoot)defensive/hollow smart   rare    100%  22.3t  53%
+w_spire_5 Astral Watcher (rare: arcane, vamp) defensive/hollow smart   rare    100%  12.8t  77%
+w_spire_6 Astral Lynx (rare: split, arcane)   defensive/hollow smart   rare    100%  13.3t  69%
+w_spire_7 Gilded Wraith (magic: ward)         defensive/hollow smart   rare    100%  12.0t  69%
+w_spire_8 Gilded Lynx (magic: boom)           defensive/hollow smart   rare    100%  16.5t  64%
+w_spire_9 Star Wraith (magic: swift)          defensive/hollow smart   rare    100%  12.6t  69%
+w_pass_0 Frosthorn Alpha (rare: iron, split, frenzy)staff/woods      smart   rare    100%  12.8t  52%
+w_pass_1 Wind Stalker (magic: arcane)         staff/woods      smart   rare    100%  11.2t  51%
+w_pass_2 Hail Warden (magic: poison)          staff/woods      smart   rare    100%   9.5t  50%
+w_pass_3 Snow Warden (magic: arcane)          staff/woods      smart   rare    100%  10.1t  46%
+w_pass_4 Wind Warden (magic: ward)            staff/woods      smart   rare    100%   9.8t  53%
+w_pass_5 Glacier Warden (magic: poison)       staff/woods      smart   rare     97%  14.7t  45%
+w_pass_6 Hail Howler (rare: boom, fire)       staff/woods      smart   rare    100%  11.4t  48%
+w_pass_7 Rime Warden (magic: elusive)         staff/woods      smart   rare    100%  15.7t  47%
+w_pass_8 Pale Warden (magic: holy)            staff/woods      smart   rare    100%   8.0t  59%
+w_pass_9 Frost Stalker (magic: elusive)       staff/woods      smart   rare    100%  11.7t  49%
+w_hollow_0 Kiln Drake (magic: swift)          staff/pass       smart   rare    100%   9.4t  52%
+w_hollow_1 Ash Drake (magic: arcane)          staff/pass       smart   rare    100%  11.6t  49%
+w_hollow_2 Ash Creeper (magic: regen)         staff/pass       smart   rare    100%   6.0t  64%
+w_hollow_3 Forge Drake (rare: shadow, thorn)  staff/pass       smart   rare    100%   7.4t  58%
+w_hollow_4 Ember Hound (magic: boom)          staff/pass       smart   rare    100%   5.6t  58%
+w_hollow_5 Forge Sentinel (magic: poison)     staff/pass       smart   rare    100%   8.3t  48%
+w_hollow_6 Cinderback Alpha (rare: shadow, boom, regen)staff/pass       smart   rare    100%  11.0t  52%
+w_hollow_7 Cinder Sentinel (rare: arcane, regen)staff/pass       smart   rare    100%   8.0t  56%
+w_hollow_8 Ash Warden (magic: ward)           staff/pass       smart   rare    100%   5.9t  65%
+w_hollow_9 Ash Hound (magic: regen)           staff/pass       smart   rare    100%   5.2t  63%
+w_spire_0 Rune Lynx (rare: swiftfoot, fire)   staff/hollow     smart   rare    100%   6.7t  74%
+w_spire_1 Void Warden (magic: shadow)         staff/hollow     smart   rare    100%   6.8t  74%
+w_spire_2 Void Watcher (magic: arcane)        staff/hollow     smart   rare    100%   7.7t  78%
+w_spire_3 Rune Wraith (rare: swiftfoot, boom) staff/hollow     smart   rare    100%   6.9t  68%
+w_spire_4 Starcrown Alpha (rare: vamp, thorn, swiftfoot)staff/hollow     smart   rare    100%  14.7t  52%
+w_spire_5 Astral Watcher (rare: arcane, vamp) staff/hollow     smart   rare    100%   8.3t  67%
+w_spire_6 Astral Lynx (rare: split, arcane)   staff/hollow     smart   rare    100%   6.7t  73%
+w_spire_7 Gilded Wraith (magic: ward)         staff/hollow     smart   rare    100%   5.9t  71%
+w_spire_8 Gilded Lynx (magic: boom)           staff/hollow     smart   rare    100%  11.0t  52%
+w_spire_9 Star Wraith (magic: swift)          staff/hollow     smart   rare    100%   5.8t  76%
+w_pass_0 Frosthorn Alpha (rare: iron, split, frenzy)stacked/woods    smart   rare    100%   6.9t  57%
+w_pass_1 Wind Stalker (magic: arcane)         stacked/woods    smart   rare    100%   3.9t  77%
+w_pass_2 Hail Warden (magic: poison)          stacked/woods    smart   rare    100%   2.9t  83%
+w_pass_3 Snow Warden (magic: arcane)          stacked/woods    smart   rare    100%   3.5t  78%
+w_pass_4 Wind Warden (magic: ward)            stacked/woods    smart   rare    100%   3.4t  76%
+w_pass_5 Glacier Warden (magic: poison)       stacked/woods    smart   rare    100%   6.3t  63%
+w_pass_6 Hail Howler (rare: boom, fire)       stacked/woods    smart   rare    100%   5.4t  68%
+w_pass_7 Rime Warden (magic: elusive)         stacked/woods    smart   rare    100%   5.6t  68%
+w_pass_8 Pale Warden (magic: holy)            stacked/woods    smart   rare    100%   3.2t  81%
+w_pass_9 Frost Stalker (magic: elusive)       stacked/woods    smart   rare    100%   4.8t  67%
+w_hollow_0 Kiln Drake (magic: swift)          stacked/pass     smart   rare    100%   6.2t  78%
+w_hollow_1 Ash Drake (magic: arcane)          stacked/pass     smart   rare    100%   7.2t  68%
+w_hollow_2 Ash Creeper (magic: regen)         stacked/pass     smart   rare    100%   9.3t  78%
+w_hollow_3 Forge Drake (rare: shadow, thorn)  stacked/pass     smart   rare    100%   3.9t  85%
+w_hollow_4 Ember Hound (magic: boom)          stacked/pass     smart   rare    100%   6.8t  74%
+w_hollow_5 Forge Sentinel (magic: poison)     stacked/pass     smart   rare    100%   4.3t  79%
+w_hollow_6 Cinderback Alpha (rare: shadow, boom, regen)stacked/pass     smart   rare    100%  13.3t  62%
+w_hollow_7 Cinder Sentinel (rare: arcane, regen)stacked/pass     smart   rare    100%   5.0t  79%
+w_hollow_8 Ash Warden (magic: ward)           stacked/pass     smart   rare    100%   7.6t  80%
+w_hollow_9 Ash Hound (magic: regen)           stacked/pass     smart   rare    100%   6.5t  75%
+w_spire_0 Rune Lynx (rare: swiftfoot, fire)   stacked/hollow   smart   rare    100%   6.2t  76%
+w_spire_1 Void Warden (magic: shadow)         stacked/hollow   smart   rare    100%   6.9t  77%
+w_spire_2 Void Watcher (magic: arcane)        stacked/hollow   smart   rare    100%   7.4t  81%
+w_spire_3 Rune Wraith (rare: swiftfoot, boom) stacked/hollow   smart   rare    100%   6.9t  84%
+w_spire_4 Starcrown Alpha (rare: vamp, thorn, swiftfoot)stacked/hollow   smart   rare    100%   9.4t  68%
+w_spire_5 Astral Watcher (rare: arcane, vamp) stacked/hollow   smart   rare    100%   5.7t  84%
+w_spire_6 Astral Lynx (rare: split, arcane)   stacked/hollow   smart   rare    100%   6.4t  77%
+w_spire_7 Gilded Wraith (magic: ward)         stacked/hollow   smart   rare    100%   5.7t  76%
+w_spire_8 Gilded Lynx (magic: boom)           stacked/hollow   smart   rare    100%   7.9t  74%
+w_spire_9 Star Wraith (magic: swift)          stacked/hollow   smart   rare    100%   5.7t  82%
+w_woods_0 Moss Warden (magic: holy)           starter/start    smart   rare     97%   3.0t  62%
+w_woods_1 Grove Hound (magic: split)          starter/start    smart   rare     67%   4.3t  29%
+w_woods_2 Briar Stalker (rare: swiftfoot, boom)starter/start    smart   rare     97%   3.0t  60%
+w_woods_3 Thornheart Alpha (rare: swiftfoot, elusive, shadow)starter/start    smart   rare     90%   3.7t  41%
+w_woods_4 Grove Watcher (magic: split)        starter/start    smart   rare    100%   2.9t  66%
+w_woods_5 Oak Stalker (magic: shadow)         starter/start    smart   rare     93%   2.8t  58%
+w_woods_6 Grove Slasher (rare: split, shadow) starter/start    smart   rare    100%   4.4t  54%
+w_woods_7 Fern Stalker (magic: split)         starter/start    smart   rare     80%   4.8t  31%
+w_woods_8 Thorn Warden (magic: arcane)        starter/start    smart   rare    100%   3.7t  57%
+w_woods_9 Briar Runner (magic: swift)         starter/start    smart   rare     90%   4.7t  30%
+
+== Wild creatures, ON-STAGE (the kit's own zone): 30 fights per cell, seed 1, map row 3. "native" is the creature as the game rolls it (its own rarity and affixes); the forced rows put its stats back on the region band and roll the affixes like a regular's. Per heat: win% / mean turns / mean HP left% (losses count 0) ==
+creature                                      kit              policy  rarity  H0               flags
+w_woods_0 Moss Warden (magic: holy)           melee/woods      smart   native  100%   7.0t  74%
+w_woods_1 Grove Hound (magic: split)          melee/woods      smart   native  100%   8.7t  69%
+w_woods_2 Briar Stalker (rare: swiftfoot, boom)melee/woods      smart   native  100%   8.0t  40%
+w_woods_3 Thornheart Alpha (rare: swiftfoot, elusive, shadow)melee/woods      smart   native  100%   8.6t  64%
+w_woods_4 Grove Watcher (magic: split)        melee/woods      smart   native  100%   8.3t  85%
+w_woods_5 Oak Stalker (magic: shadow)         melee/woods      smart   native  100%   5.9t  75%
+w_woods_6 Grove Slasher (rare: split, shadow) melee/woods      smart   native  100%   6.9t  85%
+w_woods_7 Fern Stalker (magic: split)         melee/woods      smart   native  100%  10.0t  67%
+w_woods_8 Thorn Warden (magic: arcane)        melee/woods      smart   native  100%   5.1t  84%
+w_woods_9 Briar Runner (magic: swift)         melee/woods      smart   native  100%   6.2t  82%
+w_pass_0 Frosthorn Alpha (rare: iron, split, frenzy)melee/pass       smart   native  100%  22.5t  64%
+w_pass_1 Wind Stalker (magic: arcane)         melee/pass       smart   native  100%   8.1t  78%
+w_pass_2 Hail Warden (magic: poison)          melee/pass       smart   native  100%   7.4t  79%
+w_pass_3 Snow Warden (magic: arcane)          melee/pass       smart   native  100%   7.6t  74%
+w_pass_4 Wind Warden (magic: ward)            melee/pass       smart   native  100%   9.9t  80%
+w_pass_5 Glacier Warden (magic: poison)       melee/pass       smart   native  100%  10.2t  61%
+w_pass_6 Hail Howler (rare: boom, fire)       melee/pass       smart   native  100%   8.8t  45%
+w_pass_7 Rime Warden (magic: elusive)         melee/pass       smart   native  100%   9.3t  77%
+w_pass_8 Pale Warden (magic: holy)            melee/pass       smart   native  100%   6.0t  84%
+w_pass_9 Frost Stalker (magic: elusive)       melee/pass       smart   native  100%   6.4t  84%
+w_hollow_0 Kiln Drake (magic: swift)          melee/hollow     smart   native  100%   5.8t  86%
+w_hollow_1 Ash Drake (magic: arcane)          melee/hollow     smart   native  100%   6.7t  77%
+w_hollow_2 Ash Creeper (magic: regen)         melee/hollow     smart   native  100%  13.5t  79%
+w_hollow_3 Forge Drake (rare: shadow, thorn)  melee/hollow     smart   native  100%   7.4t  54%
+w_hollow_4 Ember Hound (magic: boom)          melee/hollow     smart   native  100%   8.6t  46%
+w_hollow_5 Forge Sentinel (magic: poison)     melee/hollow     smart   native  100%   7.0t  67%
+w_hollow_6 Cinderback Alpha (rare: shadow, boom, regen)melee/hollow     smart   native  100%  33.5t  39% SLOG
+w_hollow_7 Cinder Sentinel (rare: arcane, regen)melee/hollow     smart   native  100%   4.7t  86%
+w_hollow_8 Ash Warden (magic: ward)           melee/hollow     smart   native  100%  14.6t  74%
+w_hollow_9 Ash Hound (magic: regen)           melee/hollow     smart   native  100%  10.5t  75%
+w_spire_0 Rune Lynx (rare: swiftfoot, fire)   melee/spire      smart   native  100%   7.9t  88%
+w_spire_1 Void Warden (magic: shadow)         melee/spire      smart   native  100%   8.3t  98%
+w_spire_2 Void Watcher (magic: arcane)        melee/spire      smart   native  100%   8.7t  99%
+w_spire_3 Rune Wraith (rare: swiftfoot, boom) melee/spire      smart   native  100%   8.2t  55%
+w_spire_4 Starcrown Alpha (rare: vamp, thorn, swiftfoot)melee/spire      smart   native  100%  11.3t  47%
+w_spire_5 Astral Watcher (rare: arcane, vamp) melee/spire      smart   native  100%   7.5t  99%
+w_spire_6 Astral Lynx (rare: split, arcane)   melee/spire      smart   native  100%  10.2t  96%
+w_spire_7 Gilded Wraith (magic: ward)         melee/spire      smart   native  100%   9.9t  96%
+w_spire_8 Gilded Lynx (magic: boom)           melee/spire      smart   native  100%   9.0t  42%
+w_spire_9 Star Wraith (magic: swift)          melee/spire      smart   native  100%   7.1t  99%
+w_woods_0 Moss Warden (magic: holy)           defensive/woods  smart   native  100%  12.4t  97%
+w_woods_1 Grove Hound (magic: split)          defensive/woods  smart   native  100%  14.3t  90%
+w_woods_2 Briar Stalker (rare: swiftfoot, boom)defensive/woods  smart   native  100%  12.4t  58%
+w_woods_3 Thornheart Alpha (rare: swiftfoot, elusive, shadow)defensive/woods  smart   native  100%  15.8t  88%
+w_woods_4 Grove Watcher (magic: split)        defensive/woods  smart   native  100%  13.7t  98%
+w_woods_5 Oak Stalker (magic: shadow)         defensive/woods  smart   native  100%  10.3t  96%
+w_woods_6 Grove Slasher (rare: split, shadow) defensive/woods  smart   native  100%  12.0t  99%
+w_woods_7 Fern Stalker (magic: split)         defensive/woods  smart   native  100%  15.6t  94%
+w_woods_8 Thorn Warden (magic: arcane)        defensive/woods  smart   native  100%   8.5t  99%
+w_woods_9 Briar Runner (magic: swift)         defensive/woods  smart   native  100%  10.5t  99%
+w_pass_0 Frosthorn Alpha (rare: iron, split, frenzy)defensive/pass   smart   native  100%  26.6t  62%
+w_pass_1 Wind Stalker (magic: arcane)         defensive/pass   smart   native  100%   6.9t  91%
+w_pass_2 Hail Warden (magic: poison)          defensive/pass   smart   native  100%   6.3t  90%
+w_pass_3 Snow Warden (magic: arcane)          defensive/pass   smart   native  100%   6.4t  91%
+w_pass_4 Wind Warden (magic: ward)            defensive/pass   smart   native  100%   9.2t  87%
+w_pass_5 Glacier Warden (magic: poison)       defensive/pass   smart   native  100%  13.0t  73%
+w_pass_6 Hail Howler (rare: boom, fire)       defensive/pass   smart   native  100%  11.7t  63%
+w_pass_7 Rime Warden (magic: elusive)         defensive/pass   smart   native  100%  11.0t  86%
+w_pass_8 Pale Warden (magic: holy)            defensive/pass   smart   native  100%   5.6t  93%
+w_pass_9 Frost Stalker (magic: elusive)       defensive/pass   smart   native  100%   7.2t  90%
+w_hollow_0 Kiln Drake (magic: swift)          defensive/hollow smart   native  100%  11.2t  98%
+w_hollow_1 Ash Drake (magic: arcane)          defensive/hollow smart   native  100%  13.3t  91%
+w_hollow_2 Ash Creeper (magic: regen)         defensive/hollow smart   native  100%   8.6t 100%
+w_hollow_3 Forge Drake (rare: shadow, thorn)  defensive/hollow smart   native  100%   9.1t  75%
+w_hollow_4 Ember Hound (magic: boom)          defensive/hollow smart   native  100%   6.6t  86%
+w_hollow_5 Forge Sentinel (magic: poison)     defensive/hollow smart   native  100%   9.3t  94%
+w_hollow_6 Cinderback Alpha (rare: shadow, boom, regen)defensive/hollow smart   native  100%  16.1t  52%
+w_hollow_7 Cinder Sentinel (rare: arcane, regen)defensive/hollow smart   native  100%  10.4t 100%
+w_hollow_8 Ash Warden (magic: ward)           defensive/hollow smart   native  100%  10.5t 100%
+w_hollow_9 Ash Hound (magic: regen)           defensive/hollow smart   native  100%   6.3t 100%
+w_spire_0 Rune Lynx (rare: swiftfoot, fire)   defensive/spire  smart   native  100%  17.2t  72%
+w_spire_1 Void Warden (magic: shadow)         defensive/spire  smart   native  100%  20.2t  88%
+w_spire_2 Void Watcher (magic: arcane)        defensive/spire  smart   native  100%  20.9t  89%
+w_spire_3 Rune Wraith (rare: swiftfoot, boom) defensive/spire  smart   native  100%  19.3t  47%
+w_spire_4 Starcrown Alpha (rare: vamp, thorn, swiftfoot)defensive/spire  smart   native  100%  31.3t  38% SLOG
+w_spire_5 Astral Watcher (rare: arcane, vamp) defensive/spire  smart   native  100%  16.9t  97%
+w_spire_6 Astral Lynx (rare: split, arcane)   defensive/spire  smart   native  100%  22.2t  89%
+w_spire_7 Gilded Wraith (magic: ward)         defensive/spire  smart   native  100%  31.8t  60% SLOG
+w_spire_8 Gilded Lynx (magic: boom)           defensive/spire  smart   native  100%  20.5t  38%
+w_spire_9 Star Wraith (magic: swift)          defensive/spire  smart   native  100%  16.2t  84%
+w_woods_0 Moss Warden (magic: holy)           staff/woods      smart   native  100%   8.8t  67%
+w_woods_1 Grove Hound (magic: split)          staff/woods      smart   native  100%  10.9t  63%
+w_woods_2 Briar Stalker (rare: swiftfoot, boom)staff/woods      smart   native  100%  10.3t  39%
+w_woods_3 Thornheart Alpha (rare: swiftfoot, elusive, shadow)staff/woods      smart   native  100%  12.3t  53%
+w_woods_4 Grove Watcher (magic: split)        staff/woods      smart   native  100%  10.2t  79%
+w_woods_5 Oak Stalker (magic: shadow)         staff/woods      smart   native  100%   7.8t  64%
+w_woods_6 Grove Slasher (rare: split, shadow) staff/woods      smart   native  100%  12.4t  69%
+w_woods_7 Fern Stalker (magic: split)         staff/woods      smart   native  100%  12.6t  60%
+w_woods_8 Thorn Warden (magic: arcane)        staff/woods      smart   native  100%   9.9t  67%
+w_woods_9 Briar Runner (magic: swift)         staff/woods      smart   native  100%  10.9t  65%
+w_pass_0 Frosthorn Alpha (rare: iron, split, frenzy)staff/pass       smart   native  100%   9.7t  67%
+w_pass_1 Wind Stalker (magic: arcane)         staff/pass       smart   native  100%   8.1t  77%
+w_pass_2 Hail Warden (magic: poison)          staff/pass       smart   native  100%   6.8t  68%
+w_pass_3 Snow Warden (magic: arcane)          staff/pass       smart   native  100%   7.8t  74%
+w_pass_4 Wind Warden (magic: ward)            staff/pass       smart   native  100%   9.4t  64%
+w_pass_5 Glacier Warden (magic: poison)       staff/pass       smart   native  100%   9.4t  56%
+w_pass_6 Hail Howler (rare: boom, fire)       staff/pass       smart   native  100%   8.8t  37%
+w_pass_7 Rime Warden (magic: elusive)         staff/pass       smart   native  100%  11.1t  74%
+w_pass_8 Pale Warden (magic: holy)            staff/pass       smart   native  100%   5.5t  76%
+w_pass_9 Frost Stalker (magic: elusive)       staff/pass       smart   native  100%   6.6t  82%
+w_hollow_0 Kiln Drake (magic: swift)          staff/hollow     smart   native  100%   5.4t  94%
+w_hollow_1 Ash Drake (magic: arcane)          staff/hollow     smart   native  100%   6.2t  96%
+w_hollow_2 Ash Creeper (magic: regen)         staff/hollow     smart   native  100%   5.1t  99%
+w_hollow_3 Forge Drake (rare: shadow, thorn)  staff/hollow     smart   native  100%   7.3t  80%
+w_hollow_4 Ember Hound (magic: boom)          staff/hollow     smart   native  100%   4.4t  61%
+w_hollow_5 Forge Sentinel (magic: poison)     staff/hollow     smart   native  100%   7.0t  74%
+w_hollow_6 Cinderback Alpha (rare: shadow, boom, regen)staff/hollow     smart   native  100%   9.7t  40%
+w_hollow_7 Cinder Sentinel (rare: arcane, regen)staff/hollow     smart   native  100%   4.6t  99%
+w_hollow_8 Ash Warden (magic: ward)           staff/hollow     smart   native  100%   6.6t  98%
+w_hollow_9 Ash Hound (magic: regen)           staff/hollow     smart   native  100%   4.3t  95%
+w_spire_0 Rune Lynx (rare: swiftfoot, fire)   staff/spire      smart   native   97%   6.4t  78%
+w_spire_1 Void Warden (magic: shadow)         staff/spire      smart   native  100%   6.8t  97%
+w_spire_2 Void Watcher (magic: arcane)        staff/spire      smart   native  100%   6.6t 100%
+w_spire_3 Rune Wraith (rare: swiftfoot, boom) staff/spire      smart   native   93%   9.3t  27%
+w_spire_4 Starcrown Alpha (rare: vamp, thorn, swiftfoot)staff/spire      smart   native  100%   9.1t  74%
+w_spire_5 Astral Watcher (rare: arcane, vamp) staff/spire      smart   native  100%   6.1t  98%
+w_spire_6 Astral Lynx (rare: split, arcane)   staff/spire      smart   native  100%   8.2t  97%
+w_spire_7 Gilded Wraith (magic: ward)         staff/spire      smart   native  100%   7.9t  97%
+w_spire_8 Gilded Lynx (magic: boom)           staff/spire      smart   native   37%  11.3t   9% TOO_HARD
+w_spire_9 Star Wraith (magic: swift)          staff/spire      smart   native  100%   5.9t  91%
+w_woods_0 Moss Warden (magic: holy)           stacked/woods    smart   native  100%   4.9t  87%
+w_woods_1 Grove Hound (magic: split)          stacked/woods    smart   native  100%   6.5t  82%
+w_woods_2 Briar Stalker (rare: swiftfoot, boom)stacked/woods    smart   native  100%   5.5t  47%
+w_woods_3 Thornheart Alpha (rare: swiftfoot, elusive, shadow)stacked/woods    smart   native  100%   6.0t  79%
+w_woods_4 Grove Watcher (magic: split)        stacked/woods    smart   native  100%   6.1t  92%
+w_woods_5 Oak Stalker (magic: shadow)         stacked/woods    smart   native  100%   4.2t  88%
+w_woods_6 Grove Slasher (rare: split, shadow) stacked/woods    smart   native  100%   5.2t  91%
+w_woods_7 Fern Stalker (magic: split)         stacked/woods    smart   native  100%   7.1t  81%
+w_woods_8 Thorn Warden (magic: arcane)        stacked/woods    smart   native  100%   3.6t  90% TOO_EASY
+w_woods_9 Briar Runner (magic: swift)         stacked/woods    smart   native  100%   4.5t  90%
+w_pass_0 Frosthorn Alpha (rare: iron, split, frenzy)stacked/pass     smart   native  100%  12.7t  84%
+w_pass_1 Wind Stalker (magic: arcane)         stacked/pass     smart   native  100%   5.0t  94%
+w_pass_2 Hail Warden (magic: poison)          stacked/pass     smart   native  100%   4.3t  93%
+w_pass_3 Snow Warden (magic: arcane)          stacked/pass     smart   native  100%   4.6t  94%
+w_pass_4 Wind Warden (magic: ward)            stacked/pass     smart   native  100%   5.5t  94%
+w_pass_5 Glacier Warden (magic: poison)       stacked/pass     smart   native  100%   6.2t  87%
+w_pass_6 Hail Howler (rare: boom, fire)       stacked/pass     smart   native  100%   5.3t  64%
+w_pass_7 Rime Warden (magic: elusive)         stacked/pass     smart   native  100%   5.5t  95%
+w_pass_8 Pale Warden (magic: holy)            stacked/pass     smart   native  100%   4.2t  95%
+w_pass_9 Frost Stalker (magic: elusive)       stacked/pass     smart   native  100%   4.2t  95%
+w_hollow_0 Kiln Drake (magic: swift)          stacked/hollow   smart   native  100%   5.9t  90%
+w_hollow_1 Ash Drake (magic: arcane)          stacked/hollow   smart   native  100%   6.4t  87%
+w_hollow_2 Ash Creeper (magic: regen)         stacked/hollow   smart   native  100%   9.1t  91%
+w_hollow_3 Forge Drake (rare: shadow, thorn)  stacked/hollow   smart   native  100%   3.7t  82%
+w_hollow_4 Ember Hound (magic: boom)          stacked/hollow   smart   native  100%   6.7t  66%
+w_hollow_5 Forge Sentinel (magic: poison)     stacked/hollow   smart   native  100%   3.7t  93% TOO_EASY
+w_hollow_6 Cinderback Alpha (rare: shadow, boom, regen)stacked/hollow   smart   native  100%  15.6t  40%
+w_hollow_7 Cinder Sentinel (rare: arcane, regen)stacked/hollow   smart   native  100%   4.5t  96%
+w_hollow_8 Ash Warden (magic: ward)           stacked/hollow   smart   native  100%   9.4t  91%
+w_hollow_9 Ash Hound (magic: regen)           stacked/hollow   smart   native  100%   6.7t  93%
+w_spire_0 Rune Lynx (rare: swiftfoot, fire)   stacked/spire    smart   native  100%   5.1t  96%
+w_spire_1 Void Warden (magic: shadow)         stacked/spire    smart   native  100%   5.4t 100%
+w_spire_2 Void Watcher (magic: arcane)        stacked/spire    smart   native  100%   5.8t  99%
+w_spire_3 Rune Wraith (rare: swiftfoot, boom) stacked/spire    smart   native  100%   5.2t  61%
+w_spire_4 Starcrown Alpha (rare: vamp, thorn, swiftfoot)stacked/spire    smart   native  100%   7.0t  62%
+w_spire_5 Astral Watcher (rare: arcane, vamp) stacked/spire    smart   native  100%   5.0t  99%
+w_spire_6 Astral Lynx (rare: split, arcane)   stacked/spire    smart   native  100%   7.0t  98%
+w_spire_7 Gilded Wraith (magic: ward)         stacked/spire    smart   native  100%   6.2t  98%
+w_spire_8 Gilded Lynx (magic: boom)           stacked/spire    smart   native  100%   6.1t  58%
+w_spire_9 Star Wraith (magic: swift)          stacked/spire    smart   native  100%   4.8t  98%
+w_woods_0 Moss Warden (magic: holy)           melee/woods      smart   normal  100%   7.1t  83%
+w_woods_1 Grove Hound (magic: split)          melee/woods      smart   normal  100%   7.4t  68%
+w_woods_2 Briar Stalker (rare: swiftfoot, boom)melee/woods      smart   normal  100%   7.4t  66%
+w_woods_3 Thornheart Alpha (rare: swiftfoot, elusive, shadow)melee/woods      smart   normal  100%   9.4t  76%
+w_woods_4 Grove Watcher (magic: split)        melee/woods      smart   normal  100%   7.0t  86%
+w_woods_5 Oak Stalker (magic: shadow)         melee/woods      smart   normal  100%   5.6t  77%
+w_woods_6 Grove Slasher (rare: split, shadow) melee/woods      smart   normal  100%   5.6t  86%
+w_woods_7 Fern Stalker (magic: split)         melee/woods      smart   normal  100%   7.9t  69%
+w_woods_8 Thorn Warden (magic: arcane)        melee/woods      smart   normal  100%   4.6t  85%
+w_woods_9 Briar Runner (magic: swift)         melee/woods      smart   normal  100%   5.8t  83%
+w_pass_0 Frosthorn Alpha (rare: iron, split, frenzy)melee/pass       smart   normal  100%  13.1t  80%
+w_pass_1 Wind Stalker (magic: arcane)         melee/pass       smart   normal  100%   7.4t  87%
+w_pass_2 Hail Warden (magic: poison)          melee/pass       smart   normal  100%   6.9t  89%
+w_pass_3 Snow Warden (magic: arcane)          melee/pass       smart   normal  100%   7.1t  86%
+w_pass_4 Wind Warden (magic: ward)            melee/pass       smart   normal  100%   6.8t  85%
+w_pass_5 Glacier Warden (magic: poison)       melee/pass       smart   normal  100%   9.8t  84%
+w_pass_6 Hail Howler (rare: boom, fire)       melee/pass       smart   normal  100%   9.1t  88%
+w_pass_7 Rime Warden (magic: elusive)         melee/pass       smart   normal  100%   9.4t  82%
+w_pass_8 Pale Warden (magic: holy)            melee/pass       smart   normal  100%   5.9t  90%
+w_pass_9 Frost Stalker (magic: elusive)       melee/pass       smart   normal  100%   6.4t  84%
+w_hollow_0 Kiln Drake (magic: swift)          melee/hollow     smart   normal  100%   5.4t  77%
+w_hollow_1 Ash Drake (magic: arcane)          melee/hollow     smart   normal  100%   6.8t  64%
+w_hollow_2 Ash Creeper (magic: regen)         melee/hollow     smart   normal  100%  11.2t  83%
+w_hollow_3 Forge Drake (rare: shadow, thorn)  melee/hollow     smart   normal  100%   6.5t  83%
+w_hollow_4 Ember Hound (magic: boom)          melee/hollow     smart   normal  100%   8.7t  82%
+w_hollow_5 Forge Sentinel (magic: poison)     melee/hollow     smart   normal  100%   6.6t  71%
+w_hollow_6 Cinderback Alpha (rare: shadow, boom, regen)melee/hollow     smart   normal  100%  16.8t  66%
+w_hollow_7 Cinder Sentinel (rare: arcane, regen)melee/hollow     smart   normal  100%   4.4t  87%
+w_hollow_8 Ash Warden (magic: ward)           melee/hollow     smart   normal  100%   9.1t  86%
+w_hollow_9 Ash Hound (magic: regen)           melee/hollow     smart   normal  100%   8.5t  83%
+w_spire_0 Rune Lynx (rare: swiftfoot, fire)   melee/spire      smart   normal  100%   7.6t  95%
+w_spire_1 Void Warden (magic: shadow)         melee/spire      smart   normal  100%   8.3t  98%
+w_spire_2 Void Watcher (magic: arcane)        melee/spire      smart   normal  100%   8.8t  99%
+w_spire_3 Rune Wraith (rare: swiftfoot, boom) melee/spire      smart   normal  100%   8.1t  99%
+w_spire_4 Starcrown Alpha (rare: vamp, thorn, swiftfoot)melee/spire      smart   normal  100%  11.0t  88%
+w_spire_5 Astral Watcher (rare: arcane, vamp) melee/spire      smart   normal  100%   6.8t  99%
+w_spire_6 Astral Lynx (rare: split, arcane)   melee/spire      smart   normal  100%   8.1t  97%
+w_spire_7 Gilded Wraith (magic: ward)         melee/spire      smart   normal  100%   7.1t  98%
+w_spire_8 Gilded Lynx (magic: boom)           melee/spire      smart   normal  100%   8.8t  93%
+w_spire_9 Star Wraith (magic: swift)          melee/spire      smart   normal  100%   7.4t  97%
+w_woods_0 Moss Warden (magic: holy)           defensive/woods  smart   normal  100%  11.9t  97%
+w_woods_1 Grove Hound (magic: split)          defensive/woods  smart   normal  100%  12.1t  91%
+w_woods_2 Briar Stalker (rare: swiftfoot, boom)defensive/woods  smart   normal  100%  12.7t  97%
+w_woods_3 Thornheart Alpha (rare: swiftfoot, elusive, shadow)defensive/woods  smart   normal  100%  16.8t  89%
+w_woods_4 Grove Watcher (magic: split)        defensive/woods  smart   normal  100%  11.2t  99%
+w_woods_5 Oak Stalker (magic: shadow)         defensive/woods  smart   normal  100%  10.5t  94%
+w_woods_6 Grove Slasher (rare: split, shadow) defensive/woods  smart   normal  100%   9.8t 100%
+w_woods_7 Fern Stalker (magic: split)         defensive/woods  smart   normal  100%  13.1t  94%
+w_woods_8 Thorn Warden (magic: arcane)        defensive/woods  smart   normal  100%   7.8t  99%
+w_woods_9 Briar Runner (magic: swift)         defensive/woods  smart   normal  100%  10.4t  98%
+w_pass_0 Frosthorn Alpha (rare: iron, split, frenzy)defensive/pass   smart   normal  100%  16.1t  77%
+w_pass_1 Wind Stalker (magic: arcane)         defensive/pass   smart   normal  100%   6.6t  89%
+w_pass_2 Hail Warden (magic: poison)          defensive/pass   smart   normal  100%   6.1t  93%
+w_pass_3 Snow Warden (magic: arcane)          defensive/pass   smart   normal  100%   6.8t  90%
+w_pass_4 Wind Warden (magic: ward)            defensive/pass   smart   normal  100%   5.8t  92%
+w_pass_5 Glacier Warden (magic: poison)       defensive/pass   smart   normal  100%  12.4t  85%
+w_pass_6 Hail Howler (rare: boom, fire)       defensive/pass   smart   normal  100%  11.0t  89%
+w_pass_7 Rime Warden (magic: elusive)         defensive/pass   smart   normal  100%  11.3t  88%
+w_pass_8 Pale Warden (magic: holy)            defensive/pass   smart   normal  100%   5.4t  94%
+w_pass_9 Frost Stalker (magic: elusive)       defensive/pass   smart   normal  100%   8.3t  88%
+w_hollow_0 Kiln Drake (magic: swift)          defensive/hollow smart   normal  100%  11.1t  97%
+w_hollow_1 Ash Drake (magic: arcane)          defensive/hollow smart   normal  100%  12.8t  94%
+w_hollow_2 Ash Creeper (magic: regen)         defensive/hollow smart   normal  100%   8.2t 100%
+w_hollow_3 Forge Drake (rare: shadow, thorn)  defensive/hollow smart   normal  100%   8.8t 100%
+w_hollow_4 Ember Hound (magic: boom)          defensive/hollow smart   normal  100%   6.6t 100%
+w_hollow_5 Forge Sentinel (magic: poison)     defensive/hollow smart   normal  100%   9.2t  98%
+w_hollow_6 Cinderback Alpha (rare: shadow, boom, regen)defensive/hollow smart   normal  100%  11.8t  99%
+w_hollow_7 Cinder Sentinel (rare: arcane, regen)defensive/hollow smart   normal  100%   8.9t 100%
+w_hollow_8 Ash Warden (magic: ward)           defensive/hollow smart   normal  100%   7.3t 100%
+w_hollow_9 Ash Hound (magic: regen)           defensive/hollow smart   normal  100%   6.0t 100%
+w_spire_0 Rune Lynx (rare: swiftfoot, fire)   defensive/spire  smart   normal  100%  16.9t  88%
+w_spire_1 Void Warden (magic: shadow)         defensive/spire  smart   normal  100%  20.3t  87%
+w_spire_2 Void Watcher (magic: arcane)        defensive/spire  smart   normal  100%  20.5t  92%
+w_spire_3 Rune Wraith (rare: swiftfoot, boom) defensive/spire  smart   normal  100%  19.9t  85%
+w_spire_4 Starcrown Alpha (rare: vamp, thorn, swiftfoot)defensive/spire  smart   normal  100%  26.2t  68%
+w_spire_5 Astral Watcher (rare: arcane, vamp) defensive/spire  smart   normal  100%  16.9t  96%
+w_spire_6 Astral Lynx (rare: split, arcane)   defensive/spire  smart   normal  100%  19.1t  81%
+w_spire_7 Gilded Wraith (magic: ward)         defensive/spire  smart   normal  100%  16.0t  94%
+w_spire_8 Gilded Lynx (magic: boom)           defensive/spire  smart   normal  100%  20.6t  76%
+w_spire_9 Star Wraith (magic: swift)          defensive/spire  smart   normal  100%  15.9t  89%
+w_woods_0 Moss Warden (magic: holy)           staff/woods      smart   normal  100%   9.0t  75%
+w_woods_1 Grove Hound (magic: split)          staff/woods      smart   normal  100%   9.2t  64%
+w_woods_2 Briar Stalker (rare: swiftfoot, boom)staff/woods      smart   normal  100%   9.9t  63%
+w_woods_3 Thornheart Alpha (rare: swiftfoot, elusive, shadow)staff/woods      smart   normal  100%  11.5t  69%
+w_woods_4 Grove Watcher (magic: split)        staff/woods      smart   normal  100%   8.2t  80%
+w_woods_5 Oak Stalker (magic: shadow)         staff/woods      smart   normal  100%   7.4t  66%
+w_woods_6 Grove Slasher (rare: split, shadow) staff/woods      smart   normal  100%   9.9t  72%
+w_woods_7 Fern Stalker (magic: split)         staff/woods      smart   normal  100%  10.1t  61%
+w_woods_8 Thorn Warden (magic: arcane)        staff/woods      smart   normal  100%   7.8t  76%
+w_woods_9 Briar Runner (magic: swift)         staff/woods      smart   normal  100%  10.1t  67%
+w_pass_0 Frosthorn Alpha (rare: iron, split, frenzy)staff/pass       smart   normal  100%   7.9t  82%
+w_pass_1 Wind Stalker (magic: arcane)         staff/pass       smart   normal  100%   6.7t  73%
+w_pass_2 Hail Warden (magic: poison)          staff/pass       smart   normal  100%   6.4t  76%
+w_pass_3 Snow Warden (magic: arcane)          staff/pass       smart   normal  100%   6.7t  71%
+w_pass_4 Wind Warden (magic: ward)            staff/pass       smart   normal  100%   5.6t  80%
+w_pass_5 Glacier Warden (magic: poison)       staff/pass       smart   normal  100%   9.2t  80%
+w_pass_6 Hail Howler (rare: boom, fire)       staff/pass       smart   normal  100%   8.4t  87%
+w_pass_7 Rime Warden (magic: elusive)         staff/pass       smart   normal  100%  10.0t  80%
+w_pass_8 Pale Warden (magic: holy)            staff/pass       smart   normal  100%   5.5t  81%
+w_pass_9 Frost Stalker (magic: elusive)       staff/pass       smart   normal  100%   7.3t  76%
+w_hollow_0 Kiln Drake (magic: swift)          staff/hollow     smart   normal  100%   5.1t  96%
+w_hollow_1 Ash Drake (magic: arcane)          staff/hollow     smart   normal  100%   6.0t  89%
+w_hollow_2 Ash Creeper (magic: regen)         staff/hollow     smart   normal  100%   5.3t  99%
+w_hollow_3 Forge Drake (rare: shadow, thorn)  staff/hollow     smart   normal  100%   7.1t  97%
+w_hollow_4 Ember Hound (magic: boom)          staff/hollow     smart   normal  100%   4.3t  98%
+w_hollow_5 Forge Sentinel (magic: poison)     staff/hollow     smart   normal  100%   6.9t  90%
+w_hollow_6 Cinderback Alpha (rare: shadow, boom, regen)staff/hollow     smart   normal  100%   8.0t  96%
+w_hollow_7 Cinder Sentinel (rare: arcane, regen)staff/hollow     smart   normal  100%   4.6t  95%
+w_hollow_8 Ash Warden (magic: ward)           staff/hollow     smart   normal  100%   5.0t 100%
+w_hollow_9 Ash Hound (magic: regen)           staff/hollow     smart   normal  100%   4.4t  94%
+w_spire_0 Rune Lynx (rare: swiftfoot, fire)   staff/spire      smart   normal  100%   5.9t  92%
+w_spire_1 Void Warden (magic: shadow)         staff/spire      smart   normal  100%   7.1t  97%
+w_spire_2 Void Watcher (magic: arcane)        staff/spire      smart   normal  100%   7.4t  98%
+w_spire_3 Rune Wraith (rare: swiftfoot, boom) staff/spire      smart   normal  100%   6.5t  99%
+w_spire_4 Starcrown Alpha (rare: vamp, thorn, swiftfoot)staff/spire      smart   normal  100%   8.7t  81%
+w_spire_5 Astral Watcher (rare: arcane, vamp) staff/spire      smart   normal  100%   5.9t  90%
+w_spire_6 Astral Lynx (rare: split, arcane)   staff/spire      smart   normal  100%   6.9t  93%
+w_spire_7 Gilded Wraith (magic: ward)         staff/spire      smart   normal  100%   5.5t  95%
+w_spire_8 Gilded Lynx (magic: boom)           staff/spire      smart   normal  100%   8.2t  74%
+w_spire_9 Star Wraith (magic: swift)          staff/spire      smart   normal  100%   5.5t  97%
+w_woods_0 Moss Warden (magic: holy)           stacked/woods    smart   normal  100%   5.0t  92%
+w_woods_1 Grove Hound (magic: split)          stacked/woods    smart   normal  100%   5.1t  85%
+w_woods_2 Briar Stalker (rare: swiftfoot, boom)stacked/woods    smart   normal  100%   5.3t  79%
+w_woods_3 Thornheart Alpha (rare: swiftfoot, elusive, shadow)stacked/woods    smart   normal  100%   6.4t  89%
+w_woods_4 Grove Watcher (magic: split)        stacked/woods    smart   normal  100%   4.9t  93%
+w_woods_5 Oak Stalker (magic: shadow)         stacked/woods    smart   normal  100%   4.6t  85%
+w_woods_6 Grove Slasher (rare: split, shadow) stacked/woods    smart   normal  100%   4.1t  93%
+w_woods_7 Fern Stalker (magic: split)         stacked/woods    smart   normal  100%   5.5t  84%
+w_woods_8 Thorn Warden (magic: arcane)        stacked/woods    smart   normal  100%   3.7t  92%
+w_woods_9 Briar Runner (magic: swift)         stacked/woods    smart   normal  100%   4.1t  90%
+w_pass_0 Frosthorn Alpha (rare: iron, split, frenzy)stacked/pass     smart   normal  100%   7.2t  93%
+w_pass_1 Wind Stalker (magic: arcane)         stacked/pass     smart   normal  100%   4.7t  96%
+w_pass_2 Hail Warden (magic: poison)          stacked/pass     smart   normal  100%   4.4t  97%
+w_pass_3 Snow Warden (magic: arcane)          stacked/pass     smart   normal  100%   4.5t  95%
+w_pass_4 Wind Warden (magic: ward)            stacked/pass     smart   normal  100%   4.5t  95%
+w_pass_5 Glacier Warden (magic: poison)       stacked/pass     smart   normal  100%   6.1t  91%
+w_pass_6 Hail Howler (rare: boom, fire)       stacked/pass     smart   normal  100%   5.3t  95%
+w_pass_7 Rime Warden (magic: elusive)         stacked/pass     smart   normal  100%   5.5t  96%
+w_pass_8 Pale Warden (magic: holy)            stacked/pass     smart   normal  100%   4.0t  97%
+w_pass_9 Frost Stalker (magic: elusive)       stacked/pass     smart   normal  100%   4.4t  95%
+w_hollow_0 Kiln Drake (magic: swift)          stacked/hollow   smart   normal  100%   5.4t  92%
+w_hollow_1 Ash Drake (magic: arcane)          stacked/hollow   smart   normal  100%   6.3t  90%
+w_hollow_2 Ash Creeper (magic: regen)         stacked/hollow   smart   normal  100%   8.6t  93%
+w_hollow_3 Forge Drake (rare: shadow, thorn)  stacked/hollow   smart   normal  100%   3.6t  95%
+w_hollow_4 Ember Hound (magic: boom)          stacked/hollow   smart   normal  100%   6.3t  93%
+w_hollow_5 Forge Sentinel (magic: poison)     stacked/hollow   smart   normal  100%   3.5t  92%
+w_hollow_6 Cinderback Alpha (rare: shadow, boom, regen)stacked/hollow   smart   normal  100%  11.4t  89%
+w_hollow_7 Cinder Sentinel (rare: arcane, regen)stacked/hollow   smart   normal  100%   4.7t  94%
+w_hollow_8 Ash Warden (magic: ward)           stacked/hollow   smart   normal  100%   7.3t  92%
+w_hollow_9 Ash Hound (magic: regen)           stacked/hollow   smart   normal  100%   6.2t  92%
+w_spire_0 Rune Lynx (rare: swiftfoot, fire)   stacked/spire    smart   normal  100%   4.9t  98%
+w_spire_1 Void Warden (magic: shadow)         stacked/spire    smart   normal  100%   5.7t  99%
+w_spire_2 Void Watcher (magic: arcane)        stacked/spire    smart   normal  100%   5.4t 100%
+w_spire_3 Rune Wraith (rare: swiftfoot, boom) stacked/spire    smart   normal  100%   5.2t  98%
+w_spire_4 Starcrown Alpha (rare: vamp, thorn, swiftfoot)stacked/spire    smart   normal  100%   6.8t  97%
+w_spire_5 Astral Watcher (rare: arcane, vamp) stacked/spire    smart   normal  100%   4.6t  99%
+w_spire_6 Astral Lynx (rare: split, arcane)   stacked/spire    smart   normal  100%   5.4t  99%
+w_spire_7 Gilded Wraith (magic: ward)         stacked/spire    smart   normal  100%   4.7t  99%
+w_spire_8 Gilded Lynx (magic: boom)           stacked/spire    smart   normal  100%   5.7t  97%
+w_spire_9 Star Wraith (magic: swift)          stacked/spire    smart   normal  100%   4.6t  99%
+w_woods_0 Moss Warden (magic: holy)           melee/woods      smart   magic   100%   9.6t  66%
+w_woods_1 Grove Hound (magic: split)          melee/woods      smart   magic   100%  11.0t  56%
+w_woods_2 Briar Stalker (rare: swiftfoot, boom)melee/woods      smart   magic   100%  10.8t  62%
+w_woods_3 Thornheart Alpha (rare: swiftfoot, elusive, shadow)melee/woods      smart   magic   100%  14.0t  59%
+w_woods_4 Grove Watcher (magic: split)        melee/woods      smart   magic   100%   9.5t  69%
+w_woods_5 Oak Stalker (magic: shadow)         melee/woods      smart   magic   100%   8.5t  63%
+w_woods_6 Grove Slasher (rare: split, shadow) melee/woods      smart   magic   100%   7.9t  73%
+w_woods_7 Fern Stalker (magic: split)         melee/woods      smart   magic   100%  11.9t  59%
+w_woods_8 Thorn Warden (magic: arcane)        melee/woods      smart   magic   100%   6.3t  73%
+w_woods_9 Briar Runner (magic: swift)         melee/woods      smart   magic   100%   8.0t  68%
+w_pass_0 Frosthorn Alpha (rare: iron, split, frenzy)melee/pass       smart   magic   100%  19.4t  55%
+w_pass_1 Wind Stalker (magic: arcane)         melee/pass       smart   magic   100%  11.1t  70%
+w_pass_2 Hail Warden (magic: poison)          melee/pass       smart   magic   100%  10.2t  74%
+w_pass_3 Snow Warden (magic: arcane)          melee/pass       smart   magic   100%  10.3t  67%
+w_pass_4 Wind Warden (magic: ward)            melee/pass       smart   magic   100%   9.8t  73%
+w_pass_5 Glacier Warden (magic: poison)       melee/pass       smart   magic   100%  15.6t  60%
+w_pass_6 Hail Howler (rare: boom, fire)       melee/pass       smart   magic   100%  12.8t  65%
+w_pass_7 Rime Warden (magic: elusive)         melee/pass       smart   magic   100%  14.5t  63%
+w_pass_8 Pale Warden (magic: holy)            melee/pass       smart   magic   100%   8.8t  76%
+w_pass_9 Frost Stalker (magic: elusive)       melee/pass       smart   magic   100%  10.0t  64%
+w_hollow_0 Kiln Drake (magic: swift)          melee/hollow     smart   magic   100%   8.2t  60%
+w_hollow_1 Ash Drake (magic: arcane)          melee/hollow     smart   magic   100%   9.7t  57%
+w_hollow_2 Ash Creeper (magic: regen)         melee/hollow     smart   magic   100%  17.1t  62%
+w_hollow_3 Forge Drake (rare: shadow, thorn)  melee/hollow     smart   magic   100%   9.8t  69%
+w_hollow_4 Ember Hound (magic: boom)          melee/hollow     smart   magic   100%  12.5t  61%
+w_hollow_5 Forge Sentinel (magic: poison)     melee/hollow     smart   magic   100%   9.3t  57%
+w_hollow_6 Cinderback Alpha (rare: shadow, boom, regen)melee/hollow     smart   magic   100%  26.5t  51%
+w_hollow_7 Cinder Sentinel (rare: arcane, regen)melee/hollow     smart   magic   100%   6.5t  73%
+w_hollow_8 Ash Warden (magic: ward)           melee/hollow     smart   magic   100%  14.0t  64%
+w_hollow_9 Ash Hound (magic: regen)           melee/hollow     smart   magic   100%  12.3t  62%
+w_spire_0 Rune Lynx (rare: swiftfoot, fire)   melee/spire      smart   magic   100%  10.8t  80%
+w_spire_1 Void Warden (magic: shadow)         melee/spire      smart   magic   100%  11.9t  89%
+w_spire_2 Void Watcher (magic: arcane)        melee/spire      smart   magic   100%  13.4t  84%
+w_spire_3 Rune Wraith (rare: swiftfoot, boom) melee/spire      smart   magic   100%  11.7t  85%
+w_spire_4 Starcrown Alpha (rare: vamp, thorn, swiftfoot)melee/spire      smart   magic    97%  16.4t  61%
+w_spire_5 Astral Watcher (rare: arcane, vamp) melee/spire      smart   magic   100%  10.7t  85%
+w_spire_6 Astral Lynx (rare: split, arcane)   melee/spire      smart   magic   100%  11.6t  81%
+w_spire_7 Gilded Wraith (magic: ward)         melee/spire      smart   magic   100%  10.0t  83%
+w_spire_8 Gilded Lynx (magic: boom)           melee/spire      smart   magic   100%  13.4t  64%
+w_spire_9 Star Wraith (magic: swift)          melee/spire      smart   magic   100%   9.8t  85%
+w_woods_0 Moss Warden (magic: holy)           defensive/woods  smart   magic   100%  18.1t  81%
+w_woods_1 Grove Hound (magic: split)          defensive/woods  smart   magic   100%  19.0t  72%
+w_woods_2 Briar Stalker (rare: swiftfoot, boom)defensive/woods  smart   magic   100%  18.9t  78%
+w_woods_3 Thornheart Alpha (rare: swiftfoot, elusive, shadow)defensive/woods  smart   magic   100%  26.7t  72%
+w_woods_4 Grove Watcher (magic: split)        defensive/woods  smart   magic   100%  18.0t  85%
+w_woods_5 Oak Stalker (magic: shadow)         defensive/woods  smart   magic   100%  15.4t  79%
+w_woods_6 Grove Slasher (rare: split, shadow) defensive/woods  smart   magic   100%  13.6t  92%
+w_woods_7 Fern Stalker (magic: split)         defensive/woods  smart   magic   100%  20.4t  73%
+w_woods_8 Thorn Warden (magic: arcane)        defensive/woods  smart   magic   100%  10.9t  92%
+w_woods_9 Briar Runner (magic: swift)         defensive/woods  smart   magic   100%  14.6t  87%
+w_pass_0 Frosthorn Alpha (rare: iron, split, frenzy)defensive/pass   smart   magic   100%  26.0t  58%
+w_pass_1 Wind Stalker (magic: arcane)         defensive/pass   smart   magic   100%   9.5t  82%
+w_pass_2 Hail Warden (magic: poison)          defensive/pass   smart   magic   100%   9.0t  84%
+w_pass_3 Snow Warden (magic: arcane)          defensive/pass   smart   magic   100%   8.9t  78%
+w_pass_4 Wind Warden (magic: ward)            defensive/pass   smart   magic   100%   8.7t  82%
+w_pass_5 Glacier Warden (magic: poison)       defensive/pass   smart   magic   100%  20.3t  65%
+w_pass_6 Hail Howler (rare: boom, fire)       defensive/pass   smart   magic   100%  17.3t  73%
+w_pass_7 Rime Warden (magic: elusive)         defensive/pass   smart   magic   100%  18.5t  71%
+w_pass_8 Pale Warden (magic: holy)            defensive/pass   smart   magic   100%   7.7t  87%
+w_pass_9 Frost Stalker (magic: elusive)       defensive/pass   smart   magic   100%  11.9t  77%
+w_hollow_0 Kiln Drake (magic: swift)          defensive/hollow smart   magic   100%  16.5t  74%
+w_hollow_1 Ash Drake (magic: arcane)          defensive/hollow smart   magic   100%  19.2t  67%
+w_hollow_2 Ash Creeper (magic: regen)         defensive/hollow smart   magic   100%  12.2t  94%
+w_hollow_3 Forge Drake (rare: shadow, thorn)  defensive/hollow smart   magic   100%  13.8t  89%
+w_hollow_4 Ember Hound (magic: boom)          defensive/hollow smart   magic   100%   9.4t  94%
+w_hollow_5 Forge Sentinel (magic: poison)     defensive/hollow smart   magic   100%  13.2t  85%
+w_hollow_6 Cinderback Alpha (rare: shadow, boom, regen)defensive/hollow smart   magic   100%  18.8t  79%
+w_hollow_7 Cinder Sentinel (rare: arcane, regen)defensive/hollow smart   magic   100%  13.3t  94%
+w_hollow_8 Ash Warden (magic: ward)           defensive/hollow smart   magic   100%  10.0t  96%
+w_hollow_9 Ash Hound (magic: regen)           defensive/hollow smart   magic   100%   9.5t  94%
+w_spire_0 Rune Lynx (rare: swiftfoot, fire)   defensive/spire  smart   magic   100%  26.7t  55%
+w_spire_1 Void Warden (magic: shadow)         defensive/spire  smart   magic   100%  32.1t  58%
+w_spire_2 Void Watcher (magic: arcane)        defensive/spire  smart   magic   100%  33.6t  59%
+w_spire_3 Rune Wraith (rare: swiftfoot, boom) defensive/spire  smart   magic    97%  31.8t  60%
+w_spire_4 Starcrown Alpha (rare: vamp, thorn, swiftfoot)defensive/spire  smart   magic    83%  42.8t  33%
+w_spire_5 Astral Watcher (rare: arcane, vamp) defensive/spire  smart   magic   100%  26.4t  67%
+w_spire_6 Astral Lynx (rare: split, arcane)   defensive/spire  smart   magic    97%  29.9t  53%
+w_spire_7 Gilded Wraith (magic: ward)         defensive/spire  smart   magic   100%  24.6t  63%
+w_spire_8 Gilded Lynx (magic: boom)           defensive/spire  smart   magic    90%  33.0t  38%
+w_spire_9 Star Wraith (magic: swift)          defensive/spire  smart   magic    97%  25.3t  54%
+w_woods_0 Moss Warden (magic: holy)           staff/woods      smart   magic   100%  13.1t  59%
+w_woods_1 Grove Hound (magic: split)          staff/woods      smart   magic   100%  13.9t  55%
+w_woods_2 Briar Stalker (rare: swiftfoot, boom)staff/woods      smart   magic   100%  14.0t  56%
+w_woods_3 Thornheart Alpha (rare: swiftfoot, elusive, shadow)staff/woods      smart   magic   100%  18.7t  55%
+w_woods_4 Grove Watcher (magic: split)        staff/woods      smart   magic   100%  13.0t  63%
+w_woods_5 Oak Stalker (magic: shadow)         staff/woods      smart   magic   100%  11.0t  54%
+w_woods_6 Grove Slasher (rare: split, shadow) staff/woods      smart   magic   100%  15.0t  59%
+w_woods_7 Fern Stalker (magic: split)         staff/woods      smart   magic   100%  15.9t  54%
+w_woods_8 Thorn Warden (magic: arcane)        staff/woods      smart   magic   100%  11.8t  57%
+w_woods_9 Briar Runner (magic: swift)         staff/woods      smart   magic   100%  16.7t  55%
+w_pass_0 Frosthorn Alpha (rare: iron, split, frenzy)staff/pass       smart   magic   100%  12.0t  58%
+w_pass_1 Wind Stalker (magic: arcane)         staff/pass       smart   magic   100%   9.2t  59%
+w_pass_2 Hail Warden (magic: poison)          staff/pass       smart   magic   100%  10.2t  60%
+w_pass_3 Snow Warden (magic: arcane)          staff/pass       smart   magic   100%   9.4t  61%
+w_pass_4 Wind Warden (magic: ward)            staff/pass       smart   magic   100%   8.7t  62%
+w_pass_5 Glacier Warden (magic: poison)       staff/pass       smart   magic   100%  15.4t  56%
+w_pass_6 Hail Howler (rare: boom, fire)       staff/pass       smart   magic   100%  12.3t  62%
+w_pass_7 Rime Warden (magic: elusive)         staff/pass       smart   magic   100%  16.3t  55%
+w_pass_8 Pale Warden (magic: holy)            staff/pass       smart   magic   100%   7.9t  65%
+w_pass_9 Frost Stalker (magic: elusive)       staff/pass       smart   magic   100%   9.8t  61%
+w_hollow_0 Kiln Drake (magic: swift)          staff/hollow     smart   magic    97%   7.5t  78%
+w_hollow_1 Ash Drake (magic: arcane)          staff/hollow     smart   magic   100%   9.3t  71%
+w_hollow_2 Ash Creeper (magic: regen)         staff/hollow     smart   magic   100%   7.8t  92%
+w_hollow_3 Forge Drake (rare: shadow, thorn)  staff/hollow     smart   magic   100%   9.8t  84%
+w_hollow_4 Ember Hound (magic: boom)          staff/hollow     smart   magic   100%   6.1t  91%
+w_hollow_5 Forge Sentinel (magic: poison)     staff/hollow     smart   magic   100%  10.0t  68%
+w_hollow_6 Cinderback Alpha (rare: shadow, boom, regen)staff/hollow     smart   magic   100%  11.8t  77%
+w_hollow_7 Cinder Sentinel (rare: arcane, regen)staff/hollow     smart   magic   100%   6.6t  86%
+w_hollow_8 Ash Warden (magic: ward)           staff/hollow     smart   magic   100%   7.1t  92%
+w_hollow_9 Ash Hound (magic: regen)           staff/hollow     smart   magic   100%   5.9t  87%
+w_spire_0 Rune Lynx (rare: swiftfoot, fire)   staff/spire      smart   magic    93%   9.2t  70%
+w_spire_1 Void Warden (magic: shadow)         staff/spire      smart   magic   100%   9.7t  83%
+w_spire_2 Void Watcher (magic: arcane)        staff/spire      smart   magic    97%  10.9t  82%
+w_spire_3 Rune Wraith (rare: swiftfoot, boom) staff/spire      smart   magic   100%   9.6t  83%
+w_spire_4 Starcrown Alpha (rare: vamp, thorn, swiftfoot)staff/spire      smart   magic    87%  14.3t  62%
+w_spire_5 Astral Watcher (rare: arcane, vamp) staff/spire      smart   magic    97%   9.1t  77%
+w_spire_6 Astral Lynx (rare: split, arcane)   staff/spire      smart   magic   100%   9.9t  74%
+w_spire_7 Gilded Wraith (magic: ward)         staff/spire      smart   magic   100%   9.0t  76%
+w_spire_8 Gilded Lynx (magic: boom)           staff/spire      smart   magic    90%  11.7t  56%
+w_spire_9 Star Wraith (magic: swift)          staff/spire      smart   magic   100%   8.7t  80%
+w_woods_0 Moss Warden (magic: holy)           stacked/woods    smart   magic   100%   7.0t  79%
+w_woods_1 Grove Hound (magic: split)          stacked/woods    smart   magic   100%   8.0t  67%
+w_woods_2 Briar Stalker (rare: swiftfoot, boom)stacked/woods    smart   magic   100%   7.2t  76%
+w_woods_3 Thornheart Alpha (rare: swiftfoot, elusive, shadow)stacked/woods    smart   magic   100%   9.3t  71%
+w_woods_4 Grove Watcher (magic: split)        stacked/woods    smart   magic   100%   7.1t  78%
+w_woods_5 Oak Stalker (magic: shadow)         stacked/woods    smart   magic   100%   5.8t  79%
+w_woods_6 Grove Slasher (rare: split, shadow) stacked/woods    smart   magic   100%   5.4t  85%
+w_woods_7 Fern Stalker (magic: split)         stacked/woods    smart   magic   100%   8.3t  69%
+w_woods_8 Thorn Warden (magic: arcane)        stacked/woods    smart   magic   100%   4.6t  82%
+w_woods_9 Briar Runner (magic: swift)         stacked/woods    smart   magic   100%   6.0t  82%
+w_pass_0 Frosthorn Alpha (rare: iron, split, frenzy)stacked/pass     smart   magic   100%  11.0t  79%
+w_pass_1 Wind Stalker (magic: arcane)         stacked/pass     smart   magic   100%   6.6t  88%
+w_pass_2 Hail Warden (magic: poison)          stacked/pass     smart   magic   100%   6.1t  87%
+w_pass_3 Snow Warden (magic: arcane)          stacked/pass     smart   magic   100%   6.5t  86%
+w_pass_4 Wind Warden (magic: ward)            stacked/pass     smart   magic   100%   6.1t  86%
+w_pass_5 Glacier Warden (magic: poison)       stacked/pass     smart   magic   100%   9.5t  79%
+w_pass_6 Hail Howler (rare: boom, fire)       stacked/pass     smart   magic   100%   8.0t  84%
+w_pass_7 Rime Warden (magic: elusive)         stacked/pass     smart   magic   100%   8.0t  85%
+w_pass_8 Pale Warden (magic: holy)            stacked/pass     smart   magic   100%   5.4t  91%
+w_pass_9 Frost Stalker (magic: elusive)       stacked/pass     smart   magic   100%   6.4t  86%
+w_hollow_0 Kiln Drake (magic: swift)          stacked/hollow   smart   magic   100%   7.7t  82%
+w_hollow_1 Ash Drake (magic: arcane)          stacked/hollow   smart   magic   100%   9.6t  73%
+w_hollow_2 Ash Creeper (magic: regen)         stacked/hollow   smart   magic   100%  12.0t  82%
+w_hollow_3 Forge Drake (rare: shadow, thorn)  stacked/hollow   smart   magic   100%   4.9t  91%
+w_hollow_4 Ember Hound (magic: boom)          stacked/hollow   smart   magic   100%   8.9t  83%
+w_hollow_5 Forge Sentinel (magic: poison)     stacked/hollow   smart   magic   100%   4.4t  88%
+w_hollow_6 Cinderback Alpha (rare: shadow, boom, regen)stacked/hollow   smart   magic   100%  17.8t  73%
+w_hollow_7 Cinder Sentinel (rare: arcane, regen)stacked/hollow   smart   magic   100%   6.5t  85%
+w_hollow_8 Ash Warden (magic: ward)           stacked/hollow   smart   magic   100%   9.4t  85%
+w_hollow_9 Ash Hound (magic: regen)           stacked/hollow   smart   magic   100%   9.0t  85%
+w_spire_0 Rune Lynx (rare: swiftfoot, fire)   stacked/spire    smart   magic   100%   7.0t  89%
+w_spire_1 Void Warden (magic: shadow)         stacked/spire    smart   magic   100%   7.7t  93%
+w_spire_2 Void Watcher (magic: arcane)        stacked/spire    smart   magic   100%   7.9t  91%
+w_spire_3 Rune Wraith (rare: swiftfoot, boom) stacked/spire    smart   magic   100%   7.7t  91%
+w_spire_4 Starcrown Alpha (rare: vamp, thorn, swiftfoot)stacked/spire    smart   magic   100%  10.3t  85%
+w_spire_5 Astral Watcher (rare: arcane, vamp) stacked/spire    smart   magic   100%   6.6t  93%
+w_spire_6 Astral Lynx (rare: split, arcane)   stacked/spire    smart   magic   100%   7.3t  90%
+w_spire_7 Gilded Wraith (magic: ward)         stacked/spire    smart   magic   100%   6.2t  94%
+w_spire_8 Gilded Lynx (magic: boom)           stacked/spire    smart   magic   100%   8.5t  85%
+w_spire_9 Star Wraith (magic: swift)          stacked/spire    smart   magic   100%   6.3t  93%
+w_woods_0 Moss Warden (magic: holy)           melee/woods      smart   rare    100%  11.5t  59%
+w_woods_1 Grove Hound (magic: split)          melee/woods      smart   rare    100%  14.9t  50%
+w_woods_2 Briar Stalker (rare: swiftfoot, boom)melee/woods      smart   rare    100%  14.5t  55%
+w_woods_3 Thornheart Alpha (rare: swiftfoot, elusive, shadow)melee/woods      smart   rare    100%  18.8t  55%
+w_woods_4 Grove Watcher (magic: split)        melee/woods      smart   rare    100%  12.6t  57%
+w_woods_5 Oak Stalker (magic: shadow)         melee/woods      smart   rare    100%  10.1t  55%
+w_woods_6 Grove Slasher (rare: split, shadow) melee/woods      smart   rare    100%   9.7t  61%
+w_woods_7 Fern Stalker (magic: split)         melee/woods      smart   rare     93%  15.0t  48%
+w_woods_8 Thorn Warden (magic: arcane)        melee/woods      smart   rare    100%   7.1t  69%
+w_woods_9 Briar Runner (magic: swift)         melee/woods      smart   rare    100%   9.8t  60%
+w_pass_0 Frosthorn Alpha (rare: iron, split, frenzy)melee/pass       smart   rare    100%  22.7t  51%
+w_pass_1 Wind Stalker (magic: arcane)         melee/pass       smart   rare    100%  12.1t  63%
+w_pass_2 Hail Warden (magic: poison)          melee/pass       smart   rare    100%  11.9t  53%
+w_pass_3 Snow Warden (magic: arcane)          melee/pass       smart   rare    100%  13.6t  54%
+w_pass_4 Wind Warden (magic: ward)            melee/pass       smart   rare    100%  12.0t  58%
+w_pass_5 Glacier Warden (magic: poison)       melee/pass       smart   rare    100%  16.8t  48%
+w_pass_6 Hail Howler (rare: boom, fire)       melee/pass       smart   rare    100%  15.1t  56%
+w_pass_7 Rime Warden (magic: elusive)         melee/pass       smart   rare    100%  16.7t  58%
+w_pass_8 Pale Warden (magic: holy)            melee/pass       smart   rare    100%  10.1t  67%
+w_pass_9 Frost Stalker (magic: elusive)       melee/pass       smart   rare    100%  11.1t  58%
+w_hollow_0 Kiln Drake (magic: swift)          melee/hollow     smart   rare     97%   9.4t  57%
+w_hollow_1 Ash Drake (magic: arcane)          melee/hollow     smart   rare     97%  12.1t  48%
+w_hollow_2 Ash Creeper (magic: regen)         melee/hollow     smart   rare    100%  22.4t  50%
+w_hollow_3 Forge Drake (rare: shadow, thorn)  melee/hollow     smart   rare    100%  11.7t  49%
+w_hollow_4 Ember Hound (magic: boom)          melee/hollow     smart   rare    100%  15.5t  54%
+w_hollow_5 Forge Sentinel (magic: poison)     melee/hollow     smart   rare     97%  11.5t  48%
+w_hollow_6 Cinderback Alpha (rare: shadow, boom, regen)melee/hollow     smart   rare     90%  34.3t  42%
+w_hollow_7 Cinder Sentinel (rare: arcane, regen)melee/hollow     smart   rare    100%   8.3t  54%
+w_hollow_8 Ash Warden (magic: ward)           melee/hollow     smart   rare    100%  18.1t  54%
+w_hollow_9 Ash Hound (magic: regen)           melee/hollow     smart   rare    100%  14.8t  57%
+w_spire_0 Rune Lynx (rare: swiftfoot, fire)   melee/spire      smart   rare    100%  14.3t  58%
+w_spire_1 Void Warden (magic: shadow)         melee/spire      smart   rare    100%  14.8t  69%
+w_spire_2 Void Watcher (magic: arcane)        melee/spire      smart   rare    100%  15.6t  64%
+w_spire_3 Rune Wraith (rare: swiftfoot, boom) melee/spire      smart   rare    100%  14.2t  72%
+w_spire_4 Starcrown Alpha (rare: vamp, thorn, swiftfoot)melee/spire      smart   rare     87%  20.6t  49%
+w_spire_5 Astral Watcher (rare: arcane, vamp) melee/spire      smart   rare    100%  12.6t  68%
+w_spire_6 Astral Lynx (rare: split, arcane)   melee/spire      smart   rare    100%  15.6t  58%
+w_spire_7 Gilded Wraith (magic: ward)         melee/spire      smart   rare    100%  11.8t  67%
+w_spire_8 Gilded Lynx (magic: boom)           melee/spire      smart   rare    100%  16.2t  44%
+w_spire_9 Star Wraith (magic: swift)          melee/spire      smart   rare    100%  12.4t  70%
+w_woods_0 Moss Warden (magic: holy)           defensive/woods  smart   rare    100%  24.0t  63%
+w_woods_1 Grove Hound (magic: split)          defensive/woods  smart   rare    100%  21.9t  65%
+w_woods_2 Briar Stalker (rare: swiftfoot, boom)defensive/woods  smart   rare    100%  23.7t  57%
+w_woods_3 Thornheart Alpha (rare: swiftfoot, elusive, shadow)defensive/woods  smart   rare     97%  44.2t  61%
+w_woods_4 Grove Watcher (magic: split)        defensive/woods  smart   rare    100%  23.6t  67%
+w_woods_5 Oak Stalker (magic: shadow)         defensive/woods  smart   rare    100%  19.4t  64%
+w_woods_6 Grove Slasher (rare: split, shadow) defensive/woods  smart   rare    100%  16.3t  84%
+w_woods_7 Fern Stalker (magic: split)         defensive/woods  smart   rare    100%  27.2t  65%
+w_woods_8 Thorn Warden (magic: arcane)        defensive/woods  smart   rare    100%  12.5t  84%
+w_woods_9 Briar Runner (magic: swift)         defensive/woods  smart   rare    100%  17.9t  79%
+w_pass_0 Frosthorn Alpha (rare: iron, split, frenzy)defensive/pass   smart   rare    100%  26.2t  51%
+w_pass_1 Wind Stalker (magic: arcane)         defensive/pass   smart   rare    100%   9.8t  69%
+w_pass_2 Hail Warden (magic: poison)          defensive/pass   smart   rare    100%  10.0t  73%
+w_pass_3 Snow Warden (magic: arcane)          defensive/pass   smart   rare    100%  10.0t  67%
+w_pass_4 Wind Warden (magic: ward)            defensive/pass   smart   rare    100%   9.7t  76%
+w_pass_5 Glacier Warden (magic: poison)       defensive/pass   smart   rare    100%  23.7t  50%
+w_pass_6 Hail Howler (rare: boom, fire)       defensive/pass   smart   rare    100%  19.3t  59%
+w_pass_7 Rime Warden (magic: elusive)         defensive/pass   smart   rare    100%  19.7t  59%
+w_pass_8 Pale Warden (magic: holy)            defensive/pass   smart   rare    100%   8.5t  79%
+w_pass_9 Frost Stalker (magic: elusive)       defensive/pass   smart   rare    100%  14.9t  63%
+w_hollow_0 Kiln Drake (magic: swift)          defensive/hollow smart   rare    100%  21.9t  60%
+w_hollow_1 Ash Drake (magic: arcane)          defensive/hollow smart   rare    100%  26.1t  52%
+w_hollow_2 Ash Creeper (magic: regen)         defensive/hollow smart   rare    100%  14.8t  81%
+w_hollow_3 Forge Drake (rare: shadow, thorn)  defensive/hollow smart   rare    100%  16.6t  75%
+w_hollow_4 Ember Hound (magic: boom)          defensive/hollow smart   rare    100%  11.2t  82%
+w_hollow_5 Forge Sentinel (magic: poison)     defensive/hollow smart   rare    100%  15.4t  68%
+w_hollow_6 Cinderback Alpha (rare: shadow, boom, regen)defensive/hollow smart   rare     97%  28.9t  62%
+w_hollow_7 Cinder Sentinel (rare: arcane, regen)defensive/hollow smart   rare    100%  17.2t  78%
+w_hollow_8 Ash Warden (magic: ward)           defensive/hollow smart   rare    100%  12.6t  85%
+w_hollow_9 Ash Hound (magic: regen)           defensive/hollow smart   rare    100%  11.3t  83%
+w_spire_0 Rune Lynx (rare: swiftfoot, fire)   defensive/spire  smart   rare     80%  32.5t  36%
+w_spire_1 Void Warden (magic: shadow)         defensive/spire  smart   rare     73%  41.0t  36%
+w_spire_2 Void Watcher (magic: arcane)        defensive/spire  smart   rare     80%  40.4t  39%
+w_spire_3 Rune Wraith (rare: swiftfoot, boom) defensive/spire  smart   rare     73%  37.2t  38%
+w_spire_4 Starcrown Alpha (rare: vamp, thorn, swiftfoot)defensive/spire  smart   rare     50%  47.6t  16%
+w_spire_5 Astral Watcher (rare: arcane, vamp) defensive/spire  smart   rare     87%  38.2t  44%
+w_spire_6 Astral Lynx (rare: split, arcane)   defensive/spire  smart   rare     57%  39.7t  27%
+w_spire_7 Gilded Wraith (magic: ward)         defensive/spire  smart   rare     77%  32.0t  34%
+w_spire_8 Gilded Lynx (magic: boom)           defensive/spire  smart   rare     60%  37.7t  23%
+w_spire_9 Star Wraith (magic: swift)          defensive/spire  smart   rare     77%  31.8t  34%
+w_woods_0 Moss Warden (magic: holy)           staff/woods      smart   rare    100%  15.5t  57%
+w_woods_1 Grove Hound (magic: split)          staff/woods      smart   rare    100%  16.9t  49%
+w_woods_2 Briar Stalker (rare: swiftfoot, boom)staff/woods      smart   rare    100%  16.7t  54%
+w_woods_3 Thornheart Alpha (rare: swiftfoot, elusive, shadow)staff/woods      smart   rare     97%  23.1t  54%
+w_woods_4 Grove Watcher (magic: split)        staff/woods      smart   rare    100%  15.1t  55%
+w_woods_5 Oak Stalker (magic: shadow)         staff/woods      smart   rare    100%  13.1t  51%
+w_woods_6 Grove Slasher (rare: split, shadow) staff/woods      smart   rare    100%  19.5t  53%
+w_woods_7 Fern Stalker (magic: split)         staff/woods      smart   rare    100%  18.9t  52%
+w_woods_8 Thorn Warden (magic: arcane)        staff/woods      smart   rare    100%  13.9t  57%
+w_woods_9 Briar Runner (magic: swift)         staff/woods      smart   rare    100%  18.0t  55%
+w_pass_0 Frosthorn Alpha (rare: iron, split, frenzy)staff/pass       smart   rare    100%  13.4t  52%
+w_pass_1 Wind Stalker (magic: arcane)         staff/pass       smart   rare    100%  11.6t  54%
+w_pass_2 Hail Warden (magic: poison)          staff/pass       smart   rare    100%  10.8t  53%
+w_pass_3 Snow Warden (magic: arcane)          staff/pass       smart   rare    100%  11.0t  56%
+w_pass_4 Wind Warden (magic: ward)            staff/pass       smart   rare     97%  10.6t  52%
+w_pass_5 Glacier Warden (magic: poison)       staff/pass       smart   rare    100%  17.9t  52%
+w_pass_6 Hail Howler (rare: boom, fire)       staff/pass       smart   rare    100%  15.3t  54%
+w_pass_7 Rime Warden (magic: elusive)         staff/pass       smart   rare    100%  19.7t  53%
+w_pass_8 Pale Warden (magic: holy)            staff/pass       smart   rare    100%   9.5t  59%
+w_pass_9 Frost Stalker (magic: elusive)       staff/pass       smart   rare    100%  11.4t  56%
+w_hollow_0 Kiln Drake (magic: swift)          staff/hollow     smart   rare    100%   9.3t  66%
+w_hollow_1 Ash Drake (magic: arcane)          staff/hollow     smart   rare    100%  11.1t  61%
+w_hollow_2 Ash Creeper (magic: regen)         staff/hollow     smart   rare    100%   9.8t  76%
+w_hollow_3 Forge Drake (rare: shadow, thorn)  staff/hollow     smart   rare    100%  11.6t  75%
+w_hollow_4 Ember Hound (magic: boom)          staff/hollow     smart   rare    100%   7.4t  75%
+w_hollow_5 Forge Sentinel (magic: poison)     staff/hollow     smart   rare    100%  13.0t  56%
+w_hollow_6 Cinderback Alpha (rare: shadow, boom, regen)staff/hollow     smart   rare     97%  15.5t  61%
+w_hollow_7 Cinder Sentinel (rare: arcane, regen)staff/hollow     smart   rare    100%   7.9t  84%
+w_hollow_8 Ash Warden (magic: ward)           staff/hollow     smart   rare    100%   9.0t  85%
+w_hollow_9 Ash Hound (magic: regen)           staff/hollow     smart   rare    100%   7.3t  78%
+w_spire_0 Rune Lynx (rare: swiftfoot, fire)   staff/spire      smart   rare     93%  10.9t  56%
+w_spire_1 Void Warden (magic: shadow)         staff/spire      smart   rare     83%  12.9t  65%
+w_spire_2 Void Watcher (magic: arcane)        staff/spire      smart   rare     87%  13.7t  63%
+w_spire_3 Rune Wraith (rare: swiftfoot, boom) staff/spire      smart   rare     83%  13.0t  64%
+w_spire_4 Starcrown Alpha (rare: vamp, thorn, swiftfoot)staff/spire      smart   rare     73%  17.6t  57%
+w_spire_5 Astral Watcher (rare: arcane, vamp) staff/spire      smart   rare     90%  11.0t  69%
+w_spire_6 Astral Lynx (rare: split, arcane)   staff/spire      smart   rare     77%  15.4t  53%
+w_spire_7 Gilded Wraith (magic: ward)         staff/spire      smart   rare     93%  11.2t  61%
+w_spire_8 Gilded Lynx (magic: boom)           staff/spire      smart   rare     80%  13.6t  48%
+w_spire_9 Star Wraith (magic: swift)          staff/spire      smart   rare     93%  11.2t  59%
+w_woods_0 Moss Warden (magic: holy)           stacked/woods    smart   rare    100%   8.2t  67%
+w_woods_1 Grove Hound (magic: split)          stacked/woods    smart   rare    100%   8.7t  62%
+w_woods_2 Briar Stalker (rare: swiftfoot, boom)stacked/woods    smart   rare    100%   8.2t  66%
+w_woods_3 Thornheart Alpha (rare: swiftfoot, elusive, shadow)stacked/woods    smart   rare    100%  10.9t  61%
+w_woods_4 Grove Watcher (magic: split)        stacked/woods    smart   rare    100%   8.1t  69%
+w_woods_5 Oak Stalker (magic: shadow)         stacked/woods    smart   rare    100%   7.1t  65%
+w_woods_6 Grove Slasher (rare: split, shadow) stacked/woods    smart   rare    100%   6.4t  76%
+w_woods_7 Fern Stalker (magic: split)         stacked/woods    smart   rare    100%  10.0t  59%
+w_woods_8 Thorn Warden (magic: arcane)        stacked/woods    smart   rare    100%   5.2t  76%
+w_woods_9 Briar Runner (magic: swift)         stacked/woods    smart   rare    100%   6.8t  74%
+w_pass_0 Frosthorn Alpha (rare: iron, split, frenzy)stacked/pass     smart   rare    100%  12.3t  66%
+w_pass_1 Wind Stalker (magic: arcane)         stacked/pass     smart   rare    100%   7.5t  77%
+w_pass_2 Hail Warden (magic: poison)          stacked/pass     smart   rare    100%   6.4t  83%
+w_pass_3 Snow Warden (magic: arcane)          stacked/pass     smart   rare    100%   6.7t  73%
+w_pass_4 Wind Warden (magic: ward)            stacked/pass     smart   rare    100%   7.4t  76%
+w_pass_5 Glacier Warden (magic: poison)       stacked/pass     smart   rare    100%  10.1t  63%
+w_pass_6 Hail Howler (rare: boom, fire)       stacked/pass     smart   rare    100%   9.0t  75%
+w_pass_7 Rime Warden (magic: elusive)         stacked/pass     smart   rare    100%   9.3t  70%
+w_pass_8 Pale Warden (magic: holy)            stacked/pass     smart   rare    100%   6.1t  84%
+w_pass_9 Frost Stalker (magic: elusive)       stacked/pass     smart   rare    100%   6.7t  78%
+w_hollow_0 Kiln Drake (magic: swift)          stacked/hollow   smart   rare    100%   9.6t  77%
+w_hollow_1 Ash Drake (magic: arcane)          stacked/hollow   smart   rare    100%  10.5t  67%
+w_hollow_2 Ash Creeper (magic: regen)         stacked/hollow   smart   rare    100%  14.1t  74%
+w_hollow_3 Forge Drake (rare: shadow, thorn)  stacked/hollow   smart   rare    100%   5.2t  81%
+w_hollow_4 Ember Hound (magic: boom)          stacked/hollow   smart   rare    100%   9.4t  68%
+w_hollow_5 Forge Sentinel (magic: poison)     stacked/hollow   smart   rare    100%   5.3t  78%
+w_hollow_6 Cinderback Alpha (rare: shadow, boom, regen)stacked/hollow   smart   rare    100%  21.7t  61%
+w_hollow_7 Cinder Sentinel (rare: arcane, regen)stacked/hollow   smart   rare    100%   7.4t  80%
+w_hollow_8 Ash Warden (magic: ward)           stacked/hollow   smart   rare    100%  11.6t  74%
+w_hollow_9 Ash Hound (magic: regen)           stacked/hollow   smart   rare    100%   9.9t  72%
+w_spire_0 Rune Lynx (rare: swiftfoot, fire)   stacked/spire    smart   rare    100%   8.0t  80%
+w_spire_1 Void Warden (magic: shadow)         stacked/spire    smart   rare    100%   8.6t  80%
+w_spire_2 Void Watcher (magic: arcane)        stacked/spire    smart   rare    100%  10.3t  79%
+w_spire_3 Rune Wraith (rare: swiftfoot, boom) stacked/spire    smart   rare    100%   8.5t  80%
+w_spire_4 Starcrown Alpha (rare: vamp, thorn, swiftfoot)stacked/spire    smart   rare    100%  13.4t  60%
+w_spire_5 Astral Watcher (rare: arcane, vamp) stacked/spire    smart   rare    100%   7.4t  83%
+w_spire_6 Astral Lynx (rare: split, arcane)   stacked/spire    smart   rare    100%   9.0t  77%
+w_spire_7 Gilded Wraith (magic: ward)         stacked/spire    smart   rare    100%   7.4t  85%
+w_spire_8 Gilded Lynx (magic: boom)           stacked/spire    smart   rare     97%   9.6t  74%
+w_spire_9 Star Wraith (magic: swift)          stacked/spire    smart   rare    100%   7.9t  78%
+
+== Wild by region/biome: the mean over the region's wild creatures. "Δ vs regulars" is the difference from the same zone's hand-made regulars (same kit, policy, Heat): win in points, turns in turns, HP left in points. A forced magic/rare row is compared with the regulars of that same rarity (the --elite rows); without them the Δ is "-". The flags count the region's creatures flagged at Heat 0. ==
+
+-- woods (forest), 10 wild creatures --
+kit              policy  rarity  H0                 ΔH0             flags
+melee/woods      smart   native  100%   7.5t  72%   0/+5.8/-25
+melee/woods      smart   normal  100%   6.8t  78%   0/+5.2/-20
+melee/woods      smart   magic   100%   9.7t  65%   0/+7.1/-27
+melee/woods      smart   rare     99%  12.4t  57%   -1/+9.4/-31
+defensive/woods  smart   native  100%  12.6t  92%   0/+9.5/-8
+defensive/woods  smart   normal  100%  11.6t  96%   0/+8.6/-4
+defensive/woods  smart   magic   100%  17.6t  81%   0/+13.3/-18
+defensive/woods  smart   rare    100%  23.1t  69%   0/+18.3/-29
+staff/woods      smart   native  100%  10.6t  63%   0/+7.9/-30
+staff/woods      smart   normal  100%   9.3t  69%   0/+6.6/-23
+staff/woods      smart   magic   100%  14.3t  57%   0/+10.7/-30
+staff/woods      smart   rare    100%  17.1t  54%   0/+13.2/-29
+stacked/woods    smart   native  100%   5.4t  83%   0/+4.2/-17      TOO_EASY 1
+stacked/woods    smart   normal  100%   4.9t  88%   0/+3.7/-11      TOO_EASY 1
+stacked/woods    smart   magic   100%   6.9t  77%   0/+5.2/-20
+stacked/woods    smart   rare    100%   8.0t  67%   0/+6.0/-27
+starter/start    smart   native  100%   2.8t  78%   0/+0.8/-8       TOO_EASY 3
+starter/start    smart   normal  100%   2.4t  79%   0/+0.4/-6       TOO_EASY 5
+starter/start    smart   magic    98%   3.3t  60%   -2/+0.4/-12
+starter/start    smart   rare     91%   3.7t  49%   -7/+0.4/-13
+
+-- pass (tundra), 10 wild creatures --
+kit              policy  rarity  H0                 ΔH0             flags
+melee/woods      smart   native  100%   5.1t  72%   0/+0.3/-5       TOO_EASY 1
+melee/woods      smart   normal  100%   4.3t  79%   0/-0.5/+2       TOO_EASY 2
+melee/woods      smart   magic   100%   6.3t  65%   0/-0.5/-2
+melee/woods      smart   rare    100%   7.3t  58%   0/-0.5/-1
+melee/pass       smart   native  100%   9.6t  73%   0/+5.9/-21
+melee/pass       smart   normal  100%   8.2t  86%   0/+4.5/-8
+melee/pass       smart   magic   100%  12.3t  67%   0/+7.1/-20
+melee/pass       smart   rare    100%  14.2t  57%   0/+8.2/-21
+defensive/woods  smart   native  100%   9.3t  90%   0/+1.1/-6
+defensive/woods  smart   normal  100%   8.0t  94%   0/-0.2/-2
+defensive/woods  smart   magic   100%  12.2t  82%   0/0.0/-2
+defensive/woods  smart   rare    100%  14.1t  75%   0/-0.4/-1
+defensive/pass   smart   native  100%  10.4t  83%   0/+5.6/-13
+defensive/pass   smart   normal  100%   9.0t  89%   0/+4.2/-7
+defensive/pass   smart   magic   100%  13.8t  76%   0/+6.9/-13
+defensive/pass   smart   rare    100%  15.2t  65%   0/+7.1/-18
+staff/woods      smart   native  100%   7.2t  60%   0/+1.8/-16
+staff/woods      smart   normal  100%   6.3t  69%   0/+0.9/-8
+staff/woods      smart   magic   100%   9.4t  57%   0/+1.9/-6
+staff/woods      smart   rare    100%  11.5t  50%   0/+2.4/-5
+staff/pass       smart   native  100%   8.3t  67%   0/+5.0/-25
+staff/pass       smart   normal  100%   7.4t  79%   0/+4.0/-13
+staff/pass       smart   magic   100%  11.1t  60%   0/+6.5/-23
+staff/pass       smart   rare    100%  13.1t  54%   0/+8.1/-23
+stacked/woods    smart   native  100%   3.3t  85%   0/-0.2/-3       TOO_EASY 6
+stacked/woods    smart   normal  100%   3.0t  89%   0/-0.5/+1       TOO_EASY 8
+stacked/woods    smart   magic   100%   4.2t  79%   0/-0.3/-1       TOO_EASY 2
+stacked/woods    smart   rare    100%   4.6t  72%   0/-0.7/+1
+stacked/pass     smart   native  100%   5.8t  90%   0/+3.1/-8
+stacked/pass     smart   normal  100%   5.1t  95%   0/+2.5/-3
+stacked/pass     smart   magic   100%   7.3t  85%   0/+3.8/-8
+stacked/pass     smart   rare    100%   8.2t  75%   0/+4.4/-14
+
+-- hollow (ember), 10 wild creatures --
+kit              policy  rarity  H0                 ΔH0             flags
+melee/pass       smart   native  100%   8.3t  72%   0/+3.6/-13
+melee/pass       smart   normal  100%   7.1t  81%   0/+2.5/-4       TOO_EASY 1
+melee/pass       smart   magic   100%  10.4t  65%   0/+3.6/-6
+melee/pass       smart   rare    100%  12.1t  58%   0/+3.9/-6
+melee/hollow     smart   native  100%  11.2t  68%   0/+7.0/-20
+melee/hollow     smart   normal  100%   8.4t  78%   0/+4.1/-11
+melee/hollow     smart   magic   100%  12.6t  62%   0/+6.9/-14
+melee/hollow     smart   rare     98%  15.8t  52%   -2/+8.8/-16
+defensive/pass   smart   native  100%  10.2t  75%   0/+2.8/-8
+defensive/pass   smart   normal  100%   8.5t  83%   0/+1.2/-1
+defensive/pass   smart   magic   100%  12.5t  69%   0/+1.7/+1
+defensive/pass   smart   rare    100%  15.4t  60%   0/+2.6/+1
+defensive/hollow smart   native  100%  10.1t  90%   0/+4.8/-10
+defensive/hollow smart   normal  100%   9.1t  99%   0/+3.8/-1
+defensive/hollow smart   magic   100%  13.6t  87%   0/+6.1/-10
+defensive/hollow smart   rare    100%  17.6t  73%   0/+8.8/-19
+staff/pass       smart   native  100%   4.9t  70%   0/-0.6/-1       TOO_EASY 1
+staff/pass       smart   normal  100%   4.6t  74%   0/-0.9/+3
+staff/pass       smart   magic   100%   6.5t  64%   0/-1.7/+5
+staff/pass       smart   rare    100%   7.8t  56%   0/-1.6/+3
+staff/hollow     smart   native  100%   6.1t  84%   0/+2.3/-15
+staff/hollow     smart   normal  100%   5.7t  95%   0/+1.9/-3
+staff/hollow     smart   magic   100%   8.2t  82%   0/+3.3/-10
+staff/hollow     smart   rare    100%  10.2t  72%   0/+4.5/-14
+stacked/pass     smart   native  100%   5.0t  86%   0/+1.6/-6       TOO_EASY 3
+stacked/pass     smart   normal  100%   4.6t  92%   0/+1.2/-1       TOO_EASY 4
+stacked/pass     smart   magic   100%   6.3t  83%   0/+2.0/-4       TOO_EASY 2
+stacked/pass     smart   rare    100%   7.0t  76%   0/+2.2/-4       TOO_EASY 1
+stacked/hollow   smart   native  100%   7.2t  83%   0/+4.5/-14      TOO_EASY 1
+stacked/hollow   smart   normal  100%   6.3t  92%   0/+3.7/-5       TOO_EASY 2
+stacked/hollow   smart   magic   100%   9.0t  83%   0/+5.3/-9
+stacked/hollow   smart   rare    100%  10.5t  73%   0/+6.7/-15
+
+-- spire (astral), 10 wild creatures --
+kit              policy  rarity  H0                 ΔH0             flags
+melee/hollow     smart   native  100%   6.4t  64%   0/+1.4/-16
+melee/hollow     smart   normal  100%   5.9t  73%   0/+0.8/-8
+melee/hollow     smart   magic   100%   8.4t  57%   0/+0.5/-6
+melee/hollow     smart   rare     99%  10.4t  51%   -1/+1.3/-2
+melee/spire      smart   native  100%   8.8t  82%   0/+4.9/-18
+melee/spire      smart   normal  100%   8.2t  96%   0/+4.3/-3
+melee/spire      smart   magic   100%  12.0t  80%   0/+6.6/-17
+melee/spire      smart   rare     99%  14.8t  62%   -1/+8.6/-26
+defensive/hollow smart   native  100%   9.0t  89%   0/+2.5/-9
+defensive/hollow smart   normal  100%   8.5t  97%   0/+2.0/-1
+defensive/hollow smart   magic   100%  12.0t  82%   0/+2.8/-7
+defensive/hollow smart   rare    100%  14.6t  69%   0/+3.7/-9
+defensive/spire  smart   native  100%  21.7t  70%   0/+13.9/-30
+defensive/spire  smart   normal  100%  19.2t  86%   0/+11.4/-14
+defensive/spire  smart   magic    96%  30.6t  54%   -4/+19.1/-38
+defensive/spire  smart   rare     71%  37.8t  33%   -28/+24.3/-47
+staff/hollow     smart   native  100%   5.1t  83%   0/-0.4/-7
+staff/hollow     smart   normal  100%   4.8t  91%   0/-0.7/+1
+staff/hollow     smart   magic   100%   6.8t  78%   0/-1.1/+5
+staff/hollow     smart   rare    100%   8.1t  69%   +1/-1.8/+5
+staff/spire      smart   native   93%   7.8t  77%   -7/+3.4/-20     TOO_HARD 1
+staff/spire      smart   normal  100%   6.7t  91%   0/+2.4/-5
+staff/spire      smart   magic    96%  10.2t  74%   -3/+3.9/-13
+staff/spire      smart   rare     85%  13.1t  60%   -8/+5.7/-16
+stacked/hollow   smart   native  100%   4.6t  86%   0/+0.6/-8       TOO_EASY 1
+stacked/hollow   smart   normal  100%   4.3t  93%   0/+0.3/0        TOO_EASY 4
+stacked/hollow   smart   magic   100%   5.9t  85%   0/+0.4/-2
+stacked/hollow   smart   rare    100%   6.8t  78%   0/+0.3/-2
+stacked/spire    smart   native  100%   5.8t  87%   0/+2.9/-13
+stacked/spire    smart   normal  100%   5.3t  99%   0/+2.4/-1
+stacked/spire    smart   magic   100%   7.5t  90%   0/+3.6/-7
+stacked/spire    smart   rare    100%   9.0t  78%   0/+4.6/-14
+
+== Rift masters: 9 seeds × 1 depths × 4 kits × 1 policies, 30 fights per cell. Heat 0 (the Rift has no Heat), the Rift not mastered, map row 0 (as for bosses). "native" is the generated master's rolled rare rarity and affixes; forced magic/rare rows reuse its own compatible affixes and rarity-scaled band. ==
+
+-- seed 3608050713 (forest · The Old Grove) · Grove Runner (swift; Ironclad, Thorned, Vampiric; Wild Rush every 3) · depth 1 · fast_foes · tier HP 120 ATK 21 DEF 6 --
+Grove Runner        melee/spire      smart   native 100%  24.7t  42% | magic  100%  21.5t  71% | rare   100%  24.7t  42%
+Grove Runner        defensive/spire  smart   native 100%  28.9t  40% | magic  100%  26.1t  81% | rare   100%  28.9t  40%
+Grove Runner        staff/spire      smart   native 100%  13.0t  75% | magic  100%  11.1t  88% | rare   100%  13.0t  75%
+Grove Runner        stacked/spire    smart   native 100%  16.1t  41% | magic  100%  14.0t  91% | rare   100%  16.1t  41%
+   w_rift_0         melee/spire      smart   native 100%  11.0t  71% | magic  100%  16.0t  66% | rare    97%  18.8t  56%
+   w_rift_0         defensive/spire  smart   native 100%  15.4t  83% | magic  100%  22.2t  75% | rare   100%  25.5t  55%
+   w_rift_0         staff/spire      smart   native 100%   5.9t  60% | magic   97%   9.0t  75% | rare    97%  10.8t  63%
+   w_rift_0         stacked/spire    smart   native 100%   7.0t  79% | magic  100%   9.8t  89% | rare   100%  10.5t  73%
+   w_rift_1         melee/spire      smart   native 100%   7.4t  78% | magic  100%  10.5t  92% | rare   100%  12.1t  73%
+   w_rift_1         defensive/spire  smart   native 100%  14.9t  72% | magic  100%  22.3t  80% | rare   100%  23.3t  64%
+   w_rift_1         staff/spire      smart   native 100%   5.9t  99% | magic  100%   7.9t  86% | rare   100%  10.2t  68%
+   w_rift_1         stacked/spire    smart   native 100%   4.6t  82% | magic  100%   6.8t  94% | rare   100%   7.4t  84%
+   w_rift_2         melee/spire      smart   native 100%   4.1t 100% | magic  100%   5.9t  96% | rare   100%   6.5t  89%
+   w_rift_2         defensive/spire  smart   native 100%   7.0t 100% | magic  100%  10.2t  95% | rare   100%  11.6t  95%
+   w_rift_2         staff/spire      smart   native 100%   3.6t  98% TOO_EASY | magic  100%   5.0t  89% | rare    97%   5.9t  80%
+   w_rift_2         stacked/spire    smart   native 100%   3.2t 100% TOO_EASY | magic  100%   4.2t  97% | rare   100%   4.4t  95%
+   w_rift_3         melee/spire      smart   native 100%   5.8t  96% | magic  100%   7.6t  86% | rare   100%   9.6t  77%
+   w_rift_3         defensive/spire  smart   native 100%  14.8t  88% | magic  100%  20.7t  67% | rare   100%  23.5t  53%
+   w_rift_3         staff/spire      smart   native 100%   6.7t  73% | magic   87%  10.7t  55% | rare    87%  11.6t  44%
+   w_rift_3         stacked/spire    smart   native 100%   2.6t 100% TOO_EASY | magic  100%   3.5t  97% TOO_EASY | rare   100%   4.3t  91%
+   w_rift_4         melee/spire      smart   native 100%   6.0t  99% | magic  100%   5.8t  94% | rare   100%   6.8t  87%
+   w_rift_4         defensive/spire  smart   native 100%  10.6t 100% | magic  100%  10.1t  97% | rare   100%  12.2t  91%
+   w_rift_4         staff/spire      smart   native 100%   4.3t 100% | magic  100%   4.7t  95% | rare   100%   5.7t  88%
+   w_rift_4         stacked/spire    smart   native 100%   3.8t  99% TOO_EASY | magic  100%   3.9t  98% TOO_EASY | rare   100%   4.9t  92%
+   w_rift_5         melee/spire      smart   native 100%   4.3t 100% | magic  100%   6.2t  97% | rare   100%   6.4t  88%
+   w_rift_5         defensive/spire  smart   native 100%  16.2t  99% | magic  100%  24.2t  81% | rare   100%  25.8t  66%
+   w_rift_5         staff/spire      smart   native 100%   4.5t 100% | magic  100%   6.9t  89% | rare   100%   7.3t  83%
+   w_rift_5         stacked/spire    smart   native 100%   3.4t 100% TOO_EASY | magic  100%   5.1t  97% | rare   100%   5.7t  90%
+   w_rift_6         melee/spire      smart   native 100%   4.6t 100% | magic  100%   4.6t  97% | rare   100%   5.6t  89%
+   w_rift_6         defensive/spire  smart   native 100%  12.9t  99% | magic  100%  15.1t  85% | rare   100%  17.4t  72%
+   w_rift_6         staff/spire      smart   native 100%   4.8t  96% | magic  100%   5.4t  86% | rare    93%   7.5t  69%
+   w_rift_6         stacked/spire    smart   native 100%   4.3t  99% | magic  100%   4.5t  95% | rare   100%   4.9t  91%
+   w_rift_7         melee/spire      smart   native 100%   5.5t  96% | magic  100%   7.6t  86% | rare   100%   8.8t  75%
+   w_rift_7         defensive/spire  smart   native 100%   8.8t  99% | magic  100%  12.9t  85% | rare   100%  15.4t  69%
+   w_rift_7         staff/spire      smart   native 100%   4.3t  97% | magic  100%   6.1t  72% | rare    97%   7.9t  70%
+   w_rift_7         stacked/spire    smart   native 100%   3.8t  98% TOO_EASY | magic  100%   4.9t  95% | rare   100%   5.7t  90%
+   w_rift_8         melee/spire      smart   native 100%   4.6t 100% | magic  100%   7.1t  95% | rare   100%   7.4t  76%
+   w_rift_8         defensive/spire  smart   native 100%  16.7t  94% | magic  100%  25.0t  71% | rare   100%  29.3t  51%
+   w_rift_8         staff/spire      smart   native 100%   4.5t  98% | magic  100%   7.8t  75% | rare    93%   9.2t  70%
+   w_rift_8         stacked/spire    smart   native 100%   4.1t  99% | magic  100%   5.8t  95% | rare   100%   6.3t  88%
+   w_rift_9         melee/spire      smart   native 100%   5.1t  99% | magic  100%   7.0t  94% | rare   100%   7.8t  83%
+   w_rift_9         defensive/spire  smart   native 100%   8.7t 100% | magic  100%  11.8t  92% | rare   100%  13.0t  81%
+   w_rift_9         staff/spire      smart   native 100%   4.3t  99% | magic  100%   5.5t  88% | rare   100%   7.1t  75%
+   w_rift_9         stacked/spire    smart   native 100%   3.6t  99% TOO_EASY | magic  100%   4.7t  95% | rare   100%   4.9t  95%
+
+-- seed 3557717856 (deep · The Weeping Vaults) · Vault Thrall (poison; Thorned, Splitting, Frenzied; Soul Drain every 3) · depth 1 · thin_wards · tier HP 120 ATK 21 DEF 6 --
+Vault Thrall        melee/spire      smart   native 100%  15.7t  47% | magic  100%  13.0t  45% | rare   100%  15.7t  47%
+Vault Thrall        defensive/spire  smart   native  73%  54.8t  17% SLOG | magic  100%  46.2t  34% | rare    73%  54.8t  17% SLOG
+Vault Thrall        staff/spire      smart   native  93%  21.2t  75% | magic  100%  14.5t  70% | rare    93%  21.2t  75%
+Vault Thrall        stacked/spire    smart   native 100%  14.7t  44% | magic  100%  11.4t  43% | rare   100%  14.7t  44%
+   w_rift_0         melee/spire      smart   native 100%   3.7t  99% TOO_EASY | magic  100%   4.4t  98% | rare   100%   5.0t  91%
+   w_rift_0         defensive/spire  smart   native 100%  10.3t  98% | magic  100%  14.3t  90% | rare   100%  16.2t  70%
+   w_rift_0         staff/spire      smart   native 100%   3.7t  94% TOO_EASY | magic  100%   4.8t  95% | rare   100%   5.6t  80%
+   w_rift_0         stacked/spire    smart   native 100%   3.3t  99% TOO_EASY | magic  100%   4.0t  96% | rare   100%   4.8t  91%
+   w_rift_1         melee/spire      smart   native 100%   5.5t 100% | magic  100%   8.1t  92% | rare   100%   8.3t  85%
+   w_rift_1         defensive/spire  smart   native 100%  12.6t  97% | magic  100%  18.8t  78% | rare   100%  21.6t  67%
+   w_rift_1         staff/spire      smart   native 100%   4.3t  99% | magic  100%   6.8t  84% | rare   100%   8.3t  71%
+   w_rift_1         stacked/spire    smart   native 100%   3.8t 100% TOO_EASY | magic  100%   5.3t  95% | rare   100%   5.7t  89%
+   w_rift_2         melee/spire      smart   native 100%   7.9t  99% | magic  100%   8.3t  90% | rare   100%   9.4t  80%
+   w_rift_2         defensive/spire  smart   native 100%  24.7t  77% | magic  100%  18.9t  83% | rare   100%  23.4t  63%
+   w_rift_2         staff/spire      smart   native 100%   6.5t  99% | magic  100%   6.8t  89% | rare    97%   8.8t  76%
+   w_rift_2         stacked/spire    smart   native 100%   4.9t  99% | magic  100%   5.6t  94% | rare   100%   6.3t  86%
+   w_rift_3         melee/spire      smart   native 100%   4.3t 100% | magic  100%   6.1t  98% | rare   100%   7.1t  91%
+   w_rift_3         defensive/spire  smart   native 100%   9.9t 100% | magic  100%  14.6t  90% | rare   100%  17.3t  78%
+   w_rift_3         staff/spire      smart   native 100%   3.8t 100% TOO_EASY | magic  100%   5.7t  91% | rare   100%   5.8t  88%
+   w_rift_3         stacked/spire    smart   native 100%   3.2t 100% TOO_EASY | magic  100%   4.1t  98% | rare   100%   4.6t  93%
+   w_rift_4         melee/spire      smart   native 100%   5.1t  99% | magic  100%   7.7t  95% | rare   100%   8.5t  86%
+   w_rift_4         defensive/spire  smart   native 100%  12.8t  98% | magic  100%  18.3t  87% | rare   100%  22.9t  70%
+   w_rift_4         staff/spire      smart   native 100%   4.3t  99% | magic  100%   6.0t  88% | rare   100%   7.7t  83%
+   w_rift_4         stacked/spire    smart   native 100%   3.8t 100% TOO_EASY | magic  100%   4.9t  97% | rare   100%   6.3t  90%
+   w_rift_5         melee/spire      smart   native 100%   3.8t 100% TOO_EASY | magic  100%   4.9t  96% | rare   100%   6.0t  89%
+   w_rift_5         defensive/spire  smart   native 100%  14.4t  97% | magic  100%  17.2t  86% | rare   100%  21.6t  61%
+   w_rift_5         staff/spire      smart   native 100%   4.1t  95% | magic  100%   5.6t  90% | rare    93%   7.9t  68%
+   w_rift_5         stacked/spire    smart   native 100%   3.8t  99% TOO_EASY | magic  100%   5.0t  95% | rare   100%   5.3t  95%
+   w_rift_6         melee/spire      smart   native 100%   3.6t 100% TOO_EASY | magic  100%   4.7t  97% | rare   100%   5.4t  90%
+   w_rift_6         defensive/spire  smart   native 100%  11.1t  99% | magic  100%  15.9t  79% | rare   100%  18.9t  66%
+   w_rift_6         staff/spire      smart   native 100%   3.6t  99% TOO_EASY | magic  100%   5.2t  86% | rare   100%   6.0t  79%
+   w_rift_6         stacked/spire    smart   native 100%   4.7t  98% | magic  100%   4.2t  97% | rare   100%   4.5t  90%
+   w_rift_7         melee/spire      smart   native 100%   3.3t 100% TOO_EASY | magic  100%   4.5t  97% | rare   100%   5.0t  92%
+   w_rift_7         defensive/spire  smart   native 100%   9.1t 100% | magic  100%  13.8t  86% | rare   100%  15.9t  79%
+   w_rift_7         staff/spire      smart   native 100%   3.7t  92% TOO_EASY | magic  100%   4.8t  82% | rare   100%   5.5t  84%
+   w_rift_7         stacked/spire    smart   native 100%   3.1t 100% TOO_EASY | magic  100%   4.0t  97% | rare   100%   4.5t  92%
+   w_rift_8         melee/spire      smart   native 100%   4.8t  99% | magic  100%   6.1t  95% | rare   100%   7.2t  91%
+   w_rift_8         defensive/spire  smart   native 100%  11.2t  95% | magic  100%  16.2t  83% | rare   100%  19.2t  70%
+   w_rift_8         staff/spire      smart   native 100%   3.6t  97% TOO_EASY | magic  100%   5.1t  92% | rare   100%   6.0t  79%
+   w_rift_8         stacked/spire    smart   native 100%   3.5t 100% TOO_EASY | magic  100%   4.2t  97% | rare   100%   5.0t  94%
+   w_rift_9         melee/spire      smart   native 100%   5.5t  96% | magic  100%   5.3t  96% | rare   100%   6.5t  86%
+   w_rift_9         defensive/spire  smart   native 100%  12.2t  95% | magic  100%  17.0t  82% | rare   100%  21.7t  62%
+   w_rift_9         staff/spire      smart   native 100%   6.9t  79% | magic  100%   5.9t  84% | rare    97%   7.7t  74%
+   w_rift_9         stacked/spire    smart   native 100%   3.5t  99% TOO_EASY | magic  100%   4.8t  96% | rare   100%   6.0t  85%
+
+-- seed 3574495475 (fen · The Weeping Fen) · Fen Crawler (shadow; Thorned, Elusive, Umbral; Heavy Slam every 3) · depth 1 · burning_air · tier HP 120 ATK 21 DEF 6 --
+Fen Crawler         melee/spire      smart   native 100%  18.4t  45% | magic  100%  16.5t  42% | rare   100%  18.4t  45%
+Fen Crawler         defensive/spire  smart   native  93%  44.1t  33% | magic   87%  43.3t  29% | rare    93%  44.1t  33%
+Fen Crawler         staff/spire      smart   native  97%  14.4t  78% | magic  100%  13.3t  88% | rare    97%  14.4t  78%
+Fen Crawler         stacked/spire    smart   native 100%  11.5t  47% | magic  100%  11.4t  46% | rare   100%  11.5t  47%
+   w_rift_0         melee/spire      smart   native 100%   3.9t  85% | magic  100%   5.6t  92% | rare   100%   5.7t  83%
+   w_rift_0         defensive/spire  smart   native 100%  11.6t  75% | magic  100%  16.9t  63% | rare    97%  24.0t  43%
+   w_rift_0         staff/spire      smart   native 100%   4.2t  86% | magic  100%   6.0t  72% | rare    83%   7.1t  60%
+   w_rift_0         stacked/spire    smart   native 100%   3.8t  84% | magic  100%   4.9t  93% | rare   100%   5.4t  86%
+   w_rift_1         melee/spire      smart   native 100%   3.7t  99% TOO_EASY | magic  100%   4.6t  97% | rare   100%   5.2t  89%
+   w_rift_1         defensive/spire  smart   native 100%  10.3t  99% | magic  100%  15.2t  87% | rare   100%  18.4t  74%
+   w_rift_1         staff/spire      smart   native 100%   4.0t  91% | magic   97%   5.3t  81% | rare    90%   6.4t  78%
+   w_rift_1         stacked/spire    smart   native 100%   3.4t  99% TOO_EASY | magic  100%   4.2t  96% | rare   100%   4.9t  88%
+   w_rift_2         melee/spire      smart   native 100%   3.7t 100% TOO_EASY | magic  100%   5.4t  94% | rare   100%   6.1t  86%
+   w_rift_2         defensive/spire  smart   native 100%  14.3t  94% | magic   97%  16.9t  76% | rare    93%  22.4t  52%
+   w_rift_2         staff/spire      smart   native 100%   3.8t  94% TOO_EASY | magic  100%   6.0t  80% | rare    90%   7.8t  66%
+   w_rift_2         stacked/spire    smart   native 100%   3.5t 100% TOO_EASY | magic  100%   4.7t  93% | rare   100%   6.0t  89%
+   w_rift_3         melee/spire      smart   native 100%   5.5t  84% | magic  100%   7.5t  94% | rare   100%   8.9t  78%
+   w_rift_3         defensive/spire  smart   native 100%   9.4t  93% | magic  100%  13.0t  94% | rare   100%  15.7t  83%
+   w_rift_3         staff/spire      smart   native 100%   4.4t  81% | magic  100%   6.0t  89% | rare   100%   7.0t  73%
+   w_rift_3         stacked/spire    smart   native 100%   3.8t  84% | magic  100%   4.8t  96% | rare   100%   5.7t  88%
+   w_rift_4         melee/spire      smart   native 100%   5.2t  79% | magic  100%   5.3t  88% | rare   100%   6.0t  83%
+   w_rift_4         defensive/spire  smart   native 100%  20.3t  51% | magic  100%  17.1t  72% | rare    97%  22.2t  43%
+   w_rift_4         staff/spire      smart   native  97%   6.3t  78% | magic  100%   6.4t  79% | rare    90%   8.2t  62%
+   w_rift_4         stacked/spire    smart   native 100%   4.3t  83% | magic  100%   4.9t  94% | rare   100%   5.8t  89%
+   w_rift_5         melee/spire      smart   native 100%   5.3t 100% | magic  100%   7.7t  92% | rare   100%   9.8t  73%
+   w_rift_5         defensive/spire  smart   native 100%  12.9t  96% | magic  100%  19.7t  65% | rare   100%  22.1t  53%
+   w_rift_5         staff/spire      smart   native 100%   4.5t  99% | magic   97%   6.6t  83% | rare    97%   8.3t  66%
+   w_rift_5         stacked/spire    smart   native 100%   4.0t 100% | magic  100%   5.0t  96% | rare   100%   5.5t  91%
+   w_rift_6         melee/spire      smart   native 100%   3.7t  91% TOO_EASY | magic  100%   5.1t  93% | rare   100%   6.0t  84%
+   w_rift_6         defensive/spire  smart   native 100%  11.1t  88% | magic  100%  15.3t  80% | rare    97%  19.4t  70%
+   w_rift_6         staff/spire      smart   native 100%   4.1t  73% | magic  100%   5.3t  89% | rare    93%   7.4t  67%
+   w_rift_6         stacked/spire    smart   native 100%   3.6t  87% TOO_EASY | magic  100%   4.6t  95% | rare   100%   5.1t  90%
+   w_rift_7         melee/spire      smart   native 100%   5.2t  99% | magic  100%   7.1t  95% | rare   100%   8.4t  91%
+   w_rift_7         defensive/spire  smart   native 100%  11.7t  99% | magic  100%  16.0t  89% | rare   100%  19.2t  74%
+   w_rift_7         staff/spire      smart   native 100%   4.1t  96% | magic  100%   5.5t  92% | rare    97%   6.4t  92%
+   w_rift_7         stacked/spire    smart   native 100%   3.5t 100% TOO_EASY | magic  100%   4.7t  97% | rare   100%   4.9t  90%
+   w_rift_8         melee/spire      smart   native 100%   3.5t 100% TOO_EASY | magic  100%   4.8t  92% | rare   100%   5.4t  86%
+   w_rift_8         defensive/spire  smart   native 100%  10.3t  96% | magic  100%  15.5t  70% | rare    93%  18.5t  59%
+   w_rift_8         staff/spire      smart   native 100%   4.3t  87% | magic  100%   5.4t  82% | rare    90%   6.4t  66%
+   w_rift_8         stacked/spire    smart   native 100%   3.3t  98% TOO_EASY | magic  100%   4.6t  94% | rare   100%   5.1t  83%
+   w_rift_9         melee/spire      smart   native 100%   3.9t  98% TOO_EASY | magic  100%   5.0t  96% | rare   100%   6.0t  83%
+   w_rift_9         defensive/spire  smart   native 100%  11.1t  90% | magic  100%  16.5t  70% | rare    90%  21.4t  52%
+   w_rift_9         staff/spire      smart   native 100%   4.4t  81% | magic  100%   6.0t  82% | rare    93%   6.5t  74%
+   w_rift_9         stacked/spire    smart   native 100%   3.6t  98% TOO_EASY | magic  100%   4.7t  93% | rare   100%   5.1t  88%
+
+-- seed 3675161189 (tidewrack · The Drowned Coast) · Drowned Wraith (ice; Venomous, Vampiric, Splitting; Soul Drain every 3) · depth 1 · thin_wards · tier HP 120 ATK 21 DEF 6 --
+Drowned Wraith      melee/spire      smart   native 100%  16.6t  94% | magic  100%  13.2t  97% | rare   100%  16.6t  94%
+Drowned Wraith      defensive/spire  smart   native 100%  59.6t  40% SLOG | magic  100%  48.0t  46% | rare   100%  59.6t  40% SLOG
+Drowned Wraith      staff/spire      smart   native 100%  18.7t  89% | magic  100%  15.1t  77% | rare   100%  18.7t  89%
+Drowned Wraith      stacked/spire    smart   native 100%  15.6t  85% | magic  100%  12.0t  86% | rare   100%  15.6t  85%
+   w_rift_0         melee/spire      smart   native 100%   5.4t 100% | magic  100%   7.5t  89% | rare   100%   8.8t  78%
+   w_rift_0         defensive/spire  smart   native 100%  12.6t  96% | magic  100%  18.2t  75% | rare   100%  22.5t  53%
+   w_rift_0         staff/spire      smart   native 100%   4.4t 100% | magic  100%   6.1t  90% | rare   100%   7.2t  83%
+   w_rift_0         stacked/spire    smart   native 100%   3.9t 100% TOO_EASY | magic  100%   5.0t  92% | rare   100%   5.7t  90%
+   w_rift_1         melee/spire      smart   native 100%   4.2t 100% | magic  100%   5.6t  97% | rare   100%   6.3t  95%
+   w_rift_1         defensive/spire  smart   native 100%  12.8t  99% | magic  100%  18.8t  78% | rare    93%  24.9t  57%
+   w_rift_1         staff/spire      smart   native 100%   4.2t  98% | magic   93%   6.5t  80% | rare    97%   7.6t  71%
+   w_rift_1         stacked/spire    smart   native 100%   3.9t  98% TOO_EASY | magic  100%   5.1t  96% | rare   100%   5.4t  91%
+   w_rift_2         melee/spire      smart   native 100%   4.6t  99% | magic  100%   6.6t  94% | rare   100%   7.9t  84%
+   w_rift_2         defensive/spire  smart   native 100%   8.3t  99% | magic  100%  11.4t  88% | rare   100%  13.8t  83%
+   w_rift_2         staff/spire      smart   native 100%   3.9t  96% TOO_EASY | magic  100%   5.3t  86% | rare   100%   6.4t  81%
+   w_rift_2         stacked/spire    smart   native 100%   3.5t 100% TOO_EASY | magic  100%   4.3t  96% | rare   100%   5.0t  90%
+   w_rift_3         melee/spire      smart   native 100%   8.3t  99% | magic  100%   8.1t  89% | rare   100%   8.9t  79%
+   w_rift_3         defensive/spire  smart   native 100%  13.0t  98% | magic  100%  18.5t  79% | rare   100%  22.6t  61%
+   w_rift_3         staff/spire      smart   native 100%   4.5t  94% | magic  100%   6.0t  90% | rare    97%   8.0t  71%
+   w_rift_3         stacked/spire    smart   native 100%   5.3t  99% | magic  100%   5.3t  95% | rare   100%   5.6t  88%
+   w_rift_4         melee/spire      smart   native 100%   5.0t  98% | magic  100%   5.1t  93% | rare   100%   6.5t  82%
+   w_rift_4         defensive/spire  smart   native 100%  20.1t  66% | magic   97%  17.3t  66% | rare    97%  21.3t  47%
+   w_rift_4         staff/spire      smart   native 100%   5.8t  78% | magic   97%   6.4t  72% | rare    93%   7.2t  69%
+   w_rift_4         stacked/spire    smart   native 100%   4.3t  98% | magic  100%   4.6t  96% | rare   100%   5.4t  84%
+   w_rift_5         melee/spire      smart   native 100%   4.1t  85% | magic  100%   5.8t  96% | rare   100%   6.7t  91%
+   w_rift_5         defensive/spire  smart   native 100%  13.9t  73% | magic  100%  19.9t  84% | rare    97%  23.9t  66%
+   w_rift_5         staff/spire      smart   native 100%   4.6t  96% | magic  100%   6.8t  83% | rare   100%   8.5t  81%
+   w_rift_5         stacked/spire    smart   native 100%   3.8t  83% | magic  100%   5.5t  95% | rare   100%   6.1t  90%
+   w_rift_6         melee/spire      smart   native 100%   6.4t  94% | magic  100%   5.5t  94% | rare   100%   7.0t  82%
+   w_rift_6         defensive/spire  smart   native 100%  13.7t  94% | magic  100%  21.3t  69% | rare    90%  26.9t  40%
+   w_rift_6         staff/spire      smart   native  83%   8.7t  61% | magic   93%   7.6t  67% | rare    90%   7.9t  69%
+   w_rift_6         stacked/spire    smart   native 100%   3.9t  98% TOO_EASY | magic  100%   5.2t  94% | rare   100%   6.7t  79%
+   w_rift_7         melee/spire      smart   native 100%   6.1t  76% | magic  100%   5.8t  93% | rare   100%   6.3t  87%
+   w_rift_7         defensive/spire  smart   native 100%  13.2t  73% | magic  100%  19.4t  76% | rare    97%  22.3t  55%
+   w_rift_7         staff/spire      smart   native 100%   7.2t  71% | magic  100%   6.4t  84% | rare    97%   7.6t  75%
+   w_rift_7         stacked/spire    smart   native 100%   3.8t  83% | magic  100%   5.0t  93% | rare   100%   6.0t  88%
+   w_rift_8         melee/spire      smart   native 100%   3.9t 100% TOO_EASY | magic  100%   4.8t  91% | rare   100%   5.3t  90%
+   w_rift_8         defensive/spire  smart   native 100%  11.3t  99% | magic  100%  15.5t  80% | rare   100%  18.1t  61%
+   w_rift_8         staff/spire      smart   native 100%   3.8t  96% TOO_EASY | magic  100%   5.9t  78% | rare    87%   6.8t  68%
+   w_rift_8         stacked/spire    smart   native 100%   3.4t  99% TOO_EASY | magic  100%   4.5t  95% | rare   100%   5.0t  86%
+   w_rift_9         melee/spire      smart   native 100%   3.7t  87% TOO_EASY | magic  100%   4.6t  95% | rare   100%   5.5t  88%
+   w_rift_9         defensive/spire  smart   native 100%  10.6t  78% | magic  100%  14.5t  84% | rare   100%  17.5t  59%
+   w_rift_9         staff/spire      smart   native 100%   3.9t  93% TOO_EASY | magic   97%   5.5t  83% | rare    97%   6.7t  70%
+   w_rift_9         stacked/spire    smart   native 100%   3.4t  86% TOO_EASY | magic  100%   4.4t  92% | rare   100%   5.0t  85%
+
+-- seed 3641605951 (astral · The Comet Reach) · Astral Wraith (shadow; Burning, Swift-footed, Splitting; Wild Rush every 3) · depth 1 · fast_foes · tier HP 120 ATK 21 DEF 6 --
+Astral Wraith       melee/spire      smart   native 100%  20.6t  67% | magic  100%  16.3t  78% | rare   100%  20.6t  67%
+Astral Wraith       defensive/spire  smart   native 100%  45.6t  44% | magic  100%  37.1t  49% | rare   100%  45.6t  44%
+Astral Wraith       staff/spire      smart   native  97%  17.3t  76% | magic  100%  13.9t  68% | rare    97%  17.3t  76%
+Astral Wraith       stacked/spire    smart   native 100%  12.7t  84% | magic  100%   9.9t  91% TOO_EASY | rare   100%  12.7t  84%
+   w_rift_0         melee/spire      smart   native 100%   5.6t 100% | magic  100%   6.2t  96% | rare   100%   7.5t  88%
+   w_rift_0         defensive/spire  smart   native 100%  11.9t  99% | magic  100%  11.0t  96% | rare   100%  11.8t  88%
+   w_rift_0         staff/spire      smart   native 100%   4.5t  98% | magic  100%   5.4t  89% | rare   100%   5.4t  86%
+   w_rift_0         stacked/spire    smart   native 100%   3.9t  99% TOO_EASY | magic  100%   4.2t  97% | rare   100%   4.7t  93%
+   w_rift_1         melee/spire      smart   native 100%   5.4t  98% | magic  100%   8.3t  85% | rare   100%   9.6t  76%
+   w_rift_1         defensive/spire  smart   native 100%  13.1t  97% | magic  100%  19.0t  72% | rare   100%  22.9t  59%
+   w_rift_1         staff/spire      smart   native 100%   4.9t  87% | magic  100%   7.3t  77% | rare    93%   9.1t  64%
+   w_rift_1         stacked/spire    smart   native 100%   3.9t  99% TOO_EASY | magic  100%   5.4t  95% | rare   100%   6.4t  90%
+   w_rift_2         melee/spire      smart   native 100%   5.6t  99% | magic  100%   8.5t  84% | rare   100%   9.5t  82%
+   w_rift_2         defensive/spire  smart   native 100%  14.3t  93% | magic  100%  21.0t  74% | rare    93%  29.9t  49%
+   w_rift_2         staff/spire      smart   native 100%   5.0t  88% | magic  100%   7.7t  78% | rare    93%   8.4t  68%
+   w_rift_2         stacked/spire    smart   native 100%   4.2t  99% | magic  100%   5.6t  95% | rare   100%   6.5t  90%
+   w_rift_3         melee/spire      smart   native 100%   5.1t  94% | magic  100%   6.9t  95% | rare   100%   8.0t  84%
+   w_rift_3         defensive/spire  smart   native 100%   8.7t  99% | magic  100%  12.5t  92% | rare   100%  14.0t  80%
+   w_rift_3         staff/spire      smart   native 100%   4.3t  84% | magic  100%   5.5t  83% | rare    97%   6.3t  86%
+   w_rift_3         stacked/spire    smart   native 100%   3.7t  98% TOO_EASY | magic  100%   4.6t  96% | rare   100%   5.2t  90%
+   w_rift_4         melee/spire      smart   native 100%   7.0t  99% | magic  100%   8.1t  88% | rare   100%   9.2t  74%
+   w_rift_4         defensive/spire  smart   native 100%  15.3t  93% | magic  100%  19.0t  70% | rare    97%  25.2t  52%
+   w_rift_4         staff/spire      smart   native 100%   5.2t  99% | magic   93%   6.7t  76% | rare    90%   8.5t  63%
+   w_rift_4         stacked/spire    smart   native 100%   5.0t  99% | magic  100%   5.2t  94% | rare   100%   5.7t  89%
+   w_rift_5         melee/spire      smart   native 100%   7.3t  99% | magic  100%   8.6t  84% | rare   100%   9.2t  78%
+   w_rift_5         defensive/spire  smart   native 100%  16.4t  93% | magic  100%  20.2t  68% | rare    97%  24.7t  48%
+   w_rift_5         staff/spire      smart   native 100%   6.0t  92% | magic  100%   7.4t  77% | rare    90%   9.4t  59%
+   w_rift_5         stacked/spire    smart   native 100%   4.9t  99% | magic  100%   5.7t  91% | rare   100%   6.5t  88%
+   w_rift_6         melee/spire      smart   native 100%   5.8t  98% | magic  100%   8.1t  84% | rare   100%   9.0t  77%
+   w_rift_6         defensive/spire  smart   native 100%  12.5t  97% | magic  100%  19.5t  70% | rare   100%  22.4t  57%
+   w_rift_6         staff/spire      smart   native 100%   4.4t  98% | magic  100%   6.5t  85% | rare    80%   9.0t  60%
+   w_rift_6         stacked/spire    smart   native 100%   3.8t  98% TOO_EASY | magic  100%   5.3t  94% | rare   100%   5.7t  89%
+   w_rift_7         melee/spire      smart   native 100%   6.1t  99% | magic  100%   7.6t  90% | rare   100%  10.2t  79%
+   w_rift_7         defensive/spire  smart   native 100%  13.5t  96% | magic  100%  19.3t  73% | rare   100%  23.8t  61%
+   w_rift_7         staff/spire      smart   native 100%   4.6t  99% | magic   97%   6.4t  86% | rare    97%   7.7t  84%
+   w_rift_7         stacked/spire    smart   native 100%   4.0t  99% TOO_EASY | magic  100%   4.9t  96% | rare   100%   5.8t  90%
+   w_rift_8         melee/spire      smart   native 100%   7.2t  84% | magic  100%   6.8t  95% | rare   100%   7.5t  89%
+   w_rift_8         defensive/spire  smart   native 100%  11.2t  91% | magic  100%  15.3t  87% | rare   100%  19.5t  71%
+   w_rift_8         staff/spire      smart   native 100%   3.9t  85% TOO_EASY | magic  100%   5.4t  91% | rare   100%   6.5t  83%
+   w_rift_8         stacked/spire    smart   native 100%   4.6t  84% | magic  100%   4.5t  96% | rare   100%   4.8t  91%
+   w_rift_9         melee/spire      smart   native 100%   7.0t  96% | magic  100%   6.9t  92% | rare   100%   8.1t  79%
+   w_rift_9         defensive/spire  smart   native 100%  12.7t  95% | magic  100%  11.6t  91% | rare   100%  14.8t  78%
+   w_rift_9         staff/spire      smart   native 100%   5.2t  92% | magic  100%   5.5t  90% | rare    97%   6.4t  77%
+   w_rift_9         stacked/spire    smart   native 100%   4.2t  99% | magic  100%   4.5t  96% | rare   100%   4.9t  90%
+
+-- seed 3742271665 (ember · The Ashen Kilns) · Ash Sentinel (stone; Ironclad, Swift-footed, Splitting; Heavy Slam every 3) · depth 1 · fast_foes · tier HP 120 ATK 21 DEF 6 --
+Ash Sentinel        melee/spire      smart   native 100%  25.0t  61% | magic  100%  21.1t  74% | rare   100%  25.0t  61%
+Ash Sentinel        defensive/spire  smart   native 100%  32.1t  67% | magic  100%  25.9t  76% | rare   100%  32.1t  67%
+Ash Sentinel        staff/spire      smart   native 100%  16.6t  81% | magic  100%  12.2t  74% | rare   100%  16.6t  81%
+Ash Sentinel        stacked/spire    smart   native 100%  16.5t  86% | magic  100%  14.2t  89% | rare   100%  16.5t  86%
+   w_rift_0         melee/spire      smart   native 100%   6.0t  99% | magic  100%   8.2t  92% | rare   100%   9.6t  80%
+   w_rift_0         defensive/spire  smart   native 100%   7.5t 100% | magic  100%  10.0t  96% | rare   100%  11.4t  89%
+   w_rift_0         staff/spire      smart   native 100%   3.9t 100% TOO_EASY | magic  100%   4.9t  86% | rare    97%   5.6t  75%
+   w_rift_0         stacked/spire    smart   native 100%   4.1t 100% | magic  100%   5.4t  95% | rare   100%   5.9t  91%
+   w_rift_1         melee/spire      smart   native 100%   5.2t  92% | magic  100%   7.2t  88% | rare   100%   8.5t  78%
+   w_rift_1         defensive/spire  smart   native 100%  11.3t  93% | magic  100%  15.9t  76% | rare   100%  17.5t  60%
+   w_rift_1         staff/spire      smart   native 100%   6.2t  89% | magic   93%   9.1t  59% | rare    80%  11.8t  49%
+   w_rift_1         stacked/spire    smart   native 100%   2.7t 100% TOO_EASY | magic  100%   3.7t  95% TOO_EASY | rare   100%   3.7t  89% TOO_EASY
+   w_rift_2         melee/spire      smart   native 100%   5.7t  95% | magic  100%   8.1t  78% | rare   100%  10.4t  65%
+   w_rift_2         defensive/spire  smart   native 100%  15.4t  90% | magic  100%  19.0t  66% | rare    93%  23.2t  44%
+   w_rift_2         staff/spire      smart   native  97%   8.1t  68% | magic   80%  11.3t  48% | rare    77%  13.1t  45%
+   w_rift_2         stacked/spire    smart   native 100%   2.9t 100% TOO_EASY | magic  100%   4.1t  92% | rare   100%   4.0t  81%
+   w_rift_3         melee/spire      smart   native 100%   5.3t 100% | magic  100%   7.7t  94% | rare   100%   9.2t  87%
+   w_rift_3         defensive/spire  smart   native 100%   9.8t 100% | magic  100%  14.5t  94% | rare   100%  19.0t  78%
+   w_rift_3         staff/spire      smart   native 100%   4.6t 100% | magic  100%   6.8t  89% | rare   100%   7.9t  78%
+   w_rift_3         stacked/spire    smart   native 100%   4.1t  99% | magic  100%   5.2t  96% | rare   100%   5.9t  89%
+   w_rift_4         melee/spire      smart   native 100%   7.1t  97% | magic  100%  10.5t  81% | rare   100%  12.1t  68%
+   w_rift_4         defensive/spire  smart   native 100%   8.4t  99% | magic  100%  12.7t  90% | rare   100%  14.1t  80%
+   w_rift_4         staff/spire      smart   native 100%   4.2t  89% | magic  100%   5.7t  76% | rare    93%   7.4t  62%
+   w_rift_4         stacked/spire    smart   native 100%   4.8t  98% | magic  100%   6.3t  94% | rare   100%   7.3t  80%
+   w_rift_5         melee/spire      smart   native 100%   5.7t  99% | magic  100%   8.4t  91% | rare   100%   9.4t  80%
+   w_rift_5         defensive/spire  smart   native 100%  10.5t 100% | magic  100%  15.4t  89% | rare   100%  18.5t  70%
+   w_rift_5         staff/spire      smart   native 100%   4.9t  96% | magic  100%   6.9t  86% | rare    97%   8.7t  69%
+   w_rift_5         stacked/spire    smart   native 100%   4.2t  99% | magic  100%   5.3t  96% | rare   100%   6.4t  87%
+   w_rift_6         melee/spire      smart   native 100%   5.0t 100% | magic  100%   7.5t  95% | rare   100%   8.6t  84%
+   w_rift_6         defensive/spire  smart   native 100%  11.5t  98% | magic  100%  16.3t  91% | rare   100%  20.6t  69%
+   w_rift_6         staff/spire      smart   native 100%   6.1t  85% | magic  100%   9.1t  74% | rare    97%   9.9t  70%
+   w_rift_6         stacked/spire    smart   native 100%   2.9t 100% TOO_EASY | magic  100%   3.5t  98% TOO_EASY | rare   100%   4.1t  93%
+   w_rift_7         melee/spire      smart   native 100%   5.8t  91% | magic  100%   8.5t  79% | rare    97%   9.4t  70%
+   w_rift_7         defensive/spire  smart   native 100%  12.5t  97% | magic  100%  18.6t  67% | rare   100%  20.2t  61%
+   w_rift_7         staff/spire      smart   native  97%   7.3t  68% | magic   90%  10.2t  66% | rare    83%  13.9t  52%
+   w_rift_7         stacked/spire    smart   native 100%   3.1t 100% TOO_EASY | magic  100%   3.7t  95% TOO_EASY | rare   100%   4.3t  90%
+   w_rift_8         melee/spire      smart   native 100%   4.5t  87% | magic  100%   6.7t  93% | rare   100%   7.2t  83%
+   w_rift_8         defensive/spire  smart   native 100%   7.5t  85% | magic  100%  12.0t  94% | rare   100%  16.1t  78%
+   w_rift_8         staff/spire      smart   native 100%   4.0t  98% | magic  100%   5.7t  80% | rare   100%   6.3t  79%
+   w_rift_8         stacked/spire    smart   native 100%   3.3t  89% TOO_EASY | magic  100%   4.5t  96% | rare   100%   4.7t  90%
+   w_rift_9         melee/spire      smart   native 100%   7.5t  99% | magic  100%   7.6t  95% | rare   100%   8.9t  87%
+   w_rift_9         defensive/spire  smart   native 100%   9.3t 100% | magic  100%  13.7t  94% | rare   100%  15.4t  87%
+   w_rift_9         staff/spire      smart   native 100%   4.4t  92% | magic  100%   6.0t  91% | rare   100%   7.5t  79%
+   w_rift_9         stacked/spire    smart   native 100%   5.2t  99% | magic  100%   5.1t  97% | rare   100%   5.4t  94%
+
+-- seed 3033363595 (bone · The Long Barrows) · Grave Gnawer (shadow; Arcane, Splitting, Elusive; Bolt every 3) · depth 1 · burning_air · tier HP 120 ATK 21 DEF 6 --
+Grave Gnawer        melee/spire      smart   native 100%  21.6t  86% | magic  100%  19.6t  88% | rare   100%  21.6t  86%
+Grave Gnawer        defensive/spire  smart   native 100%  54.0t  49% SLOG | magic  100%  49.4t  49% | rare   100%  54.0t  49% SLOG
+Grave Gnawer        staff/spire      smart   native 100%  18.4t  95% | magic  100%  15.9t  91% | rare   100%  18.4t  95%
+Grave Gnawer        stacked/spire    smart   native 100%  15.0t  93% | magic  100%  12.9t  94% | rare   100%  15.0t  93%
+   w_rift_0         melee/spire      smart   native 100%   4.2t 100% | magic  100%   5.4t  98% | rare   100%   6.1t  90%
+   w_rift_0         defensive/spire  smart   native 100%   9.1t 100% | magic  100%  13.3t  92% | rare   100%  15.1t  81%
+   w_rift_0         staff/spire      smart   native 100%   3.5t 100% TOO_EASY | magic  100%   4.6t  95% | rare   100%   5.6t  86%
+   w_rift_0         stacked/spire    smart   native 100%   3.3t 100% TOO_EASY | magic  100%   4.2t  96% | rare   100%   4.6t  89%
+   w_rift_1         melee/spire      smart   native 100%   8.7t  81% | magic  100%   9.4t  89% | rare   100%  11.3t  65%
+   w_rift_1         defensive/spire  smart   native 100%  17.5t  74% | magic  100%  26.6t  60% | rare    97%  27.0t  50%
+   w_rift_1         staff/spire      smart   native 100%   5.1t  69% | magic  100%   6.8t  81% | rare    93%   8.8t  69%
+   w_rift_1         stacked/spire    smart   native 100%   6.3t  82% | magic  100%   5.9t  95% | rare   100%   6.3t  84%
+   w_rift_2         melee/spire      smart   native 100%   4.9t  99% | magic  100%   7.3t  92% | rare   100%   8.6t  72%
+   w_rift_2         defensive/spire  smart   native 100%  15.3t  87% | magic  100%  17.8t  73% | rare   100%  23.3t  56%
+   w_rift_2         staff/spire      smart   native 100%   4.2t  98% | magic  100%   6.1t  88% | rare    93%   8.6t  68%
+   w_rift_2         stacked/spire    smart   native 100%   3.7t  99% TOO_EASY | magic  100%   4.9t  96% | rare   100%   5.6t  86%
+   w_rift_3         melee/spire      smart   native 100%   5.0t  99% | magic  100%   7.3t  91% | rare   100%   8.9t  81%
+   w_rift_3         defensive/spire  smart   native 100%  12.6t  90% | magic  100%  18.0t  76% | rare   100%  21.3t  61%
+   w_rift_3         staff/spire      smart   native 100%   4.2t  99% | magic   97%   5.7t  87% | rare    87%   7.5t  59%
+   w_rift_3         stacked/spire    smart   native 100%   3.7t  98% TOO_EASY | magic  100%   4.8t  96% | rare   100%   5.8t  90%
+   w_rift_4         melee/spire      smart   native 100%   5.6t  99% | magic  100%   5.8t  93% | rare   100%   6.6t  90%
+   w_rift_4         defensive/spire  smart   native 100%  23.8t  69% | magic  100%  19.8t  67% | rare    97%  26.6t  50%
+   w_rift_4         staff/spire      smart   native 100%   6.6t  80% | magic   93%   7.4t  68% | rare    90%   9.2t  62%
+   w_rift_4         stacked/spire    smart   native 100%   4.9t  98% | magic  100%   5.3t  96% | rare   100%   6.1t  87%
+   w_rift_5         melee/spire      smart   native 100%   6.2t  99% | magic  100%   9.0t  89% | rare   100%  10.3t  71%
+   w_rift_5         defensive/spire  smart   native 100%  27.7t  69% | magic   97%  25.9t  61% | rare    97%  29.3t  47%
+   w_rift_5         staff/spire      smart   native 100%   4.6t 100% | magic  100%   7.5t  81% | rare    97%   8.5t  79%
+   w_rift_5         stacked/spire    smart   native 100%   3.7t 100% TOO_EASY | magic  100%   6.1t  95% | rare   100%   6.2t  88%
+   w_rift_6         melee/spire      smart   native 100%   6.1t 100% | magic  100%   9.3t  88% | rare   100%  10.0t  80%
+   w_rift_6         defensive/spire  smart   native 100%  12.6t  99% | magic  100%  17.9t  81% | rare   100%  21.7t  65%
+   w_rift_6         staff/spire      smart   native 100%   5.3t  97% | magic  100%   7.7t  79% | rare   100%   8.6t  75%
+   w_rift_6         stacked/spire    smart   native 100%   3.9t  99% TOO_EASY | magic  100%   5.4t  96% | rare   100%   6.1t  88%
+   w_rift_7         melee/spire      smart   native 100%   5.0t 100% | magic  100%   7.0t  94% | rare   100%   8.0t  83%
+   w_rift_7         defensive/spire  smart   native 100%  19.9t  89% | magic  100%  25.1t  66% | rare   100%  30.6t  45% SLOG
+   w_rift_7         staff/spire      smart   native 100%   5.2t  95% | magic  100%   8.1t  74% | rare    87%   9.0t  61%
+   w_rift_7         stacked/spire    smart   native 100%   4.5t 100% | magic  100%   6.1t  95% | rare   100%   6.5t  88%
+   w_rift_8         melee/spire      smart   native 100%   3.8t  99% TOO_EASY | magic  100%   5.5t  97% | rare   100%   5.9t  90%
+   w_rift_8         defensive/spire  smart   native 100%  13.3t  97% | magic  100%  20.5t  74% | rare   100%  23.4t  58%
+   w_rift_8         staff/spire      smart   native 100%   4.3t  95% | magic  100%   6.1t  86% | rare   100%   7.6t  76%
+   w_rift_8         stacked/spire    smart   native 100%   3.1t 100% TOO_EASY | magic  100%   4.6t  97% | rare   100%   5.2t  91%
+   w_rift_9         melee/spire      smart   native 100%   5.3t  81% | magic  100%   7.3t  96% | rare   100%   8.2t  87%
+   w_rift_9         defensive/spire  smart   native 100%  14.1t  72% | magic  100%  17.1t  85% | rare   100%  19.1t  79%
+   w_rift_9         staff/spire      smart   native 100%   3.9t 100% TOO_EASY | magic  100%   5.7t  90% | rare    97%   6.8t  79%
+   w_rift_9         stacked/spire    smart   native 100%   3.5t  86% TOO_EASY | magic  100%   4.7t  96% | rare   100%   5.6t  92%
+
+-- seed 3016585976 (tundra · The White Silence) · Hail Warden (ice; Fleet, Frenzied, Thorned; Soul Drain every 3) · depth 1 · thin_wards · tier HP 120 ATK 21 DEF 6 --
+Hail Warden         melee/spire      smart   native 100%   9.8t  55% | magic  100%   9.9t  97% TOO_EASY | rare   100%   9.8t  55%
+Hail Warden         defensive/spire  smart   native 100%  35.6t  39% | magic  100%  32.0t  69% | rare   100%  35.6t  39%
+Hail Warden         staff/spire      smart   native 100%  11.8t  70% | magic  100%  10.6t  87% | rare   100%  11.8t  70%
+Hail Warden         stacked/spire    smart   native 100%   9.8t  49% | magic  100%   8.9t  93% TOO_EASY | rare   100%   9.8t  49%
+   w_rift_0         melee/spire      smart   native 100%   3.7t 100% TOO_EASY | magic  100%   5.2t  96% | rare   100%   6.0t  84%
+   w_rift_0         defensive/spire  smart   native 100%  11.9t  98% | magic  100%  16.6t  81% | rare   100%  19.6t  63%
+   w_rift_0         staff/spire      smart   native 100%   4.1t  98% | magic  100%   6.1t  78% | rare   100%   7.7t  70%
+   w_rift_0         stacked/spire    smart   native 100%   3.8t  99% TOO_EASY | magic  100%   4.8t  94% | rare   100%   5.3t  90%
+   w_rift_1         melee/spire      smart   native 100%   5.0t  99% | magic  100%   5.7t  94% | rare   100%   6.5t  87%
+   w_rift_1         defensive/spire  smart   native 100%  16.2t  94% | magic  100%  19.8t  70% | rare   100%  24.8t  59%
+   w_rift_1         staff/spire      smart   native 100%   5.5t  92% | magic   97%   7.4t  72% | rare   100%   9.2t  64%
+   w_rift_1         stacked/spire    smart   native 100%   5.0t  98% | magic  100%   5.5t  91% | rare   100%   6.4t  86%
+   w_rift_2         melee/spire      smart   native 100%   6.2t  99% | magic  100%   8.7t  95% | rare   100%  10.5t  89%
+   w_rift_2         defensive/spire  smart   native 100%   7.1t 100% | magic  100%  11.4t  96% | rare   100%  12.8t  90%
+   w_rift_2         staff/spire      smart   native 100%   3.6t  98% TOO_EASY | magic  100%   5.3t  95% | rare   100%   5.2t  93%
+   w_rift_2         stacked/spire    smart   native 100%   3.9t  99% TOO_EASY | magic  100%   5.8t  97% | rare   100%   6.5t  88%
+   w_rift_3         melee/spire      smart   native 100%   8.2t  99% | magic  100%  10.6t  85% | rare   100%  12.0t  71%
+   w_rift_3         defensive/spire  smart   native 100%  45.0t  56% SLOG | magic  100%  33.0t  53% SLOG | rare    97%  35.9t  45% SLOG
+   w_rift_3         staff/spire      smart   native 100%   6.3t  99% | magic   97%   9.2t  80% | rare    97%  10.4t  73%
+   w_rift_3         stacked/spire    smart   native 100%   4.7t 100% | magic  100%   6.6t  94% | rare   100%   7.3t  83%
+   w_rift_4         melee/spire      smart   native 100%   4.9t 100% | magic  100%   6.9t  96% | rare   100%   7.7t  87%
+   w_rift_4         defensive/spire  smart   native 100%  10.2t 100% | magic  100%  13.2t  92% | rare   100%  14.9t  88%
+   w_rift_4         staff/spire      smart   native 100%   4.3t 100% | magic  100%   5.3t  93% | rare   100%   6.3t  81%
+   w_rift_4         stacked/spire    smart   native 100%   3.1t 100% TOO_EASY | magic  100%   4.6t  97% | rare   100%   5.4t  89%
+   w_rift_5         melee/spire      smart   native 100%   4.8t  96% | magic  100%   6.0t  92% | rare   100%   6.9t  85%
+   w_rift_5         defensive/spire  smart   native 100%   7.5t 100% | magic  100%  10.6t  91% | rare   100%  12.1t  81%
+   w_rift_5         staff/spire      smart   native 100%   3.9t  91% TOO_EASY | magic  100%   5.5t  74% | rare   100%   6.2t  79%
+   w_rift_5         stacked/spire    smart   native 100%   3.1t 100% TOO_EASY | magic  100%   4.3t  97% | rare   100%   4.6t  93%
+   w_rift_6         melee/spire      smart   native 100%   8.3t  79% | magic  100%  11.1t  81% | rare    97%  12.5t  63%
+   w_rift_6         defensive/spire  smart   native 100%  21.0t  68% | magic  100%  20.6t  76% | rare   100%  24.7t  54%
+   w_rift_6         staff/spire      smart   native 100%   6.1t  68% | magic  100%   8.4t  81% | rare    97%   9.6t  73%
+   w_rift_6         stacked/spire    smart   native 100%   4.7t  84% | magic  100%   6.6t  93% | rare   100%   7.6t  84%
+   w_rift_7         melee/spire      smart   native 100%   6.2t  99% | magic  100%   5.9t  94% | rare   100%   6.8t  85%
+   w_rift_7         defensive/spire  smart   native 100%  11.0t  99% | magic  100%  10.7t  92% | rare   100%  11.8t  84%
+   w_rift_7         staff/spire      smart   native 100%   4.9t  93% | magic  100%   4.9t  92% | rare   100%   6.0t  79%
+   w_rift_7         stacked/spire    smart   native 100%   3.6t  99% TOO_EASY | magic  100%   4.3t  96% | rare   100%   4.5t  91%
+   w_rift_8         melee/spire      smart   native 100%   6.2t  98% | magic  100%   9.6t  81% | rare   100%  10.8t  73%
+   w_rift_8         defensive/spire  smart   native 100%   7.9t  99% | magic  100%  11.7t  89% | rare   100%  13.1t  85%
+   w_rift_8         staff/spire      smart   native 100%   4.0t  84% | magic  100%   5.5t  87% | rare    93%   7.6t  61%
+   w_rift_8         stacked/spire    smart   native 100%   4.6t  95% | magic  100%   6.0t  94% | rare   100%   6.9t  84%
+   w_rift_9         melee/spire      smart   native 100%   4.9t  87% | magic  100%   7.0t  94% | rare   100%   8.2t  84%
+   w_rift_9         defensive/spire  smart   native 100%   8.4t  96% | magic  100%  12.3t  92% | rare   100%  14.1t  79%
+   w_rift_9         staff/spire      smart   native 100%   4.1t  92% | magic  100%   5.4t  90% | rare    97%   6.3t  81%
+   w_rift_9         stacked/spire    smart   native 100%   3.6t  84% | magic  100%   4.7t  97% | rare   100%   5.3t  92%
+
+-- seed 3100474071 (ash · The Dune Sea) · Cinder Warden (stone; Arcane, Vampiric, Frenzied; Soul Drain every 3) · depth 1 · fast_foes · tier HP 120 ATK 21 DEF 6 --
+Cinder Warden       melee/spire      smart   native 100%  15.3t  72% | magic  100%  14.5t  89% | rare   100%  15.3t  72%
+Cinder Warden       defensive/spire  smart   native  60%  55.9t  20% SLOG | magic  100%  47.6t  41% | rare    60%  55.9t  20% SLOG
+Cinder Warden       staff/spire      smart   native 100%  24.6t  75% | magic  100%  20.2t  75% | rare   100%  24.6t  75%
+Cinder Warden       stacked/spire    smart   native 100%  10.2t  85% | magic  100%   9.5t  91% TOO_EASY | rare   100%  10.2t  85%
+   w_rift_0         melee/spire      smart   native 100%   7.7t  99% | magic  100%  10.3t  83% | rare   100%  13.6t  66%
+   w_rift_0         defensive/spire  smart   native 100%  14.9t  99% | magic  100%  22.5t  64% | rare    93%  27.5t  46%
+   w_rift_0         staff/spire      smart   native 100%   5.9t  97% | magic  100%   8.9t  62% | rare    97%  11.7t  58%
+   w_rift_0         stacked/spire    smart   native 100%   4.6t 100% | magic  100%   6.5t  94% | rare   100%   7.4t  77%
+   w_rift_1         melee/spire      smart   native 100%   8.0t  72% | magic  100%  11.9t  72% | rare   100%  13.4t  56%
+   w_rift_1         defensive/spire  smart   native  93%  30.2t  41% SLOG | magic   97%  24.5t  55% | rare    87%  25.5t  42%
+   w_rift_1         staff/spire      smart   native 100%  10.9t  76% | magic   87%  10.1t  60% | rare    90%  11.0t  54%
+   w_rift_1         stacked/spire    smart   native 100%   5.0t  81% | magic  100%   6.6t  91% | rare   100%   8.2t  70%
+   w_rift_2         melee/spire      smart   native 100%  11.4t  92% | magic  100%  15.9t  59% | rare    97%  20.1t  42%
+   w_rift_2         defensive/spire  smart   native 100%  15.5t  94% | magic  100%  22.6t  58% | rare    93%  26.9t  46%
+   w_rift_2         staff/spire      smart   native 100%   5.9t  92% | magic   97%   9.8t  73% | rare    93%  11.2t  58%
+   w_rift_2         stacked/spire    smart   native 100%   7.1t  92% | magic  100%   9.3t  81% | rare   100%  11.1t  65%
+   w_rift_3         melee/spire      smart   native 100%   4.0t 100% TOO_EASY | magic  100%   5.4t  93% | rare   100%   6.6t  85%
+   w_rift_3         defensive/spire  smart   native 100%  13.0t  93% | magic  100%  18.0t  72% | rare   100%  22.6t  58%
+   w_rift_3         staff/spire      smart   native 100%   4.3t  99% | magic  100%   6.5t  80% | rare    87%   7.4t  70%
+   w_rift_3         stacked/spire    smart   native 100%   3.9t  98% TOO_EASY | magic  100%   5.0t  91% | rare   100%   5.6t  87%
+   w_rift_4         melee/spire      smart   native 100%  13.9t  86% | magic  100%  13.3t  66% | rare   100%  16.3t  53%
+   w_rift_4         defensive/spire  smart   native 100%  23.3t  75% | magic  100%  19.0t  72% | rare   100%  22.4t  57%
+   w_rift_4         staff/spire      smart   native 100%   6.9t  86% | magic   97%   8.0t  76% | rare   100%   9.4t  69%
+   w_rift_4         stacked/spire    smart   native 100%   8.2t  94% | magic  100%   8.3t  86% | rare   100%   9.2t  74%
+   w_rift_5         melee/spire      smart   native 100%   9.5t  94% | magic  100%  13.1t  74% | rare    97%  14.6t  62%
+   w_rift_5         defensive/spire  smart   native 100%  13.0t  99% | magic  100%  18.0t  77% | rare   100%  21.5t  58%
+   w_rift_5         staff/spire      smart   native 100%   4.7t  96% | magic  100%   7.4t  73% | rare    90%   8.5t  65%
+   w_rift_5         stacked/spire    smart   native 100%   5.9t  97% | magic  100%   8.0t  92% | rare   100%   8.9t  78%
+   w_rift_6         melee/spire      smart   native 100%   4.3t  97% | magic  100%   6.0t  87% | rare   100%   7.0t  76%
+   w_rift_6         defensive/spire  smart   native 100%   9.7t  97% | magic  100%  13.1t  80% | rare   100%  17.6t  66%
+   w_rift_6         staff/spire      smart   native 100%   6.2t  76% | magic   93%   8.2t  58% | rare    83%   9.6t  50%
+   w_rift_6         stacked/spire    smart   native 100%   2.5t  99% TOO_EASY | magic  100%   3.4t  96% TOO_EASY | rare   100%   3.6t  91% TOO_EASY
+   w_rift_7         melee/spire      smart   native 100%   4.3t 100% | magic  100%   5.8t  92% | rare   100%   7.4t  81%
+   w_rift_7         defensive/spire  smart   native 100%  14.4t  94% | magic  100%  21.0t  65% | rare    87%  26.6t  45%
+   w_rift_7         staff/spire      smart   native 100%   4.9t  90% | magic   90%   8.3t  62% | rare    90%   9.4t  59%
+   w_rift_7         stacked/spire    smart   native 100%   5.7t  98% | magic  100%   5.6t  92% | rare   100%   6.3t  82%
+   w_rift_8         melee/spire      smart   native 100%   4.3t 100% | magic  100%   6.6t  91% | rare   100%   7.7t  83%
+   w_rift_8         defensive/spire  smart   native 100%  27.1t  64% | magic   93%  27.9t  52% | rare    97%  30.6t  43% SLOG
+   w_rift_8         staff/spire      smart   native 100%   4.6t  91% | magic   97%   7.5t  71% | rare    97%   9.0t  62%
+   w_rift_8         stacked/spire    smart   native 100%   4.0t 100% | magic  100%   5.5t  95% | rare   100%   6.1t  87%
+   w_rift_9         melee/spire      smart   native 100%   5.2t  99% | magic  100%   5.2t  93% | rare   100%   6.1t  84%
+   w_rift_9         defensive/spire  smart   native 100%  14.5t  95% | magic   97%  18.6t  67% | rare    97%  22.9t  54%
+   w_rift_9         staff/spire      smart   native 100%   5.5t  95% | magic  100%   6.2t  86% | rare    93%   7.6t  75%
+   w_rift_9         stacked/spire    smart   native 100%   4.5t  99% | magic  100%   5.1t  91% | rare   100%   5.3t  91%
+
+-- Rift summary (the master, native row) ==
+by biome: forest 100%  deep 92%  fen 98%  tidewrack 100%  astral 99%  ember 100%  bone 100%  tundra 100%  ash 90%
+by depth: depth 1 98%
+
+-- Rift summary (the master's wild creatures, native row; the flags count the cells) ==
+by biome: forest 100% (TOO_EASY 7)  deep 100% (TOO_EASY 17)  fen 100% (TOO_EASY 12)  tidewrack 100% (TOO_EASY 11)  astral 100% (TOO_EASY 6)  ember 100% (TOO_EASY 6)  bone 100% (TOO_EASY 10)  tundra 100% (TOO_EASY 8)  ash 100% (TOO_EASY 3)
+by depth: depth 1 100% (TOO_EASY 80)
+
+wrote rift-evidence/v05-candidate-seed1.json
+done in 31s

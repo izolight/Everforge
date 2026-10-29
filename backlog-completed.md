@@ -156,6 +156,10 @@ Completed task records and their implementation evidence. Test counts and simula
   Added Fen after Spire with its unlock gate, six authored regular enemies and the Fen Matriarch boss, region palette/music, quest intro, translations, and Fen/Rift-aware save migration. The new enemies are authored rather than generated and use supported combat elements. Save shape and `everforge-v18` key are unchanged.
   **Validation:** the focused browser regression exercises Fen intro, boss victory and Rift unlock, then reloads a saved Rift run and verifies Fen/Rift Codex discoveries, wins, journal, depth and seed survive. `node tools/fen-region-check.js`, `node tools/smoke.js` (SMOKE OK), `node tools/map-check.js`, `node tools/audio-check.js`, `node tools/i18n-check.js`, syntax checks and `git diff --check` pass. The seed-1, Heat 0, smart-policy Spire-arrival sample ran 20 fights for each of six Fen regulars and the boss; all rows won 100%, with no TOO_HARD/SLOG flags. Reedstalker, Mire Witch and Murk Wisp each had a `TOO_EASY` flag in this sample; the result is recorded without obscuring it in [Fen simulator evidence](region-evidence/m06-fen-sim-seed1.json) and [console output](region-evidence/m06-fen-sim-seed1.txt). The full suite was not rerun after the parent’s V-14 assertion-only fix; its focused rerun passed.
 
+- [x] **M-07 · Boss coverage for missing elements** — `Status: Done` · `js/data.js`, `js/lang/de-data.js`, `js/lang/ko-data.js`, `tools/boss-element-check.js` · `Depends: M-06`
+  **Done:** Covered the six tracked missing elements with playable boss forms: Poison on the Fen Matriarch's first form; Stone on Gnarlhorn's phase; Shadow on Rimeclaw's phase; Holy on Phoenix's phase; Arcane on Archon's phase; and Metal on the Matriarch's phase. The Archon phase changed from Shadow to Arcane, with Shadow still available in Rimeclaw's real phase. All second forms set their own affinity, weaknesses/resistances, special and translated tell. The generic phase/Codex/save path is reused; unlock progression, save shape and seeded generation remain unchanged.
+  **Validation:** focused browser coverage crosses each actual half-health turn transition, verifies form data and Codex learning, then reloads a saved second form. Fen victory/unlock/save regression and `node tools/i18n-check.js` pass. Seed-1, Heat 0, Smart, 20 fights per regional boss-stage cell all won 20/20; Gnarlhorn, Rimeclaw and Archon carry `TOO_EASY` flags on-stage. See [M-07 implementation and results](rift-evidence/m07-boss-elements.md), [raw simulation JSON](rift-evidence/m07-gnarlhorn-seed1.json), [Rimeclaw](rift-evidence/m07-rimeclaw-seed1.json), [Phoenix](rift-evidence/m07-phoenix-seed1.json), [Archon](rift-evidence/m07-archon-seed1.json), [Fen Matriarch](rift-evidence/m07-fen_matriarch-seed1.json), and [mobile phase rendering](rift-evidence/m07-boss-phase-mobile.png). The concurrent V-05 ninth biome is now covered by dynamic-count Rift regression checks; the integrated full suite passed 30/30.
+
 ## Crafting rework
 
 - [x] **C-01 · Data: techniques, salvage skill, denser maps, save v18** — `Status: Done` · `Size: L` · `js/data.js`, `js/state.js`, `js/crafting.js`
@@ -217,3 +221,27 @@ Completed task records and their implementation evidence. Test counts and simula
 - [x] **V-13 · Weight biome elements** — `Status: Done` · `js/monsters.js`, `tools/element-weight-check.js`
   Optional biome `elW` maps weight common and rare combat elements while retaining uniform fallback. The selector uses one existing RNG draw. M-05 Fen/Ash/Bone/Deep signature weights remain 2:1 (40% signature, 20% each alternative), without multiplying the signature bias twice; non-signature generated wild drops continue using the uniform element from that same roll.
   **Validation:** 20,000 deterministic draws per biome verify distributions, fallback, single-draw budget, repeated roster output, and daily pre-roll determinism. Focused element-weight, Rift-identity, V-11 biome-special, i18n, Fen-region, smoke, and diff checks pass. Paired seed-1/7, n=30, Heat 0, smart-policy simulations and source fingerprints are in [V-13 evidence](rift-evidence/v13-element-weights.md). The integrated suite reported 27/28 before the parent fixed `v14-special-check.js` to accept Fen guard enemies while checking original special assignments and unchanged Boar charge; the focused V14 rerun passed.
+## Rift biome expansion
+
+### V-05 · Add a Tidewrack coast biome
+
+Added Tidewrack as the ninth selectable Rift biome using existing ice, poison,
+shadow and swift elements, existing body families and attachable parts, a marine
+palette, compatible coastal names/lore, a 3:1 common/rare element mix, and three
+translated V-11-compatible specials (`drain`, `multi`, `heavy`). The existing
+special-selection draw remains unchanged. This adds no Water/Steam family,
+authored region, M-05 affinity, or roster-size change. M-06 Fen handling and
+M-05's four biome identities remain intact.
+
+Validation passed: the Tidewrack browser check verifies a deterministic generated
+roster/master, names, attachments, specials/translations, and 390px map/battle
+layout. Name, part, color, weighted-element, biome-special, biome-modifier,
+Rift-master, map, i18n, and smoke checks passed; `node tools/run-checks.js`
+passed **30/30**. Paired simulator runs used seed 1 and seed 7 separately, n=30,
+Heat 0, smart policy, all kits, depth 1, with biome/depth modifiers disabled.
+They cover all nine biomes and report 100% Tidewrack wins; the wider Rift-wild
+means were 98% and 96%. `TOO_EASY` flags remain in the master's wild-foe rows;
+the Tidewrack Drowned Wraith defensive/Spire row is `SLOG` at 59.6/59.4 turns
+for seeds 1/7. Adding a biome changes the biome-selection denominator, so the
+seeded samples do not establish exact per-roster parity or economy parity. See
+[implementation, raw simulation evidence and screenshots](rift-evidence/v05-tidewrack.md).

@@ -10,7 +10,7 @@ let fails=0;const ok=(c,m)=>{if(!c)fails++;console.log(c?"ok  ":"FAIL",m)};
     p.on("pageerror",e=>errs.push(e.message));await p.goto(URL);await p.waitForFunction(()=>typeof S==="object"&&S);
     const r=await p.evaluate(()=>{
       const biomes=Object.keys(BIOMES).sort(),poolKeys=Object.keys(BIOME_SP).sort();
-      const complete=biomes.length===poolKeys.length&&biomes.every(b=>BIOME_SP[b]?.length>=2&&BIOME_SP[b].length<=3);
+      const complete=biomes.length===poolKeys.length&&RIFT_BIOMES.length===biomes.length&&RIFT_BIOMES.every(b=>BIOMES[b]&&BIOME_SP[b])&&biomes.every(b=>BIOME_SP[b]?.length>=2&&BIOME_SP[b].length<=3);
       let draws=0;const chosen=biomeSpecialFor(biomes[0],()=>{draws++;return .5}),fallback=biomeSpecialFor("missing-biome",()=>.5);
       const translationKeys=Object.values(BIOME_SP).flat().flatMap(sp=>[sp.name,sp.tell]);
       const translated=translationKeys.every(k=>DICT.de[k]&&DICT.ko[k]&&DICT.de[k]!==k&&DICT.ko[k]!==k);
@@ -48,12 +48,13 @@ let fails=0;const ok=(c,m)=>{if(!c)fails++;console.log(c?"ok  ":"FAIL",m)};
           }
           allPoolsSeen=allPoolsSeen&&[...wanted].every(n=>seen.has(n));samples[biome]=fixture;
         }
-      return{biomes,poolKeys,complete,draws,chosen:chosen.name,fallback:fallback.name,genFallback:GEN_SP.some(s=>s.name===fallback.name),translated,translationCount:translationKeys.length,deterministic,drawSafe,specialOnly,masterRare,masterPoolFallback,allPoolsSeen,modifierStacking,regionCoverage,regionDeterministic,samples,stacks};
+      const expectedTranslationCount=Object.values(BIOME_SP).reduce((n,pool)=>n+pool.length*2,0);
+      return{biomes,poolKeys,complete,draws,chosen:chosen.name,fallback:fallback.name,genFallback:GEN_SP.some(s=>s.name===fallback.name),translated,translationCount:translationKeys.length,expectedTranslationCount,deterministic,drawSafe,specialOnly,masterRare,masterPoolFallback,allPoolsSeen,modifierStacking,regionCoverage,regionDeterministic,samples,stacks};
     });
     ok(r.complete,"each authored biome has two or three signature specials");
     ok(r.draws===1,"selecting a biome special consumes exactly one existing RNG draw");
     ok(r.genFallback,"an unknown biome key falls back to the shared GEN_SP pool");
-    ok(r.translated&&r.translationCount===48,"all biome special names and tells have German and Korean translations");
+    ok(r.translated&&r.translationCount===r.expectedTranslationCount,"all biome special names and tells have German and Korean translations");
     ok(r.deterministic&&r.drawSafe,"seeded depth-3 Rift rosters reproduce without ambient Math.random");
     ok(r.specialOnly,"biome pools change only the special field; roster fields and draw streams stay fixed");
     ok(r.masterRare,"Rift masters retain their three-rare-affix M-11 profile with biome specials");
