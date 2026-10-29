@@ -4,16 +4,16 @@ The status index for scoped work. Open tasks are below; implementation evidence 
 
 ## At a glance
 
-**56 tasks · 47 Done · 0 In Progress · 0 Implement · 9 Planned · 9 open.**
+**56 tasks · 48 Done · 1 In Progress · 0 Implement · 7 Planned · 8 open.**
 
 | Workstream | Done | In Progress | Implement | Planned |
 |---|---:|---:|---:|---:|
 | Monster coverage, balance and progression (M) | 12 | 0 | 0 | 0 |
-| Biome variety and mechanics (V) | 13 | 0 | 0 | 9 |
+| Biome variety and mechanics (V) | 14 | 1 | 0 | 7 |
 | Art identity and readability (A) | 5 | 0 | 0 | 0 |
 | UI (U) | 9 | 0 | 0 | 0 |
 | Crafting rework (C) | 8 | 0 | 0 | 0 |
-| **Total** | **47** | **0** | **0** | **9** |
+| **Total** | **48** | **1** | **0** | **7** |
 
 **Statuses:** `Planned` = scoped backlog, not started; `Implement` = detailed implementation plan exists; `In Progress` = actively underway; `Done` = completed, with evidence in the archive. Dependencies are stated on task cards; Planned does not necessarily mean ready to start.
 
@@ -161,11 +161,13 @@ U-02–U-09 are complete. See [Completed UI tasks](backlog-completed.md#ui) for 
   **Done:** Added the ninth Rift biome, Tidewrack, with existing elements/bodies/parts, a marine palette, coast regions and compatible names/lore. Added 3:1 common/rare element weighting and three translated V-11-compatible specials while preserving the existing selection draw. No new element family, authored region, or roster-size change.
   **Validation:** Tidewrack generator/name/attachment/browser coverage and mobile screenshots, all-biome name/part/color/element/map checks, V-11 special, V-15 biome, Rift-master and i18n checks pass. The full suite passed 30/30, including smoke. Paired modifier-free seed-1/7 smart Heat 0 n=30 depth-1 Rift samples cover all nine biomes: Tidewrack wins 100% in both; broad Rift-wild means are 98% and 96%. Existing `TOO_EASY` flags remain in the Rift-masters' wild rows, and Tidewrack's Drowned Wraith defensive/Spire native row is `SLOG` at 59.6/59.4 turns. The added biome changes the seed-to-biome denominator, so these are coverage/balance samples rather than exact same-seed parity. Commands, source fingerprints, raw logs, and visual evidence are in [V-05 evidence](rift-evidence/v05-tidewrack.md).
 
-- [ ] **V-06 · Add a Windcut crags biome** — `Status: Planned` · `Size: M` · `js/monsters.js`
+- [x] **V-06 · Add a Windcut crags biome** — `Status: Done` · `Size: M` · `js/monsters.js` · see [completed evidence](backlog-completed.md#v-06--windcut-crags)
   Elements stone/metal/swift/arcane; bodies beast/humanoid/construct/elemental; parts armor/horns/chains/crystals/wings/tail; names such as "The Windcut Crags", "The Iron Highlands", "The Skyward Pass".
   **Acceptance:** biome appears in `RIFT_BIOMES`; generated creatures render; sim sample passes.
+  **Done:** Added Windcut as a generated Rift biome with the specified existing elements, bodies and attachable parts; a weighted 3:3:3:1 element pool; themed translated regions/lore; and three translated V-11-compatible specials using existing combat kinds. No family, authored region or roster slot was added.
+  **Validation:** deterministic pool/roster/name/special and 390×844 map/battle checks pass. Paired seed-1/7 smart Heat 0 n=30 stage-kit matrices cover depths 1 and 3 for all 11 current biomes, including Windcut and Garden. `node tools/run-checks.js` passed 32/32, including smoke. Raw outputs, baselines, screenshots and observed difficulty flags are in [V-06 evidence](rift-evidence/v06-windcut.md).
 
-- [ ] **V-07 · Add a Radiant garden biome** — `Status: Planned` · `Size: M` · `js/monsters.js`
+- [ ] **V-07 · Add a Radiant garden biome** — `Status: In Progress` · `Size: M` · `js/monsters.js`
   Elements holy/wood/poison/swift; bodies beast/humanoid/elemental/undead; parts antlers/vines/halo/wings/crown/mane; names such as "The Sunken Garden", "The Gilded Grove", "The Orchard of Bones".
   **Acceptance:** biome appears in `RIFT_BIOMES`; generated creatures render; sim sample passes.
 

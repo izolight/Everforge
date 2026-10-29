@@ -715,3 +715,15 @@ DICT.de=Object.assign(DICT.de||{}, {
   "Brine Volley":"Salzsalve","gathering salt spray":"sammelt salzige Gischt",
   "Breakwater Slam":"Wellenbrecherwucht","lifting a cresting wave":"hebt eine brechende Welle"
 });
+DICT.de||{}, {
+  "Windcut Crags":"Windschartige Klippen","The Windcut Crags":"Die windgeschliffenen Klippen",
+  "The Iron Highlands":"Das Eisenhochland","The Skyward Pass":"Der Himmelsgrat",
+  "The Shattered Ridge":"Der zersplitterte Grat","The Chainwind Shelf":"Die Kettenwindkante","The Highstone Reach":"Die Hochsteinweite",
+  "The wind carved the ridges and left the hardest things standing.":"Der Wind schliff die Grate und ließ nur das Härteste stehen.",
+  "Iron chains sing between cliffs when the gale turns.":"Eisenketten singen zwischen den Klippen, wenn der Sturm dreht.",
+  "The high pass belongs to whatever can keep its footing.":"Der Hochpass gehört dem, was seinen Halt bewahren kann.",
+  "Crystals ring beneath the stone whenever the sky breaks open.":"Kristalle klingen unter dem Stein, wenn der Himmel aufreißt.",
+  "Crosswind Rend":"Querwindhieb","sweeping its wings through the gale":"fegt mit den Flügeln durch den Sturm",
+  "Cragfall Crush":"Klippensturz","heaving a slab of the ridge":"wuchtet eine Felsplatte des Grats empor",
+  "Chainlash":"Kettenpeitsche","drawing the iron chains taut":"spannt die Eisenketten straff"
+});

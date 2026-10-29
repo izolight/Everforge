@@ -39,10 +39,15 @@ deep:{n:"The Weeping Deep",els:["arcane","ice","shadow","poison"],bodies:["eleme
   acc:["#3ff0ff","#7fe8ff"],skins:["#9fb0b8","#7f8f98"],verbs:["chills you","touches you","strikes you","claws you","scalds you","rakes you"],
   pre:["Deep","Weeping","Glass","Abyss","Silent","Pale","Vault","Drowned"],suf:["Warden","Sentinel","Watcher","Husk","Seeker","Lurker","Chorus","Creeper","Thrall","Drifter"],
   regions:["The Weeping Vaults","The Glass Deeps","The Drowned Gallery","The Sunless Sump","The Lightless Shelf","The Abyssal Choir"],lore:["It came up from a place that has no floor.","The water there keeps its shape.","It remembers a door that no longer exists.","Every sound in the deep answers itself."]},
-tidewrack:{n:"The Tidewrack",els:["ice","poison","shadow","swift"],bodies:["beast","undead","elemental","humanoid"],parts:["shell","frost","tail","vines","hood","crystals"],pats:["bands","cracks","scales","stripes","rot","swirl"],
+  tidewrack:{n:"The Tidewrack",els:["ice","poison","shadow","swift"],bodies:["beast","undead","elemental","humanoid"],parts:["shell","frost","tail","vines","hood","crystals"],pats:["bands","cracks","scales","stripes","rot","swirl"],
   acc:["#426f7d","#75a6a8"],skins:["#b7b19f","#788e91"],verbs:["chills you","claws you","strikes you","rakes you","lashes you","bites you"],
   pre:["Saltwind","Tidewrack","Drowned","Brine","Silt","Shoal","Wreck","Rime"],suf:["Watcher","Warden","Hound","Wraith","Lurker","Creeper","Gnawer","Drifter"],
-  regions:["The Drowned Coast","Saltwind Cliffs","The Tidewrack","The Wreck Shoals","The Silt Reach","The Frosted Shoals"],lore:["The tide took the village, then came back for the bones.","A salt wind worries every name off the stones.","The wrecks drift with no water beneath them.","Something patient waits where the tide turns."]}
+  regions:["The Drowned Coast","Saltwind Cliffs","The Tidewrack","The Wreck Shoals","The Silt Reach","The Frosted Shoals"],lore:["The tide took the village, then came back for the bones.","A salt wind worries every name off the stones.","The wrecks drift with no water beneath them.","Something patient waits where the tide turns."]},
+  windcut:{n:"Windcut Crags",els:["stone","metal","swift","arcane"],bodies:["beast","humanoid","construct","elemental"],parts:["armor","horns","chains","crystals","wings","tail"],pats:["facets","cracks","bands","stars","stripes","scales"],
+  acc:["#8296a2","#c29b62"],skins:["#b99a7c","#897866"],verbs:["buffets you","hammers you","slashes at you","rakes you","strikes you","slams you"],
+  pre:["Windcut","Ironwind","Crag","Gale","Highland","Skyshard","Chainfall","Ridge"],suf:["Warden","Sentinel","Stalker","Runner","Razor","Watcher","Golem","Drifter"],
+  regions:["The Windcut Crags","The Iron Highlands","The Skyward Pass","The Shattered Ridge","The Chainwind Shelf","The Highstone Reach"],lore:["The wind carved the ridges and left the hardest things standing.","Iron chains sing between cliffs when the gale turns.","The high pass belongs to whatever can keep its footing.","Crystals ring beneath the stone whenever the sky breaks open."]},
+
 };
 // Optional element weights: common entries receive weight 3, rare entries weight 1.
 // The Rift-only signatures from M-05 use the same field: their signature element
@@ -56,7 +61,8 @@ const BIOME_ELW={
   ash:{fire:2,metal:1,stone:1,poison:1},
   bone:{shadow:2,holy:1,stone:1,poison:1},
   deep:{ice:2,arcane:1,shadow:1,poison:1},
-  tidewrack:{ice:3,poison:3,shadow:1,swift:1}
+  tidewrack:{ice:3,poison:3,shadow:1,swift:1},
+  windcut:{stone:3,metal:3,swift:3,arcane:1},
 };
 Object.keys(BIOME_ELW).forEach(k=>BIOMES[k].elW=BIOME_ELW[k]);
 // the element a creature is born to: what it is weak to, what it shrugs off, and what it inflicts on a hit
@@ -114,7 +120,12 @@ const BIOME_SP={
   tidewrack:[
     {every:3,name:"Undertow Grasp",kind:"drain",x:1.05,tell:"pulling you into the surf"},
     {every:4,name:"Brine Volley",kind:"multi",n:3,x:.56,tell:"gathering salt spray"},
-    {every:4,name:"Breakwater Slam",kind:"heavy",x:1.9,tell:"lifting a cresting wave"}]
+    {every:4,name:"Breakwater Slam",kind:"heavy",x:1.9,tell:"lifting a cresting wave"}],
+  windcut:[
+    {every:3,name:"Crosswind Rend",kind:"multi",n:2,x:.82,tell:"sweeping its wings through the gale"},
+    {every:4,name:"Cragfall Crush",kind:"heavy",x:1.9,tell:"heaving a slab of the ridge"},
+    {every:4,name:"Chainlash",kind:"drain",x:1.05,tell:"drawing the iron chains taut"}],
+
 };
 // Four Rift-only biomes lean on one element, material, and natural status trait.
 // These reuse existing elements/items/status rules and do not add RNG calls.
@@ -247,7 +258,7 @@ const regMon=list=>list.forEach(E=>{ENEMIES[E.id]=E});
 function buildRoster(){ // authored regions use their fixed rosters; Fen is not Rift Fen
   ZONES.forEach(z=>{if(z[0]===RIFT_ZONE||z[0]==="fen")return;regMon(genRoster(z[0]))})}
 // ---- the Rift: a random region, rolled from one seed
-const RIFT_BIOMES=["fen","ash","bone","deep","forest","tundra","ember","astral","tidewrack"];
+const RIFT_BIOMES=["fen","ash","bone","deep","forest","tundra","ember","astral","tidewrack","windcut"];
 function riftMake(seed,depth){ // a random region: biome, palette, name, ten wild creatures and a master
   const R=rng(seed),bi=RIFT_BIOMES[Math.floor(R()*RIFT_BIOMES.length)],B=BIOMES[bi];
   const reg=B.regions[Math.floor(R()*B.regions.length)];

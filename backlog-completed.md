@@ -245,3 +245,9 @@ the Tidewrack Drowned Wraith defensive/Spire row is `SLOG` at 59.6/59.4 turns
 for seeds 1/7. Adding a biome changes the biome-selection denominator, so the
 seeded samples do not establish exact per-roster parity or economy parity. See
 [implementation, raw simulation evidence and screenshots](rift-evidence/v05-tidewrack.md).
+
+### V-06 · Windcut Crags
+
+Added Windcut as a generated Rift biome using existing stone/metal/swift/arcane elements, beast/humanoid/construct/elemental bodies, and armor/horns/chains/crystals/wings/tail parts. Its 3:3:3:1 element weighting is checked over 10,000 deterministic samples. Three translated V-11-compatible special entries use existing combat kinds. The addition keeps the generated roster size and family set unchanged.
+
+Validation: the seeded generator check covers pool compatibility, deterministic roster/master generation, name uniqueness, specials and translations; mobile map and battle captures fit at 390×844. Integrated seed-1/7 smart-policy simulations used Heat 0, n=30 per stage-kit row, depths 1/3, and disabled biome/depth modifiers. Windcut master wins were 99%/98% across depths 1/3 for seeds 1/7; the selector now has eleven biomes including Windcut and Garden. Rift wild rows remain mostly `TOO_EASY`, with two `TOO_HARD` cells at depth 3 in each sample; these are recorded as limitations and no exact same-seed parity is claimed because the expanded selector remaps biome seeds. The full suite passed 32/32, including smoke. See [implementation, baselines, raw simulations and screenshots](rift-evidence/v06-windcut.md).

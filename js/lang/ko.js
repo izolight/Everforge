@@ -712,3 +712,15 @@ DICT.ko=Object.assign(DICT.ko||{}, {
   "Brine Volley":"염수 연사","gathering salt spray":"짠 물보라를 모읍니다",
   "Breakwater Slam":"방파제 강타","lifting a cresting wave":"부서지는 파도를 들어 올립니다"
 });
+DICT.ko||{}, {
+  "Windcut Crags":"바람 깎인 바위산","The Windcut Crags":"바람 깎인 바위산",
+  "The Iron Highlands":"철의 고원","The Skyward Pass":"하늘길 고개",
+  "The Shattered Ridge":"부서진 산등성이","The Chainwind Shelf":"사슬바람 절벽","The Highstone Reach":"높은 바위 지대",
+  "The wind carved the ridges and left the hardest things standing.":"바람은 산등성이를 깎고 가장 단단한 것들만 남겼습니다.",
+  "Iron chains sing between cliffs when the gale turns.":"강풍이 방향을 바꿀 때 절벽 사이의 쇠사슬이 노래합니다.",
+  "The high pass belongs to whatever can keep its footing.":"높은 고개는 발을 디딜 수 있는 자의 것입니다.",
+  "Crystals ring beneath the stone whenever the sky breaks open.":"하늘이 열릴 때마다 바위 밑 수정이 울립니다.",
+  "Crosswind Rend":"맞바람 가르기","sweeping its wings through the gale":"강풍 속에서 날개를 휘두릅니다",
+  "Cragfall Crush":"벼랑 붕괴","heaving a slab of the ridge":"산등성이 바위판을 들어 올립니다",
+  "Chainlash":"사슬 채찍","drawing the iron chains taut":"쇠사슬을 팽팽히 당깁니다"
+});
