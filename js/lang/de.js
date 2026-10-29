@@ -739,3 +739,16 @@ DICT.de=Object.assign(DICT.de||{}, {
   "Crownfall":"Kronensturz","raising its crown of branches":"hebt seine Krone aus Ästen",
   "Sunward Mend":"Sonnenheilung","turning its halo to gather light":"wendet seinen Heiligenschein, um Licht zu sammeln"
 });
+DICT.de||{}, {
+  "Geyser Field":"Geysirfeld",
+  "The Steam Vents":"Die Dampfschlote","The Boiling Shelf":"Das siedende Plateau",
+  "The White Caldera":"Die Weiße Caldera","The Sinter Fields":"Die Sinterfelder",
+  "The Fumarole Reach":"Die Fumarolenweite","The Glasscone Basin":"Das Glaskegelbecken",
+  "The mountain breathes through every crack.":"Der Berg atmet durch jeden Spalt.",
+  "Steam hides the paths and gives away the hunters.":"Dampf verbirgt die Wege und verrät die Jäger.",
+  "Basalt cools only after the next eruption.":"Basalt kühlt erst nach dem nächsten Ausbruch ab.",
+  "A thin crust covers water hot enough to melt stone.":"Eine dünne Kruste bedeckt Wasser, heiß genug, um Stein zu schmelzen.",
+  "Fumarole Burst":"Fumarolenausbruch","drawing heat from below":"zieht Hitze aus der Tiefe",
+  "Basalt Quake":"Basaltbeben","raising a slab of heated stone":"hebt eine Platte aus erhitztem Stein an",
+  "Steam Mend":"Dampfheilung","drawing vapor through its cracks":"zieht Dampf durch seine Risse"
+});

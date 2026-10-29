@@ -50,7 +50,12 @@ deep:{n:"The Weeping Deep",els:["arcane","ice","shadow","poison"],bodies:["eleme
   garden:{n:"Radiant Garden",els:["holy","wood","poison","swift"],bodies:["beast","humanoid","elemental","undead"],parts:["antlers","vines","halo","wings","crown","mane"],pats:["bands","swirl","stars","veins","stripes","cracks"],
   acc:["#dc91c7","#79c86e"],skins:["#e5c79c","#b9a37d"],verbs:["lashes you","strikes you","rakes you","smites you","bites you","claws you","slams you"],
   pre:["Sunlit","Gilded","Briar","Honeyed","Dewfall","Orchard","Crownleaf","Pollen"],suf:["Warden","Stalker","Watcher","Hound","Wraith","Herald","Creeper","Choir"],
-  regions:["The Sunken Garden","The Gilded Grove","The Orchard of Bones","The Amber Conservatory","The Haloed Bower","The Briar Crown"],lore:["Sunlight pools here where no sky can reach.","The garden keeps every bloom that ever fell.","A bright halo circles the oldest roots.","The orchard bears fruit that remembers its pickers."]}
+  regions:["The Sunken Garden","The Gilded Grove","The Orchard of Bones","The Amber Conservatory","The Haloed Bower","The Briar Crown"],lore:["Sunlight pools here where no sky can reach.","The garden keeps every bloom that ever fell.","A bright halo circles the oldest roots.","The orchard bears fruit that remembers its pickers."]},
+  geyser:{n:"Geyser Field",els:["fire","ice","stone","arcane"],bodies:["elemental","construct","beast","humanoid"],parts:["flames","frost","crystals","armor","horns","runes"],pats:["cracks","facets","swirl","scales","bands","stars"],
+  acc:["#e9874e","#83cfd3"],skins:["#c18c68","#899397"],verbs:["scalds you","chills you","strikes you","hammers you","rakes you","cracks against you"],
+  pre:["Geyser","Steam","Basalt","Fumarole","Boiling","Caldera","Sinter","Whitecap"],suf:["Warden","Sentinel","Watcher","Stalker","Wraith","Golem","Hulk","Drifter"],
+    regions:["The Steam Vents","The Boiling Shelf","The White Caldera","The Sinter Fields","The Fumarole Reach","The Glasscone Basin"],lore:["The mountain breathes through every crack.","Steam hides the paths and gives away the hunters.","Basalt cools only after the next eruption.","A thin crust covers water hot enough to melt stone."]},
+
 };
 // Optional element weights: common entries receive weight 3, rare entries weight 1.
 // The Rift-only signatures from M-05 use the same field: their signature element
@@ -66,7 +71,8 @@ const BIOME_ELW={
   deep:{ice:2,arcane:1,shadow:1,poison:1},
   tidewrack:{ice:3,poison:3,shadow:1,swift:1},
   windcut:{stone:3,metal:3,swift:3,arcane:1},
-  garden:{holy:3,wood:3,poison:1,swift:1}
+  garden:{holy:3,wood:3,poison:1,swift:1},
+  geyser:{fire:3,ice:3,stone:3,arcane:1},
 };
 Object.keys(BIOME_ELW).forEach(k=>BIOMES[k].elW=BIOME_ELW[k]);
 // the element a creature is born to: what it is weak to, what it shrugs off, and what it inflicts on a hit
@@ -132,7 +138,12 @@ const BIOME_SP={
   garden:[
     {every:3,name:"Briarwheel",kind:"multi",n:2,x:.8,tell:"drawing thorned vines into a shining ring"},
     {every:4,name:"Crownfall",kind:"heavy",x:1.8,tell:"raising its crown of branches"},
-    {every:4,name:"Sunward Mend",kind:"heal",x:.2,tell:"turning its halo to gather light"}]
+    {every:4,name:"Sunward Mend",kind:"heal",x:.2,tell:"turning its halo to gather light"}],
+  geyser:[
+    {every:3,name:"Fumarole Burst",kind:"multi",n:3,x:.56,tell:"drawing heat from below"},
+    {every:4,name:"Basalt Quake",kind:"heavy",x:1.9,tell:"raising a slab of heated stone"},
+    {every:4,name:"Steam Mend",kind:"heal",x:.2,tell:"drawing vapor through its cracks"}],
+
 };
 // Four Rift-only biomes lean on one element, material, and natural status trait.
 // These reuse existing elements/items/status rules and do not add RNG calls.
@@ -265,7 +276,7 @@ const regMon=list=>list.forEach(E=>{ENEMIES[E.id]=E});
 function buildRoster(){ // authored regions use their fixed rosters; Fen is not Rift Fen
   ZONES.forEach(z=>{if(z[0]===RIFT_ZONE||z[0]==="fen")return;regMon(genRoster(z[0]))})}
 // ---- the Rift: a random region, rolled from one seed
-const RIFT_BIOMES=["fen","ash","bone","deep","forest","tundra","ember","astral","tidewrack","windcut","garden"];
+const RIFT_BIOMES=["fen","ash","bone","deep","forest","tundra","ember","astral","tidewrack","windcut","garden","geyser"];
 function riftMake(seed,depth){ // a random region: biome, palette, name, ten wild creatures and a master
   const R=rng(seed),bi=RIFT_BIOMES[Math.floor(R()*RIFT_BIOMES.length)],B=BIOMES[bi];
   const reg=B.regions[Math.floor(R()*B.regions.length)];

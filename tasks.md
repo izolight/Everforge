@@ -4,16 +4,16 @@ The status index for scoped work. Open tasks are below; implementation evidence 
 
 ## At a glance
 
-**56 tasks · 49 Done · 1 In Progress · 0 Implement · 6 Planned · 7 open.**
+**56 tasks · 50 Done · 1 In Progress · 0 Implement · 5 Planned · 6 open.**
 
 | Workstream | Done | In Progress | Implement | Planned |
 |---|---:|---:|---:|---:|
 | Monster coverage, balance and progression (M) | 12 | 0 | 0 | 0 |
-| Biome variety and mechanics (V) | 15 | 1 | 0 | 6 |
+| Biome variety and mechanics (V) | 17 | 1 | 0 | 5 |
 | Art identity and readability (A) | 5 | 0 | 0 | 0 |
 | UI (U) | 9 | 0 | 0 | 0 |
 | Crafting rework (C) | 8 | 0 | 0 | 0 |
-| **Total** | **49** | **1** | **0** | **6** |
+| **Total** | **50** | **1** | **0** | **5** |
 
 **Statuses:** `Planned` = scoped backlog, not started; `Implement` = detailed implementation plan exists; `In Progress` = actively underway; `Done` = completed, with evidence in the archive. Dependencies are stated on task cards; Planned does not necessarily mean ready to start.
 
@@ -173,11 +173,11 @@ U-02–U-09 are complete. See [Completed UI tasks](backlog-completed.md#ui) for 
   **Done:** Added Radiant Garden with the specified existing elements, bodies and attachable parts, 3:3:1:1 weighted elements, a floral palette, translated regions/lore, and three translated V-11-compatible specials. No new family, authored region or roster slot was added.
   **Validation:** Seeded roster, name/attachment, special translation and 390×844 map/battle checks pass. Color, biome-neutrality, i18n and focused Garden checks pass; `node tools/run-checks.js` passed 32/32 including smoke. Paired seed-1/7 smart Heat 0 n=30 samples cover depths 1/3 for all 11 biomes with modifiers disabled; Garden master rows won 99%. Broad Rift-wild matrices retain many `TOO_EASY` flags and a few `TOO_HARD` depth-3 cells. The expanded selector remaps seeds, so these are coverage samples, not exact same-seed parity. See [V-07 evidence](rift-evidence/v07-garden.md) and [raw integrated runs](rift-evidence/v06-integrated-seed1.json).
 
-- [ ] **V-08 · Add a Geyser field biome** — `Status: In Progress` · `Size: M` · `js/monsters.js`
+- [x] **V-08 · Add a Geyser field biome** — `Status: Done` · `Size: M` · `js/monsters.js`
   Elements fire/ice/stone/arcane; bodies elemental/construct/beast/humanoid; parts flames/frost/crystals/armor/horns/runes; names such as "The Steam Vents", "The Boiling Shelf", "The White Caldera".
-  **Acceptance:** biome appears in `RIFT_BIOMES`; generated creatures render; sim sample passes.
+  **Validation:** Added Geyser to `RIFT_BIOMES` with fire/ice/stone/arcane weights 3:3:3:1 and three translated existing-kind specials. The focused browser check verifies all 10 generated wilds plus master, deterministic names/parts/elements, translations, and 390×844 map/battle fit. Name, part, color, map, biome, Rift boss, affix, i18n, element-weight, and Geyser/Sporewood checks pass. Paired seed-1/7 smart Heat 0 n=30 simulations cover depths 1/3 across all 13 biomes with biome/depth modifiers disabled; Geyser master rows won 100% in both seeds, while Geyser ordinary-wild rows retained `TOO_EASY` flags and one seed-7 `TOO_HARD` cell. The integrated suite passed 34/34. Selector growth remaps seeded biome selection; this is coverage, not exact same-seed parity. See [baseline and integrated results](rift-evidence/v08-baseline.md) and [raw paired runs](rift-evidence/v08-v09-integrated-seed1.json), [seed 7](rift-evidence/v08-v09-integrated-seed7.json).
 
-- [ ] **V-09 · Add a Sporewood biome** — `Status: Planned` · `Size: M` · `js/monsters.js`
+- [ ] **V-09 · Add a Sporewood biome** — `Status: In Progress` · `Size: M` · `js/monsters.js` · see [current evidence](rift-evidence/v09-sporewood.md)
   Elements poison/wood/shadow/holy; bodies undead/beast/elemental/humanoid; parts vines/hood/mane/tail/horns/crystals; names such as "The Sporewood", "The Hollow Bloom", "The Weeping Canopy".
   **Acceptance:** biome appears in `RIFT_BIOMES`; generated creatures render; sim sample passes.
 

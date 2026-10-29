@@ -15,8 +15,8 @@ let fails=0;const ok=(c,m)=>{if(!c)fails++;console.log(c?"ok  ":"FAIL",m)};
         let seed=0x51313,calls=0;const R=()=>{calls++;seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/4294967296};
         const counts={};for(let i=0;i<20000;i++){const el=biomeElement("rift",bi,B,R);counts[el]=(counts[el]||0)+1}
         oneDraw=oneDraw&&calls===20000;
-        const favored=identity[bi];if(favored){const p=counts[favored]/20000;weighted=weighted&&p>.375&&p<.425}
-        else {const common=Object.entries(B.elW).filter(([,w])=>w===3).map(([el])=>el),rare=Object.entries(B.elW).filter(([,w])=>w===1).map(([el])=>el),commonN=common.reduce((n,el)=>n+(counts[el]||0),0),rareN=rare.reduce((n,el)=>n+(counts[el]||0),0),expected=common.reduce((n,el)=>n+B.elW[el],0)/Object.values(B.elW).reduce((n,w)=>n+w,0);weighted=weighted&&common.length>0&&rare.length>0&&Math.abs(commonN/20000-expected)<.025&&Math.abs(commonN+rareN-20000)<5}
+        const favored=identity[bi],weights=Object.fromEntries(B.els.map(el=>[el,Math.max(B.elW?.[el]||1,favored===el?2:1)])),total=Object.values(weights).reduce((n,w)=>n+w,0);
+        weighted=weighted&&B.els.every(el=>Math.abs((counts[el]||0)/20000-weights[el]/total)<.018);
         rows[bi]={n:20000,counts};
       }
       // Missing elW retains the original uniform fallback; a custom map consumes one draw.

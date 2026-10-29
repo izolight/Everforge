@@ -736,3 +736,16 @@ DICT.ko=Object.assign(DICT.ko||{}, {
   "Crownfall":"왕관 낙하","raising its crown of branches":"나뭇가지 왕관을 들어 올립니다",
   "Sunward Mend":"햇살 치유","turning its halo to gather light":"빛을 모으려 후광을 돌립니다"
 });
+DICT.ko||{}, {
+  "Geyser Field":"간헐천 지대",
+  "The Steam Vents":"증기 분출구","The Boiling Shelf":"끓어오르는 대지",
+  "The White Caldera":"하얀 칼데라","The Sinter Fields":"규화 들판",
+  "The Fumarole Reach":"분기공 벌판","The Glasscone Basin":"유리 원뿔 분지",
+  "The mountain breathes through every crack.":"산은 모든 틈으로 숨을 쉽니다.",
+  "Steam hides the paths and gives away the hunters.":"증기는 길을 숨기고 사냥꾼의 위치를 드러냅니다.",
+  "Basalt cools only after the next eruption.":"현무암은 다음 분화가 지나야 식습니다.",
+  "A thin crust covers water hot enough to melt stone.":"얇은 지각 아래에는 돌을 녹일 만큼 뜨거운 물이 흐릅니다.",
+  "Fumarole Burst":"분기공 폭발","drawing heat from below":"땅속의 열기를 끌어옵니다",
+  "Basalt Quake":"현무암 지진","raising a slab of heated stone":"달궈진 돌판을 들어 올립니다",
+  "Steam Mend":"증기 치유","drawing vapor through its cracks":"갈라진 틈으로 증기를 끌어옵니다"
+});
