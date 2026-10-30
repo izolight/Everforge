@@ -4,16 +4,16 @@ The status index for scoped work. Open tasks are below; implementation evidence 
 
 ## At a glance
 
-**56 tasks · 54 Done · 1 In Progress · 0 Implement · 1 Planned · 2 open.**
+**56 tasks · 55 Done · 1 In Progress · 0 Implement · 0 Planned · 1 open.**
 
 | Workstream | Done | In Progress | Implement | Planned |
 |---|---:|---:|---:|---:|
 | Monster coverage, balance and progression (M) | 12 | 0 | 0 | 0 |
-| Biome variety and mechanics (V) | 20 | 1 | 0 | 1 |
+| Biome variety and mechanics (V) | 21 | 1 | 0 | 0 |
 | Art identity and readability (A) | 5 | 0 | 0 | 0 |
 | UI (U) | 9 | 0 | 0 | 0 |
 | Crafting rework (C) | 8 | 0 | 0 | 0 |
-| **Total** | **54** | **1** | **0** | **1** |
+| **Total** | **55** | **1** | **0** | **0** |
 
 **Statuses:** `Planned` = scoped backlog, not started; `Implement` = detailed implementation plan exists; `In Progress` = actively underway; `Done` = completed, with evidence in the archive. Dependencies are stated on task cards; Planned does not necessarily mean ready to start.
 
@@ -201,7 +201,7 @@ U-02–U-09 are complete. See [Completed UI tasks](backlog-completed.md#ui) for 
   Tag rosters into factions (raiders, cultists, constructs, cult of the star) that cross biomes with shared looks and rules.
   **Acceptance:** factions appear in multiple regions/biomes; faction tags drive specials or drops.
 
-- [ ] **V-20 · Promote Water and Steam to full monster families** — `Status: Planned` · `Size: L` · `js/data.js`, `js/affix.js`, `js/monsters.js`
+- [x] **V-20 · Promote Water and Steam to full monster families** — `Status: Done` · `Size: L` · `js/data.js`, `js/affix.js`, `js/monsters.js` · see [completed evidence](backlog-completed.md#v-20-water-and-steam-families)
   Both exist as essences but not elements or `FAM` colours. Add family colour, `EL_NAT` weakness/resist/status, drops and at least one biome using each.
   **Acceptance:** Water/Steam creatures render and fight; affix and sim checks pass; translations added.
 

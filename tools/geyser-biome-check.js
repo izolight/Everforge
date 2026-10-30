@@ -11,15 +11,15 @@ let fails=0;const ok=(c,m)=>{if(!c)fails++;console.log(c?"ok  ":"FAIL",m)};
     page.on("pageerror",e=>errors.push(e.stack||e.message));await page.goto(URL);
     await page.waitForFunction(()=>typeof RIFT_BIOMES!=="undefined"&&typeof riftMake==="function");
     const result=await page.evaluate(()=>{
-      const key="geyser",B=BIOMES[key],allowed={els:["fire","ice","stone","arcane"],bodies:["elemental","construct","beast","humanoid"],parts:["flames","frost","crystals","armor","horns","runes"]};
+      const key="geyser",B=BIOMES[key],allowed={els:["fire","ice","stone","arcane","steam"],bodies:["elemental","construct","beast","humanoid"],parts:["flames","frost","crystals","armor","horns","runes"]};
       const same=(a,b)=>a.length===b.length&&[...a].sort().every((x,i)=>x===[...b].sort()[i]);
       const inRift=RIFT_BIOMES.filter(b=>b===key).length===1;
       const compatible=!!B&&same(B.els,allowed.els)&&same(B.bodies,allowed.bodies)&&same(B.parts,allowed.parts)
         &&B.parts.every(p=>B.bodies.some(b=>BODY_PARTS[b]?.includes(p)))
         &&Object.keys(B.elW||{}).length===B.els.length&&Object.entries(B.elW||{}).every(([e,w])=>B.els.includes(e)&&Number.isFinite(w)&&w>0);
-      const weights={fire:3,ice:3,stone:3,arcane:1},counts=Object.fromEntries(B?.els?.map(e=>[e,0])||[]);
+      const weights={fire:3,ice:3,stone:3,arcane:1,steam:1},counts=Object.fromEntries(B?.els?.map(e=>[e,0])||[]);
       const samples=10000;if(B)for(let i=0;i<samples;i++)counts[biomeElement("rift",key,B,()=>i/samples)]++;
-      const weighted=Object.entries(weights).every(([e,w])=>Math.abs((counts[e]||0)/samples-w/10)<.002);
+      const weighted=Object.entries(weights).every(([e,w])=>Math.abs((counts[e]||0)/samples-w/11)<.002);
       let seed=null;for(let i=1;i<=4000&&!seed;i++){const s=hash("v08-geyser:"+i);if(riftMake(s,1).biome===key)seed=s;}
       if(!seed)return{inRift,compatible,seed:null,weighted,counts};
       const summarize=()=>{const map=riftMake(seed,1),ids=[...Array.from({length:RIFT_N},(_,i)=>"w_rift_"+i),"rift_boss"],foes=ids.map(id=>ENEMIES[id]);
@@ -36,7 +36,7 @@ let fails=0;const ok=(c,m)=>{if(!c)fails++;console.log(c?"ok  ":"FAIL",m)};
     console.log("Geyser fixture",JSON.stringify(result));
     ok(result.inRift,"Geyser appears exactly once in RIFT_BIOMES");
     ok(result.compatible,"Geyser uses the specified existing elements, bodies and attachable parts with complete positive weights");
-    ok(result.weighted,"fire/ice/stone/arcane selection matches 3:3:3:1 across 10,000 deterministic samples");
+    ok(result.weighted,"fire/ice/stone/arcane/steam selection matches 3:3:3:1:1 across 10,000 deterministic samples");
     ok(result.seed!==null&&result.deterministic,"a seeded Geyser Rift roster and master reproduce exactly");
     ok(result.translations,"all three Geyser specials use existing combat kinds with German and Korean names/tells");
     ok(result.unique&&result.bossNameCompatible&&result.validParts&&result.elements&&result.rosterSizeValid,

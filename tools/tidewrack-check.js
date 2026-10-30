@@ -12,7 +12,7 @@ let fails=0;const ok=(c,m)=>{if(!c)fails++;console.log(c?"ok  ":"FAIL",m)};
     await page.waitForFunction(()=>typeof RIFT_BIOMES!=="undefined"&&typeof riftMake==="function");
     const result=await page.evaluate(()=>{
       const key="tidewrack",B=BIOMES[key],allowed={
-        els:["ice","poison","shadow","swift"],
+        els:["water","ice","poison","shadow","swift"],
         bodies:["beast","undead","elemental","humanoid"],
         parts:["shell","frost","tail","vines","hood","crystals"]
       };

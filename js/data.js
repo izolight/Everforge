@@ -1,10 +1,10 @@
 // ================= DATA =================
-const FAM={fire:"#ec7d4c",ice:"#82c9e4",poison:"#93c252",holy:"#f0d77a",shadow:"#a385dc",wood:"#b48b5c",metal:"#aab6ba",heal:"#e893ab",arcane:"#b892f2",swift:"#6fd8b6",stone:"#9c998c",bad:"#d9644e"};
+const FAM={fire:"#ec7d4c",ice:"#82c9e4",water:"#096d9c",steam:"#c49a80",poison:"#93c252",holy:"#f0d77a",shadow:"#a385dc",wood:"#b48b5c",metal:"#aab6ba",heal:"#e893ab",arcane:"#b892f2",swift:"#6fd8b6",stone:"#9c998c",bad:"#d9644e"};
 const TRAITS={
   Sharp:{f:"metal",adj:"Keen",s:{atk:3}}, Heavy:{f:"stone",adj:"Weighty",s:{atk:1,def:2,spd:-1.5}},
   Fire:{f:"fire",adj:"Smoldering",s:{atk:2,mag:1}}, Ice:{f:"ice",adj:"Frozen",s:{atk:1.5,def:.5}},
-  Steam:{f:"ice",adj:"Steaming",s:{mag:2,atk:1}}, Frost:{f:"ice",adj:"Rimed",s:{atk:2,mag:1}},
-  Water:{f:"ice",adj:"Dewy",s:{heal:2.5}}, Poison:{f:"poison",adj:"Toxic",s:{atk:2,heal:-1}},
+  Steam:{f:"steam",adj:"Steaming",s:{mag:2,atk:1}}, Frost:{f:"ice",adj:"Rimed",s:{atk:2,mag:1}},
+  Water:{f:"water",adj:"Dewy",s:{heal:2.5}}, Poison:{f:"poison",adj:"Toxic",s:{atk:2,heal:-1}},
   Venomous:{f:"poison",adj:"Venomous",s:{atk:3}}, Nourishing:{f:"heal",adj:"Hearty",s:{heal:3}},
   Medicine:{f:"heal",adj:"Healing",s:{heal:4}}, Sweet:{f:"heal",adj:"Honeyed",s:{heal:1,spd:.5}},
   Light:{f:"holy",adj:"Glowing",s:{mag:1}}, Radiant:{f:"holy",adj:"Radiant",s:{mag:3}},
@@ -314,6 +314,8 @@ const AFX={
   iron:{t:"el",g:"el",n:"Ironclad",ti:"Unbroken",tr:"Iron",m:{def:1},d:()=>elTxt("Iron")},
   swift:{t:"el",g:"el",n:"Fleet",ti:"Windrunner",tr:"Swift",m:{def:1},d:()=>elTxt("Swift")},
   arcane:{t:"el",g:"el",n:"Arcane",ti:"Spellwoven",tr:"Arcane",m:{def:1},d:()=>elTxt("Arcane")},
+  water:{t:"el",g:"el",n:"Tidal",ti:"Undertow",tr:"Water",m:{def:1},d:()=>elTxt("Water")},
+  steam:{t:"el",g:"el",n:"Scalding",ti:"Vaporbound",tr:"Steam",m:{def:1},d:()=>elTxt("Steam")},
   vamp:{n:"Vampiric",ti:"Bloodthirsty",tr:"Nourishing",ic:"a_vamp",col:"#d4607c",g:"sustain",d:()=>tx("Heals for {p}% of the damage it deals you.",{p:pcn(AFX_T.vamp)})},
   thorn:{n:"Thorned",ti:"Barbed",tr:"Sharp",ic:"a_thorn",col:"#b8a45a",d:()=>tx("Reflects {p}% of your blows back at you (at most {c}% of your max HP per round, and never enough to kill you).",{p:pcn(AFX_T.thorn.x),c:pcn(AFX_T.thorn.cap)})},
   regen:{n:"Regenerating",ti:"Undying",tr:"Wood",ic:"a_regen",col:"#7cc47c",g:"tank sustain",m:{hp:.9},d:B=>tx("Heals {p}% of its max HP every turn. Burn and poison keep it in check.",{p:B&&B.rar==="rare"&&B.heat>=5?"0.5":pcn(AFX_T.regen)})},
@@ -378,12 +380,12 @@ const INF_SLOTS=3,INF_COST=3,INF_MAX=3,CRIT_CAP=75,FREEZE_CAP=60;
 const MASTERY_X=1.15,MASTERY_PCT=pcn((MASTERY_X-1)*100),WEAK_X=.6;
 const DEF_K=50,HIT_MIN=.2,MAG_W=1.3,redOf=d=>d/(d+DEF_K);
 // trait combat tunables: res = elemental defense from armor traits, ward = Runic, pierce = Arcane, shred = Tempered
-const RES_PER=5,RES_CAP=40,RES_ALT={Fur:[["ice",1],["wood",1]],Insulated:[["ice",2.5]]},RES_MSG={ice:"Your fur-lined gear blunts the cold.",fire:"Your gear turns aside the heat.",poison:"Your gear keeps the venom at bay.",holy:"Your gear dulls the glare.",shadow:"Your gear holds the gloom back.",wood:"Your gear shrugs off the thorns.",metal:"Your gear turns the blades.",stone:"Your gear absorbs the crushing blows.",arcane:"Your gear scatters the stray magic.",swift:"Your gear slows the flurry."};
+const RES_PER=5,RES_CAP=40,RES_ALT={Fur:[["ice",1],["wood",1]],Insulated:[["ice",2.5]]},RES_MSG={ice:"Your fur-lined gear blunts the cold.",fire:"Your gear turns aside the heat.",water:"Your gear blunts the surge.",steam:"Your gear shields you from the scalding mist.",poison:"Your gear keeps the venom at bay.",holy:"Your gear dulls the glare.",shadow:"Your gear holds the gloom back.",wood:"Your gear shrugs off the thorns.",metal:"Your gear turns the blades.",stone:"Your gear absorbs the crushing blows.",arcane:"Your gear scatters the stray magic.",swift:"Your gear slows the flurry."};
 const ARC_PER=12,ARC_CAP=60,WARD_PER=4,WARD_CAP=40,THORN_PER=4,THORN_CAP=30,STONE_DR=.6,STONE_CAP=6,SHRED_PER=1.5,SHRED_CAP=6,ROOT_PER=1.5,ROOT_CAP=8,DODGE_PER=4,DODGE_CAP=25,MED_PER=.1,MED_CAP=.5,MED_REGEN=.5;
 // statuses enemies inflict on you: el = resisting element (P.rs), t = turns; cures = traits on consumables that clear them
 const STATUS={burn:{get n(){return tx("Burn")},el:"fire",t:3,get tip(){return tx("damage each turn")}},chill:{get n(){return tx("Chill")},el:"ice",t:3,get tip(){return tx("no swift follow-ups, half dodge")}},poison:{get n(){return tx("Poison")},el:"poison",t:4,get tip(){return tx("stacking damage each turn")}},curse:{get n(){return tx("Curse")},el:"shadow",t:4,get tip(){return tx("healing you receive is halved")}}};
 const INF_MSG={burn:"You catch fire",chill:"A numbing chill sets in",poison:"Venom seeps into your blood",curse:"A curse withers you"};
-const ELITE_INF={Fire:"burn",Ice:"chill",Poison:"poison",Shadow:"curse"},ELITE_INF_CH=.25,POISON_STACK=3,POISON_FOE_CAP=15,CLEANSE_PER=6,CLEANSE_CAP=50,PARRY_X=1.5,PARRY_FAIL=1.25;
+const ELITE_INF={Fire:"burn",Ice:"chill",Water:"chill",Steam:"burn",Poison:"poison",Shadow:"curse"},ELITE_INF_CH=.25,POISON_STACK=3,POISON_FOE_CAP=15,CLEANSE_PER=6,CLEANSE_CAP=50,PARRY_X=1.5,PARRY_FAIL=1.25;
 const GUARD_T={cut:.6,braced:.3}; // all hits in the enemy action; Braced boosts the next Attack or ability, once
 const PARRY_T={base:.65,study:.05,levels:3,spd:.005,spdCap:.05,cap:.9,form:{blade:.05,spellblade:.05,claws:.05,lance:-.05,warstaff:-.05}};
 // battle tunables: follow = the chance of a swift follow-up strike; crit = the base crit chance and the points per Sharp; atk = the attack of a zone's regular enemies, as the damage floor is judged; steam = the chance a Steam-blinded enemy misses; block = the chance a shield blocks; flee = the chance a boss stops you and the chance a flee works

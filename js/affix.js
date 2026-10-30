@@ -8,9 +8,9 @@ const rareCh=(h,row)=>Math.min(RAR_CH.rare.cap,RAR_CH.rare.base+RAR_CH.rare.heat
 // two affixes combine unless they share a group (one elemental; one of Warded/Regenerating/Elusive; one of Vampiric/Regenerating/Warded; one of Splitting/Volatile) or drop the same essence
 const grpOf=a=>(AFX[a].g||"").split(" ").filter(Boolean),afxOk=(a,b)=>!grpOf(a).some(g=>grpOf(b).includes(g))&&AFX[a].tr!==AFX[b].tr;
 const RIFT_MASTER_AFX_EXCLUDED=new Set(["ward","boom","regen"]); // Warded shields and Regenerating can stall low-damage kits; Volatile's max-HP blast scales into a lethal burst on the oversized master band
-const afxPool=(E,mv,boss=false,sp)=>Object.keys(AFX).filter(a=>(!boss||!RIFT_MASTER_AFX_EXCLUDED.has(a))&&!(boss&&sp&&["multi","heavy"].includes(sp.kind)&&a==="frenzy")&&(!AFX[a].roam||(mv&&mv!=="still"))&&!(E&&E.sp&&E.sp.kind==="heal"&&grpOf(a).includes("sustain")));
-function rollAfx(R,rar,o){ // o: {mv, heat, e: species id}; R is the seeded rng on the daily
-  const E=o.e&&ENEMIES[o.e],k=rar==="rare"&&(o.heat|0)>=RAR_CH.k3?3:RARITIES[rar]?RARITIES[rar].k:0,pool=afxPool(E,o.mv,!!o.boss,o.sp),out=[];
+const afxPool=(E,mv,boss=false,sp,element)=>Object.keys(AFX).filter(a=>(!boss||!RIFT_MASTER_AFX_EXCLUDED.has(a))&&!(boss&&sp&&["multi","heavy"].includes(sp.kind)&&a==="frenzy")&&(!AFX[a].roam||(mv&&mv!=="still"))&&!(E&&E.sp&&E.sp.kind==="heal"&&grpOf(a).includes("sustain"))&&(!["water","steam"].includes(a)||(element||E&&E.el)===a));
+function rollAfx(R,rar,o){ // o: {mv, heat, e: species id, element}; R is the seeded rng on the daily
+  const E=o.e&&ENEMIES[o.e],k=rar==="rare"&&(o.heat|0)>=RAR_CH.k3?3:RARITIES[rar]?RARITIES[rar].k:0,pool=afxPool(E,o.mv,!!o.boss,o.sp,o.element),out=[];
   for(let i=0;i<k;i++){const c=pool.filter(a=>!out.includes(a)&&out.every(b=>afxOk(a,b)));if(!c.length)break;out.push(c[Math.floor(R()*c.length)])}
   return out}
 function rollFoe(R,o){ // rarity and affixes of one regular enemy: o {elite (an elite tile: magic or rare), heat, row (depth), mv}

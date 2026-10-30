@@ -360,3 +360,4 @@ DICT.ko=Object.assign(DICT.ko||{},{
 "ASTRAL CONVERGENCE":"별의 수렴","The storm folds into a living sigil. The Archon turns the spire's runes against you!":"폭풍이 살아 있는 문양으로 접힙니다. 아르콘이 첨탑의 룬을 당신에게 돌립니다!","Orrery Collapse":"천구의 붕괴","folding the air around a burning sigil":"타오르는 문양 주위의 공기를 접습니다","hit|unmakes you with a star-rune":"{name|이|가}{g} 별의 룬으로 당신을 지워 {n} 피해를 줍니다.",
 "IRON ROOTS":"쇠뿌리","A drowned chain tightens through the Matriarch's roots; the Fen's buried iron wakes!":"가라앉은 사슬이 여족장의 뿌리를 죕니다. 늪에 묻힌 철이 깨어납니다!","Chain Surge":"사슬 파도","pulling the causeway chains taut beneath the water":"물밑 둑길의 사슬을 팽팽히 당깁니다","hit|drags you through the iron reeds":"{name|이|가}{g} 쇠 갈대 사이로 당신을 끌어 {n} 피해를 줍니다."
 });
+Object.assign(DICT.ko,{"fam|water":"물","fam|steam":"증기","Tidal":"조류의","Undertow":"밑물결","Scalding":"뜨겁게 데우는","Vaporbound":"증기에 묶인","Your gear blunts the surge.":"장비가 물살의 충격을 누그러뜨립니다.","Your gear shields you from the scalding mist.":"장비가 뜨거운 안개로부터 보호합니다."});

@@ -39,7 +39,7 @@ deep:{n:"The Weeping Deep",els:["arcane","ice","shadow","poison"],bodies:["eleme
   acc:["#3ff0ff","#7fe8ff"],skins:["#9fb0b8","#7f8f98"],verbs:["chills you","touches you","strikes you","claws you","scalds you","rakes you"],
   pre:["Deep","Weeping","Glass","Abyss","Silent","Pale","Vault","Drowned"],suf:["Warden","Sentinel","Watcher","Husk","Seeker","Lurker","Chorus","Creeper","Thrall","Drifter"],
   regions:["The Weeping Vaults","The Glass Deeps","The Drowned Gallery","The Sunless Sump","The Lightless Shelf","The Abyssal Choir"],lore:["It came up from a place that has no floor.","The water there keeps its shape.","It remembers a door that no longer exists.","Every sound in the deep answers itself."]},
-  tidewrack:{n:"The Tidewrack",els:["ice","poison","shadow","swift"],bodies:["beast","undead","elemental","humanoid"],parts:["shell","frost","tail","vines","hood","crystals"],pats:["bands","cracks","scales","stripes","rot","swirl"],
+  tidewrack:{n:"The Tidewrack",els:["water","ice","poison","shadow","swift"],bodies:["beast","undead","elemental","humanoid"],parts:["shell","frost","tail","vines","hood","crystals"],pats:["bands","cracks","scales","stripes","rot","swirl"],
   acc:["#426f7d","#75a6a8"],skins:["#b7b19f","#788e91"],verbs:["chills you","claws you","strikes you","rakes you","lashes you","bites you"],
   pre:["Saltwind","Tidewrack","Drowned","Brine","Silt","Shoal","Wreck","Rime"],suf:["Watcher","Warden","Hound","Wraith","Lurker","Creeper","Gnawer","Drifter"],
   regions:["The Drowned Coast","Saltwind Cliffs","The Tidewrack","The Wreck Shoals","The Silt Reach","The Frosted Shoals"],lore:["The tide took the village, then came back for the bones.","A salt wind worries every name off the stones.","The wrecks drift with no water beneath them.","Something patient waits where the tide turns."]},
@@ -51,7 +51,7 @@ deep:{n:"The Weeping Deep",els:["arcane","ice","shadow","poison"],bodies:["eleme
   acc:["#dc91c7","#79c86e"],skins:["#e5c79c","#b9a37d"],verbs:["lashes you","strikes you","rakes you","smites you","bites you","claws you","slams you"],
   pre:["Sunlit","Gilded","Briar","Honeyed","Dewfall","Orchard","Crownleaf","Pollen"],suf:["Warden","Stalker","Watcher","Hound","Wraith","Herald","Creeper","Choir"],
   regions:["The Sunken Garden","The Gilded Grove","The Orchard of Bones","The Amber Conservatory","The Haloed Bower","The Briar Crown"],lore:["Sunlight pools here where no sky can reach.","The garden keeps every bloom that ever fell.","A bright halo circles the oldest roots.","The orchard bears fruit that remembers its pickers."]},
-  geyser:{n:"Geyser Field",els:["fire","ice","stone","arcane"],bodies:["elemental","construct","beast","humanoid"],parts:["flames","frost","crystals","armor","horns","runes"],pats:["cracks","facets","swirl","scales","bands","stars"],
+  geyser:{n:"Geyser Field",els:["fire","steam","ice","stone","arcane"],bodies:["elemental","construct","beast","humanoid"],parts:["flames","frost","crystals","armor","horns","runes"],pats:["cracks","facets","swirl","scales","bands","stars"],
   acc:["#e9874e","#83cfd3"],skins:["#c18c68","#899397"],verbs:["scalds you","chills you","strikes you","hammers you","rakes you","cracks against you"],
   pre:["Geyser","Steam","Basalt","Fumarole","Boiling","Caldera","Sinter","Whitecap"],suf:["Warden","Sentinel","Watcher","Stalker","Wraith","Golem","Hulk","Drifter"],
     regions:["The Steam Vents","The Boiling Shelf","The White Caldera","The Sinter Fields","The Fumarole Reach","The Glasscone Basin"],lore:["The mountain breathes through every crack.","Steam hides the paths and gives away the hunters.","Basalt cools only after the next eruption.","A thin crust covers water hot enough to melt stone."]},
@@ -72,15 +72,15 @@ const BIOME_ELW={
   ash:{fire:2,metal:1,stone:1,poison:1},
   bone:{shadow:2,holy:1,stone:1,poison:1},
   deep:{ice:2,arcane:1,shadow:1,poison:1},
-  tidewrack:{ice:3,poison:3,shadow:1,swift:1},
+  tidewrack:{water:3,ice:3,poison:3,shadow:1,swift:1},
   windcut:{stone:3,metal:3,swift:3,arcane:1},
   garden:{holy:3,wood:3,poison:1,swift:1},
-  geyser:{fire:3,ice:3,stone:3,arcane:1},
+  geyser:{fire:3,ice:3,stone:3,steam:1,arcane:1},
   sporewood:{poison:3,wood:3,shadow:1,holy:1}
 };
 Object.keys(BIOME_ELW).forEach(k=>BIOMES[k].elW=BIOME_ELW[k]);
 // the element a creature is born to: what it is weak to, what it shrugs off, and what it inflicts on a hit
-const EL_NAT={fire:{w:["ice"],r:["fire"],i:"burn"},ice:{w:["fire"],r:["ice"],i:"chill"},poison:{w:["fire"],r:["poison"],i:"poison"},holy:{w:["shadow"],r:["holy"],i:null},
+const EL_NAT={fire:{w:["ice"],r:["fire"],i:"burn"},ice:{w:["fire"],r:["ice"],i:"chill"},water:{w:["poison"],r:["water","fire"],i:"chill"},steam:{w:["ice"],r:["steam","fire"],i:"burn"},poison:{w:["fire"],r:["poison"],i:"poison"},holy:{w:["shadow"],r:["holy"],i:null},
   shadow:{w:["holy"],r:["shadow"],i:"curse"},wood:{w:["fire"],r:["wood"],i:null},metal:{w:["arcane"],r:["metal"],i:null},arcane:{w:["holy"],r:["arcane"],i:null},
   swift:{w:["stone"],r:["swift"],i:null},stone:{w:["arcane"],r:["stone"],i:null}};
 // the biome of each hand-made region, and its element pool: every element of the pool needs an authored (non-boss) enemy of that region, or a documented exception (tools/sim.js checks it). The enemies outside their pool are additions, not gaps: Woods holy (Glowcap Sprite) and shadow (Barrow Ghoul), Pass and Hollow shadow (Ice Wraith, Ash Revenant), Spire metal (Orrery Construct).
@@ -177,7 +177,7 @@ const GEN_DROP={
   pass:{any:["pelt","spring_water","holy_water","bread"],ice:["pelt","spring_water"],swift:["spring_water","pelt"],stone:["golem_core","scrap_iron"],arcane:["rune_shard","holy_water"],metal:["scrap_iron"],fire:["holy_water","bread"],poison:["shroud","holy_water"],wood:["oak_bough","pelt"],holy:["holy_water","spring_water"],shadow:["shroud","holy_water"]},
   hollow:{any:["coal","nightshade","holy_water","bread"],fire:["coal","chili"],poison:["nightshade","coal"],metal:["golem_core","slag_iron"],stone:["golem_core","slag_iron"],shadow:["witchwood","holy_water"],arcane:["witchwood"],swift:["slag_iron","coal"],holy:["holy_water","coal"],wood:["coal","bread"],ice:["coal","holy_water"]},
   spire:{any:["rune_shard","holy_water","void_crystal","bread"],arcane:["rune_shard","void_crystal"],holy:["holy_water","storm_feather"],swift:["storm_feather"],shadow:["void_crystal"],metal:["sentinel_plate","golem_core"],stone:["golem_core","rune_shard"],ice:["storm_feather","holy_water"],fire:["storm_feather","holy_water"],poison:["witchwood","void_crystal"],wood:["rune_shard","bread"]},
-  rift:{any:["rune_shard","void_crystal","storm_feather","star_heart","bread"],arcane:["rune_shard","void_crystal","star_heart"],holy:["holy_water","storm_feather"],swift:["storm_feather"],shadow:["void_crystal"],metal:["sentinel_plate","golem_core"],stone:["golem_core","rune_shard"],ice:["storm_feather","holy_water"],fire:["storm_feather","star_heart"],poison:["witchwood","void_crystal"],wood:["rune_shard","bread"]}};
+  rift:{any:["rune_shard","void_crystal","storm_feather","star_heart","bread"],arcane:["rune_shard","void_crystal","star_heart"],holy:["holy_water","storm_feather"],swift:["storm_feather"],shadow:["void_crystal"],metal:["sentinel_plate","golem_core"],stone:["golem_core","rune_shard"],ice:["storm_feather","holy_water"],fire:["storm_feather","star_heart"],poison:["witchwood","void_crystal"],wood:["rune_shard","bread"],water:["holy_water","storm_feather"],steam:["storm_feather","star_heart"]}};
 // every string a generated creature shows (the translation check skips them: a procedural name has no dictionary entry)
 const PROC=new Set(),proc=s=>{PROC.add(s);return s};
 const pluralOf=n=>/(s|x|z|ch|sh)$/.test(n)?n+"es":/[^aeiou]y$/.test(n)?n.slice(0,-1)+"ies":n+"s";
@@ -246,7 +246,7 @@ function genCreature(o){ // o:{id,zone,biome,tier,R,used,boss,where,seed}
   const hp=Math.max(3,Math.round(o.tier.hp*(.8+R()*.45)*wildHp/rm.hp)),atk=Math.max(1,Math.round(o.tier.atk*(.85+R()*.3)*wildAtk/rm.atk));
   const def=Math.max(0,o.tier.def+Math.floor(R()*2)+(o.boss?2:0));
   // Keep the wild generation pool unchanged: filtering here would shift its seeded roster and Rift masters.
-  const afx=rollAfx(R,rar,{mv,heat:o.boss?RAR_CH.k3:0,boss:!!o.boss,sp}); // masters use the full rare count with boss/special compatibility rules
+  const afx=rollAfx(R,rar,{mv,heat:o.boss?RAR_CH.k3:0,boss:!!o.boss,sp,element:el}); // Water/Steam affixes join only matching families; old seeded pools stay stable
   const verb=B.verbs[Math.floor(R()*B.verbs.length)],place="the "+(o.where||B.n).toLowerCase().replace(/^the /,""),dropEl=identity?el:elementPick.uniform,drops=genDrops(o.zone,dropEl,R,o.biome);
   const E={id:o.id,name:proc(name),plural:proc(pluralOf(name)),zone:o.zone,mv,el,hp,atk,def,weak:[...nat.w],resist:[...nat.r],w:o.zone===RIFT_ZONE?1:10/GEN_N,verb,role,faction,
     intro:proc(o.boss?`${name} waits for you in ${place}.`:`${name} steps out of ${place}.`),

@@ -12,4 +12,4 @@ const dE=(a,b)=>{const p=lab(a),q=lab(b);return Math.hypot(p[0]-q[0],p[1]-q[1],p
 // ---- element palette: each element's hue at a light, mid and dark lightness (light and dark are the mid +/-12 L*, chroma kept or raised; shadow's dark is lifted to stay indigo); a generated creature rolls one of the three as its body (the mids are the colour checks' reference)
 const ELPAL={fire:["#ff5f3f","#e0452b","#ba1e0e"],stone:["#d6984f","#b07a3a","#8e5c1d"],holy:["#ffea5d","#f2c94c","#cea829"],poison:["#d4fc4a","#b5d83a","#93b70a"],
   wood:["#57bc61","#3f9a4a","#177a2d"],swift:["#53f4d0","#3fd0b0","#00ae90"],ice:["#baffff","#9fe0ff","#7dbfdd"],shadow:["#5d55b2","#3f3a8a","#2b2a77"],
-  arcane:["#d864fc","#b04ad0","#8e27af"],metal:["#b9c5d2","#9aa4b0","#7b8590"]};
+  arcane:["#d864fc","#b04ad0","#8e27af"],metal:["#b9c5d2","#9aa4b0","#7b8590"],water:["#1486bd","#096d9c","#074969"],steam:["#e8c6aa","#c49a80","#9c705b"]};
