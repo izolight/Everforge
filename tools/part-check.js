@@ -5,6 +5,7 @@ const ctx=vm.createContext({console,Math,JSON});
 // the art files in the order index.html loads them (a readdir sort would not match it)
 const html=fs.readFileSync(path.join(__dirname,"..","index.html"),"utf8");
 for(const [,f] of html.matchAll(/<script src="(js\/art\/[^"]+)"><\/script>/g))vm.runInContext(fs.readFileSync(path.join(__dirname,"..",f),"utf8"),ctx,{filename:f});
+vm.runInContext(fs.readFileSync(path.join(__dirname,"..","js","roles.js"),"utf8"),ctx,{filename:"roles.js"});
 vm.runInContext(fs.readFileSync(path.join(__dirname,"..","js","monsters.js"),"utf8")+"\nglobalThis.BIOMES=BIOMES;",ctx,{filename:"monsters.js"}); // whole file: BIOMES is a const, so export it
 const {PART,BODY,compose}=vm.runInContext("({PART,BODY,compose})",ctx);
 const BIOMES=ctx.BIOMES;

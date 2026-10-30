@@ -274,3 +274,16 @@ Raised `GEN_N` from 10 to 12 for the four generator-backed authored zones, while
 On accepted revision `074a700`, the baseline had 10 generated creatures per applicable region and weighted encounter shares 38.46% / 40% / 40% / 41.67% (Woods / Pass / Hollow / Spire); Fen had six authored regulars, zero generated, and Rift had 10. Candidate evidence checks deterministic 12-entry, unique-name rosters, exactly one three-affix alpha in its legacy slot, and the unchanged Rift roster. At 100,000 weighted picks per zone, candidate shares were 38.489% / 39.856% / 39.893% / 41.843%. In 500 seeded maps per zone, generated foe counts exactly matched baseline: 2,902 / 7,484, 3,035 / 7,484, 3,035 / 7,484 and 3,146 / 7,484; Fen remained zero generated foes.
 
 Paired smart/native Heat 0 sim runs used seeds 1 and 7, 30 fights per cell, biome/depth modifiers off, and Rift seeds 1/7 at depths 1/3/9. The 16 same-region stage-kit rows averaged 99.62% wins / 9.02 turns / 80.0% HP left for seed 1 and 99.69% / 9.09 turns / 79.9% for seed 7. Existing flags remain: seed 1 has three TOO_EASY stage rows and one TOO_HARD (Spire staff); seed 7 has three TOO_EASY and no TOO_HARD. Rift master and wild outputs exactly match baseline at the sampled seeds/depths. Economy runs used 100 expeditions per zone for each seed on both versions; clears stayed identical or shifted down by at most one percentage point, while finite-sample item/essence yields moved modestly and are not claimed as exact parity. Full `node tools/run-checks.js` passed 36/36, including map-check and smoke. See [V-10 measurements and limits](balance-evidence/v10-roster.md), [baseline roster/map JSON](rift-evidence/v10-baseline-rosters.json), [candidate roster/map JSON](rift-evidence/v10-candidate-rosters.json), and the paired combat/economy raw files linked there.
+### V-17 · Introduce enemy roles
+
+Added Bruiser, Skirmisher, Caster, and Support mappings, deterministic role slots
+for generated enemies, role-compatible special selection, and non-boss combat stat
+biases. Authored bosses and Rift masters keep their authored stats. The translated
+battle role chip and special/stat mapping are documented in [enemy-roles.md](docs/enemy-roles.md).
+
+The full suite passed 38/38. Paired seed 1/7 smart Heat 0 samples (30 fights per
+cell, biome/depth modifiers disabled) leave authored stage-kit wins at 99.6–99.7%;
+the 100-expedition samples keep Woods/Pass at 100% clears, with Hollow at 93–95%
+and Spire at 97–98%. Rift depth 9 still has TOO_HARD cells. Loot totals move with
+combat outcomes, so economy parity is not claimed. Full settings, deltas, output
+links, and frozen source fingerprints are in [V-17 review evidence](balance-evidence/v17-enemy-roles.md).

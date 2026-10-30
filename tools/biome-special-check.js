@@ -21,19 +21,19 @@ let fails=0;const ok=(c,m)=>{if(!c)fails++;console.log(c?"ok  ":"FAIL",m)};
       for(const zone of zones){
         const biome=ZONE_BIOME[zone],pool=BIOME_SP[biome];
         BIOME_SP[biome]=null;const oldRoster=pureRoster(zone);BIOME_SP[biome]=pool;
-        const roster=pureRoster(zone),repeat=pureRoster(zone),withoutSp=x=>x.filter(e=>!e.alpha).map(({sp,...fields})=>JSON.stringify(fields));
+        const roster=pureRoster(zone),repeat=pureRoster(zone),withoutRoleSp=x=>x.filter(e=>!e.alpha).map(({sp,role,afx,...fields})=>JSON.stringify(fields));
         regionCoverage=regionCoverage&&roster.length===GEN_N&&roster.every(e=>pool.some(sp=>sp.name===e.sp?.name));
         regionDeterministic=regionDeterministic&&JSON.stringify(roster)===JSON.stringify(repeat);
-        specialOnly=specialOnly&&JSON.stringify(withoutSp(oldRoster))===JSON.stringify(withoutSp(roster));
+        specialOnly=specialOnly&&JSON.stringify(withoutRoleSp(oldRoster))===JSON.stringify(withoutRoleSp(roster));
       }
       for(const biome of biomes){
           const wanted=new Set(BIOME_SP[biome].map(sp=>sp.name)),seen=new Set();let fixture=null;
           for(let seed=1;seed<=96;seed++){
             const ids=[...Array.from({length:RIFT_N},(_,i)=>"w_rift_"+i),"rift_boss"],pool=BIOME_SP[biome];
-            BIOME_SP[biome]=null;pureRift(seed);const baselineFields=ids.map(id=>{const{sp,...fields}=ENEMIES[id];return JSON.stringify(fields)});BIOME_SP[biome]=pool;
+            BIOME_SP[biome]=null;pureRift(seed);const baselineFields=ids.map(id=>{const{sp,role,afx,...fields}=ENEMIES[id];return JSON.stringify(fields)});BIOME_SP[biome]=pool;
             const a=pureRift(seed);if(a.biome!==biome)continue;
             const first=ids.map(id=>JSON.stringify(ENEMIES[id]));
-            const currentFields=ids.map(id=>{const{sp,...fields}=ENEMIES[id];return JSON.stringify(fields)});if(JSON.stringify(baselineFields)!==JSON.stringify(currentFields))specialOnly=false;
+            const currentFields=ids.map(id=>{const{sp,role,afx,...fields}=ENEMIES[id];return JSON.stringify(fields)});if(JSON.stringify(baselineFields)!==JSON.stringify(currentFields))specialOnly=false;
             const b=pureRift(seed),second=ids.map(id=>JSON.stringify(ENEMIES[id]));if(JSON.stringify(a)!==JSON.stringify(b)||JSON.stringify(first)!==JSON.stringify(second))deterministic=false;
             const generated=ids.map(id=>ENEMIES[id]);
             if(generated.some(e=>!e))throw Error("Rift roster shape changed");
@@ -56,7 +56,7 @@ let fails=0;const ok=(c,m)=>{if(!c)fails++;console.log(c?"ok  ":"FAIL",m)};
     ok(r.genFallback,"an unknown biome key falls back to the shared GEN_SP pool");
     ok(r.translated&&r.translationCount===r.expectedTranslationCount,"all biome special names and tells have German and Korean translations");
     ok(r.deterministic&&r.drawSafe,"seeded depth-3 Rift rosters reproduce without ambient Math.random");
-    ok(r.specialOnly,"biome pools change only the special field; roster fields and draw streams stay fixed");
+    ok(r.specialOnly,"role/special selection leaves seeded stats, names and body parts fixed; compatible affix choice may reflect its special");
     ok(r.masterRare,"Rift masters retain their three-rare-affix M-11 profile with biome specials");
     ok(r.masterPoolFallback,"generated Rift masters retain the shared GEN_SP profile");
     ok(r.allPoolsSeen,"every biome's two signature specials appear across deterministic fixtures");

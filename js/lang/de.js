@@ -764,3 +764,12 @@ DICT.de=Object.assign(DICT.de||{}, {
   "Thornroot Crush":"Dornwurzel-Schmettern","coiling its thorned roots":"windet seine Dornenwurzeln",
   "Mycelial Mend":"Myzelheilung","drawing life through the fungal web":"zieht Leben durch das Pilzgeflecht"
 });
+
+// V-17 enemy roles
+DICT.de=Object.assign(DICT.de||{},{
+  "Enemy role":"Gegnerrolle",
+  "Bruiser":"Brecher","Hard to wear down; its heavy attacks punish missed defenses.":"Schwer zu besiegen; seine wuchtigen Angriffe bestrafen verpasste Verteidigungen.",
+  "Skirmisher":"Plänkler","Light and quick; it favors repeated or evasive attacks.":"Leicht und schnell; es setzt auf schnelle Serien oder Ausweichangriffe.",
+  "Caster":"Zauberwirker","Fragile at close range; it channels harmful effects or draining attacks.":"Im Nahkampf verwundbar; es wirkt schädliche Effekte oder entzieht Kraft.",
+  "Support":"Unterstützer","Sustains itself with healing, wards, or helpful status effects.":"Hält sich mit Heilung, Schutz oder hilfreichen Statuseffekten im Kampf."
+});

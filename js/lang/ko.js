@@ -27,6 +27,15 @@ DICT.ko=Object.assign(DICT.ko||{},{
   "Starfall Burst":"별똥별 폭발","drawing power from above":"위에서 힘을 모읍니다",
   "Starless Crush":"별 없는 압박","folding the dark around you":"어둠을 당신 주위로 접어 넣습니다"
 });
+
+// V-17 enemy roles
+DICT.ko=Object.assign(DICT.ko||{},{
+  "Enemy role":"적 역할",
+  "Bruiser":"강인형","Hard to wear down; its heavy attacks punish missed defenses.":"쉽게 쓰러지지 않으며, 묵직한 공격으로 방어 실수를 노립니다.",
+  "Skirmisher":"기동형","Light and quick; it favors repeated or evasive attacks.":"가볍고 빠르며, 연속 공격이나 회피 공격을 즐겨 씁니다.",
+  "Caster":"주술형","Fragile at close range; it channels harmful effects or draining attacks.":"근거리 방어는 약하지만 해로운 효과와 흡수 공격을 사용합니다.",
+  "Support":"지원형","Sustains itself with healing, wards, or helpful status effects.":"치유와 보호막, 유익한 상태 효과로 전투를 이어갑니다."
+});
 DICT.ko=Object.assign(DICT.ko||{},{
 // ---- crafting: what each input did (header, before → after, reactions, failure bar)
 "Base":"기본","Tier over skill":"기술 대비 등급","{a} + {b} clash":"{a} + {b} 충돌","{a} + {b} reaction":"{a} + {b} 반응","Extra input: {name}":"추가 재료: {name}","{items} → {result}":"{items} → {result}","From {input}.":"{input} 쪽에서 온 것.","Changed by the mix itself.":"혼합 자체로 바뀌었습니다.","No stats":"능력치 없음","Before":"이전","After":"이후","Nothing changes.":"바뀌는 것이 없습니다.","−{n} {trait}":"−{n} {trait}","Failure chance":"실패 확률","Failure chance {n}%: {list}":"실패 확률 {n}%: {list}",

@@ -4,16 +4,16 @@ The status index for scoped work. Open tasks are below; implementation evidence 
 
 ## At a glance
 
-**56 tasks · 52 Done · 1 In Progress · 0 Implement · 3 Planned · 4 open.**
+**56 tasks · 53 Done · 1 In Progress · 0 Implement · 2 Planned · 3 open.**
 
 | Workstream | Done | In Progress | Implement | Planned |
 |---|---:|---:|---:|---:|
 | Monster coverage, balance and progression (M) | 12 | 0 | 0 | 0 |
-| Biome variety and mechanics (V) | 18 | 1 | 0 | 3 |
+| Biome variety and mechanics (V) | 19 | 1 | 0 | 2 |
 | Art identity and readability (A) | 5 | 0 | 0 | 0 |
 | UI (U) | 9 | 0 | 0 | 0 |
 | Crafting rework (C) | 8 | 0 | 0 | 0 |
-| **Total** | **52** | **1** | **0** | **3** |
+| **Total** | **53** | **1** | **0** | **2** |
 
 **Statuses:** `Planned` = scoped backlog, not started; `Implement` = detailed implementation plan exists; `In Progress` = actively underway; `Done` = completed, with evidence in the archive. Dependencies are stated on task cards; Planned does not necessarily mean ready to start.
 
@@ -189,15 +189,15 @@ U-02–U-09 are complete. See [Completed UI tasks](backlog-completed.md#ui) for 
   A deterministic mini-boss variant: three affixes, boosted stats, unique name, distinct map frame, defined rewards without shifting regional economy.
   **Done:** exactly one deterministic promoted alpha in each of four authored regions; Rift rosters are excluded. Fixed compatible affixes, boosts and mobile marker are verified. Reward tables/weight and intrinsic essence suppression stay unchanged; the generic economy sim does not exercise alphas. Stage kits win 100% on seeds 1/7; Hollow melee retains a 34-turn `SLOG`. See [V-16 evidence](art-evidence/v16-alpha-review.md).
 
-- [ ] **V-17 · Introduce enemy roles** — `Status: In Progress` · `Size: L` · `js/data.js`, `js/monsters.js`, `js/battle.js` · `Depends: V-14` (if roles use new kinds)
+- [x] **V-17 · Introduce enemy roles** — `Status: Done` · `Size: L` · `js/roles.js`, `js/monsters.js`, `js/battle.js`, `js/render/`, `js/lang/` · `Depends: V-14` (existing special kinds used)
   Add roles such as bruiser, skirmisher, caster, support, with role-specific special pools and stat bias.
-  **Acceptance:** roles documented; every role represented in sim; existing enemies mapped without breaking balance.
+  **Done:** authored non-bosses map from existing specials; generated foes use deterministic role slots and compatible special kinds with no added RNG draws. Role stat bias applies only to non-boss combat copies, and translated labels/descriptions appear in battle. The full suite passed 38/38. Paired Heat 0 samples show authored wins near 100%; economy clears remain 93–100%, with the Hollow/Spire deltas and depth-9 Rift difficulty recorded in [V-17 evidence](balance-evidence/v17-enemy-roles.md).
 
 - [ ] **V-18 · Add multi-enemy encounters** — `Status: Planned` · `Size: XL` · `js/battle.js`, `js/render/`, `js/state.js`, `js/map.js` · `Depends: V-17`
   Support 2–3 foes with targeting, turn order, AoE abilities, pack-aware affixes and saves.
   **Acceptance:** packs work in normal/daily/Rift; UI and save shape updated; sim policies updated.
 
-- [ ] **V-19 · Add cross-biome factions** — `Status: Planned` · `Size: L` · `js/data.js`, `js/monsters.js`
+- [ ] **V-19 · Add cross-biome factions** — `Status: In Progress` · `Size: L` · `js/data.js`, `js/monsters.js`
   Tag rosters into factions (raiders, cultists, constructs, cult of the star) that cross biomes with shared looks and rules.
   **Acceptance:** factions appear in multiple regions/biomes; faction tags drive specials or drops.
 
