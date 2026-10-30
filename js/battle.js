@@ -7,7 +7,7 @@ function pickEnemy(zone,R=Math.random,fresh=false){const pool=Object.entries(ENE
 function startBattle(forced,opt){
   opt=opt||{};const id=forced||opt.e||pickEnemy(S.zone),E=ENEMIES[id],sc=1+.06*(opt.row||0),h=heatNow(),tw=twistNow();
   const role=roleOf(E),combatE=roleStats(E,role),wb=m12WildBand(E,level()),eh=Math.round(combatE.hp*sc*wb.hp),ea=Math.round(combatE.atk*sc*wb.atk);
-  const B={opening:opt.opening||0,id,name:E.name,role,el:E.el,hp:eh,max:eh,atk:ea,def:combatE.def,weak:[...E.weak],resist:[...E.resist],turn:1,
+  const B={opening:opt.opening||0,id,name:E.name,role,faction:E.faction||null,el:E.el,hp:eh,max:eh,atk:ea,def:combatE.def,weak:[...E.weak],resist:[...E.resist],turn:1,
     burn:null,poison:0,bleed:null,stun:0,open:false,cd:{},you:{},off:0,parry:false,shred:0,ward:null,spWard:0,spWardTurns:0,enraged:false,burrowed:false,frozen:false,guard:false,reborn:false,phased:false,rar:"normal",afx:[],intr:false,title:"",log:[],over:null,loot:[],biomeMods:opt.biomeMods!==false,biome:opt.biomeMods===false||S.zone!==RIFT_ZONE?null:(S.rift&&S.rift.biome)||null,depthMods:opt.depthMods!==false&&S.zone===RIFT_ZONE,depthMod:opt.depthMods===false||S.zone!==RIFT_ZONE?null:riftDepthModFor(S.rift&&S.rift.seed,S.rift&&S.rift.depth)};
   if(id==="mimic"){const zi=zoneIdx(S.zone),at=(a,i)=>a[Math.min(i,a.length-1)];B.max=B.hp=Math.round(E.hp*at(MIMIC_HP,zi));B.atk=Math.round(E.atk*at(MIMIC_ATK,zi));B.def=E.def+zi*2;const ms=roleStats(B,role);B.max=B.hp=ms.hp;B.atk=ms.atk;B.def=ms.def}
   B.heat=h;if(opt.pi!=null){B.pi=opt.pi;B.by=opt.by;B.ef=opt.ef} // a map enemy: which one, who moved, where it came from (see slip)

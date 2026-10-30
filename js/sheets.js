@@ -63,6 +63,7 @@ function openCodex(id,refresh){
     ${k.mastered?`<p class="ok-text">${tx("Mastered. You deal {p}% more damage to this creature.",{p:MASTERY_PCT})}</p>`:""}
     <dl class="kv">
       <dt>${tx("Strength")}</dt><dd>${K.stats?`<span class="chip">${tx("HP")} ${E.hp}</span><span class="chip">${tx("ATK")} ${E.atk}</span><span class="chip">${tx("DEF")} ${E.def}</span>`:unkChip(tx("Win a fight to learn"))}</dd>
+      ${E.faction&&ENEMY_FACTIONS[E.faction]?`<dt>${tx("Faction")}</dt><dd><span class="chip faction-chip" style="--faction:${ENEMY_FACTIONS[E.faction].color}">${tx(ENEMY_FACTIONS[E.faction].name)}</span> ${tx(ENEMY_FACTIONS[E.faction].desc)}</dd>`:""}
       <dt>${tx("Weak to")}</dt><dd>${weak}</dd>
       <dt>${tx("Resists")}</dt><dd>${res}</dd>
       ${E.zone===RIFT_ZONE?`<dt>${tx("Rift modifier")}</dt><dd>${rmod?`<b>${tx(rmod.name)}</b> · ${tx(rmod.desc)}`:tx("Forest is the neutral Rift biome: it has no extra combat modifier.")}</dd>`:""}

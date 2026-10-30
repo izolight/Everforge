@@ -21,7 +21,7 @@ let fails=0;const ok=(c,m)=>{if(!c)fails++;console.log(c?"ok  ":"FAIL",m)};
       for(const zone of zones){
         const biome=ZONE_BIOME[zone],pool=BIOME_SP[biome];
         BIOME_SP[biome]=null;const oldRoster=pureRoster(zone);BIOME_SP[biome]=pool;
-        const roster=pureRoster(zone),repeat=pureRoster(zone),withoutRoleSp=x=>x.filter(e=>!e.alpha).map(({sp,role,afx,...fields})=>JSON.stringify(fields));
+        const roster=pureRoster(zone),repeat=pureRoster(zone),withoutRoleSp=x=>x.filter(e=>!e.alpha).map(({sp,role,faction,afx,...fields})=>JSON.stringify(fields));
         regionCoverage=regionCoverage&&roster.length===GEN_N&&roster.every(e=>pool.some(sp=>sp.name===e.sp?.name));
         regionDeterministic=regionDeterministic&&JSON.stringify(roster)===JSON.stringify(repeat);
         specialOnly=specialOnly&&JSON.stringify(withoutRoleSp(oldRoster))===JSON.stringify(withoutRoleSp(roster));
@@ -30,10 +30,10 @@ let fails=0;const ok=(c,m)=>{if(!c)fails++;console.log(c?"ok  ":"FAIL",m)};
           const wanted=new Set(BIOME_SP[biome].map(sp=>sp.name)),seen=new Set();let fixture=null;
           for(let seed=1;seed<=96;seed++){
             const ids=[...Array.from({length:RIFT_N},(_,i)=>"w_rift_"+i),"rift_boss"],pool=BIOME_SP[biome];
-            BIOME_SP[biome]=null;pureRift(seed);const baselineFields=ids.map(id=>{const{sp,role,afx,...fields}=ENEMIES[id];return JSON.stringify(fields)});BIOME_SP[biome]=pool;
+            BIOME_SP[biome]=null;pureRift(seed);const baselineFields=ids.map(id=>{const{sp,role,faction,afx,...fields}=ENEMIES[id];return JSON.stringify(fields)});BIOME_SP[biome]=pool;
             const a=pureRift(seed);if(a.biome!==biome)continue;
             const first=ids.map(id=>JSON.stringify(ENEMIES[id]));
-            const currentFields=ids.map(id=>{const{sp,role,afx,...fields}=ENEMIES[id];return JSON.stringify(fields)});if(JSON.stringify(baselineFields)!==JSON.stringify(currentFields))specialOnly=false;
+            const currentFields=ids.map(id=>{const{sp,role,faction,afx,...fields}=ENEMIES[id];return JSON.stringify(fields)});if(JSON.stringify(baselineFields)!==JSON.stringify(currentFields))specialOnly=false;
             const b=pureRift(seed),second=ids.map(id=>JSON.stringify(ENEMIES[id]));if(JSON.stringify(a)!==JSON.stringify(b)||JSON.stringify(first)!==JSON.stringify(second))deterministic=false;
             const generated=ids.map(id=>ENEMIES[id]);
             if(generated.some(e=>!e))throw Error("Rift roster shape changed");

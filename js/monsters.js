@@ -232,13 +232,14 @@ const PART_CONFLICTS={hood:["horns","antlers","crown","halo"],horns:["hood","ant
 function genCreature(o){ // o:{id,zone,biome,tier,R,used,boss,where,seed}
   const B=BIOMES[o.biome],R=o.R,rar=o.boss?"rare":(R()<.3?"rare":"magic"),rm=RARITIES[rar],identity=o.zone===RIFT_ZONE?RIFT_IDENTITY[o.biome]:null;
   const role=o.boss?null:(o.role||roleForPoolSlot(o.roleSlot||0,BIOME_SP[o.biome]||GEN_SP));
+  const faction=o.boss?null:factionForRole(role);
   const elementPick={},el=biomeElement(o.zone,o.biome,B,R,B.elW,elementPick),nat=EL_NAT[el]||{w:[],r:[]};
   const mv=["still","wander","chase"][Math.floor(R()*3)],body=B.bodies[Math.floor(R()*B.bodies.length)];
   const pool=B.parts.filter(p=>BODY_PARTS[body].includes(p)),nparts=Math.min(1+Math.floor(R()*3),pool.length),parts=[]; // a body too bare for three parts wears what it can
   while(parts.length<nparts){const available=pool.filter(p=>!parts.includes(p)&&!parts.some(q=>(PART_CONFLICTS[q]||[]).includes(p)));if(!available.length)break;parts.push(available[Math.floor(R()*available.length)])}
   const col=ELPAL[el][Math.floor(R()*3)],acc=accFor(B,col,R); // body: the element's light, mid or dark; accent: the biome's
   const nouns=nameWords(B,body),name=o.boss?proc(cap(B.pre[Math.floor(R()*B.pre.length)])+" "+cap(nouns[Math.floor(R()*nouns.length)])):genName(B,R,o.used,body);
-  const sp=o.boss?biomeSpecialFor(null,R):roleSpecial(role,BIOME_SP[o.biome],GEN_SP,R);
+  const sp=o.boss?biomeSpecialFor(null,R):factionSpecial(faction,ENEMY_ROLES[role].kinds,BIOME_SP[o.biome],GEN_SP,R);
   // The region tier already climbs by depth; taper the master's bonus so it doesn't compound the whole HP/ATK ramp again.
   const depth=Math.max(1,o.depth||1),boss=o.boss?Math.max(3.2,4.4-.6*(depth-1)):1,atkm=o.boss?Math.max(.95,1-.025*(depth-1)):1;
   const wildHp=o.boss?boss:1,wildAtk=o.boss?atkm:1;
@@ -247,7 +248,7 @@ function genCreature(o){ // o:{id,zone,biome,tier,R,used,boss,where,seed}
   // Keep the wild generation pool unchanged: filtering here would shift its seeded roster and Rift masters.
   const afx=rollAfx(R,rar,{mv,heat:o.boss?RAR_CH.k3:0,boss:!!o.boss,sp}); // masters use the full rare count with boss/special compatibility rules
   const verb=B.verbs[Math.floor(R()*B.verbs.length)],place="the "+(o.where||B.n).toLowerCase().replace(/^the /,""),dropEl=identity?el:elementPick.uniform,drops=genDrops(o.zone,dropEl,R,o.biome);
-  const E={id:o.id,name:proc(name),plural:proc(pluralOf(name)),zone:o.zone,mv,el,hp,atk,def,weak:[...nat.w],resist:[...nat.r],w:o.zone===RIFT_ZONE?1:10/GEN_N,verb,role,
+  const E={id:o.id,name:proc(name),plural:proc(pluralOf(name)),zone:o.zone,mv,el,hp,atk,def,weak:[...nat.w],resist:[...nat.r],w:o.zone===RIFT_ZONE?1:10/GEN_N,verb,role,faction,
     intro:proc(o.boss?`${name} waits for you in ${place}.`:`${name} steps out of ${place}.`),
     lore:proc(B.lore[Math.floor(R()*B.lore.length)]),
     sp:{...sp},drops,biomeTrait:identity?.trait||null,

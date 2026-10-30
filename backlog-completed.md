@@ -287,3 +287,9 @@ the 100-expedition samples keep Woods/Pass at 100% clears, with Hollow at 93–9
 and Spire at 97–98%. Rift depth 9 still has TOO_HARD cells. Loot totals move with
 combat outcomes, so economy parity is not claimed. Full settings, deltas, output
 links, and frozen source fingerprints are in [V-17 review evidence](balance-evidence/v17-enemy-roles.md).
+
+### V-19 · Add cross-biome factions
+
+Added Raiders, Cultists, Cult of the Star, and Constructs across authored regions and generated rosters. Generated factions follow the V-17 role assignment; faction signature specials are intersected with role-compatible kinds, prefer biome specials, and fall back to shared compatible specials. This uses the existing special-selection draw. Battle and Codex show translated faction labels and readable marks. Factions do not add rewards or modify drops, map generation, save shape, authored boss phases, alpha count, V-10 encounter weights, or Rift master behavior.
+
+The focused model and browser checks cover deterministic faction mapping, four multi-biome groups, compatible special choices across the current 13 biomes, and the 320px battle/Codex UI. Name, part, color, biome-special, i18n, and full integration checks passed; `node tools/run-checks.js` passed **40/40**, including smoke. Paired seed-1/7 n=30 smart Heat 0 combat samples (all simulator kits; Rift depths 1/3/9; biome/depth modifiers off) match the V-17 reference row metrics and flags. Existing wild flags remain: seed 1 has 57 `TOO_EASY`, 31 `SLOG`, 2 `TOO_HARD`; seed 7 has 54, 33, and 2. Matched 100-expedition economy outputs also match by zone in these finite samples; no generalized parity claim is made. See [V-19 implementation, frozen fingerprints, checks, and measurements](rift-evidence/v19-factions.md), [mobile review](combat-evidence/v19-faction-mobile.png), and paired raw combat/economy outputs linked there.

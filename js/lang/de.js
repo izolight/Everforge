@@ -773,3 +773,12 @@ DICT.de=Object.assign(DICT.de||{},{
   "Caster":"Zauberwirker","Fragile at close range; it channels harmful effects or draining attacks.":"Im Nahkampf verwundbar; es wirkt schädliche Effekte oder entzieht Kraft.",
   "Support":"Unterstützer","Sustains itself with healing, wards, or helpful status effects.":"Hält sich mit Heilung, Schutz oder hilfreichen Statuseffekten im Kampf."
 });
+
+// V-19 cross-biome factions
+DICT.de=Object.assign(DICT.de||{},{
+  "Faction":"Fraktion",
+  "Raiders":"Plünderer","Raiders strike hard and press their attack.":"Plünderer schlagen hart zu und setzen nach.",
+  "Cultists":"Kultisten","Cultists harry their prey with repeated or baleful attacks.":"Kultisten bedrängen ihre Beute mit Serienangriffen und Flüchen.",
+  "Cult of the Star":"Sternenkult","The star cult drains strength through arcane rites.":"Der Sternenkult entzieht durch arkane Rituale Kraft.",
+  "Constructs":"Konstrukte","Constructs endure and restore their defenses.":"Konstrukte halten stand und erneuern ihre Verteidigung."
+});

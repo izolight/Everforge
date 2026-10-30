@@ -770,3 +770,12 @@ DICT.ko=Object.assign(DICT.ko||{}, {
   "Thornroot Crush":"가시뿌리 강타","coiling its thorned roots":"가시 돋친 뿌리를 휘감습니다",
   "Mycelial Mend":"균사 치유","drawing life through the fungal web":"균사망으로 생명력을 끌어옵니다"
 });
+
+// V-19 cross-biome factions
+DICT.ko=Object.assign(DICT.ko||{},{
+  "Faction":"세력",
+  "Raiders":"약탈자","Raiders strike hard and press their attack.":"약탈자들은 강하게 공격하며 압박을 이어갑니다.",
+  "Cultists":"광신도","Cultists harry their prey with repeated or baleful attacks.":"광신도들은 연속 공격과 저주로 먹잇감을 괴롭힙니다.",
+  "Cult of the Star":"별의 교단","The star cult drains strength through arcane rites.":"별의 교단은 비전 의식으로 힘을 빼앗습니다.",
+  "Constructs":"구조물","Constructs endure and restore their defenses.":"구조물은 버티면서 방어를 회복합니다."
+});

@@ -864,3 +864,8 @@ select.lang{width:100%;margin-top:8px;background:#120f0c;color:var(--fg);border:
 .rr>.rm{grid-column:2;grid-row:1}
 .rr>.pin-recipe{grid-column:2;grid-row:2;justify-self:start;max-width:none}
 .rr>.load{grid-column:3;grid-row:1 / span 2}
+
+/* V-19 faction identity: same accent on each member's combat badge. */
+.faction-chip{border-color:var(--faction);color:var(--faction)}
+
+.faction-chip::before{display:inline-block;margin-right:.25em;font-weight:700}.faction-chip[data-mark="crossed-blades"]::before{content:"⚔"}.faction-chip[data-mark="three-prong"]::before{content:"⟁"}.faction-chip[data-mark="eight-point-star"]::before{content:"✦"}.faction-chip[data-mark="rune-square"]::before{content:"▣"}
