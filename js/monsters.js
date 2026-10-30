@@ -1,7 +1,7 @@
 // ================= BIOMES, WILD CREATURES, RANDOM REGIONS =================
 // A biome is a theme: the elements, bodies, parts, accents and words its creatures are built from. A creature's body takes its
 // element's colour (ELPAL) and its accent the biome's (acc), so an element reads the same in every biome.
-// Every region gets ten wild creatures (genRoster): composed from the biome's parts, carrying affixes of their
+// Generator-backed regions get twelve wild creatures (genRoster): composed from the biome's parts, carrying affixes of their
 // own, and the same in every playthrough (the seed is the region's id). They are rare-grade creatures, so the map
 // shows them with a frame, but their own affixes drop no extra essence: the economy of a region does not move.
 // The Rift (riftMake) is a random region: a biome, a palette, a name, ten wild creatures and a master, all rolled
@@ -84,7 +84,7 @@ const EL_NAT={fire:{w:["ice"],r:["fire"],i:"burn"},ice:{w:["fire"],r:["ice"],i:"
   shadow:{w:["holy"],r:["shadow"],i:"curse"},wood:{w:["fire"],r:["wood"],i:null},metal:{w:["arcane"],r:["metal"],i:null},arcane:{w:["holy"],r:["arcane"],i:null},
   swift:{w:["stone"],r:["swift"],i:null},stone:{w:["arcane"],r:["stone"],i:null}};
 // the biome of each hand-made region, and its element pool: every element of the pool needs an authored (non-boss) enemy of that region, or a documented exception (tools/sim.js checks it). The enemies outside their pool are additions, not gaps: Woods holy (Glowcap Sprite) and shadow (Barrow Ghoul), Pass and Hollow shadow (Ice Wraith, Ash Revenant), Spire metal (Orrery Construct).
-const ZONE_BIOME={woods:"forest",pass:"tundra",hollow:"ember",spire:"astral"},GEN_N=10,RIFT_N=10,RIFT_ZONE="rift";
+const ZONE_BIOME={woods:"forest",pass:"tundra",hollow:"ember",spire:"astral"},GEN_N=12,RIFT_N=10,RIFT_ZONE="rift";
 // authored wilds are deliberately stronger than regulars; their affix rarity is still normalized out
 const GEN_T={woods:{hp:30,atk:6,def:2},pass:{hp:58,atk:11,def:4},hollow:{hp:92,atk:14,def:5},spire:{hp:120,atk:21,def:6}};
 // six specials the wild creatures share; their names and tells are translated like any other
@@ -246,7 +246,7 @@ function genCreature(o){ // o:{id,zone,biome,tier,R,used,boss,where,seed}
   // Keep the wild generation pool unchanged: filtering here would shift its seeded roster and Rift masters.
   const afx=rollAfx(R,rar,{mv,heat:o.boss?RAR_CH.k3:0,boss:!!o.boss,sp}); // masters use the full rare count with boss/special compatibility rules
   const verb=B.verbs[Math.floor(R()*B.verbs.length)],place="the "+(o.where||B.n).toLowerCase().replace(/^the /,""),dropEl=identity?el:elementPick.uniform,drops=genDrops(o.zone,dropEl,R,o.biome);
-  const E={id:o.id,name:proc(name),plural:proc(pluralOf(name)),zone:o.zone,mv,el,hp,atk,def,weak:[...nat.w],resist:[...nat.r],w:1,verb,
+  const E={id:o.id,name:proc(name),plural:proc(pluralOf(name)),zone:o.zone,mv,el,hp,atk,def,weak:[...nat.w],resist:[...nat.r],w:o.zone===RIFT_ZONE?1:10/GEN_N,verb,
     intro:proc(o.boss?`${name} waits for you in ${place}.`:`${name} steps out of ${place}.`),
     lore:proc(B.lore[Math.floor(R()*B.lore.length)]),
     sp:{...sp},drops,biomeTrait:identity?.trait||null,
@@ -255,7 +255,7 @@ function genCreature(o){ // o:{id,zone,biome,tier,R,used,boss,where,seed}
   if(o.boss){E.boss=true;E.short=proc("the "+name.split(" ").pop());E.w=3;E.drops=[...drops,["star_heart",.3]]}
   if(identity?.inf)E.inf={...identity.inf};else if(nat.i)E.inf={s:nat.i,ch:.25};
   return E}
-// the ten wild creatures of a region: the same in every playthrough (the seed is the region's id)
+// the generated wild creatures of a region: the same in every playthrough (the seed is the region's id)
 const WILD_ALPHA={woods:"Thornheart Alpha",pass:"Frosthorn Alpha",hollow:"Cinderback Alpha",spire:"Starcrown Alpha"};
 const WILD_ALPHA_AFX={woods:["swiftfoot","elusive","shadow"],pass:["iron","split","frenzy"],hollow:["shadow","boom","regen"],spire:["vamp","thorn","swiftfoot"]};
 function alphaAfx(E,zone){ // curated deterministic trio; register the species so the shared compatibility filter sees its special
@@ -266,7 +266,8 @@ function genRoster(zone){const bi=ZONE_BIOME[zone],R=rng(hash("wild:"+zone)),use
   for(let i=0;i<GEN_N;i++)out.push(genCreature({id:"w_"+zone+"_"+i,zone,biome:bi,tier:t,R,used,seed:zone}));
   // Promote an existing deterministic roster slot. This post-generation pass
   // leaves all other names, body parts, specials, stats and roster size stable.
-  if(WILD_ALPHA[zone]&&out.length){const E=out[hash("wild-alpha-slot:"+zone)%out.length];
+  // Keep the alpha on its pre-V10 slot; new roster entries stay ordinary wilds.
+  if(WILD_ALPHA[zone]&&out.length){const E=out[hash("wild-alpha-slot:"+zone)%Math.min(10,out.length)];
     E.alpha=true;E.name=WILD_ALPHA[zone];E.plural=E.name;E.rar="rare";E.afx=alphaAfx(E,zone);
     E.hp=Math.round(E.hp*1.3);E.atk=Math.round(E.atk*1.1);E.def+=2;}
   return out}

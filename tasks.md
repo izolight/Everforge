@@ -4,16 +4,16 @@ The status index for scoped work. Open tasks are below; implementation evidence 
 
 ## At a glance
 
-**56 tasks · 51 Done · 0 In Progress · 0 Implement · 5 Planned · 5 open.**
+**56 tasks · 52 Done · 1 In Progress · 0 Implement · 3 Planned · 4 open.**
 
 | Workstream | Done | In Progress | Implement | Planned |
 |---|---:|---:|---:|---:|
 | Monster coverage, balance and progression (M) | 12 | 0 | 0 | 0 |
-| Biome variety and mechanics (V) | 17 | 0 | 0 | 5 |
+| Biome variety and mechanics (V) | 18 | 1 | 0 | 3 |
 | Art identity and readability (A) | 5 | 0 | 0 | 0 |
 | UI (U) | 9 | 0 | 0 | 0 |
 | Crafting rework (C) | 8 | 0 | 0 | 0 |
-| **Total** | **51** | **0** | **0** | **5** |
+| **Total** | **52** | **1** | **0** | **3** |
 
 **Statuses:** `Planned` = scoped backlog, not started; `Implement` = detailed implementation plan exists; `In Progress` = actively underway; `Done` = completed, with evidence in the archive. Dependencies are stated on task cards; Planned does not necessarily mean ready to start.
 
@@ -181,15 +181,15 @@ U-02–U-09 are complete. See [Completed UI tasks](backlog-completed.md#ui) for 
   Elements poison/wood/shadow/holy; bodies undead/beast/elemental/humanoid; parts vines/hood/mane/tail/horns/crystals; names such as "The Sporewood", "The Hollow Bloom", "The Weeping Canopy".
   **Done:** Sporewood uses the requested existing pools, weighted elements, translated specials and compatible names. Focused seeded/mobile checks pass; integrated suite passed 34/34 before a screenshot-only check update, whose focused rerun passed. Paired seed-1/7 n=30, Heat 0, smart depth-1/3 samples report 98% master and 99% wild wins with four TOO_EASY cells per seed. Seed remapping and remaining difficulty limits are recorded in [V-09 evidence](rift-evidence/v09-sporewood.md).
 
-- [ ] **V-10 · Increase seeded roster size** — `Status: Planned` · `Size: S` · `js/monsters.js`
-  Raise `GEN_N` from 10 to 12–14 and `RIFT_N` if needed; retune wild encounter weight so they stay ~40% of encounters.
-  **Acceptance:** more variety per region without changing overall encounter mix; `sim` and `map-check` pass.
+- [x] **V-10 · Increase seeded roster size** — `Status: Done` · `Size: S` · `js/monsters.js`
+  Raise `GEN_N` from 10 to 12–14 and retune generated wild encounter weight to stay near 40%; keep Rift roster size only as needed.
+  **Done:** the four generator-backed authored regions now have 12 deterministic wilds each; Fen stays authored-only, Rift stays at 10. Generated encounter weights scale to `10/GEN_N`, preserving each zone's old total weight; the V-16 alpha remains on its legacy seeded slot. The 100k weighted-selection / 500-map sample reproduces baseline wild shares, and `node tools/run-checks.js` passes 36/36. Baseline, paired smart/Heat 0 combat and 100-expedition economy comparisons, including remaining sample variance, are recorded in [V-10 evidence](balance-evidence/v10-roster.md).
 
 - [x] **V-16 · Add one alpha wild creature per roster** — `Status: Done` · `Size: M` · `js/monsters.js`, `js/art/`
   A deterministic mini-boss variant: three affixes, boosted stats, unique name, distinct map frame, defined rewards without shifting regional economy.
   **Done:** exactly one deterministic promoted alpha in each of four authored regions; Rift rosters are excluded. Fixed compatible affixes, boosts and mobile marker are verified. Reward tables/weight and intrinsic essence suppression stay unchanged; the generic economy sim does not exercise alphas. Stage kits win 100% on seeds 1/7; Hollow melee retains a 34-turn `SLOG`. See [V-16 evidence](art-evidence/v16-alpha-review.md).
 
-- [ ] **V-17 · Introduce enemy roles** — `Status: Planned` · `Size: L` · `js/data.js`, `js/monsters.js`, `js/battle.js` · `Depends: V-14` (if roles use new kinds)
+- [ ] **V-17 · Introduce enemy roles** — `Status: In Progress` · `Size: L` · `js/data.js`, `js/monsters.js`, `js/battle.js` · `Depends: V-14` (if roles use new kinds)
   Add roles such as bruiser, skirmisher, caster, support, with role-specific special pools and stat bias.
   **Acceptance:** roles documented; every role represented in sim; existing enemies mapped without breaking balance.
 

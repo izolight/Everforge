@@ -1,0 +1,66 @@
+{
+  "revision": "074a700",
+  "sample": "100k weighted selections and 500 seeded maps per zone",
+  "zones": {
+    "woods": {
+      "authored": 7,
+      "generated": 10,
+      "authoredWeight": 16,
+      "generatedWeight": 10,
+      "weightedShare": 0.38461538461538464,
+      "drawShare": 0.38545,
+      "maps": 500,
+      "mapFoes": 7484,
+      "mapWild": 2902,
+      "mapWildShare": 0.3877605558524853
+    },
+    "pass": {
+      "authored": 7,
+      "generated": 10,
+      "authoredWeight": 15,
+      "generatedWeight": 10,
+      "weightedShare": 0.4,
+      "drawShare": 0.4002,
+      "maps": 500,
+      "mapFoes": 7484,
+      "mapWild": 3035,
+      "mapWildShare": 0.4055318011758418
+    },
+    "hollow": {
+      "authored": 7,
+      "generated": 10,
+      "authoredWeight": 15,
+      "generatedWeight": 10,
+      "weightedShare": 0.4,
+      "drawShare": 0.39932,
+      "maps": 500,
+      "mapFoes": 7484,
+      "mapWild": 3035,
+      "mapWildShare": 0.4055318011758418
+    },
+    "spire": {
+      "authored": 6,
+      "generated": 10,
+      "authoredWeight": 14,
+      "generatedWeight": 10,
+      "weightedShare": 0.4166666666666667,
+      "drawShare": 0.41883,
+      "maps": 500,
+      "mapFoes": 7484,
+      "mapWild": 3146,
+      "mapWildShare": 0.4203634420096205
+    },
+    "fen": {
+      "authored": 6,
+      "generated": 0,
+      "authoredWeight": 13,
+      "generatedWeight": 0,
+      "weightedShare": 0,
+      "drawShare": 0,
+      "maps": 500,
+      "mapFoes": 7484,
+      "mapWild": 0,
+      "mapWildShare": 0
+    }
+  }
+}
