@@ -1,6 +1,6 @@
 # Everforge — tasks and watchlist
 
-Single planning record, consolidated 2026-10-31. **61 tracked tasks complete; no open or active tasks.** Ideas below are unscheduled, not commitments. Completion records describe historical validation, not a fresh check of today's build.
+Single planning record, consolidated 2026-10-31. **62 tracked tasks complete; no open or active tasks.** Ideas below are unscheduled, not commitments. Completion records describe historical validation, not a fresh check of today's build.
 
 ## Next decisions and playtest watchlist
 
@@ -20,7 +20,6 @@ Refresh measurements on the current build before opening follow-up tasks.
 
 ## Unscheduled ideas
 
-- **Procedural name localization:** generated creature names remain English. Translate biome/body word lists and composition rules rather than adding a dictionary entry per creature; build on A-04’s anatomy-aware names.
 - **Rift progression:** consider Heat, daily participation or renown beyond depth records. The recorded tier/Smith caps are 9/10; review the progression purpose before expanding it.
 - **Earlier map mystery reveal:** optional idea from P11; needs a concrete player-facing benefit and reveal rule.
 - **More research rewards:** consider a tier beyond Masterwork, grade-5 refining, a Study upgrade or recipe naming; reconcile with the current technique tree before specifying.
@@ -140,6 +139,12 @@ All rows are **Done**. Keep IDs stable; detailed implementation remains in sourc
 |---|---|---|
 | SIM-05 | Verify pack-aware fight dispatch in economy and fresh modes; correct it if needed; add a regression that observes real multi-foe fights using pack-smart; compare Heat-0 smart stage-melee economy samples (seeds 1/7/11, 30 expeditions per zone, limits 8/12) with SIM-04 and document exact revision, configuration, outcomes and policy caveats. No tuning. | Done |
 
+### Localization
+
+| ID | Scope and acceptance | Status |
+|---|---|---|
+| I18N-01 | Localize generated creature singular/plural names and Rift boss short names in German/Korean via finite biome-prefix and anatomy-compatible noun dictionaries; preserve canonical English names, RNG draw order, and save IDs; cover real locale rerender and Codex search; exclude generated lore, intros, regions, specials, and tells. | Done |
+
 ## Evidence and future task upkeep
 
 - Art: [acceptance sheets](art-evidence/README.md); UI wording: [terminology](ui-terminology.md).
@@ -148,6 +153,7 @@ All rows are **Done**. Keep IDs stable; detailed implementation remains in sourc
 - Fresh weapon infusion gates and SIM-03 measurements: [fresh infusion evidence](economy-evidence/sim03-fresh-infusion.md).
 - Larger economy samples and SIM-04 visit-limit comparison: [exploration evidence](economy-evidence/sim04-exploration.md).
 - Pack-aware economy comparison and regression: [SIM-05 evidence](economy-evidence/sim05-pack-economy.md), [regression script](tools/sim-pack-economy-check.js).
+- Procedural creature name localization scope, acceptance, and verification: [I18N-01](docs/procedural-name-localization.md); [browser regression](tools/procedural-name-check.js).
 - Rift biome additions: [Tidewrack](rift-evidence/v05-tidewrack.md), [Windcut](rift-evidence/v06-windcut.md), [Garden](rift-evidence/v07-garden.md), [Geyser](rift-evidence/v08-baseline.md), [Sporewood](rift-evidence/v09-sporewood.md).
 - Combat foundations: [biome identity](rift-evidence/m05-identity.md), [specials](combat-evidence/v14-specials.md), [biome special pools](rift-evidence/v11-biome-specials.md), [element weights](rift-evidence/v13-element-weights.md), [map modifiers](rift-evidence/v15-biome-modifiers.md), [depth modifiers](rift-evidence/v21-depth-modifiers.md).
 - Design references: [roles](docs/enemy-roles.md), [factions](docs/enemy-factions.md), [multi-enemy encounters](docs/multi-enemy-encounters.md). Evidence files remain supporting records, not separate task queues.

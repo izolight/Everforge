@@ -23,7 +23,15 @@ function batchim(s,rieul){
 const fmt=(s,v)=>s.replace(/\{(\w+)(?:\|([^|}]*)\|([^|}]*))?\}/g,(m,n,a,b)=>{
   if(!v||!(n in v))return m;const x=v[n];if(a===undefined)return x;return x+(batchim(x,a==="으로")?a:b)});
 function tx(k,v){
-  let s=LANG==="en"?k:DICT[LANG]&&DICT[LANG][k];
+  let s;
+  if(LANG==="en")s=k;
+  else{
+    const parts=typeof PROC_NAME_PARTS!=="undefined"&&PROC_NAME_PARTS.get(k),plural=typeof PROC_PLURAL_PARTS!=="undefined"&&PROC_PLURAL_PARTS.get(k),short=typeof PROC_SHORT_PARTS!=="undefined"&&PROC_SHORT_PARTS.get(k);
+    const exact=DICT[LANG]&&DICT[LANG][k];
+    if(exact!=null)s=exact; // a canonical authored translation wins if a generated English name collides with it
+    else if(parts||plural){const p=parts||plural,pre=txc("proc-prefix",p.prefix),forms=txc("proc-noun",p.noun).split("¦"),noun=forms[plural?1:0]||forms[0];s=LANG==="de"?pre+noun:`${pre} ${noun}`;if(p.tail)s+=LANG==="de"?` Nr. ${p.tail}`:` ${p.tail}호`}
+    else if(short){const forms=txc("proc-noun",short.noun).split("¦"),noun=forms[0];s=LANG==="de"?`${({m:"der",f:"die",n:"das"}[txc("gender",short.noun)]||"das")} ${noun}`:noun}
+    else s=exact}
   if(s==null){s=k;if(LANG!=="en")missed(k)}
   return v?fmt(s,v):s;
 }

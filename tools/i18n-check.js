@@ -69,7 +69,7 @@ for(const m of html.matchAll(/<[a-z0-9]+\b[^>]*\bdata-ta="([^"]*)"[^>]*>/g)){
 function dataKeys(G){
   const k=new Set(),add=(...s)=>s.forEach(x=>{if(x)k.add(x)}),ctx=new Set();
   Object.values(G.ENEMIES).forEach(E=>{
-    if(E.gen){if(E.sp)add(E.sp.name,E.sp.tell);ctx.add("hit|"+E.verb);return} // a procedural creature: its name and lore have no dictionary entry (they are rolled)
+    if(E.gen){if(E.alpha)add(E.name);if(E.sp)add(E.sp.name,E.sp.tell);ctx.add("hit|"+E.verb);return} // generated names are checked through token dictionaries; generated lore stays outside this finite check
     add(E.name,E.plural,E.short,E.intro,E.lore);if(E.sp)add(E.sp.name,E.sp.tell);ctx.add("hit|"+E.verb);
     if(E.phase){add(E.phase.label,E.phase.msg);if(E.phase.to.sp)add(E.phase.to.sp.name,E.phase.to.sp.tell);if(E.phase.to.verb)ctx.add("hit|"+E.phase.to.verb)}});
   G.BASE.forEach(b=>add(b));Object.values(G.SECRETS).forEach(s=>add(s.name,s.hint));
@@ -83,6 +83,7 @@ function dataKeys(G){
   G.TECHS.forEach(t=>add(t.name,t.d,t.gate,t.rq));Object.values(G.VAGUE).forEach(v=>add(v));add("something");
   G.traits.forEach(t=>{ctx.add("trait|"+t);ctx.add("adj|"+t)});ctx.add("trait|Weakened");
   G.nouns.forEach(n=>{ctx.add("noun|"+n);ctx.add("gender|"+n)});
+  G.procPrefixes.forEach(x=>ctx.add("proc-prefix|"+x));G.procNouns.forEach(x=>{ctx.add("proc-noun|"+x);ctx.add("gender|"+x)});
   G.fams.forEach(f=>ctx.add("fam|"+f));G.forms.forEach(f=>ctx.add("form|"+f));G.kinds.forEach(f=>ctx.add("kind|"+f));
   return{keys:k,ctx};
 }
@@ -98,6 +99,7 @@ function dataKeys(G){
     GRADES,RARITY,LV_PERK,RES_MSG,INF_MSG,SLOTS,TABS,VIEWS,RIDDLES,AFX:Object.fromEntries(Object.entries(AFX).map(([k,a])=>[k,{n:a.n,ti:a.ti}])),
     traits:Object.keys(TRAITS),fams:[...Object.keys(FAM)],forms:[...new Set(Object.values(FORMS).map(f=>f.label))],
     nouns:[...new Set([...Object.values(BASE).map(b=>b[0].split(" ").pop()),...Object.values(FORMS).map(f=>f.noun).filter(Boolean),"Essence"])],
+    procPrefixes:[...new Set(Object.values(BIOMES).flatMap(b=>b.pre.map(x=>x[0].toUpperCase()+x.slice(1))))],procNouns:[...new Set([...Object.values(BIOMES).flatMap(b=>b.suf),...Object.values(BODY_NOUNS).flat()])],
     kinds:["Ore","Hide","Herb","Essence","Relic","Food","Potion",...Object.values(KIND_LABEL)]}));
   const D=dataKeys(G);D.keys.forEach(k=>note(k,"data"));
   // getters and functions (HEAT, DAILY_TWISTS, ABILITIES, STATUS, SKILLS, STAT_NAMES, RARITIES, NODE_INFO, AFX descriptions) report their misses when read in a language
@@ -200,7 +202,7 @@ function dataKeys(G){
       if(plural.has(k)&&l==="de"&&vs.length!==2)bad(`${l}: plural entry needs "one¦many": ${k.slice(0,70)}`);
       const want=ph(k),got=ph(vs[0]),got2=vs[1]!=null?ph(vs[1]):got;
       if(want!==got||want!==got2)bad(`${l}: placeholders differ for ${k.slice(0,80)} -> {${want}} vs {${got}}`);
-      if(!used.has(k)&&!/^(howto\.|hit\||trait\||adj\||noun\||gender\||fam\||form\||kind\|)/.test(k)&&!tourKeys[l].has(k))unusedList.push(`${l}: ${k.slice(0,80)}`);
+      if(!used.has(k)&&!/^(howto\.|hit\||trait\||adj\||noun\||gender\||fam\||form\||kind\||proc-)/.test(k)&&!tourKeys[l].has(k))unusedList.push(`${l}: ${k.slice(0,80)}`);
     });
     D.ctx.forEach(k=>{if(k.startsWith("hit|")&&d[k]&&!/\{name[^}]*\}/.test(d[k]))bad(`${l}: ${k} needs {name}, {n} and {g}`)});
     ["howto.loop","howto.map","howto.torch","howto.health","howto.defeat","howto.abilities","howto.traits","howto.moves","howto.armor","howto.statuses","howto.knowledge","howto.gear","howto.mixing","howto.infusions","howto.previews"].forEach(k=>{if(!d[k])bad(`${l} is missing ${k}`)});

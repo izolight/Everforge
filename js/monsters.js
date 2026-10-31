@@ -179,7 +179,8 @@ const GEN_DROP={
   spire:{any:["rune_shard","holy_water","void_crystal","bread"],arcane:["rune_shard","void_crystal"],holy:["holy_water","storm_feather"],swift:["storm_feather"],shadow:["void_crystal"],metal:["sentinel_plate","golem_core"],stone:["golem_core","rune_shard"],ice:["storm_feather","holy_water"],fire:["storm_feather","holy_water"],poison:["witchwood","void_crystal"],wood:["rune_shard","bread"]},
   rift:{any:["rune_shard","void_crystal","storm_feather","star_heart","bread"],arcane:["rune_shard","void_crystal","star_heart"],holy:["holy_water","storm_feather"],swift:["storm_feather"],shadow:["void_crystal"],metal:["sentinel_plate","golem_core"],stone:["golem_core","rune_shard"],ice:["storm_feather","holy_water"],fire:["storm_feather","star_heart"],poison:["witchwood","void_crystal"],wood:["rune_shard","bread"],water:["holy_water","storm_feather"],steam:["storm_feather","star_heart"]}};
 // every string a generated creature shows (the translation check skips them: a procedural name has no dictionary entry)
-const PROC=new Set(),proc=s=>{PROC.add(s);return s};
+const PROC=new Set(),PROC_NAME_PARTS=new Map(),PROC_PLURAL_PARTS=new Map(),PROC_SHORT_PARTS=new Map(),proc=s=>{PROC.add(s);return s};
+const procName=(s,parts)=>{proc(s);PROC_NAME_PARTS.set(s,parts);return s};
 const pluralOf=n=>/(s|x|z|ch|sh)$/.test(n)?n+"es":/[^aeiou]y$/.test(n)?n.slice(0,-1)+"ies":n+"s";
 const BODY_NOUNS={
   beast:["Stalker","Crawler","Watcher","Gnawer","Runner","Lurker","Creeper","Slasher","Hound","Wolf","Lynx","Bear","Drake","Salamander"],
@@ -195,8 +196,8 @@ const BODY_NOUNS={
 const nameWords=(B,body)=>{const allowed=BODY_NOUNS[body];const filtered=allowed?B.suf.filter(n=>allowed.includes(n)):B.suf;return filtered.length?filtered:(allowed||B.suf)};
 function genName(B,R,used,body){ // biome vocabulary stays intact while animal and construct nouns follow the selected anatomy
   const words=nameWords(B,body);
-  for(let i=0;i<60;i++){const n=B.pre[Math.floor(R()*B.pre.length)]+" "+words[Math.floor(R()*words.length)];if(!used.has(n)){used.add(n);return n}}
-  const n=B.pre[0]+" "+words[0]+" the "+used.size;used.add(n);return n}
+  for(let i=0;i<60;i++){const prefix=B.pre[Math.floor(R()*B.pre.length)],noun=words[Math.floor(R()*words.length)],n=prefix+" "+noun;if(!used.has(n)){used.add(n);return{name:n,prefix,noun,body}}}
+  const prefix=B.pre[0],noun=words[0],tail=used.size,n=prefix+" "+noun+" the "+tail;used.add(n);return{name:n,prefix,noun,body,tail}}
 function accFor(B,body,R){ // a biome accent at dE 25 or more from the body; else the accent moved in lightness until it is (the best seen)
   const n=B.acc.length,k=Math.floor(R()*n);
   for(let i=0;i<n;i++){const a=B.acc[(k+i)%n];if(dE(a,body)>=25)return a}
@@ -238,7 +239,7 @@ function genCreature(o){ // o:{id,zone,biome,tier,R,used,boss,where,seed}
   const pool=B.parts.filter(p=>BODY_PARTS[body].includes(p)),nparts=Math.min(1+Math.floor(R()*3),pool.length),parts=[]; // a body too bare for three parts wears what it can
   while(parts.length<nparts){const available=pool.filter(p=>!parts.includes(p)&&!parts.some(q=>(PART_CONFLICTS[q]||[]).includes(p)));if(!available.length)break;parts.push(available[Math.floor(R()*available.length)])}
   const col=ELPAL[el][Math.floor(R()*3)],acc=accFor(B,col,R); // body: the element's light, mid or dark; accent: the biome's
-  const nouns=nameWords(B,body),name=o.boss?proc(cap(B.pre[Math.floor(R()*B.pre.length)])+" "+cap(nouns[Math.floor(R()*nouns.length)])):genName(B,R,o.used,body);
+  const nouns=nameWords(B,body),nameParts=o.boss?{prefix:cap(B.pre[Math.floor(R()*B.pre.length)]),noun:cap(nouns[Math.floor(R()*nouns.length)]),body}:genName(B,R,o.used,body),name=nameParts.name||`${nameParts.prefix} ${nameParts.noun}`;
   const sp=o.boss?biomeSpecialFor(null,R):factionSpecial(faction,ENEMY_ROLES[role].kinds,BIOME_SP[o.biome],GEN_SP,R);
   // The region tier already climbs by depth; taper the master's bonus so it doesn't compound the whole HP/ATK ramp again.
   const depth=Math.max(1,o.depth||1),boss=o.boss?Math.max(3.2,4.4-.6*(depth-1)):1,atkm=o.boss?Math.max(.95,1-.025*(depth-1)):1;
@@ -248,13 +249,14 @@ function genCreature(o){ // o:{id,zone,biome,tier,R,used,boss,where,seed}
   // Keep the wild generation pool unchanged: filtering here would shift its seeded roster and Rift masters.
   const afx=rollAfx(R,rar,{mv,heat:o.boss?RAR_CH.k3:0,boss:!!o.boss,sp,element:el}); // Water/Steam affixes join only matching families; old seeded pools stay stable
   const verb=B.verbs[Math.floor(R()*B.verbs.length)],place="the "+(o.where||B.n).toLowerCase().replace(/^the /,""),dropEl=identity?el:elementPick.uniform,drops=genDrops(o.zone,dropEl,R,o.biome);
-  const E={id:o.id,name:proc(name),plural:proc(pluralOf(name)),zone:o.zone,mv,el,hp,atk,def,weak:[...nat.w],resist:[...nat.r],w:o.zone===RIFT_ZONE?1:10/GEN_N,verb,role,faction,
+  const canonicalName=procName(name,nameParts),plural=proc(pluralOf(name));PROC_PLURAL_PARTS.set(plural,nameParts);
+  const E={id:o.id,name:canonicalName,plural,nameParts,zone:o.zone,mv,el,hp,atk,def,weak:[...nat.w],resist:[...nat.r],w:o.zone===RIFT_ZONE?1:10/GEN_N,verb,role,faction,
     intro:proc(o.boss?`${name} waits for you in ${place}.`:`${name} steps out of ${place}.`),
     lore:proc(B.lore[Math.floor(R()*B.lore.length)]),
     sp:{...sp},drops,biomeTrait:identity?.trait||null,
     art:{b:body,p:parts,c:col,a:acc,pat:B.pats[Math.floor(R()*B.pats.length)],pc:acc,po:.5+R()*.4,skin:B.skins[Math.floor(R()*B.skins.length)]},
     afx,rar,gen:1,seed:o.seed};
-  if(o.boss){E.boss=true;E.short=proc("the "+name.split(" ").pop());E.w=3;E.drops=[...drops,["star_heart",.3]]}
+  if(o.boss){E.boss=true;E.short=proc("the "+nameParts.noun);PROC_SHORT_PARTS.set(E.short,nameParts);E.w=3;E.drops=[...drops,["star_heart",.3]]}
   if(identity?.inf)E.inf={...identity.inf};else if(nat.i)E.inf={s:nat.i,ch:.25};
   return E}
 // the generated wild creatures of a region: the same in every playthrough (the seed is the region's id)
@@ -270,7 +272,7 @@ function genRoster(zone){const bi=ZONE_BIOME[zone],R=rng(hash("wild:"+zone)),use
   // leaves all other names, body parts, specials, stats and roster size stable.
   // Keep the alpha on its pre-V10 slot; new roster entries stay ordinary wilds.
   if(WILD_ALPHA[zone]&&out.length){const E=out[hash("wild-alpha-slot:"+zone)%Math.min(10,out.length)];
-    E.alpha=true;E.name=WILD_ALPHA[zone];E.plural=E.name;E.rar="rare";E.afx=alphaAfx(E,zone);
+    E.alpha=true;E.name=WILD_ALPHA[zone];E.plural=E.name;E.nameParts=null;E.rar="rare";E.afx=alphaAfx(E,zone);
     E.hp=Math.round(E.hp*1.3);E.atk=Math.round(E.atk*1.1);E.def+=2;}
   return out}
 // Wild foes use a tutorial profile below the zone's stage-kit's Smith level,
