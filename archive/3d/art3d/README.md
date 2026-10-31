@@ -1,3 +1,5 @@
+> Archived exploration. The active game uses 2D art. Run the commands below from `archive/3d/`.
+
 # art3d — the 3D hero
 
 The viewer opens on the simplified base bodies, following [simplified bases v1](reference/prismatic-simplified-bases-v1.png). Both variants use:
@@ -36,7 +38,7 @@ node tools/hero3d-shot.js --list                         # registered gear, clip
 node tools/hero3d-shot.js --preset adventurer --views    # front / 3/4 / side / back sheet -> /tmp/hero3d.png
 node tools/hero3d-shot.js --preset adventurer --anim attack --frames 8 --yaw 0.2
 node tools/hero3d-shot.js --evidence                     # refresh art-evidence/hero3d-*.png
-node tools/hero3d-check.js                               # structural checks (part of npm test)
+node tools/hero3d-check.js                               # structural checks (run manually from this archive)
 ```
 
 ## Files (load order = `<script>` order in index.html)
@@ -171,7 +173,7 @@ The viewer offers Male and Female under Appearance. `H3.hero.build(loadout, {var
 uses a continuous rest-space body profile, longer side locks, and the same gear and animation
 registries. The profile fits clothing and the skeleton together after binding; rigid props
 keep their shape. The default remains `male`. Profiles do not modify the shared base body.
-The main game's Gear tab links to this standalone viewer, which includes a return link.
+The archived standalone viewer includes a return link to the game.
 
 The detail pass adds sculpted nose/ear interiors, crown strands, gathered tunic folds,
 neckline seams, belt rivets and a utility pouch. Female side locks use spring bones.
