@@ -65,8 +65,8 @@ H3.hero.build=function(loadout,o){
   meshes.push(...out);
   const variant=o.variant||"male";
   if(!["male","female"].includes(variant))throw new Error("unknown body variant "+variant);
-  if(variant==="female"){
-    // The simplified turnaround uses an open A-pose and a slightly wider stance.
+  if(variant==="female"||variant==="male"){
+    // The v2 turnaround uses an open A-pose and a slightly wider stance.
     for(const [side,sign] of [["L",1],["R",-1]]){
       const arm=hints.r["upperarm."+side]||[0,0,0];
       hints.r["upperarm."+side]=[arm[0],arm[1],arm[2]+sign*.15];
@@ -74,7 +74,7 @@ H3.hero.build=function(loadout,o){
     }
     // Apply one continuous rest-space profile to the assembled outfit and skeleton.
     // Binding is done first so clothing keeps the same weights as the body beneath it.
-    const fit=H3.wanderer.profile;
+    const fit=p=>H3.wanderer.profile(p,variant);
     for(const m of meshes){
       // Rigid props retain their shape and move with their attachment point.
       const bone=typeof m.bind==="string"?skel.bones[skel.idx[m.bind]]:null;
@@ -84,21 +84,16 @@ H3.hero.build=function(loadout,o){
     for(const b of skel.bones){b.head=fit(b.head);b.tail=fit(b.tail);b.len=U.len(U.sub(b.tail,b.head))}
     for(const c of colliders){c.a=fit(c.a);if(c.b)c.b=fit(c.b);c.r*=c.bone==="head"?.72:.88}
   }
-  // Compact the head silhouette consistently across the figure, outfit and rig.
-  const proportion=p=>variant==="female"||p[1]<=1.32?p.slice():[p[0]*0.96,1.32+(p[1]-1.32)*0.86,p[2]*0.96];
-  for(const m of meshes)m.v=m.v.map(proportion);
-  for(const b of skel.bones){b.head=proportion(b.head);b.tail=proportion(b.tail);b.len=U.len(U.sub(b.tail,b.head))}
-  for(const c of colliders){c.a=proportion(c.a);if(c.b)c.b=proportion(c.b)}
   for(const m of meshes){
     m._vn=null;
-    if(variant==="female"){
+    if(variant==="female"||variant==="male"){
       const material=n=>["cloth","skin","hair"].includes(n)?"prism_"+n:n;
       m.mat=material(m.mat);
       if(m.pal)m.pal=m.pal.map(e=>({...e,mat:e.mat?material(e.mat):e.mat}));
     }
   }
   // Smooth faces retain expression; broad cloth, hair and armor use planar lighting.
-  for(const m of meshes)m.faceted=["cloth","prism_cloth","leather","hair","prism_hair","metal","gold","wood"].includes(m.mat)&&!/^hand/.test(m.tag)&&m.slot!=="hands"&&m.slot!=="feet";
+  for(const m of meshes)m.faceted=m.planar||["cloth","prism_cloth","leather","hair","prism_hair","metal","gold","wood"].includes(m.mat)&&!/^hand/.test(m.tag)&&m.slot!=="hands"&&m.slot!=="feet";
   return{skel,meshes,colliders,hints,loadout,equipped,kind,variant,has:has,hidden:[...hides]};
 };
 function bind(m,skel,sources){
@@ -119,7 +114,7 @@ function samplePose(model,clip,t,ctx){
   const p=clip.sample(T,ctx)||{},r=Object.assign({},p.r||{});
   for(const[k,v]of Object.entries(model.hints.r)){const a=r[k]||[0,0,0];r[k]=[a[0]+v[0],a[1]+v[1],a[2]+v[2]]}
   const pose={t:p.t?p.t.slice():[0,0,0],r,p:p.p||{},wind:p.wind};
-  if(model.variant==="female"){
+  if(model.variant==="female"||model.variant==="male"){
     // Clips share rotations, but the longer reference legs need their own floor solve.
     const S=R.skinMats(model.skel,R.world(model.skel,pose));let low=Infinity;
     for(const m of model.meshes)if(m.slot==="feet"||m.tag.startsWith("foot.")){
@@ -175,7 +170,7 @@ H3.hero.frame=function(model,posed,o){
     for(const s of["L","R"]){const f=R.point(sk,Wd,"foot."+s,H3.body.dims.joints.ankle[s]),toe=R.point(sk,Wd,"foot."+s,H3.body.dims.joints.toe[s]);
       const h=Math.min(f[1],toe[1]+0.05),a=0.4*(1-U.clamp((h-0.1)/0.3,0,1));
       shadow.push({x:(f[0]+toe[0])/2,z:(f[2]+toe[2])/2,r:0.13,a})}}
-  return{rgba:H3.R.compose(fig,W,H,ss,{bg:o.bg===undefined&&model.variant==="female"?"studio":o.bg,shadow}),W,H};
+  return{rgba:H3.R.compose(fig,W,H,ss,{bg:o.bg===undefined?"studio":o.bg,shadow}),W,H};
 };
 // render(model, animId, t, o): pose + frame in one call
 H3.hero.render=(model,animId,t,o)=>H3.hero.frame(model,H3.hero.pose(model,animId,t),o);

@@ -1,6 +1,13 @@
 # art3d — the 3D hero
 
-The default female Prismatic model now follows the [simplified hero board](reference/prismatic-simplified-heroes-v1.png): compact proportions, eight broad copper hair masses with a ponytail, mitten gloves, a short two-panel teal tunic, plain gold borders, cuffed boots and a three-fold violet cloak. The breast and cloak compasses are painted decoration. It retains the shared rig, gear slots and animation clips. `prismatic_under_cape` shows the outfit construction; `prismatic_armed` adds the sword.
+The viewer opens on the simplified base bodies, following [simplified bases v1](reference/prismatic-simplified-bases-v1.png). Both variants use compact six-head proportions, broad anatomical forms, grouped fingers with separate thumbs, large copper hair masses and linen underclothes.
+
+`base-v2.js` now implements this simplified direction after `wanderer.js`; its filename is retained for the existing script loader. Body, clothing and skeleton share the same rest-space profile.
+
+Updated renders: [female turnaround](../art-evidence/prismatic-simplified-base-female.png), [male turnaround](../art-evidence/prismatic-simplified-base-male.png). These remain procedural interpretations, with facial and hair shapes still differing from the painted reference.
+
+
+The clothed female Prismatic preset follows the [simplified hero board](reference/prismatic-simplified-heroes-v1.png): compact proportions, eight broad copper hair masses with a ponytail, mitten gloves, a short two-panel teal tunic, plain gold borders, cuffed boots and a three-fold violet cloak. The breast and cloak compasses are painted decoration. It retains the shared rig, gear slots and animation clips. `prismatic_under_cape` shows the outfit construction; `prismatic_armed` adds the sword.
 
 Current renders: [turnaround](../art-evidence/prismatic-wanderer-turnaround.png), [without cape](../art-evidence/prismatic-wanderer-under-cape.png), [face](../art-evidence/prismatic-wanderer-face.png).
 
@@ -173,7 +180,7 @@ and bind through the existing body/gear contracts.
 
 ## Prismatic Adventure direction
 
-The viewer now starts on the `prismatic` loadout, without a hood so the copper swept
+The `prismatic` preset is available, without a hood so the copper swept
 hair is visible. The renderer uses planar cloth/hair/armor shading, violet shadows,
 coral rim light, a bright azure backdrop and finer indigo outlines. Faces, hands and
 boots retain smooth shading to keep small details readable. Teal cloth, gold trim,

@@ -242,7 +242,7 @@ function rasterMesh(pt,mi,V,B){
 function Ent(e,m){const M=MATS[e.mat||m.mat]||MATS.cloth,c=hex(e.c);
   this.r=c[0];this.g=c[1];this.b=c[2];this.line=e.line!==false;this.unlit=!!M.unlit;
   const sh=M.sh||[1,1,1],lt=M.lt||[1,1,1];this.s0=sh[0];this.s1=sh[1];this.s2=sh[2];this.l0=lt[0];this.l1=lt[1];this.l2=lt[2];
-  this.spec=M.spec||0;this.gloss=M.gloss||0.95;this.rim=M.rim||0;this.env=M.env||0;this.emit=M.emit||0;this.glow=e.glow||0}
+  this.ramp=M.ramp||0.17;this.spec=M.spec||0;this.gloss=M.gloss||0.95;this.rim=M.rim||0;this.env=M.env||0;this.emit=M.emit||0;this.glow=e.glow||0}
 function shadePass(parts,B,o){
   const{W,H,V,nrm,pos,pc,mid}=B,n=W*H,col=new Uint8ClampedArray(n*4),id=new Int32Array(n).fill(-1),base=new Uint8Array(n*3),eye=V.eye;
   const np=parts.length,pals=[],backs=[],paints=[],two=new Uint8Array(np);
@@ -261,7 +261,7 @@ function shadePass(parts,B,o){
     id[i]=mi*64+(back?32:0)+(e.line?k:0);
     const o4=i*4;col[o4+3]=255;
     if(e.unlit){col[o4]=e.r;col[o4+1]=e.g;col[o4+2]=e.b;continue}
-    const t=nx*LX+ny*LY+nz*LZ;let lit=(t+0.05)/0.17;lit=lit<0?0:lit>1?1:lit;lit=lit*lit*(3-2*lit);
+    const t=nx*LX+ny*LY+nz*LZ;let lit=(t+0.12)/e.ramp;lit=lit<0?0:lit>1?1:lit;lit=lit*lit*(3-2*lit);
     const fd=nx*FX+ny*FY+nz*FZ,g=0.07*t+0.1*(fd>0?fd:0)+(back?-0.07:0);
     const rd=nx*RX+ny*RY+nz*RZ,ri=1-(nv>0?nv:0);const rim=rd>0?ri*ri*ri*rd*e.rim:0;
     let sp=0;
