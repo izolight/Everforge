@@ -166,16 +166,16 @@ function view(cam,W,H){
 }
 
 // ---------- lights & materials ----------
-const LIGHT=norm([-0.45,0.78,0.55]);                    // warm key light, upper left, like the 2D art
+const LIGHT=norm([-0.6,0.72,0.65]);                    // warm key light, upper left, like the 2D art
 const RIM=norm([0.35,0.55,-0.75]),FILL=norm([0.5,0.5,-0.7]);   // the orange backdrop glow, from behind and above
 const HALF=(()=>{return v=>norm(add(LIGHT,v))})();
 // sh: shadow multiplier (cool, hue-shifted), lt: lit multiplier (warm), spec: highlight band
 // strength, gloss: band threshold on N.H, rim: rim strength, env: metal sky/ground reflection.
 const MATS={
-  cloth:  {sh:[0.56,0.53,0.67],lt:[1.04,1.0,0.94],spec:0,   gloss:0.95,rim:0.5},
-  leather:{sh:[0.55,0.51,0.62],lt:[1.05,1.0,0.93],spec:0.16,gloss:0.93,rim:0.55},
-  skin:   {sh:[0.76,0.57,0.56],lt:[1.04,1.0,0.95],spec:0.04,gloss:0.97,rim:0.45},
-  hair:   {sh:[0.55,0.5,0.62], lt:[1.08,1.02,0.95],spec:0.09,gloss:0.955,rim:0.6},
+  cloth:  {sh:[0.43,0.40,0.79],lt:[1.14,1.06,0.94],spec:0,   gloss:0.95,rim:0.5},
+  leather:{sh:[0.48,0.38,0.69],lt:[1.16,1.04,0.90],spec:0.16,gloss:0.93,rim:0.55},
+  skin:   {sh:[0.72,0.46,0.66],lt:[1.12,1.02,0.91],spec:0.04,gloss:0.97,rim:0.45},
+  hair:   {sh:[0.47,0.30,0.63], lt:[1.23,1.06,0.87],spec:0.09,gloss:0.955,rim:0.6},
   wood:   {sh:[0.56,0.52,0.6], lt:[1.05,1.0,0.92],spec:0.06,gloss:0.95,rim:0.5},
   metal:  {sh:[0.42,0.42,0.52],lt:[1.08,1.05,1.0],spec:0.55,gloss:0.86,rim:0.8,env:1},
   gold:   {sh:[0.5,0.42,0.38], lt:[1.08,1.02,0.9],spec:0.5, gloss:0.88,rim:0.8,env:0.7},
@@ -196,7 +196,7 @@ function renderFigure(parts,cam,W,H,o){
   const ao=o.ao===false?null:aoPass(B);
   if(ao)for(let i=0;i<n;i++){if(B.mid[i]<0)continue;const a=ao[i];sh.col[i*4]*=a;sh.col[i*4+1]*=a;sh.col[i*4+2]*=a*(0.96+0.04*a)}
   const sc=o.lineScale||H/1000;
-  ink(sh.col,B,sh.id,sh.base,Math.max(1,2.4*sc),Math.max(0.6,1.15*sc),hex(o.inkColor||"#17110e"));
+  ink(sh.col,B,sh.id,sh.base,Math.max(0.6,1.1*sc),Math.max(0.35,0.45*sc),hex(o.inkColor||"#252442"));
   return{W,H,col:sh.col,mid:B.mid,dep:B.dep,view:V,cam};
 }
 function rasterMesh(pt,mi,V,B){
@@ -207,6 +207,11 @@ function rasterMesh(pt,mi,V,B){
   const{W,H,dep,nrm,pc,pos,mid}=B;
   for(const fc of m.f){
     const a=fc[0],b=fc[1],c=fc[2];
+    let fn=null;
+    if(m.faceted){
+      const ab=[P[b*3]-P[a*3],P[b*3+1]-P[a*3+1],P[b*3+2]-P[a*3+2]],ac=[P[c*3]-P[a*3],P[c*3+1]-P[a*3+1],P[c*3+2]-P[a*3+2]];
+      fn=norm(cross(ab,ac));
+    }
     if(S[a*4+2]<0.05||S[b*4+2]<0.05||S[c*4+2]<0.05)continue;
     const ax=S[a*4],ay=S[a*4+1],bx=S[b*4],by=S[b*4+1],cx=S[c*4],cy=S[c*4+1];
     const area=(bx-ax)*(cy-ay)-(cx-ax)*(by-ay);
@@ -227,7 +232,7 @@ function rasterMesh(pt,mi,V,B){
         if(zt>=dep[i])continue;
         dep[i]=zt;mid[i]=mi;
         const A=q0*z,Bw=q1*z,C=q2*z,i3=i*3;
-        for(let k=0;k<3;k++){nrm[i3+k]=A*N[a*3+k]+Bw*N[b*3+k]+C*N[c*3+k];pos[i3+k]=A*P[a*3+k]+Bw*P[b*3+k]+C*P[c*3+k];pc[i3+k]=A*R[a*3+k]+Bw*R[b*3+k]+C*R[c*3+k]}
+        for(let k=0;k<3;k++){nrm[i3+k]=fn?fn[k]:A*N[a*3+k]+Bw*N[b*3+k]+C*N[c*3+k];pos[i3+k]=A*P[a*3+k]+Bw*P[b*3+k]+C*P[c*3+k];pc[i3+k]=A*R[a*3+k]+Bw*R[b*3+k]+C*R[c*3+k]}
       }}
   }
 }
@@ -264,7 +269,7 @@ function shadePass(parts,B,o){
     let env=1;
     if(e.env>0){let u=(ny+0.25*nz+0.08)/0.14;u=u<0?0:u>1?1:u;u=u*u*(3-2*u);env=1+(0.62+0.6*u-1)*e.env}
     const em=e.emit,gl=e.glow;
-    let r=e.r*((e.s0+(e.l0-e.s0)*lit+g)*env+em)+255*rim+255*sp,gg=e.g*((e.s1+(e.l1-e.s1)*lit+g)*env+em)+150*rim+236*sp,b=e.b*((e.s2+(e.l2-e.s2)*lit+g)*env+em)+70*rim+200*sp;
+    let r=e.r*((e.s0+(e.l0-e.s0)*lit+g)*env+em)+255*rim+255*sp,gg=e.g*((e.s1+(e.l1-e.s1)*lit+g)*env+em)+115*rim+236*sp,b=e.b*((e.s2+(e.l2-e.s2)*lit+g)*env+em)+135*rim+220*sp;
     if(gl>0){r+=(e.r*1.1+40-r)*gl;gg+=(e.g*1.1+40-gg)*gl;b+=(e.b*1.1+40-b)*gl}
     col[o4]=r;col[o4+1]=gg;col[o4+2]=b;
   }
@@ -320,7 +325,7 @@ function ink(col,B,id,base,strong,weak,inkCol){
 function compose(fig,W,H,ss,o){
   o=o||{};const out=new Uint8ClampedArray(W*H*4),V=view(fig.cam,W,H);
   if(o.bg!==false){
-    const cx=W/2,cy=-H*0.12,R=H*1.5,S=[[0,hex("#3b1c0a")],[0.62,hex("#171009")],[1,hex("#0e0c0a")]];
+    const cx=W/2,cy=-H*0.12,R=H*1.5,S=[[0,hex("#85d9ed")],[0.62,hex("#427cd2")],[1,hex("#333a83")]];
     for(let y=0;y<H;y++)for(let x=0;x<W;x++){const t=Math.min(1,Math.sqrt((x-cx)*(x-cx)+(y-cy)*(y-cy))/R);let k=0;while(k<S.length-2&&t>S[k+1][0])k++;
       const u=(t-S[k][0])/(S[k+1][0]-S[k][0]),j=(y*W+x)*4;for(let c=0;c<3;c++)out[j+c]=mix(S[k][1][c],S[k+1][1][c],u)+(hash(x,y)-0.5)*2.2;out[j+3]=255}
   }

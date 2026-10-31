@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Everforge — 3D hero</title>
 <style>
-  :root{--bg:#0e0c0a;--panel:#1c1814;--panel2:#262019;--line:#3d332a;--fg:#e8dfd0;--muted:#9c8f7c;--accent:#f2a54a}
+  :root{--bg:#14192d;--panel:#1d2642;--panel2:#293453;--line:#43547a;--fg:#f4eadc;--muted:#aabbd3;--accent:#ffd18b}
   html,body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.4 system-ui,sans-serif}
   .wrap{max-width:1180px;margin:0 auto;padding:16px;display:grid;grid-template-columns:minmax(0,760px) 1fr;gap:16px}
   @media (max-width:900px){.wrap{grid-template-columns:1fr}}
@@ -27,8 +27,8 @@
 <div class="wrap">
   <div>
     <a href="../index.html" style="color:var(--accent)">← Back to game</a>
-    <h1>3D hero (Everforge)</h1>
-    <p>The base hero with modular, swappable gear, a skeleton rig and animations. Drag to turn, scroll to zoom.</p>
+    <h1>Prismatic Adventure — Everforge</h1>
+    <p>Faceted fantasy heroes with modular gear and flowing movement. Drag to turn, scroll to zoom.</p>
     <div class="stage"><canvas id="c" width="760" height="1000"></canvas><div class="hud" id="hud"></div></div>
     <div class="row">
       <button data-y="0">front</button><button data-y="0.6">3/4</button><button data-y="1.57">side</button>
@@ -61,7 +61,7 @@
 <script>
 (()=>{
   const $=id=>document.getElementById(id),canvas=$("c"),ctx=canvas.getContext("2d");
-  const st={loadout:Object.assign({},H3.hero.presets.wanderer||{}),variant:"male",anim:"idle",yaw:0.6,pitch:0.08,dist:3.4,playing:true,speed:1};
+  const st={loadout:Object.assign({},H3.hero.presets.prismatic||{}),variant:"male",anim:"idle",yaw:0.6,pitch:0.08,dist:3.4,playing:true,speed:1};
   if(!H3.anim.get(st.anim))st.anim="rest";
   let model=null,player=null,posed=null,last=0,dirty=true,busy=false;
   const rebuild=()=>{model=H3.hero.build(st.loadout,{variant:st.variant});player=H3.hero.player(model,st.anim);posed=player.step(0);dirty=true};

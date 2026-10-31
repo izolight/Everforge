@@ -74,13 +74,18 @@ function airborne(t,wins,peak,ramp){
 const IDLE_D=3.2;
 function idlePose(t){
   const u=TAU*t/IDLE_D,br=Math.sin(u),sw=Math.sin(u-1.2),arm=Math.sin(u+1.5),hd=Math.sin(u+0.5);
-  return{t:[0,0,0],r:{
+  const L=[-0.055-0.025*br,0.13+0.025*br,0],R=[-0.025,0.075,0];
+  return{t:[0,floorY([L,R],-1),0],r:{
+    ...legPose("L",L),...legPose("R",R),
+    hips:[0,0.025*sw,0],
+    "hand.L":[0.05*Math.sin(u+0.8),0.06,0.025*arm],
+    "hand.R":[0.04*Math.sin(u-0.5),-0.04,-0.02*arm],
     spine:[0,0,0.02*sw],                              // slow weight shift
     chest:[0.02*br,0,-0.01*sw],                       // breathing
     head:[0.01*Math.sin(u+2),0.06*hd,0],              // small head motion
     "shoulder.L":[0,0,0.03+0.02*br],"shoulder.R":[0,0,-(0.03+0.02*br)],
-    "upperarm.L":[0.02*arm,0,0.08],"upperarm.R":[0.02*arm,0,-0.08],
-    "forearm.L":X(-0.15),"forearm.R":X(-0.15),
+    "upperarm.L":[0.055*arm,0.035*sw,0.045],"upperarm.R":[0.04*Math.sin(u+0.3),-0.025*sw,-0.065],
+    "forearm.L":X(-0.24-0.04*br),"forearm.R":X(-0.18-0.035*arm),
     "fingers.L":[0,0,-0.18],"fingers.R":[0,0,0.18]}};
 }
 H3.anim.register({id:"idle",name:"Idle",loop:true,duration:IDLE_D,view:0.6,sample:t=>idlePose(t)});
@@ -98,8 +103,14 @@ function shot(dur,spec,hold){
   }
   return t=>{
     const r={};for(const b of Object.keys(I0.r))r[b]=I0.r[b].slice();
-    for(const b of Object.keys(T))r[b]=track(T[b],t);
-    return{t:[0,0,0],r};
+    for(const b of Object.keys(T))r[b]=track(T[b],t,sine);
+    // A delayed upper-body response gives actions weight through the recovery.
+    const e=Math.sin(PI*clamp01(t/dur)),lag=Math.sin(TAU*t/dur-0.6)*e;
+    if(!T.spine)r.spine=[0.035*e,0.06*lag,0.025*e];
+    for(const S of["L","R"]){const b="shoulder."+S;
+      if(!T[b])r[b]=[0.035*lag,0, (S==="L"?1:-1)*(0.025+0.025*e)];
+    }
+    return{t:[0,I0.t[1],0],r};
   };
 }
 
@@ -193,7 +204,10 @@ H3.anim.register({id:"walk",name:"Walk",loop:true,duration:1,speed:1.3,view:1.57
   return{t:[0,floorY([L,R],-1),0],r:Object.assign({
     "hand.R":[armed?-0.6:0,0,0],                       // armed: the wrist carries the blade forward, clear of the legs
     "upperarm.L":[0.33*c,0,0.08],"upperarm.R":[-0.33*c,0,-0.08],
-    "forearm.L":X(-0.25),"forearm.R":X(-0.25),
+    "forearm.L":X(-0.32-0.12*Math.sin(TAU*t+0.5)),"forearm.R":X(-0.32+0.12*Math.sin(TAU*t+0.5)),
+    "hand.L":[0.075*Math.sin(TAU*t-0.5),0.05,0],
+    "shoulder.L":[0.035*c,0,0.025],"shoulder.R":[-0.035*c,0,-0.025],
+    hips:[0,-0.055*c,0],
     "fingers.L":[0,0,-0.15],"fingers.R":[0,0,0.15],
     spine:X(0.02),chest:[0.04,0.08*c,0],head:[-0.03,-0.05*c,0]},legPose("L",L),legPose("R",R))};
 }});
@@ -210,7 +224,10 @@ H3.anim.register({id:"run",name:"Run",loop:true,duration:RUN_D,speed:3.2,view:1.
   const[w,hop]=airborne(q,[[0.1,0.4],[0.6,0.9]],0.04,0.04);
   return{t:[0,(1-w)*floorY([L,R],-1)+w*hop,0],r:Object.assign({
     "upperarm.L":[0.75*c,0,0.1],"upperarm.R":[0.75*Math.cos(TAU*(q-0.92)),0,-0.1],
-    "forearm.L":X(-1.4),"forearm.R":X(-1.4),
+    "forearm.L":X(-1.25-0.2*Math.sin(TAU*q)),"forearm.R":X(-1.25+0.2*Math.sin(TAU*q)),
+    "shoulder.L":[0.07*c,0,0.03],"shoulder.R":[-0.07*c,0,-0.03],
+    "hand.L":[0.12*Math.sin(TAU*q-0.5),0,0],"hand.R":[-0.12*Math.sin(TAU*q-0.5),0,0],
+    hips:[0,-0.08*c,0],
     "fingers.L":[0,0,-0.2],"fingers.R":[0,0,0.2],
     spine:X(0.08),chest:[0.2,0.1*c,0],head:[-0.12,-0.06*c,0]},legPose("L",L),legPose("R",R))};
 }});

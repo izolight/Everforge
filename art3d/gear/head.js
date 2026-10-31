@@ -19,7 +19,7 @@ function scallopLastRing(m,N,amp,count){
 }
 
 // ---------- hood: a leather shell framing the face, a rolled rim, a scalloped shoulder mantle ----------
-const HOOD_STEPS=4,HOOD_SEG=48;
+const HOOD_STEPS=2,HOOD_SEG=20;
 // how far the shell is open at the front (half-angle, radians) at height y: the face opening
 // narrows to the forehead and the chin, and a V opens the front of the mantle for the tunic's neck
 const hoodOpen=y=>{const t=(y-1.5)/0.2,face=Math.abs(t)<1?0.8*(1-t**4)**0.42:0;return Math.max(face,0.6*sstep(1.34,1.24,y))};
@@ -31,7 +31,7 @@ function hoodKeys(ctx){
     {y:1.22,rx:0.225,rz:0.2,cz:-0.03,ty:0.02},
     {y:1.16,rx:0.24,rz:0.21,cz:-0.045,ty:0.045}];
 }
-H3.gear.register({id:"hood",slot:"head",name:"Leather hood",colors:{main:"#4b4236",trim:"#7d6b50",inner:"#2a221b"},
+H3.gear.register({id:"hood",slot:"head",name:"Leather hood",colors:{main:"#494874",trim:"#d6a56d",inner:"#302e57"},
   hides:["hair.back"],kind:"hood",
   build(ctx){
     const keys=hoodKeys(ctx),N=HOOD_SEG+1;

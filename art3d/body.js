@@ -12,8 +12,8 @@
 (function(){
 "use strict";
 const{G,U}=H3,{loft,tube,ball,sheet,xform,mirrorX}=G,{seg2,clamp,sstep}=U;
-const C={skin:"#bd8e6d",skinLine:"#a8795c",blush:"#c98a72",hair:"#38251c",hairHi:"#4c3324",eye:"#2b201b",eyeWhite:"#efe6d6",brow:"#3a271d",mouth:"#80533e",
-  shirt:"#cdbb98",shirtLine:"#a9966f",pants:"#4d4236",pantsLine:"#3a3129",wrap:"#9c8a6c",wrapLine:"#7a6a50"};
+const C={skin:"#c69a7d",skinLine:"#aa785f",blush:"#c3977c",hair:"#804432",hairHi:"#c77d4a",eye:"#2b201b",eyeWhite:"#efe6d6",brow:"#3a271d",mouth:"#80533e",
+  shirt:"#ede0bd",shirtLine:"#ae9775",pants:"#424b4c",pantsLine:"#303b3c",wrap:"#9c8a6c",wrapLine:"#7a6a50"};
 
 // ---------- skeleton (rest pose; .L is the figure's left, +x) ----------
 const J={hips:[0,0.66,0],spine:[0,0.8,0],chest:[0,1.0,0],neck:[0,1.27,0],head:[0,1.355,0.01],headTop:[0,1.76,0.01],
@@ -39,8 +39,8 @@ for(const[s,f]of[["L",L],["R",Rr]])BONES.push(
   {name:"foot."+s,parent:"shin."+s,head:f(J.ankle),tail:f(J.toe)});
 
 // ---------- shapes (loft keys, shared with gear through dims.rings) ----------
-const TORSO=[{y:1.3,rx:0.075,rz:0.065},{y:1.268,rx:0.15,rz:0.1,e:2.4},{y:1.225,rx:0.198,rz:0.118,e:2.8},{y:1.13,rx:0.206,rz:0.126,e:2.9},
-  {y:1.0,rx:0.186,rz:0.12,e:2.9},{y:0.88,rx:0.164,rz:0.112,e:2.8},{y:0.76,rx:0.172,rz:0.118,e:2.8},{y:0.66,rx:0.186,rz:0.126,e:2.8},
+const TORSO=[{y:1.3,rx:0.075,rz:0.065},{y:1.268,rx:0.15,rz:0.1,e:2.4},{y:1.225,rx:0.198,rz:0.118,e:2.4},{y:1.13,rx:0.206,rz:0.126,e:2.45},
+  {y:1.0,rx:0.186,rz:0.12,e:2.45},{y:0.88,rx:0.164,rz:0.112,e:2.8},{y:0.76,rx:0.172,rz:0.118,e:2.8},{y:0.66,rx:0.186,rz:0.126,e:2.8},
   {y:0.585,rx:0.16,rz:0.11,e:2.6},{y:0.555,rx:0.07,rz:0.06}];
 const armKeys=s=>[{y:1.262,rx:0.045,rz:0.045,cx:s*0.196},{y:1.232,rx:0.074,rz:0.078,cx:s*0.214},{y:1.13,rx:0.068,rz:0.07,cx:s*0.25,cz:0.004},
   {y:0.98,rx:0.059,rz:0.061,cx:s*0.296,cz:0.012},{y:0.86,rx:0.056,rz:0.058,cx:s*0.322,cz:0.022},{y:0.76,rx:0.046,rz:0.047,cx:s*0.34,cz:0.03},
@@ -83,7 +83,7 @@ const capW=(p,base,S)=>{const a=shoulderShare(p,S);if(a<1e-3)return base;
   const out=base.map(([n,w])=>[n,w*(1-a)]);const k=out.find(x=>x[0]==="upperarm."+S);if(k)k[1]+=a;else out.push(["upperarm."+S,a]);return out};
 
 function build(o){
-  o=o||{};const M=[];
+  o=o||{};const M=[],bones=[];
   // --- torso: linen undershirt with a round neckline and short sleeves, trousers below the waist
   // the round neckline is only painted at the front (p[2]>0); the back of the shirt runs up to the nape
   const neckline=p=>{const ax=Math.abs(p[0]);return p[2]>0&&p[1]>1.215+ax*0.9};
@@ -133,23 +133,49 @@ function build(o){
       pal:[{c:C.wrap,line:false},{c:C.skin,mat:"skin"},{c:C.wrapLine,line:false}],paint:p=>p[2]>0.135?1:((p[2]*40)%1<0.1&&p[1]>0.02?2:0)});
     xform(foot,{ry:s*0.22,t:[s*0.098,0,0]});foot.bind={bones:["shin."+S,"foot."+S],power:5};M.push(foot);
   }
+  // Restrained cloth gathering: compression at elbows, knees and the waist.
+  for(const m of M){
+    if(!/^(torso|arm\.|leg\.)/.test(m.tag)||m.tag.includes("tie")||m.tag.includes("lace"))continue;
+    for(const p of m.v){
+      const y=p[1],side=p[0]<0?-1:1;
+      if(m.tag.startsWith("torso")){
+        const a=Math.atan2(p[0],p[2]),w=0.003*Math.exp(-(((y-0.83)/0.18)**2));
+        p[0]+=Math.sin(a)*Math.sin(a*9+y*14)*w;p[2]+=Math.cos(a)*Math.sin(a*9+y*14)*w;
+      }else if(m.tag.startsWith("leg")&&y>0.28){
+        p[2]+=0.0035*Math.sin(y*91+side)*Math.exp(-(((y-0.38)/0.09)**2));
+      }
+    }
+  }
   // --- head: a skin shell (hair-coloured under the hair shells), open eyes with a catch-light and an
   // upper lid line, brows, nose, a small smile
-  const eye=(p,s)=>{const dx=(p[0]-s*0.072)/0.019,dy=(p[1]-1.533)/0.026;return dx*dx+dy*dy};
-  const brow=(p,s)=>seg2(p[0],p[1],s*0.05,1.585,s*0.1,1.592);
+  const eye=(p,s)=>{const dx=(p[0]-s*0.066)/0.028,dy=(p[1]-1.535)/0.015;return dx*dx+dy*dy};
+  const brow=(p,s)=>seg2(p[0],p[1],s*0.041,1.576,s*0.093,1.582);
   const nose=p=>Math.min(seg2(p[0],p[1],0.004,1.52,-0.012,1.47),seg2(p[0],p[1],-0.012,1.47,0.01,1.468));
-  const mouth=p=>{const x=clamp(p[0],-0.03,0.03);return Math.hypot(p[0]-x,p[1]-(1.4+0.016*(x/0.03)**2))};
+  const mouth=p=>{const x=clamp(p[0],-0.024,0.024);return Math.hypot(p[0]-x,p[1]-(1.422+0.005*(x/0.024)**2))};
   const fringe=x=>(x<-0.03?1.684-5.2*(x+0.03)**2:x<0.05?1.684-0.06*(x+0.03):1.679-0.88*(x-0.05))+0.005*Math.sin(x*95);
   M.push(loft(HEAD,{seg:40,steps:6,tag:"head",mat:"skin",
-    pal:[{c:C.skin,mat:"skin"},{c:C.hair,mat:"hair"},{c:C.eye,line:false},{c:C.skinLine,line:false,mat:"skin"},{c:C.mouth,line:false,mat:"skin"},{c:C.eyeWhite,line:false,mat:"glow"},{c:C.brow,line:false},{c:C.blush,line:false,mat:"skin"},{c:C.eye,mat:"skin"}],
+    pal:[{c:C.skin,mat:"skin"},{c:C.hair,mat:"hair"},{c:C.eye,line:false},{c:C.skinLine,line:false,mat:"skin"},{c:C.mouth,line:false,mat:"skin"},{c:C.eyeWhite,line:false,mat:"glow"},{c:C.brow,line:false},{c:C.blush,line:false,mat:"skin"},{c:C.eye,mat:"skin",line:false},{c:"#6e886b",mat:"skin",line:false},{c:"#302a27",mat:"skin",line:false},{c:"#e6d7c1",mat:"skin",line:false}],
     paint:p=>{if(p[1]>fringe(p[0])||p[2]<-0.04)return 1;if(p[2]<0.09)return 0;
       for(const s of[-1,1]){const e=eye(p,s);
-        if(e<1){const hx=(p[0]-s*0.072+0.007)/0.006,hy=(p[1]-1.542)/0.007;return hx*hx+hy*hy<1?5:2}
-        if(e<1.5&&p[1]>1.538)return 8;                 // upper lid line: the band just above the iris
-        if(brow(p,s)<0.0065)return 6}
-      if(nose(p)<0.0034)return 3;if(mouth(p)<0.0038)return 4;
+        if(e<1){
+          const ix=(p[0]-s*0.066)/0.012,iy=(p[1]-1.535)/0.014,iris=ix*ix+iy*iy;
+          if(iris<1){const hx=(p[0]-s*0.066+0.004)/0.0032,hy=(p[1]-1.54)/0.0032;
+            if(hx*hx+hy*hy<1)return 5;return iris<0.28?10:9}
+          return 11;
+        }
+        if(e<1.35&&p[1]>1.535)return 8;
+        if(brow(p,s)<0.0045)return 6}
+      if(nose(p)<0.0017&&p[1]<1.475)return 3;if(mouth(p)<0.0022)return 4;
       for(const s of[-1,1]){const dx=(p[0]-s*0.095)/0.03,dy=(p[1]-1.47)/0.018;if(dx*dx+dy*dy<1)return 7}
       return 0},bind:"head"}));
+  const face=M.find(m=>m.tag==="head");
+  for(const p of face.v){
+    if(p[2]>0){
+      const cheek=Math.exp(-(((Math.abs(p[0])-0.085)/0.045)**2+((p[1]-1.49)/0.05)**2));
+      const bridge=Math.exp(-((p[0]/0.022)**2+((p[1]-1.515)/0.05)**2));
+      p[2]+=0.009*cheek+0.012*bridge;
+    }
+  }
   // --- hair: three shells sit just off the skull. hair.back covers the back, nape and sides (its front
   // edge runs from behind the ears up to the temples), hair.top the crown, hair.front a swept fringe
   // over the forehead. Locks hang at the nape and the temples. Hoods can keep hair.front.
@@ -162,19 +188,54 @@ function build(o){
     {tag:"hair.front",mat:"hair",color:C.hair,bind:"head"}));
   M.push(loft([{y:1.6,rx:0.158,rz:0.168,cz:0},{y:1.66,rx:0.158,rz:0.168,cz:0},{y:1.71,rx:0.14,rz:0.15,cz:-0.004},
     {y:1.75,rx:0.106,rz:0.116,cz:-0.006},{y:1.78,rx:0.06,rz:0.066,cz:-0.006},{y:1.8,rx:0.02,rz:0.02,cz:-0.006}],
-    {seg:40,steps:5,tag:"hair.top",mat:"hair",open:y=>y<1.66?1.0:0,twoSided:true,back:"#24170f",
-     pal:[{c:C.hair,mat:"hair"},{c:C.hairHi,mat:"hair",line:false}],paint:p=>(Math.atan2(p[0],p[2])*6+p[1]*26)%1.5<0.1?1:0,bind:"head"}));
+    {seg:16,steps:2,tag:"hair.top",mat:"hair",open:y=>y<1.66?1.0:0,twoSided:true,back:"#24170f",
+     pal:[{c:C.hair,mat:"hair"},{c:C.hairHi,mat:"hair",line:false}],paint:p=>p[0]<-0.05&&p[2]>0.07?1:0,bind:"head"}));
   M.push(loft([{y:1.4,rx:0.112,rz:0.124,cz:-0.03},{y:1.5,rx:0.142,rz:0.158,cz:-0.012},{y:1.6,rx:0.156,rz:0.17,cz:-0.006},{y:1.66,rx:0.15,rz:0.162,cz:-0.004}],
     {seg:44,steps:5,tag:"hair.back",mat:"hair",open:y=>1.95-1.05*sstep(1.5,1.66,y),cap:false,twoSided:true,back:"#24170f",
-     pal:[{c:C.hair,mat:"hair"},{c:C.hairHi,mat:"hair",line:false}],paint:p=>(Math.atan2(p[0],p[2])*7+p[1]*30)%1.6<0.12?1:0,bind:{bones:["neck","head"],power:4}}));
+     pal:[{c:C.hair,mat:"hair"},{c:C.hairHi,mat:"hair",line:false}],paint:p=>p[0]<-0.08?1:0,bind:{bones:["neck","head"],power:4}}));
+  // Overlapping swept locks give the fringe a deliberate, asymmetric silhouette.
+  for(let i=0;i<4;i++){
+    const x=-0.082+i*0.048,y=1.645+0.024*Math.sin(i*0.8);
+    M.push(tube([{p:[x-0.024,1.735,0.098],r:0.018},
+      {p:[x-0.008,1.701,skullZ(x,1.701)+0.018],r:0.033},
+      {p:[x+0.018,y+0.016,skullZ(x+0.018,y+0.016)+0.016],r:0.015},
+      {p:[x+0.027,y-0.009,skullZ(x+0.027,y-0.009)+0.008],r:0.0015}],
+      {seg:5,steps:3,tag:"hair.front",mat:"hair",pal:[{c:i%3===0?C.hairHi:C.hair,mat:"hair",line:false}],bind:"head",ink:false}));
+  }
   // chunky locks at the nape (hair.back)
   for(const x of[-0.05,0,0.05])M.push(tube([{p:[x,1.66,-0.158],r:0.026},{p:[x*1.2,1.56,-0.172],r:0.03},{p:[x*1.3,1.46,-0.168],r:0.024},{p:[x*1.3,1.38,-0.152],r:0.013}],
     {seg:12,steps:3,tag:"hair.back",mat:"hair",color:C.hair,bind:{bones:["neck","head"],power:4}}));
+  // Broad swept locks read as sculptural planes rather than individual strands.
+  for(let i=0;i<5;i++){
+    const x=(i-2)*0.047,long=o.variant==="female"?0.21:0.04;
+    M.push(tube([{p:[x,1.64,-0.14],r:0.04},
+      {p:[x+0.015,1.49,-0.18],r:0.043},
+      {p:[x+0.04,1.37-long*0.5,-0.225],r:0.031},
+      {p:[x+0.085,1.30-long,-0.30],r:0.0015}],
+      {seg:5,steps:2,tag:"hair.back",mat:"hair",color:i%2?C.hair:C.hairHi,bind:{bones:["neck","head"],power:4}}));
+  }
   // Longer side locks distinguish the female profile, including under a hood.
-  if(o.variant==="female")for(const s of[-1,1])M.push(tube([
+  if(o.variant==="female")for(const s of[-1,1]){
+    const name="hair.lock."+(s>0?"L":"R");
+    bones.push({name,parent:"head",head:[s*0.14,1.56,-0.035],tail:[s*0.15,1.23,-0.055],
+      spring:{stiff:48,drag:0.20,grav:2,wind:0.25,r:0.012}});
+    M.push(tube([
     {p:[s*0.14,1.64,-0.035],r:0.035},{p:[s*0.15,1.47,-0.035],r:0.034},
     {p:[s*0.14,1.31,-0.045],r:0.027},{p:[s*0.16,1.22,-0.055],r:0.008}],
-    {seg:14,steps:5,tag:"hair.back",mat:"hair",color:C.hair,bind:{bones:["neck","head"],power:4}}));
+    {seg:14,steps:5,tag:"hair.back",mat:"hair",color:C.hair,
+      bind:{fn:p=>{const w=1-sstep(1.30,1.60,p[1]);return[["head",1-w],[name,w]]}}}));
+  }
+  // Fine swept strands break up the smooth crown without outlining every hair.
+  for(let i=0;i<4;i++){
+    const x=(i-1.5)*0.055;
+    M.push(tube([{p:[x,1.70,skullZ(x,1.70)+0.012],r:0.0018},
+      {p:[x*0.9+0.012,1.735,skullZ(x*0.9,1.735)+0.014],r:0.002},
+      {p:[x*0.7+0.014,1.76,0.07],r:0.001}],
+      {seg:5,steps:4,tag:"hair.top",mat:"hair",color:C.hairHi,bind:"head",ink:false}));
+  }
+  // A small sculpted nose and ear interiors add depth in profile views.
+  M.push(xform(ball(0.012,0.023,0.021,{seg:14,rings:8,tag:"head",mat:"skin",pal:[{c:C.skin,mat:"skin",line:false}],ink:false,bind:"head"}),{t:[0,1.486,0.163]}));
+  for(const s of[-1,1])M.push(xform(ball(0.008,0.022,0.013,{seg:12,rings:6,tag:"head.ears",mat:"skin",color:C.skinLine,bind:"head"}),{t:[s*0.161,1.5,0.004]}));
   // ears, bound to the head (tag head.ears)
   for(const s of[1,-1])M.push(xform(ball(0.02,0.036,0.024,{seg:14,rings:6,tag:"head.ears",color:C.skin,mat:"skin",bind:"head"}),{t:[s*0.146,1.5,-0.004]}));
   // colliders for spring bones (capes, hood tips, long hair)
@@ -183,7 +244,7 @@ function build(o){
   for(const s of["L","R"]){const j=k=>dims.joints[k][s];
     colliders.push({bone:"thigh."+s,a:j("hip"),b:j("knee"),r:0.095},{bone:"shin."+s,a:j("knee"),b:j("ankle"),r:0.075},
       {bone:"upperarm."+s,a:j("shoulder"),b:j("elbow"),r:0.07},{bone:"forearm."+s,a:j("elbow"),b:j("wrist"),r:0.058})}
-  return{meshes:M,colliders};
+  return{meshes:M,colliders,bones};
 }
 H3.body={bones:BONES,dims,build,C,inflate};
 })();

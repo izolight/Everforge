@@ -64,6 +64,12 @@ H3.gear.register({id:"boots",slot:"feet",name:"Short leather boots",
     const sx=avg(strap.v,0),sy=avg(strap.v,1),sz=Math.max(...strap.v.map(p=>p[2]));
     const buckle=G.xform(G.box(0.036,0.03,0.008,{mat:"gold",color:c.col("buckle"),name:"boot.buckle"}),{t:[sx,sy,sz+0.004]});
     buckle.bind={from:["foot","leg"]};buckle.bias=0.004;out.push(buckle);
+    // Crossed laces sit on the instep, with a narrow leather tongue underneath.
+    for(let i=0;i<3;i++)for(const sign of[-1,1]){
+      out.push(G.tube([{p:[0.098+sign*0.032,0.126-i*0.018,0.064+i*0.021],r:0.0027},
+        {p:[0.098-sign*0.031,0.12-i*0.018,0.079+i*0.021],r:0.0027}],
+        {seg:6,steps:2,mat:"leather",color:c.col("stitch"),name:"boot.lace"}));
+    }
     for(const m of out)if(!m.bind)m.bind={from:["foot","leg"]};
     return out;
   })}}});

@@ -151,3 +151,24 @@ uses a continuous rest-space body profile, longer side locks, and the same gear 
 registries. The profile fits clothing and the skeleton together after binding; rigid props
 keep their shape. The default remains `male`. Profiles do not modify the shared base body.
 The main game's Gear tab links to this standalone viewer, which includes a return link.
+
+The detail pass adds sculpted nose/ear interiors, crown strands, gathered tunic folds,
+neckline seams, belt rivets and a utility pouch. Female side locks use spring bones.
+Idle uses bent knees and asymmetric arm/wrist motion; locomotion includes counter-rotating
+hips and delayed elbow/shoulder movement. Actions use eased keys and secondary spine motion.
+
+The visual polish pass uses a teal, slate and warm leather palette; shaped eyes with
+sclera, green irises and catchlights; cheek/nose relief; and layered swept fringe locks.
+Outfits include a fitted shoulder guard, stitched diagonal baldric, compass embroidery,
+a bordered cape, boot laces and localized cloth gathering. All details remain procedural
+and bind through the existing body/gear contracts.
+
+## Prismatic Adventure direction
+
+The viewer now starts on the `prismatic` loadout, without a hood so the copper swept
+hair is visible. The renderer uses planar cloth/hair/armor shading, violet shadows,
+coral rim light, a bright azure backdrop and finer indigo outlines. Faces, hands and
+boots retain smooth shading to keep small details readable. Teal cloth, gold trim,
+a purple cape and a compact head silhouette carry the direction across both variants.
+The hooded wanderer and full adventurer remain selectable; transparent exports still
+omit the backdrop. This is a procedural interpretation of the concept illustration.

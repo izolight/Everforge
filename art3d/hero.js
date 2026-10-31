@@ -37,6 +37,7 @@ const norm=e=>e==null||e===""?null:typeof e==="string"?{id:e}:e;
 H3.hero.build=function(loadout,o){
   o=o||{};loadout=Object.assign({},loadout||{});
   const skel=R.skeleton(H3.body.bones),body=H3.body.build(Object.assign({},o.body,{variant:o.variant||"male"})),meshes=[],hides=new Set(),hints={r:{}},colliders=body.colliders.slice();
+  (body.bones||[]).forEach(b=>R.addBone(skel,b));
   const equipped={};for(const s of SLOTS){const e=norm(loadout[s]);if(!e)continue;const def=items[e.id];if(!def){console.warn("unknown gear "+e.id);continue}
     if(def.slot!==s&&!(def.slot==="main"&&s==="off")&&!(def.slot==="off"&&s==="main"))console.warn(e.id+" is a "+def.slot+" item, worn in "+s);equipped[s]={def,e}}
   for(const m of body.meshes)bind(m,skel,[]);
@@ -80,6 +81,13 @@ H3.hero.build=function(loadout,o){
     for(const b of skel.bones){b.head=fit(b.head);b.tail=fit(b.tail);b.len=U.len(U.sub(b.tail,b.head))}
     for(const c of colliders){c.a=fit(c.a);if(c.b)c.b=fit(c.b)}
   }
+  // Compact the head silhouette consistently across the figure, outfit and rig.
+  const proportion=p=>p[1]<=1.32?p.slice():[p[0]*0.96,1.32+(p[1]-1.32)*0.86,p[2]*0.96];
+  for(const m of meshes)m.v=m.v.map(proportion);
+  for(const b of skel.bones){b.head=proportion(b.head);b.tail=proportion(b.tail);b.len=U.len(U.sub(b.tail,b.head))}
+  for(const c of colliders){c.a=proportion(c.a);if(c.b)c.b=proportion(c.b)}
+  // Smooth faces retain expression; broad cloth, hair and armor use planar lighting.
+  for(const m of meshes)m.faceted=["cloth","leather","hair","metal","gold","wood"].includes(m.mat)&&!/^hand/.test(m.tag)&&m.slot!=="hands"&&m.slot!=="feet";
   return{skel,meshes,colliders,hints,loadout,equipped,kind,variant,has:has,hidden:[...hides]};
 };
 function bind(m,skel,sources){
