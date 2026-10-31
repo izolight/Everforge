@@ -1,6 +1,6 @@
 # Everforge — tasks and watchlist
 
-Single planning record, consolidated 2026-10-31. **63 tracked tasks complete; no open or active tasks.** Ideas below are unscheduled, not commitments. Completion records describe historical validation, not a fresh check of today's build.
+Single planning record, consolidated 2026-10-31. **64 tracked tasks complete; no open or active tasks.** Ideas below are unscheduled, not commitments. Completion records describe historical validation, not a fresh check of today's build.
 
 ## Next decisions and playtest watchlist
 
@@ -10,7 +10,7 @@ Refresh measurements on the current build before opening follow-up tasks.
 |---|---|---|
 | First forge and research pace | Does waiting for the first slot technique feel too long? Weaponcraft/Armorcraft cost 14 RP, Infusing 8, Improving 10 in the completed rework. | Adjust `TECHS` costs after playtesting; preserve M-10 tutorial preparation. |
 | Bot priorities | Six expedition samples show gear-first buys gear techniques earlier than cheapest-first. [SIM-02 evidence](economy-evidence/sim02-research-policy.md). | Compare larger samples and real player choices before drawing pacing conclusions. |
-| Fusing timing | `--fresh` only plays the Woods, so the intended second-region timing is unmeasured. | Extend the sim into the Pass or check in play. |
+| Fusing timing | SIM-06 reached Pass after the real Woods boss unlock, but the prepared bot lost all 33 Pass expeditions and never learned Improving/Fusing in six 12-run samples. [SIM-06 evidence](economy-evidence/sim06-regional-progression.md). | Check real player choices before changing the bot or tuning research costs. |
 | Expedition visit cap | SIM-04 single-foe and SIM-05 pack-aware samples associate a higher limit with more fights and steps; the pack-aware sample had 9/90 Hollow and 12/90 Spire defeats at limit 8, compared with 15/90 and 11/90 respectively at limit 12. [SIM-04](economy-evidence/sim04-exploration.md), [SIM-05](economy-evidence/sim05-pack-economy.md). | Consider balance only after more seeds or play data; the 90-run cells are exploratory. |
 | Roaming ambushes | Denser maps increased encounters initiated by roamers in the recorded run. | Add a movement cap only if play shows excessive ambushes; the tried cap of six had no measurable sim effect. |
 | Essence/material income | SIM-05 pack-aware runs show substantial estimated Spire salvage essence value, lower than the SIM-04 single-foe estimate in these samples. [SIM-04](economy-evidence/sim04-exploration.md), [SIM-05](economy-evidence/sim05-pack-economy.md). | Retune `FRAG`/drop chances only after broader samples and player data. |
@@ -139,6 +139,7 @@ All rows are **Done**. Keep IDs stable; detailed implementation remains in sourc
 | ID | Scope and acceptance | Status |
 |---|---|---|
 | SIM-05 | Verify pack-aware fight dispatch in economy and fresh modes; correct it if needed; add a regression that observes real multi-foe fights using pack-smart; compare Heat-0 smart stage-melee economy samples (seeds 1/7/11, 30 expeditions per zone, limits 8/12) with SIM-04 and document exact revision, configuration, outcomes and policy caveats. No tuning. | Done |
+| SIM-06 | Add optional fresh regional progression through Woods and Pass using real unlock, boss-clear, and travel rules; keep default Woods-only behavior unchanged. Report per-run region reach, Fusing prerequisite/affordability/learn timing, gate state and barriers in console/JSON. Compare cheapest vs gear-first with seeds 1/7/11, 12 expeditions, Heat 0, `--packs`, and smart combat; don't grant unlocks, gear, XP, or RP. Add a regression for default compatibility, gated transition, Pass map/combat, and complete JSON metadata. | Done |
 
 ### Localization
 
@@ -155,6 +156,7 @@ All rows are **Done**. Keep IDs stable; detailed implementation remains in sourc
 - Larger economy samples and SIM-04 visit-limit comparison: [exploration evidence](economy-evidence/sim04-exploration.md).
 - Pack-aware economy comparison and regression: [SIM-05 evidence](economy-evidence/sim05-pack-economy.md), [regression script](tools/sim-pack-economy-check.js).
 - Procedural creature name localization scope, acceptance, and verification: [I18N-01](docs/procedural-name-localization.md); [browser regression](tools/procedural-name-check.js).
+- Fresh Woods-to-Pass progression and Fusing gate comparison: [SIM-06 evidence](economy-evidence/sim06-regional-progression.md), [raw samples](economy-evidence/sim06-regional-progression.json), [regression](tools/sim-fresh-progress-check.js).
 - Grounded undead idle motion scope and Chromium evidence: [A-06](art-evidence/a06-undead-idle.md).
 - Rift biome additions: [Tidewrack](rift-evidence/v05-tidewrack.md), [Windcut](rift-evidence/v06-windcut.md), [Garden](rift-evidence/v07-garden.md), [Geyser](rift-evidence/v08-baseline.md), [Sporewood](rift-evidence/v09-sporewood.md).
 - Combat foundations: [biome identity](rift-evidence/m05-identity.md), [specials](combat-evidence/v14-specials.md), [biome special pools](rift-evidence/v11-biome-specials.md), [element weights](rift-evidence/v13-element-weights.md), [map modifiers](rift-evidence/v15-biome-modifiers.md), [depth modifiers](rift-evidence/v21-depth-modifiers.md).

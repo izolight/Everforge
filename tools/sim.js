@@ -2,7 +2,7 @@
 // Balance simulator: plays battles and whole expeditions in the real game code (startBattle, attack, parry, ability, useItem, visit, pstats...)
 // in headless Chromium, with render/save/floatFx/sfx/toast stubbed. Kits are crafted with the real combine().
 // Usage: node tools/sim.js [--n 40] [--zone woods,pass] [--enemy wolf,archon] [--kit melee,spire-end] [--heat 0,3,5] [--policy smart,basic,passive,guard,parry]
-//        [--fresh (the first expeditions with the unlock gates on, --exped 5)] [--research-policy cheapest|gear-first] [--seed 7] [--trace (prints one battle log per cell, then exits)] [--elite (adds magic + and rare * variants)] [--rarity (the rarity table only)] [--row 3] [--all] [--attrition] [--no-mastered] [--no-biome-mods (disable V-15 passives for a stable balance reference)] [--jobs 4] [--out sim.json] [--econ-only | --no-econ] [--exped 30] [--visit-limit 8 (POIs before lair, 1–30)]
+//        [--fresh (the first expeditions with the unlock gates on, --exped 5)] [--fresh-progress (also travel from Woods to Pass after the real boss unlock)] [--research-policy cheapest|gear-first] [--seed 7] [--trace (prints one battle log per cell, then exits)] [--elite (adds magic + and rare * variants)] [--rarity (the rarity table only)] [--row 3] [--all] [--attrition] [--no-mastered] [--no-biome-mods (disable V-15 passives for a stable balance reference)] [--jobs 4] [--out sim.json] [--econ-only | --no-econ] [--exped 30] [--visit-limit 8 (POIs before lair, 1–30)]
 //        [--wild (only the wild and Rift sections, with the forced rarity variants)] [--no-wild (skip them)] [--rift-seeds 1,2,3] [--rift-depth 1,3] [--rift-wild (the Rift's own wild creatures too)] [--packs (seeded multi-foe map encounters; otherwise use the single-foe reference)] [--force rare (the forced variants to trace)]
 const {chromium}=require("playwright"),path=require("path"),fs=require("fs"),os=require("os");
 const URL="file://"+path.resolve(__dirname,"..","index.html");
@@ -61,6 +61,8 @@ if(VISIT_ARG>=0&&(!VISIT_LIMIT||VISIT_LIMIT.startsWith("--")))throw new Error("-
 if(!/^(?:[1-9]|[12][0-9]|30)$/.test(VISIT_LIMIT))throw new Error("--visit-limit must be a finite integer from 1 to 30");
 const VISIT_CAP=Number(VISIT_LIMIT);
 const OUT=opt("out",null);
+const FRESH_PROGRESS=has("fresh-progress");
+if(FRESH_PROGRESS&&!has("fresh"))throw new Error("--fresh-progress requires --fresh");
 const RESEARCH_POLICY_ARG=argv.indexOf("--research-policy"),RESEARCH_POLICY=RESEARCH_POLICY_ARG<0?"cheapest":argv[RESEARCH_POLICY_ARG+1];
 if(RESEARCH_POLICY_ARG>=0&&(!RESEARCH_POLICY||RESEARCH_POLICY.startsWith("--")))throw new Error("--research-policy requires cheapest or gear-first");
 if(!["cheapest","gear-first"].includes(RESEARCH_POLICY))throw new Error("--research-policy must be cheapest or gear-first");
@@ -250,33 +252,54 @@ function setup(opts){ // runs inside the game page; everything here uses the rea
     }
     return attempts};
   SIM.infuseFreshWeapon=freshWeaponInfusions;
-  const chores=researchPolicy=>{
+  const chores=(researchPolicy,onResearchChange)=>{
     const rp0=rpEarned(),learned=[],purchases=[];
     Object.keys(S.inv).filter(id=>S.inv[id]-eqCount(id)>0&&!isEss(id)&&(DECON[plainId(id)]&&canDecon(S.items[id])||salvageYield(S.items[id]).length)).forEach(id=>{while(S.inv[id]-eqCount(id)>0){if(canDecon(S.items[id]))deconstruct(id);else salvageItem(id)}}); // raw finds are deconstructed, gear with essences in it salvaged
-    const infusions=freshWeaponInfusions();
+    const infusions=freshWeaponInfusions();if(onResearchChange)onResearchChange();
     checkUnl(true);rpSweep();
-    if(isUnl("research")){[...new Set(Object.keys(S.inv).filter(id=>isEss(id)&&S.inv[id]>0).map(essTrait))].filter(canStudy).slice(0,3).forEach(studyFam);
-      for(let k=0;k<10;k++){const t=nextResearchTech(researchPolicy);if(!t)break;const state=techState(t),rpBefore=S.rp,cost=techCost(t);if(state!=="avail"||rpBefore<cost)throw new Error(`research policy selected unavailable or unaffordable technique ${t.id}`);learnTech(t.id);learned.push(t.name);purchases.push({id:t.id,name:t.name,cost,rpBefore})}}
+    if(onResearchChange)onResearchChange();
+    if(isUnl("research")){[...new Set(Object.keys(S.inv).filter(id=>isEss(id)&&S.inv[id]>0).map(essTrait))].filter(canStudy).slice(0,3).forEach(f=>{studyFam(f);if(onResearchChange)onResearchChange()});
+      for(let k=0;k<10;k++){const t=nextResearchTech(researchPolicy);if(!t)break;const state=techState(t),rpBefore=S.rp,cost=techCost(t);if(state!=="avail"||rpBefore<cost)throw new Error(`research policy selected unavailable or unaffordable technique ${t.id}`);learnTech(t.id);learned.push(t.name);purchases.push({id:t.id,name:t.name,cost,rpBefore});if(onResearchChange)onResearchChange()}}
     rpQ=[];return{gain:rpEarned()-rp0,learned,purchases,infusions}};
+  SIM.researchChores=chores;
   // the RP a technique needs in all: what it and the techniques it needs first cost, bought in order on a copy of the save (techCost in that order: a group's discount and free pick count)
   const chainTo=id=>{const s={techs:{...S.techs},tpaid:{...(S.tpaid||{})}};let total=0;
     const buy=t=>{if(s.techs[t.id])return;t.pre.forEach(p=>buy(TECH[p]));if(t.or&&!t.or.some(p=>s.techs[p]))buy(t.or.map(p=>TECH[p]).sort((a,b)=>techCost(a,s)-techCost(b,s))[0]);
       const c=techCost(t,s);total+=c;s.techs[t.id]=Math.max(0,...Object.values(s.techs))+1;s.tpaid[t.id]=c};
     buy(TECH[id]);return total};
-  SIM.fresh=(n,pol,seed,starter,researchPolicy)=>{
+  const fusingStatus=()=>{const t=TECH.fuse,state=techState(t),cost=techCost(t),researchOpen=isUnl("research");return{state,researchOpen,learned:state==="learned",available:researchOpen&&state==="avail",affordable:researchOpen&&state==="avail"&&S.rp>=cost,cost,rp:S.rp,smithLevel:level(),smithRequirement:t.rq?{text:rqT(t),met:!!t.ok(S)}:null,requires:t.pre.slice(),missing:techLack(t)}};
+  const noteFusingProgress=(progress,expedition)=>{const s=fusingStatus();if(s.available&&progress.firstFusingAvailableExpedition==null)progress.firstFusingAvailableExpedition=expedition;if(s.affordable&&progress.firstFusingAffordableExpedition==null)progress.firstFusingAffordableExpedition=expedition;if(s.learned&&progress.firstFusingLearnedExpedition==null)progress.firstFusingLearnedExpedition=expedition;return s};
+  SIM.fusingStatus=fusingStatus;
+  SIM.noteFusingProgress=noteFusingProgress;
+  SIM.fresh=(n,pol,seed,starter,researchPolicy,regionalProgress=false)=>{
     useSeed(seed,"fresh");const tutorialKit=SIM.build(starter,"woods",0,-1,0),ready=JSON.parse(tutorialKit.snap);S=freshState();
     // The tutorial asks the player to equip the Fire-infused sword before
     // exploring the Woods. Model that required preparation in the opening loop.
     const fireId=ready.eq.main;
     if(fireId){S.items[fireId]=ready.items[fireId];S.inv.iron_sword=0;S.inv[fireId]=1;S.eq.main=fireId}
     S.techs.weaponcraft=1;S.tpaid.weaponcraft=techCost(TECHS.find(t=>t.id==="weaponcraft"));
-    S.hp=pstats().maxHp;const rows=[],seenU=new Set();
+    S.hp=pstats().maxHp;const rows=[],seenU=new Set(),progress={firstPassExpedition:null,firstFusingAvailableExpedition:null,firstFusingAffordableExpedition:null,firstFusingLearnedExpedition:null,barriers:[]};
     for(let e=0;e<n;e++){
-      S.zone="woods";S.maps.woods=newMap("woods");S.battle=null;S.event=null;S.hp=pstats().maxHp;S.camp=2;S.stats.earned=0;
+      const zone=regionalProgress&&zoneOpen("pass")?"pass":"woods";
+      if(!zoneOpen(zone))throw new Error("fresh progression attempted to travel to locked region "+zone);
+      // Match the zone chooser's unlock gate: enemyDown opens Pass after the Woods boss is defeated.
+      S.zone=zone;S.maps[zone]=newMap(zone);S.battle=null;S.event=null;S.hp=pstats().maxHp;S.camp=2;S.stats.earned=0;
+      if(zone==="pass"&&progress.firstPassExpedition==null)progress.firstPassExpedition=e+1;
+      const observeFusing=()=>noteFusingProgress(progress,e+1);
+      const fuseBefore=regionalProgress?observeFusing():null;
       const m=curMap(),types={},w0=S.wins,rpE0=rpEarned();m.pois.forEach(p=>types[p.t]=(types[p.t]||0)+1);
       const r=walkExped(pol),res=r.won?"won":r.lost?"lost":"walked away";if(!r.won&&!r.lost)S.stats.exped++; // an abandoned run still counts as an expedition
-      const rs=chores(researchPolicy);checkUnl(true);const opened=Object.keys(S.unl).filter(k=>!seenU.has(k));Object.keys(S.unl).forEach(k=>seenU.add(k));
-      rows.push({e:e+1,res,steps:r.steps,fights:r.fights,wins:S.wins-w0,hunted:r.cont,pois:types,visits:r.visits,opened,rp:{gain:rpEarned()-rpE0,earned:rpEarned(),have:S.rp,learned:rs.learned,purchases:rs.purchases,infusions:rs.infusions,aff:TECHS.filter(t=>rpEarned()>=chainTo(t.id)).map(t=>t.id),src:Object.keys(S.rpd).reduce((o,k)=>{const p=k.split(":")[0];o[p]=(o[p]||0)+1;return o},{})},sc:{exps:exps(S),wins:S.wins,lv:level()}})}
+      if(regionalProgress)observeFusing(); // battle RP can cross the gate before the post-expedition chores spend it
+      const rs=chores(researchPolicy,regionalProgress?observeFusing:null);checkUnl(true);const opened=Object.keys(S.unl).filter(k=>!seenU.has(k));Object.keys(S.unl).forEach(k=>seenU.add(k));
+      const fuseAfter=regionalProgress?fusingStatus():null;
+      if(regionalProgress){observeFusing();if(!zoneOpen("pass")&&e===n-1)progress.barriers.push({region:"pass",reason:"Gnarlhorn has not been defeated; Pass remains locked by the real region-unlock rule."})}
+      rows.push({e:e+1,res,steps:r.steps,fights:r.fights,wins:S.wins-w0,hunted:r.cont,pois:types,visits:r.visits,opened,rp:{gain:rpEarned()-rpE0,earned:rpEarned(),have:S.rp,learned:rs.learned,purchases:rs.purchases,infusions:rs.infusions,aff:TECHS.filter(t=>rpEarned()>=chainTo(t.id)).map(t=>t.id),src:Object.keys(S.rpd).reduce((o,k)=>{const p=k.split(":")[0];o[p]=(o[p]||0)+1;return o},{})},sc:{exps:exps(S),wins:S.wins,lv:level()},...(regionalProgress?{zone,passUnlocked:zoneOpen("pass"),fusing:{before:fuseBefore,after:fuseAfter,learnedNow:rs.learned.includes(TECH.fuse.name)}}:{})})}
+    if(regionalProgress){
+      progress.fusing={firstAvailableExpedition:progress.firstFusingAvailableExpedition,firstAffordableExpedition:progress.firstFusingAffordableExpedition,firstLearnedExpedition:progress.firstFusingLearnedExpedition,totalEarnedRp:rpEarned(),final:fusingStatus(),requires:TECH.fuse.pre.slice(),cost:TECH.fuse.cost,smithRequirement:TECH.fuse.rq||null};
+      if(!progress.fusing.final.learned)progress.barriers.push({system:"fuse",reason:progress.fusing.final.missing.join("; ")||"Fusing was not learned during the run."});
+      progress.passClears=rows.filter(r=>r.zone==="pass"&&r.res==="won").map(r=>r.e);
+      return{rows,progress}
+    }
     return rows};
   SIM.exped=(snap,zone,heat,pol,seedKey,seed)=>{
     useSeed(seed,seedKey);S=JSON.parse(snap);S.zone=zone;S.embers=0;S.hp=pstats().maxHp;S.camp=2;S.maps[zone]=genMap({heat,zone});S.stats.earned=0;
@@ -347,16 +370,20 @@ async function main(){
   const gaps=cov.flatMap(c=>c.gap.filter(e=>!(EL_EXCEPT[c.z]||[]).includes(e)).map(e=>`${c.z}: ${e}`));
   if(gaps.length){console.error(`FAIL: biome elements with no authored enemy: ${gaps.join(", ")}`);await browser.close();process.exit(1)}
   if(has("fresh")){ // the first expeditions with gating, then done
-    const n=+opt("exped",5),rows=await P0.evaluate(([n,p,sd,starter,rp])=>SIM.fresh(n,p,sd,starter,rp),[n,POLS[0],SEED,STARTER,RESEARCH_POLICY]);
-    console.log(`== Fresh opening loop: ${n} Woods expeditions with unlock gates on (tutorial Fire sword and Weaponcraft prepared, ${POLS[0]} fight policy, ${RESEARCH_POLICY} research policy, POI routing threshold ${VISIT_CAP}) ==\nColumns: result, steps, fights, wins this run; POIs placed on the map (shown by type); POI types the bot walked into; what opened afterwards (smith Lv / total wins / expeditions finished).`);
+    const n=+opt("exped",5),freshResult=await P0.evaluate(([n,p,sd,starter,rp,progress])=>SIM.fresh(n,p,sd,starter,rp,progress),[n,POLS[0],SEED,STARTER,RESEARCH_POLICY,FRESH_PROGRESS]),rows=Array.isArray(freshResult)?freshResult:freshResult.rows,progress=Array.isArray(freshResult)?null:freshResult.progress;
+    console.log(`== Fresh opening loop: ${n} ${FRESH_PROGRESS?"Woods-to-Pass progression":"Woods"} expeditions with unlock gates on (tutorial Fire sword and Weaponcraft prepared, ${POLS[0]} fight policy, ${RESEARCH_POLICY} research policy, POI routing threshold ${VISIT_CAP}${PACKS_MODE?", pack-aware fights":""}) ==\nColumns: result, steps, fights, wins this run; POIs placed on the map (shown by type); POI types the bot walked into; what opened afterwards (smith Lv / total wins / expeditions finished).`);
     rows.forEach(r=>console.log(`#${r.e} ${r.res.padEnd(11)} ${String(r.steps).padStart(3)} steps ${String(r.fights).padStart(2)} fights ${String(r.wins).padStart(2)} wins | map: ${Object.entries(r.pois).map(([t,c])=>t+" "+c).join(", ")}\n     met: ${Object.entries(r.visits).map(([t,c])=>t+" "+c).join(", ")||"nothing"} | then Lv ${r.sc.lv}, ${r.sc.wins} wins, ${r.sc.exps} expeditions -> opened: ${r.opened.join(", ")||"-"}\n     research: +${r.rp.gain} RP (${r.rp.earned} earned, ${r.rp.have} unspent; sources so far: ${Object.entries(r.rp.src).map(([k,n])=>k+" "+n).join(", ")})${r.rp.learned.length?` | learned: ${r.rp.learned.join(", ")}`:""}`));
+    if(progress){
+      rows.forEach(r=>console.log(`     progression: ${r.zone}; Pass ${r.passUnlocked?"unlocked":"locked"}; Fusing ${r.fusing.after.learned?"learned":r.fusing.after.available?(r.fusing.after.affordable?"available and affordable":"available, but not affordable"):"locked"}; RP ${r.fusing.after.rp}/${r.fusing.after.cost}; Smith Lv ${r.fusing.after.smithLevel}; prerequisites: ${r.fusing.after.requires.join(", ")||"none"}${r.fusing.learnedNow?" (learned this expedition)":""}`));
+      console.log(`\nProgress summary: Pass first reached ${progress.firstPassExpedition==null?"not reached":"on expedition "+progress.firstPassExpedition}; Pass boss clears ${progress.passClears.join(", ")||"none"}. Fusing first available ${progress.fusing.firstAvailableExpedition==null?"not available":"on expedition "+progress.fusing.firstAvailableExpedition}; first affordable ${progress.fusing.firstAffordableExpedition==null?"not affordable":"on expedition "+progress.fusing.firstAffordableExpedition}; first learned ${progress.fusing.firstLearnedExpedition==null?"not learned":"on expedition "+progress.fusing.firstLearnedExpedition}. Fusing requires ${progress.fusing.requires.join(", ")||"no prerequisite"} and costs ${progress.fusing.cost} RP; Smith-level requirement: ${progress.fusing.smithRequirement||"none"} (Smith Lv ${progress.fusing.final.smithLevel}; ${progress.fusing.totalEarnedRp} total RP earned, ${progress.fusing.final.rp} unspent). ${progress.barriers.map(b=>b.reason).join(" ")||"No progression barrier recorded."}`);
+    }
     // the first expedition each technique is affordable (prerequisites learned, unspent RP covers its real cost), from the bot's own sequence
     const names=await P0.evaluate(()=>Object.fromEntries(TECHS.map(t=>[t.id,{n:t.name,c:S.techs[t.id]!=null?S.tpaid[t.id]:techCost(t),rq:rqT(t)}]))); // c: what it cost when bought (the free pick is 0), else what it costs now
     const first={};rows.forEach(r=>r.rp.aff.forEach(id=>{if(!first[id])first[id]={e:r.e}}));
     const learnedAt={};rows.forEach(r=>r.rp.learned.forEach(n=>{learnedAt[n]=learnedAt[n]||r.e}));
     console.log(`\nResearch: RP earned per expedition: ${rows.map(r=>r.rp.gain).join(", ")} (mean ${f1(rows.reduce((a,r)=>a+r.rp.gain,0)/rows.length)}). The bot deconstructs raw finds, studies up to three families, and tries up to two distinct essence traits on its equipped weapon using real craft checks. The tutorial sword already contains one essence, so Infusing III (which needs Infusing II and Smith Lv 5) gates another essence. Per-expedition attempts and gate reasons are in JSON. Research purchase policy: ${RESEARCH_POLICY}${RESEARCH_POLICY==="gear-first"?" (Armorcraft, Bladecraft, Bodycraft, Shieldcraft, Helmcraft, Bootcraft, Glovecraft, Spearcraft, Staffcraft in that priority order when available and affordable; otherwise buy the cheapest affordable available technique)":" (buy the cheapest affordable available technique)"}.\nAffordable = the first expedition whose cumulative RP earned covers the technique with what it needs first (the group technique, for a slot), at the real techCost (a slot technique costs 3 once its group is known, and the first one after a group technique is free). Learned = the expedition the bot bought it:`);
     console.log(Object.entries(names).map(([id,x])=>{const f=first[id];return `  ${x.n.padEnd(13)} ${String(x.c).padStart(2)} RP  ${f?"affordable from expedition "+f.e:"not affordable in "+rows.length+" expeditions"}${learnedAt[x.n]?", learned on "+learnedAt[x.n]:""}${x.rq?"  (needs "+x.rq+")":""}`}).join("\n"));
-    if(OUT){const fresh={args:{mode:"fresh",expeditions:n,seed:SEED,fightPolicy:POLS[0],researchPolicy:RESEARCH_POLICY,heat:0,visitLimit:VISIT_CAP},rows,techniques:names};fs.writeFileSync(OUT,JSON.stringify(fresh));console.log(`\nwrote ${OUT}`)}
+    if(OUT){const fresh={args:{mode:FRESH_PROGRESS?"fresh-progress":"fresh",expeditions:n,seed:SEED,fightPolicy:POLS[0],researchPolicy:RESEARCH_POLICY,heat:0,visitLimit:VISIT_CAP,...(progress?{regionalProgression:"woods-to-pass",packs:PACKS_MODE,encounterPolicy:PACKS_MODE&&POLS[0]==="smart"?"pack-smart":POLS[0]}:{})},rows,techniques:names,...(progress?{progress}:{})};fs.writeFileSync(OUT,JSON.stringify(fresh));console.log(`\nwrote ${OUT}`)}
     await browser.close();return}
   const zones=list("zone",ZN),kitSel=list("kit",null),mastered=!has("no-mastered");
   const eSel=list("enemy",null),pickE=e=>eSel?eSel.includes(e.id):(e.zone==="any"||zones.includes(e.zone));
