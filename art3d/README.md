@@ -1,5 +1,13 @@
 # art3d — the 3D hero
 
+The default female Prismatic model now follows the [simplified hero board](reference/prismatic-simplified-heroes-v1.png): compact proportions, eight broad copper hair masses with a ponytail, mitten gloves, a short two-panel teal tunic, plain gold borders, cuffed boots and a three-fold violet cloak. The breast and cloak compasses are painted decoration. It retains the shared rig, gear slots and animation clips. `prismatic_under_cape` shows the outfit construction; `prismatic_armed` adds the sword.
+
+Current renders: [turnaround](../art-evidence/prismatic-wanderer-turnaround.png), [without cape](../art-evidence/prismatic-wanderer-under-cape.png), [face](../art-evidence/prismatic-wanderer-face.png).
+
+```sh
+node tools/hero3d-shot.js --preset prismatic --variant female --views --pitch 0
+```
+
 An exploratory, dependency-free 3D version of the Everforge hero. It has:
 
 - a base body with no equipment

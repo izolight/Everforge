@@ -43,6 +43,10 @@ H3.body.build=function(o){
    if(m.v.length<250)m.v.forEach(p=>p[0]*=.96);
   }
   if(m.tag.startsWith("leg.")){m.pal=[{c:C.pants,mat:"cloth"},{c:"#565063",mat:"cloth",line:false}];m.paint=null;}
+  if(m.tag.startsWith("leg."))for(const p of m.v){
+   const side=p[0]<0?-1:1,cx=side*.095,w=.10*Math.exp(-(((p[1]-.37)/.085)**2));
+   p[0]=cx+(p[0]-cx)*(1+w);p[2]*=1+w;
+  }
   if(m.tag==="neck"){m.color=C.skin;m.pal=null;}
  }
  // Old cuff is a separate arm mesh, so discard it instead of leaving a ring of skin.
@@ -53,7 +57,6 @@ H3.body.build=function(o){
   pal:[{c:C.skin,mat:"skin"},{c:"#f1b995",mat:"skin",line:false},{c:C.rose,mat:"skin",line:false},{c:C.lip,mat:"skin",line:false}],
   paint:p=>{
    if(p[2]<.06)return 0;
-   if(Math.abs(p[0])<.026&&Math.abs(p[1]-(1.423+.09*Math.abs(p[0])))<.003)return 3;
    if(((Math.abs(p[0])-.09)/.025)**2+((p[1]-1.478)/.018)**2<1)return 2;
    return 0;
   }});
@@ -89,7 +92,7 @@ H3.body.build=function(o){
  }
  b.meshes.push(ell([0,1.416,.139],[.023,.006,.005],"#d18a76","head","head"));
  b.meshes.push(line([[-.023,1.423,.14],[-.009,1.428,.146],[0,1.425,.148],[.009,1.428,.146],[.023,1.423,.14]],.0022,"#ad6457","head","head"));
- b.meshes.push(line([[-.021,1.422,.141],[0,1.42,.15],[.021,1.422,.141]],.0011,"#854d45","head","head"));
+ b.meshes.push(line([[-.023,1.43,.141],[-.012,1.423,.149],[0,1.422,.15],[.012,1.423,.149],[.023,1.43,.141]],.0011,"#854d45","head","head"));
  // Eight sculpted hair masses: crown, back, two swept bangs, two temple locks, two tail pieces.
  const lock=(pts,widths,color,tag,bind)=>G.tube(pts.map((p,i)=>({p,rx:widths[i]*.44,ry:widths[i]})),
   {seg:5,steps:2,up:[0,0,1],tag,mat:"hair",color,bind:bind||"head",ink:false});
@@ -106,10 +109,10 @@ H3.body.build=function(o){
  for(const side of[-1,1])b.meshes.push(lock([[side*.14,1.62,.068],[side*.167,1.53,.067],[side*.153,1.435,.057],[side*.188,1.385,.031]],
   [.026,.035,.023,.001],side<0?C.copper:C.hair,"hair.back"));
  const tail="hair.ponytail";
- b.bones.push({name:tail,parent:"head",head:[.01,1.61,-.162],tail:[.03,1.30,-.22],spring:{stiff:85,drag:.3,grav:1,wind:.15,r:.008}});
- b.meshes.push(lock([[.005,1.63,-.153],[.036,1.64,-.236],[.068,1.51,-.257],[.055,1.35,-.225],[.012,1.275,-.182]],
+ b.bones.push({name:tail,parent:"head",head:[.01,1.61,-.162],tail:[.03,1.22,-.22],spring:{stiff:85,drag:.3,grav:1,wind:.15,r:.008}});
+ b.meshes.push(lock([[.005,1.63,-.153],[.036,1.64,-.236],[.068,1.51,-.257],[.055,1.30,-.225],[.012,1.195,-.182]],
   [.025,.075,.078,.045,.001],C.copper,"hair.back",tail));
- b.meshes.push(lock([[.018,1.64,-.175],[-.039,1.61,-.234],[-.042,1.46,-.25],[.012,1.325,-.212]],
+ b.meshes.push(lock([[.018,1.64,-.175],[-.039,1.61,-.234],[-.042,1.46,-.25],[.012,1.245,-.212]],
   [.021,.056,.049,.001],C.hair,"hair.back",tail));
  b.meshes.push(G.xform(G.loft([{y:-.012,rx:.037,rz:.032},{y:.012,rx:.037,rz:.032}],
   {seg:8,steps:1,tag:"hair.back",mat:"leather",color:C.leatherDark,bind:"head"}),{rx:Math.PI/2,t:[.012,1.61,-.18]}));
@@ -132,7 +135,7 @@ H3.gear.register({id:"wanderer_tunic",slot:"body",name:"Simple teal tunic",hides
  colors:{main:C.teal,sleeve:C.teal,trim:C.gold,belt:C.leather},
  build(ctx){
  const M=[],c=ctx.col,bind=from("torso"),gold=c("trim");
- M.push(G.loft(ctx.body.inflate(ctx.dims.rings.torso.filter(r=>r.y>=.66),.014),{seg:14,steps:2,name:"wanderer.bodice",mat:"cloth",bind,
+ M.push(G.loft(ctx.body.inflate(ctx.dims.rings.torso.filter(r=>r.y>=.88),.014),{seg:14,steps:2,name:"wanderer.bodice",mat:"cloth",bind,
   pal:[{c:c("main")},{c:gold,line:false},{c:C.skin,mat:"skin"}],
   paint:p=>{
    const v=1.20+Math.abs(p[0])*.55;
@@ -147,13 +150,17 @@ H3.gear.register({id:"wanderer_tunic",slot:"body",name:"Simple teal tunic",hides
   M.push(G.loft(keys,{seg:10,steps:2,name:"wanderer.sleeve",mat:"cloth",bind:from("arm."+S),
    pal:[{c:c("sleeve")},{c:gold,line:false}],paint:p=>p[1]<1.067?1:0}));
  }
+ // Trouser rise behind the open tunic slit, fitted to the same pelvis as the thighs.
+ M.push(G.loft(ctx.dims.rings.torso.filter(r=>r.y<=.88&&r.y>=.66),
+  {seg:14,steps:2,name:"wanderer.trouser.rise",mat:"cloth",color:C.pants,bind}));
  // A single flared shell, open at the centre front, makes the two short tabard tails.
  M.push(G.loft([{y:.90,rx:.194,rz:.143,e:2.5},{y:.77,rx:.218,rz:.153,e:2.5},{y:.625,rx:.256,rz:.17,e:2.4}],
   {seg:20,steps:2,open:y=>.035+.15*sstep(.90,.625,y),cap:false,twoSided:true,back:C.tealDark,
    name:"wanderer.skirt",mat:"cloth",bind, pal:[{c:c("main")},{c:gold,line:false}],
    paint:p=>{
-    const a=Math.abs(Math.atan2(p[0],p[2])),edge=.035+.15*sstep(.90,.625,p[1]);
-    return p[1]<.641||a<edge+.035?1:0;
+    const t=clamp((.9-p[1])/.275,0,1),rx=.194+.062*t,rz=.143+.027*t;
+    const a=Math.atan2(Math.abs(p[0]/rx)**1.23,Math.sign(p[2])*Math.abs(p[2]/rz)**1.23),edge=.035+.15*sstep(.90,.625,p[1]);
+    return p[1]<.641||a<edge+.06?1:0;
    }}));
  // One broad leather shoulder plate, a quiet edge, and a single mounting stud.
  M.push(G.loft([{y:1.27,rx:.041,rz:.067,cx:.19},{y:1.235,rx:.082,rz:.10,cx:.218},{y:1.135,rx:.10,rz:.102,cx:.262}],
@@ -211,11 +218,11 @@ H3.gear.register({id:"wanderer_cape",slot:"back",name:"Simple violet cloak",colo
   {seg:12,steps:1,open:y=>.5+(1.34-y)*5,cap:false,twoSided:true,back:c("fold"),name:"wanderer.hood.down",mat:"cloth",color:c("main"),bind}));
  // Broad triangles drape over the shoulders and meet at a round gold clasp.
  for(const side of[-1,1])M.push(G.sheet((u,v)=>{
-  const x=side*(.018+.216*u),y=1.305-.105*u-v*(.105-.055*u);
+  const x=side*(.018+.216*u),y=1.31-.03*u-v*(.11-.085*u);
   return[x,y,.12+.055*Math.sin(u*Math.PI)+.045*v];
  },4,2,{name:"wanderer.mantle",mat:"cloth",color:c("main"),back:c("fold"),bind}));
- M.push(ell([0,1.228,.17],[.018,.018,.009],c("trim"),bind,"wanderer.clasp","gold"));
- M.push(ell([0,1.228,.18],[.009,.009,.003],C.goldLight,bind,"wanderer.clasp.inset","gold"));
+ M.push(ell([0,1.205,.17],[.018,.018,.009],c("trim"),bind,"wanderer.clasp","gold"));
+ M.push(ell([0,1.205,.18],[.009,.009,.003],C.goldLight,bind,"wanderer.clasp.inset","gold"));
  return{meshes:M,bones};
 }});
 

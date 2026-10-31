@@ -9,6 +9,8 @@ Captured from the repository's SVG renderers in Chromium at the sizes used by th
 
 ## 3D hero (exploratory, `art3d/`)
 
+The current simplified Prismatic Wanderer is shown in the [front / three-quarter / side / back turnaround](prismatic-wanderer-turnaround.png), [cape-free turnaround](prismatic-wanderer-under-cape.png) and [face close-up](prismatic-wanderer-face.png). These are actual geometry renders against `prismatic-simplified-heroes-v1.png`, using `--preset prismatic --variant female` (or `prismatic_under_cape`). Earlier hero images below document the previous models.
+
 Rendered in Node with `node tools/hero3d-shot.js --evidence`, using the dependency-free software renderer. See [art3d/README.md](../art3d/README.md).
 
 - [Base hero turnaround](hero3d-base.png): the unequipped body in front, 3/4, side and back views. It shows the face, hair, linen undershirt, waist tie, wrapped shins and mitten hands, in the rest pose.

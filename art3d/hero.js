@@ -66,6 +66,12 @@ H3.hero.build=function(loadout,o){
   const variant=o.variant||"male";
   if(!["male","female"].includes(variant))throw new Error("unknown body variant "+variant);
   if(variant==="female"){
+    // The simplified turnaround uses an open A-pose and a slightly wider stance.
+    for(const [side,sign] of [["L",1],["R",-1]]){
+      const arm=hints.r["upperarm."+side]||[0,0,0];
+      hints.r["upperarm."+side]=[arm[0],arm[1],arm[2]+sign*.15];
+      hints.r["thigh."+side]=[0,0,sign*.035];
+    }
     // Apply one continuous rest-space profile to the assembled outfit and skeleton.
     // Binding is done first so clothing keeps the same weights as the body beneath it.
     const fit=H3.wanderer.profile;
