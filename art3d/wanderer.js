@@ -1,39 +1,37 @@
-// Prismatic Wanderer: geometry authored against the front turnaround in reference/.
+// Prismatic Wanderer: simplified-heroes and simplified-bases boards are the design authority.
 // Uses the shared rest-space rig; the female profile fits body, clothing and bones together.
 (function(){
 "use strict";
-const {G,U}=H3,{clamp,sstep,seg2}=U,TAU=Math.PI*2;
-const C={skin:"#e6aa88",rose:"#c77a6d",lip:"#b66157",hair:"#a84f2e",hairDark:"#693225",copper:"#ca6635",hairLight:"#e58c4e",
+const {G,U}=H3,{clamp,sstep}=U;
+const C={skin:"#e6aa88",rose:"#e3a787",lip:"#b66157",hair:"#96482e",hairDark:"#603025",copper:"#b65b35",hairLight:"#d48249",
  teal:"#327f8b",tealLight:"#4397a0",tealDark:"#225564",sleeve:"#647d99",gold:"#d9a358",goldLight:"#f1ca7c",leather:"#86523b",leatherDark:"#58382f",leatherLight:"#b57850",
- violet:"#524a73",violetLight:"#776485",violetDark:"#39364f",pants:"#454354"};
+ violet:"#716487",violetLight:"#8b728e",violetDark:"#514766",pants:"#454354"};
+// Softer fill keeps facial features and violet cloth readable from every turnaround angle.
+H3.MATS.prism_cloth={...H3.MATS.cloth,sh:[.64,.58,.82],lt:[1.08,1.02,.96],rim:.3};
+H3.MATS.prism_skin={...H3.MATS.skin,sh:[.84,.64,.69],lt:[1.06,1,.95],rim:.2};
+H3.MATS.prism_hair={...H3.MATS.hair,sh:[.59,.40,.51],lt:[1.10,1.01,.94],spec:.04,rim:.35};
 const from=(...tags)=>({from:tags});
 function line(points,r,color,bind,name,mat){return G.tube(points.map(p=>({p,r})),{seg:6,steps:2,color,mat:mat||"cloth",bind,name,ink:false})}
 function ell(p,r,color,bind,name,mat){return G.xform(G.ball(...r,{seg:16,rings:8,color,mat:mat||"skin",bind,name,tag:name,ink:false}),{t:p})}
-function ring(cx,cy,rz,rx,color,bind,name){
- return line(Array.from({length:33},(_,i)=>[cx+rx*Math.sin(i/32*TAU),cy+rx*Math.cos(i/32*TAU),rz]),0.0027,color,bind,name,"gold");
-}
-// Eight-point compass rose with long cardinal points and a suspended diamond.
+// Four-point compass, painted on the breast and cloak.
 function compass(x,y,r,w){
- const rr=Math.hypot(x,y);if(Math.abs(rr-r*.70)<w)return true;
- if(Math.abs(x)<w&&Math.abs(y)<r*1.35||Math.abs(y)<w&&Math.abs(x)<r*1.18)return true;
- for(let i=0;i<8;i++){
-  const a=i*TAU/8,dx=Math.sin(a),dy=Math.cos(a),along=x*dx+y*dy,across=Math.abs(x*dy-y*dx),len=r*(i%2?.66:1.08);
-  if(along>0&&along<len&&Math.abs(across-(1-along/len)*r*.17)<w*.85)return true;
- }
- const dy=y+r*1.53;
- return Math.abs(Math.abs(x)+Math.abs(dy)-r*.12)<w&&Math.abs(dy)<r*.15;
+ if(Math.abs(Math.hypot(x,y)-r*.70)<w)return true;
+ if(Math.abs(x)<w&&Math.abs(y)<r*1.10||Math.abs(y)<w&&Math.abs(x)<r*1.10)return true;
+ const a=Math.abs(x),b=Math.abs(y);
+ return (a/r+b/(r*.18)<1||b/r+a/(r*.18)<1)&&Math.max(a,b)>r*.08;
 }
-// Remap the old rig's short legs / oversized head to the sheet's seven-head adult figure.
-const profileKeys=[[0,0,1],[.11,.12,.9],[.37,.50,1],[.66,.88,.96],[.88,1.075,.76],[1.13,1.33,.91],[1.25,1.475,.97],[1.32,1.515,.75],[1.8,1.805,.75]];
+// Fit the shared rest rig to the simplified board's compact adult proportions.
+const profileKeys=[[0,0,1],[.11,.12,.94],[.37,.45,1.06],[.50,.64,1.05],[.66,.86,1.0],[.88,1.075,.84],[1.13,1.29,.88],[1.25,1.405,.9],[1.32,1.445,.86],[1.8,1.78,.86]];
 function profile(p){
  let i=1;while(i<profileKeys.length-1&&p[1]>profileKeys[i][0])i++;
  const a=profileKeys[i-1],b=profileKeys[i],t=(p[1]-a[0])/(b[0]-a[0]),sx=a[2]+(b[2]-a[2])*sstep(0,1,t);
- const depth=p[1]>1.32?.72:p[1]>.88?.89:.94;
- return[p[0]*sx,a[1]+(b[1]-a[1])*t,p[2]*depth];
+ const depth=p[1]>1.32?.82:p[1]>.88?.89:.94;
+ const limb=sstep(.19,.29,Math.abs(p[0]))*(1-sstep(1.16,1.28,p[1]));
+ return[p[0]*(sx+(1-sx)*limb),a[1]+(b[1]-a[1])*t,p[2]*depth];
 }
 H3.wanderer={profile};
 
-// Female anatomy: shaped face, copper waves, bare arms and individual fingers.
+// Female anatomy: broad planes, expressive face, eight hair masses and mitten hands.
 const baseBuild=H3.body.build;
 H3.body.build=function(o){
  const b=baseBuild(o);if(!o||o.variant!=="female")return b;
@@ -44,249 +42,212 @@ H3.body.build=function(o){
    // Remove the undershirt cuff; the new short sleeves belong to the body slot.
    if(m.v.length<250)m.v.forEach(p=>p[0]*=.96);
   }
-  if(m.tag.startsWith("leg.")){m.pal=[{c:C.pants,mat:"cloth"},{c:"#565063",mat:"cloth",line:false}];m.paint=p=>Math.sin(p[1]*56+Math.abs(p[0])*24)>.87?1:0;}
+  if(m.tag.startsWith("leg.")){m.pal=[{c:C.pants,mat:"cloth"},{c:"#565063",mat:"cloth",line:false}];m.paint=null;}
   if(m.tag==="neck"){m.color=C.skin;m.pal=null;}
  }
  // Old cuff is a separate arm mesh, so discard it instead of leaving a ring of skin.
  b.meshes=M.filter(m=>!m.tag.startsWith("arm.")||m.v.length>250);
  const headKeys=[{y:1.325,rx:.025,rz:.03,cz:.05},{y:1.36,rx:.066,rz:.071,cz:.039},{y:1.415,rx:.102,rz:.102,cz:.027},
   {y:1.48,rx:.137,rz:.132,cz:.018},{y:1.55,rx:.142,rz:.145,cz:.013},{y:1.64,rx:.14,rz:.146,cz:0},{y:1.715,rx:.105,rz:.111,cz:-.005},{y:1.755,rx:.028,rz:.033,cz:-.008}];
- const face=G.loft(headKeys,{seg:64,steps:5,tag:"head",mat:"skin",bind:"head",
+ const face=G.loft(headKeys,{seg:32,steps:3,tag:"head",mat:"skin",bind:"head",
   pal:[{c:C.skin,mat:"skin"},{c:"#f1b995",mat:"skin",line:false},{c:C.rose,mat:"skin",line:false},{c:C.lip,mat:"skin",line:false}],
   paint:p=>{
    if(p[2]<.06)return 0;
-   if(Math.abs(p[0])<.032&&Math.abs(p[1]-(1.422+.12*Math.abs(p[0])))<.005)return 3;
-   if(Math.abs(Math.abs(p[0])-.09)<.027&&Math.abs(p[1]-1.478)<.02)return 2;
-   return Math.abs(p[0])<.05&&p[1]>1.47?1:0;
+   if(Math.abs(p[0])<.026&&Math.abs(p[1]-(1.423+.09*Math.abs(p[0])))<.003)return 3;
+   if(((Math.abs(p[0])-.09)/.025)**2+((p[1]-1.478)/.018)**2<1)return 2;
+   return 0;
   }});
  for(const p of face.v)if(p[2]>0){
   const cheek=Math.exp(-(((Math.abs(p[0])-.086)/.04)**2+((p[1]-1.49)/.045)**2));
   const nose=Math.exp(-((p[0]/.018)**2+((p[1]-1.496)/.042)**2));
   const socket=Math.exp(-(((Math.abs(p[0])-.065)/.033)**2+((p[1]-1.55)/.025)**2));
-  p[2]+=.008*cheek+.025*nose-.007*socket;
+  p[2]+=.006*cheek+.018*nose-.003*socket;
  }
  b.meshes.push(face);
  // Eyes sit on the face surface, with almond-shaped openings and tilted outer corners.
  for(const s of[-1,1]){
   const cx=s*.064,cy=1.548;
   const eye=G.sheet((u,v)=>{
-   const x=(u*2-1)*.034,arc=Math.sin(u*Math.PI)**.72,y=cy+s*x*.12+arc*(v*2-1)*(v>.5?.020:.014);
-   return[cx+x,y,.159-.23*Math.abs(cx+x)+.002*arc];
-  },24,8,{tag:"head",mat:"skin",bind:"head",ink:false,
+   const x=(u*2-1)*.034,arc=Math.sin(u*Math.PI)**.72,y=cy+s*x*.18+arc*(v*2-1)*(v>.5?.025:.018);
+   return[cx+x,y,.163-.23*Math.abs(cx+x)+.002*arc];
+  },16,6,{tag:"head",mat:"skin",bind:"head",ink:false,flip:true,
    pal:[{c:"#f6e6cc",mat:"skin",line:false},{c:"#3c542d",mat:"skin",line:false},{c:"#849953",mat:"skin",line:false},{c:"#222b23",mat:"skin",line:false},{c:"#fff5db",mat:"glow",line:false}],
-   paint:p=>{const x=(p[0]-cx)/.015,y=(p[1]-cy)/.023,d=x*x+y*y;
+   paint:p=>{const x=(p[0]-cx)/.015,y=(p[1]-cy)/.027,d=x*x+y*y;
     if(((p[0]-cx+.004)/.004)**2+((p[1]-cy-.006)/.005)**2<1)return 4;
     return d<.26?3:d<.77?2:d<1?1:0;}});
   eye.bias=.002;b.meshes.push(eye);
   const lash=[],lower=[];
   for(let i=0;i<=16;i++){const u=i/16,x=(u*2-1)*.034,arc=Math.sin(u*Math.PI)**.72;
-   lash.push([cx+x,cy+s*x*.12+arc*.020,.161-.23*Math.abs(cx+x)]);
-   lower.push([cx+x,cy+s*x*.12-arc*.014,.160-.23*Math.abs(cx+x)]);}
+   lash.push([cx+x,cy+s*x*.18+arc*.025,.167-.23*Math.abs(cx+x)]);
+   lower.push([cx+x,cy+s*x*.18-arc*.018,.166-.23*Math.abs(cx+x)]);}
   b.meshes.push(line(lash,.0033,"#442b28","head","head"),line(lower,.0013,"#a66553","head","head"));
-  const brow=G.tube([{p:[s*.031,1.592,.155],rx:.006,ry:.005},{p:[s*.061,1.611,.144],rx:.008,ry:.005},{p:[s*.101,1.592,.126],rx:.002,ry:.002}],
+  const brow=G.tube([{p:[s*.031,1.592,.155],rx:.0035,ry:.004},{p:[s*.061,1.604,.144],rx:.005,ry:.004},{p:[s*.101,1.592,.126],rx:.0015,ry:.002}],
    {seg:6,steps:4,tag:"head",mat:"hair",color:"#683727",bind:"head",ink:false});b.meshes.push(brow);
   b.meshes.push(ell([s*.14,1.516,0],[.019,.038,.023],C.skin,"head","head.ears"));
   b.meshes.push(ell([s*.151,1.516,.014],[.008,.021,.013],C.rose,"head","head.ears"));
-  // Subtle freckles across the cheeks.
-  for(let i=0;i<5;i++)b.meshes.push(ell([s*(.059+i*.009),1.487+(i%2)*.009,.145-i*.004],[.0017,.002,.001],"#b77857","head","head"));
+
  }
- b.meshes.push(ell([0,1.486,.174],[.013,.014,.014],C.skin,"head","head"));
  b.meshes.push(ell([0,1.416,.139],[.023,.006,.005],"#d18a76","head","head"));
- b.meshes.push(line([[-.025,1.425,.139],[-.01,1.427,.146],[0,1.424,.149],[.01,1.427,.146],[.025,1.425,.139]],.0018,"#8e4f45","head","head"));
- // Closed crown under overlapping, tapered, flattened locks. No painted hairline on skin.
- b.meshes.push(G.loft([{y:1.57,rx:.148,rz:.154,cz:-.018},{y:1.66,rx:.158,rz:.165,cz:-.014},{y:1.73,rx:.124,rz:.131,cz:-.012},{y:1.78,rx:.06,rz:.07,cz:-.018},{y:1.795,rx:.012,rz:.017,cz:-.022}],
-  {seg:20,steps:2,open:y=>y<1.7?1.25:0,cap:false,twoSided:true,back:C.hairDark,tag:"hair.top",mat:"hair",color:C.hair,bind:"head"}));
- const lock=(pts,widths,color,tag,bind)=>G.tube(pts.map((p,i)=>({p,rx:widths[i]*.36,ry:widths[i]})),
-  {seg:6,steps:4,up:[0,0,1],tag,mat:"hair",color,bind:bind||"head",ink:false});
- // Layered waves around the back, curling out at the shoulder line.
- for(let i=0;i<11;i++){
-  const a=-Math.PI*.76+i*Math.PI*1.52/10,x=Math.sin(a),z=-Math.cos(a),side=x<0?-1:1;
-  b.meshes.push(lock([[x*.10,1.75,z*.105-.02],[x*.145,1.62,z*.15-.025],[x*.161+side*.01,1.48,z*.165-.03],
-   [x*.17-side*.015,1.34,z*.17-.045],[x*.17+side*.035,1.26+(i%3)*.02,z*.15-.04],[x*.17+side*.055,1.30,z*.13-.045]],
-   [.018,.047,.048,.042,.028,.001],i%3===0?C.copper:i%3===1?C.hair:C.hairDark,"hair.back",{bones:["head","neck"],power:5}));
+ b.meshes.push(line([[-.023,1.423,.14],[-.009,1.428,.146],[0,1.425,.148],[.009,1.428,.146],[.023,1.423,.14]],.0022,"#ad6457","head","head"));
+ b.meshes.push(line([[-.021,1.422,.141],[0,1.42,.15],[.021,1.422,.141]],.0011,"#854d45","head","head"));
+ // Eight sculpted hair masses: crown, back, two swept bangs, two temple locks, two tail pieces.
+ const lock=(pts,widths,color,tag,bind)=>G.tube(pts.map((p,i)=>({p,rx:widths[i]*.44,ry:widths[i]})),
+  {seg:5,steps:2,up:[0,0,1],tag,mat:"hair",color,bind:bind||"head",ink:false});
+ b.meshes.push(G.loft([{y:1.56,rx:.15,rz:.16,cz:-.014},{y:1.66,rx:.16,rz:.169,cz:-.014},
+  {y:1.74,rx:.119,rz:.133,cz:-.013},{y:1.785,rx:.037,rz:.045,cz:-.018}],
+  {seg:12,steps:2,open:y=>y<1.69?1.16:0,cap:false,twoSided:true,back:C.hairDark,tag:"hair.top",mat:"hair",color:C.hair,bind:"head"}));
+ b.meshes.push(G.loft([{y:1.38,rx:.075,rz:.08,cz:-.04},{y:1.44,rx:.129,rz:.137,cz:-.025},
+  {y:1.56,rx:.154,rz:.166,cz:-.018},{y:1.68,rx:.145,rz:.158,cz:-.015}],
+  {seg:12,steps:2,open:()=>1.37,cap:false,twoSided:true,back:C.hairDark,tag:"hair.back",mat:"hair",color:C.hair,bind:"head"}));
+ b.meshes.push(lock([[.045,1.79,.045],[.013,1.75,.151],[-.075,1.674,.182],[-.16,1.605,.13],[-.183,1.574,.09]],
+  [.014,.059,.052,.029,.001],C.copper,"hair.front"));
+ b.meshes.push(lock([[.058,1.77,.05],[.105,1.709,.15],[.151,1.636,.133],[.17,1.59,.075]],
+  [.012,.041,.03,.001],C.hair,"hair.front"));
+ for(const side of[-1,1])b.meshes.push(lock([[side*.14,1.62,.068],[side*.167,1.53,.067],[side*.153,1.435,.057],[side*.188,1.385,.031]],
+  [.026,.035,.023,.001],side<0?C.copper:C.hair,"hair.back"));
+ const tail="hair.ponytail";
+ b.bones.push({name:tail,parent:"head",head:[.01,1.61,-.162],tail:[.03,1.30,-.22],spring:{stiff:85,drag:.3,grav:1,wind:.15,r:.008}});
+ b.meshes.push(lock([[.005,1.63,-.153],[.036,1.64,-.236],[.068,1.51,-.257],[.055,1.35,-.225],[.012,1.275,-.182]],
+  [.025,.075,.078,.045,.001],C.copper,"hair.back",tail));
+ b.meshes.push(lock([[.018,1.64,-.175],[-.039,1.61,-.234],[-.042,1.46,-.25],[.012,1.325,-.212]],
+  [.021,.056,.049,.001],C.hair,"hair.back",tail));
+ b.meshes.push(G.xform(G.loft([{y:-.012,rx:.037,rz:.032},{y:.012,rx:.037,rz:.032}],
+  {seg:8,steps:1,tag:"hair.back",mat:"leather",color:C.leatherDark,bind:"head"}),{rx:Math.PI/2,t:[.012,1.61,-.18]}));
+ // One finger block plus an opposed thumb, keeping the existing fist-closing bone.
+ for(const[side,S]of[[1,"L"],[-1,"R"]]){
+  b.meshes.push(G.loft([{y:.732,rx:.034,rz:.037,cx:side*.347,cz:.034},{y:.682,rx:.041,rz:.044,cx:side*.354,cz:.038},
+   {y:.642,rx:.038,rz:.043,cx:side*.36,cz:.04}],{seg:10,steps:2,tag:"hand."+S,color:C.skin,mat:"skin",bind:"hand."+S}));
+  b.meshes.push(G.loft([{y:.651,rx:.039,rz:.044,cx:side*.36,cz:.04},{y:.607,rx:.039,rz:.044,cx:side*.367,cz:.042},
+   {y:.57,rx:.027,rz:.034,cx:side*.368,cz:.044},{y:.56,rx:.009,rz:.014,cx:side*.365,cz:.044}],
+   {seg:10,steps:2,tag:"hand."+S,color:C.skin,mat:"skin",bind:"fingers."+S}));
+  b.meshes.push(G.tube([{p:[side*.34,.691,.071],r:.018},{p:[side*.324,.659,.097],r:.018},{p:[side*.332,.627,.103],r:.010}],
+   {seg:8,steps:2,tag:"hand."+S,mat:"skin",color:C.skin,bind:"hand."+S,ink:false}));
  }
- // Big side-swept fringe, part above the character's left eye.
- const fringe=[
-  [[.032,1.787,.024],[.016,1.77,.127],[-.05,1.699,.168],[-.133,1.636,.14],[-.194,1.63,.078]],
-  [[.057,1.779,.061],[.03,1.749,.151],[-.033,1.669,.175],[-.12,1.617,.148],[-.166,1.59,.09]],
-  [[.025,1.79,.035],[-.043,1.769,.108],[-.125,1.69,.125],[-.163,1.584,.062],[-.196,1.535,.07]],
-  [[.051,1.778,.055],[.093,1.723,.147],[.128,1.656,.141],[.172,1.62,.112],[.189,1.646,.075]],
-  [[.059,1.77,.018],[.122,1.728,.087],[.163,1.65,.06],[.169,1.53,.048],[.2,1.48,.036]]
- ];
- fringe.forEach((pts,i)=>b.meshes.push(lock(pts,[.012,.037,.032,.020,.001],i%2?C.copper:C.hair,"hair.front")));
- // Temple locks frame the face, leave both eyes visible, and have independent springs.
- for(const s of[-1,1]){
-  const name="hair.lock."+(s>0?"L":"R");b.bones.push({name,parent:"head",head:[s*.145,1.56,-.01],tail:[s*.17,1.27,-.012],spring:{stiff:65,drag:.3,grav:1,wind:.1,r:.006}});
-  for(let i=0;i<3;i++)b.meshes.push(lock([[s*(.14+i*.008),1.64-i*.035,.045-i*.045],[s*(.17+i*.01),1.50,.025-i*.035],
-   [s*(.146+i*.012),1.39,-.003-i*.025],[s*(.18+i*.012),1.29+i*.014,.015-i*.035],[s*(.21+i*.009),1.32+i*.015,.005-i*.02]],
-   [.022,.028,.026,.018,.001],i===1?C.copper:C.hair,"hair.back",{fn:p=>{const w=1-sstep(1.28,1.58,p[1]);return[["head",1-w],[name,w]]}}));
- }
- // Hands: a small palm, four separated fingers, and the opposed thumb.
- for(const[s,S]of[[1,"L"],[-1,"R"]]){
-  b.meshes.push(G.loft([{y:.732,rx:.029,rz:.032,cx:s*.347,cz:.034},{y:.69,rx:.032,rz:.036,cx:s*.354,cz:.038},{y:.646,rx:.028,rz:.035,cx:s*.36,cz:.04}],
-   {seg:16,steps:3,tag:"hand."+S,color:C.skin,mat:"skin",bind:"hand."+S}));
-  for(let i=0;i<4;i++){
-   const z=.014+i*.018,len=[.071,.083,.077,.059][i];
-   b.meshes.push(G.tube([{p:[s*(.343+i*.007),.653,z],r:.009},{p:[s*(.351+i*.007),.62,z+.002],r:.009},
-    {p:[s*(.354+i*.007),.65-len,z+.006],r:.007},{p:[s*(.35+i*.007),.645-len,z+.007],r:.003}],
-    {seg:8,steps:3,tag:"hand."+S,mat:"skin",color:C.skin,bind:"fingers."+S,ink:false}));
-  }
-  b.meshes.push(G.tube([{p:[s*.345,.698,.066],r:.013},{p:[s*.331,.674,.084],r:.012},{p:[s*.328,.647,.09],r:.009},{p:[s*.333,.634,.088],r:.003}],
-   {seg:8,steps:3,tag:"hand."+S,mat:"skin",color:C.skin,bind:"hand."+S,ink:false}));
- }
+
  return b;
 };
 
-// Fitted bodice, short blue sleeves and three open embroidered skirt panels.
-H3.gear.register({id:"wanderer_tunic",slot:"body",name:"Wanderer's embroidered tunic",hides:["torso"],
- colors:{main:C.teal,sleeve:C.sleeve,trim:C.gold,belt:C.leather},
+// Short two-panel tunic. Trim and compass are painted, with no embroidery geometry.
+H3.gear.register({id:"wanderer_tunic",slot:"body",name:"Simple teal tunic",hides:["torso"],
+ colors:{main:C.teal,sleeve:C.teal,trim:C.gold,belt:C.leather},
  build(ctx){
  const M=[],c=ctx.col,bind=from("torso"),gold=c("trim");
- const torso=G.loft(ctx.body.inflate(ctx.dims.rings.torso.filter(r=>r.y>=.66),.012),{seg:20,steps:3,name:"wanderer.bodice",mat:"cloth",bind,
-  pal:[{c:c("main")},{c:C.tealDark,line:false},{c:gold,line:false},{c:C.skin,mat:"skin"}],
-  paint:p=>{const ax=Math.abs(p[0]);if(p[2]>.02&&p[1]>1.18+ax*.62)return 3;
-   if(p[2]>.08&&Math.abs(p[1]-1.18-ax*.62)<.005)return 2;
-   if(p[2]>.08&&Math.abs(ax-(.07+.15*(p[1]-.88)))<.0025&&p[1]>.9)return 1;
-   if(p[2]>.08&&Math.abs(p[0])<.003&&p[1]>.92&&p[1]<1.13)return 2;
-   return 0;}});
- M.push(torso);
- for(const[s,S]of[[1,"L"],[-1,"R"]]){
-  const keys=ctx.dims.rings.arm[S].filter(r=>r.y>=1.13).map(r=>({...r,rx:r.rx+.018,rz:r.rz+.018}));
-  keys.push({y:1.04,rx:.087,rz:.085,cx:s*.279,cz:.008});
-  M.push(G.loft(keys,{seg:10,steps:2,mat:"cloth",name:"wanderer.sleeve",bind:from("arm."+S),
-   pal:[{c:c("sleeve")},{c:"#8496aa",line:false}],paint:p=>p[1]<1.067?1:0}));
+ M.push(G.loft(ctx.body.inflate(ctx.dims.rings.torso.filter(r=>r.y>=.66),.014),{seg:14,steps:2,name:"wanderer.bodice",mat:"cloth",bind,
+  pal:[{c:c("main")},{c:gold,line:false},{c:C.skin,mat:"skin"}],
+  paint:p=>{
+   const v=1.20+Math.abs(p[0])*.55;
+   if(p[2]>.02&&p[1]>v)return 2;
+   if(p[2]>.08&&Math.abs(p[1]-v)<.006)return 1;
+   if(p[2]>.1&&compass(p[0]-.09,p[1]-1.125,.027,.0024))return 1;
+   return 0;
+  }}));
+ for(const[side,S]of[[1,"L"],[-1,"R"]]){
+  const keys=ctx.dims.rings.arm[S].filter(r=>r.y>=1.13).map(r=>({...r,rx:r.rx+.009,rz:r.rz+.009}));
+  keys.push({y:1.055,rx:.073,rz:.074,cx:side*.278,cz:.008});
+  M.push(G.loft(keys,{seg:10,steps:2,name:"wanderer.sleeve",mat:"cloth",bind:from("arm."+S),
+   pal:[{c:c("sleeve")},{c:gold,line:false}],paint:p=>p[1]<1.067?1:0}));
  }
- // Panels are separate surfaces. Gaps at the thighs reveal indigo trousers.
- const panel=(angle,width,back)=>{
-  const surf=(u,v)=>{
-   const a=angle+(u-.5)*width,rx=.2+.075*v,rz=.143+.057*v,fold=.008*Math.cos(u*Math.PI*4)*v;
-   const y=.84-.41*v+(angle===0?-.013*v:0)+.018*Math.cos(u*TAU)*v;
-   return[(rx+fold)*Math.sin(a),y,(rz+fold)*Math.cos(a)];};
-  const mesh=G.sheet(surf,10,9,{name:"wanderer.skirt",mat:"cloth",back:C.tealDark,bind:from("hips","torso"),
-   pal:[{c:c("main")},{c:gold,line:false},{c:C.tealDark,line:false}],
+ // A single flared shell, open at the centre front, makes the two short tabard tails.
+ M.push(G.loft([{y:.90,rx:.194,rz:.143,e:2.5},{y:.77,rx:.218,rz:.153,e:2.5},{y:.625,rx:.256,rz:.17,e:2.4}],
+  {seg:20,steps:2,open:y=>.035+.15*sstep(.90,.625,y),cap:false,twoSided:true,back:C.tealDark,
+   name:"wanderer.skirt",mat:"cloth",bind, pal:[{c:c("main")},{c:gold,line:false}],
    paint:p=>{
-    const a=Math.atan2(p[0],p[2]),u=(a-angle)/width+.5,v=(.84-p[1])/.41;
-    if(u<.035||u>.965||v>.965)return 2;
-    if(u>.06&&u<.075||u>.925&&u<.94||v>.93&&v<.945)return 1;
-    if(angle===0){if(compass(p[0],(p[1]-.65)*1.05,.068,.0017))return 1;}
-    // Angular vines, small diamonds and crossed hem flourishes.
-    if(v>.66){const dx=(u-.5)*2,dy=(v-.83)*3;
-     if(Math.abs(Math.abs(dx)+Math.abs(dy)-.80)<.025||Math.abs(dy-.30*Math.cos(dx*8))<.023&&Math.abs(dx)>.32)return 1;}
-    if(v>.1&&v<.9&&(u<.16||u>.84)){const q=(v*5)%1,d=Math.abs((u<.5?u:1-u)-.115);
-     if(Math.abs(d*13+Math.abs(q-.5)-.21)<.045)return 1;}
-    return 0;
-   }});
-  if(!back)mesh.bias=.001;M.push(mesh);
- };
- panel(0,.85);panel(1.08,.87);panel(-1.08,.87);panel(Math.PI,1.65,true);panel(-2.12,.8,true);panel(2.12,.8,true);
- // Leather and gold shoulder guard on the character's LEFT.
- const cap=G.loft([{y:1.27,rx:.04,rz:.067,cx:.19},{y:1.24,rx:.085,rz:.108,cx:.218},{y:1.16,rx:.091,rz:.104,cx:.254},
-  {y:1.125,rx:.103,rz:.106,cx:.266}],{seg:12,steps:2,mat:"leather",name:"wanderer.pauldron",bind:from("arm.L","torso"),
-  pal:[{c:C.leather},{c:gold,line:false},{c:C.leatherLight,line:false}],paint:p=>p[1]<1.137||p[1]>1.253?1:p[0]>.28?2:0});M.push(cap);
- for(const x of[.20,.25,.30])M.push(ell([x,1.22-(x-.20)*.6,.106],[.004,.006,.003],gold,from("arm.L"),"wanderer.rivet","gold"));
- // Waist belt. Buckle is an open frame, not a solid yellow block.
- M.push(G.loft([{y:.855,rx:.197,rz:.145,e:2.8},{y:.902,rx:.193,rz:.144,e:2.8}],{seg:32,steps:1,mat:"leather",color:c("belt"),bind,name:"wanderer.belt"}));
- const frame=(x,y,z,w,h,binding)=>{
-  const m=line([[x-w/2,y-h/2,z],[x+w/2,y-h/2,z],[x+w/2,y+h/2,z],[x-w/2,y+h/2,z],[x-w/2,y-h/2,z]],.003,gold,binding,"wanderer.buckle","gold");M.push(m);
-  M.push(line([[x,y-h*.4,z+.002],[x+w*.1,y+h*.4,z+.002]],.002,gold,binding,"wanderer.buckle","gold"));
- };
- frame(-.04,.881,.154,.051,.035,bind);
- // Baldric over right shoulder down to left hip, following the bodice surface.
+    const a=Math.abs(Math.atan2(p[0],p[2])),edge=.035+.15*sstep(.90,.625,p[1]);
+    return p[1]<.641||a<edge+.035?1:0;
+   }}));
+ // One broad leather shoulder plate, a quiet edge, and a single mounting stud.
+ M.push(G.loft([{y:1.27,rx:.041,rz:.067,cx:.19},{y:1.235,rx:.082,rz:.10,cx:.218},{y:1.135,rx:.10,rz:.102,cx:.262}],
+  {seg:10,steps:2,name:"wanderer.pauldron",mat:"leather",bind:from("arm.L","torso"),
+   pal:[{c:C.leather},{c:C.leatherLight,line:false}],paint:p=>p[1]<1.149?1:0}));
+ M.push(ell([.204,1.228,.106],[.009,.009,.004],gold,from("arm.L"),"wanderer.pauldron.stud","gold"));
+ M.push(G.loft([{y:.853,rx:.198,rz:.146,e:2.8},{y:.909,rx:.195,rz:.145,e:2.8}],
+  {seg:24,steps:1,name:"wanderer.belt",color:c("belt"),mat:"leather",bind}));
+ M.push(G.xform(G.box(.059,.052,.012,{name:"wanderer.buckle",color:gold,mat:"gold",bind}),{t:[0,.882,.158]}));
+ M.push(G.xform(G.box(.035,.03,.013,{name:"wanderer.buckle.inset",color:C.leatherDark,mat:"leather",bind}),{t:[0,.882,.166]}));
+ M.push(line([[0,.866,.175],[0,.898,.175]],.0025,gold,bind,"wanderer.buckle.pin","gold"));
  const strap=G.sheet((u,v)=>{
-  const y=1.24-.37*v,x=-.14+.28*v+(u-.5)*.032;
-  const rz=.151-.013*v,rx=.20-.015*v;
-  return[x,y,rz*Math.pow(Math.max(.1,1-Math.abs(x/rx)**2.8),1/2.8)+.008];
- },3,24,{name:"wanderer.baldric",mat:"leather",bind,
-  pal:[{c:c("belt")},{c:gold,line:false}],paint:p=>Math.abs(p[0]-(-.14+(1.24-p[1])/.37*.28))>.012&&(p[1]*60)%1<.38?1:0});strap.bias=.003;M.push(strap);
- // Visible back half of the same cross-body strap.
- M.push(G.sheet((u,v)=>{const y=1.24-.36*v,x=-.14+.28*v+(u-.5)*.032;return[x,y,-.14*Math.sqrt(Math.max(.2,1-(x/.21)**2))-.01]},3,18,
+  const y=1.25-.37*v,x=-.15+.28*v+(u-.5)*.044;
+  return[x,y,(.151-.008*v)*Math.pow(Math.max(.1,1-Math.abs(x/.206)**2.8),1/2.8)+.012];
+ },2,14,{name:"wanderer.baldric",color:c("belt"),mat:"leather",bind});strap.bias=.004;M.push(strap);
+ M.push(G.sheet((u,v)=>{const y=1.25-.37*v,x=-.15+.28*v+(u-.5)*.044;return[x,y,-.15*Math.sqrt(Math.max(.2,1-(x/.21)**2))-.012]},2,12,
   {name:"wanderer.baldric.back",mat:"leather",color:c("belt"),bind}));
- // Left hip pouch: boxy gussets, overlapping flap, strap and small gold buckle.
- M.push(G.loft([{y:.857,rx:.052,rz:.022,cx:.163,cz:.126,e:4},{y:.78,rx:.058,rz:.036,cx:.177,cz:.134,e:4},{y:.724,rx:.05,rz:.03,cx:.185,cz:.14,e:4}],
-  {seg:12,steps:2,color:C.leather,mat:"leather",bind,name:"wanderer.pouch"}));
- M.push(G.sheet((u,v)=>[.123+u*.108+v*.01,.85-v*(.06+.01*Math.sin(u*Math.PI)),.164+v*.013],6,4,
-  {name:"wanderer.pouch.flap",mat:"leather",color:C.leatherLight,bind}));
- M.push(line([[.18,.848,.178],[.185,.745,.182]],.008,C.leatherDark,bind,"wanderer.pouch.strap","leather"));frame(.183,.797,.186,.018,.022,bind);
- // Small belt tail opposite the pouch.
- M.push(G.xform(G.box(.027,.17,.012,{color:C.leather,mat:"leather",bind,name:"wanderer.belt.tail"}),{rz:-.24,t:[-.17,.766,.133]}));
+ M.push(G.loft([{y:.869,rx:.05,rz:.025,cx:.163,cz:.137,e:4},{y:.75,rx:.052,rz:.03,cx:.171,cz:.145,e:4}],
+  {seg:8,steps:1,name:"wanderer.pouch",color:C.leather,mat:"leather",bind}));
+ M.push(G.xform(G.box(.10,.046,.012,{name:"wanderer.pouch.flap",color:C.leatherDark,mat:"leather",bind}),{t:[.168,.845,.178]}));
+ M.push(ell([.168,.825,.187],[.006,.007,.003],gold,bind,"wanderer.pouch.stud","gold"));
  return{meshes:M};
 }});
 
-// Hood-down mantle and a wide angular cloak reaching the upper boots.
-H3.gear.register({id:"wanderer_cape",slot:"back",name:"Violet compass cloak",colors:{main:C.violet,fold:C.violetDark,lining:C.violetLight,trim:C.gold},
+// Three broad cloak folds, a straight angular hem, one large painted compass, and one clasp.
+H3.gear.register({id:"wanderer_cape",slot:"back",name:"Simple violet cloak",colors:{main:C.violet,fold:C.violetDark,lining:C.violetLight,trim:C.gold},
  build(ctx){
  const M=[],bones=[],c=ctx.col,bind=from("torso","neck");
- for(let i=0;i<7;i++)for(let k=0;k<3;k++){
-  const name="wanderer.cape."+i+"."+k,x=(i-3)*.085,y=1.24-k*.31;
-  bones.push({name,parent:k?"wanderer.cape."+i+"."+(k-1):"chest",head:[x,y,-.17],tail:[x,y-.31,-.2],spring:{stiff:[75,48,30][k],drag:.3,grav:5,wind:.4,r:.012}});
+ for(let i=0;i<3;i++)for(let k=0;k<2;k++){
+  const name="wanderer.cape."+i+"."+k,x=(i-1)*.17,y=1.24-k*.32;
+  bones.push({name,parent:k?"wanderer.cape."+i+".0":"chest",head:[x,y,-.19],tail:[x,y-.32,-.24],spring:{stiff:k?48:75,drag:.3,grav:4,wind:.35,r:.012}});
  }
- const hem=u=>.245+.10*Math.abs(u*2-1)+.025*Math.cos(u*TAU*3);
+ const hem=u=>.39+.055*Math.abs(u*2-1);
+ const width=v=>.235+.105*v;
  const surface=(u,v)=>{
-  const t=u*2-1,x=t*(.235+.185*v),y=1.265-.075*Math.abs(t)+(hem(u)-1.265+.075*Math.abs(t))*v;
-  const z=-.156-.045*v-.06*v*v+.04*Math.cos(u*TAU*5)*(.25+.75*v)+.045*Math.abs(t)**3;
-  return[x,y,z];
+  const x=(u*2-1)*width(v),yt=1.265-.065*Math.abs(u*2-1);
+  const fold=1-Math.abs((u*3)%1*2-1);
+  return[x,yt+(hem(u)-yt)*v,-.19-.07*v-.05*v*v+fold*.036];
  };
- const cloth=G.sheet(surface,28,15,{name:"wanderer.cloak",mat:"cloth",back:c("lining"),
-  pal:[{c:c("main")},{c:c("fold"),line:false},{c:c("lining"),line:false},{c:c("trim"),line:false}],
+ const cloth=G.sheet(surface,12,8,{name:"wanderer.cloak",mat:"cloth",back:c("lining"),
+  pal:[{c:c("main")},{c:c("fold"),line:false},{c:c("trim"),line:false}],
   paint:p=>{
-   const v=clamp((1.25-p[1])/1.0,0,1),u=(p[0]/(.235+.185*v)+1)/2,h=p[1]-hem(u);
-   if(h<.011)return 1;
-   if(h>.017&&h<.021)return 3;
-   if(compass(p[0],(p[1]-1.02),.074,.0021)&&p[1]>.86)return 3;
-   const valley=Math.cos(u*TAU*5);return valley<-.55?1:valley>.8?2:0;
+   if(p[1]>.84&&compass(p[0],p[1]-1.035,.115,.004))return 2;
+   const v=clamp((1.25-p[1])/.85,0,1),u=(p[0]/width(v)+1)/2;
+   return u>.34&&u<.43||u>.72?1:0;
   }});
  cloth.bind={fn:p=>{
-  const v=clamp((1.24-p[1])/.94,0,1),u=clamp((p[0]/(.235+.185*v)+1)*3,0,6),i=Math.round(u),k=Math.min(2,Math.floor(v*3));
-  const w=sstep(1.26,1.12,p[1]);return[["chest",1-w],["wanderer.cape."+i+"."+k,w]];
+  const v=clamp((1.24-p[1])/.85,0,1),u=clamp((p[0]/width(v)+1),0,2),i=Math.min(1,Math.floor(u)),f=u-i;
+  const k=clamp((1.08-p[1])/.32,0,1),w=sstep(1.27,1.14,p[1]);
+  if(w<1)return[["chest",1-w],["wanderer.cape."+i+".0",w*(1-f)],["wanderer.cape."+(i+1)+".0",w*f]];
+  return[["wanderer.cape."+i+".0",(1-f)*(1-k)],["wanderer.cape."+(i+1)+".0",f*(1-k)],
+   ["wanderer.cape."+i+".1",(1-f)*k],["wanderer.cape."+(i+1)+".1",f*k]];
  }};M.push(cloth);
- // Rolled hood and two overlapping triangular folds around the neck.
- const hood=G.loft([{y:1.35,rx:.085,rz:.083,cz:-.03},{y:1.30,rx:.155,rz:.143,cz:-.035},{y:1.23,rx:.234,rz:.165,cz:-.025},
-  {y:1.18,rx:.251,rz:.16,cz:-.017}],{seg:16,steps:2,open:y=>.47+(1.35-y)*4,cap:false,twoSided:true,back:c("fold"),name:"wanderer.hood.down",mat:"cloth",color:c("main"),bind});M.push(hood);
- for(const s of[-1,1]){
-  M.push(G.sheet((u,v)=>[s*(.025+.20*u),1.285-.14*u-.03*v,.10+.045*Math.sin(u*Math.PI)-.11*v],8,3,
-   {name:"wanderer.mantle.fold",mat:"cloth",color:s<0?c("main"):c("lining"),back:c("fold"),bind}));
-  M.push(line([[s*.035,1.255,.119],[s*.12,1.25,.142],[s*.225,1.18,.075]],.006,c("fold"),bind,"wanderer.mantle.edge"));
- }
- // Two compass brooches and connecting chain at the collar.
- for(const[x,y,r]of[[0,1.245,.025],[-.039,1.216,.021]]){
-  M.push(ell([x,y,.158],[r,r,.008],C.leatherDark,bind,"wanderer.brooch","leather"),ring(x,y,.168,r,c("trim"),bind,"wanderer.brooch"));
-  M.push(line([[x-r*.6,y,.171],[x+r*.6,y,.171]],.0016,C.goldLight,bind,"wanderer.brooch","gold"),line([[x,y-r*.65,.171],[x,y+r*.65,.171]],.0016,C.goldLight,bind,"wanderer.brooch","gold"));
- }
+ M.push(G.loft([{y:1.34,rx:.084,rz:.083,cz:-.035},{y:1.29,rx:.15,rz:.14,cz:-.035},{y:1.22,rx:.225,rz:.155,cz:-.025}],
+  {seg:12,steps:1,open:y=>.5+(1.34-y)*5,cap:false,twoSided:true,back:c("fold"),name:"wanderer.hood.down",mat:"cloth",color:c("main"),bind}));
+ // Broad triangles drape over the shoulders and meet at a round gold clasp.
+ for(const side of[-1,1])M.push(G.sheet((u,v)=>{
+  const x=side*(.018+.216*u),y=1.305-.105*u-v*(.105-.055*u);
+  return[x,y,.12+.055*Math.sin(u*Math.PI)+.045*v];
+ },4,2,{name:"wanderer.mantle",mat:"cloth",color:c("main"),back:c("fold"),bind}));
+ M.push(ell([0,1.228,.17],[.018,.018,.009],c("trim"),bind,"wanderer.clasp","gold"));
+ M.push(ell([0,1.228,.18],[.009,.009,.003],C.goldLight,bind,"wanderer.clasp.inset","gold"));
  return{meshes:M,bones};
 }});
 
-// Tall angular boots and folded cuffs, matching the exposed shin length on the sheet.
-H3.gear.register({id:"wanderer_boots",slot:"feet",name:"Tall folded leather boots",hides:["foot"],colors:{main:C.leather,trim:C.leatherLight,sole:C.leatherDark},
+H3.gear.register({id:"wanderer_boots",slot:"feet",name:"Simple cuffed boots",hides:["foot"],colors:{main:C.leather,trim:C.leatherLight,sole:C.leatherDark},
  build(ctx){const M=[],c=ctx.col;
- for(const[s,S]of[[1,"L"],[-1,"R"]]){
-  const x=s*.098,bind={bones:["shin."+S,"foot."+S],power:5};
-  const foot=G.loft([{y:0,rx:.074,rz:.128,cz:.052,e:3},{y:.026,rx:.078,rz:.13,cz:.052,e:3},{y:.047,rx:.077,rz:.124,cz:.046,e:3},
-   {y:.084,rx:.063,rz:.085,cz:.025,e:2.5},{y:.13,rx:.058,rz:.064}],{seg:16,steps:2,name:"wanderer.boot.foot",mat:"leather",bind,
-   pal:[{c:c("main")},{c:c("sole")},{c:c("trim"),line:false}],paint:p=>p[1]<.022?1:p[1]<.029?2:0});G.xform(foot,{ry:s*.11,t:[x,0,0]});M.push(foot);
-  M.push(G.loft([{y:.10,rx:.060,rz:.066,cx:x},{y:.18,rx:.064,rz:.074,cx:x},{y:.26,rx:.072,rz:.077,cx:x},{y:.325,rx:.081,rz:.078,cx:x}],
-   {seg:12,steps:2,name:"wanderer.boot.shaft",mat:"leather",color:c("main"),bind:"shin."+S}));
-  const cuff=G.loft([{y:.285,rx:.087,rz:.091,cx:x},{y:.32,rx:.091,rz:.094,cx:x},{y:.35,rx:.103,rz:.098,cx:x}],
-   {seg:8,steps:1,name:"wanderer.boot.cuff",mat:"leather",color:c("trim"),bind:"shin."+S});M.push(cuff);
-  // Folded V at the cuff, reinforced shin seam and two crossed ankle straps.
-  M.push(line([[x-.085,.334,.089],[x,.296,.105],[x+.085,.335,.089]],.013,c("main"),"shin."+S,"wanderer.boot.fold","leather"));
-  M.push(line([[x,.295,.085],[x+.012,.21,.078],[x,.13,.069]],.004,c("trim"),"shin."+S,"wanderer.boot.seam","leather"));
-  for(const sign of[-1,1])M.push(line([[x+sign*.059,.16,.056],[x,.12,.083],[x-sign*.055,.092,.066]],.009,c("trim"),bind,"wanderer.boot.strap","leather"));
-  M.push(line([[x-.046,.053,.156],[x,.06,.172],[x+.046,.053,.156]],.003,c("trim"),"foot."+S,"wanderer.boot.toe","leather"));
+ for(const[side,S]of[[1,"L"],[-1,"R"]]){
+  const x=side*.098,bind={bones:["shin."+S,"foot."+S],power:5};
+  const foot=G.loft([{y:0,rx:.076,rz:.13,cz:.052,e:3},{y:.027,rx:.08,rz:.133,cz:.052,e:3},
+   {y:.07,rx:.074,rz:.108,cz:.039,e:2.5},{y:.13,rx:.06,rz:.064}],
+   {seg:12,steps:2,name:"wanderer.boot.foot",mat:"leather",bind,pal:[{c:c("main")},{c:c("sole")}],paint:p=>p[1]<.025?1:0});
+  G.xform(foot,{ry:side*.12,t:[x,0,0]});M.push(foot);
+  M.push(G.loft([{y:.105,rx:.06,rz:.065,cx:x},{y:.21,rx:.069,rz:.074,cx:x},{y:.285,rx:.078,rz:.079,cx:x}],
+   {seg:10,steps:2,name:"wanderer.boot.shaft",color:c("main"),mat:"leather",bind:"shin."+S}));
+  M.push(G.loft([{y:.258,rx:.086,rz:.086,cx:x},{y:.31,rx:.09,rz:.09,cx:x}],
+   {seg:8,steps:1,name:"wanderer.boot.cuff",color:c("trim"),mat:"leather",bind:"shin."+S}));
+  M.push(line([[x-.057,.12,.061],[x,.104,.086],[x+.057,.10,.073]],.012,C.leatherDark,bind,"wanderer.boot.strap","leather"));
  }
  return{meshes:M};
 }});
 
-H3.gear.register({id:"wanderer_bracers",slot:"hands",name:"Leather bracers & fingerless gloves",colors:{main:C.leather,trim:C.leatherLight},
+H3.gear.register({id:"wanderer_bracers",slot:"hands",name:"Simple cuffed gloves",hides:["hand"],colors:{main:C.leather,trim:C.leatherLight},
  build(ctx){const M=[],c=ctx.col;
- for(const[s,S]of[[1,"L"],[-1,"R"]]){
-  const bind={bones:["forearm."+S,"hand."+S],power:6};
-  M.push(G.loft([{y:.714,rx:.043,rz:.049,cx:s*.348,cz:.034},{y:.765,rx:.05,rz:.055,cx:s*.339,cz:.03},
-   {y:.86,rx:.063,rz:.066,cx:s*.322,cz:.022},{y:.905,rx:.063,rz:.066,cx:s*.312,cz:.018}],
-   {seg:10,steps:2,name:"wanderer.bracer",mat:"leather",color:c("main"),bind}));
-  M.push(G.loft([{y:.648,rx:.034,rz:.04,cx:s*.36,cz:.04},{y:.70,rx:.037,rz:.043,cx:s*.354,cz:.038},{y:.73,rx:.037,rz:.042,cx:s*.347,cz:.034}],
-   {seg:12,steps:2,name:"wanderer.glove",mat:"leather",color:C.leatherDark,bind:"hand."+S}));
-  for(const[y,x,z]of[[.745,.342,.088],[.865,.318,.087]])M.push(line([[s*(x-.045),y+.01,z-.008],[s*x,y-.012,z+.006],[s*(x+.04),y+.018,z-.01]],.007,c("trim"),bind,"wanderer.bracer.strap","leather"));
-  M.push(line([[s*.30,.898,.075],[s*.33,.81,.09],[s*.345,.73,.083]],.003,c("trim"),bind,"wanderer.bracer.seam","leather"));
+ for(const[side,S]of[[1,"L"],[-1,"R"]]){
+  M.push(G.loft([{y:.726,rx:.048,rz:.052,cx:side*.347,cz:.034},{y:.80,rx:.066,rz:.064,cx:side*.33,cz:.028}],
+   {seg:8,steps:1,name:"wanderer.glove.cuff",color:c("trim"),mat:"leather",bind:{bones:["forearm."+S,"hand."+S],power:6}}));
+  M.push(G.loft([{y:.735,rx:.043,rz:.047,cx:side*.347,cz:.034},{y:.68,rx:.049,rz:.053,cx:side*.356,cz:.038},
+   {y:.646,rx:.046,rz:.051,cx:side*.36,cz:.04}],{seg:10,steps:2,name:"wanderer.glove.palm",mat:"leather",color:c("main"),bind:"hand."+S}));
+  M.push(G.loft([{y:.652,rx:.047,rz:.052,cx:side*.36,cz:.04},{y:.604,rx:.046,rz:.051,cx:side*.367,cz:.042},
+   {y:.565,rx:.031,rz:.039,cx:side*.369,cz:.044},{y:.553,rx:.01,rz:.015,cx:side*.365,cz:.044}],
+   {seg:10,steps:2,name:"wanderer.glove.fingers",mat:"leather",color:c("main"),bind:"fingers."+S}));
+  M.push(G.tube([{p:[side*.34,.694,.076],r:.023},{p:[side*.321,.659,.103],r:.022},{p:[side*.331,.624,.109],r:.013}],
+   {seg:8,steps:2,name:"wanderer.glove.thumb",mat:"leather",color:c("main"),bind:"hand."+S,ink:false}));
  }
  return{meshes:M};
 }});

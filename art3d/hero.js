@@ -83,9 +83,16 @@ H3.hero.build=function(loadout,o){
   for(const m of meshes)m.v=m.v.map(proportion);
   for(const b of skel.bones){b.head=proportion(b.head);b.tail=proportion(b.tail);b.len=U.len(U.sub(b.tail,b.head))}
   for(const c of colliders){c.a=proportion(c.a);if(c.b)c.b=proportion(c.b)}
-  for(const m of meshes)m._vn=null;
+  for(const m of meshes){
+    m._vn=null;
+    if(variant==="female"){
+      const material=n=>["cloth","skin","hair"].includes(n)?"prism_"+n:n;
+      m.mat=material(m.mat);
+      if(m.pal)m.pal=m.pal.map(e=>({...e,mat:e.mat?material(e.mat):e.mat}));
+    }
+  }
   // Smooth faces retain expression; broad cloth, hair and armor use planar lighting.
-  for(const m of meshes)m.faceted=["cloth","leather","hair","metal","gold","wood"].includes(m.mat)&&!/^hand/.test(m.tag)&&m.slot!=="hands"&&m.slot!=="feet";
+  for(const m of meshes)m.faceted=["cloth","prism_cloth","leather","hair","prism_hair","metal","gold","wood"].includes(m.mat)&&!/^hand/.test(m.tag)&&m.slot!=="hands"&&m.slot!=="feet";
   return{skel,meshes,colliders,hints,loadout,equipped,kind,variant,has:has,hidden:[...hides]};
 };
 function bind(m,skel,sources){
@@ -112,7 +119,9 @@ function samplePose(model,clip,t,ctx){
     for(const m of model.meshes)if(m.slot==="feet"||m.tag.startsWith("foot.")){
       const {P}=R.skinMesh(m,S);for(let i=1;i<P.length;i+=3)low=Math.min(low,P[i]);
     }
-    if(low<0)pose.t[1]-=low;
+    const phase=((t%clip.duration)+clip.duration)%clip.duration;
+    const airborne=clip.id==="run"&&((phase>.1&&phase<.4)||(phase>.6&&phase<.9))||clip.id==="victory"&&phase>.47&&phase<.75;
+    if(Number.isFinite(low)&&(!airborne||low<0))pose.t[1]-=low;
   }
   return pose;
 }
@@ -160,7 +169,7 @@ H3.hero.frame=function(model,posed,o){
     for(const s of["L","R"]){const f=R.point(sk,Wd,"foot."+s,H3.body.dims.joints.ankle[s]),toe=R.point(sk,Wd,"foot."+s,H3.body.dims.joints.toe[s]);
       const h=Math.min(f[1],toe[1]+0.05),a=0.4*(1-U.clamp((h-0.1)/0.3,0,1));
       shadow.push({x:(f[0]+toe[0])/2,z:(f[2]+toe[2])/2,r:0.13,a})}}
-  return{rgba:H3.R.compose(fig,W,H,ss,{bg:o.bg,shadow}),W,H};
+  return{rgba:H3.R.compose(fig,W,H,ss,{bg:o.bg===undefined&&model.variant==="female"?"studio":o.bg,shadow}),W,H};
 };
 // render(model, animId, t, o): pose + frame in one call
 H3.hero.render=(model,animId,t,o)=>H3.hero.frame(model,H3.hero.pose(model,animId,t),o);

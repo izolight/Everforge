@@ -196,7 +196,7 @@ function renderFigure(parts,cam,W,H,o){
   const ao=o.ao===false?null:aoPass(B);
   if(ao)for(let i=0;i<n;i++){if(B.mid[i]<0)continue;const a=ao[i];sh.col[i*4]*=a;sh.col[i*4+1]*=a;sh.col[i*4+2]*=a*(0.96+0.04*a)}
   const sc=o.lineScale||H/1000;
-  ink(sh.col,B,sh.id,sh.base,Math.max(0.6,1.1*sc),Math.max(0.35,0.45*sc),hex(o.inkColor||"#252442"));
+  ink(sh.col,B,sh.id,sh.base,Math.max(0.6,1.1*sc),Math.max(0.35,0.45*sc),hex(o.inkColor||"#252442"),parts);
   return{W,H,col:sh.col,mid:B.mid,dep:B.dep,view:V,cam};
 }
 function rasterMesh(pt,mi,V,B){
@@ -295,7 +295,7 @@ function aoPass(B){
 // The 2D art draws a dark stroke around every shape. Here: a thick stroke on the silhouette
 // and wherever one part sits in front of another (a depth jump), a thinner one where parts
 // touch or painted regions meet (tinted toward the local colour). The stroke goes on the nearer side.
-function ink(col,B,id,base,strong,weak,inkCol){
+function ink(col,B,id,base,strong,weak,inkCol,parts){
   const{W,H,dep,mid}=B,raw=new Uint8Array(W*H);
   for(let y=0;y<H;y++)for(let x=0;x<W;x++){
     const i=y*W+x;
@@ -304,7 +304,12 @@ function ink(col,B,id,base,strong,weak,inkCol){
       let e=0,k=i;
       if(a<0||b<0){e=2;k=a<0?j:i}
       else{const dz=Math.abs(dep[i]-dep[j]);k=dep[i]<dep[j]?i:j;
-        if(dz>(a===b?0.035:0.03))e=2;else if(id[i]!==id[j])e=1}
+        if(dz>(a===b?0.035:0.03))e=2;
+        else if(id[i]!==id[j]){
+          // Small sculpted features and overlapping locks need soft seams rather than ink boxes.
+          const A=parts&&parts[a].m,B=parts&&parts[b].m;
+          if(!A||!B||A.ink!==false&&B.ink!==false)e=1;
+        }}
       if(e>raw[k])raw[k]=e}}
   const disc=r=>{const o=[];const R=Math.ceil(r);for(let dy=-R;dy<=R;dy++)for(let dx=-R;dx<=R;dx++)if(dx*dx+dy*dy<=r*r)o.push(dx,dy);return o};
   const D=[null,disc(weak),disc(strong)],paint=new Uint8Array(W*H),src=new Int32Array(W*H);
@@ -325,7 +330,7 @@ function ink(col,B,id,base,strong,weak,inkCol){
 function compose(fig,W,H,ss,o){
   o=o||{};const out=new Uint8ClampedArray(W*H*4),V=view(fig.cam,W,H);
   if(o.bg!==false){
-    const cx=W/2,cy=-H*0.12,R=H*1.5,S=[[0,hex("#85d9ed")],[0.62,hex("#427cd2")],[1,hex("#333a83")]];
+    const cx=W/2,cy=-H*0.12,R=H*1.5,S=o.bg==="studio"?[[0,hex("#d2dfe6")],[0.62,hex("#aebfce")],[1,hex("#8198b0")]]:[[0,hex("#85d9ed")],[0.62,hex("#427cd2")],[1,hex("#333a83")]];
     for(let y=0;y<H;y++)for(let x=0;x<W;x++){const t=Math.min(1,Math.sqrt((x-cx)*(x-cx)+(y-cy)*(y-cy))/R);let k=0;while(k<S.length-2&&t>S[k+1][0])k++;
       const u=(t-S[k][0])/(S[k+1][0]-S[k][0]),j=(y*W+x)*4;for(let c=0;c<3;c++)out[j+c]=mix(S[k][1][c],S[k+1][1][c],u)+(hash(x,y)-0.5)*2.2;out[j+3]=255}
   }

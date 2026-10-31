@@ -65,6 +65,7 @@ for(const [name,L] of Object.entries(H3.hero.presets)){
     const P=H3.hero.pose(female,clip.id,t);
     assert(P.world.pos.every(finite),"female "+clip.id+": invalid pose");
     assert(footMin(female,P)>-0.03,"female "+clip.id+": foot below floor");
+    if(!["run","victory"].includes(clip.id))assert(Math.abs(footMin(female,P))<.015,"female "+clip.id+": grounded clip floats above floor");
   }
 }
 assert.equal(JSON.stringify(H3.body.bones),original,"variant changed shared skeleton");

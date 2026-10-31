@@ -7,7 +7,7 @@
 //   node tools/hero3d-shot.js --evidence                        # writes the art-evidence/hero3d-*.png set
 // Options: --preset name  --gear slot=id[,slot=id] (slot=none clears)  --anim id  --t seconds
 //   --frames N (sheet over the clip)  --cols N  --views  --yaw r --pitch r --dist m  --size WxH
-//   --ss N (supersampling, default 2)  --nobg  --list (registered gear, clips and presets)  --out file
+//   --variant male|female  --ss N (supersampling, default 2)  --nobg  --list  --out file
 const path=require("node:path"),{load,sheet,write}=require("./hero3d-lib.js");
 const args=process.argv.slice(2),opt={};
 for(let i=0;i<args.length;i++){const a=args[i];if(!a.startsWith("--"))continue;const k=a.slice(2),v=args[i+1]&&!args[i+1].startsWith("--")?args[++i]:true;opt[k]=v}
