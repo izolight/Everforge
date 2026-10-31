@@ -27,8 +27,8 @@
 <div class="wrap">
   <div>
     <a href="../index.html" style="color:var(--accent)">← Back to game</a>
-    <h1>Prismatic Adventure — Everforge</h1>
-    <p>Faceted fantasy heroes with modular gear and flowing movement. Drag to turn, scroll to zoom.</p>
+    <h1>Prismatic Wanderer</h1>
+    <p>Drag to turn, scroll to zoom. <a href="reference/prismatic-wanderer-female-v1.png" style="color:var(--accent)" target="_blank" rel="noopener">View the character sheet ↗</a></p>
     <div class="stage"><canvas id="c" width="760" height="1000"></canvas><div class="hud" id="hud"></div></div>
     <div class="row">
       <button data-y="0">front</button><button data-y="0.6">3/4</button><button data-y="1.57">side</button>
@@ -37,7 +37,7 @@
     </div>
   </div>
   <div class="side">
-    <h2>Appearance</h2><label for="variant">Body variant</label> <select id="variant"><option value="male">Male</option><option value="female">Female</option></select>
+    <h2>Appearance</h2><label for="variant">Body variant</label> <select id="variant"><option value="male">Male</option><option value="female" selected>Female</option></select>
     <h2>Preset</h2><div class="row" id="presets"></div>
     <h2>Equipment</h2><div class="slots" id="slots"></div>
     <h2>Animation</h2>
@@ -57,11 +57,13 @@
 <script src="gear/charm.js"></script>
 <script src="gear/held.js"></script>
 <script src="anim.js"></script>
+<script src="wanderer.js"></script>
 <script src="presets.js"></script>
 <script>
 (()=>{
   const $=id=>document.getElementById(id),canvas=$("c"),ctx=canvas.getContext("2d");
-  const st={loadout:Object.assign({},H3.hero.presets.prismatic||{}),variant:"male",anim:"idle",yaw:0.6,pitch:0.08,dist:3.4,playing:true,speed:1};
+  const st={loadout:Object.assign({},H3.hero.presets.prismatic||{}),variant:"female",anim:"rest",yaw:0.18,pitch:0,dist:3.4,playing:false,speed:1};
+  $("play").textContent="play";
   if(!H3.anim.get(st.anim))st.anim="rest";
   let model=null,player=null,posed=null,last=0,dirty=true,busy=false;
   const rebuild=()=>{model=H3.hero.build(st.loadout,{variant:st.variant});player=H3.hero.player(model,st.anim);posed=player.step(0);dirty=true};

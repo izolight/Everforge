@@ -25,7 +25,8 @@ function loadoutOf(o){
 }
 const[W,H]=(opt.size||"760x1000").split("x").map(Number),ss=+(opt.ss||2);
 const cam=(yaw)=>H3.hero.camera(yaw,opt.pitch!=null?+opt.pitch:0.08,opt.dist?+opt.dist:3.4,opt.target?opt.target.split(",").map(Number):undefined);
-const model=H3.hero.build(loadoutOf(opt)),anim=opt.anim||"rest",yaw=opt.yaw!=null?+opt.yaw:0.6;
+const variant=opt.variant||"male";
+const model=H3.hero.build(loadoutOf(opt),{variant}),anim=opt.anim||"rest",yaw=opt.yaw!=null?+opt.yaw:0.6;
 const shot=(a,t,y,o)=>H3.hero.render(model,a,t,Object.assign({cam:cam(y),W,H,ss,bg:opt.nobg?false:undefined},o));
 const t0=Date.now();
 if(opt.evidence){

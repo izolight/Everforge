@@ -68,24 +68,22 @@ H3.hero.build=function(loadout,o){
   if(variant==="female"){
     // Apply one continuous rest-space profile to the assembled outfit and skeleton.
     // Binding is done first so clothing keeps the same weights as the body beneath it.
-    const keys=[[0.0,1],[0.45,1],[0.66,1.10],[0.88,0.84],[1.13,0.91],[1.25,0.88],[1.34,0.94],[1.44,0.89],[1.6,0.96],[1.81,0.96]];
-    const fit=p=>{let scale=keys[keys.length-1][1];
-      for(let i=1;i<keys.length;i++)if(p[1]<=keys[i][0]){const a=keys[i-1],b=keys[i],t=U.sstep(a[0],b[0],p[1]);scale=a[1]+(b[1]-a[1])*t;break}
-      return[p[0]*scale,p[1],p[2]]};
+    const fit=H3.wanderer.profile;
     for(const m of meshes){
       // Rigid props retain their shape and move with their attachment point.
       const bone=typeof m.bind==="string"?skel.bones[skel.idx[m.bind]]:null;
-      if(m.item&&bone){const a=bone.head,b=fit(a);m.v=m.v.map(p=>p.map((v,i)=>v+b[i]-a[i]))}
+      if(m.held&&bone){const a=bone.head,b=fit(a);m.v=m.v.map(p=>p.map((v,i)=>v+b[i]-a[i]))}
       else m.v=m.v.map(fit);
     }
     for(const b of skel.bones){b.head=fit(b.head);b.tail=fit(b.tail);b.len=U.len(U.sub(b.tail,b.head))}
-    for(const c of colliders){c.a=fit(c.a);if(c.b)c.b=fit(c.b)}
+    for(const c of colliders){c.a=fit(c.a);if(c.b)c.b=fit(c.b);c.r*=c.bone==="head"?.72:.88}
   }
   // Compact the head silhouette consistently across the figure, outfit and rig.
-  const proportion=p=>p[1]<=1.32?p.slice():[p[0]*0.96,1.32+(p[1]-1.32)*0.86,p[2]*0.96];
+  const proportion=p=>variant==="female"||p[1]<=1.32?p.slice():[p[0]*0.96,1.32+(p[1]-1.32)*0.86,p[2]*0.96];
   for(const m of meshes)m.v=m.v.map(proportion);
   for(const b of skel.bones){b.head=proportion(b.head);b.tail=proportion(b.tail);b.len=U.len(U.sub(b.tail,b.head))}
   for(const c of colliders){c.a=proportion(c.a);if(c.b)c.b=proportion(c.b)}
+  for(const m of meshes)m._vn=null;
   // Smooth faces retain expression; broad cloth, hair and armor use planar lighting.
   for(const m of meshes)m.faceted=["cloth","leather","hair","metal","gold","wood"].includes(m.mat)&&!/^hand/.test(m.tag)&&m.slot!=="hands"&&m.slot!=="feet";
   return{skel,meshes,colliders,hints,loadout,equipped,kind,variant,has:has,hidden:[...hides]};
@@ -107,7 +105,16 @@ function samplePose(model,clip,t,ctx){
   const T=clip.loop?((t%clip.duration)+clip.duration)%clip.duration:U.clamp(t,0,clip.duration);
   const p=clip.sample(T,ctx)||{},r=Object.assign({},p.r||{});
   for(const[k,v]of Object.entries(model.hints.r)){const a=r[k]||[0,0,0];r[k]=[a[0]+v[0],a[1]+v[1],a[2]+v[2]]}
-  return{t:p.t,r,p:p.p||{},wind:p.wind};
+  const pose={t:p.t?p.t.slice():[0,0,0],r,p:p.p||{},wind:p.wind};
+  if(model.variant==="female"){
+    // Clips share rotations, but the longer reference legs need their own floor solve.
+    const S=R.skinMats(model.skel,R.world(model.skel,pose));let low=Infinity;
+    for(const m of model.meshes)if(m.slot==="feet"||m.tag.startsWith("foot.")){
+      const {P}=R.skinMesh(m,S);for(let i=1;i<P.length;i+=3)low=Math.min(low,P[i]);
+    }
+    if(low<0)pose.t[1]-=low;
+  }
+  return pose;
 }
 const windOf=(clip,p)=>p.wind||[0,0,-(clip.speed||0)*3];
 // pose(model, animId, t) -> {pose, world}: deterministic; spring bones are simulated from
