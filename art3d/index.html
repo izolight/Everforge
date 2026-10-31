@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Everforge — 3D hero</title>
+<style>
+  :root{--bg:#0e0c0a;--panel:#1c1814;--panel2:#262019;--line:#3d332a;--fg:#e8dfd0;--muted:#9c8f7c;--accent:#f2a54a}
+  html,body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.4 system-ui,sans-serif}
+  .wrap{max-width:1180px;margin:0 auto;padding:16px;display:grid;grid-template-columns:minmax(0,760px) 1fr;gap:16px}
+  @media (max-width:900px){.wrap{grid-template-columns:1fr}}
+  h1{font-size:1.1rem;margin:0 0 4px}
+  p{margin:0 0 12px;color:var(--muted);font-size:.85rem}
+  .stage{background:var(--panel);border:1px solid var(--line);border-radius:14px;overflow:hidden;position:relative}
+  canvas{display:block;width:100%;height:auto;touch-action:none;cursor:grab}
+  .hud{position:absolute;left:10px;bottom:8px;font-size:.75rem;color:var(--muted)}
+  .row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;align-items:center}
+  button,select,input{font:inherit;color:inherit;background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:6px 10px}
+  button{cursor:pointer}button:hover,button.on{border-color:var(--accent)}
+  .side h2{font-size:.9rem;margin:14px 0 6px;color:var(--accent);font-weight:600}
+  .slots{display:grid;grid-template-columns:auto 1fr;gap:6px 10px;align-items:center}
+  .slots label{font-size:.85rem;color:var(--muted)}
+  input[type=range]{padding:0;flex:1}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div>
+    <h1>3D hero (Everforge)</h1>
+    <p>The base hero with modular, swappable gear, a skeleton rig and animations. Drag to turn, scroll to zoom.</p>
+    <div class="stage"><canvas id="c" width="760" height="1000"></canvas><div class="hud" id="hud"></div></div>
+    <div class="row">
+      <button data-y="0">front</button><button data-y="0.6">3/4</button><button data-y="1.57">side</button>
+      <button data-y="3.14">back</button><button data-y="-2.5">3/4 back</button>
+      <button id="above">from above</button><button id="save">save png</button><button id="sheet">sprite sheet</button>
+    </div>
+  </div>
+  <div class="side">
+    <h2>Preset</h2><div class="row" id="presets"></div>
+    <h2>Equipment</h2><div class="slots" id="slots"></div>
+    <h2>Animation</h2>
+    <div class="row"><select id="anim"></select><button id="play">pause</button>
+      <label>speed <select id="speed"><option>0.25</option><option>0.5</option><option selected>1</option></select></label></div>
+    <div class="row"><input type="range" id="scrub" min="0" max="1" step="0.001" value="0"></div>
+    <div class="row"><label><input type="checkbox" id="hq"> full quality while playing (slow)</label></div>
+  </div>
+</div>
+<script src="core.js"></script>
+<script src="rig.js"></script>
+<script src="body.js"></script>
+<script src="hero.js"></script>
+<script src="gear/head.js"></script>
+<script src="gear/torso.js"></script>
+<script src="gear/limbs.js"></script>
+<script src="gear/charm.js"></script>
+<script src="gear/held.js"></script>
+<script src="anim.js"></script>
+<script src="presets.js"></script>
+<script>
+(()=>{
+  const $=id=>document.getElementById(id),canvas=$("c"),ctx=canvas.getContext("2d");
+  const st={loadout:Object.assign({},H3.hero.presets.wanderer||{}),anim:"idle",yaw:0.6,pitch:0.08,dist:3.4,playing:true,speed:1};
+  if(!H3.anim.get(st.anim))st.anim="rest";
+  let model=null,player=null,last=0,dirty=true,busy=false;
+  const rebuild=()=>{model=H3.hero.build(st.loadout);player=H3.hero.player(model,st.anim);dirty=true};
+  // ---- UI ----
+  const pr=$("presets");for(const k of Object.keys(H3.hero.presets)){const b=document.createElement("button");b.textContent=k;b.onclick=()=>{st.loadout=Object.assign({},H3.hero.presets[k]);syncSlots();rebuild()};pr.appendChild(b)}
+  const sl=$("slots"),sel={};
+  for(const s of H3.hero.SLOTS){const l=document.createElement("label");l.textContent=H3.gear.SLOT_NAMES[s];const x=document.createElement("select");
+    const items=H3.gear.list(s).concat(s==="off"?H3.gear.list("main").filter(g=>g.offhand):[]);
+    x.innerHTML=`<option value="">— none —</option>`+items.map(g=>`<option value="${g.id}">${g.name||g.id}</option>`).join("");
+    x.onchange=()=>{st.loadout[s]=x.value||null;rebuild()};sel[s]=x;sl.append(l,x)}
+  const syncSlots=()=>{for(const s of H3.hero.SLOTS){const v=st.loadout[s];sel[s].value=v?(typeof v==="string"?v:v.id):""}};syncSlots();
+  const an=$("anim");an.innerHTML=H3.anim.list().map(c=>`<option value="${c.id}">${c.name||c.id}</option>`).join("");an.value=st.anim;
+  an.onchange=()=>{st.anim=an.value;player.set(st.anim,0);dirty=true};
+  $("play").onclick=()=>{st.playing=!st.playing;$("play").textContent=st.playing?"pause":"play";dirty=true};
+  $("speed").onchange=e=>st.speed=+e.target.value;
+  $("scrub").oninput=e=>{st.playing=false;$("play").textContent="play";player.seek(+e.target.value*player.clip.duration);dirty=true};
+  document.querySelectorAll("[data-y]").forEach(b=>b.onclick=()=>{st.yaw=+b.dataset.y;dirty=true});
+  $("above").onclick=()=>{st.pitch=st.pitch>0.3?0.08:0.6;dirty=true};
+  $("save").onclick=()=>{draw(true);const a=document.createElement("a");a.download="hero3d.png";a.href=canvas.toDataURL("image/png");a.click()};
+  // the current clip as an 8-frame transparent sprite sheet (for 2D use)
+  $("sheet").onclick=()=>{const n=8,w=256,h=320,c=document.createElement("canvas");c.width=w*n;c.height=h;const g=c.getContext("2d"),clip=player.clip;
+    for(let k=0;k<n;k++){const img=H3.hero.render(model,clip.id,clip.duration*k/(clip.loop?n:n-1),{cam:H3.hero.camera(st.yaw,st.pitch,st.dist),W:w,H:h,ss:2,bg:false});g.putImageData(new ImageData(img.rgba,w,h),k*w,0)}
+    const a=document.createElement("a");a.download=`hero3d-${clip.id}.png`;a.href=c.toDataURL("image/png");a.click()};
+  let drag=null;
+  canvas.addEventListener("pointerdown",e=>{drag=[e.clientX,e.clientY];canvas.setPointerCapture(e.pointerId)});
+  canvas.addEventListener("pointermove",e=>{if(!drag)return;st.yaw+=(e.clientX-drag[0])*0.01;st.pitch=Math.max(-0.2,Math.min(1.1,st.pitch+(e.clientY-drag[1])*0.006));drag=[e.clientX,e.clientY];dirty=true});
+  canvas.addEventListener("pointerup",()=>{drag=null;dirty=true});
+  canvas.addEventListener("wheel",e=>{e.preventDefault();st.dist=Math.max(1.6,Math.min(6,st.dist*(1+e.deltaY*0.001)));dirty=true},{passive:false});
+  // ---- drawing ----
+  let posed=null,pv=0.6;
+  function draw(full){
+    // preview resolution adapts to keep playback near 30 fps; paused frames are drawn at full quality
+    const hq=full||(!st.playing&&!drag)||$("hq").checked,W=hq?760:Math.round(760*pv),H=hq?1000:Math.round(1000*pv);
+    const t0=performance.now(),img=H3.hero.frame(model,posed,{cam:H3.hero.camera(st.yaw,st.pitch,st.dist),W,H,ss:hq?2:1});
+    const id=new ImageData(img.rgba,W,H);
+    if(W===canvas.width)ctx.putImageData(id,0,0);else{const off=new OffscreenCanvas(W,H);off.getContext("2d").putImageData(id,0,0);ctx.imageSmoothingEnabled=true;ctx.drawImage(off,0,0,canvas.width,canvas.height)}
+    const ms=performance.now()-t0;if(!hq){pv=Math.max(0.4,Math.min(0.8,pv*(ms>40?0.93:ms<26?1.04:1)))}
+    $("hud").textContent=`${player.clip.name||player.clip.id} · t=${player.t.toFixed(2)}s · ${ms.toFixed(0)} ms/frame`;
+    return hq;
+  }
+  let lastHQ=false;
+  function tick(now){
+    const dt=last?Math.min(0.1,(now-last)/1000):0;last=now;
+    if(st.playing){posed=player.step(dt*st.speed);$("scrub").value=(player.t%player.clip.duration)/player.clip.duration;dirty=true}
+    else if(!posed)posed=player.step(0);
+    if(dirty||(!lastHQ&&!st.playing&&!drag)){dirty=false;lastHQ=draw(false)}
+    requestAnimationFrame(tick);
+  }
+  rebuild();posed=player.step(0);
+  window.setView=(y,p)=>{st.yaw=y;st.pitch=p;dirty=true};
+  window.H3READY=true;requestAnimationFrame(tick);
+})();
+</script>
+</body>
+</html>
