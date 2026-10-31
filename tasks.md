@@ -1,6 +1,6 @@
 # Everforge — tasks and watchlist
 
-Single planning record, consolidated 2026-10-31. **64 tracked tasks complete; no open or active tasks.** Ideas below are unscheduled, not commitments. Completion records describe historical validation, not a fresh check of today's build.
+Single planning record, consolidated 2026-10-31. **65 tracked tasks complete; no open or active tasks.** Ideas below are unscheduled, not commitments. Completion records describe historical validation, not a fresh check of today's build.
 
 ## Next decisions and playtest watchlist
 
@@ -15,7 +15,7 @@ Refresh measurements on the current build before opening follow-up tasks.
 | Roaming ambushes | Denser maps increased encounters initiated by roamers in the recorded run. | Add a movement cap only if play shows excessive ambushes; the tried cap of six had no measurable sim effect. |
 | Essence/material income | SIM-05 pack-aware runs show substantial estimated Spire salvage essence value, lower than the SIM-04 single-foe estimate in these samples. [SIM-04](economy-evidence/sim04-exploration.md), [SIM-05](economy-evidence/sim05-pack-economy.md). | Retune `FRAG`/drop chances only after broader samples and player data. |
 | Regional material coverage | Pass lacks local Timber; Hollow/Spire lack local Leather. Earlier zones supply these. | Decide whether every region should supply every material type. |
-| Trait stacking | Earlier runs found stacked kits very strong at Heat 5. | Decide whether a soft cap is desirable; it would rescale existing items. Remeasure before specifying it. |
+| Trait stacking | SIM-07 found the Spire stacked kit wins 2,099/2,100 Heat-5 fights but spends 106 essences and 372 refining embers versus 23/12 for each comparison kit. [SIM-07 evidence](balance-evidence/sim07-trait-stacking.md). | Decide whether a soft cap is desirable; it would rescale existing items. This high-budget kit is a stress test, not a normal-player baseline. |
 | Roster coverage | Spire has six authored regulars; the other regions have seven. The Woods' stag is also weak to Stone. | Check whether the asymmetry and Stone-kit matchup warrant changes. |
 
 ## Unscheduled ideas
@@ -140,6 +140,7 @@ All rows are **Done**. Keep IDs stable; detailed implementation remains in sourc
 |---|---|---|
 | SIM-05 | Verify pack-aware fight dispatch in economy and fresh modes; correct it if needed; add a regression that observes real multi-foe fights using pack-smart; compare Heat-0 smart stage-melee economy samples (seeds 1/7/11, 30 expeditions per zone, limits 8/12) with SIM-04 and document exact revision, configuration, outcomes and policy caveats. No tuning. | Done |
 | SIM-06 | Add optional fresh regional progression through Woods and Pass using real unlock, boss-clear, and travel rules; keep default Woods-only behavior unchanged. Report per-run region reach, Fusing prerequisite/affordability/learn timing, gate state and barriers in console/JSON. Compare cheapest vs gear-first with seeds 1/7/11, 12 expeditions, Heat 0, `--packs`, and smart combat; don't grant unlocks, gear, XP, or RP. Add a regression for default compatibility, gated transition, Pass map/combat, and complete JSON metadata. | Done |
+| SIM-07 | Refresh the on-stage Spire trait-stacking baseline against melee, defensive, and staff kits across authored regulars and boss; measure seeds 1/7/11, Heat 0/5, smart, n=100; document budgets, per-enemy win/turn/HP, and residual hard/slog outcomes from an isolated baseline snapshot. No tuning. | Done |
 
 ### Localization
 
@@ -155,6 +156,7 @@ All rows are **Done**. Keep IDs stable; detailed implementation remains in sourc
 - Fresh weapon infusion gates and SIM-03 measurements: [fresh infusion evidence](economy-evidence/sim03-fresh-infusion.md).
 - Larger economy samples and SIM-04 visit-limit comparison: [exploration evidence](economy-evidence/sim04-exploration.md).
 - Pack-aware economy comparison and regression: [SIM-05 evidence](economy-evidence/sim05-pack-economy.md), [regression script](tools/sim-pack-economy-check.js).
+- Spire trait-stacking baseline: [SIM-07 evidence](balance-evidence/sim07-trait-stacking.md).
 - Procedural creature name localization scope, acceptance, and verification: [I18N-01](docs/procedural-name-localization.md); [browser regression](tools/procedural-name-check.js).
 - Fresh Woods-to-Pass progression and Fusing gate comparison: [SIM-06 evidence](economy-evidence/sim06-regional-progression.md), [raw samples](economy-evidence/sim06-regional-progression.json), [regression](tools/sim-fresh-progress-check.js).
 - Grounded undead idle motion scope and Chromium evidence: [A-06](art-evidence/a06-undead-idle.md).
