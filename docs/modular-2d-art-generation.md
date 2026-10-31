@@ -139,6 +139,16 @@ Retain readable symbols for fights/elites/bosses, treasure, shrine, peddler, mys
 5. **Expand equipment:** remaining forms and component variants only after assembly succeeds.
 6. **Expand creatures and inventory:** reuse the established palette, lighting and materials.
 
+## Current appearance proof
+
+The first registered appearance kit and its preparation/preview workflow are in
+[assets/hero/README.md](../assets/hero/README.md). It contains three faces and three
+hairstyles on a fixed 1024 × 1536 canvas, separate body/underclothes layers,
+skin/iris/hair masks, assembly metadata, and nine-combination review sheets.
+The proof runs separately from the live SVG equipment renderer. Fitted equipment,
+helmet hair, the full starter appearance counts and runtime migration remain
+outstanding. The next generation batch is the modular blade kit (batch 3).
+
 ## Generation prompt contract
 
 Every production request must include:
