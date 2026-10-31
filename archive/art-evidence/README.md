@@ -9,7 +9,7 @@ Captured from the repository's SVG renderers in Chromium at the sizes used by th
 
 ## Archived exploration
 
-The 3D prototype, rendered evidence and simplified references have moved to [archive/3d](../archive/3d/README.md). The original Prismatic references remain active in [art-reference](../art-reference/README.md) for the 2D art direction.
+The 3D prototype, rendered evidence and simplified references have moved to [archive/3d](../3d/README.md). The original Prismatic references remain active in [art-reference](../../art-reference/README.md) for the 2D art direction.
 
 ## Validation
 

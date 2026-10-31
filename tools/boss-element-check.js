@@ -48,7 +48,7 @@ const cases=[
       B.opening=0;S.onboarding=null;render();const result={phased:B.phased,el:B.el,codex:cx(B.id).ph};save();return result;
     });
     for(let i=0;i<8;i++){const gotIt=page.getByRole("button",{name:"Got it"});if(!await gotIt.count())break;await gotIt.click()}
-    await page.screenshot({path:path.join(__dirname,"..","rift-evidence","m07-boss-phase-mobile.png"),fullPage:true});
+    await page.screenshot({path:path.join(__dirname,"..","archive","rift-evidence","m07-boss-phase-mobile.png"),fullPage:true});
     await page.reload();await page.waitForFunction(()=>typeof S==="object"&&S);
     const restored=await page.evaluate(()=>({id:S.battle?.id,phased:S.battle?.phased,el:S.battle?.el,codex:cx("rimeclaw").ph}));
     assert.deepStrictEqual(saved,{phased:true,el:"shadow",codex:true});

@@ -2,7 +2,7 @@
 
 Status: integrated on the committed V-20 baseline `71421af`. Implementation,
 checks, paired combat/economy results, mobile screenshots, and limitations are
-recorded in [V-18 review evidence](../combat-evidence/v18-multi-enemy.md).
+recorded in [V-18 review evidence](../archive/combat-evidence/v18-multi-enemy.md).
 
 ## Current architecture
 
@@ -196,4 +196,4 @@ active target and damaged pack, partial defeat/re-entry, one shared round, one
 AoE action, and one payout after the final member.
 
 Current paired combat and economy comparisons, screenshots, residual flags, and
-test results are in [V-18 evidence](../combat-evidence/v18-multi-enemy.md).
+test results are in [V-18 evidence](../archive/combat-evidence/v18-multi-enemy.md).

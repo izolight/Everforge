@@ -1,7 +1,7 @@
 // Seeded Rift depth modifiers, modifier-free simulator reference and mobile discovery.
 // Usage: node tools/depth-check.js (requires Playwright + Chromium).
 const {chromium}=require("playwright"),path=require("path"),fs=require("fs");
-const URL="file://"+path.resolve(__dirname,"..","index.html"),EVIDENCE=path.resolve(__dirname,"..","rift-evidence");
+const URL="file://"+path.resolve(__dirname,"..","index.html"),EVIDENCE=path.resolve(__dirname,"..","archive","rift-evidence");
 let fails=0;const ok=(c,m)=>{if(!c)fails++;console.log(c?"ok  ":"FAIL",m)};
 (async()=>{
   const browser=await chromium.launch();

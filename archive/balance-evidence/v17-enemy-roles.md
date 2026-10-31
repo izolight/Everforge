@@ -17,7 +17,7 @@ translated in German and Korean and appear on the battle enemy card.
 
 Stats are applied to a combat copy, with HP and ATK rounded and clamped to at least
 1 and DEF clamped to zero. Bosses keep their authored phase stats. Full behavior,
-special mappings, and rationale are in [the role design](../docs/enemy-roles.md).
+special mappings, and rationale are in [the role design](../../docs/enemy-roles.md).
 
 ## Validation
 
