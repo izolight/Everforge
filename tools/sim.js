@@ -3,7 +3,7 @@
 // in headless Chromium, with render/save/floatFx/sfx/toast stubbed. Kits are crafted with the real combine().
 // Usage: node tools/sim.js [--n 40] [--zone woods,pass] [--enemy wolf,archon] [--kit melee,spire-end] [--heat 0,3,5] [--policy smart,basic,passive,guard,parry]
 //        [--fresh (the first expeditions with the unlock gates on, --exped 5)] [--seed 7] [--trace (prints one battle log per cell, then exits)] [--elite (adds magic + and rare * variants)] [--rarity (the rarity table only)] [--row 3] [--all] [--attrition] [--no-mastered] [--no-biome-mods (disable V-15 passives for a stable balance reference)] [--jobs 4] [--out sim.json] [--econ-only | --no-econ] [--exped 30]
-//        [--wild (only the wild and Rift sections, with the forced rarity variants)] [--no-wild (skip them)] [--rift-seeds 1,2,3] [--rift-depth 1,3] [--rift-wild (the Rift's own wild creatures too)] [--force rare (the forced variants to trace)]
+//        [--wild (only the wild and Rift sections, with the forced rarity variants)] [--no-wild (skip them)] [--rift-seeds 1,2,3] [--rift-depth 1,3] [--rift-wild (the Rift's own wild creatures too)] [--packs (seeded multi-foe map encounters; otherwise use the single-foe reference)] [--force rare (the forced variants to trace)]
 const {chromium}=require("playwright"),path=require("path"),fs=require("fs"),os=require("os");
 const URL="file://"+path.resolve(__dirname,"..","index.html");
 
@@ -59,6 +59,7 @@ const N=+opt("n",40),SEED=opt("seed",null),ROW=+opt("row",3),JOBS=Math.max(1,+op
 const OUT=opt("out",null);
 const BIOME_MODS=!has("no-biome-mods");
 const DEPTH_MODS=!has("no-depth-mods");
+const PACKS_MODE=has("packs");
 // the wild sections: generated creatures for the four original stages and Rift masters; Fen is measured in the authored regular matrix
 // --wild: only these sections, with the forced rarity variants; --no-wild: none of them; --elite: the forced variants in a default run too
 const WILD_ONLY=has("wild"),NO_WILD=has("no-wild"),ELITE=has("elite");
@@ -73,6 +74,7 @@ const RUN_MATRIX=!ONLY_ECON&&!RARITY&&!WILD_ONLY,RUN_WILD=!ONLY_ECON&&!RARITY&&!
 function setup(opts){ // runs inside the game page; everything here uses the real game functions
   const BIOME_MODS=!!(opts&&opts.biomeMods);
   const DEPTH_MODS=!!(opts&&opts.depthMods);
+  PACKS_ENABLED=!!(opts&&opts.packs);
   ["render","save","floatFx","sfx","toast","closeSheet","flushFx"].forEach(f=>window[f]=()=>{});
   const mulberry=a=>()=>{a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296};
   const realRandom=Math.random,seedFor=(seed,key)=>seed==null?null:mulberry(hash(seed+"|"+key));
@@ -132,7 +134,9 @@ function setup(opts){ // runs inside the game page; everything here uses the rea
   const POL={
     passive:()=>attack(),
     basic:B=>{const sp=isSpecial(B)?foeOf(B).sp:null;if(sp&&sp.kind!=="heal"&&!B.frozen&&!B.stun&&!(B.off>0))guard();else attack()},
-    smart:B=>smartTurn(B),guard:B=>smartTurn(B,"guard"),parry:B=>smartTurn(B,"parry")
+    smart:B=>smartTurn(B),
+    "pack-smart":B=>{if(B.foes&&B.foes.length>1){const live=PACKS.living(B),rank=f=>({support:5,caster:4,skirmisher:3,bruiser:2}[f.role]||1)+(1-Math.max(0,f.hp)/Math.max(1,f.max))*2;const pick=live.slice().sort((a,b)=>rank(b)-rank(a)||a.slot-b.slot)[0];if(pick)PACKS.selectTarget(B,pick.id)}smartTurn(B)},
+    guard:B=>smartTurn(B,"guard"),parry:B=>smartTurn(B,"parry")
   };
   // one fight on a fresh copy of the kit's save; returns {w,t,hp}
   // the affixes a magic/rare variant carries: the first cycles through every affix the species can roll (Swift-footed needs a mover), the rest are rolled
@@ -165,22 +169,31 @@ function setup(opts){ // runs inside the game page; everything here uses the rea
     else if(o.force&&E0.gen&&E0.boss&&!(id==="rift_boss"&&o.force==="rare")){const cp={...E0,gen:undefined,afx:[],rar:undefined};restore=E0;ENEMIES[id]=cp;E=cp}
     return{E,restore}};
   const after=(id,o,E,restore)=>{if(o.force&&E.boss&&!(id==="rift_boss"&&o.force==="rare")){const M=restore||E,af=(M.afx||[]).slice(0,o.force==="rare"?3:1);if(af.length)applyAfx(S.battle,M,o.force,af)}};
+  const simPack=(id,o)=>{
+    if(!o.packs||!ENEMIES[id]||ENEMIES[id].boss||id==="mimic")return null;
+    const zone=o.zone||ENEMIES[id].zone,primary=ENEMIES[id],candidates=Object.entries(ENEMIES).filter(([other,e])=>other!==id&&e.zone===zone&&!e.boss).map(([other,e])=>({id:other,role:e.role,faction:e.faction,alpha:!!e.alpha,w:e.w}));
+    if(candidates.length<1)return null;
+    const seed=hash(`sim-pack:${o.seed??1}:${id}:${o.i||0}:${o.rs||0}:${o.rd||0}`),policy=PACKS.encounterPolicy({depth:o.rd||o.depth||1,elite:!!o.elite||o.force==="magic"||o.force==="rare",size:o.packSize});
+    return{...PACKS.makePack({seed,primary:{id,role:primary.role,faction:primary.faction,alpha:!!primary.alpha,w:primary.w},candidates,size:policy.size}),elite:policy.elite};
+  };
   SIM.fight=(snap,id,heat,pol,o)=>{
-    S=JSON.parse(snap);const{E,restore}=prep(id,o);
+    S=JSON.parse(snap);const{E,restore}=prep(id,o),pack=simPack(id,o);
     try{
       S.zone=id==="mimic"?o.zone:E.zone;S.hp=pstats().maxHp;S.maps[S.zone]=genMap({heat,zone:S.zone==="rift"?"rift":undefined});S.run=null;
-      startBattle(id,{row:E.boss||id==="mimic"?0:o.row,rar:o.rar||"normal",afx:id==="rift_boss"&&o.force!=="magic"?[]:SIM.afxFor(id,o.rar,o.i||0,heat),biomeMods:BIOME_MODS,depthMods:DEPTH_MODS});
+      startBattle(id,{row:E.boss||id==="mimic"?0:o.row,rar:o.rar||"normal",afx:id==="rift_boss"&&o.force!=="magic"?[]:SIM.afxFor(id,o.rar,o.i||0,heat),packMembers:pack&&pack.members,packElite:!!(pack&&pack.elite),...(o.packs&&o.seed!=null?{rng:mulberry(hash(`sim-pack-variant:${o.seed}:${id}:${o.i||0}`))}:{}),biomeMods:BIOME_MODS,depthMods:DEPTH_MODS});
       after(id,o,E,restore);
-      const B=S.battle;let g=0;while(S.battle===B&&!B.over&&B.turn<150&&g++<600)POL[pol](B);
-      const won=B.over==="won";return{w:won?1:0,t:B.turn,hp:won?S.hp/pstats().maxHp:0,a:B.afx[0]};
+      if(pack&&S.battle.foes.length!==pack.size)throw new Error("simulated pack size differs from the shared encounter policy");
+      if(pack&&pack.elite&&S.battle.foes.slice(1).some(f=>!f.afx||!f.afx.length))throw new Error("elite/forced pack companion did not receive its generated affix profile");
+      const B=S.battle,act=o.packs&&pol==="smart"?POL["pack-smart"]:POL[pol];let g=0;while(S.battle===B&&!B.over&&B.turn<150&&g++<600)act(B);
+      const won=B.over==="won";return{w:won?1:0,t:B.turn,hp:won?S.hp/pstats().maxHp:0,a:B.afx[0],foes:B.foes&&B.foes.length||1};
     }finally{if(restore)ENEMIES[id]=restore}
   };
   // --trace: one fight with its battle log (your HP after each line's turn is not tracked; the final line is the result)
   SIM.trace=(snap,id,heat,pol,o)=>{useSeed(o.seed,"trace"+id+heat+pol+(o.force||"")+(o.rs!=null?o.rs:""));S=JSON.parse(snap);const{E,restore}=prep(id,o);
     try{
       S.zone=id==="mimic"?o.zone:E.zone;S.hp=pstats().maxHp;S.maps[S.zone]=genMap({heat,zone:S.zone==="rift"?"rift":undefined});S.run=null;
-      startBattle(id,{row:E.boss||id==="mimic"?0:o.row,rar:o.rar||"normal",afx:id==="rift_boss"&&o.force!=="magic"?[]:SIM.afxFor(id,o.rar,0,heat),biomeMods:BIOME_MODS,depthMods:DEPTH_MODS});after(id,o,E,restore);
-      const B=S.battle,hps=[];let g=0;while(S.battle===B&&!B.over&&B.turn<150&&g++<600){const t=B.turn,n=B.log.length;POL[pol](B);hps.push(`T${t} you ${S.hp}/${pstats().maxHp} foe ${Math.max(0,B.hp)}/${B.max}`)}
+      startBattle(id,{row:E.boss||id==="mimic"?0:o.row,rar:o.rar||"normal",afx:id==="rift_boss"&&o.force!=="magic"?[]:SIM.afxFor(id,o.rar,0,heat),packMembers:simPack(id,o),...(o.packs&&o.seed!=null?{rng:mulberry(hash(`sim-pack-variant:${o.seed}:${id}:${o.i||0}`))}:{}),biomeMods:BIOME_MODS,depthMods:DEPTH_MODS});after(id,o,E,restore);
+      const B=S.battle,hps=[],act=o.packs&&pol==="smart"?POL["pack-smart"]:POL[pol];let g=0;while(S.battle===B&&!B.over&&B.turn<150&&g++<600){const t=B.turn,n=B.log.length;act(B);hps.push(`T${t} you ${S.hp}/${pstats().maxHp} foe ${Math.max(0,B.hp)}/${B.max}`)}
       return{log:B.log.map(l=>l.t),hps,over:B.over,turns:B.turn};
     }finally{if(restore)ENEMIES[id]=restore}};
   // run a list of cells [{k,e,h,p}] n times each, deterministic per cell if seeded
@@ -191,13 +204,13 @@ function setup(opts){ // runs inside the game page; everything here uses the rea
     if(c.force||c.rs!=null||c.rd!=null)key.push(sameMasterRoll?"":c.force||"",c.rs==null?"":c.rs,c.rd==null?"":c.rd);
     useSeed(o.seed,key.join());let w=0,t=0,hp=0;const ba={};
     for(let i=0;i<n;i++){if(c.e==="rift_boss"&&c.rs!=null)useSeed(o.seed,key.join()+":"+i);const r=SIM.fight(kit.snap,c.e,c.h,c.p,{...o,i,zone:c.mz||kit.zone,rar,force:c.force,rs:c.rs,rd:c.rd});w+=r.w;t+=r.t;hp+=r.hp;if(r.a){const x=ba[r.a]||(ba[r.a]=[0,0]);x[0]++;x[1]+=r.w}}
-    return{...c,n,win:w/n,turns:t/n,hp:hp/n,ba}});
+    return{...c,n,win:w/n,turns:t/n,hp:hp/n,ba,pack:!!o.packs}});
   // attrition: a typical expedition (4 regulars at rows 1-4, then the boss) on one HP bar; a 35% heal after fights 2 and 4 stands in for shrine/camp
   SIM.attr=(snap,zone,heat,pol,n,o)=>{
     useSeed(o.seed,["attr",zone,heat,pol,o.kit].join());let clear=0,fights=0;
     for(let i=0;i<n;i++){S=JSON.parse(snap);S.zone=zone;S.hp=pstats().maxHp;S.maps[zone]=genMap({heat});let ok=true;
-      for(let f=0;f<5&&ok;f++){const id=f<4?pickEnemy(zone):ZONES[zoneIdx(zone)][2];startBattle(id,{row:f<4?f+1:0,rar:"normal",biomeMods:BIOME_MODS,depthMods:DEPTH_MODS});
-        const B=S.battle;let g=0;while(S.battle===B&&!B.over&&B.turn<150&&g++<600)POL[pol](B);
+      for(let f=0;f<5&&ok;f++){const id=f<4?pickEnemy(zone):ZONES[zoneIdx(zone)][2],packOpt={...o,zone,i:i*5+f};startBattle(id,{row:f<4?f+1:0,rar:"normal",packMembers:simPack(id,packOpt),...(o.packs?{rng:mulberry(hash(`sim-pack-variant:${o.seed??1}:${id}:${i*5+f}`))}:{}),biomeMods:BIOME_MODS,depthMods:DEPTH_MODS});
+        const B=S.battle,act=o.packs&&pol==="smart"?POL["pack-smart"]:POL[pol];let g=0;while(S.battle===B&&!B.over&&B.turn<150&&g++<600)act(B);
         if(B.over!=="won"){ok=false;break}fights++;if(f===1||f===3)healYou(Math.round(pstats().maxHp*.35))}
       if(ok)clear++}
     return{clear:clear/n,fights:fights/n}};
@@ -288,7 +301,7 @@ function flagsOf(c,mode,E){
   if(c.h===0&&c.win===1&&c.hp>HP_EASY&&c.turns<(boss?TURN_EASY_BOSS:TURN_EASY))fl.push("TOO_EASY");
   if(c.h===0&&c.win<.5)fl.push("TOO_HARD");
   if(c.turns>(boss?50:30))fl.push("SLOG");return fl}
-async function newPage(browser){const p=await browser.newPage();p.on("pageerror",e=>{console.error("pageerror:",e.message)});await p.goto(URL);await p.waitForFunction(()=>typeof S==="object"&&S);await p.evaluate(setup,{biomeMods:BIOME_MODS,depthMods:DEPTH_MODS});return p}
+async function newPage(browser){const p=await browser.newPage();p.on("pageerror",e=>{console.error("pageerror:",e.message)});await p.goto(URL);await p.waitForFunction(()=>typeof S==="object"&&S);await p.evaluate(setup,{biomeMods:BIOME_MODS,depthMods:DEPTH_MODS,packs:PACKS_MODE});return p}
 async function main(){
   const t0=Date.now(),browser=await chromium.launch();
   const pages=await Promise.all(Array.from({length:JOBS},()=>newPage(browser))),P0=pages[0];
@@ -344,14 +357,14 @@ async function main(){
         const info=await P0.evaluate(([seed,dep])=>SIM.rift(seed,dep),[sd.seed,d]);
         for(const f of ["",...forceSel])await show(k,{id:"rift_boss"},0,p,{seed:SEED,row:ROW,zone:"rift",rs:sd.seed,rd:d,rar:f||"normal",force:f||undefined},`(seed ${sd.seed}, ${info.biome} · ${info.name}, depth ${d}${f?" forced "+f:""})`)}}
     await browser.close();return}
-  const result={args:{n:N,seed:SEED,row:ROW,heats:HEATS,policies:POLS,elite:ELITE,mastered,wild:!NO_WILD,biomeMods:BIOME_MODS,depthMods:DEPTH_MODS,riftSeeds:RIFT_SEEDS,riftDepth:RIFT_DEPTH},kits:sums,cells:[],wild:[],wildByRegion:[],rift:[],attr:[],econ:[]};
+  const result={args:{n:N,seed:SEED,row:ROW,heats:HEATS,policies:POLS,elite:ELITE,mastered,wild:!NO_WILD,packs:PACKS_MODE,biomeMods:BIOME_MODS,depthMods:DEPTH_MODS,riftSeeds:RIFT_SEEDS,riftDepth:RIFT_DEPTH},kits:sums,cells:[],wild:[],wildByRegion:[],rift:[],attr:[],econ:[]};
   const E=Object.fromEntries(enemiesAll.map(e=>[e.id,e])),K=Object.fromEntries(kits.map(k=>[k.name,k]));
   // the shared cell runner: the cells are grouped by rarity, so every chunk holds one rarity at a time
   const runCells=async(todo,label)=>{
     const chunks=Array.from({length:JOBS},()=>[]);todo.forEach((x,i)=>chunks[i%JOBS].push(x));let done=0;
     const out=(await Promise.all(chunks.map((ch,i)=>(async()=>{const o=[];
       for(let j=0;j<ch.length;j+=60){const part=ch.slice(j,j+60);
-        for(const vr of [...new Set(part.map(x=>x.vr))]){const sub=part.filter(x=>x.vr===vr).map(x=>x.c),r=await pages[i].evaluate(([c,n,o])=>SIM.cells(c,n,o),[sub,N,{seed:SEED,row:ROW}]);r.forEach(x=>o.push({...x,vr}));done+=sub.length}
+        for(const vr of [...new Set(part.map(x=>x.vr))]){const sub=part.filter(x=>x.vr===vr).map(x=>x.c),r=await pages[i].evaluate(([c,n,o])=>SIM.cells(c,n,o),[sub,N,{seed:SEED,row:ROW,packs:PACKS_MODE}]);r.forEach(x=>o.push({...x,vr}));done+=sub.length}
         if(process.stderr.isTTY)process.stderr.write(`\r${label} ${done}/${todo.length} cells  ${Math.round((Date.now()-t0)/1000)}s`)}
       return o})()))).flat();
     if(process.stderr.isTTY)process.stderr.write("\n");
@@ -403,7 +416,7 @@ async function main(){
       console.log(`\n== Attrition: 4 regulars (rows 1-4) then the boss on one HP bar, 35% heal after fights 2 and 4; ${N} expeditions per cell. Per heat: clear% / mean fights won (of 5) ==`);
       console.log(`${"kit".padEnd(17)}${"mode".padEnd(5)}${"zone".padEnd(8)}${"policy".padEnd(8)}${HEATS.map(h=>("H"+h).padEnd(14)).join("")}`);
       const jobs=kits.flatMap(k=>[["arr",k.arr],["on",k.on]].filter(x=>x[1]).flatMap(([mode,z])=>POLS.map(p=>({k:k.name,mode,z,p}))));
-      const out=(await Promise.all(Array.from({length:JOBS},(_,i)=>(async()=>{const o=[];for(const j of jobs.filter((_,x)=>x%JOBS===i)){const hs=[];for(const h of HEATS)hs.push(await pages[i].evaluate(([k,z,h,p,n,seed])=>SIM.attr(SIM.kits[k].snap,z,h,p,n,{seed,kit:k}),[j.k,j.z,h,j.p,N,SEED]));o.push({...j,heats:hs})}return o})()))).flat();
+      const out=(await Promise.all(Array.from({length:JOBS},(_,i)=>(async()=>{const o=[];for(const j of jobs.filter((_,x)=>x%JOBS===i)){const hs=[];for(const h of HEATS)hs.push(await pages[i].evaluate(([k,z,h,p,n,seed,packs])=>SIM.attr(SIM.kits[k].snap,z,h,p,n,{seed,kit:k,packs}),[j.k,j.z,h,j.p,N,SEED,PACKS_MODE]));o.push({...j,heats:hs})}return o})()))).flat();
       const ord=x=>jobs.findIndex(j=>j.k===x.k&&j.mode===x.mode&&j.p===x.p);out.sort((a,b)=>ord(a)-ord(b));result.attr=out;
       out.forEach(o=>console.log(`${o.k.padEnd(17)}${o.mode.padEnd(5)}${o.z.padEnd(8)}${o.p.padEnd(8)}${o.heats.map(x=>`${pct(x.clear)}% ${f1(x.fights)}`.padEnd(14)).join("")}`))}
   }
@@ -506,7 +519,7 @@ async function main(){
     const cells=[];for(const k of kits){if(!k.arr)continue;for(const e of enemies.filter(e=>!e.boss&&e.id!=="mimic"&&e.zone===k.arr))for(const h of HEATS)for(const p of POLS)for(const rar of ["normal","magic","rare"])cells.push({k:k.name,e:e.id,h,p,rar})}
     const chunks=Array.from({length:JOBS},()=>[]);cells.forEach((x,i)=>chunks[i%JOBS].push(x));
     const out=(await Promise.all(chunks.map((ch,i)=>(async()=>{const o=[];for(let j=0;j<ch.length;j+=40){const part=ch.slice(j,j+40);
-      for(const rar of ["normal","magic","rare"]){const sub=part.filter(x=>x.rar===rar);if(!sub.length)continue;(await pages[i].evaluate(([c,n,oo])=>SIM.cells(c,n,oo),[sub,N,{seed:SEED,row:ROW,rar}])).forEach(r=>o.push({...r,rar}))}}return o})()))).flat();
+      for(const rar of ["normal","magic","rare"]){const sub=part.filter(x=>x.rar===rar);if(!sub.length)continue;(await pages[i].evaluate(([c,n,oo])=>SIM.cells(c,n,oo),[sub,N,{seed:SEED,row:ROW,rar,packs:PACKS_MODE}])).forEach(r=>o.push({...r,rar}))}}return o})()))).flat();
     const agg=(xs)=>{const n=xs.reduce((a,c)=>a+c.n,0),w=a=>xs.reduce((s,c)=>s+c[a]*c.n,0)/n;return{win:w("win"),turns:w("turns"),hp:w("hp")}};
     console.log(`\n== Rarity table, ARRIVAL (previous stage's kit vs this zone's regular enemies, map row ${ROW}, ${N} fights per enemy and cell, every affix in turn). Per heat: win% / mean turns / mean HP left% ==`);
     console.log(`${"kit".padEnd(17)}${"policy".padEnd(8)}${"rarity".padEnd(8)}${HEATS.map(h=>("H"+h).padEnd(17)).join("")}flags`);

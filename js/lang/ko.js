@@ -190,7 +190,7 @@ DICT.ko=Object.assign(DICT.ko||{},{
 "Absorbs this much damage.":"이만큼의 피해를 흡수합니다.","You":"나","Bare fists":"맨주먹","Guarding":"막는 중","Your next hit taken is cut by 60%.":"다음에 받는 공격의 피해가 60% 줄어듭니다.","Off balance":"균형 잃음","A mistimed parry cost you your guard.":"받아치기 실패로 막기를 잃었습니다.",
 "Regen +{n}":"재생 +{n}","HP you mend each turn.":"매 턴 회복하는 HP.","Infused {trait} {rank}":"주입된 {trait} {rank}","Acts as if it were on your weapon.":"무기에 있는 것처럼 작용합니다.","Strike power of your main hand.":"주 손의 공격력.",
 "Cuts the damage you take by {p}%.":"받는 피해를 {p}% 줄입니다.","Heat 5 bites through {p}% of your Defense.":"열기 5는 방어력의 {p}%를 꿰뚫습니다.",
-"Burning {n}":"화상 {n}","Takes {n} damage each turn.":"매 턴 {n} 피해를 받습니다.","Poison {n}":"중독 {n}","Frozen":"빙결","It loses its next turn.":"다음 턴을 잃습니다.","Bleed {n}":"출혈 {n}","Damage each turn that ignores armor.":"방어구를 무시하는 매 턴 피해.",
+"Burning {n}":"화상 {n}","Takes {n} damage each turn.":"매 턴 {n} 피해를 받습니다.","Poison {n}":"중독 {n}","Frozen":"빙결","Stunned":"기절","It loses its next turn.":"다음 턴을 잃습니다.","Bleed {n}":"출혈 {n}","Damage each turn that ignores armor.":"방어구를 무시하는 매 턴 피해.",
 "Boss":"보스","Beat it to open the next region.":"쓰러뜨리면 다음 지역이 열립니다.","Its second form.":"두 번째 형태.","{n} affix. Up to {hp}x HP and {atk}x Attack before the affixes' own changes.":"접사 {n}개. 접사 자체의 변화 전에 최대 HP {hp}배, 공격력 {atk}배.¦접사 {n}개. 접사 자체의 변화 전에 최대 HP {hp}배, 공격력 {atk}배.",
 "Heat {n}":"열기 {n}","Heat":"열기","Mastered":"정복","You deal {p}% more damage to it.":"{p}% 더 큰 피해를 줍니다.","Open codex entry":"도감 항목 열기","Weak to {fam}":"{fam}에 약함","Takes 50% more from it.":"해당 피해를 50% 더 받습니다.",
 "Resists {fam}":"{fam} 저항","Takes 40% less from it.":"해당 피해를 40% 덜 받습니다.","{n} unknown":"미확인 {n}","Weaknesses and resistances you have not found yet. Hit it, or Study.":"아직 찾지 못한 약점과 저항입니다. 공격하거나 연구하세요.",
@@ -778,4 +778,17 @@ DICT.ko=Object.assign(DICT.ko||{},{
   "Cultists":"광신도","Cultists harry their prey with repeated or baleful attacks.":"광신도들은 연속 공격과 저주로 먹잇감을 괴롭힙니다.",
   "Cult of the Star":"별의 교단","The star cult drains strength through arcane rites.":"별의 교단은 비전 의식으로 힘을 빼앗습니다.",
   "Constructs":"구조물","Constructs endure and restore their defenses.":"구조물은 버티면서 방어를 회복합니다."
+});
+
+// V-18 multi-enemy targeting
+DICT.ko=Object.assign(DICT.ko||{},{
+  "Choose a target":"대상 선택",
+  "Pack of {n}":"{n}마리 무리",
+  "Target {n}: {name}":"대상 {n}: {name}",
+  "Defeated":"쓰러짐",
+  "Foes act in order. One reward for the pack.":"적들은 차례대로 행동합니다. 무리당 보상은 한 번 지급됩니다.",
+  "{name} joins the pack.":"{name}이(가) 무리에 합류합니다.",
+  "You sweep into {name}":"{name}에게 휘둘러 공격합니다",
+  "The {name} falls. {left} foes remain.":"{name}이(가) 쓰러졌습니다. 적 {left}마리가 남았습니다.",
+  "1.0x strike with a 35% chance to stun (15% on bosses); against a pack, it hits every foe for 0.55x.":"1.0배 피해를 주고 35% 확률로 기절시킵니다(보스는 15%). 무리 전투에서는 모든 적에게 0.55배 피해를 줍니다."
 });

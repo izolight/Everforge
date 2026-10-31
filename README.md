@@ -275,3 +275,6 @@ and 28.8 on seed 11. M-10 measured the tutorial-prepared starter separately: on 
 ### Starter opening curve (M-10)
 
 The tutorial requires equipping the Fire-infused sword and learning Weaponcraft before the first expedition. `--fresh` now models that prepared state while retaining the unlock gates. Do not add raw starter stats: the bare iron-sword baseline won 0/6, 0/6 and 1/6 expeditions on seeds 1, 7 and 11; the tutorial-prepared kit won 6/6 on each. Its starter magic/rare results on seed 1 were 99%/96% at Heat 0 and 91%/79% at Heat 3 (`--rarity --kit starter --policy smart --seed 1 --n 100`). One Heat 3 rare row is `RARE_HARD` (79%); this is recorded as the opening curve limit, not a reason to buff the whole kit.
+
+
+Multi-enemy map encounters use deterministic packs of two or three foes in normal, daily, and Rift expeditions. Select a living foe to target it freely; surviving foes act in the displayed order each round. Sweep hits the pack, Parry answers the highlighted queued special, and rewards resolve once using the leader's profile. Packs retain member wounds across flee/re-entry and version-18 save reloads; bosses and tutorial encounters stay single-foe. Run the simulator with `--packs` for the pack-aware policy. See [pack behavior and measured balance limitations](combat-evidence/v18-multi-enemy.md).

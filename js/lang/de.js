@@ -183,7 +183,7 @@ DICT.de=Object.assign(DICT.de||{},{
 "Absorbs this much damage.":"Absorbiert so viel Schaden.","You":"Du","Bare fists":"Bloße Fäuste","Guarding":"Blockt","Your next hit taken is cut by 60%.":"Dein nächster erlittener Treffer wird um 60 % gesenkt.","Off balance":"Aus dem Gleichgewicht","A mistimed parry cost you your guard.":"Eine verpatzte Parade hat dich deinen Block gekostet.",
 "Regen +{n}":"Regeneration +{n}","HP you mend each turn.":"LP, die du jede Runde heilst.","Infused {trait} {rank}":"{trait} infundiert {rank}","Acts as if it were on your weapon.":"Wirkt, als wäre sie auf deiner Waffe.","Strike power of your main hand.":"Schlagkraft deiner Haupthand.",
 "Cuts the damage you take by {p}%.":"Senkt den erlittenen Schaden um {p} %.","Heat 5 bites through {p}% of your Defense.":"Hitze 5 durchdringt {p} % deiner Verteidigung.",
-"Burning {n}":"Brennt {n}","Takes {n} damage each turn.":"Erleidet {n} Schaden pro Runde.","Poison {n}":"Gift {n}","Frozen":"Gefroren","It loses its next turn.":"Es verliert seine nächste Runde.","Bleed {n}":"Blutung {n}","Damage each turn that ignores armor.":"Schaden jede Runde, der Rüstung ignoriert.",
+"Burning {n}":"Brennt {n}","Takes {n} damage each turn.":"Erleidet {n} Schaden pro Runde.","Poison {n}":"Gift {n}","Frozen":"Gefroren","Stunned":"Benommen","It loses its next turn.":"Es verliert seine nächste Runde.","Bleed {n}":"Blutung {n}","Damage each turn that ignores armor.":"Schaden jede Runde, der Rüstung ignoriert.",
 "Boss":"Boss","Beat it to open the next region.":"Besiege es, um die nächste Region zu öffnen.","Its second form.":"Seine zweite Form.","{n} affix. Up to {hp}x HP and {atk}x Attack before the affixes' own changes.":"{n} Affix. Bis zu {hp}x LP und {atk}x Angriff vor den eigenen Änderungen der Affixe.¦{n} Affixe. Bis zu {hp}x LP und {atk}x Angriff vor den eigenen Änderungen der Affixe.",
 "Heat {n}":"Hitze {n}","Heat":"Hitze","Mastered":"Gemeistert","You deal {p}% more damage to it.":"Du verursachst {p} % mehr Schaden an ihm.","Open codex entry":"Kodex-Eintrag öffnen","Weak to {fam}":"Anfällig für {fam}","Takes 50% more from it.":"Erleidet 50 % mehr davon.",
 "Resists {fam}":"Widersteht {fam}","Takes 40% less from it.":"Erleidet 40 % weniger davon.","{n} unknown":"{n} unbekannt","Weaknesses and resistances you have not found yet. Hit it, or Study.":"Schwächen und Resistenzen, die du noch nicht gefunden hast. Triff es, oder studiere es.",
@@ -781,4 +781,17 @@ DICT.de=Object.assign(DICT.de||{},{
   "Cultists":"Kultisten","Cultists harry their prey with repeated or baleful attacks.":"Kultisten bedrängen ihre Beute mit Serienangriffen und Flüchen.",
   "Cult of the Star":"Sternenkult","The star cult drains strength through arcane rites.":"Der Sternenkult entzieht durch arkane Rituale Kraft.",
   "Constructs":"Konstrukte","Constructs endure and restore their defenses.":"Konstrukte halten stand und erneuern ihre Verteidigung."
+});
+
+// V-18 multi-enemy targeting
+DICT.de=Object.assign(DICT.de||{},{
+  "Choose a target":"Ziel auswählen",
+  "Pack of {n}":"Gruppe aus {n}",
+  "Target {n}: {name}":"Ziel {n}: {name}",
+  "Defeated":"Besiegt",
+  "Foes act in order. One reward for the pack.":"Die Gegner handeln der Reihe nach. Für die Gruppe gibt es eine Belohnung.",
+  "{name} joins the pack.":"{name} schließt sich der Gruppe an.",
+  "You sweep into {name}":"Du fegst gegen {name}",
+  "The {name} falls. {left} foes remain.":"{name} fällt. Noch {left} Gegner übrig.",
+  "1.0x strike with a 35% chance to stun (15% on bosses); against a pack, it hits every foe for 0.55x.":"1,0x-Angriff mit 35 % Betäubungschance (15 % bei Bossen); gegen eine Gruppe trifft er jeden Gegner mit 0,55x."
 });

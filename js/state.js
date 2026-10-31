@@ -40,6 +40,10 @@ function loadSave(s){
   const dflt=freshState();DEFAULTED.forEach(k=>{if(s[k]===undefined)s[k]=dflt[k]});if(!isObj(s.afx))s.afx={};
   Object.keys(BASE).forEach(id=>s.items[id]=baseItem(id));
   if(!sane(s))return null;
+  if(s.battle){
+    const battle=PACKS.normalizeBattle(s.battle);
+    if(!battle||typeof battle!=="object"||Array.isArray(battle)||!Array.isArray(battle.foes))s.battle=null;else s.battle=battle;
+  }
   Object.keys(s.items).forEach(id=>{const b=baseIdOf(id),g=gradeOf(id);if(gradable(b)&&gradedId(b,g)===id)s.items[id]=mkGraded(b,g)}); // essences and graded materials are rebuilt from their fixed values
   s.embers=Math.max(0,Math.floor(Number(s.embers))||0);s.infCredit=Math.max(0,Math.floor(Number(s.infCredit))||0);
   // Additive timing ranks need no save bump; old known specials imply rank I at read time.

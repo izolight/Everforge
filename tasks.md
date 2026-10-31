@@ -4,16 +4,16 @@ The status index for scoped work. Open tasks are below; implementation evidence 
 
 ## At a glance
 
-**56 tasks · 55 Done · 1 In Progress · 0 Implement · 0 Planned · 1 open.**
+**56 tasks · 56 Done · 0 In Progress · 0 Implement · 0 Planned · 0 open.**
 
 | Workstream | Done | In Progress | Implement | Planned |
 |---|---:|---:|---:|---:|
 | Monster coverage, balance and progression (M) | 12 | 0 | 0 | 0 |
-| Biome variety and mechanics (V) | 21 | 1 | 0 | 0 |
+| Biome variety and mechanics (V) | 22 | 0 | 0 | 0 |
 | Art identity and readability (A) | 5 | 0 | 0 | 0 |
 | UI (U) | 9 | 0 | 0 | 0 |
 | Crafting rework (C) | 8 | 0 | 0 | 0 |
-| **Total** | **55** | **1** | **0** | **0** |
+| **Total** | **56** | **0** | **0** | **0** |
 
 **Statuses:** `Planned` = scoped backlog, not started; `Implement` = detailed implementation plan exists; `In Progress` = actively underway; `Done` = completed, with evidence in the archive. Dependencies are stated on task cards; Planned does not necessarily mean ready to start.
 
@@ -193,9 +193,9 @@ U-02–U-09 are complete. See [Completed UI tasks](backlog-completed.md#ui) for 
   Add roles such as bruiser, skirmisher, caster, support, with role-specific special pools and stat bias.
   **Done:** authored non-bosses map from existing specials; generated foes use deterministic role slots and compatible special kinds with no added RNG draws. Role stat bias applies only to non-boss combat copies, and translated labels/descriptions appear in battle. The full suite passed 38/38. Paired Heat 0 samples show authored wins near 100%; economy clears remain 93–100%, with the Hollow/Spire deltas and depth-9 Rift difficulty recorded in [V-17 evidence](balance-evidence/v17-enemy-roles.md).
 
-- [ ] **V-18 · Add multi-enemy encounters** — `Status: In Progress` · `Size: XL` · `js/battle.js`, `js/render/`, `js/state.js`, `js/map.js` · `Depends: V-17`
+- [x] **V-18 · Add multi-enemy encounters** — `Status: Done` · `Size: XL` · `js/battle.js`, `js/render/`, `js/state.js`, `js/map.js` · `Depends: V-17`
   Support 2–3 foes with targeting, turn order, AoE abilities, pack-aware affixes and saves.
-  **Acceptance:** packs work in normal/daily/Rift; UI and save shape updated; sim policies updated.
+  **Done:** normal/daily/Rift packs support targeting, ordered turns, independent affixes, Sweep AoE, version-18 save migration/recovery and pack-aware simulation. Review fixes and 42/42 checks passed; residual deep-Rift difficulty and regional expedition attrition are documented in [V-18 evidence](combat-evidence/v18-multi-enemy.md).
 
 - [x] **V-19 · Add cross-biome factions** — `Status: Done` · `Size: L` · `js/data.js`, `js/monsters.js` · see [completed evidence](backlog-completed.md#v-19-add-cross-biome-factions)
   Tag rosters into factions (raiders, cultists, constructs, cult of the star) that cross biomes with shared looks and rules.

@@ -397,7 +397,7 @@ const ABILITIES={
   staff:{get name(){return tx("Channel")},icon:"channel",cd:3,x:1.3,pen:.5,get desc(){return tx("1.3x a normal attack that ignores half of armor. The weapon's top element effect always lands.")}},
   lance:{get name(){return tx("Charge")},icon:"charge",cd:4,x:2,open:.25,get desc(){return tx("2.0x heavy strike, but the enemy's reply hits you 25% harder.")}},
   spellblade:{get name(){return tx("Arc Slash")},icon:"arcslash",cd:3,x:1.2,get desc(){return tx("1.2x a normal attack. A crit refunds 1 turn of cooldown.")}},
-  warstaff:{get name(){return tx("Sweep")},icon:"sweep",cd:3,x:1,stun:.35,bossStun:.15,get desc(){return tx("1.0x strike with a 35% chance to stun (15% on bosses). A stunned enemy loses its turn.")}},
+  warstaff:{get name(){return tx("Sweep")},icon:"sweep",cd:3,x:1,area:.55,stun:.35,bossStun:.15,get desc(){return tx("1.0x strike with a 35% chance to stun (15% on bosses); against a pack, it hits every foe for 0.55x.")}},
   claws:{get name(){return tx("Rend")},icon:"rend",cd:3,x:.9,get desc(){return tx("0.9x strike that opens a bleed: 20% of Attack per turn for 5 turns (ignores armor). Rending again before it ends adds a stack, up to 3, and refreshes it.")}},
   shield:{get name(){return tx("Shield Bash")},icon:"bash",cd:3,x:.6,int:.85,bossInt:.6,stun:.2,bossStun:.08,get desc(){return tx("0.6x Attack plus your shield's defense. Cancels a telegraphed special (85%, 60% on bosses), otherwise 20% to stun (8% on bosses).")}}
 },BLEED_STACK=3,BLEED_PER=.2,BLEED_T=5;

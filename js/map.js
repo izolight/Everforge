@@ -98,7 +98,7 @@ function respawnFoes(m){
   for(const p of m.pois){
     if(p.t!=="fight"||!p.done||!Number.isFinite(p.rd)||m.steps<p.rd)continue;
     if(litAt(m,p.x,p.y)||p.x===m.pos.x&&p.y===m.pos.y||m.pois.some(q=>q!==p&&q.x===p.x&&q.y===p.y))continue;
-    p.done=false;delete p.rd;delete p.st;delete p.aw;delete p.dz;delete p.pa;delete p.ms;revived.add(p);
+    p.done=false;delete p.rd;delete p.st;delete p.packState;delete p.aw;delete p.dz;delete p.pa;delete p.ms;revived.add(p);
   }
   return revived;
 }
@@ -131,23 +131,45 @@ function foesAct(m,skip=new Set()){
 // the map node a fight came from: a map enemy by its index, a boss by its tile
 const foeNode=(pi,boss)=>{const m=curMap(),n=pi!=null?m.pois[pi]:null;if(n&&isFoe(n))return n;return boss?m.pois.find(p=>p.t==="boss")||null:null};
 // a foe you fled from keeps its wounds on its tile, so you cannot chip it and meet it at full HP again (the state lives in the saved map)
-function storeFoe(B){const nd=foeNode(B.pi,!!(ENEMIES[B.id]&&ENEMIES[B.id].boss));if(!nd)return;nd.st={hp:Math.max(1,Math.round(B.hp)),ph:B.phased?1:0,sp:B.split?1:0}}
+function storeFoe(B){
+  const nd=foeNode(B.pi,!!(ENEMIES[B.id]&&ENEMIES[B.id].boss));if(!nd)return;
+  if(B.foes&&B.foes.length>1){nd.packState={target:B.target,foes:JSON.parse(JSON.stringify(B.foes))};delete nd.st;return}
+  nd.st={hp:Math.max(1,Math.round(B.hp)),ph:B.phased?1:0,sp:B.split?1:0};
+}
 function slip(B){ // you fled a map enemy: it stays and is dazed; you step back, or stay put if it walked into you
   const m=curMap(),nd=m.pois[B.pi];if(!nd||!isFoe(nd)||!nd.done)return;
   nd.done=false;nd.aw=0;const mv=nd.mv&&nd.mv!=="still";if(mv)nd.dz=ROAM.daze; // it loses your trail too, and must notice you again
   if(B.by==="it"&&B.ef&&walk(m,B.ef[0],B.ef[1])){nd.x=B.ef[0];nd.y=B.ef[1]}
   else if(m.prev&&walk(m,m.prev.x,m.prev.y)){m.pos=m.prev;m.prev=null}
   mlog(m,mv?tx("You slip away. The {name} is dazed and stays put for {n} steps.",{name:tx(ENEMIES[B.id].name),n:ROAM.daze}):tx("You slip away. The {name} lets you go.",{name:tx(ENEMIES[B.id].name)}));if(mv)blog(tx("The {name} is dazed. It will not follow for {n} steps.",{name:bname(B),n:ROAM.daze}),"good");reveal(m)}
+function ensurePackSpec(nd,m){
+  if(nd.packSpec||!nd.e||!ENEMIES[nd.e])return nd.packSpec||null;
+  const candidates=Object.entries(ENEMIES).filter(([id,E])=>id!==nd.e&&!E.boss&&E.zone===S.zone)
+    .map(([id,E])=>({...E,id,role:roleOf(E),alpha:!!E.alpha}));
+  const primary={...ENEMIES[nd.e],id:nd.e,role:roleOf(ENEMIES[nd.e]),alpha:!!ENEMIES[nd.e].alpha};
+  if(!candidates.length)return null;
+  const depth=S.zone===RIFT_ZONE&&S.rift&&S.rift.depth||0,policy=PACKS.encounterPolicy({depth,elite:nd.t==="elite"});
+  nd.packSpec={...PACKS.makePack({seed:PACKS.seedFor(Number.isFinite(m.seed)?m.seed:(S.rift&&S.rift.seed)||0,nd,S.zone),primary,candidates,size:policy.size}),elite:policy.elite};
+  return nd.packSpec;
+}
+var PACKS_ENABLED=true;
+function packSizeAt(nd,m=curMap()){
+  if(!PACKS_ENABLED)return 1;
+  if(!nd||!isFoe(nd)||!['fight','elite'].includes(nd.t)||ENEMIES[nd.e]?.boss)return 1;
+  try{return ensurePackSpec(nd,m).size}catch(_){return 1}
+}
 function enter(nd,by,from){ // the one place a POI is resolved into a battle or an event; by "it": the enemy walked into you (from = the tile it left)
   const m=curMap();nd.done=true;delete m.mem[nd.x+","+nd.y];S.battle=null;S.event=null;
   let t=nd.t;
   if(t==="mystery")t=nd.my||mystery(Math.random());
   if(isFoe(nd)){if(!nd.e)nd.e=pickEnemy(S.zone);if(nd.rar==null)Object.assign(nd,speciesAfx(ENEMIES[nd.e])||rollFoe(Math.random,{elite:nd.t==="elite",heat:m.heat||0,row:nd.r,mv:nd.mv,e:nd.e}))} // an older map: pick once and keep
+  const packable=PACKS_ENABLED&&isFoe(nd)&&["fight","elite"].includes(t)&&!ENEMIES[nd.e]?.boss;
+  const packSpec=packable?ensurePackSpec(nd,m):null;
   const src=isFoe(nd)?{pi:m.pois.indexOf(nd),by:by||"you",ef:from,...by==="it"?{amsg:tx("The {nm} lunges out of the dark!",{nm:tx(ENEMIES[nd.e].name)}),lunge:1}:{}}:{},P=pstats(),hl=m.heat||0,amb=!!m.amb&&["fight","elite"].includes(t),r=nd.r; // m.amb: a robbed traveller's friends make your next fight an ambush; it ends with the next stop whatever it is
   m.amb=false;
-  if(t==="fight")return startBattle(null,{row:r,ambush:amb,e:nd.e,rar:nd.rar,afx:nd.afx,...src});
+  if(t==="fight")return startBattle(null,{row:r,ambush:amb,e:nd.e,rar:nd.rar,afx:nd.afx,packMembers:packSpec&&packSpec.members,packState:nd.packState,packElite:!!(packSpec&&packSpec.elite),...src});
   if(t==="ambush")return startBattle(null,{row:r,ambush:true,e:nd.e,rar:nd.rar,afx:nd.afx});
-  if(t==="elite")return startBattle(null,{row:r,ambush:amb,e:nd.e,rar:nd.rar,afx:nd.afx,...src});
+  if(t==="elite")return startBattle(null,{row:r,ambush:amb,e:nd.e,rar:nd.rar,afx:nd.afx,packMembers:packSpec&&packSpec.members,packState:nd.packState,packElite:true,...src});
   if(t==="boss")return startBattle(ZONES[zoneIdx(S.zone)][2]);
   if(ENC[t])S.event=ENC[t].make([...nd.rv||[0,0,0,0].map(()=>Math.random()),...(nd.gr||[]).slice(0,4)],hl); // rv[4..7] roll the grades of what the event gives
   if(t==="pack"){const pool=zonePool(S.zone),got=(nd.pk?[...nd.pk]:[pick(pool)]).map((id,k)=>dropNow(id,nd.gr&&nd.gr[k]));if(!nd.pk&&Math.random()<.5)got.push(dropNow(pick(pool)));got.forEach(id=>addItem(id));sfx("loot");

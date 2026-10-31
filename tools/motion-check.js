@@ -65,7 +65,7 @@ const URL="file://"+path.resolve(__dirname,"..","index.html"),shotArg=process.ar
       fight();S.battle.hp=1;$("atk").click();
     });
     assert.equal(await page.evaluate(()=>S.battle.over),"won");
-    assert(await page.evaluate(()=>[...document.querySelectorAll(".loot button")].some(e=>e.getAnimations().length)));
+    await page.waitForFunction(()=>[...document.querySelectorAll(".loot button")].some(e=>e.getAnimations().length),null,{timeout:1500});
     await page.waitForTimeout(650);
     await page.evaluate(()=>render());
     assert.equal(await page.evaluate(()=>[...document.querySelectorAll(".loot button")].reduce((n,e)=>n+e.getAnimations().length,0)),0);

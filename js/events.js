@@ -25,6 +25,8 @@ $("arena").addEventListener("click",e=>{
   const t=e.target.closest("button");if(!t||t.getAttribute("aria-disabled")==="true")return;
   if(t.dataset.intro)return dismissIntro(t.dataset.intro);
   if(t.dataset.codex)return openCodex(t.dataset.codex);
+  if(t.dataset.target){selectBattleTarget(t.dataset.target);return}
+  if(t.dataset.targetCycle){cycleBattleTarget(+t.dataset.targetCycle);return}
   if(t.dataset.item)return openSheet(t.dataset.item,false,!S.inv[t.dataset.item]);
   if(t.dataset.choice){const c=t.dataset.choice;
     if(c.startsWith("sell:")&&!armTap("sell:"+c.slice(5),3000,()=>{if(S.event)render()}))return render(); // selling gives up an item: the first tap only arms it
@@ -176,7 +178,11 @@ $("lang").addEventListener("change",e=>setLang(e.target.value));
 // the wild roster and the Rift's region (monsters.js), the reduced-motion listener (motion.js), the sound
 // buttons (audio.js), the static markup and its numbers (i18n.js, events.js), then the first render.
 function boot(){
-  buildRoster();riftEnsure();pruneCodex(S);
+  buildRoster();riftEnsure();
+  // Generated regional and Rift ids do not exist until their rosters are built.
+  // Defer catalog validation until now so valid active generated packs survive reload.
+  if(S.battle&&!PACKS.validateCatalog(S.battle,ENEMIES)){S.battle=null;save()}
+  pruneCodex(S);
   motionWatch();
   applyStatic();fillStatic();sndUi();
   try{render()}catch(e){ // a bad stored run should not cost the whole save: drop the transient parts first

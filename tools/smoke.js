@@ -8,7 +8,7 @@ const STEPS=+process.argv[2]||400,URL="file://"+path.resolve(__dirname,"..","ind
 async function run(label,setup,nat,steps=STEPS){
   const browser=await chromium.launch(),page=await browser.newPage({viewport:{width:390,height:844},reducedMotion:"reduce"});
   const errors=[];
-  page.on("pageerror",e=>errors.push(`pageerror: ${e.message}`));
+  page.on("pageerror",e=>errors.push(`pageerror: ${e.stack||e.message}`));
   page.on("console",m=>{if(m.type()==="error"&&!/fonts\.(googleapis|gstatic)|net::ERR/.test(m.text()))errors.push(`console: ${m.text()}`)});
   await page.goto(URL);
   if(setup){await page.evaluate(setup);await page.reload()}
@@ -170,7 +170,7 @@ async function run(label,setup,nat,steps=STEPS){
 // a save put in localStorage and loaded by the real page: what the game makes of it
 async function loadPage(save,key){
   const browser=await chromium.launch(),page=await browser.newPage({viewport:{width:390,height:844},reducedMotion:"reduce"}),errors=[];
-  page.on("pageerror",e=>errors.push(`pageerror: ${e.message}`));
+  page.on("pageerror",e=>errors.push(`pageerror: ${e.stack||e.message}`));
   page.on("console",m=>{if(m.type()==="error"&&!/fonts\.(googleapis|gstatic)|net::ERR/.test(m.text()))errors.push(`console: ${m.text()}`)});
   await page.goto(URL);
   await page.evaluate(({k,s})=>{localStorage.clear();localStorage.setItem(k,s)}, {k:key,s:save});
