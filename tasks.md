@@ -1,6 +1,6 @@
 # Everforge — tasks and watchlist
 
-Single planning record, consolidated 2026-10-31. **56 tracked tasks complete; no open or active tasks.** Ideas below are unscheduled, not commitments. Completion records describe historical validation, not a fresh check of today's build.
+Single planning record, consolidated 2026-10-31. **57 tracked tasks complete; no open or active tasks.** Ideas below are unscheduled, not commitments. Completion records describe historical validation, not a fresh check of today's build.
 
 ## Next decisions and playtest watchlist
 
@@ -11,7 +11,7 @@ Refresh measurements on the current build before opening follow-up tasks.
 | First forge and research pace | Does waiting for the first slot technique feel too long? Weaponcraft/Armorcraft cost 14 RP, Infusing 8, Improving 10 in the completed rework. | Adjust `TECHS` costs after playtesting; preserve M-10 tutorial preparation. |
 | Bot priorities | `--fresh` buys the cheapest technique first, so kitchen techniques precede gear. | Compare a gear-first policy with actual player choices before drawing pacing conclusions. |
 | Fusing timing | `--fresh` only plays the Woods, so the intended second-region timing is unmeasured. | Extend the sim into the Pass or check in play. |
-| Expedition visit cap | `walkExped` stops after eight visits and misses some dense-map rewards. | Measure fuller exploration before retuning `DENSITY_RW`. |
+| Expedition visit cap | Small samples show a higher limit increases fights and rewards. [SIM-01 evidence](economy-evidence/sim01-exploration.md). | Collect larger samples before considering any `DENSITY_RW` balance change. |
 | Roaming ambushes | Denser maps increased encounters initiated by roamers in the recorded run. | Add a movement cap only if play shows excessive ambushes; the tried cap of six had no measurable sim effect. |
 | Essence/material income | Compare reward pace across zones and seeds, especially Spire salvage essences. | Retune `FRAG`/drop chances only after current economy measurements. |
 | Regional material coverage | Pass lacks local Timber; Hollow/Spire lack local Leather. Earlier zones supply these. | Decide whether every region should supply every material type. |
@@ -126,6 +126,12 @@ All rows are **Done**. Keep IDs stable; detailed implementation remains in sourc
 | C-06 | Density |
 | C-07 | Sim and tuning |
 | C-08 | Text and docs |
+
+### Simulator
+
+| ID | Completed work |
+|---|---|
+| SIM-01 | Make the expedition POI routing threshold configurable and measure fuller exploration |
 
 ## Evidence and future task upkeep
 

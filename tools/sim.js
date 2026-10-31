@@ -2,7 +2,7 @@
 // Balance simulator: plays battles and whole expeditions in the real game code (startBattle, attack, parry, ability, useItem, visit, pstats...)
 // in headless Chromium, with render/save/floatFx/sfx/toast stubbed. Kits are crafted with the real combine().
 // Usage: node tools/sim.js [--n 40] [--zone woods,pass] [--enemy wolf,archon] [--kit melee,spire-end] [--heat 0,3,5] [--policy smart,basic,passive,guard,parry]
-//        [--fresh (the first expeditions with the unlock gates on, --exped 5)] [--seed 7] [--trace (prints one battle log per cell, then exits)] [--elite (adds magic + and rare * variants)] [--rarity (the rarity table only)] [--row 3] [--all] [--attrition] [--no-mastered] [--no-biome-mods (disable V-15 passives for a stable balance reference)] [--jobs 4] [--out sim.json] [--econ-only | --no-econ] [--exped 30]
+//        [--fresh (the first expeditions with the unlock gates on, --exped 5)] [--seed 7] [--trace (prints one battle log per cell, then exits)] [--elite (adds magic + and rare * variants)] [--rarity (the rarity table only)] [--row 3] [--all] [--attrition] [--no-mastered] [--no-biome-mods (disable V-15 passives for a stable balance reference)] [--jobs 4] [--out sim.json] [--econ-only | --no-econ] [--exped 30] [--visit-limit 8 (POIs before lair, 1–30)]
 //        [--wild (only the wild and Rift sections, with the forced rarity variants)] [--no-wild (skip them)] [--rift-seeds 1,2,3] [--rift-depth 1,3] [--rift-wild (the Rift's own wild creatures too)] [--packs (seeded multi-foe map encounters; otherwise use the single-foe reference)] [--force rare (the forced variants to trace)]
 const {chromium}=require("playwright"),path=require("path"),fs=require("fs"),os=require("os");
 const URL="file://"+path.resolve(__dirname,"..","index.html");
@@ -56,6 +56,10 @@ const ESS_BUDGET={woods:12,pass:24,hollow:36,spire:50}; // loose upper bound of 
 const argv=process.argv.slice(2),has=f=>argv.includes("--"+f),opt=(f,d)=>{const i=argv.indexOf("--"+f);return i>=0&&argv[i+1]&&!argv[i+1].startsWith("--")?argv[i+1]:d};
 const list=(f,d)=>{const v=opt(f,null);return v?v.split(","):d};
 const N=+opt("n",40),SEED=opt("seed",null),ROW=+opt("row",3),JOBS=Math.max(1,+opt("jobs",Math.min(4,os.cpus().length))),HEATS=list("heat",["0","3","5"]).map(Number),POLS=list("policy",["smart","basic","passive"]),EXPED=+opt("exped",30);
+const VISIT_ARG=argv.indexOf("--visit-limit"),VISIT_LIMIT=VISIT_ARG<0?"8":argv[VISIT_ARG+1];
+if(VISIT_ARG>=0&&(!VISIT_LIMIT||VISIT_LIMIT.startsWith("--")))throw new Error("--visit-limit requires an integer from 1 to 30");
+if(!/^(?:[1-9]|[12][0-9]|30)$/.test(VISIT_LIMIT))throw new Error("--visit-limit must be a finite integer from 1 to 30");
+const VISIT_CAP=Number(VISIT_LIMIT);
 const OUT=opt("out",null);
 const BIOME_MODS=!has("no-biome-mods");
 const DEPTH_MODS=!has("no-depth-mods");
@@ -74,6 +78,7 @@ const RUN_MATRIX=!ONLY_ECON&&!RARITY&&!WILD_ONLY,RUN_WILD=!ONLY_ECON&&!RARITY&&!
 function setup(opts){ // runs inside the game page; everything here uses the real game functions
   const BIOME_MODS=!!(opts&&opts.biomeMods);
   const DEPTH_MODS=!!(opts&&opts.depthMods);
+  const VISIT_LIMIT=opts&&opts.visitLimit||8;
   PACKS_ENABLED=!!(opts&&opts.packs);
   ["render","save","floatFx","sfx","toast","closeSheet","flushFx"].forEach(f=>window[f]=()=>{});
   const mulberry=a=>()=>{a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296};
@@ -272,12 +277,12 @@ function setup(opts){ // runs inside the game page; everything here uses the rea
         eventChoice(c);if(c==="leave")S.event=null}
       return true};
     let dark=0,vis=0;
-    while(steps<220){ // walk the grid: nearest unvisited POI (no elites when hurt), then the lair once ~8 are done or the torch is low
+    while(steps<220){ // Route toward POIs until the visit threshold is reached, then target the lair. En-route POIs can exceed it; low torch or no reachable targets can switch sooner.
       const m=curMap();if(m.cleared)break;
       if(S.hp<pstats().maxHp*.5&&S.camp>0)rest();
       const d=bfs(m,m.pos.x,m.pos.y),hurt=S.hp<pstats().maxHp*.6,ix=p=>p.y*m.w+p.x;
       const tg=m.pois.filter(p=>!p.done&&p.t!=="boss"&&d[ix(p)]>=0&&!(hurt&&p.t==="elite")).sort((a,b)=>d[ix(a)]-d[ix(b)]);
-      const goal=vis>=8||m.torch<=10||!tg.length?m.lair:tg[0],dg=bfs(m,goal.x,goal.y),nx=adjTiles(m).sort((a,b)=>dg[a[1]*m.w+a[0]]-dg[b[1]*m.w+b[0]])[0];
+      const goal=vis>=VISIT_LIMIT||m.torch<=10||!tg.length?m.lair:tg[0],dg=bfs(m,goal.x,goal.y),nx=adjTiles(m).sort((a,b)=>dg[a[1]*m.w+a[0]]-dg[b[1]*m.w+b[0]])[0];
       if(!nx)break;const was=poiAt(m,nx[0],nx[1]);if(was&&!was.done){r.visits[was.t]=(r.visits[was.t]||0)+1;vis++}
       if(m.torch<=0)dark++;steps++;step(...nx);
       if(!settle()){r.lost=1;break}
@@ -301,7 +306,7 @@ function flagsOf(c,mode,E){
   if(c.h===0&&c.win===1&&c.hp>HP_EASY&&c.turns<(boss?TURN_EASY_BOSS:TURN_EASY))fl.push("TOO_EASY");
   if(c.h===0&&c.win<.5)fl.push("TOO_HARD");
   if(c.turns>(boss?50:30))fl.push("SLOG");return fl}
-async function newPage(browser){const p=await browser.newPage();p.on("pageerror",e=>{console.error("pageerror:",e.message)});await p.goto(URL);await p.waitForFunction(()=>typeof S==="object"&&S);await p.evaluate(setup,{biomeMods:BIOME_MODS,depthMods:DEPTH_MODS,packs:PACKS_MODE});return p}
+async function newPage(browser){const p=await browser.newPage();p.on("pageerror",e=>{console.error("pageerror:",e.message)});await p.goto(URL);await p.waitForFunction(()=>typeof S==="object"&&S);await p.evaluate(setup,{biomeMods:BIOME_MODS,depthMods:DEPTH_MODS,packs:PACKS_MODE,visitLimit:VISIT_CAP});return p}
 async function main(){
   const t0=Date.now(),browser=await chromium.launch();
   const pages=await Promise.all(Array.from({length:JOBS},()=>newPage(browser))),P0=pages[0];
@@ -316,7 +321,7 @@ async function main(){
   if(gaps.length){console.error(`FAIL: biome elements with no authored enemy: ${gaps.join(", ")}`);await browser.close();process.exit(1)}
   if(has("fresh")){ // the first expeditions with gating, then done
     const n=+opt("exped",5),rows=await P0.evaluate(([n,p,sd,starter])=>SIM.fresh(n,p,sd,starter),[n,POLS[0],SEED,STARTER]);
-    console.log(`== Fresh opening loop: ${n} Woods expeditions with unlock gates on (tutorial Fire sword and Weaponcraft prepared, ${POLS[0]} policy) ==\nColumns: result, steps, fights, wins this run; POIs placed on the map (shown by type); POI types the bot walked into; what opened afterwards (smith Lv / total wins / expeditions finished).`);
+    console.log(`== Fresh opening loop: ${n} Woods expeditions with unlock gates on (tutorial Fire sword and Weaponcraft prepared, ${POLS[0]} policy, POI routing threshold ${VISIT_CAP}) ==\nColumns: result, steps, fights, wins this run; POIs placed on the map (shown by type); POI types the bot walked into; what opened afterwards (smith Lv / total wins / expeditions finished).`);
     rows.forEach(r=>console.log(`#${r.e} ${r.res.padEnd(11)} ${String(r.steps).padStart(3)} steps ${String(r.fights).padStart(2)} fights ${String(r.wins).padStart(2)} wins | map: ${Object.entries(r.pois).map(([t,c])=>t+" "+c).join(", ")}\n     met: ${Object.entries(r.visits).map(([t,c])=>t+" "+c).join(", ")||"nothing"} | then Lv ${r.sc.lv}, ${r.sc.wins} wins, ${r.sc.exps} expeditions -> opened: ${r.opened.join(", ")||"-"}\n     research: +${r.rp.gain} RP (${r.rp.earned} earned, ${r.rp.have} unspent; sources so far: ${Object.entries(r.rp.src).map(([k,n])=>k+" "+n).join(", ")})${r.rp.learned.length?` | learned: ${r.rp.learned.join(", ")}`:""}`));
     // the first expedition each technique is affordable (prerequisites learned, unspent RP covers its real cost), from the bot's own sequence
     const names=await P0.evaluate(()=>Object.fromEntries(TECHS.map(t=>[t.id,{n:t.name,c:S.techs[t.id]!=null?S.tpaid[t.id]:techCost(t),rq:rqT(t)}]))); // c: what it cost when bought (the free pick is 0), else what it costs now
@@ -357,7 +362,7 @@ async function main(){
         const info=await P0.evaluate(([seed,dep])=>SIM.rift(seed,dep),[sd.seed,d]);
         for(const f of ["",...forceSel])await show(k,{id:"rift_boss"},0,p,{seed:SEED,row:ROW,zone:"rift",rs:sd.seed,rd:d,rar:f||"normal",force:f||undefined},`(seed ${sd.seed}, ${info.biome} · ${info.name}, depth ${d}${f?" forced "+f:""})`)}}
     await browser.close();return}
-  const result={args:{n:N,seed:SEED,row:ROW,heats:HEATS,policies:POLS,elite:ELITE,mastered,wild:!NO_WILD,packs:PACKS_MODE,biomeMods:BIOME_MODS,depthMods:DEPTH_MODS,riftSeeds:RIFT_SEEDS,riftDepth:RIFT_DEPTH},kits:sums,cells:[],wild:[],wildByRegion:[],rift:[],attr:[],econ:[]};
+  const result={args:{n:N,seed:SEED,row:ROW,heats:HEATS,policies:POLS,visitLimit:VISIT_CAP,elite:ELITE,mastered,wild:!NO_WILD,packs:PACKS_MODE,biomeMods:BIOME_MODS,depthMods:DEPTH_MODS,riftSeeds:RIFT_SEEDS,riftDepth:RIFT_DEPTH},kits:sums,cells:[],wild:[],wildByRegion:[],rift:[],attr:[],econ:[]};
   const E=Object.fromEntries(enemiesAll.map(e=>[e.id,e])),K=Object.fromEntries(kits.map(k=>[k.name,k]));
   // the shared cell runner: the cells are grouped by rarity, so every chunk holds one rarity at a time
   const runCells=async(todo,label)=>{
@@ -537,7 +542,7 @@ async function main(){
   // economy
   if(RUN_ECON){
     const ez=zones,eh=HEATS[0],ep=POLS.includes("smart")?"smart":POLS[0];
-    console.log(`\n== Economy: ${EXPED} expeditions per zone, ${ep} policy, melee stage kit (codex mastered for its zone), Heat ${eh} ==`);
+    console.log(`\n== Economy: ${EXPED} expeditions per zone, ${ep} policy, melee stage kit (codex mastered for its zone), Heat ${eh}, POI visit limit ${VISIT_CAP} ==`);
     console.log("Columns WITHOUT salvage: embers (fight rewards), ess (essences from chests, shrines, elites, bosses...), items (all drops), xp (smith XP gained: no fight gives XP directly, only heat spoils, bounties and dailies). Columns WITH salvage (the bot never salvages; this is the value of the new non-equipped loot if you did): sv.ess (essences) and sv.emb (embers); emb+sv and ess+sv are the totals; gear/exp = (embers+sv.emb) / median shop gear price.");
     const cols=[["zone",8],["kit",14],["clear%",7],["lost%",6],["fights",7],["by foe",7],["magic",6],["rare",6],["embers",7],["sv.emb",7],["emb+sv",7],["ess",5],["sv.ess",7],["ess+sv",7],["items",6],["shops",6],["steps",6],["dark",5],["torch",6],["xp",5],["gear price min-med-max",23],["ess price",10],["emb@shop",9],["gear/exp",8]];
     console.log(cols.map(([c,w])=>c.padEnd(w)).join(""));
