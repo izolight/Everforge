@@ -1,6 +1,6 @@
 # Everforge — tasks and watchlist
 
-Single planning record, consolidated 2026-10-31. **58 tracked tasks complete; no open or active tasks.** Ideas below are unscheduled, not commitments. Completion records describe historical validation, not a fresh check of today's build.
+Single planning record, consolidated 2026-10-31. **59 tracked tasks complete; no open or active tasks.** Ideas below are unscheduled, not commitments. Completion records describe historical validation, not a fresh check of today's build.
 
 ## Next decisions and playtest watchlist
 
@@ -133,12 +133,14 @@ All rows are **Done**. Keep IDs stable; detailed implementation remains in sourc
 |---|---|
 | SIM-01 | Make the expedition POI routing threshold configurable and measure fuller exploration |
 | SIM-02 | Add selectable fresh-mode research purchase priorities and JSON output |
+| SIM-03 | Use the equipped weapon and real research gates for fresh-mode essence crafting |
 
 ## Evidence and future task upkeep
 
 - Art: [acceptance sheets](art-evidence/README.md); UI wording: [terminology](ui-terminology.md).
 - Regions and economy: [Fen simulation](region-evidence/m06-fen-sim-seed1.txt), [boss elements](rift-evidence/m07-boss-elements.md), [Steam source](economy-evidence/README.md).
 - Fresh research policies: [SIM-02 comparison](economy-evidence/sim02-research-policy.md).
+- Fresh weapon infusion gates and SIM-03 measurements: [fresh infusion evidence](economy-evidence/sim03-fresh-infusion.md).
 - Rift biome additions: [Tidewrack](rift-evidence/v05-tidewrack.md), [Windcut](rift-evidence/v06-windcut.md), [Garden](rift-evidence/v07-garden.md), [Geyser](rift-evidence/v08-baseline.md), [Sporewood](rift-evidence/v09-sporewood.md).
 - Combat foundations: [biome identity](rift-evidence/m05-identity.md), [specials](combat-evidence/v14-specials.md), [biome special pools](rift-evidence/v11-biome-specials.md), [element weights](rift-evidence/v13-element-weights.md), [map modifiers](rift-evidence/v15-biome-modifiers.md), [depth modifiers](rift-evidence/v21-depth-modifiers.md).
 - Design references: [roles](docs/enemy-roles.md), [factions](docs/enemy-factions.md), [multi-enemy encounters](docs/multi-enemy-encounters.md). Evidence files remain supporting records, not separate task queues.

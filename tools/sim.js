@@ -226,7 +226,7 @@ function setup(opts){ // runs inside the game page; everything here uses the rea
   const essCount=()=>Object.keys(S.inv).filter(isEss).reduce((a,id)=>a+S.inv[id]*plainEq(gradeOf(id)),0); // plain-essence equivalents
   const itemCount=()=>Object.values(S.inv).reduce((a,b)=>a+b,0);
   // --fresh: the first expeditions of a new save with the unlock gates on (the starter kit, one policy): what each map holds, what opens between them
-  // between expeditions the bot deconstructs raw finds, skips its current sword-infusion step because its lookup misses the crafted tutorial sword, studies up to three families, then buys an affordable available technique by the selected policy. rpEarned() counts what research was worth.
+  // between expeditions the bot deconstructs raw finds, attempts essence crafts on its equipped weapon with the actual research gates, studies up to three families, then buys an affordable available technique by the selected policy. rpEarned() counts what research was worth.
   const GEAR_FIRST_ORDER=["armorcraft","blade","body","shield","helm","boots","gloves","spear","staff"];
   const nextResearchTech=policy=>{
     const affordable=TECHS.filter(t=>techState(t)==="avail"&&S.rp>=techCost(t));
@@ -235,15 +235,29 @@ function setup(opts){ // runs inside the game page; everything here uses the rea
       const gear=affordable.filter(t=>GEAR_FIRST_ORDER.includes(t.id)).sort((a,b)=>rank(a.id)-rank(b.id));
       if(gear.length)return gear[0]}
     return affordable.sort((a,b)=>techCost(a)-techCost(b))[0]||null};
+  const freshWeaponInfusions=()=>{
+    const attempts=[];
+    const traits=[...new Set(Object.keys(S.inv).filter(id=>isEss(id)&&S.inv[id]>0).map(essTrait))].slice(0,2);
+    for(const trait of traits){
+      // Resolve the equipped weapon every time: forgeIt consumes it and may equip a new crafted ID.
+      const weaponId=S.eq.main,weapon=weaponId&&S.inv[weaponId]>0?S.items[weaponId]:null;
+      if(!weapon||grp(weapon)!=="weapon"){attempts.push({trait,skipped:"no-equipped-weapon"});break}
+      const essenceId=studyPool(trait)[0];if(!essenceId)continue;
+      const mix=[weapon,S.items[essenceId]],missing=actionOk(mix),check=checkMix(mix);
+      if(missing.length||!check.ok){attempts.push({trait,weaponBefore:weaponId,missing,checkOk:check.ok,skipped:missing.length?"technique-gate":"invalid-mix"});continue}
+      S.bench=[weaponId,essenceId];const result=forgeIt(mix);S.bench=[];
+      attempts.push({trait,weaponBefore:weaponId,weaponAfter:S.eq.main||null,fizzle:!!result.fizzle});
+    }
+    return attempts};
+  SIM.infuseFreshWeapon=freshWeaponInfusions;
   const chores=researchPolicy=>{
     const rp0=rpEarned(),learned=[],purchases=[];
     Object.keys(S.inv).filter(id=>S.inv[id]-eqCount(id)>0&&!isEss(id)&&(DECON[plainId(id)]&&canDecon(S.items[id])||salvageYield(S.items[id]).length)).forEach(id=>{while(S.inv[id]-eqCount(id)>0){if(canDecon(S.items[id]))deconstruct(id);else salvageItem(id)}}); // raw finds are deconstructed, gear with essences in it salvaged
-    const sw=S.inv.iron_sword>0?"iron_sword":null;
-    if(sw)for(const f of [...new Set(Object.keys(S.inv).filter(id=>isEss(id)&&S.inv[id]>0).map(essTrait))].slice(0,2)){const id=studyPool(f)[0];if(!id)continue;S.bench=[sw,id];if(!actionOk(S.bench.map(i=>S.items[i])).length&&checkMix(S.bench.map(i=>S.items[i])).ok)forgeIt(S.bench.map(i=>S.items[i]));S.bench=[]}
+    const infusions=freshWeaponInfusions();
     checkUnl(true);rpSweep();
     if(isUnl("research")){[...new Set(Object.keys(S.inv).filter(id=>isEss(id)&&S.inv[id]>0).map(essTrait))].filter(canStudy).slice(0,3).forEach(studyFam);
       for(let k=0;k<10;k++){const t=nextResearchTech(researchPolicy);if(!t)break;const state=techState(t),rpBefore=S.rp,cost=techCost(t);if(state!=="avail"||rpBefore<cost)throw new Error(`research policy selected unavailable or unaffordable technique ${t.id}`);learnTech(t.id);learned.push(t.name);purchases.push({id:t.id,name:t.name,cost,rpBefore})}}
-    rpQ=[];return{gain:rpEarned()-rp0,learned,purchases}};
+    rpQ=[];return{gain:rpEarned()-rp0,learned,purchases,infusions}};
   // the RP a technique needs in all: what it and the techniques it needs first cost, bought in order on a copy of the save (techCost in that order: a group's discount and free pick count)
   const chainTo=id=>{const s={techs:{...S.techs},tpaid:{...(S.tpaid||{})}};let total=0;
     const buy=t=>{if(s.techs[t.id])return;t.pre.forEach(p=>buy(TECH[p]));if(t.or&&!t.or.some(p=>s.techs[p]))buy(t.or.map(p=>TECH[p]).sort((a,b)=>techCost(a,s)-techCost(b,s))[0]);
@@ -262,7 +276,7 @@ function setup(opts){ // runs inside the game page; everything here uses the rea
       const m=curMap(),types={},w0=S.wins,rpE0=rpEarned();m.pois.forEach(p=>types[p.t]=(types[p.t]||0)+1);
       const r=walkExped(pol),res=r.won?"won":r.lost?"lost":"walked away";if(!r.won&&!r.lost)S.stats.exped++; // an abandoned run still counts as an expedition
       const rs=chores(researchPolicy);checkUnl(true);const opened=Object.keys(S.unl).filter(k=>!seenU.has(k));Object.keys(S.unl).forEach(k=>seenU.add(k));
-      rows.push({e:e+1,res,steps:r.steps,fights:r.fights,wins:S.wins-w0,hunted:r.cont,pois:types,visits:r.visits,opened,rp:{gain:rpEarned()-rpE0,earned:rpEarned(),have:S.rp,learned:rs.learned,purchases:rs.purchases,aff:TECHS.filter(t=>rpEarned()>=chainTo(t.id)).map(t=>t.id),src:Object.keys(S.rpd).reduce((o,k)=>{const p=k.split(":")[0];o[p]=(o[p]||0)+1;return o},{})},sc:{exps:exps(S),wins:S.wins,lv:level()}})}
+      rows.push({e:e+1,res,steps:r.steps,fights:r.fights,wins:S.wins-w0,hunted:r.cont,pois:types,visits:r.visits,opened,rp:{gain:rpEarned()-rpE0,earned:rpEarned(),have:S.rp,learned:rs.learned,purchases:rs.purchases,infusions:rs.infusions,aff:TECHS.filter(t=>rpEarned()>=chainTo(t.id)).map(t=>t.id),src:Object.keys(S.rpd).reduce((o,k)=>{const p=k.split(":")[0];o[p]=(o[p]||0)+1;return o},{})},sc:{exps:exps(S),wins:S.wins,lv:level()}})}
     return rows};
   SIM.exped=(snap,zone,heat,pol,seedKey,seed)=>{
     useSeed(seed,seedKey);S=JSON.parse(snap);S.zone=zone;S.embers=0;S.hp=pstats().maxHp;S.camp=2;S.maps[zone]=genMap({heat,zone});S.stats.earned=0;
@@ -338,7 +352,7 @@ async function main(){
     const names=await P0.evaluate(()=>Object.fromEntries(TECHS.map(t=>[t.id,{n:t.name,c:S.techs[t.id]!=null?S.tpaid[t.id]:techCost(t),rq:rqT(t)}]))); // c: what it cost when bought (the free pick is 0), else what it costs now
     const first={};rows.forEach(r=>r.rp.aff.forEach(id=>{if(!first[id])first[id]={e:r.e}}));
     const learnedAt={};rows.forEach(r=>r.rp.learned.forEach(n=>{learnedAt[n]=learnedAt[n]||r.e}));
-    console.log(`\nResearch: RP earned per expedition: ${rows.map(r=>r.rp.gain).join(", ")} (mean ${f1(rows.reduce((a,r)=>a+r.rp.gain,0)/rows.length)}). The bot deconstructs raw finds and studies up to three families per expedition. Sword infusion is currently skipped: the chore looks for inventory ID iron_sword, while the tutorial-prepared Fire sword has a crafted ID. Research purchase policy: ${RESEARCH_POLICY}${RESEARCH_POLICY==="gear-first"?" (Armorcraft, Bladecraft, Bodycraft, Shieldcraft, Helmcraft, Bootcraft, Glovecraft, Spearcraft, Staffcraft in that priority order when available and affordable; otherwise buy the cheapest affordable available technique)":" (buy the cheapest affordable available technique)"}.\nAffordable = the first expedition whose cumulative RP earned covers the technique with what it needs first (the group technique, for a slot), at the real techCost (a slot technique costs 3 once its group is known, and the first one after a group technique is free). Learned = the expedition the bot bought it:`);
+    console.log(`\nResearch: RP earned per expedition: ${rows.map(r=>r.rp.gain).join(", ")} (mean ${f1(rows.reduce((a,r)=>a+r.rp.gain,0)/rows.length)}). The bot deconstructs raw finds, studies up to three families, and tries up to two distinct essence traits on its equipped weapon using real craft checks. The tutorial sword already contains one essence, so Infusing III (which needs Infusing II and Smith Lv 5) gates another essence. Per-expedition attempts and gate reasons are in JSON. Research purchase policy: ${RESEARCH_POLICY}${RESEARCH_POLICY==="gear-first"?" (Armorcraft, Bladecraft, Bodycraft, Shieldcraft, Helmcraft, Bootcraft, Glovecraft, Spearcraft, Staffcraft in that priority order when available and affordable; otherwise buy the cheapest affordable available technique)":" (buy the cheapest affordable available technique)"}.\nAffordable = the first expedition whose cumulative RP earned covers the technique with what it needs first (the group technique, for a slot), at the real techCost (a slot technique costs 3 once its group is known, and the first one after a group technique is free). Learned = the expedition the bot bought it:`);
     console.log(Object.entries(names).map(([id,x])=>{const f=first[id];return `  ${x.n.padEnd(13)} ${String(x.c).padStart(2)} RP  ${f?"affordable from expedition "+f.e:"not affordable in "+rows.length+" expeditions"}${learnedAt[x.n]?", learned on "+learnedAt[x.n]:""}${x.rq?"  (needs "+x.rq+")":""}`}).join("\n"));
     if(OUT){const fresh={args:{mode:"fresh",expeditions:n,seed:SEED,fightPolicy:POLS[0],researchPolicy:RESEARCH_POLICY,heat:0,visitLimit:VISIT_CAP},rows,techniques:names};fs.writeFileSync(OUT,JSON.stringify(fresh));console.log(`\nwrote ${OUT}`)}
     await browser.close();return}
@@ -571,4 +585,5 @@ async function main(){
   if(OUT){fs.writeFileSync(OUT,JSON.stringify(result));console.log(`\nwrote ${OUT}`)}
   console.log(`done in ${Math.round((Date.now()-t0)/1000)}s`);
 }
-main().catch(e=>{console.error(e);process.exit(1)});
+if(require.main===module)main().catch(e=>{console.error(e);process.exit(1)});
+module.exports={setup,STARTER};
