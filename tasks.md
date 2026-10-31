@@ -1,6 +1,6 @@
 # Everforge — tasks and watchlist
 
-Single planning record, consolidated 2026-10-31. **57 tracked tasks complete; no open or active tasks.** Ideas below are unscheduled, not commitments. Completion records describe historical validation, not a fresh check of today's build.
+Single planning record, consolidated 2026-10-31. **58 tracked tasks complete; no open or active tasks.** Ideas below are unscheduled, not commitments. Completion records describe historical validation, not a fresh check of today's build.
 
 ## Next decisions and playtest watchlist
 
@@ -9,7 +9,7 @@ Refresh measurements on the current build before opening follow-up tasks.
 | Area | What to check | Possible follow-up |
 |---|---|---|
 | First forge and research pace | Does waiting for the first slot technique feel too long? Weaponcraft/Armorcraft cost 14 RP, Infusing 8, Improving 10 in the completed rework. | Adjust `TECHS` costs after playtesting; preserve M-10 tutorial preparation. |
-| Bot priorities | `--fresh` buys the cheapest technique first, so kitchen techniques precede gear. | Compare a gear-first policy with actual player choices before drawing pacing conclusions. |
+| Bot priorities | Six expedition samples show gear-first buys gear techniques earlier than cheapest-first. [SIM-02 evidence](economy-evidence/sim02-research-policy.md). | Compare larger samples and real player choices before drawing pacing conclusions. |
 | Fusing timing | `--fresh` only plays the Woods, so the intended second-region timing is unmeasured. | Extend the sim into the Pass or check in play. |
 | Expedition visit cap | Small samples show a higher limit increases fights and rewards. [SIM-01 evidence](economy-evidence/sim01-exploration.md). | Collect larger samples before considering any `DENSITY_RW` balance change. |
 | Roaming ambushes | Denser maps increased encounters initiated by roamers in the recorded run. | Add a movement cap only if play shows excessive ambushes; the tried cap of six had no measurable sim effect. |
@@ -132,11 +132,13 @@ All rows are **Done**. Keep IDs stable; detailed implementation remains in sourc
 | ID | Completed work |
 |---|---|
 | SIM-01 | Make the expedition POI routing threshold configurable and measure fuller exploration |
+| SIM-02 | Add selectable fresh-mode research purchase priorities and JSON output |
 
 ## Evidence and future task upkeep
 
 - Art: [acceptance sheets](art-evidence/README.md); UI wording: [terminology](ui-terminology.md).
 - Regions and economy: [Fen simulation](region-evidence/m06-fen-sim-seed1.txt), [boss elements](rift-evidence/m07-boss-elements.md), [Steam source](economy-evidence/README.md).
+- Fresh research policies: [SIM-02 comparison](economy-evidence/sim02-research-policy.md).
 - Rift biome additions: [Tidewrack](rift-evidence/v05-tidewrack.md), [Windcut](rift-evidence/v06-windcut.md), [Garden](rift-evidence/v07-garden.md), [Geyser](rift-evidence/v08-baseline.md), [Sporewood](rift-evidence/v09-sporewood.md).
 - Combat foundations: [biome identity](rift-evidence/m05-identity.md), [specials](combat-evidence/v14-specials.md), [biome special pools](rift-evidence/v11-biome-specials.md), [element weights](rift-evidence/v13-element-weights.md), [map modifiers](rift-evidence/v15-biome-modifiers.md), [depth modifiers](rift-evidence/v21-depth-modifiers.md).
 - Design references: [roles](docs/enemy-roles.md), [factions](docs/enemy-factions.md), [multi-enemy encounters](docs/multi-enemy-encounters.md). Evidence files remain supporting records, not separate task queues.
