@@ -1,0 +1,1 @@
+seeded depth fixtures {"burning_air":{"seed":1,"depth":1,"id":"burning_air"},"thin_wards":{"seed":1,"depth":2,"id":"thin_wards"},"fast_foes":{"seed":1,"depth":3,"id":"fast_foes"}}

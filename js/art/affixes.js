@@ -10,6 +10,8 @@ const ink=(d,col,w)=>`<path d="${d}" fill="none" stroke="#14100c" stroke-width="
 const TATS={ // each emblem sits in a 30-unit box centred on (0,0); a tattoo scales it onto the body
   fire:()=>`<path d="${flame(0,0,15)}" fill="${ELPAL.fire[0]}" stroke="#14100c" stroke-width="1.2"/><path d="${flame(0,3,8)}" fill="#ffe08a" stroke="#14100c" stroke-width=".8"/>`,
   ice:()=>{let d="";for(let k=0;k<6;k++){const a=k*Math.PI/3,u=Math.cos(a),v=Math.sin(a);d+=`M0 0 L${P2(u*14,v*14)} `;for(const t of [.55,.8])for(const g of [-1,1]){const b=a+g*Math.PI/4,x=u*14*t,y=v*14*t;d+=`M${P2(x,y)} L${P2(x+Math.cos(b)*4.5,y+Math.sin(b)*4.5)} `}}return ink(d,ELPAL.ice[0],2.4)},
+  water:()=>ink("M-14 1 C-8 -8 8 -8 14 1 M-14 8 C-8 -1 8 -1 14 8 M-8 -7 Q0 -15 8 -7",ELPAL.water[0],2.6),
+  steam:()=>ink("M-9 13 C-15 7 -3 4 -8 -2 C-12 -7 -3 -10 -3 -15 M1 14 C-5 8 7 4 2 -2 C-2 -7 7 -10 7 -15 M10 12 C5 7 14 4 10 -1",ELPAL.steam[0],2.6),
   poison:()=>`<path d="M0 -15 C4 -8 9 -2 9 4 A9 9 0 0 1 -9 4 C-9 -2 -4 -8 0 -15 Z" fill="${ELPAL.poison[0]}" stroke="#14100c" stroke-width="1.2" stroke-linejoin="round"/><circle cx="-3.4" cy="3.6" r="2.4" fill="#14100c"/><circle cx="3.4" cy="3.6" r="2.4" fill="#14100c"/><path d="M-3 8.2 H3" stroke="#14100c" stroke-width="1.4" stroke-linecap="round"/>`,
   holy:()=>{const k=ELPAL.holy[0];let d="";for(let i=0;i<8;i++){const a=i*Math.PI/4;d+=`M${P2(Math.cos(a)*9,Math.sin(a)*9)} L${P2(Math.cos(a)*14.5,Math.sin(a)*14.5)} `}return ink(d,k,2.6)+`<circle r="6.4" fill="${k}" stroke="#14100c" stroke-width="1.2"/>`},
   shadow:()=>`<path d="M-14 0 Q0 -11.5 14 0 Q0 11.5 -14 0 Z" fill="#c4a8ff" stroke="#14100c" stroke-width="1.2" stroke-linejoin="round"/><circle r="5" fill="#14100c"/><circle cx="1.8" cy="-1.8" r="1.4" fill="#fff"/>`,
@@ -26,7 +28,7 @@ function tattoo(ids,t){
     return `<g transform="translate(${P2(cx,cy)}) scale(${P2(k)})"><circle r="15" fill="${col}" opacity=".22"/><circle class="amb-pulse" style="transform-box:fill-box;transform-origin:center" r="15" fill="none" stroke="${col}" stroke-width="2.4"/>${TATS[id]()}</g>`}).join("");
 }
 const AFX_ART={
-  fire:{tat:1,col:ELPAL.fire[0]},ice:{tat:1,col:ELPAL.ice[0]},poison:{tat:1,col:ELPAL.poison[0]},holy:{tat:1,col:ELPAL.holy[0]},shadow:{tat:1,col:"#c4a8ff"},arcane:{tat:1,col:ELPAL.arcane[0]},
+  fire:{tat:1,col:ELPAL.fire[0]},ice:{tat:1,col:ELPAL.ice[0]},water:{tat:1,col:ELPAL.water[0]},steam:{tat:1,col:ELPAL.steam[0]},poison:{tat:1,col:ELPAL.poison[0]},holy:{tat:1,col:ELPAL.holy[0]},shadow:{tat:1,col:"#c4a8ff"},arcane:{tat:1,col:ELPAL.arcane[0]},
   iron:{p:"armor"},
   swift:{f:c=>`<path d="M2 48 H16 M4 55 H22 M2 62 H14" stroke="${FAM.swift}" stroke-width="2.2" stroke-linecap="round" opacity=".8"/>`},
   vamp:{f:c=>`<path d="M44 44 l4 9 l4 -9 Z M54 44 l4 9 l4 -9 Z" fill="#f2ece0" stroke="#0d0a08" stroke-width="1.2" stroke-linejoin="round"/><path d="M55 53 q-1 4 0 7" stroke="#c43c4f" stroke-width="2" fill="none" stroke-linecap="round"/><circle class="flt" cx="55" cy="63" r="2.2" fill="#c43c4f"/>`},

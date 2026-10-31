@@ -4,16 +4,16 @@ The status index for scoped work. Open tasks are below; implementation evidence 
 
 ## At a glance
 
-**56 tasks · 37 Done · 0 In Progress · 0 Implement · 19 Planned · 19 open.**
+**56 tasks · 56 Done · 0 In Progress · 0 Implement · 0 Planned · 0 open.**
 
 | Workstream | Done | In Progress | Implement | Planned |
 |---|---:|---:|---:|---:|
-| Monster coverage, balance and progression (M) | 8 | 0 | 0 | 4 |
-| Biome variety and mechanics (V) | 7 | 0 | 0 | 15 |
+| Monster coverage, balance and progression (M) | 12 | 0 | 0 | 0 |
+| Biome variety and mechanics (V) | 22 | 0 | 0 | 0 |
 | Art identity and readability (A) | 5 | 0 | 0 | 0 |
 | UI (U) | 9 | 0 | 0 | 0 |
 | Crafting rework (C) | 8 | 0 | 0 | 0 |
-| **Total** | **37** | **0** | **0** | **19** |
+| **Total** | **56** | **0** | **0** | **0** |
 
 **Statuses:** `Planned` = scoped backlog, not started; `Implement` = detailed implementation plan exists; `In Progress` = actively underway; `Done` = completed, with evidence in the archive. Dependencies are stated on task cards; Planned does not necessarily mean ready to start.
 
@@ -26,15 +26,15 @@ The status index for scoped work. Open tasks are below; implementation evidence 
 | Balance with an existing plan | M-09 complete | See [completed evidence](backlog-completed.md#m-09). |
 | Starter progression | M-10 complete | See [completed evidence](backlog-completed.md#m-10). |
 | Creature art and readability | A-01–A-05 complete | See [completed evidence](backlog-completed.md#creature-art-and-readability) and [visual review sheets](art-evidence/README.md). |
-| Rift difficulty | M-12 → V-16 | Remeasure wild bands after master fixes, then add alphas. |
+| Regional wilds and alphas | M-12, V-16 complete | See completed evidence; Hollow melee alpha fights retain a SLOG limitation. |
 | Essence availability | M-08 complete | The Cursed Altar can return Steam; see [completed evidence](backlog-completed.md#m-08). |
-| Later gameplay expansion | V-15 → V-21; V-11 → M-05 | Build biome modifiers, then depth-specific behavior. |
+| Later gameplay expansion | V-06–V-10 | Add four more Rift biomes and increase generated roster size. |
 
 Navigation: [UI](#ui-simplification) · [Balance](#balance-and-progression) · [Art](#art-identity-and-readability) · [Biome gameplay](#biome-gameplay-and-combat-foundations) · [Expansion](#world-and-roster-expansion) · [Dependencies](#dependencies-and-coordination) · [Completed](backlog-completed.md).
 
 ## Measurement freshness
 
-M-09's current seed-7/11 measurements are archived in [completed evidence](backlog-completed.md#m-09). Older M-10–M-12 measurements remain historical: V-12/V-02 changed generated rosters, and C-01–C-08 changed crafting, research and encounter density. Refresh relevant measurements before tuning; do not read “today” in older plans as the current build. Record seed, revision, kit, policy and Heat for new results.
+M-09's current seed-7/11 measurements are archived in [completed evidence](backlog-completed.md#m-09). M-12's refreshed baseline and unaccepted candidate are in [balance review](balance-evidence/m12-review.md). Older M-10/M-11 plans and historical measurements may predate V-12/V-02 generated rosters and C-01–C-08 crafting, research and encounter density. Refresh relevant measurements before tuning; record seed, revision, kit, policy and Heat.
 
 ## UI simplification
 
@@ -69,9 +69,11 @@ U-02–U-09 are complete. See [Completed UI tasks](backlog-completed.md#ui) for 
 
   </details>
 
-- [ ] **M-12 · Give the wild creatures a fight of their own** — `Status: Planned` · `Size: M` · `js/monsters.js`
-  The wild creatures are meant to be a fight, not a free win, but with their own region's kit every one of them still wins 100% at Heat 0.
+- [x] **M-12 · Give the wild creatures a fight of their own** — `Status: Done` · `Size: M` · `js/monsters.js`, `js/battle.js`, `tools/sim.js`
+  Before M-12, the wild creatures were meant to be a fight, but with their own region's kit every one still won 100% at Heat 0.
   **Acceptance:** `node tools/sim.js --wild --seed 1` shows the wild creatures as a real fight with a stage kit: with a stage kit, the region's wild creatures take at least the regulars' mean turns and leave no more HP than the regulars (Δ turns ≥ 0, Δ HP ≤ 0, at Heat 0; met by the melee kits above, not by every stage kit: `defensive/pass` −0.7 turns, `staff/hollow` −0.3, `staff/spire` −0.4 turns and +1 HP); at most a third of a region's roster `TOO_EASY` (not met: woods 10 of 10, pass 4 of 10); no essence from wild affixes (holds: a wild creature's affixes drop no essence, `js/battle.js` `!B.intr`). The region's economy does not move.
+
+  **Done:** rarity-normalized generator stats stay at the region tier. A combat-only profile strengthens generated nonboss regional wilds at the matching stage-kit Smith level (Woods HP 4.5×; Pass/Hollow/Spire HP 2×; ATK unchanged); the tutorial remains at 1× and Rift foes/M-11 masters are excluded. Two seeded n=100 smart-policy, Heat 0 stage-kit samples meet every turn/HP delta and roster `TOO_EASY` criterion. Results, economy comparison, opening-loop outcomes, and limitations are in [M-12 balance evidence](balance-evidence/m12-review.md).
 
   <details>
   <summary>Historical measurements — refresh before tuning</summary>
@@ -113,82 +115,93 @@ U-02–U-09 are complete. See [Completed UI tasks](backlog-completed.md#ui) for 
 
 ## Biome gameplay and combat foundations
 
-- [ ] **M-05 · Give each Rift-only biome a signature identity** — `Status: Planned` · `Size: L` · `js/monsters.js`, `js/battle.js`, `js/data.js` · `Depends: V-11`
+- [x] **M-05 · Give each Rift-only biome a signature identity** — `Status: Done` · `Size: L` · `js/monsters.js`, `js/battle.js`, `js/data.js` · `Depends: V-11`
   Give fen/ash/bone/deep 2–3 thematic specials, an element/drop bias, and one signature trait each instead of only shared `GEN_SP` and Rift drops.
-  **Acceptance:** each biome plays differently; all still work in Rift depths; sim covers them.
+  **Done:** Fen/ash/bone/deep have weighted elements, favored existing drops and signature hit statuses, building on V-11 special pools. Paired seed-1/7 simulations cover depths 1/3/9; focused checks and full suite (26/26) pass. Fen/ash master difficulty changes and depth-9 limits are recorded in [M-05 evidence](rift-evidence/m05-identity.md).
 
-- [ ] **V-11 · Add per-biome special pools** — `Status: Planned` · `Size: M` · `js/monsters.js` · `Depends: V-14 (soft)`
-  Add `B.sp` (or `BIOME_SP`) with 2–3 signature specials per biome, falling back to `GEN_SP`.
-  **Acceptance:** no biome relies only on the shared six; names/tells translated; sim passes.
+- [x] **V-11 · Add per-biome special pools** — `Status: Done` · `Size: M` · `js/monsters.js`, `js/lang/`, `tools/biome-special-check.js` · `Depends: V-14 (soft)`
+  All eight biomes have three translated signature specials for ordinary wild creatures, with `GEN_SP` fallback for unknown biomes and generated Rift masters. Selection consumes the existing single draw; all non-special roster fields and accepted master results remain unchanged.
+  **Validation:** updated biome-special and i18n checks pass; full suite passed 24/24. Paired seed-1/7 n=30 reference samples and live modifier coverage are recorded in [V-11 evidence](rift-evidence/v11-biome-specials.md).
 
-- [ ] **V-13 · Weight biome elements** — `Status: Planned` · `Size: S` · `js/monsters.js`
-  Add optional `elW` so each biome has common and rare elements instead of uniform rolls.
-  **Acceptance:** seeded output stays deterministic; daily pre-rolls unaffected; sim reflects intended element mix.
+- [x] **V-13 · Weight biome elements** — `Status: Done` · `Size: S` · `js/monsters.js`, `tools/element-weight-check.js`
+  Optional `elW` maps give each biome weighted common and rare creature elements with uniform fallback. The four M-05 signature Rift rates remain 40% without applying the signature bias twice; ordinary generated-creature drops retain the uniform element selected by the same roll.
+  **Validation:** seeded weighted distributions, one-draw budget, uniform fallback, repeated rosters, and daily pre-roll determinism pass. Paired n=30 seeds 1/7, Heat 0, smart-policy simulator samples are archived in [V-13 evidence](rift-evidence/v13-element-weights.md). The integrated suite reported 27/28 before the parent fixed a V-14 assertion that rejected Fen additions; its focused rerun passed. The full suite was not rerun after that test-only fix.
 
 - [x] **V-14 · Add new enemy special kinds** — `Status: Done` · `Size: M` · `js/battle.js`, `js/data.js`, `js/render/battle-view.js`, `js/sheets.js`, `js/lang/`
   Add `guard` (temporary ward), `inflict` (guaranteed status), `enrage` (Attack up below half HP), `burrow` (untargetable for one turn), and `summon` (calls a weaker wild creature).
   **Done:** Rune Aegis gives the Stone Golem a 20%-max-HP ward for two player actions; it refreshes to its cap, does not stack, and is separate from affix wards. Poisoned Edge guarantees poison after a landed Woods Bandit hit; Guard blocks it, Parry interrupts it, and status resistance shortens its duration. Rimehide Bear enrages once below half HP for a permanent +30% Attack. Mossback Stag burrows for one player action, cannot be hit, then surfaces at the start of its next enemy turn. Storm Harpy calls one weaker Squall Spirit for a single 0.65× strike. Added intent tells, active-state HUD chips, effect-specific Codex text and German/Korean strings. The generated Rift special pool is unchanged; the common opening Boar retains its original charge so the Parry lesson remains available.
   **Validation:** `node tools/special-check.js`, `node tools/guard-check.js`, `node tools/unlock-check.js`, `node tools/smoke.js`, `node tools/i18n-check.js`, `node tools/sim.js`, and `node tools/run-checks.js`; durable mobile captures, the focused regression output and full simulator output are archived in [combat evidence](combat-evidence/v14-specials.md).
 
-- [ ] **V-15 · Add biome modifiers to the map** — `Status: Planned` · `Size: L` · `js/map.js`, `js/battle.js`, `js/data.js` · `Depends: V-14`
+- [x] **V-15 · Add biome modifiers to the map** — `Status: Done` · `Size: L` · `js/map.js`, `js/battle.js`, `js/data.js` · `Depends: V-14`
   One passive per biome: poison fog (fen), chill (tundra), burn (ember), arcane surges (astral), sandstorm (ash), fear (bone), drowning pressure (deep).
+  **Done:** the Rift's seeded biome determines its passive; forest is the neutral eighth biome. Fen Poison adds one mild stack, Tundra Chill and Ember Burn last up to two turns, Astral adds 25% Arcane attack power every third enemy turn, Ash reduces player damage by 20% every third player turn, Bone causes one recoverable off-balance action after an unguarded hit, and Deep deals 4% max-HP pressure every third enemy turn even through Guard, Parry, or Stun. The active passive appears in the battle HUD and Codex. Biome statuses merge with daily/status effects by keeping the longer duration and strongest damage; Poison still respects its stack cap, resistance shortens guaranteed status, Guard blocks statuses, and successful Parry interrupts telegraphed special hits. Daily Cinder strengthens the single merged Burn instead of adding a duplicate.
   **Acceptance:** modifiers are visible in UI/Codex, seeded, and have documented stacking rules with daily twists.
+  **Validation:** `node tools/biome-check.js`, `node tools/map-check.js` (240 seeds), `node tools/run-checks.js` (22/22), and `node tools/i18n-check.js` pass. Paired simulator runs used HEAD `2c9b1a0` with the uncommitted M-12 review candidate, `--wild --n 100 --seed 1 --heat 0 --policy smart --rift-seeds 1,7 --rift-depth 1,3 --jobs 2`, once live and once with `--no-biome-mods`. Seeds 1/7 map to deep/ember (Rift seeds 3608050713/3641605951); each of four spire kits was sampled at depths 1/3, 100 fights per cell. Native Rift-master mean wins: deep 83.5% live vs 93.3% reference; ember 95.2% vs 98.8%. The biome check covers every passive; the paired sim is a two-biome sample, not a full balance sweep. Deep pressure remains the largest measured difficulty change: defensive/spire wins 55% vs 91% at depth 1 and 27% vs 64% at depth 3.
 
-- [ ] **V-21 · Add seeded Rift depth modifiers** — `Status: Planned` · `Size: M` · `js/monsters.js`, `js/battle.js` · `Depends: V-15`
-  Each Rift depth rolls one modifier (e.g. burning air, thin wards, fast foes) from the seed.
-  **Acceptance:** same seed shows the same modifier; HUD/Codex explains it; sim covers each modifier.
+  **All-biome impact sample:** the automatic seeded Rift fixture set covered all eight biomes at depth 1 (`--wild --n 25 --seed 1 --heat 0 --policy smart --rift-depth 1 --rift-wild --jobs 4`), live and again with `--no-biome-mods`. Under the same uncommitted M-12 review candidate, native Rift-master rows averaged 97.5% wins live vs 99.9% reference (32 cells, 25 fights each); native Rift-wild rows averaged 99.7% vs 99.8% (320 cells, 25 fights each). This is one seed/depth impact sample, not a balance sweep; JSON and logs are archived in [V-15 evidence](rift-evidence/v15-biome-modifiers.md). The M-12 candidate remains unaccepted and In Progress.
+
+- [x] **V-21 · Add seeded Rift depth modifiers** — `Status: Done` · `Size: M` · `js/data.js`, `js/battle.js`, `js/render/battle-view.js`, `js/sheets.js`, `tools/sim.js` · `Depends: V-15`
+  Rift seed and depth select Burning air, Thin wards, or Fast foes deterministically without consuming RNG draws. The selected effect appears in the battle HUD, Rift card, and Codex; V-15 biome passives remain independently active.
+  **Done:** `node tools/depth-check.js`, `node tools/biome-check.js`, `node tools/i18n-check.js`, and `node tools/run-checks.js` pass (23/23). Paired modifier-on/off samples and their M-12 candidate caveat are recorded in [V-21 evidence](rift-evidence/v21-depth-modifiers.md).
 
 ## World and roster expansion
 
-- [ ] **M-06 · Promote `fen` or `bone` to a full region** — `Status: Planned` · `Size: XL` · `js/data.js`, `js/monsters.js`, `js/map.js`, `js/audio.js`, `lang/` · `Depends: M-04, M-05`
+- [x] **M-06 · Promote Fen to a full region** — `Status: Done` · `Size: XL` · `js/data.js`, `js/monsters.js`, `js/map.js`, `js/audio.js`, `lang/` · `Depends: M-04, M-05`
   Add a `ZONES` entry, unlock gate, six authored regulars, a boss, map palette, music, quest intro, and translations.
-  **Acceptance:** region is playable end-to-end; boss/quest/unlocks work; `smoke`, `map-check`, `audio-check`, `i18n-check`, `sim` pass; save `KEY` bumped if the shape changed.
+  **Done:** Chose Fen, reusing the established Rift biome identity. Added the gated full-region progression, six authored regulars and the Fen Matriarch boss, dedicated palette and music, Fen quest intro, and English/German/Korean strings. Authored Fen enemies are not mislabeled as generated; the drowned guard uses the supported Shadow affinity. Old saves migrate safely without a schema change, retain the v18 save key, and prune Codex entries only after the roster exists. The Fen intro and boss victory unlock flow are covered end-to-end.
+  **Validation:** `node tools/fen-region-check.js`, `node tools/smoke.js` (SMOKE OK), `node tools/map-check.js`, `node tools/audio-check.js`, `node tools/i18n-check.js`, syntax checks, and `git diff --check` pass. A scoped seed-1, Heat 0, smart-policy simulator sample at the Spire-stage kit ran 20 fights for each of six Fen regulars and the boss; all seven rows won 100%, with no TOO_HARD or SLOG flags. Three regulars (Reedstalker, Mire Witch, Murk Wisp) were flagged TOO_EASY in this arrival-kit sample; see JSON and console output in [Fen region evidence](region-evidence/m06-fen-sim-seed1.json). The focused check also verifies Fen and Rift Codex records, wins, journal, depth and seed survive a real save reload. No save shape changed, so no key bump was needed. The full suite was not rerun after the parent’s V-14 assertion fix; its focused rerun passed.
 
-- [ ] **M-07 · Boss coverage for missing elements** — `Status: Planned` · `Size: L` · `js/data.js` · `Depends: M-06` (first boss)
-  Poison, holy, shadow, metal, arcane and stone have no boss. Add bosses through new regions or variants; if deliberately excluded, document why.
-  **Acceptance:** every element has a boss or a stated design exception.
+- [x] **M-07 · Boss coverage for missing elements** — `Status: Done` · `Size: L` · `js/data.js`, `js/lang/de-data.js`, `js/lang/ko-data.js`, `tools/boss-element-check.js` · `Depends: M-06`
+  **Done:** Added six playable boss forms through five existing authored bosses: Fen Matriarch first form (Poison), Gnarlhorn phase (Stone), Rimeclaw phase (Shadow), Phoenix phase (Holy), Archon phase (Arcane), and Fen Matriarch phase (Metal). The Archon's former Shadow phase became Arcane; Shadow has a playable phase on Rimeclaw. Each second form has its own translated tell/special, affinity, weaknesses, and resistances. Existing phase, Codex, and save fields handle transitions; progression gates, save schema, and generation draws are unchanged.
+  **Validation:** `node tools/boss-element-check.js`, `node tools/i18n-check.js`, and `node tools/fen-region-check.js` pass. The focused check drives each phase threshold, checks the phase affinity/special/Codex fact and regional boss mapping, and reloads a saved Rimeclaw second form. Seed-1, Heat 0, smart-policy simulations ran 20 fights per boss at each matching region-stage kit; all cells won 20/20. Gnarlhorn, Rimeclaw, and Archon have `TOO_EASY` on-stage flags in the sample; results and JSON/text logs are in [M-07 evidence](rift-evidence/m07-boss-elements.md). [Mobile phase screenshot](rift-evidence/m07-boss-phase-mobile.png). V-05 updated the Rift coverage check to derive the biome count; the integrated full suite subsequently passed 30/30.
 
-- [ ] **V-05 · Add a Tidewrack coast biome** — `Status: Planned` · `Size: M` · `js/monsters.js`
+- [x] **V-05 · Add a Tidewrack coast biome** — `Status: Done` · `Size: M` · `js/monsters.js`, `js/lang/de.js`, `js/lang/ko.js`, `tools/tidewrack-check.js`
   Elements ice/poison/shadow/swift; bodies beast/undead/elemental/humanoid; parts shell/frost/tail/vines/hood/crystals; names such as "The Drowned Coast", "Saltwind Cliffs", "The Tidewrack".
   **Acceptance:** biome appears in `RIFT_BIOMES`; generated creatures render; sim sample passes.
+  **Done:** Added the ninth Rift biome, Tidewrack, with existing elements/bodies/parts, a marine palette, coast regions and compatible names/lore. Added 3:1 common/rare element weighting and three translated V-11-compatible specials while preserving the existing selection draw. No new element family, authored region, or roster-size change.
+  **Validation:** Tidewrack generator/name/attachment/browser coverage and mobile screenshots, all-biome name/part/color/element/map checks, V-11 special, V-15 biome, Rift-master and i18n checks pass. The full suite passed 30/30, including smoke. Paired modifier-free seed-1/7 smart Heat 0 n=30 depth-1 Rift samples cover all nine biomes: Tidewrack wins 100% in both; broad Rift-wild means are 98% and 96%. Existing `TOO_EASY` flags remain in the Rift-masters' wild rows, and Tidewrack's Drowned Wraith defensive/Spire native row is `SLOG` at 59.6/59.4 turns. The added biome changes the seed-to-biome denominator, so these are coverage/balance samples rather than exact same-seed parity. Commands, source fingerprints, raw logs, and visual evidence are in [V-05 evidence](rift-evidence/v05-tidewrack.md).
 
-- [ ] **V-06 · Add a Windcut crags biome** — `Status: Planned` · `Size: M` · `js/monsters.js`
+- [x] **V-06 · Add a Windcut crags biome** — `Status: Done` · `Size: M` · `js/monsters.js` · see [completed evidence](backlog-completed.md#v-06--windcut-crags)
   Elements stone/metal/swift/arcane; bodies beast/humanoid/construct/elemental; parts armor/horns/chains/crystals/wings/tail; names such as "The Windcut Crags", "The Iron Highlands", "The Skyward Pass".
   **Acceptance:** biome appears in `RIFT_BIOMES`; generated creatures render; sim sample passes.
+  **Done:** Added Windcut as a generated Rift biome with the specified existing elements, bodies and attachable parts; a weighted 3:3:3:1 element pool; themed translated regions/lore; and three translated V-11-compatible specials using existing combat kinds. No family, authored region or roster slot was added.
+  **Validation:** deterministic pool/roster/name/special and 390×844 map/battle checks pass. Paired seed-1/7 smart Heat 0 n=30 stage-kit matrices cover depths 1 and 3 for all 11 current biomes, including Windcut and Garden. `node tools/run-checks.js` passed 32/32, including smoke. Raw outputs, baselines, screenshots and observed difficulty flags are in [V-06 evidence](rift-evidence/v06-windcut.md).
 
-- [ ] **V-07 · Add a Radiant garden biome** — `Status: Planned` · `Size: M` · `js/monsters.js`
+- [x] **V-07 · Add a Radiant garden biome** — `Status: Done` · `Size: M` · `js/monsters.js` · see [completed evidence](backlog-completed.md#v-07--radiant-garden)
   Elements holy/wood/poison/swift; bodies beast/humanoid/elemental/undead; parts antlers/vines/halo/wings/crown/mane; names such as "The Sunken Garden", "The Gilded Grove", "The Orchard of Bones".
   **Acceptance:** biome appears in `RIFT_BIOMES`; generated creatures render; sim sample passes.
+  **Done:** Added Radiant Garden with the specified existing elements, bodies and attachable parts, 3:3:1:1 weighted elements, a floral palette, translated regions/lore, and three translated V-11-compatible specials. No new family, authored region or roster slot was added.
+  **Validation:** Seeded roster, name/attachment, special translation and 390×844 map/battle checks pass. Color, biome-neutrality, i18n and focused Garden checks pass; `node tools/run-checks.js` passed 32/32 including smoke. Paired seed-1/7 smart Heat 0 n=30 samples cover depths 1/3 for all 11 biomes with modifiers disabled; Garden master rows won 99%. Broad Rift-wild matrices retain many `TOO_EASY` flags and a few `TOO_HARD` depth-3 cells. The expanded selector remaps seeds, so these are coverage samples, not exact same-seed parity. See [V-07 evidence](rift-evidence/v07-garden.md) and [raw integrated runs](rift-evidence/v06-integrated-seed1.json).
 
-- [ ] **V-08 · Add a Geyser field biome** — `Status: Planned` · `Size: M` · `js/monsters.js`
+- [x] **V-08 · Add a Geyser field biome** — `Status: Done` · `Size: M` · `js/monsters.js`
   Elements fire/ice/stone/arcane; bodies elemental/construct/beast/humanoid; parts flames/frost/crystals/armor/horns/runes; names such as "The Steam Vents", "The Boiling Shelf", "The White Caldera".
-  **Acceptance:** biome appears in `RIFT_BIOMES`; generated creatures render; sim sample passes.
+  **Validation:** Added Geyser to `RIFT_BIOMES` with fire/ice/stone/arcane weights 3:3:3:1 and three translated existing-kind specials. The focused browser check verifies all 10 generated wilds plus master, deterministic names/parts/elements, translations, and 390×844 map/battle fit. Name, part, color, map, biome, Rift boss, affix, i18n, element-weight, and Geyser/Sporewood checks pass. Paired seed-1/7 smart Heat 0 n=30 simulations cover depths 1/3 across all 13 biomes with biome/depth modifiers disabled; Geyser master rows won 100% in both seeds, while Geyser ordinary-wild rows retained `TOO_EASY` flags and one seed-7 `TOO_HARD` cell. The integrated suite passed 34/34. Selector growth remaps seeded biome selection; this is coverage, not exact same-seed parity. See [baseline and integrated results](rift-evidence/v08-baseline.md) and [raw paired runs](rift-evidence/v08-v09-integrated-seed1.json), [seed 7](rift-evidence/v08-v09-integrated-seed7.json).
 
-- [ ] **V-09 · Add a Sporewood biome** — `Status: Planned` · `Size: M` · `js/monsters.js`
+- [x] **V-09 · Add a Sporewood biome** — `Status: Done` · `Size: M` · `js/monsters.js` · see [current evidence](rift-evidence/v09-sporewood.md)
   Elements poison/wood/shadow/holy; bodies undead/beast/elemental/humanoid; parts vines/hood/mane/tail/horns/crystals; names such as "The Sporewood", "The Hollow Bloom", "The Weeping Canopy".
-  **Acceptance:** biome appears in `RIFT_BIOMES`; generated creatures render; sim sample passes.
+  **Done:** Sporewood uses the requested existing pools, weighted elements, translated specials and compatible names. Focused seeded/mobile checks pass; integrated suite passed 34/34 before a screenshot-only check update, whose focused rerun passed. Paired seed-1/7 n=30, Heat 0, smart depth-1/3 samples report 98% master and 99% wild wins with four TOO_EASY cells per seed. Seed remapping and remaining difficulty limits are recorded in [V-09 evidence](rift-evidence/v09-sporewood.md).
 
-- [ ] **V-10 · Increase seeded roster size** — `Status: Planned` · `Size: S` · `js/monsters.js`
-  Raise `GEN_N` from 10 to 12–14 and `RIFT_N` if needed; retune wild encounter weight so they stay ~40% of encounters.
-  **Acceptance:** more variety per region without changing overall encounter mix; `sim` and `map-check` pass.
+- [x] **V-10 · Increase seeded roster size** — `Status: Done` · `Size: S` · `js/monsters.js`
+  Raise `GEN_N` from 10 to 12–14 and retune generated wild encounter weight to stay near 40%; keep Rift roster size only as needed.
+  **Done:** the four generator-backed authored regions now have 12 deterministic wilds each; Fen stays authored-only, Rift stays at 10. Generated encounter weights scale to `10/GEN_N`, preserving each zone's old total weight; the V-16 alpha remains on its legacy seeded slot. The 100k weighted-selection / 500-map sample reproduces baseline wild shares, and `node tools/run-checks.js` passes 36/36. Baseline, paired smart/Heat 0 combat and 100-expedition economy comparisons, including remaining sample variance, are recorded in [V-10 evidence](balance-evidence/v10-roster.md).
 
-- [ ] **V-16 · Add one alpha wild creature per roster** — `Status: Planned` · `Size: M` · `js/monsters.js`, `js/art/`
+- [x] **V-16 · Add one alpha wild creature per roster** — `Status: Done` · `Size: M` · `js/monsters.js`, `js/art/`
   A deterministic mini-boss variant: three affixes, boosted stats, unique name, distinct map frame, defined rewards without shifting regional economy.
-  **Acceptance:** exactly one per region; same every run; sim and economy checks pass.
+  **Done:** exactly one deterministic promoted alpha in each of four authored regions; Rift rosters are excluded. Fixed compatible affixes, boosts and mobile marker are verified. Reward tables/weight and intrinsic essence suppression stay unchanged; the generic economy sim does not exercise alphas. Stage kits win 100% on seeds 1/7; Hollow melee retains a 34-turn `SLOG`. See [V-16 evidence](art-evidence/v16-alpha-review.md).
 
-- [ ] **V-17 · Introduce enemy roles** — `Status: Planned` · `Size: L` · `js/data.js`, `js/monsters.js`, `js/battle.js` · `Depends: V-14` (if roles use new kinds)
+- [x] **V-17 · Introduce enemy roles** — `Status: Done` · `Size: L` · `js/roles.js`, `js/monsters.js`, `js/battle.js`, `js/render/`, `js/lang/` · `Depends: V-14` (existing special kinds used)
   Add roles such as bruiser, skirmisher, caster, support, with role-specific special pools and stat bias.
-  **Acceptance:** roles documented; every role represented in sim; existing enemies mapped without breaking balance.
+  **Done:** authored non-bosses map from existing specials; generated foes use deterministic role slots and compatible special kinds with no added RNG draws. Role stat bias applies only to non-boss combat copies, and translated labels/descriptions appear in battle. The full suite passed 38/38. Paired Heat 0 samples show authored wins near 100%; economy clears remain 93–100%, with the Hollow/Spire deltas and depth-9 Rift difficulty recorded in [V-17 evidence](balance-evidence/v17-enemy-roles.md).
 
-- [ ] **V-18 · Add multi-enemy encounters** — `Status: Planned` · `Size: XL` · `js/battle.js`, `js/render/`, `js/state.js`, `js/map.js` · `Depends: V-17`
+- [x] **V-18 · Add multi-enemy encounters** — `Status: Done` · `Size: XL` · `js/battle.js`, `js/render/`, `js/state.js`, `js/map.js` · `Depends: V-17`
   Support 2–3 foes with targeting, turn order, AoE abilities, pack-aware affixes and saves.
-  **Acceptance:** packs work in normal/daily/Rift; UI and save shape updated; sim policies updated.
+  **Done:** normal/daily/Rift packs support targeting, ordered turns, independent affixes, Sweep AoE, version-18 save migration/recovery and pack-aware simulation. Review fixes and 42/42 checks passed; residual deep-Rift difficulty and regional expedition attrition are documented in [V-18 evidence](combat-evidence/v18-multi-enemy.md).
 
-- [ ] **V-19 · Add cross-biome factions** — `Status: Planned` · `Size: L` · `js/data.js`, `js/monsters.js`
+- [x] **V-19 · Add cross-biome factions** — `Status: Done` · `Size: L` · `js/data.js`, `js/monsters.js` · see [completed evidence](backlog-completed.md#v-19-add-cross-biome-factions)
   Tag rosters into factions (raiders, cultists, constructs, cult of the star) that cross biomes with shared looks and rules.
   **Acceptance:** factions appear in multiple regions/biomes; faction tags drive specials or drops.
 
-- [ ] **V-20 · Promote Water and Steam to full monster families** — `Status: Planned` · `Size: L` · `js/data.js`, `js/affix.js`, `js/monsters.js`
+- [x] **V-20 · Promote Water and Steam to full monster families** — `Status: Done` · `Size: L` · `js/data.js`, `js/affix.js`, `js/monsters.js` · see [completed evidence](backlog-completed.md#v-20-water-and-steam-families)
   Both exist as essences but not elements or `FAM` colours. Add family colour, `EL_NAT` weakness/resist/status, drops and at least one biome using each.
   **Acceptance:** Water/Steam creatures render and fight; affix and sim checks pass; translations added.
 

@@ -23,6 +23,16 @@ function sane(s){
     &&Object.keys(s.inv).every(id=>isObj(s.items[id])&&isObj(s.items[id].traits)&&typeof s.items[id].name==="string"&&FORMS[s.items[id].form])
     &&s.bench.every(id=>isObj(s.items[id]))&&s.journal.every(j=>isObj(j)&&isObj(s.items[j.id]));
 }
+function pruneCodex(s){
+  // Authored enemies exist during save loading, while seeded rosters are built
+  // later. Boot repeats this cleanup once the generated roster also exists.
+  if(typeof ENEMIES==="undefined"||!isObj(s.codex))return;
+  Object.entries(s.codex).forEach(([id,k])=>{const E=ENEMIES[id];if(!isObj(k)||!E)return;
+    const facts=key=>[...(E[key]||[]),...(E.phase&&E.phase.to?E.phase.to[key]:[])],keep=(key,list)=>{const ok=new Set(list);k[key]=Array.isArray(k[key])?k[key].filter(x=>ok.has(x)):[]};
+    keep("weak",facts("weak"));keep("resist",facts("resist"));
+    const ids=new Set((E.drops||[]).map(d=>d[0]));k.drops=Array.isArray(k.drops)?k.drops.filter(d=>ids.has(d)):[];
+    const infs=new Set([E.inf&&E.inf.s,E.phase&&E.phase.to&&E.phase.to.inf&&E.phase.to.inf.s].filter(Boolean));k.inf=Array.isArray(k.inf)?k.inf.filter(s=>infs.has(s)):[];});
+}
 // Saves are latest-only: a save of another version is not loaded at all (the game starts fresh). loadSave() only validates and clamps a current save.
 function loadSave(s){
   if(!isObj(s)||s.v!==18)return null;
@@ -30,16 +40,16 @@ function loadSave(s){
   const dflt=freshState();DEFAULTED.forEach(k=>{if(s[k]===undefined)s[k]=dflt[k]});if(!isObj(s.afx))s.afx={};
   Object.keys(BASE).forEach(id=>s.items[id]=baseItem(id));
   if(!sane(s))return null;
+  if(s.battle){
+    const battle=PACKS.normalizeBattle(s.battle);
+    if(!battle||typeof battle!=="object"||Array.isArray(battle)||!Array.isArray(battle.foes))s.battle=null;else s.battle=battle;
+  }
   Object.keys(s.items).forEach(id=>{const b=baseIdOf(id),g=gradeOf(id);if(gradable(b)&&gradedId(b,g)===id)s.items[id]=mkGraded(b,g)}); // essences and graded materials are rebuilt from their fixed values
   s.embers=Math.max(0,Math.floor(Number(s.embers))||0);s.infCredit=Math.max(0,Math.floor(Number(s.infCredit))||0);
   // Additive timing ranks need no save bump; old known specials imply rank I at read time.
   Object.values(s.codex).forEach(k=>{if(isObj(k)&&k.timing!==undefined){const t=isObj(k.timing)?k.timing:{};k.timing=Object.fromEntries(["sp","sp2"].map(key=>[key,Number.isFinite(t[key])?Math.max(0,Math.min(PARRY_T.levels,Math.floor(t[key]))):0]))}});
-  // Codex facts follow the creature: an enemy that changed its element (the Woods' stag and briarling) leaves stale weaknesses behind, and know() counts them, which inflates mastery and shows the wrong weakness. Pruning is idempotent, so no save bump is needed.
-  Object.entries(s.codex).forEach(([id,k])=>{const E=ENEMIES[id];if(!isObj(k)||!E)return;
-    const facts=key=>[...(E[key]||[]),...(E.phase&&E.phase.to?E.phase.to[key]:[])],keep=(key,list)=>{const ok=new Set(list);k[key]=Array.isArray(k[key])?k[key].filter(x=>ok.has(x)):[]};
-    keep("weak",facts("weak"));keep("resist",facts("resist"));
-    const ids=new Set((E.drops||[]).map(d=>d[0]));k.drops=Array.isArray(k.drops)?k.drops.filter(d=>ids.has(d)):[];
-    const infs=new Set([E.inf&&E.inf.s,E.phase&&E.phase.to&&E.phase.to.inf&&E.phase.to.inf.s].filter(Boolean));k.inf=Array.isArray(k.inf)?k.inf.filter(s=>infs.has(s)):[];});
+  // Prune authored facts now; boot repeats this after building generated rosters.
+  pruneCodex(s);
   s.skills=Object.fromEntries(Object.keys(SKILLS).map(k=>[k,isObj(s.skills)?Math.max(0,Math.floor(Number(s.skills[k]))||0):0]));
   if(!isObj(s.rift))s.rift={depth:1,best:0,seed:0,biome:"",name:"",pal:null,cleared:0}; // the Rift: depth, best depth, and the seed of the region (the seed rebuilds its creatures)
   s.rift.depth=Math.max(1,Math.floor(Number(s.rift.depth)||1));s.rift.best=Math.max(0,Math.floor(Number(s.rift.best)||0));s.rift.seed=Math.floor(Number(s.rift.seed)||0);s.rift.cleared=s.rift.cleared?1:0;
@@ -75,6 +85,12 @@ function loadSave(s){
   const legacyFilter=validFilter(ip.filter),legacyCategory=validCat(s.tab);
   const context=k=>{const old=isObj(ip[k])?ip[k]:{};return{category:validCat(old.category??legacyCategory),filter:validFilter(old.filter??legacyFilter)}};
   s.inventory={layout:ip.layout==="grid"?"grid":"list",sort:["type","recent","grade"].includes(ip.sort)?ip.sort:"type",gear:context("gear"),forge:context("forge")};
+  // Fen follows the Spire. Older saves may already have the Rift unlocked from
+  // the old four-region chain; preserve that access and add the newly inserted
+  // region when the Archon was defeated or the Spire map was cleared.
+  if((s.kills.archon||0)>0||s.maps.spire?.cleared||s.unlocked.includes("rift")){
+    if(!s.unlocked.includes("fen"))s.unlocked.push("fen");
+  }
   return s;
 }
 let migNote=false,S=null; // migNote: a map was dropped at load (shown once as a toast after load)

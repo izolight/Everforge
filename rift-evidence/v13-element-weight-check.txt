@@ -1,0 +1,8 @@
+ok   each weighted or fallback element selection consumes exactly one RNG draw
+ok   8 biome distributions match common/rare and M-05 signature weights
+ok   missing elW stays uniform; optional custom elW controls the intended mix
+ok   the single roll keeps non-signature drop selection on its pre-V-13 uniform result
+ok   authored rosters are seed stable and the daily pre-roll is unaffected by ambient RNG
+V-13 element sample {"forest":{"n":20000,"counts":{"wood":5397,"metal":1838,"poison":5458,"fire":1886,"swift":5421}},"tundra":{"n":20000,"counts":{"ice":5397,"metal":1838,"swift":5458,"stone":5497,"arcane":1810}},"ember":{"n":20000,"counts":{"fire":5946,"stone":2008,"poison":6034,"metal":6012}},"astral":{"n":20000,"counts":{"arcane":5946,"shadow":2008,"holy":6034,"swift":6012}},"fen":{"n":20000,"counts":{"poison":8002,"swift":3987,"wood":3978,"shadow":4033}},"ash":{"n":20000,"counts":{"fire":8002,"poison":3987,"metal":3978,"stone":4033}},"bone":{"n":20000,"counts":{"shadow":8002,"poison":3987,"holy":3978,"stone":4033}},"deep":{"n":20000,"counts":{"arcane":3930,"poison":3987,"ice":8050,"shadow":4033}}}
+ok   no browser errors ()
+V-13 ELEMENT WEIGHT CHECK OK

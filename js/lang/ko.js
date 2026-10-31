@@ -1,5 +1,41 @@
 // Korean: interface, battle log, events. Game data is in ko-data.js.
 // {name|이|가} picks the particle from the last syllable of the value (받침 or not): 이/가, 은/는, 을/를, 과/와, 으로/로.
+// V-11 generated biome-special names and telegraph tells.
+DICT.ko=Object.assign(DICT.ko||{},{
+  "Mire Leech":"늪지 흡혈벌레","pulling at your warmth":"온기를 빨아들이려 듭니다",
+  "Silt Snare":"진흙 덫","drawing back from the mud":"진흙 속에서 몸을 뒤로 젖힙니다",
+  "Reedstorm":"갈대 폭풍","gathering reeds in a spinning ring":"갈대를 회오리 고리처럼 모읍니다",
+  "Glassfall":"유리 파쇄","cracking the scorched earth":"그을린 땅을 깨뜨립니다",
+  "Cinder Shards":"잿불 파편","spinning a ring of hot grit":"뜨거운 모래 고리를 만들어 돌립니다",
+  "Cinder Mend":"잿불 회복","drawing heat back into its core":"열기를 핵으로 끌어들입니다",
+  "Grave Rattle":"무덤의 덜그럭임","shaking its loose bones":"헐거운 뼈를 흔듭니다",
+  "Ossuary Crush":"납골당 강타","lifting a cairn stone":"돌무더기 돌을 들어 올립니다",
+  "Marrow Knit":"골수 결속","pulling its broken bones together":"부러진 뼈를 끌어모읍니다",
+  "Undertow":"밑물살","drawing water through its grasp":"물을 움켜쥐고 끌어당깁니다",
+  "Pressure Wave":"수압파","compressing the water around it":"주변의 물을 압축합니다",
+  "Rifted Wake":"균열 물결","rolling a wave toward you":"물결을 당신 쪽으로 밀어냅니다",
+  "Briar Flurry":"가시덩굴 연타","drawing back thorned vines":"가시덩굴을 뒤로 당깁니다",
+  "Stag Crash":"사슴돌진","lowering its antlers":"뿔을 낮춥니다",
+  "Barkskin Mend":"나무껍질 회복","drawing sap into its wounds":"상처로 수액을 끌어옵니다",
+  "Rime Volley":"서리 파편","gathering a fan of ice":"부채꼴 얼음을 모읍니다",
+  "Glacier Drop":"빙하 낙하","raising a slab of ice":"얼음판을 들어 올립니다",
+  "Snowdrift Mend":"눈더미 회복","sealing its cracks with snow":"눈으로 갈라진 틈을 메웁니다",
+  "Kiln Flurry":"가마 연타","spinning up its furnace":"가마를 달굽니다",
+  "Foundry Blow":"용광로 일격","drawing back a molten fist":"녹아내린 주먹을 뒤로 당깁니다",
+  "Coalheart Drain":"숯심 흡수","siphoning warmth from the air":"공기에서 온기를 빨아들입니다",
+  "Void Leech":"공허 흡수","reaching through the dark":"어둠 사이로 손을 뻗습니다",
+  "Starfall Burst":"별똥별 폭발","drawing power from above":"위에서 힘을 모읍니다",
+  "Starless Crush":"별 없는 압박","folding the dark around you":"어둠을 당신 주위로 접어 넣습니다"
+});
+
+// V-17 enemy roles
+DICT.ko=Object.assign(DICT.ko||{},{
+  "Enemy role":"적 역할",
+  "Bruiser":"강인형","Hard to wear down; its heavy attacks punish missed defenses.":"쉽게 쓰러지지 않으며, 묵직한 공격으로 방어 실수를 노립니다.",
+  "Skirmisher":"기동형","Light and quick; it favors repeated or evasive attacks.":"가볍고 빠르며, 연속 공격이나 회피 공격을 즐겨 씁니다.",
+  "Caster":"주술형","Fragile at close range; it channels harmful effects or draining attacks.":"근거리 방어는 약하지만 해로운 효과와 흡수 공격을 사용합니다.",
+  "Support":"지원형","Sustains itself with healing, wards, or helpful status effects.":"치유와 보호막, 유익한 상태 효과로 전투를 이어갑니다."
+});
 DICT.ko=Object.assign(DICT.ko||{},{
 // ---- crafting: what each input did (header, before → after, reactions, failure bar)
 "Base":"기본","Tier over skill":"기술 대비 등급","{a} + {b} clash":"{a} + {b} 충돌","{a} + {b} reaction":"{a} + {b} 반응","Extra input: {name}":"추가 재료: {name}","{items} → {result}":"{items} → {result}","From {input}.":"{input} 쪽에서 온 것.","Changed by the mix itself.":"혼합 자체로 바뀌었습니다.","No stats":"능력치 없음","Before":"이전","After":"이후","Nothing changes.":"바뀌는 것이 없습니다.","−{n} {trait}":"−{n} {trait}","Failure chance":"실패 확률","Failure chance {n}%: {list}":"실패 확률 {n}%: {list}",
@@ -154,7 +190,7 @@ DICT.ko=Object.assign(DICT.ko||{},{
 "Absorbs this much damage.":"이만큼의 피해를 흡수합니다.","You":"나","Bare fists":"맨주먹","Guarding":"막는 중","Your next hit taken is cut by 60%.":"다음에 받는 공격의 피해가 60% 줄어듭니다.","Off balance":"균형 잃음","A mistimed parry cost you your guard.":"받아치기 실패로 막기를 잃었습니다.",
 "Regen +{n}":"재생 +{n}","HP you mend each turn.":"매 턴 회복하는 HP.","Infused {trait} {rank}":"주입된 {trait} {rank}","Acts as if it were on your weapon.":"무기에 있는 것처럼 작용합니다.","Strike power of your main hand.":"주 손의 공격력.",
 "Cuts the damage you take by {p}%.":"받는 피해를 {p}% 줄입니다.","Heat 5 bites through {p}% of your Defense.":"열기 5는 방어력의 {p}%를 꿰뚫습니다.",
-"Burning {n}":"화상 {n}","Takes {n} damage each turn.":"매 턴 {n} 피해를 받습니다.","Poison {n}":"중독 {n}","Frozen":"빙결","It loses its next turn.":"다음 턴을 잃습니다.","Bleed {n}":"출혈 {n}","Damage each turn that ignores armor.":"방어구를 무시하는 매 턴 피해.",
+"Burning {n}":"화상 {n}","Takes {n} damage each turn.":"매 턴 {n} 피해를 받습니다.","Poison {n}":"중독 {n}","Frozen":"빙결","Stunned":"기절","It loses its next turn.":"다음 턴을 잃습니다.","Bleed {n}":"출혈 {n}","Damage each turn that ignores armor.":"방어구를 무시하는 매 턴 피해.",
 "Boss":"보스","Beat it to open the next region.":"쓰러뜨리면 다음 지역이 열립니다.","Its second form.":"두 번째 형태.","{n} affix. Up to {hp}x HP and {atk}x Attack before the affixes' own changes.":"접사 {n}개. 접사 자체의 변화 전에 최대 HP {hp}배, 공격력 {atk}배.¦접사 {n}개. 접사 자체의 변화 전에 최대 HP {hp}배, 공격력 {atk}배.",
 "Heat {n}":"열기 {n}","Heat":"열기","Mastered":"정복","You deal {p}% more damage to it.":"{p}% 더 큰 피해를 줍니다.","Open codex entry":"도감 항목 열기","Weak to {fam}":"{fam}에 약함","Takes 50% more from it.":"해당 피해를 50% 더 받습니다.",
 "Resists {fam}":"{fam} 저항","Takes 40% less from it.":"해당 피해를 40% 덜 받습니다.","{n} unknown":"미확인 {n}","Weaknesses and resistances you have not found yet. Hit it, or Study.":"아직 찾지 못한 약점과 저항입니다. 공격하거나 연구하세요.",
@@ -630,4 +666,129 @@ DICT.ko=Object.assign(DICT.ko||{},{
 "a ward that absorbs {p}% of its HP for {n} turns":"최대 체력의 {p}%를 {n}턴 동안 흡수하는 보호막","a hit that always inflicts {status}":"항상 {status} 상태를 부여하는 공격","Attack rises {p}% below half HP":"체력이 절반 아래면 공격력 {p}% 증가","burrows out of reach for one turn":"한 턴 동안 땅속으로 숨어 공격할 수 없게 됨","one weaker {name} strike":"약한 {name}이 한 번 공격",
 "Its rune ward absorbs {n}.":"룬 보호막이 {n} 피해를 흡수합니다.","Its rune ward absorbs {n} and breaks.":"룬 보호막이 {n} 피해를 흡수하고 깨집니다.","The {name}'s rune ward fades.":"{name|의} 룬 보호막이 사라집니다.","The {name} raises a rune ward ({n}) for {turns} turns.":"{name|이|가} {turns}턴 동안 룬 보호막({n})을 펼칩니다.","Perfect parry! You interrupt {sp}.":"완벽한 받아치기! {sp|을|를} 끊었습니다.","The {name} flies into a fury! (+{p}% Attack)":"{name|이|가} 격분했다! (공격력 +{p}%)","The {name} burrows out of reach for one turn.":"{name|이|가} 한 턴 동안 땅속에 숨어 공격을 피합니다.","The {name} is beneath the roots; your strike passes overhead.":"{name|은|는} 뿌리 아래에 있어 공격이 빗나갑니다.","The {name} is beneath the roots; the burst passes overhead.":"{name|은|는} 뿌리 아래에 있어 폭발이 빗나갑니다.","The {name} rises from the roots again.":"{name|이|가} 뿌리에서 다시 올라옵니다.","The {name} calls {summon} to strike!":"{name|이|가} {summon|을|를} 불러 공격하게 합니다!","This setup move deals no damage.":"준비 기술은 피해를 주지 않습니다.","Parry ({p}%) to interrupt it; Guard braces against its next strike.":"받아치기({p}%)로 끊으세요. 막기는 다음 공격을 대비합니다.","Rune ward {n}":"룬 보호막 {n}","Absorbs incoming damage for {n} more enemy turns; refreshes, never stacks.":"적의 턴 {n}회 동안 피해를 흡수합니다. 갱신되며 중첩되지 않습니다.","Burrowed":"잠복","Untargetable until it emerges at the start of its next turn.":"다음 턴 시작에 나타날 때까지 공격 대상으로 지정할 수 없습니다.","Enraged":"격분","Attack is permanently increased by {p}%.":"공격력이 영구적으로 {p}% 증가합니다."
 });
+Object.assign(DICT.ko,{"Fire attacks deal 15% more damage. Fire resistance, Defense and Guard still apply; enemy damage boosts combine multiplicatively.":"불 공격은 피해가 15% 증가합니다. 불 저항, 방어력, 막기는 평소처럼 적용되며 적의 피해 증가 효과는 곱연산으로 적용됩니다.","Rift depth modifier: {name}. {desc}":"균열 심층 변형: {name}. {desc}"});
 DICT.ko["Parry ({p}%) to interrupt it, or Guard to brace your next attack."]="받아치기({p}%)로 끊거나, 막기로 다음 공격을 강화하세요.";
+Object.assign(DICT.ko,{
+"Poison fog":"독안개","A landed foe hit adds one Poison stack (up to three). Guard blocks it; a successful Parry interrupts a telegraphed special; Poison resistance shortens it.":"적의 공격이 적중하면 독이 1중첩 추가됩니다(최대 3중첩). 막기로 예방할 수 있고, 성공적으로 받아치면 예고된 특수 공격을 끊습니다. 독 저항은 지속 시간을 줄입니다.",
+"Killing chill":"살을 에는 냉기","A landed foe hit applies Chill for up to two turns. Guard blocks it; a successful Parry interrupts a telegraphed special; Ice resistance shortens it.":"적의 공격이 적중하면 최대 두 턴 동안 냉기에 걸립니다. 막기로 예방할 수 있고, 성공적으로 받아치면 예고된 특수 공격을 끊습니다. 얼음 저항은 지속 시간을 줄입니다.",
+"Cinder air":"잿불의 공기","A landed foe hit applies Burn for up to two turns. Guard blocks it; a successful Parry interrupts a telegraphed special; Fire resistance shortens it.":"적의 공격이 적중하면 최대 두 턴 동안 화상에 걸립니다. 막기로 예방할 수 있고, 성공적으로 받아치면 예고된 특수 공격을 끊습니다. 불 저항은 지속 시간을 줄입니다.",
+"Arcane surge":"비전 쇄도","On every third enemy turn, its next attack (if any) has 25% more power and uses Arcane. Guard and Parry work as usual; Arcane resistance reduces it.":"적의 세 번째 턴에 다음 공격(있다면)은 위력이 25% 높고 비전 속성입니다. 막기와 받아치기는 평소처럼 작동하며 비전 저항은 피해를 줄입니다.",
+"Blinding sand":"눈을 가리는 모래","Your attacks deal 20% less damage on every third turn. The cadence is fixed by the battle turn.":"매 세 번째 턴에 공격 피해가 20% 감소합니다. 전투 턴에 따라 고정된 주기로 발생합니다.",
+"Grave fear":"무덤의 공포","A landed, unguarded foe hit leaves you off balance for your next action. Guard blocks it; a successful Parry interrupts a telegraphed special.":"막지 못한 적의 공격이 적중하면 다음 행동까지 균형을 잃습니다. 막기로 예방할 수 있고, 성공적으로 받아치면 예고된 특수 공격을 끊습니다.",
+"Drowning pressure":"익사 압력","At the end of every third enemy turn, pressure deals 4% of your maximum HP, reduced by Stone resistance. It bypasses Defense and Guard, even if the attack was parried.":"적의 세 번째 턴이 끝날 때마다 압력이 최대 HP의 4%만큼 피해를 줍니다. 돌 저항으로 줄일 수 있지만 방어력과 막기를 무시하며 공격을 받아쳐도 발생합니다.",
+"Rift biome":"균열 생태계","Rift modifier":"균열 변형 효과","Neutral":"중립","Neutral biome":"중립 생태계","Forest has no Rift modifier.":"숲에는 균열 변형 효과가 없습니다.","Forest is the neutral Rift biome: it has no extra combat modifier.":"숲은 중립 균열 생태계이며 추가 전투 효과가 없습니다.",
+"Rift biome: {name}. {desc}":"균열 생태계: {name}. {desc}","Rift depth modifier":"균열 심층 변형","Rift depth modifier: {name}. {desc}":"균열 심층 변형: {name}. {desc}","Burning air":"불타는 공기","Fire attacks deal 15% more damage after daily and biome attack modifiers; normal resistance, Defense and Guard still apply.":"불 공격은 일일 및 생태계 공격 효과가 적용된 뒤 피해가 15% 증가합니다. 저항, 방어력, 막기는 평소처럼 적용됩니다.","Thin wards":"얇아진 보호막","Your rune ward can absorb at most half of each enemy hit; the rest of its ward points remain for later hits.":"룬 보호막은 적의 공격마다 피해의 절반까지만 흡수합니다. 남은 보호막 수치는 다음 공격에 유지됩니다.","Fast foes":"재빠른 적","Enemy specials recur one turn sooner, to a minimum interval of two turns; their tells and Parry windows remain intact.":"적의 특수 공격 주기가 한 턴 짧아지며 최소 두 턴입니다. 공격 예고와 받아치기 기회는 그대로 유지됩니다.","Grave fear leaves you off balance for your next action.":"무덤의 공포로 다음 행동까지 균형을 잃습니다.","The sandstorm blunts your strikes by {p}%.":"모래폭풍이 공격력을 {p}% 낮춥니다.","An arcane surge charges the strike: +{p}% power.":"비전 쇄도가 공격에 힘을 더합니다: 위력 +{p}%.","Drowning pressure crushes you for {n} damage.":"익사 압력이 짓눌러 피해 {n}을 줍니다."
+});
+// V-16 authored-region alpha labels and reward rule.
+DICT.ko=Object.assign(DICT.ko||{},{
+  "Alpha":"알파",
+  "A named regional wild mini-boss with three fixed affixes.":"지역 야생 미니 보스로, 이름과 세 가지 고정 속성이 있습니다.",
+  "Alpha rewards follow the region's normal wild drop rules; no affix essences.":"알파 보상은 지역 야생 생물의 일반 전리품 규칙을 따르며 속성 정수는 주지 않습니다.",
+  "Thornheart Alpha":"가시심장 알파",
+  "Frosthorn Alpha":"서리뿔 알파",
+  "Cinderback Alpha":"잿불등 알파",
+  "Starcrown Alpha":"별왕관 알파"
+});
+DICT.ko=Object.assign(DICT.ko||{},{
+  "Reed Snare":"갈대 덫","coiling its vines around the reeds":"덩굴을 갈대에 감습니다",
+  "Silt Hex":"진흙 주술","drawing a circle in the silt":"진흙 위에 원을 그립니다",
+  "Rooted Guard":"뿌리 방어","sinking its roots deep":"뿌리를 깊이 내립니다",
+  "Spore Burst":"포자 폭발","swelling with pale green light":"희미한 녹색 빛으로 부풉니다",
+  "Sunk Aegis":"가라앉은 방패","locking its shield into the mud":"방패를 진흙에 고정합니다",
+  "Cattail Rush":"부들 돌진","lowering its crown of antlers":"뿔 달린 머리를 낮춥니다",
+  "The Drowned Matriarch":"익사한 여족장","the Matriarch":"여족장",
+  "The reeds part. The Drowned Matriarch rises from the Fen's deepest pool.":"갈대가 갈라지고 익사한 여족장이 늪의 가장 깊은 웅덩이에서 솟아오릅니다.",
+  "The Fen remembers every name given to the water. She remembers who gave them.":"늪은 물에 붙인 모든 이름을 기억합니다. 그녀는 그 이름을 지은 이도 기억합니다.",
+  "Flood of Spores":"포자 범람","drawing a slow breath through the reeds":"갈대 사이로 천천히 숨을 들이쉽니다",
+  "The Sinking Fen":"가라앉는 늪",
+  "The old road ends in black water. Follow the reed-markers to the far bank; the Drowned Matriarch waits beyond them.":"옛길은 검은 물에서 끝납니다. 갈대 표식을 따라 건너편 둑으로 가세요. 그 너머에 익사한 여족장이 기다립니다.",
+  "The Fen is open because you brought down the Starfallen Archon. Its boss guards the next descent.":"별의 대군주를 쓰러뜨려 늪이 열렸습니다. 늪의 우두머리가 다음 하강로를 지키고 있습니다.",
+  "hit|spores you":"{name}이(가) 포자를 뿜어 {n} {g} 피해를 줍니다","hit|drowns you in spore-cloud":"{name}이(가) 포자 구름으로 {n} {g} 피해를 줍니다"
+});
+
+DICT.ko=Object.assign(DICT.ko||{}, {
+  "The Tidewrack":"파도에 휩쓸린 해안",
+  "The Drowned Coast":"익사한 해안",
+  "Saltwind Cliffs":"소금바람 절벽",
+  "The Wreck Shoals":"난파선 여울",
+  "The Silt Reach":"실트 강어귀",
+  "The Frosted Shoals":"서리 낀 여울",
+  "The tide took the village, then came back for the bones.":"밀물이 마을을 삼킨 뒤 뼈를 거두러 다시 돌아왔습니다.",
+  "A salt wind worries every name off the stones.":"짠 바람이 돌에 새긴 이름을 하나씩 지워냅니다.",
+  "The wrecks drift with no water beneath them.":"난파선들이 밑에 물도 없이 떠다닙니다.",
+  "Something patient waits where the tide turns.":"조수가 바뀌는 곳에서 끈질긴 무언가가 기다립니다.",
+  "Undertow Grasp":"저류의 손아귀","pulling you into the surf":"너를 파도 속으로 끌어당깁니다",
+  "Brine Volley":"염수 연사","gathering salt spray":"짠 물보라를 모읍니다",
+  "Breakwater Slam":"방파제 강타","lifting a cresting wave":"부서지는 파도를 들어 올립니다"
+});
+DICT.ko=Object.assign(DICT.ko||{}, {
+  "Windcut Crags":"바람 깎인 바위산","The Windcut Crags":"바람 깎인 바위산",
+  "The Iron Highlands":"철의 고원","The Skyward Pass":"하늘길 고개",
+  "The Shattered Ridge":"부서진 산등성이","The Chainwind Shelf":"사슬바람 절벽","The Highstone Reach":"높은 바위 지대",
+  "The wind carved the ridges and left the hardest things standing.":"바람은 산등성이를 깎고 가장 단단한 것들만 남겼습니다.",
+  "Iron chains sing between cliffs when the gale turns.":"강풍이 방향을 바꿀 때 절벽 사이의 쇠사슬이 노래합니다.",
+  "The high pass belongs to whatever can keep its footing.":"높은 고개는 발을 디딜 수 있는 자의 것입니다.",
+  "Crystals ring beneath the stone whenever the sky breaks open.":"하늘이 열릴 때마다 바위 밑 수정이 울립니다.",
+  "Crosswind Rend":"맞바람 가르기","sweeping its wings through the gale":"강풍 속에서 날개를 휘두릅니다",
+  "Cragfall Crush":"벼랑 붕괴","heaving a slab of the ridge":"산등성이 바위판을 들어 올립니다",
+  "Chainlash":"사슬 채찍","drawing the iron chains taut":"쇠사슬을 팽팽히 당깁니다"
+});
+DICT.ko=Object.assign(DICT.ko||{}, {
+  "Radiant Garden":"빛나는 정원",
+  "The Sunken Garden":"가라앉은 정원","The Gilded Grove":"금빛 숲","The Orchard of Bones":"뼈 과수원",
+  "The Amber Conservatory":"호박빛 온실","The Haloed Bower":"후광의 정자","The Briar Crown":"가시관",
+  "Sunlight pools here where no sky can reach.":"하늘이 닿지 않는 이곳에 햇빛이 고입니다.",
+  "The garden keeps every bloom that ever fell.":"정원은 떨어진 모든 꽃을 간직합니다.",
+  "A bright halo circles the oldest roots.":"오래된 뿌리를 밝은 후광이 감쌉니다.",
+  "The orchard bears fruit that remembers its pickers.":"과수원은 자신을 딴 이들을 기억하는 열매를 맺습니다.",
+  "Briarwheel":"가시덩굴 바퀴","drawing thorned vines into a shining ring":"가시덩굴을 빛나는 고리로 모읍니다",
+  "Crownfall":"왕관 낙하","raising its crown of branches":"나뭇가지 왕관을 들어 올립니다",
+  "Sunward Mend":"햇살 치유","turning its halo to gather light":"빛을 모으려 후광을 돌립니다"
+});
+
+DICT.ko=Object.assign(DICT.ko||{}, {
+  "Geyser Field":"간헐천 지대",
+  "The Steam Vents":"증기 분출구","The Boiling Shelf":"끓어오르는 대지",
+  "The White Caldera":"하얀 칼데라","The Sinter Fields":"규화 들판",
+  "The Fumarole Reach":"분기공 벌판","The Glasscone Basin":"유리 원뿔 분지",
+  "The mountain breathes through every crack.":"산은 모든 틈으로 숨을 쉽니다.",
+  "Steam hides the paths and gives away the hunters.":"증기는 길을 숨기고 사냥꾼의 위치를 드러냅니다.",
+  "Basalt cools only after the next eruption.":"현무암은 다음 분화가 지나야 식습니다.",
+  "A thin crust covers water hot enough to melt stone.":"얇은 지각 아래에는 돌을 녹일 만큼 뜨거운 물이 흐릅니다.",
+  "Fumarole Burst":"분기공 폭발","drawing heat from below":"땅속의 열기를 끌어옵니다",
+  "Basalt Quake":"현무암 지진","raising a slab of heated stone":"달궈진 돌판을 들어 올립니다",
+  "Steam Mend":"증기 치유","drawing vapor through its cracks":"갈라진 틈으로 증기를 끌어옵니다"
+});
+
+DICT.ko=Object.assign(DICT.ko||{}, {
+  "The Sporewood":"포자숲","The Hollow Bloom":"텅 빈 꽃","The Weeping Canopy":"눈물의 수관",
+  "Spores drift beneath a canopy that never sees daylight.":"햇빛을 본 적 없는 숲 그늘 아래로 포자가 떠다닙니다.",
+  "Each bloom opens only when something dies.":"무언가 죽을 때에만 꽃이 피어납니다.",
+  "The roots remember everything buried here.":"뿌리는 이곳에 묻힌 모든 것을 기억합니다.",
+  "A pale dust settles over every path.":"옅은 가루가 모든 길 위에 내려앉습니다.",
+  "Sporeburst":"포자 폭발","releasing a cloud of spores":"포자 구름을 내뿜습니다",
+  "Thornroot Crush":"가시뿌리 강타","coiling its thorned roots":"가시 돋친 뿌리를 휘감습니다",
+  "Mycelial Mend":"균사 치유","drawing life through the fungal web":"균사망으로 생명력을 끌어옵니다"
+});
+
+// V-19 cross-biome factions
+DICT.ko=Object.assign(DICT.ko||{},{
+  "Faction":"세력",
+  "Raiders":"약탈자","Raiders strike hard and press their attack.":"약탈자들은 강하게 공격하며 압박을 이어갑니다.",
+  "Cultists":"광신도","Cultists harry their prey with repeated or baleful attacks.":"광신도들은 연속 공격과 저주로 먹잇감을 괴롭힙니다.",
+  "Cult of the Star":"별의 교단","The star cult drains strength through arcane rites.":"별의 교단은 비전 의식으로 힘을 빼앗습니다.",
+  "Constructs":"구조물","Constructs endure and restore their defenses.":"구조물은 버티면서 방어를 회복합니다."
+});
+
+// V-18 multi-enemy targeting
+DICT.ko=Object.assign(DICT.ko||{},{
+  "Choose a target":"대상 선택",
+  "Pack of {n}":"{n}마리 무리",
+  "Target {n}: {name}":"대상 {n}: {name}",
+  "Defeated":"쓰러짐",
+  "Foes act in order. One reward for the pack.":"적들은 차례대로 행동합니다. 무리당 보상은 한 번 지급됩니다.",
+  "{name} joins the pack.":"{name}이(가) 무리에 합류합니다.",
+  "You sweep into {name}":"{name}에게 휘둘러 공격합니다",
+  "The {name} falls. {left} foes remain.":"{name}이(가) 쓰러졌습니다. 적 {left}마리가 남았습니다.",
+  "1.0x strike with a 35% chance to stun (15% on bosses); against a pack, it hits every foe for 0.55x.":"1.0배 피해를 주고 35% 확률로 기절시킵니다(보스는 15%). 무리 전투에서는 모든 적에게 0.55배 피해를 줍니다."
+});

@@ -1,10 +1,10 @@
 // ================= DATA =================
-const FAM={fire:"#ec7d4c",ice:"#82c9e4",poison:"#93c252",holy:"#f0d77a",shadow:"#a385dc",wood:"#b48b5c",metal:"#aab6ba",heal:"#e893ab",arcane:"#b892f2",swift:"#6fd8b6",stone:"#9c998c",bad:"#d9644e"};
+const FAM={fire:"#ec7d4c",ice:"#82c9e4",water:"#096d9c",steam:"#c49a80",poison:"#93c252",holy:"#f0d77a",shadow:"#a385dc",wood:"#b48b5c",metal:"#aab6ba",heal:"#e893ab",arcane:"#b892f2",swift:"#6fd8b6",stone:"#9c998c",bad:"#d9644e"};
 const TRAITS={
   Sharp:{f:"metal",adj:"Keen",s:{atk:3}}, Heavy:{f:"stone",adj:"Weighty",s:{atk:1,def:2,spd:-1.5}},
   Fire:{f:"fire",adj:"Smoldering",s:{atk:2,mag:1}}, Ice:{f:"ice",adj:"Frozen",s:{atk:1.5,def:.5}},
-  Steam:{f:"ice",adj:"Steaming",s:{mag:2,atk:1}}, Frost:{f:"ice",adj:"Rimed",s:{atk:2,mag:1}},
-  Water:{f:"ice",adj:"Dewy",s:{heal:2.5}}, Poison:{f:"poison",adj:"Toxic",s:{atk:2,heal:-1}},
+  Steam:{f:"steam",adj:"Steaming",s:{mag:2,atk:1}}, Frost:{f:"ice",adj:"Rimed",s:{atk:2,mag:1}},
+  Water:{f:"water",adj:"Dewy",s:{heal:2.5}}, Poison:{f:"poison",adj:"Toxic",s:{atk:2,heal:-1}},
   Venomous:{f:"poison",adj:"Venomous",s:{atk:3}}, Nourishing:{f:"heal",adj:"Hearty",s:{heal:3}},
   Medicine:{f:"heal",adj:"Healing",s:{heal:4}}, Sweet:{f:"heal",adj:"Honeyed",s:{heal:1,spd:.5}},
   Light:{f:"holy",adj:"Glowing",s:{mag:1}}, Radiant:{f:"holy",adj:"Radiant",s:{mag:3}},
@@ -151,7 +151,7 @@ const BLUEPRINTS={
   void_robe:{e:"acolyte",slots:[["cloth"],["cloth"],["crystal"]],m:["stormsilk","stormsilk","void_shard"]}
 };
 const bpOf=e=>Object.keys(BLUEPRINTS).filter(id=>BLUEPRINTS[id].e===e);
-const ZONES=[["woods","Whispering Woods","gnarlhorn"],["pass","Frostfang Pass","rimeclaw"],["hollow","Cinder Hollow","phoenix"],["spire","Starfall Spire","archon"],["rift","The Wanderer's Rift","rift_boss"]];
+const ZONES=[["woods","Whispering Woods","gnarlhorn"],["pass","Frostfang Pass","rimeclaw"],["hollow","Cinder Hollow","phoenix"],["spire","Starfall Spire","archon"],["fen","The Sinking Fen","fen_matriarch"],["rift","The Wanderer's Rift","rift_boss"]];
 const ENEMIES={
   boar:{name:"Thornback Boar",plural:"Thornback Boars",zone:"woods",mv:"chase",el:"wood",hp:30,atk:6,def:2,weak:["fire"],resist:[],w:3,verb:"gores you",intro:"A Thornback Boar bursts out of the brush.",
     lore:"Bristled forest boars that sharpen their tusks on oak bark. They charge when cornered, and often when not.",
@@ -159,7 +159,7 @@ const ENEMIES={
   sprite:{name:"Glowcap Sprite",plural:"Glowcap Sprites",zone:"woods",mv:"wander",el:"holy",hp:26,atk:5,def:0,weak:["fire","shadow"],resist:["holy"],w:3,verb:"flings spores at you",intro:"A Glowcap Sprite drifts out from between the roots.",
     lore:"Mushroom spirits that glow brighter when frightened. They knit their caps back together with spores.",
     sp:{every:3,name:"Mend",kind:"heal",x:.3,tell:"gathering glowing spores around itself"},drops:[["mushroom",.75],["honey",.45],["sprite_dust",.45]]},
-  bandit:{name:"Woods Bandit",plural:"Woods Bandits",zone:"woods",mv:"still",el:"metal",hp:34,atk:7,def:3,weak:["arcane"],resist:[],w:2,verb:"slashes at you",intro:"A Woods Bandit steps onto the path, blade drawn.",
+  bandit:{faction:"raiders",name:"Woods Bandit",plural:"Woods Bandits",zone:"woods",mv:"still",el:"metal",hp:34,atk:7,def:3,weak:["arcane"],resist:[],w:2,verb:"slashes at you",intro:"A Woods Bandit steps onto the path, blade drawn.",
     lore:"Deserters and debtors who work the woods road. They carry whatever they last stole.",
     sp:{every:3,name:"Poisoned Edge",kind:"inflict",x:1,status:"poison",tell:"coating its blade with venom"},drops:[["bread",.55],["scrap_iron",.45],["oak_bough",.3]]},
   stag:{name:"Mossback Stag",plural:"Mossback Stags",zone:"woods",mv:"wander",el:"swift",hp:34,atk:6,def:2,weak:["stone","fire"],resist:["swift"],w:2,verb:"rakes you",intro:"A Mossback Stag lowers its antlers between the birches.",
@@ -176,7 +176,9 @@ const ENEMIES={
     sp:{every:3,name:"Tail Flare",kind:"heavy",x:1.8,tell:"curling its tail overhead"},drops:[["chili",.5],["boar_hide",.35],["oak_bough",.2]]},
   gnarlhorn:{name:"Gnarlhorn, the Boar King",short:"Gnarlhorn",zone:"woods",el:"wood",boss:true,hp:66,atk:8,def:4,weak:["fire"],resist:["wood"],verb:"tramples you",intro:"The ground shakes. Gnarlhorn, the Boar King, crashes through the trees.",
     lore:"The old king of the boar herds, his hide grown thick as bark. The woods go quiet when he walks.",
-    sp:{every:3,name:"Stampede",kind:"heavy",x:2.2,tell:"pawing the ground"},drops:[["gnarl_tusk",1],["boar_hide",.8],["oak_bough",.5]]},
+    sp:{every:3,name:"Stampede",kind:"heavy",x:2.2,tell:"pawing the ground"},
+    phase:{at:.5,label:"STONEHEART",msg:"The earth splits beneath Gnarlhorn. Cairn-stone locks over his bark hide!",to:{el:"stone",weak:["wood","metal"],resist:["stone","poison"],verb:"crushes you beneath stone",sp:{every:3,name:"Cairnfall",kind:"heavy",x:2.1,tell:"rearing back as the cairns rise behind him"}}},
+    drops:[["gnarl_tusk",1],["boar_hide",.8],["oak_bough",.5]]},
   wolf:{name:"Frost Wolf",plural:"Frost Wolves",zone:"pass",mv:"chase",el:"ice",hp:60,atk:11,def:3,weak:["fire"],resist:["ice"],w:3,verb:"bites",intro:"A Frost Wolf circles you through the snow.",
     lore:"Pack hunters with frost in their fur. They test you from the sides before they commit.",
     inf:{s:"chill",ch:0.3},
@@ -185,43 +187,45 @@ const ENEMIES={
     lore:"Travellers who froze on the pass and never stopped walking. They feed on warmth.",
     inf:{s:"curse",ch:0.35},
     sp:{every:3,name:"Soul Siphon",kind:"drain",x:1.2,tell:"reaching toward your chest"},drops:[["shroud",.55],["spring_water",.4],["holy_water",.25]]},
-  golem:{name:"Stone Golem",plural:"Stone Golems",zone:"pass",mv:"still",el:"stone",hp:76,atk:10,def:7,weak:["arcane","ice"],resist:["metal","poison"],w:2,verb:"slams you",intro:"A boulder unfolds into a Stone Golem.",
+  golem:{faction:"constructs",name:"Stone Golem",plural:"Stone Golems",zone:"pass",mv:"still",el:"stone",hp:76,atk:10,def:7,weak:["arcane","ice"],resist:["metal","poison"],w:2,verb:"slams you",intro:"A boulder unfolds into a Stone Golem.",
     lore:"Boulders woken by old runes. Slow to anger and slower to stop.",
     sp:{every:4,name:"Rune Aegis",kind:"guard",ward:.2,turns:2,tell:"tracing a warding rune across its chest"},drops:[["golem_core",.85],["scrap_iron",.25]]},
   bear:{name:"Rimehide Bear",plural:"Rimehide Bears",zone:"pass",mv:"wander",el:"ice",hp:72,atk:10,def:4,weak:["fire"],resist:["ice"],w:2,verb:"mauls you",intro:"A Rimehide Bear shoulders out of a snowdrift.",
     lore:"Their fur freezes into plates over the winter. They do not hibernate on the pass; they patrol it.",art:{b:"bear",p:["frost","spikes"],c:"#b9d5e2",a:"#65c7ff",pat:"facets",po:.35},
     inf:{s:"chill",ch:0.25},
     sp:{every:3,name:"Rime Fury",kind:"enrage",x:1.3,at:.5,tell:"gathering strength as it weakens"},drops:[["pelt",.6],["honey",.3]]},
-  raider:{name:"Pass Raider",plural:"Pass Raiders",zone:"pass",mv:"chase",el:"metal",hp:58,atk:11,def:4,weak:["arcane","fire"],resist:["ice"],w:2,verb:"hacks at you",intro:"A Pass Raider drops from a ledge, axe already swinging.",
+  raider:{faction:"raiders",name:"Pass Raider",plural:"Pass Raiders",zone:"pass",mv:"chase",el:"metal",hp:58,atk:11,def:4,weak:["arcane","fire"],resist:["ice"],w:2,verb:"hacks at you",intro:"A Pass Raider drops from a ledge, axe already swinging.",
     lore:"Mountain clans who tax the pass with axes. They wear horned helms so the snow-blind can still tell who robbed them.",art:{b:"humanoid",p:["horns","armor","axe"],skin:"#c99b78",c:"#3a70b0",a:"#f4fbff",pc:"#2a3f6a",pat:"stripes",po:.35},
     sp:{every:3,name:"Axe Flurry",kind:"multi",n:2,x:.9,tell:"hefting its axe in both hands"},drops:[["bread",.5],["scrap_iron",.4],["oak_bough",.25]]},
   squall:{name:"Squall Spirit",plural:"Squall Spirits",zone:"pass",mv:"still",el:"swift",hp:62,atk:11,def:3,weak:["stone"],resist:["swift"],w:2,verb:"buffets you",intro:"The wind stops moving and starts watching. A Squall Spirit hangs in the gap.",
     lore:"Gusts that circled the same crag for so long they grew a face. They hate anything that walks through them.",art:{b:"elemental",p:["orbit"],c:"#5fd6bc",a:"#f4fbff",pat:"swirl",po:.35},
     inf:{s:"chill",ch:0.3},
     sp:{every:3,name:"Hailstorm",kind:"multi",n:3,x:.6,tell:"spinning faster and faster"},drops:[["spring_water",.6],["holy_water",.25],["storm_feather",.15]]},
-  seer:{name:"Cairn Seer",plural:"Cairn Seers",zone:"pass",mv:"still",el:"arcane",hp:60,atk:10,def:4,weak:["holy"],resist:["arcane","ice"],w:2,verb:"chills you",intro:"A hooded figure sits among the cairns, tracing runes in the frost.",
+  seer:{faction:"cultists",name:"Cairn Seer",plural:"Cairn Seers",zone:"pass",mv:"still",el:"arcane",hp:60,atk:10,def:4,weak:["holy"],resist:["arcane","ice"],w:2,verb:"chills you",intro:"A hooded figure sits among the cairns, tracing runes in the frost.",
     lore:"A hermit who reads the frost-runes the pass cuts into its cairns. He mends what the cold breaks, for a price.",art:{b:"humanoid",p:["hood","staff","runes"],skin:"#c99b78",c:"#955aa8",a:"#f4fbff",pat:"bands",po:.35},
     sp:{every:3,name:"Glyph Mend",kind:"heal",x:.15,tell:"tracing a glyph in the frost"},drops:[["spring_water",.5],["rune_shard",.3],["holy_water",.2]]},
   rimeclaw:{name:"Rimeclaw, the Pack Mother",short:"Rimeclaw",zone:"pass",el:"ice",boss:true,hp:140,atk:14,def:5,weak:["fire"],resist:["ice","shadow"],verb:"mauls you",intro:"A howl splits the air. Rimeclaw, the Pack Mother, blocks the pass.",
     lore:"Mother of every pack on the pass. Her howl turns the air to needles.",
     inf:{s:"chill",ch:0.35},
-    sp:{every:3,name:"Blizzard Howl",kind:"multi",n:3,x:.75,tell:"drawing a long breath"},drops:[["rime_fang",1],["pelt",.8]]},
+    sp:{every:3,name:"Blizzard Howl",kind:"multi",n:3,x:.75,tell:"drawing a long breath"},
+    phase:{at:.5,label:"ECLIPSE HOWL",msg:"The moon vanishes behind Rimeclaw's howl. Her shadow pack answers from the snow!",to:{el:"shadow",weak:["holy","fire"],resist:["shadow","ice"],inf:{s:"curse",ch:.3},verb:"rakes you from the dark",sp:{every:3,name:"Nightfall Pounce",kind:"multi",n:2,x:.85,tell:"calling two shadows to spring from the drift"}}},
+    drops:[["rime_fang",1],["pelt",.8]]},
   imp:{name:"Ember Imp",plural:"Ember Imps",zone:"hollow",mv:"wander",el:"fire",hp:88,atk:14,def:4,weak:["ice"],resist:["fire"],w:3,verb:"scorches you",intro:"An Ember Imp cackles from a vent of smoke.",
     lore:"Small, spiteful fire spirits that nest in the vents of the Hollow.",
     inf:{s:"burn",ch:0.3},
     sp:{every:3,name:"Fireball",kind:"heavy",x:2,tell:"cupping a glow between its hands"},drops:[["coal",.75],["chili",.4]]},
-  witch:{name:"Nightshade Witch",plural:"Nightshade Witches",zone:"hollow",mv:"chase",el:"poison",hp:95,atk:15,def:5,weak:["holy","metal"],resist:["shadow","poison"],w:2,verb:"hexes you",intro:"A Nightshade Witch rises from her bubbling cauldron.",
+  witch:{faction:"cultists",name:"Nightshade Witch",plural:"Nightshade Witches",zone:"hollow",mv:"chase",el:"poison",hp:95,atk:15,def:5,weak:["holy","metal"],resist:["shadow","poison"],w:2,verb:"hexes you",intro:"A Nightshade Witch rises from her bubbling cauldron.",
     lore:"Herbalists who stayed too long among the nightshade. Their brews heal them and only them.",
     inf:{s:"poison",ch:0.35},
     sp:{every:3,name:"Hex Brew",kind:"heal",x:.25,tell:"stirring her cauldron"},drops:[["nightshade",.7],["witchwood",.35],["holy_water",.3]]},
-  slag:{name:"Slag Sentry",plural:"Slag Sentries",zone:"hollow",mv:"still",el:"stone",hp:104,atk:14,def:6,weak:["ice","arcane"],resist:["fire"],w:2,verb:"hammers you",intro:"A furnace eye opens in a mound of slag. Its iron arms rise.",
+  slag:{faction:"constructs",name:"Slag Sentry",plural:"Slag Sentries",zone:"hollow",mv:"still",el:"stone",hp:104,atk:14,def:6,weak:["ice","arcane"],resist:["fire"],w:2,verb:"hammers you",intro:"A furnace eye opens in a mound of slag. Its iron arms rise.",
     lore:"Abandoned forge guardians fused to the Hollow's floor. A coal still burns behind each iron rib; cold and magic fracture their shells.",
     sp:{every:4,name:"Crucible Hammer",kind:"heavy",x:2.2,tell:"locking its iron arms together overhead"},drops:[["coal",.55],["golem_core",.45],["slag_iron",.4]]},
   salamander:{name:"Magma Salamander",plural:"Magma Salamanders",zone:"hollow",mv:"chase",el:"fire",hp:92,atk:14,def:5,weak:["ice"],resist:["fire"],w:2,verb:"bites",intro:"A Magma Salamander slides out of a lava seam.",
     lore:"They swim in molten rock and come out only to hunt. Their skin cools to a crust that cracks when they run.",art:{b:"reptile",p:["spikes","tail"],c:"#b83e2a",a:"#ff8a3d",pat:"cracks",po:.35},
     inf:{s:"burn",ch:0.3},
     sp:{every:3,name:"Lava Spit",kind:"heavy",x:2,tell:"its throat glowing white-hot"},drops:[["coal",.6],["chili",.4],["slag_iron",.2]]},
-  revenant:{name:"Ash Revenant",plural:"Ash Revenants",zone:"hollow",mv:"wander",el:"shadow",hp:90,atk:15,def:4,weak:["holy","ice"],resist:["shadow","fire"],w:2,verb:"claws you",intro:"Ash gathers into a shape and walks toward you. An Ash Revenant.",
+  revenant:{faction:"starCult",name:"Ash Revenant",plural:"Ash Revenants",zone:"hollow",mv:"wander",el:"shadow",hp:90,atk:15,def:4,weak:["holy","ice"],resist:["shadow","fire"],w:2,verb:"claws you",intro:"Ash gathers into a shape and walks toward you. An Ash Revenant.",
     lore:"Smiths who died at the Hollow's forges, still bound to the work. The chains were theirs; they forget why.",art:{b:"undead",p:["chains","flames"],c:"#595866",a:"#ff8a3d",pat:"cracks",po:.35},
     inf:{s:"curse",ch:0.3},
     sp:{every:3,name:"Ashen Grasp",kind:"drain",x:1.3,tell:"reaching out with smouldering fingers"},drops:[["coal",.45],["holy_water",.3],["slag_iron",.25]]},
@@ -229,13 +233,15 @@ const ENEMIES={
     lore:"Sulphur fumes that pooled in a hollow and woke. Crystals grow on them like frost on a window.",art:{b:"elemental",p:["crystals"],c:"#b3d63a",a:"#ff8a3d",pc:"#fff6a0",pat:"facets",po:.35},
     inf:{s:"poison",ch:0.35},
     sp:{every:3,name:"Sulphur Burst",kind:"multi",n:3,x:.65,tell:"swelling with yellow fumes"},drops:[["nightshade",.5],["coal",.55]]},
-  anvil:{name:"Anvil Crawler",plural:"Anvil Crawlers",zone:"hollow",mv:"wander",el:"metal",hp:100,atk:14,def:6,weak:["arcane","ice"],resist:["fire"],w:2,verb:"strikes you",intro:"A forge construct scuttles between the cold anvils.",
+  anvil:{faction:"constructs",name:"Anvil Crawler",plural:"Anvil Crawlers",zone:"hollow",mv:"wander",el:"metal",hp:100,atk:14,def:6,weak:["arcane","ice"],resist:["fire"],w:2,verb:"strikes you",intro:"A forge construct scuttles between the cold anvils.",
     lore:"A construct built to haul anvils between forges. Left to crawl the Hollow's floor, it still hammers, and it still keeps count.",art:{b:"construct",p:["shell","spikes","armor"],c:"#7a7f86",a:"#ff8a3d",pat:"bands",po:.35},
     sp:{every:3,name:"Pincer Clamp",kind:"multi",n:2,x:.9,tell:"snapping its pincers shut"},drops:[["golem_core",.5],["coal",.4],["slag_iron",.3]]},
   phoenix:{name:"Cinder Phoenix",short:"the Phoenix",zone:"hollow",el:"fire",boss:true,rebirth:true,hp:150,atk:17,def:7,weak:["ice"],resist:["fire","holy"],verb:"rakes you with burning talons",intro:"The sky ignites. A Cinder Phoenix descends.",
     lore:"The Hollow's heart. It has died many times and seems to have enjoyed none of them.",
     inf:{s:"burn",ch:0.35},
-    sp:{every:3,name:"Inferno",kind:"heavy",x:2.2,tell:"spreading its burning wings"},drops:[["phoenix",1],["holy_water",.6]]},
+    sp:{every:3,name:"Inferno",kind:"heavy",x:2.2,tell:"spreading its burning wings"},
+    phase:{at:.5,label:"DAWNSPARK",msg:"The Cinder Phoenix opens its ash-wings; white-gold fire floods the Hollow!",to:{el:"holy",weak:["shadow","stone"],resist:["holy","fire"],verb:"scours you with dawnfire",sp:{every:3,name:"Dawnflare",kind:"multi",n:2,x:.85,tell:"drawing its bright wings together"}}},
+    drops:[["phoenix",1],["holy_water",.6]]},
   harpy:{name:"Storm Harpy",plural:"Storm Harpies",zone:"spire",mv:"wander",el:"swift",hp:105,atk:21,def:3,weak:["stone","ice"],resist:["swift"],w:3,verb:"rakes you",intro:"A Storm Harpy shrieks out of the cloud bank.",
     lore:"Wind-spirits in the shape of birds, forever circling the spire. Each wingbeat carries a little thunder.",
     inf:{s:"chill",ch:0.3},
@@ -243,17 +249,17 @@ const ENEMIES={
   sentinel:{name:"Runebound Sentinel",plural:"Runebound Sentinels",zone:"spire",mv:"still",el:"arcane",hp:155,atk:22,def:8,weak:["metal","poison"],resist:["arcane","stone"],w:2,verb:"strikes you",intro:"A Runebound Sentinel grinds to life, its glyphs flaring.",
     lore:"Guardians carved before the spire fell. Their armor shrugs off blows, but rust and venom still find the seams.",
     sp:{every:4,name:"Rune Slam",kind:"heavy",x:2.5,tell:"its runes flaring white"},drops:[["rune_shard",.7],["golem_core",.3],["sentinel_plate",.55]]},
-  acolyte:{name:"Void Acolyte",plural:"Void Acolytes",zone:"spire",mv:"chase",el:"shadow",hp:112,atk:22,def:4,weak:["holy","arcane"],resist:["shadow"],w:3,verb:"touches you",intro:"A Void Acolyte steps out of a seam in the air.",
+  acolyte:{faction:"starCult",name:"Void Acolyte",plural:"Void Acolytes",zone:"spire",mv:"chase",el:"shadow",hp:112,atk:22,def:4,weak:["holy","arcane"],resist:["shadow"],w:3,verb:"touches you",intro:"A Void Acolyte steps out of a seam in the air.",
     lore:"Scholars who read one page too many of what lies between the stars. They feed the emptiness in them with your warmth.",
     inf:{s:"curse",ch:0.4},
     sp:{every:3,name:"Soul Tithe",kind:"drain",x:1.4,tell:"opening its hollow hands"},drops:[["void_crystal",.85],["holy_water",.4]]},
-  seraph:{name:"Fallen Seraph",plural:"Fallen Seraphs",zone:"spire",mv:"wander",el:"holy",hp:120,atk:20,def:5,weak:["shadow","stone"],resist:["holy","swift"],w:2,verb:"smites you",intro:"Feathers fall like snow. A Fallen Seraph turns its blade toward you.",
+  seraph:{faction:"starCult",name:"Fallen Seraph",plural:"Fallen Seraphs",zone:"spire",mv:"wander",el:"holy",hp:120,atk:20,def:5,weak:["shadow","stone"],resist:["holy","swift"],w:2,verb:"smites you",intro:"Feathers fall like snow. A Fallen Seraph turns its blade toward you.",
     lore:"Guardians of the spire's upper halls who followed the star down. Their halos still burn; their mercy does not.",art:{b:"humanoid",p:["wings","halo","blade"],skin:"#e9e0cf",glow:1,c:"#f0dea8",a:"#f6d36b",pc:"#f6c64a",pat:"scales",po:.35},
     sp:{every:3,name:"Judgement",kind:"heavy",x:2.2,tell:"raising its blade toward the sky"},drops:[["holy_water",.5],["storm_feather",.5]]},
   lynx:{name:"Astral Lynx",plural:"Astral Lynxes",zone:"spire",mv:"chase",el:"arcane",hp:110,atk:22,def:4,weak:["stone","metal"],resist:["arcane"],w:2,verb:"rakes you",intro:"Something with starlight for eyes pads along the stair. An Astral Lynx.",
     lore:"Cats that slipped through a seam in the sky and came back speckled with stars. They hunt by the light of whatever you are thinking.",art:{b:"feline",p:["crystals","tail"],c:"#803a96",a:"#f6d36b",pat:"stars",po:.35},
     sp:{every:3,name:"Starfall Pounce",kind:"multi",n:3,x:.65,tell:"its eyes going white"},drops:[["rune_shard",.5],["void_crystal",.35]]},
-  orrery:{name:"Orrery Construct",plural:"Orrery Constructs",zone:"spire",mv:"still",el:"metal",hp:140,atk:20,def:7,weak:["fire","arcane"],resist:["stone","swift"],w:2,verb:"strikes you",intro:"Brass rings click into alignment. An Orrery Construct turns its eye on you.",
+  orrery:{faction:"constructs",name:"Orrery Construct",plural:"Orrery Constructs",zone:"spire",mv:"still",el:"metal",hp:140,atk:20,def:7,weak:["fire","arcane"],resist:["stone","swift"],w:2,verb:"strikes you",intro:"Brass rings click into alignment. An Orrery Construct turns its eye on you.",
     lore:"Star-charts built to walk the spire and correct its course. The stars have moved; the orreries have not forgiven them.",art:{b:"construct",p:["orbit","armor"],c:"#5a8cc9",a:"#f6d36b",pat:"bands",po:.35},
     sp:{every:4,name:"Recalibrate",kind:"heal",x:.15,tell:"spinning its rings back into line"},drops:[["rune_shard",.55],["golem_core",.4],["sentinel_plate",.3]]},
   archon:{name:"Starfallen Archon",short:"the Archon",zone:"spire",el:"swift",boss:true,hp:260,atk:25,def:9,weak:["stone"],resist:["swift","arcane"],verb:"strikes you with lightning",intro:"Lightning stitches the clouds shut. The Starfallen Archon unfolds above the spire.",
@@ -261,9 +267,32 @@ const ENEMIES={
     inf:{s:"chill",ch:0.3},
     sp:{every:3,name:"Chain Lightning",kind:"multi",n:4,x:.65,tell:"crackling with stored lightning"},
     // generic boss twist: at `at` of max HP it loses a turn shifting form; `to` overrides element, weak, resist, special, inf and verb
-    phase:{at:.5,label:"VOID FORM",msg:"The storm collapses inward. The Archon turns to the dark behind it!",
-      to:{el:"shadow",weak:["holy","metal"],resist:["shadow","arcane"],inf:{s:"curse",ch:0.4},verb:"unmakes you",sp:{every:3,name:"Void Collapse",kind:"drain",x:1.5,tell:"folding the air around a black point"}}},
+    phase:{at:.5,label:"ASTRAL CONVERGENCE",msg:"The storm folds into a living sigil. The Archon turns the spire's runes against you!",
+      to:{el:"arcane",weak:["metal","poison"],resist:["arcane","stone"],inf:{s:"curse",ch:0.35},verb:"unmakes you with a star-rune",sp:{every:3,name:"Orrery Collapse",kind:"drain",x:1.45,tell:"folding the air around a burning sigil"}}},
     drops:[["star_heart",1],["storm_feather",.8]]},
+  fen_reedstalker:{name:"Reedstalker",plural:"Reedstalkers",zone:"fen",mv:"chase",el:"poison",hp:112,atk:23,def:6,weak:["fire"],resist:["poison"],w:3,verb:"lashes you",intro:"A Reedstalker slips between the reeds and strikes.",
+    lore:"It follows the channels beneath the water, where footsteps cannot be heard.",art:{b:"beast",p:["vines","tail","spikes"],c:"#6d8540",a:"#bdcd69",pat:"stripes",po:.35},inf:{s:"poison",ch:.25},
+    sp:{every:3,name:"Reed Snare",kind:"heavy",x:1.9,tell:"coiling its vines around the reeds"},drops:[["witchwood",.7],["nightshade",.35]]},
+  fen_mirewitch:{faction:"cultists",name:"Mire Witch",plural:"Mire Witches",zone:"fen",mv:"still",el:"shadow",hp:92,atk:24,def:4,weak:["holy","fire"],resist:["shadow","poison"],w:2,verb:"hexes you",intro:"A Mire Witch raises its mask from the black water.",
+    lore:"The Fen's old paths still know her name. The living do not.",art:{b:"humanoid",p:["hood","staff","runes"],skin:"#a89b7a",c:"#46563a",a:"#a4c76b",pat:"bands",po:.35},inf:{s:"curse",ch:.25},
+    sp:{every:3,name:"Silt Hex",kind:"drain",x:1.2,tell:"drawing a circle in the silt"},drops:[["witch_eye",.55],["nightshade",.45]]},
+  fen_peatbrute:{name:"Peatback Brute",plural:"Peatback Brutes",zone:"fen",mv:"wander",el:"wood",hp:150,atk:22,def:10,weak:["fire","ice"],resist:["wood","poison"],w:2,verb:"slams you",intro:"A mound of peat and roots pulls itself upright.",
+    lore:"A fallen tree can keep walking here long after its roots have drowned.",art:{b:"construct",p:["armor","vines","horns"],c:"#594b32",a:"#9e8750",pat:"cracks",po:.4},
+    sp:{every:4,name:"Rooted Guard",kind:"guard",ward:.18,turns:2,tell:"sinking its roots deep"},drops:[["witchwood",.65],["golem_core",.3]]},
+  fen_murk_wisp:{name:"Murk Wisp",plural:"Murk Wisps",zone:"fen",mv:"wander",el:"poison",hp:84,atk:25,def:3,weak:["fire","holy"],resist:["poison","shadow"],w:2,verb:"spores you",intro:"A green light drifts low over the water. It turns toward you.",
+    lore:"The glow marks a place where something sank and did not stay dead.",art:{b:"elemental",p:["orbit","spikes"],c:"#729447",a:"#d3ef7a",pat:"swirl",po:.45},inf:{s:"poison",ch:.3},
+    sp:{every:3,name:"Spore Burst",kind:"multi",n:2,x:.75,tell:"swelling with pale green light"},drops:[["nightshade",.6],["spring_water",.3]]},
+  fen_drowned_guard:{name:"Drowned Guard",plural:"Drowned Guards",zone:"fen",mv:"still",el:"shadow",hp:136,atk:21,def:9,weak:["arcane","swift"],resist:["shadow","poison"],w:2,verb:"hammers you",intro:"A rusted helm rises from the shallows, then its owner follows.",
+    lore:"The old causeway was guarded once. The guard has forgotten the road is gone.",art:{b:"undead",p:["armor","hood","chains"],c:"#59675a",a:"#9fb89a",pat:"bands",po:.35},
+    sp:{every:4,name:"Sunk Aegis",kind:"guard",ward:.2,turns:2,tell:"locking its shield into the mud"},drops:[["shroud",.55],["spring_water",.35]]},
+  fen_antlerwolf:{name:"Fen Antlerwolf",plural:"Fen Antlerwolves",zone:"fen",mv:"chase",el:"swift",hp:118,atk:26,def:5,weak:["stone"],resist:["wood","swift"],w:2,verb:"gores you",intro:"A many-antlered wolf leaps from the cattails.",
+    lore:"It hunts the paths between islands, where the water is deep enough to hide a whole pack.",art:{b:"beast",p:["antlers","mane","tail"],c:"#77765c",a:"#c8ca83",pat:"stripes",po:.35},
+    sp:{every:3,name:"Cattail Rush",kind:"multi",n:2,x:.85,tell:"lowering its crown of antlers"},drops:[["pelt",.5],["witchwood",.35]]},
+  fen_matriarch:{name:"The Drowned Matriarch",short:"the Matriarch",zone:"fen",el:"poison",boss:true,hp:390,atk:34,def:12,weak:["fire","ice"],resist:["poison","wood"],verb:"drowns you in spore-cloud",intro:"The reeds part. The Drowned Matriarch rises from the Fen's deepest pool.",
+    lore:"The Fen remembers every name given to the water. She remembers who gave them.",art:{b:"humanoid",p:["hood","staff","runes"],skin:"#a89b7a",c:"#33472f",a:"#c5d879",pat:"bands",po:.35},inf:{s:"poison",ch:.35},
+    sp:{every:3,name:"Flood of Spores",kind:"multi",n:3,x:.75,tell:"drawing a slow breath through the reeds"},
+    phase:{at:.5,label:"IRON ROOTS",msg:"A drowned chain tightens through the Matriarch's roots; the Fen's buried iron wakes!",to:{el:"metal",weak:["arcane","fire"],resist:["metal","wood"],verb:"drags you through the iron reeds",sp:{every:3,name:"Chain Surge",kind:"multi",n:2,x:.9,tell:"pulling the causeway chains taut beneath the water"}}},
+    drops:[["witchwood",1],["nightshade",.8],["witch_eye",.4]]},
   mimic:{name:"Mimic",zone:"any",el:"metal",hp:36,atk:6,def:3,weak:["arcane"],resist:["metal"],verb:"bites you",intro:"The lid creaks open into a mouth. It's a Mimic!",
     lore:"A chest with teeth. It has learned that travellers cannot resist opening things.",
     sp:{every:3,name:"Chomp",kind:"heavy",x:2.2,tell:"opening its lid very wide"},drops:[]}
@@ -285,6 +314,8 @@ const AFX={
   iron:{t:"el",g:"el",n:"Ironclad",ti:"Unbroken",tr:"Iron",m:{def:1},d:()=>elTxt("Iron")},
   swift:{t:"el",g:"el",n:"Fleet",ti:"Windrunner",tr:"Swift",m:{def:1},d:()=>elTxt("Swift")},
   arcane:{t:"el",g:"el",n:"Arcane",ti:"Spellwoven",tr:"Arcane",m:{def:1},d:()=>elTxt("Arcane")},
+  water:{t:"el",g:"el",n:"Tidal",ti:"Undertow",tr:"Water",m:{def:1},d:()=>elTxt("Water")},
+  steam:{t:"el",g:"el",n:"Scalding",ti:"Vaporbound",tr:"Steam",m:{def:1},d:()=>elTxt("Steam")},
   vamp:{n:"Vampiric",ti:"Bloodthirsty",tr:"Nourishing",ic:"a_vamp",col:"#d4607c",g:"sustain",d:()=>tx("Heals for {p}% of the damage it deals you.",{p:pcn(AFX_T.vamp)})},
   thorn:{n:"Thorned",ti:"Barbed",tr:"Sharp",ic:"a_thorn",col:"#b8a45a",d:()=>tx("Reflects {p}% of your blows back at you (at most {c}% of your max HP per round, and never enough to kill you).",{p:pcn(AFX_T.thorn.x),c:pcn(AFX_T.thorn.cap)})},
   regen:{n:"Regenerating",ti:"Undying",tr:"Wood",ic:"a_regen",col:"#7cc47c",g:"tank sustain",m:{hp:.9},d:B=>tx("Heals {p}% of its max HP every turn. Burn and poison keep it in check.",{p:B&&B.rar==="rare"&&B.heat>=5?"0.5":pcn(AFX_T.regen)})},
@@ -349,12 +380,12 @@ const INF_SLOTS=3,INF_COST=3,INF_MAX=3,CRIT_CAP=75,FREEZE_CAP=60;
 const MASTERY_X=1.15,MASTERY_PCT=pcn((MASTERY_X-1)*100),WEAK_X=.6;
 const DEF_K=50,HIT_MIN=.2,MAG_W=1.3,redOf=d=>d/(d+DEF_K);
 // trait combat tunables: res = elemental defense from armor traits, ward = Runic, pierce = Arcane, shred = Tempered
-const RES_PER=5,RES_CAP=40,RES_ALT={Fur:[["ice",1],["wood",1]],Insulated:[["ice",2.5]]},RES_MSG={ice:"Your fur-lined gear blunts the cold.",fire:"Your gear turns aside the heat.",poison:"Your gear keeps the venom at bay.",holy:"Your gear dulls the glare.",shadow:"Your gear holds the gloom back.",wood:"Your gear shrugs off the thorns.",metal:"Your gear turns the blades.",stone:"Your gear absorbs the crushing blows.",arcane:"Your gear scatters the stray magic.",swift:"Your gear slows the flurry."};
+const RES_PER=5,RES_CAP=40,RES_ALT={Fur:[["ice",1],["wood",1]],Insulated:[["ice",2.5]]},RES_MSG={ice:"Your fur-lined gear blunts the cold.",fire:"Your gear turns aside the heat.",water:"Your gear blunts the surge.",steam:"Your gear shields you from the scalding mist.",poison:"Your gear keeps the venom at bay.",holy:"Your gear dulls the glare.",shadow:"Your gear holds the gloom back.",wood:"Your gear shrugs off the thorns.",metal:"Your gear turns the blades.",stone:"Your gear absorbs the crushing blows.",arcane:"Your gear scatters the stray magic.",swift:"Your gear slows the flurry."};
 const ARC_PER=12,ARC_CAP=60,WARD_PER=4,WARD_CAP=40,THORN_PER=4,THORN_CAP=30,STONE_DR=.6,STONE_CAP=6,SHRED_PER=1.5,SHRED_CAP=6,ROOT_PER=1.5,ROOT_CAP=8,DODGE_PER=4,DODGE_CAP=25,MED_PER=.1,MED_CAP=.5,MED_REGEN=.5;
 // statuses enemies inflict on you: el = resisting element (P.rs), t = turns; cures = traits on consumables that clear them
 const STATUS={burn:{get n(){return tx("Burn")},el:"fire",t:3,get tip(){return tx("damage each turn")}},chill:{get n(){return tx("Chill")},el:"ice",t:3,get tip(){return tx("no swift follow-ups, half dodge")}},poison:{get n(){return tx("Poison")},el:"poison",t:4,get tip(){return tx("stacking damage each turn")}},curse:{get n(){return tx("Curse")},el:"shadow",t:4,get tip(){return tx("healing you receive is halved")}}};
 const INF_MSG={burn:"You catch fire",chill:"A numbing chill sets in",poison:"Venom seeps into your blood",curse:"A curse withers you"};
-const ELITE_INF={Fire:"burn",Ice:"chill",Poison:"poison",Shadow:"curse"},ELITE_INF_CH=.25,POISON_STACK=3,POISON_FOE_CAP=15,CLEANSE_PER=6,CLEANSE_CAP=50,PARRY_X=1.5,PARRY_FAIL=1.25;
+const ELITE_INF={Fire:"burn",Ice:"chill",Water:"chill",Steam:"burn",Poison:"poison",Shadow:"curse"},ELITE_INF_CH=.25,POISON_STACK=3,POISON_FOE_CAP=15,CLEANSE_PER=6,CLEANSE_CAP=50,PARRY_X=1.5,PARRY_FAIL=1.25;
 const GUARD_T={cut:.6,braced:.3}; // all hits in the enemy action; Braced boosts the next Attack or ability, once
 const PARRY_T={base:.65,study:.05,levels:3,spd:.005,spdCap:.05,cap:.9,form:{blade:.05,spellblade:.05,claws:.05,lance:-.05,warstaff:-.05}};
 // battle tunables: follow = the chance of a swift follow-up strike; crit = the base crit chance and the points per Sharp; atk = the attack of a zone's regular enemies, as the damage floor is judged; steam = the chance a Steam-blinded enemy misses; block = the chance a shield blocks; flee = the chance a boss stops you and the chance a flee works
@@ -366,7 +397,7 @@ const ABILITIES={
   staff:{get name(){return tx("Channel")},icon:"channel",cd:3,x:1.3,pen:.5,get desc(){return tx("1.3x a normal attack that ignores half of armor. The weapon's top element effect always lands.")}},
   lance:{get name(){return tx("Charge")},icon:"charge",cd:4,x:2,open:.25,get desc(){return tx("2.0x heavy strike, but the enemy's reply hits you 25% harder.")}},
   spellblade:{get name(){return tx("Arc Slash")},icon:"arcslash",cd:3,x:1.2,get desc(){return tx("1.2x a normal attack. A crit refunds 1 turn of cooldown.")}},
-  warstaff:{get name(){return tx("Sweep")},icon:"sweep",cd:3,x:1,stun:.35,bossStun:.15,get desc(){return tx("1.0x strike with a 35% chance to stun (15% on bosses). A stunned enemy loses its turn.")}},
+  warstaff:{get name(){return tx("Sweep")},icon:"sweep",cd:3,x:1,area:.55,stun:.35,bossStun:.15,get desc(){return tx("1.0x strike with a 35% chance to stun (15% on bosses); against a pack, it hits every foe for 0.55x.")}},
   claws:{get name(){return tx("Rend")},icon:"rend",cd:3,x:.9,get desc(){return tx("0.9x strike that opens a bleed: 20% of Attack per turn for 5 turns (ignores armor). Rending again before it ends adds a stack, up to 3, and refreshes it.")}},
   shield:{get name(){return tx("Shield Bash")},icon:"bash",cd:3,x:.6,int:.85,bossInt:.6,stun:.2,bossStun:.08,get desc(){return tx("0.6x Attack plus your shield's defense. Cancels a telegraphed special (85%, 60% on bosses), otherwise 20% to stun (8% on bosses).")}}
 },BLEED_STACK=3,BLEED_PER=.2,BLEED_T=5;
@@ -426,6 +457,29 @@ const DAILY_TWISTS={
   nocamp:{get name(){return tx("No campfires")},get desc(){return tx("Camps become fights, and you can't rest at the fire.")}},
   double:{get name(){return tx("Double loot, double damage")},get desc(){return tx("Enemies hit twice as hard. Every drop is doubled.")}}
 };
+// Rift passives are selected by the region's saved biome, never by a map/combat random draw.
+// Forest is deliberately the neutral biome. Status effects use ordinary Guard/Parry/resistance rules.
+const RIFT_BIOME_MODS={
+  fen:{name:"Poison fog",desc:"A landed foe hit adds one Poison stack (up to three). Guard blocks it; a successful Parry interrupts a telegraphed special; Poison resistance shortens it.",status:"poison",turns:3,damage:.06},
+  tundra:{name:"Killing chill",desc:"A landed foe hit applies Chill for up to two turns. Guard blocks it; a successful Parry interrupts a telegraphed special; Ice resistance shortens it.",status:"chill",turns:2},
+  ember:{name:"Cinder air",desc:"A landed foe hit applies Burn for up to two turns. Guard blocks it; a successful Parry interrupts a telegraphed special; Fire resistance shortens it.",status:"burn",turns:2,damage:.06},
+  astral:{name:"Arcane surge",desc:"On every third enemy turn, its next attack (if any) has 25% more power and uses Arcane. Guard and Parry work as usual; Arcane resistance reduces it.",surgeEvery:3,surge:1.25},
+  ash:{name:"Blinding sand",desc:"Your attacks deal 20% less damage on every third turn. The cadence is fixed by the battle turn.",strikeEvery:3,strike:.8},
+  bone:{name:"Grave fear",desc:"A landed, unguarded foe hit leaves you off balance for your next action. Guard blocks it; a successful Parry interrupts a telegraphed special.",fear:1},
+  deep:{name:"Drowning pressure",desc:"At the end of every third enemy turn, pressure deals 4% of your maximum HP, reduced by Stone resistance. It bypasses Defense and Guard, even if the attack was parried.",pressureEvery:3,pressure:.04}
+};
+// A Rift depth modifier is derived from the saved seed and depth, without drawing
+// from the region/roster RNG stream. Forest and biome passives remain independent.
+const RIFT_DEPTH_MODS=[
+  {id:"burning_air",name:"Burning air",desc:"Fire attacks deal 15% more damage. Fire resistance, Defense and Guard still apply; enemy damage boosts combine multiplicatively.",fire:1.15},
+  {id:"thin_wards",name:"Thin wards",desc:"Your rune ward can absorb at most half of each enemy hit; the rest of its ward points remain for later hits.",ward:.5},
+  {id:"fast_foes",name:"Fast foes",desc:"Enemy specials recur one turn sooner, to a minimum interval of two turns; their tells and Parry windows remain intact.",fast:1}
+];
+function riftDepthModFor(seed,depth){
+  if(seed==null)return null;
+  const d=Math.max(1,Math.floor(Number(depth)||1)),i=hash("rift-depth:"+seed+":"+d)%RIFT_DEPTH_MODS.length;
+  return RIFT_DEPTH_MODS[i];
+}
 const DAILY_REWARD={ess:3,xp:80};
 
 // ================= UNLOCKS =================
@@ -546,6 +600,8 @@ const UNLOCKS=[
     i:{t:"Bounties",l:["With the first steps behind you, the goal bar offers bounties: hunts and forging jobs that pay in essences.","Claim one to get the next."],tab:"battle"}},
   {id:"afx",name:"Affixes",ic:"elite",when:s=>Object.keys(s.afx).length>0,txt:"Meet a magic or rare enemy.",w:"See the Codex tab.",
     i:{t:"Affixes",l:["The Codex now records every affix you meet: what it does and which essence it drops."],tab:"codex",sel:"#aflabel"}},
-  {id:"stats",name:"Lifetime stats",ic:"renown",q:1,when:s=>s.wins>=3,txt:"Win 3 battles."}
+  {id:"stats",name:"Lifetime stats",ic:"renown",q:1,when:s=>s.wins>=3,txt:"Win 3 battles."},
+  {id:"fen_intro",name:"The Sinking Fen",ic:"shrine",q:1,when:s=>s.unlocked.includes("fen"),
+    i:{t:"The Sinking Fen",l:["The old road ends in black water. Follow the reed-markers to the far bank; the Drowned Matriarch waits beyond them.","The Fen is open because you brought down the Starfallen Archon. Its boss guards the next descent."],tab:"battle"}}
 ];
 const UNL=Object.fromEntries(UNLOCKS.map(u=>[u.id,u]));

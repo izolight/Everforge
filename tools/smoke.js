@@ -8,14 +8,14 @@ const STEPS=+process.argv[2]||400,URL="file://"+path.resolve(__dirname,"..","ind
 async function run(label,setup,nat,steps=STEPS){
   const browser=await chromium.launch(),page=await browser.newPage({viewport:{width:390,height:844},reducedMotion:"reduce"});
   const errors=[];
-  page.on("pageerror",e=>errors.push(`pageerror: ${e.message}`));
+  page.on("pageerror",e=>errors.push(`pageerror: ${e.stack||e.message}`));
   page.on("console",m=>{if(m.type()==="error"&&!/fonts\.(googleapis|gstatic)|net::ERR/.test(m.text()))errors.push(`console: ${m.text()}`)});
   await page.goto(URL);
   if(setup){await page.evaluate(setup);await page.reload()}
   await page.waitForFunction(()=>typeof S==="object"&&S);
   const stats=await page.evaluate(async ({steps,nat})=>{
     const sleep=ms=>new Promise(r=>setTimeout(r,ms)),out={steps:0,battles:0,won:0,lost:0,forged:0,zones:new Set(),views:0,wields:0,abil:0,tiles:0,outs:0,byfoe:0,fled:0,script:0,intros:0,heat:0,daily:0,aband:0,bought:0,sold:0,upgraded:0,reforged:0,learned:0,studied:0,gated:0,afx:new Set(),split:0,boom:0,rare:0,decon:0,shaped:0,bad:[]};
-    const legacy=UNLOCKS.filter(u=>u.id!=="rift"),pending=pendingIntros().filter(c=>c.id!=="rift"); // the Rift is new v16 content, still gated by the Archon
+    const legacy=UNLOCKS.filter(u=>!['rift','fen_intro'].includes(u.id)),pending=pendingIntros().filter(c=>!['rift','fen_intro'].includes(c.id)); // Rift and Fen are gated region introductions
     // the scripted chaser check always meets a hand-made chaser of one fixed zone: a wild creature brings its own affixes, and the Rift has no hand-made regulars
     const CHECK_ZONE="pass",plain=(z,mv)=>Object.keys(ENEMIES).find(k=>ENEMIES[k].zone===z&&!ENEMIES[k].boss&&!k.startsWith("w_")&&(!mv||ENEMIES[k].mv===mv));
     out.vet0=legacy.every(u=>S.unl[u.id])&&TECHS.every(t=>S.techs[t.id])&&pending.length===0?1:`missing ${legacy.filter(u=>!S.unl[u.id]).map(u=>u.id)} pending ${pending.map(c=>c.id)}`; // as loaded, before the bot plays
@@ -153,7 +153,7 @@ async function run(label,setup,nat,steps=STEPS){
       const inf=q("#infbtns [data-infuse]");if(inf){inf.click();q("#infbtns [data-infuse]")?.click()} // the first tap only arms the infusion
       go("battle");if(!qa("#arena [data-tile]").length)q("#again")?.click();
     }
-    await sleep(500);
+    await sleep(500);save(); // snapshot the finished run before the separate reload check
     out.miss=window.__miss?[...window.__miss]:[];out.proc=typeof PROC!=="undefined"?[...PROC]:[]; // a procedural creature's own strings stay English
     out.unl=Object.keys(S.unl);out.techs=Object.keys(S.techs).length;out.rp=S.rp;out.pending=pendingIntros().length;out.zones=[...out.zones];out.afx=[...out.afx];out.save=localStorage.getItem(KEY);out.key=KEY;out.v=S.v;
     return out;
@@ -170,10 +170,14 @@ async function run(label,setup,nat,steps=STEPS){
 // a save put in localStorage and loaded by the real page: what the game makes of it
 async function loadPage(save,key){
   const browser=await chromium.launch(),page=await browser.newPage({viewport:{width:390,height:844},reducedMotion:"reduce"}),errors=[];
-  page.on("pageerror",e=>errors.push(`pageerror: ${e.message}`));
+  page.on("pageerror",e=>errors.push(`pageerror: ${e.stack||e.message}`));
   page.on("console",m=>{if(m.type()==="error"&&!/fonts\.(googleapis|gstatic)|net::ERR/.test(m.text()))errors.push(`console: ${m.text()}`)});
   await page.goto(URL);
-  await page.evaluate(([k,s])=>{localStorage.clear();localStorage.setItem(k,s)},[key,save]);
+  await page.evaluate(({k,s})=>{localStorage.clear();localStorage.setItem(k,s)}, {k:key,s:save});
+  const installed=await page.evaluate(k=>localStorage.getItem(k),key);
+  if(installed!==save)errors.push("roundtrip fixture was not installed in browser storage");
+  // Reload this same file:// page: Chromium does not guarantee storage sharing
+  // between separate file pages, even when they have the same path.
   await page.reload();
   await page.waitForFunction(()=>typeof S==="object"&&S);
   const st=await page.evaluate(()=>({v:S.v,wins:S.wins,journal:S.journal.length,techs:Object.keys(S.techs).join(","),key:KEY}));

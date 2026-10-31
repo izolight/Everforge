@@ -1,0 +1,41 @@
+== Element coverage (authored, non-boss): woods 5/5, pass 5/5, hollow 4/4, spire 4/4 ==
+== Kits (2); codex mastery on for the kit's zone and earlier ==
+melee/hollow      Lv7 HP78  ATK38  MAG8   DEF47 (48%) SPD11 crit24% | Sunforged Swift Sword [blade,shield] | ward0 thorn30% dr2.8 dodge25% regen0 root5 cl0 res{"metal":40,"ice":40,"stone":40,"wood":40,"shadow":20,"swift":23,"fire":10,"arcane":10} inf{"Sharp":1,"Iron":1,"Swift":1} ess17 refine12emb | 6 crafts ~6.2 tries (~0 fizzles)
+melee/spire       Lv9 HP88  ATK45  MAG9   DEF63 (56%) SPD14 crit33% | Keen Iron Sword [blade,shield] | ward22 thorn24% dr6 dodge25% regen0 root0 cl0 res{"stone":40,"metal":40,"swift":35,"arcane":40,"shadow":22,"ice":5} inf{"Sharp":2,"Iron":1,"Swift":1} ess23 refine12emb | 7 crafts ~7.2 tries (~0 fizzles)
+kit warnings: 0
+
+== Matrix, ARRIVAL (previous stage's kit meets this zone; starter kit meets the woods): the main pairing: 20 fights per cell, seed 1, map row 3. Per heat: win% / mean turns / mean HP left% (losses count 0) ==
+enemy      kit              policy  H0               flags
+archon     melee/hollow     smart   100%   9.3t  68%
+
+== Matrix, ON-STAGE (the kit's own zone): 20 fights per cell, seed 1, map row 3. Per heat: win% / mean turns / mean HP left% (losses count 0) ==
+enemy      kit              policy  H0               flags
+archon     melee/spire      smart   100%   7.1t  98% TOO_EASY
+
+== Win% grid (policy smart, Heat 0; rows = kits, columns = enemies; mimic on-stage) ==
+                  arch
+melee/hollow       100
+melee/spire        100
+
+== Kit strength, ARRIVAL (row = stage the kit is from; it meets the next zone) (policy smart): mean turns / mean HP left% / win% ==
+Heat 0    melee                 defensive             staff                 stacked               starter
+hollow    9.3t 68% 100%         -                     -                     -                     -
+
+== Kit strength, ON-STAGE (policy smart): mean turns / mean HP left% / win% ==
+Heat 0    melee                 defensive             staff                 stacked               starter
+spire     7.1t 98% 100%         -                     -                     -                     -
+
+== Flagged cells, ARRIVAL: 0. TOO_EASY: win 100%, HP left >85% and turns <4 (boss <10) at Heat 0; TOO_HARD: win <50% at Heat 0; SLOG: mean turns >30 (boss >50) ==
+TOO_EASY: 0 cells
+TOO_HARD: 0 cells
+SLOG: 0 cells
+
+== Flagged cells, ON-STAGE: 1. TOO_EASY: win 100%, HP left >85% and turns <4 (boss <10) at Heat 0; TOO_HARD: win <50% at Heat 0; SLOG: mean turns >30 (boss >50) ==
+TOO_EASY: 1 cells
+  [smart] 1
+    melee/spire@H0       archon
+TOO_HARD: 0 cells
+SLOG: 0 cells
+
+wrote rift-evidence/m07-archon-seed1.json
+done in 0s

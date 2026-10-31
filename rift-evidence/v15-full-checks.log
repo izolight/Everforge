@@ -1,0 +1,557 @@
+
+=== affix-check.js
+ok   self-healing Witch never rolls Vampiric, Regenerating or Warded (0/4000)
+ok   fire: one chip, tip names the affix and its Fire Essence
+ok   fire: HUD name "Burning Frost Wolf" and an aria-label
+ok   fire: won and dropped a Fire essence (ess_Fire@2)
+ok   ice: one chip, tip names the affix and its Ice Essence
+ok   ice: HUD name "Frostbound Frost Wolf" and an aria-label
+ok   ice: won and dropped a Ice essence (ess_Ice@2)
+ok   poison: one chip, tip names the affix and its Poison Essence
+ok   poison: HUD name "Venomous Frost Wolf" and an aria-label
+ok   poison: won and dropped a Poison essence (ess_Poison@2)
+ok   holy: one chip, tip names the affix and its Holy Essence
+ok   holy: HUD name "Hallowed Frost Wolf" and an aria-label
+ok   holy: won and dropped a Holy essence (ess_Holy@2)
+ok   shadow: one chip, tip names the affix and its Shadow Essence
+ok   shadow: HUD name "Umbral Frost Wolf" and an aria-label
+ok   shadow: won and dropped a Shadow essence (ess_Shadow@2)
+ok   iron: one chip, tip names the affix and its Iron Essence
+ok   iron: HUD name "Ironclad Frost Wolf" and an aria-label
+ok   iron: won and dropped a Iron essence (ess_Iron@2)
+ok   swift: one chip, tip names the affix and its Swift Essence
+ok   swift: HUD name "Fleet Frost Wolf" and an aria-label
+ok   swift: won and dropped a Swift essence (ess_Swift@2)
+ok   arcane: one chip, tip names the affix and its Arcane Essence
+ok   arcane: HUD name "Arcane Frost Wolf" and an aria-label
+ok   arcane: won and dropped a Arcane essence (ess_Arcane@2)
+ok   vamp: one chip, tip names the affix and its Nourishing Essence
+ok   vamp: HUD name "Vampiric Frost Wolf" and an aria-label
+ok   vamp: won and dropped a Nourishing essence (ess_Nourishing@2)
+ok   thorn: one chip, tip names the affix and its Sharp Essence
+ok   thorn: HUD name "Thorned Frost Wolf" and an aria-label
+ok   thorn: won and dropped a Sharp essence (ess_Sharp@2)
+ok   regen: one chip, tip names the affix and its Wood Essence
+ok   regen: HUD name "Regenerating Frost Wolf" and an aria-label
+ok   regen: won and dropped a Wood essence (ess_Wood@2)
+ok   frenzy: one chip, tip names the affix and its Heavy Essence
+ok   frenzy: HUD name "Frenzied Frost Wolf" and an aria-label
+ok   frenzy: won and dropped a Heavy essence (ess_Heavy@2)
+ok   ward: one chip, tip names the affix and its Runic Essence
+ok   ward: HUD name "Warded Frost Wolf" and an aria-label
+ok   ward: won and dropped a Runic essence (ess_Runic@2)
+ok   elusive: one chip, tip names the affix and its Light Essence
+ok   elusive: HUD name "Elusive Frost Wolf" and an aria-label
+ok   elusive: won and dropped a Light essence (ess_Light@2)
+ok   split: one chip, tip names the affix and its Water Essence
+ok   split: HUD name "Splitting Frost Wolf" and an aria-label
+ok   split: won and dropped a Water essence (ess_Water@2)
+ok   boom: one chip, tip names the affix and its Steam Essence
+ok   boom: HUD name "Volatile Frost Wolf" and an aria-label
+ok   boom: won and dropped a Steam essence (ess_Steam@2)
+ok   swiftfoot: one chip, tip names the affix and its Swift Essence
+ok   swiftfoot: HUD name "Swift-footed Frost Wolf" and an aria-label
+ok   swiftfoot: won and dropped a Swift essence (ess_Swift@2)
+ok   vampiric heals (27 -> 31) and logs
+ok   thorned reflects 2 (cap 3) and never kills (hp 1)
+ok   regenerating heals 1 (= 1)
+ok   Heat 5 rare regenerates at 0.5% and reports the matching value (1 HP)
+ok   frenzied: atk 9 -> 13, once, log line 1
+ok   warded: shield 11 shown on the HUD (11), absorbs
+ok   warded: absorb and shatter log lines
+ok   warded: ward is down for 3 of our attacks, back in the enemy phase of turn +3
+ok   elusive: base dodge 20% shown (20%)
+ok   elusive: Sharp 2 lowers it to 16%
+ok   elusive: Sharp cap -> 12%
+ok   elusive: each Study lowers it (16 -> 12 -> 4, capped at 3 uses)
+ok   elusive: a low roll slips aside ('It slips aside.'), a high roll lands
+ok   splitting: remnant 16 HP, atk 5, no affix chips (Woods Bandit remnant)
+ok   splitting: only one split, then won in 0 turns (kills=1)
+ok   splitting: drops Water essence only after the remnant dies
+ok   volatile: survive the blast (-8), then win with loot
+ok   volatile: dying to the blast is a defeat (no loot, no kill), you wake with 51 HP
+ok   volatile: Guard cuts the blast (3 instead of 8)
+ok   volatile: the NEXT row shows the blast only when it is low (tip mentions Guard)
+ok   swift-footed: quick follow-up hit (2 hits)
+ok   swift-footed on the map: normal moved 1, swift moved 2 (contact false), tiles legal
+ok   swiftfoot: never on still species (0), rolled on movers (30/500)
+ok   rolls: no conflicting or duplicate affixes; rares carry 2 (3 from Heat 6)
+ok   rolls: elite rare share 0.340 (exp 0.34), fight magic share at Heat 3 0.148 (exp 0.15000000000000002), cap 0.55
+ok   grades (real gs 0.5/1): woods avg 1.80 -> 2.33 (magic) -> 2.80 (rare); whole steps capped at 4 in woods, 5 in spire
+ok   drop text follows gs: Drops an affixed material that deconstructs into Nourishing Essence, a 50% chance of one grade better than usual.|Drops an affixed material that deconstructs into Nourishing Essence, one grade better than usual.|Drops an affixed material that deconstructs into Nourishing Essence. Magic enemies: a 50% chance of one grade better. Rare: one grade better.
+ok   rare drop: ess_Shadow,ess_Nourishing and 5 embers; name "Umbral Frost Wolfthe Bloodthirsty"
+ok   remnant attack 7 = 0.6 x base 11 (frenzied was 15)
+ok   dodged ability strikes apply no bleed/stun/exposure, cooldown still spent
+ok   thorned cap is per round: 3 blows cost 3 (cap 3)
+ok   at most one of Vampiric/Regenerating/Warded per rare
+ok   daily determinism: 21 rolled POIs (10 magic, 6 rare) and 5 dark ambushes identical under two Math.random streams
+ok   daily determinism: a walked seeded map meets the same rarities and affixes
+ok   no page errors in the main page: 
+ALL OK
+PASS affix-check.js
+
+=== audio-check.js
+ok  no AudioContext or music before a gesture
+ok  a real gesture starts generated music
+ok  effects can be muted while music continues
+ok  music can be muted while effects remain available
+ok  forge, region, battle and boss arrangements switch during playback
+ok  travelling between regions switches to each region's own track
+ok  every region, the forge, battles and bosses have their own eight-bar composition
+ok  repeated renders keep a single scheduler
+ok  hiding the tab suspends audio; returning resumes it
+ok  muting both channels suspends the context and enabling a channel resumes it
+ok  independent volume preferences survive reload without autoplay
+ok  music button cycles all four volume levels
+ok  effects button cycles all four volume levels
+ok  en audio controls fit a 320px viewport
+ok  en audio controls fit a 360px viewport
+ok  en audio controls fit a 720px viewport
+ok  de audio controls fit a 320px viewport
+ok  de audio controls fit a 360px viewport
+ok  de audio controls fit a 720px viewport
+ok  ko audio controls fit a 320px viewport
+ok  ko audio controls fit a 360px viewport
+ok  ko audio controls fit a 720px viewport
+ok  an older muted preference also mutes new music
+ok  malformed preferences recover to quiet defaults
+ok  audio synthesis does not use gameplay's Math.random
+ok  strikes, misses, wards and hits on you play their own cues
+ok  strike and hurt cues carry their weapon form and element
+ok  unsupported Web Audio leaves the game and controls usable
+ok  sfx-hit: audible, no clipping, finite samples, clean release (peak 0.300)
+ok  sfx-crit: audible, no clipping, finite samples, clean release (peak 0.481)
+ok  sfx-ability: audible, no clipping, finite samples, clean release (peak 0.053)
+ok  sfx-ouch: audible, no clipping, finite samples, clean release (peak 0.338)
+ok  sfx-tick: audible, no clipping, finite samples, clean release (peak 0.038)
+ok  sfx-block: audible, no clipping, finite samples, clean release (peak 0.163)
+ok  sfx-dodge: audible, no clipping, finite samples, clean release (peak 0.077)
+ok  sfx-parry: audible, no clipping, finite samples, clean release (peak 0.252)
+ok  sfx-heal: audible, no clipping, finite samples, clean release (peak 0.131)
+ok  sfx-status: audible, no clipping, finite samples, clean release (peak 0.078)
+ok  sfx-warn: audible, no clipping, finite samples, clean release (peak 0.173)
+ok  sfx-win: audible, no clipping, finite samples, clean release (peak 0.195)
+ok  sfx-lose: audible, no clipping, finite samples, clean release (peak 0.103)
+ok  sfx-forge: audible, no clipping, finite samples, clean release (peak 0.360)
+ok  sfx-legend: audible, no clipping, finite samples, clean release (peak 0.139)
+ok  sfx-level: audible, no clipping, finite samples, clean release (peak 0.093)
+ok  sfx-loot: audible, no clipping, finite samples, clean release (peak 0.078)
+ok  sfx-unlock: audible, no clipping, finite samples, clean release (peak 0.099)
+ok  sfx-research: audible, no clipping, finite samples, clean release (peak 0.068)
+ok  sfx-tech: audible, no clipping, finite samples, clean release (peak 0.117)
+ok  sfx-ember: audible, no clipping, finite samples, clean release (peak 0.029)
+ok  sfx-clang: audible, no clipping, finite samples, clean release (peak 0.215)
+ok  sfx-tap: audible, no clipping, finite samples, clean release (peak 0.026)
+ok  sfx-step: audible, no clipping, finite samples, clean release (peak 0.048)
+ok  sfx-ability-blade: audible, no clipping, finite samples, clean release (peak 0.047)
+ok  sfx-ability-spear: audible, no clipping, finite samples, clean release (peak 0.050)
+ok  sfx-ability-staff: audible, no clipping, finite samples, clean release (peak 0.100)
+ok  sfx-ability-lance: audible, no clipping, finite samples, clean release (peak 0.193)
+ok  sfx-ability-spellblade: audible, no clipping, finite samples, clean release (peak 0.141)
+ok  sfx-ability-warstaff: audible, no clipping, finite samples, clean release (peak 0.155)
+ok  sfx-ability-claws: audible, no clipping, finite samples, clean release (peak 0.100)
+ok  sfx-ability-shield: audible, no clipping, finite samples, clean release (peak 0.165)
+ok  sfx-hit-fire: audible, no clipping, finite samples, clean release (peak 0.107)
+ok  sfx-crit-fire: audible, no clipping, finite samples, clean release (peak 0.466)
+ok  sfx-status-fire: audible, no clipping, finite samples, clean release (peak 0.105)
+ok  sfx-hit-ice: audible, no clipping, finite samples, clean release (peak 0.095)
+ok  sfx-crit-ice: audible, no clipping, finite samples, clean release (peak 0.453)
+ok  sfx-status-ice: audible, no clipping, finite samples, clean release (peak 0.088)
+ok  sfx-hit-poison: audible, no clipping, finite samples, clean release (peak 0.106)
+ok  sfx-crit-poison: audible, no clipping, finite samples, clean release (peak 0.474)
+ok  sfx-status-poison: audible, no clipping, finite samples, clean release (peak 0.120)
+ok  sfx-hit-holy: audible, no clipping, finite samples, clean release (peak 0.140)
+ok  sfx-crit-holy: audible, no clipping, finite samples, clean release (peak 0.504)
+ok  sfx-status-holy: audible, no clipping, finite samples, clean release (peak 0.109)
+ok  sfx-hit-shadow: audible, no clipping, finite samples, clean release (peak 0.140)
+ok  sfx-crit-shadow: audible, no clipping, finite samples, clean release (peak 0.460)
+ok  sfx-status-shadow: audible, no clipping, finite samples, clean release (peak 0.142)
+ok  sfx-hit-arcane: audible, no clipping, finite samples, clean release (peak 0.106)
+ok  sfx-crit-arcane: audible, no clipping, finite samples, clean release (peak 0.504)
+ok  sfx-status-arcane: audible, no clipping, finite samples, clean release (peak 0.101)
+ok  sfx-ouch-fire: audible, no clipping, finite samples, clean release (peak 0.336)
+ok  sfx-tick-fire: audible, no clipping, finite samples, clean release (peak 0.055)
+ok  sfx-ouch-ice: audible, no clipping, finite samples, clean release (peak 0.301)
+ok  sfx-tick-ice: audible, no clipping, finite samples, clean release (peak 0.037)
+ok  sfx-ouch-poison: audible, no clipping, finite samples, clean release (peak 0.293)
+ok  sfx-tick-poison: audible, no clipping, finite samples, clean release (peak 0.053)
+ok  sfx-ouch-holy: audible, no clipping, finite samples, clean release (peak 0.279)
+ok  sfx-tick-holy: audible, no clipping, finite samples, clean release (peak 0.047)
+ok  sfx-ouch-shadow: audible, no clipping, finite samples, clean release (peak 0.330)
+ok  sfx-tick-shadow: audible, no clipping, finite samples, clean release (peak 0.040)
+ok  sfx-ouch-arcane: audible, no clipping, finite samples, clean release (peak 0.327)
+ok  sfx-tick-arcane: audible, no clipping, finite samples, clean release (peak 0.043)
+ok  sfx-ouch-wood: audible, no clipping, finite samples, clean release (peak 0.292)
+ok  sfx-tick-wood: audible, no clipping, finite samples, clean release (peak 0.057)
+ok  sfx-ouch-metal: audible, no clipping, finite samples, clean release (peak 0.310)
+ok  sfx-tick-metal: audible, no clipping, finite samples, clean release (peak 0.051)
+ok  sfx-ouch-stone: audible, no clipping, finite samples, clean release (peak 0.343)
+ok  sfx-tick-stone: audible, no clipping, finite samples, clean release (peak 0.063)
+ok  sfx-ouch-swift: audible, no clipping, finite samples, clean release (peak 0.318)
+ok  sfx-tick-swift: audible, no clipping, finite samples, clean release (peak 0.038)
+ok  music-woods: audible, no clipping, finite samples, clean release (peak 0.196)
+ok  music-woods: stereo arrangement
+ok  music-pass: audible, no clipping, finite samples, clean release (peak 0.172)
+ok  music-pass: stereo arrangement
+ok  music-hollow: audible, no clipping, finite samples, clean release (peak 0.158)
+ok  music-hollow: stereo arrangement
+ok  music-spire: audible, no clipping, finite samples, clean release (peak 0.180)
+ok  music-spire: stereo arrangement
+ok  music-forge: audible, no clipping, finite samples, clean release (peak 0.183)
+ok  music-forge: stereo arrangement
+ok  music-battle: audible, no clipping, finite samples, clean release (peak 0.208)
+ok  music-battle: stereo arrangement
+ok  music-boss: audible, no clipping, finite samples, clean release (peak 0.234)
+ok  music-boss: stereo arrangement
+ok  music-rift: audible, no clipping, finite samples, clean release (peak 0.167)
+ok  music-rift: stereo arrangement
+ok  no browser errors: 
+AUDIO CHECK OK
+PASS audio-check.js
+
+=== biome-check.js
+ok   all seven named passives map to seeded Rift biomes; forest is the neutral eighth biome
+biome fixture seeds {"fen":7,"ash":8,"bone":12,"deep":14,"forest":6,"tundra":1,"ember":20,"astral":4}
+ok   rebuilding a saved biome seed selects the same passive without adding map-generation draws
+ok   Fen fog adds one mild Poison stack on a landed hit
+ok   Tundra and Ember apply their short Chill and Burn statuses
+ok   Guard blocks biome status effects
+ok   matching resistance shortens guaranteed biome status instead of making it fail
+ok   a successful Parry interrupts a telegraphed special before biome statuses apply
+ok   Ash sandstorm weakens every third player turn while explicit reference mode disables it
+ok   Bone fear gives one recoverable off-balance action after an unguarded hit
+ok   Astral surge adds its Arcane attack multiplier on every third enemy turn
+ok   Deep pressure ignores Guard and Parry and still pulses on a stunned turn
+ok   lethal deep pressure uses the normal defeat and map-reset path
+ok   active and pre-feature Rift saves retain the biome without a save-version bump
+ok   if a future daily overlaps Ember, cinder strengthens one merged Burn application rather than duplicating it
+ok   descending rebuilds the seeded map and selects the next biome passive
+ok   explicit reference mode disables passives; daily maps keep their independent twist rules
+ok   the active passive stays visible in the live battle HUD without mobile overflow
+ok   active biome and passive are visible on the Rift card at 390×844
+ok   Codex explains the current Rift modifier without horizontal overflow
+ok   no browser errors ()
+All V-15 biome checks passed.
+PASS biome-check.js
+
+=== color-check.js
+color-check: 45 element pairs, 112 biome accent pairs, 701 creature accents, 0 problem(s)
+PASS color-check.js
+
+=== guard-check.js
+ok   parry: 65% base, 70% known, 80% trained ({"base":0.65,"known":0.7,"trained":0.8,"light":0.85,"heavy":0.75,"cap":0.9,"off":0})
+ok   weapon form, capped speed bonus and off-balance affect parry chance
+ok   guard cuts every multi-hit, blocks chill, grants Braced (15 damage)
+ok   guard blocks new statuses but existing burn still ticks
+ok   guard prevents each new status; the same unguarded hit can inflict it
+ok   an off-balance guard fails and grants no Braced bonus
+ok   Braced boosts the entire attack action once (34,34,38 -> 44,44,50)
+ok   normal attack includes a swift follow-up and off-hand strike in the same Braced action
+ok   Braced boosts the entire blade action once (24,24 -> 31,31)
+ok   Braced boosts the entire shield action once (103 -> 133)
+ok   a direct strike/riposte does not receive or consume Braced
+ok   consumables, repeated guards and parry preserve a single Braced bonus
+ok   parry success/failure uses the displayed chance boundary and failure leaves off balance ({"success":{"parries":1,"off":0},"fail":{"parries":0,"off":1}})
+ok   a successful parry interrupts an enemy heal
+ok   Study trains special timing persistently and caps at three ranks
+ok   a boss's second-form special has separate training
+ok   reload preserves special training, current boss form and Braced
+ok   an existing save with a known special starts at training rank one
+ok   Study stays available after all facts are known while timing can improve
+ok   parry button always shows the current percentage, including off-balance 0%
+ok   a brittle shield bash (power 0, shield DEF -3) never makes NaN and still lands a hit (1000 -> 999)
+ok   an ambush lets the foe strike before your first action (6 damage)
+ok   a normal fight still starts with your own action
+ok   no page errors: 
+ALL OK
+PASS guard-check.js
+
+=== hero-check.js
+ok starter hero and seven accessible gear slots
+ok slot inspection, unequip and equip update the figure through real UI actions
+ok armor, gloves, boots, charm, shield and dual wielding reflect the live loadout
+ok every weapon form, crafted traits, grades and legendaries in both hands
+ok SVG references, translated labels and touch targets at 320/360/720px
+ok map/HUD miniature, equipment changes, reload and missing-item fallback
+HERO CHECK OK
+PASS hero-check.js
+
+=== i18n-check.js
+I18N CHECK OK
+PASS i18n-check.js
+
+=== map-check.js
+ok 240 seeds: connected larger regions, safe starts, distinct POIs, reachable camps/bosses, varied entrances and alternate routes {"bad":[],"starts":6,"bosses":6,"floor":133.80833333333334,"loops":60.895833333333336,"junctions":89.8375,"D":23.283333333333335,"chokes":2.341666666666667,"maxChokes":18}
+ok every seeded map field is independent of Math.random and unlocks
+ok new maps persist on reload and out-of-bounds imported maps are rejected
+ok a fled foe keeps its wounds on the map, through a reload and into the next fight
+ok 36px touch targets, contained panning, pan hint and automatic hero visibility at 320/360/720px
+ok a map drawn on the spot is saved at once and survives a reload
+MAP CHECK OK
+PASS map-check.js
+
+=== monster-respawn-check.js
+MONSTER RESPAWN CHECK OK: victory deadline, boundary, exclusions, saved deadline and flee/wounds
+PASS monster-respawn-check.js
+
+=== motion-check.js
+ok real attacks and abilities: weapon impacts, HP interpolation and passive overlays
+ok guarding, successful parries and healing animate and clean up
+ok consecutive map steps remain responsive and tab transitions play once
+ok victory loot is staggered once and stays available for inspection
+ok effects fit mobile/desktop layouts in English, German and Korean
+ok reduced motion cancels running effects and suppresses subsequent motion
+ok motion leaves game state and random rolls identical
+MOTION CHECK OK
+PASS motion-check.js
+
+=== name-check.js
+name-check: 144 seeded biome/body name samples, 0 problem(s)
+PASS name-check.js
+
+=== objectives-check.js
+ok recipes and rumors pin through the UI, persist, reveal only known ingredients and link to sources
+ok three stable bounty choices survive reload, start progress on acceptance and pay once
+ok the crafting bounty never goes negative
+ok Guard highlights ready abilities, celebrates damage and clears feedback after the next action
+ok discarded opening fights recover; the follow-up waits for an equipped fire weapon; a save without the field opts out
+ok importing an older save code does not hand back today's daily attempt
+OBJECTIVES CHECK OK (360px, 390px, desktop; English, German, Korean)
+PASS objectives-check.js
+
+=== part-check.js
+part-check: 530 renders, 0 problem(s), 20 SKIP (tail draws nothing on its body)
+PASS part-check.js
+
+=== research-check.js
+ok: fresh: no technique is known and no research points (v18)
+ok: fresh: Research is a teaser and the counter is hidden
+ok: before Research the Infuse tab is locked and names Infusing (Infuse | Locked. Learn Infusing in Research to open it. | An item and an essence.)
+ok: the first salvage opens Research and pays 3 RP (got 3)
+ok: ... and one toast says so (+3 research: your first salvage.)
+ok: ... with a sound
+ok: ... and the Research intro card is queued
+ok: Weaponcraft costs 14, the first slot technique after it is free, Infusing costs 8 ({"wc":-14,"blade":0,"infuse":-8,"ids":"weaponcraft,blade,infuse","tp":0})
+ok: with Infusing, a sword and one essence forge
+ok: the first forge pays 2 (a new form) + 1 (a new recipe) + 4 (a new reaction); got 7
+ok: ... and one toast lists them (+3 research: your first salvage.,+7 research: a new form (blade), a new recipe, a new reaction.)
+ok: ... with a sound
+ok: infuse2: refused with "Needs the Infusing II technique (Research)." in the button label and under the crucible
+ok: infuse2: tapping Forge does nothing but say why
+ok: improve2: refused with "Needs the Improving II technique (Research)." in the button label and under the crucible
+ok: improve2: tapping Forge does nothing but say why
+ok: spear,shield: refused with "Needs the Spearcraft and Shieldcraft techniques (Research)." in the button label and under the crucible
+ok: spear,shield: tapping Forge does nothing but say why
+ok: a new essence family pays 1, once (then 0, 0 for another grade)
+ok: the first salvage pays 3 research points, later ones nothing (3, 0)
+ok: studying a family: +1 for the new essence and +1 for the first study, nothing on the second (2, 0)
+ok: a new affix pays 1, once (then 0)
+ok: fully studying a creature pays 2, once
+ok: the first boss kill (Gnarlhorn, zone 1) pays 4 (4 + essences it dropped), the second nothing (0)
+ok: milestones: Smith Lv 2-9 pay 2 each and the first skill at Lv 3, 5, 7 pay 2 each, once and retroactively (22); Lv 10 pays nothing more (0); bosses pay 4,8,12,16,20
+ok: the tree draws every technique (25), none learned yet
+ok: available and affordable with 17 RP: the two group techniques and the kitchen ones; a slot technique waits for its group (weaponcraft,armorcraft,cooking,brewing)
+ok: the summary and the header show 17 RP ( Research · 17 RP 4?)
+ok: Masterwork is locked: Learn is disabled and its tip says to learn Fusing first (Masterwork | Learn Fusing first. | Learn Infusing II first. | Needs Smith Lv 5.)
+ok: learnTech refuses it too
+ok: an affordable technique shows Learn with its cost (Learn · 14)
+ok: Weaponcraft is learned and 14 RP are spent (rp 3)
+ok: it plays the tech sound and shows a toast
+ok: its intro card is queued and shows (t:weaponcraft)
+ok: the first weapon technique after Weaponcraft is free, the next costs 3 (blade 0, spear 3, rp 0)
+ok: no page errors ()
+ok: study 1 spends the lowest grade (the Faint one) and shows Fire in a reaction: {"Fire+Ice":["Fire"]}
+ok: ... and the first study of a family pays 1 RP
+ok: Recipes shows 'Fire + ?' as a partial hint with a tip (Fire + ??? → ??? | A hint: Fire reacts with something freezing.)
+ok: study 2 reveals the partner: {"Fire+Ice":["Fire","Ice"]} (no more RP)
+ok: study 3 starts the next Fire reaction: {"Fire+Ice":["Fire","Ice"],"Fire+Water":["Fire"]}
+ok: a family with no reactions pays once and then cannot be studied again (Heavy stands alone: it takes part in no reaction.)
+ok: a reaction you then discover is no longer shown as a hint
+ok: no page errors ()
+ok: about 35% of forge counts give an insight for this craft (43/120)
+ok: the same state gives the same answer every time (a hit stays a hit, a miss a miss)
+ok: the line names one side and hints at the other vaguely: The Sharp stirs in the crucible… (insight: Sharp reacts with something venomous.)
+ok: a real forge shows the insight in its log and records a partial hint (Insight: The Sharp stirs in the crucible… (insight: Sharp reacts with something venomous.))
+ok: a forge count that misses the roll gives no insight and no hint
+ok: no page errors ()
+ok: a craft with 2 of a secret's 3 ingredients senses it and surfaces its rumor
+ok: ... only the first time
+ok: the exact ingredients of a secret warn about Masterwork and need a second tap (Tap again to forge)
+ok: without Masterwork the right ingredients make an ordinary piece (Runic Swift Staff)
+ok: ... with the insight 'close to something greater' naming Masterwork
+ok: ... the secret is not marked found, and its rumor shows
+ok: once Masterwork is known the same ingredients forge Stormcaller, a separate item from the plain one
+ok: no page errors ()
+RESEARCH CHECK OK
+PASS research-check.js
+
+=== respawn-check.js
+RESPAWN CHECK OK: full HP, scavenger penalty, fresh standard map, tutorial opening, and daily completion
+PASS respawn-check.js
+
+=== rift-boss-check.js
+ok   regression sample covers all eight deterministic Rift biomes at depths 1 and 3
+ok   each generated master carries its three-affix rare roll
+ok   Rift masters avoid recurring shield, regeneration, and lethal max-HP burst interactions
+ok   Frenzied is not paired with multi-hit or heavy specials
+ok   native Rift stats apply rolled rarity and affixes exactly once in every biome
+ok   forced rare combat stats and affixes match native in every biome
+ok   depth scaling tapers the master bonus without compounding the region tier (deep 0.989/1.200/+1, fen 0.985/1.200/+1, astral 0.988/1.158/+1, forest 0.987/1.211/+1, ember 0.988/1.130/+1, tundra 0.988/1.167/+1, bone 0.987/1.222/+1, ash 0.987/1.217/+1)
+  deep depth 1, seed 1 (3608050713): Ironclad, Thorned, Vampiric; Wild Rush
+  deep depth 3, seed 1 (3608050713): Ironclad, Thorned, Vampiric; Wild Rush
+  fen depth 1, seed 3 (3574495475): Thorned, Elusive, Umbral; Heavy Slam
+  fen depth 3, seed 3 (3574495475): Thorned, Elusive, Umbral; Heavy Slam
+  astral depth 1, seed 5 (3675161189): Venomous, Vampiric, Splitting; Soul Drain
+  astral depth 3, seed 5 (3675161189): Venomous, Vampiric, Splitting; Soul Drain
+  forest depth 1, seed 6 (3624828332): Burning, Swift-footed, Splitting; Bolt
+  forest depth 3, seed 6 (3624828332): Burning, Swift-footed, Splitting; Bolt
+  ember depth 1, seed 7 (3641605951): Burning, Swift-footed, Splitting; Wild Rush
+  ember depth 3, seed 7 (3641605951): Burning, Swift-footed, Splitting; Wild Rush
+  tundra depth 1, seed 9 (3742271665): Ironclad, Swift-footed, Splitting; Heavy Slam
+  tundra depth 3, seed 9 (3742271665): Ironclad, Swift-footed, Splitting; Heavy Slam
+  bone depth 1, seed 10 (3033363595): Arcane, Splitting, Elusive; Bolt
+  bone depth 3, seed 10 (3033363595): Arcane, Splitting, Elusive; Bolt
+  ash depth 1, seed 14 (3100474071): Arcane, Vampiric, Frenzied; Soul Drain
+  ash depth 3, seed 14 (3100474071): Arcane, Vampiric, Frenzied; Soul Drain
+ok   authored boss retains the no-affix boss behavior
+ok   no browser errors ()
+RIFT BOSS CHECK OK
+PASS rift-boss-check.js
+
+=== special-check.js
+ok   golem special intent renders at 390×844 mobile size
+ok   bandit special intent renders at 390×844 mobile size
+ok   bear special intent renders at 390×844 mobile size
+ok   stag special intent renders at 390×844 mobile size
+ok   harpy special intent renders at 390×844 mobile size
+ok   all five kinds are authored; the summoned wild creature is weaker; generated special pool is unaffected
+ok   guard special creates a two-turn ward that absorbs player damage without stacking HP
+ok   guard refreshes its cap and duration; ward protects two player actions before expiring
+ok   inflict applies its guaranteed poison on a landed special and records its Codex special
+ok   Guard still cuts the special hit and blocks its forced status
+ok   a successful Parry interrupts inflict before damage and status
+ok   status resistance shortens a guaranteed infliction instead of making it fail
+ok   enrage is telegraphed and resolves only below half HP
+ok   enrage permanently raises subsequent Attack by its configured 30%
+ok   a riposte that defeats a setup special resolves the victory immediately
+ok   burrow spends a turn without attacking and cannot be hit by a direct strike
+ok   burrow ends at the start of its next enemy turn
+ok   summon calls the named weaker wild and makes one scaled hit handled by normal Guard/Parry/dodge rules
+ok   Codex special entries show each learned special, effect, tell, and cadence
+ok   the Codex effect fits the mobile sheet without horizontal overflow
+ok   no browser errors ()
+All V-14 special checks passed.
+PASS special-check.js
+
+=== steam-source-check.js
+STEAM SOURCE CHECK OK: the existing cursed altar can exchange 1 HP for one Steam essence; no reward quantity was added
+PASS steam-source-check.js
+
+=== unlock-check.js
+ok: fresh: only the map intro is open (start)
+ok: fresh map has only fights, chests, camp and boss (boss,camp,chest,fight)
+ok: fresh: the ember counter is hidden
+ok: fresh: the first intro card shows
+ok: forge: crafting skills is a teaser
+ok: forge: upgrade grades is hidden
+ok: gear: infusions is a teaser
+ok: the locked teaser's tip says how to unlock it (Infusions (locked)Defeat Gnarlhorn.)
+ok: codex: stats and affixes are hidden
+ok: codex: the Guide lists the one intro so far
+ok: battle: Study and Parry are locked teasers
+ok: battle: no ability button yet, though the sword has one
+ok: battle: no card before something is introduced
+ok: the first telegraphed special opens Parry with its card and a log line
+ok: exactly one card is on screen
+ok: the first win opens Study and roaming enemies
+ok: intros queue in the order the systems opened: the first raw find opens Salvage (parry,salvage,study)
+ok: a battle intro waits out of the fight instead of showing on the map
+ok: one card at a time, the oldest that can show (the Parry card waits for its special) (Study)
+ok: Got it marks it read and no card is left on screen (parry,salvage)
+ok: ... and the Parry and Salvage cards are still waiting (parry,salvage)
+ok: two wins and Lv 1: no abilities yet
+ok: 3 wins with the sword equipped: abilities open, the button waits for the card
+ok: after Got it the ability button shows
+ok: every unlock fired once (parry,salvage,study,roam,ability,stats)
+ok: the unlock sound played (8)
+ok: map 1: no shrine, peddler, mystery or elite (boss,camp,chest,fight)
+ok: map 2: shrines, still no peddler or mystery (boss,camp,chest,fight,shrine)
+ok: a defeat counts as a finished expedition
+ok: map 3: peddler and mystery join (boss,camp,chest,fight,mystery,peddler,shrine)
+ok: elites at Smith Lv 3, and every POI is reachable
+ok: fight counts stay in range
+ok: a seeded map is the same whatever you have unlocked
+ok: peddler unlocked: the ember counter shows
+ok: the peddler intro floats over the map (Peddlers and embers)
+ok: the Guide lists every unlocked intro (9) and the locked ones as teasers (11)
+ok: no page errors ()
+ok: w390: Claim is tappable with an intro card up
+ok: w390: the hero is not covered
+ok: the intro is a polite live region
+ok: a re-render does not rewrite the card (no re-announce)
+ok: focus stays in the page after Got it (BUTTON)
+ok: the Reforge button waits for embers
+ok: the sword's sheet does not name its ability yet
+ok: forge tips mention neither embers nor the skill chip
+ok: How to play hides locked systems
+ok: the peddler intro counts the embers and names only what is open
+ok: step 1: shows its wait text until the system is open, then the task
+ok: step 2: shows its wait text until the system is open, then the task
+ok: step 3: shows its wait text until the system is open, then the task
+ok: step 4: shows its wait text until the system is open, then the task
+ok: step 5: shows its wait text until the system is open, then the task
+ok: step 6: shows its wait text until the system is open, then the task
+ok: step 7: shows its wait text until the system is open, then the task
+ok: step 8: shows its wait text until the system is open, then the task
+ok: step 9: shows its wait text until the system is open, then the task
+ok: step 10: shows its wait text until the system is open, then the task
+ok: step 11: shows its wait text until the system is open, then the task
+ok: step 12: shows its wait text until the system is open, then the task
+ok: step 13: shows its wait text until the system is open, then the task
+ok: step 14: shows its wait text until the system is open, then the task
+ok: step 15: shows its wait text until the system is open, then the task
+ok: step 16: shows its wait text until the system is open, then the task
+ok: every step has a done test
+ok: steps only wait on unlocks with a condition (research,peddler,daily)
+UNLOCK CHECK OK
+PASS unlock-check.js
+
+=== usability-check.js
+ok forge explains effects and automatic equipment; direct Equip updates loadout
+ok guaranteed forge needs one click; parry lesson follows current enemy intent
+ok list/filter preferences, item locking, reserved ingredients and bulk salvage preview survive reload
+ok Settings navigation, readable layouts in three languages and keyboard dialog focus
+ok fresh opening reliably teaches loot, salvage, a guaranteed fire forge and its effect; a save without the field opts out
+ok an imported save with markup in an item name shows it as text
+ok a re-render keeps focus on the control that had it
+ok crucible actions: locked tabs name their technique, satchel items are placed or refused with the reason, and Infuse... opens with the item
+ok armTap needs a second tap inside its window
+ok compact Forge result and enabled action fit without an internal workbench scroll at 320, 390 and desktop widths
+ok Forge pattern compatibility, independent saved preferences, legacy migration and empty-filter recovery
+ok ingredient surface follows Infuse, Improve, Fuse, Cook, Brew and Alchemy; Refine shows grade controls without the Satchel
+ok equipped-destruction confirmation warning and research-blocked craft stay visible
+USABILITY CHECK OK
+PASS usability-check.js
+
+=== v14-special-check.js
+ok   five new kinds are assigned only to authored non-boss enemies; Boar keeps its Tusk Charge
+ok   each new special has a name and a visible tell for the battle/Codex entry
+ok   guard raises a ward which absorbs player damage (2000 -> 1944)
+ok   enrage raises Attack below half HP and is learned in the Codex (10 -> 13)
+ok   enrage does not activate above its half-HP threshold
+ok   inflict applies its guaranteed status on a hit, while Guard and perfect Parry cancel it
+ok   burrow avoids one player attack and then surfaces
+ok   summon calls a weaker wild creature for its own reduced strike (8 damage)
+ok   Guard reduces and perfect Parry cancels a summon strike
+ok   perfect Parry interrupts each special and its tell appears in the Codex
+ok   no browser errors ()
+PASS v14-special-check.js
+
+=== smoke.js
+[fresh] {"steps":400,"battles":27,"won":19,"lost":8,"forged":0,"zones":["woods"],"views":90,"wields":32,"abil":15,"tiles":78,"outs":35,"byfoe":2,"fled":8,"script":0,"intros":13,"heat":0,"daily":0,"aband":0,"bought":0,"sold":0,"upgraded":0,"reforged":0,"learned":5,"studied":13,"gated":0,"afx":["split","arcane","swift","shadow","holy"],"split":5,"boom":0,"rare":1,"decon":4,"shaped":3,"bad":[],"vet0":"missing salvage,blueprints,study,parry,ability,roam,hunt,shrine,peddler,mystery,elite,infuse,skills,research,t:weaponcraft,t:blade,t:spear,t:staff,t:armorcraft,t:helm,t:body,t:gloves,t:boots,t:shield,t:trinketry,t:infuse,t:infuse2,t:infuse3,t:improve,t:improve2,t:fuse,t:refine,t:mend,t:prec1,t:prec2,t:master,t:cooking,t:brewing,t:alchemy,upgrade,heat,daily,bounty,afx,stats pending start","proc":["Moss Warden","Moss Wardens","Moss Warden steps out of the whispering woods.","It wears moss like a coat and never takes it off.","Grove Hound","Grove Hounds","Grove Hound steps out of the whispering woods.","It hunts where the light ends and the roots begin.","Briar Stalker","Briar Stalkers","Briar Stalker steps out of the whispering woods.","The forest grew it, and the forest keeps it.","Briar Watcher","Briar Watchers","Briar Watcher steps out of the whispering woods.","Grove Watcher","Grove Watchers","Grove Watcher steps out of the whispering woods.","Oak Stalker","Oak Stalkers","Oak Stalker steps out of the whispering woods.","Grove Slasher","Grove Slashers","Grove Slasher steps out of the whispering woods.","Fern Stalker","Fern Stalkers","Fern Stalker steps out of the whispering woods.","Old tracks end at it. Nothing else lives here.","Thorn Warden","Thorn Wardens","Thorn Warden steps out of the whispering woods.","Briar Runner","Briar Runners","Briar Runner steps out of the whispering woods.","Bitter Warden","Bitter Wardens","Bitter Warden steps out of the frostfang pass.","The cold got into it first; the rest is habit.","Wind Stalker","Wind Stalkers","Wind Stalker steps out of the frostfang pass.","It was born in a blizzard and never warmed up.","Hail Warden","Hail Wardens","Hail Warden steps out of the frostfang pass.","Snow Warden","Snow Wardens","Snow Warden steps out of the frostfang pass.","Snow covers its tracks, but not for long.","Wind Warden","Wind Wardens","Wind Warden steps out of the frostfang pass.","Glacier Warden","Glacier Wardens","Glacier Warden steps out of the frostfang pass.","Hail Howler","Hail Howlers","Hail Howler steps out of the frostfang pass.","Rime Warden","Rime Wardens","Rime Warden steps out of the frostfang pass.","Pale Warden","Pale Wardens","Pale Warden steps out of the frostfang pass.","Frost Stalker","Frost Stalkers","Frost Stalker steps out of the frostfang pass.","Kiln Drake","Kiln Drakes","Kiln Drake steps out of the cinder hollow.","It smells of coal and of old, old iron.","Ash Drake","Ash Drakes","Ash Drake steps out of the cinder hollow.","Everything it touches keeps a little warmth.","Ash Creeper","Ash Creepers","Ash Creeper steps out of the cinder hollow.","The Hollow's heat made it, and the Hollow forgets it.","Forge Drake","Forge Drakes","Forge Drake steps out of the cinder hollow.","It was forged, and then let go.","Ember Hound","Ember Hounds","Ember Hound steps out of the cinder hollow.","Forge Sentinel","Forge Sentinels","Forge Sentinel steps out of the cinder hollow.","Kiln Warden","Kiln Wardens","Kiln Warden steps out of the cinder hollow.","Cinder Sentinel","Cinder Sentinels","Cinder Sentinel steps out of the cinder hollow.","Ash Warden","Ash Wardens","Ash Warden steps out of the cinder hollow.","Ash Hound","Ash Hounds","Ash Hound steps out of the cinder hollow.","Rune Lynx","Rune Lynxes","Rune Lynx steps out of the starfall spire.","The stars moved; it did not.","Void Warden","Void Wardens","Void Warden steps out of the starfall spire.","Void Watcher","Void Watchers","Void Watcher steps out of the starfall spire.","Rune Wraith","Rune Wraiths","Rune Wraith steps out of the starfall spire.","It was a star that learned to walk.","Halo Wraith","Halo Wraiths","Halo Wraith steps out of the starfall spire.","It keeps the hour it was made for.","Astral Watcher","Astral Watchers","Astral Watcher steps out of the starfall spire.","Astral Lynx","Astral Lynxes","Astral Lynx steps out of the starfall spire.","Something up here rewrote it.","Gilded Wraith","Gilded Wraiths","Gilded Wraith steps out of the starfall spire.","Gilded Lynx","Gilded Lynxes","Gilded Lynx steps out of the starfall spire.","Star Wraith","Star Wraiths","Star Wraith steps out of the starfall spire."],"unl":["start","parry","salvage","study","roam","hunt","afx","research","ability","stats","t:weaponcraft","t:spear","t:blade","t:staff","elite","shrine","infuse","heat","t:armorcraft"],"techs":5,"rp":2,"pending":9,"key":"everforge-v18","v":18}
+[unlocked] {"steps":400,"battles":16,"won":9,"lost":7,"forged":14,"zones":["woods","pass","hollow","spire","rift"],"views":90,"wields":29,"abil":11,"tiles":53,"outs":9,"byfoe":3,"fled":5,"script":1,"intros":0,"heat":10,"daily":7,"aband":7,"bought":25,"sold":48,"upgraded":15,"reforged":15,"learned":0,"studied":14,"gated":0,"afx":["split","elusive","boom","fire","ice","poison","holy","shadow","iron","swift","arcane","vamp","thorn","regen","frenzy","ward","swiftfoot"],"split":2,"boom":3,"rare":7,"decon":4,"shaped":6,"bad":[],"vet0":1,"afxDone":1,"proc":["Moss Warden","Moss Wardens","Moss Warden steps out of the whispering woods.","It wears moss like a coat and never takes it off.","Grove Hound","Grove Hounds","Grove Hound steps out of the whispering woods.","It hunts where the light ends and the roots begin.","Briar Stalker","Briar Stalkers","Briar Stalker steps out of the whispering woods.","The forest grew it, and the forest keeps it.","Briar Watcher","Briar Watchers","Briar Watcher steps out of the whispering woods.","Grove Watcher","Grove Watchers","Grove Watcher steps out of the whispering woods.","Oak Stalker","Oak Stalkers","Oak Stalker steps out of the whispering woods.","Grove Slasher","Grove Slashers","Grove Slasher steps out of the whispering woods.","Fern Stalker","Fern Stalkers","Fern Stalker steps out of the whispering woods.","Old tracks end at it. Nothing else lives here.","Thorn Warden","Thorn Wardens","Thorn Warden steps out of the whispering woods.","Briar Runner","Briar Runners","Briar Runner steps out of the whispering woods.","Bitter Warden","Bitter Wardens","Bitter Warden steps out of the frostfang pass.","The cold got into it first; the rest is habit.","Wind Stalker","Wind Stalkers","Wind Stalker steps out of the frostfang pass.","It was born in a blizzard and never warmed up.","Hail Warden","Hail Wardens","Hail Warden steps out of the frostfang pass.","Snow Warden","Snow Wardens","Snow Warden steps out of the frostfang pass.","Snow covers its tracks, but not for long.","Wind Warden","Wind Wardens","Wind Warden steps out of the frostfang pass.","Glacier Warden","Glacier Wardens","Glacier Warden steps out of the frostfang pass.","Hail Howler","Hail Howlers","Hail Howler steps out of the frostfang pass.","Rime Warden","Rime Wardens","Rime Warden steps out of the frostfang pass.","Pale Warden","Pale Wardens","Pale Warden steps out of the frostfang pass.","Frost Stalker","Frost Stalkers","Frost Stalker steps out of the frostfang pass.","Kiln Drake","Kiln Drakes","Kiln Drake steps out of the cinder hollow.","It smells of coal and of old, old iron.","Ash Drake","Ash Drakes","Ash Drake steps out of the cinder hollow.","Everything it touches keeps a little warmth.","Ash Creeper","Ash Creepers","Ash Creeper steps out of the cinder hollow.","The Hollow's heat made it, and the Hollow forgets it.","Forge Drake","Forge Drakes","Forge Drake steps out of the cinder hollow.","It was forged, and then let go.","Ember Hound","Ember Hounds","Ember Hound steps out of the cinder hollow.","Forge Sentinel","Forge Sentinels","Forge Sentinel steps out of the cinder hollow.","Kiln Warden","Kiln Wardens","Kiln Warden steps out of the cinder hollow.","Cinder Sentinel","Cinder Sentinels","Cinder Sentinel steps out of the cinder hollow.","Ash Warden","Ash Wardens","Ash Warden steps out of the cinder hollow.","Ash Hound","Ash Hounds","Ash Hound steps out of the cinder hollow.","Rune Lynx","Rune Lynxes","Rune Lynx steps out of the starfall spire.","The stars moved; it did not.","Void Warden","Void Wardens","Void Warden steps out of the starfall spire.","Void Watcher","Void Watchers","Void Watcher steps out of the starfall spire.","Rune Wraith","Rune Wraiths","Rune Wraith steps out of the starfall spire.","It was a star that learned to walk.","Halo Wraith","Halo Wraiths","Halo Wraith steps out of the starfall spire.","It keeps the hour it was made for.","Astral Watcher","Astral Watchers","Astral Watcher steps out of the starfall spire.","Astral Lynx","Astral Lynxes","Astral Lynx steps out of the starfall spire.","Something up here rewrote it.","Gilded Wraith","Gilded Wraiths","Gilded Wraith steps out of the starfall spire.","Gilded Lynx","Gilded Lynxes","Gilded Lynx steps out of the starfall spire.","Star Wraith","Star Wraiths","Star Wraith steps out of the starfall spire.","Riven Watcher","Riven Watchers","Riven Watcher steps out of the long barrows.","It was buried with something it did not forgive.","Riven Warden","Riven Wardens","Riven Warden steps out of the long barrows.","It wears the bones of better fighters.","Bone Warden","Bone Wardens","Bone Warden steps out of the long barrows.","Marrow Watcher","Marrow Watchers","Marrow Watcher steps out of the long barrows.","Something keeps the barrows tidy.","Marrow Warden","Marrow Wardens","Marrow Warden steps out of the long barrows.","Silent Hound","Silent Hounds","Silent Hound steps out of the long barrows.","The dead here do not lie down.","Silent Warden","Silent Wardens","Silent Warden steps out of the long barrows.","Pallid Crawler","Pallid Crawlers","Pallid Crawler steps out of the long barrows.","Silent Crawler","Silent Crawlers","Silent Crawler steps out of the long barrows.","Hollow Crawler","Hollow Crawlers","Hollow Crawler steps out of the long barrows.","Hollow Watcher","Hollow Watchers","Hollow Watcher waits for you in the long barrows.","the Watcher"],"unl":["start","salvage","blueprints","study","parry","ability","roam","hunt","shrine","peddler","mystery","elite","infuse","skills","research","t:weaponcraft","t:blade","t:spear","t:staff","t:armorcraft","t:helm","t:body","t:gloves","t:boots","t:shield","t:trinketry","t:infuse","t:infuse2","t:infuse3","t:improve","t:improve2","t:fuse","t:refine","t:mend","t:prec1","t:prec2","t:master","t:cooking","t:brewing","t:alchemy","upgrade","heat","daily","rift","bounty","afx","stats"],"techs":25,"rp":0,"pending":0,"key":"everforge-v18","v":18}
+[roundtrip] {"steps":150,"battles":7,"won":7,"lost":0,"forged":5,"zones":["woods","pass"],"views":30,"wields":10,"abil":3,"tiles":26,"outs":15,"byfoe":2,"fled":1,"script":1,"intros":0,"heat":4,"daily":3,"aband":3,"bought":12,"sold":21,"upgraded":5,"reforged":5,"learned":0,"studied":5,"gated":0,"afx":["split","fire","ice","poison","holy","shadow","iron","swift","arcane","vamp","thorn","regen","frenzy","ward","elusive","boom","swiftfoot"],"split":5,"boom":1,"rare":3,"decon":3,"shaped":5,"bad":[],"vet0":1,"afxDone":1,"proc":["Moss Warden","Moss Wardens","Moss Warden steps out of the whispering woods.","It wears moss like a coat and never takes it off.","Grove Hound","Grove Hounds","Grove Hound steps out of the whispering woods.","It hunts where the light ends and the roots begin.","Briar Stalker","Briar Stalkers","Briar Stalker steps out of the whispering woods.","The forest grew it, and the forest keeps it.","Briar Watcher","Briar Watchers","Briar Watcher steps out of the whispering woods.","Grove Watcher","Grove Watchers","Grove Watcher steps out of the whispering woods.","Oak Stalker","Oak Stalkers","Oak Stalker steps out of the whispering woods.","Grove Slasher","Grove Slashers","Grove Slasher steps out of the whispering woods.","Fern Stalker","Fern Stalkers","Fern Stalker steps out of the whispering woods.","Old tracks end at it. Nothing else lives here.","Thorn Warden","Thorn Wardens","Thorn Warden steps out of the whispering woods.","Briar Runner","Briar Runners","Briar Runner steps out of the whispering woods.","Bitter Warden","Bitter Wardens","Bitter Warden steps out of the frostfang pass.","The cold got into it first; the rest is habit.","Wind Stalker","Wind Stalkers","Wind Stalker steps out of the frostfang pass.","It was born in a blizzard and never warmed up.","Hail Warden","Hail Wardens","Hail Warden steps out of the frostfang pass.","Snow Warden","Snow Wardens","Snow Warden steps out of the frostfang pass.","Snow covers its tracks, but not for long.","Wind Warden","Wind Wardens","Wind Warden steps out of the frostfang pass.","Glacier Warden","Glacier Wardens","Glacier Warden steps out of the frostfang pass.","Hail Howler","Hail Howlers","Hail Howler steps out of the frostfang pass.","Rime Warden","Rime Wardens","Rime Warden steps out of the frostfang pass.","Pale Warden","Pale Wardens","Pale Warden steps out of the frostfang pass.","Frost Stalker","Frost Stalkers","Frost Stalker steps out of the frostfang pass.","Kiln Drake","Kiln Drakes","Kiln Drake steps out of the cinder hollow.","It smells of coal and of old, old iron.","Ash Drake","Ash Drakes","Ash Drake steps out of the cinder hollow.","Everything it touches keeps a little warmth.","Ash Creeper","Ash Creepers","Ash Creeper steps out of the cinder hollow.","The Hollow's heat made it, and the Hollow forgets it.","Forge Drake","Forge Drakes","Forge Drake steps out of the cinder hollow.","It was forged, and then let go.","Ember Hound","Ember Hounds","Ember Hound steps out of the cinder hollow.","Forge Sentinel","Forge Sentinels","Forge Sentinel steps out of the cinder hollow.","Kiln Warden","Kiln Wardens","Kiln Warden steps out of the cinder hollow.","Cinder Sentinel","Cinder Sentinels","Cinder Sentinel steps out of the cinder hollow.","Ash Warden","Ash Wardens","Ash Warden steps out of the cinder hollow.","Ash Hound","Ash Hounds","Ash Hound steps out of the cinder hollow.","Rune Lynx","Rune Lynxes","Rune Lynx steps out of the starfall spire.","The stars moved; it did not.","Void Warden","Void Wardens","Void Warden steps out of the starfall spire.","Void Watcher","Void Watchers","Void Watcher steps out of the starfall spire.","Rune Wraith","Rune Wraiths","Rune Wraith steps out of the starfall spire.","It was a star that learned to walk.","Halo Wraith","Halo Wraiths","Halo Wraith steps out of the starfall spire.","It keeps the hour it was made for.","Astral Watcher","Astral Watchers","Astral Watcher steps out of the starfall spire.","Astral Lynx","Astral Lynxes","Astral Lynx steps out of the starfall spire.","Something up here rewrote it.","Gilded Wraith","Gilded Wraiths","Gilded Wraith steps out of the starfall spire.","Gilded Lynx","Gilded Lynxes","Gilded Lynx steps out of the starfall spire.","Star Wraith","Star Wraiths","Star Wraith steps out of the starfall spire.","Riven Watcher","Riven Watchers","Riven Watcher steps out of the long barrows.","It was buried with something it did not forgive.","Riven Warden","Riven Wardens","Riven Warden steps out of the long barrows.","It wears the bones of better fighters.","Bone Warden","Bone Wardens","Bone Warden steps out of the long barrows.","Marrow Watcher","Marrow Watchers","Marrow Watcher steps out of the long barrows.","Something keeps the barrows tidy.","Marrow Warden","Marrow Wardens","Marrow Warden steps out of the long barrows.","Silent Hound","Silent Hounds","Silent Hound steps out of the long barrows.","The dead here do not lie down.","Silent Warden","Silent Wardens","Silent Warden steps out of the long barrows.","Pallid Crawler","Pallid Crawlers","Pallid Crawler steps out of the long barrows.","Silent Crawler","Silent Crawlers","Silent Crawler steps out of the long barrows.","Hollow Crawler","Hollow Crawlers","Hollow Crawler steps out of the long barrows.","Hollow Watcher","Hollow Watchers","Hollow Watcher waits for you in the long barrows.","the Watcher"],"unl":["start","salvage","blueprints","study","parry","ability","roam","hunt","shrine","peddler","mystery","elite","infuse","skills","research","t:weaponcraft","t:blade","t:spear","t:staff","t:armorcraft","t:helm","t:body","t:gloves","t:boots","t:shield","t:trinketry","t:infuse","t:infuse2","t:infuse3","t:improve","t:improve2","t:fuse","t:refine","t:mend","t:prec1","t:prec2","t:master","t:cooking","t:brewing","t:alchemy","upgrade","heat","daily","rift","bounty","afx","stats"],"techs":25,"rp":0,"pending":0,"key":"everforge-v18","v":18}
+SMOKE OK
+PASS smoke.js
+
+22/22 passed

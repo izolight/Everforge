@@ -1,5 +1,32 @@
 // German: interface, battle log, events. Game data (enemies, items, lore, tutorial) is in de-data.js.
 // Placeholders {x} stay as they are; "singular¦plural" is a plural pair. Context keys: "trait|", "fam|", "adj|", "noun|", "gender|", "form|", "kind|", "hit|".
+// V-11 generated biome-special names and telegraph tells.
+DICT.de=Object.assign(DICT.de||{},{
+  "Mire Leech":"Moorblutegel","pulling at your warmth":"saugt an deiner Wärme",
+  "Silt Snare":"Schlickfalle","drawing back from the mud":"zieht sich aus dem Schlamm zurück",
+  "Reedstorm":"Schilfsturm","gathering reeds in a spinning ring":"sammelt Schilf in einem wirbelnden Ring",
+  "Glassfall":"Glassturz","cracking the scorched earth":"lässt die verbrannte Erde aufbrechen",
+  "Cinder Shards":"Glutsplitter","spinning a ring of hot grit":"wirbelt einen Ring aus heißem Sand auf",
+  "Cinder Mend":"Glutheilung","drawing heat back into its core":"zieht Wärme zurück in seinen Kern",
+  "Grave Rattle":"Grabrasseln","shaking its loose bones":"schüttelt seine losen Knochen",
+  "Ossuary Crush":"Beinhausbruch","lifting a cairn stone":"hebt einen Cairn-Stein an",
+  "Marrow Knit":"Markgeflecht","pulling its broken bones together":"fügt seine gebrochenen Knochen zusammen",
+  "Undertow":"Sog","drawing water through its grasp":"zieht Wasser durch seinen Griff",
+  "Pressure Wave":"Druckwelle","compressing the water around it":"presst das Wasser um sich zusammen",
+  "Rifted Wake":"Risswoge","rolling a wave toward you":"lässt eine Welle auf dich zurollen",
+  "Briar Flurry":"Dornenhagel","drawing back thorned vines":"spannt dornige Ranken zurück",
+  "Stag Crash":"Hirschsturz","lowering its antlers":"senkt sein Geweih",
+  "Barkskin Mend":"Rindenheilung","drawing sap into its wounds":"zieht Saft in seine Wunden",
+  "Rime Volley":"Reifsalve","gathering a fan of ice":"sammelt einen Fächer aus Eis",
+  "Glacier Drop":"Gletschersturz","raising a slab of ice":"hebt eine Eisplatte an",
+  "Snowdrift Mend":"Schneewallheilung","sealing its cracks with snow":"versiegelt seine Risse mit Schnee",
+  "Kiln Flurry":"Ofenwirbel","spinning up its furnace":"heizt seinen Brennofen an",
+  "Foundry Blow":"Schmiedeschlag","drawing back a molten fist":"zieht eine geschmolzene Faust zurück",
+  "Coalheart Drain":"Kohlenherzzehrung","siphoning warmth from the air":"saugt Wärme aus der Luft",
+  "Void Leech":"Leerenzehrer","reaching through the dark":"greift durch die Dunkelheit",
+  "Starfall Burst":"Sternenfall","drawing power from above":"bündelt Kraft von oben",
+  "Starless Crush":"Sternenloser Druck","folding the dark around you":"faltet die Dunkelheit um dich"
+});
 DICT.de=Object.assign(DICT.de||{},{
 // ---- crafting: what each input did (header, before → after, reactions, failure bar)
 "Base":"Basis","Tier over skill":"Stufe über Fertigkeit","{a} + {b} clash":"{a} + {b} Konflikt","{a} + {b} reaction":"{a} + {b} Reaktion","Extra input: {name}":"Zusatzzutat: {name}","{items} → {result}":"{items} → {result}","From {input}.":"Von {input}.","Changed by the mix itself.":"Durch die Mischung selbst verändert.","No stats":"Keine Werte","Before":"Vorher","After":"Nachher","Nothing changes.":"Nichts ändert sich.","−{n} {trait}":"−{n} {trait}","Failure chance":"Fehlschlagchance","Failure chance {n}%: {list}":"Fehlschlagchance {n}%: {list}",
@@ -156,7 +183,7 @@ DICT.de=Object.assign(DICT.de||{},{
 "Absorbs this much damage.":"Absorbiert so viel Schaden.","You":"Du","Bare fists":"Bloße Fäuste","Guarding":"Blockt","Your next hit taken is cut by 60%.":"Dein nächster erlittener Treffer wird um 60 % gesenkt.","Off balance":"Aus dem Gleichgewicht","A mistimed parry cost you your guard.":"Eine verpatzte Parade hat dich deinen Block gekostet.",
 "Regen +{n}":"Regeneration +{n}","HP you mend each turn.":"LP, die du jede Runde heilst.","Infused {trait} {rank}":"{trait} infundiert {rank}","Acts as if it were on your weapon.":"Wirkt, als wäre sie auf deiner Waffe.","Strike power of your main hand.":"Schlagkraft deiner Haupthand.",
 "Cuts the damage you take by {p}%.":"Senkt den erlittenen Schaden um {p} %.","Heat 5 bites through {p}% of your Defense.":"Hitze 5 durchdringt {p} % deiner Verteidigung.",
-"Burning {n}":"Brennt {n}","Takes {n} damage each turn.":"Erleidet {n} Schaden pro Runde.","Poison {n}":"Gift {n}","Frozen":"Gefroren","It loses its next turn.":"Es verliert seine nächste Runde.","Bleed {n}":"Blutung {n}","Damage each turn that ignores armor.":"Schaden jede Runde, der Rüstung ignoriert.",
+"Burning {n}":"Brennt {n}","Takes {n} damage each turn.":"Erleidet {n} Schaden pro Runde.","Poison {n}":"Gift {n}","Frozen":"Gefroren","Stunned":"Benommen","It loses its next turn.":"Es verliert seine nächste Runde.","Bleed {n}":"Blutung {n}","Damage each turn that ignores armor.":"Schaden jede Runde, der Rüstung ignoriert.",
 "Boss":"Boss","Beat it to open the next region.":"Besiege es, um die nächste Region zu öffnen.","Its second form.":"Seine zweite Form.","{n} affix. Up to {hp}x HP and {atk}x Attack before the affixes' own changes.":"{n} Affix. Bis zu {hp}x LP und {atk}x Angriff vor den eigenen Änderungen der Affixe.¦{n} Affixe. Bis zu {hp}x LP und {atk}x Angriff vor den eigenen Änderungen der Affixe.",
 "Heat {n}":"Hitze {n}","Heat":"Hitze","Mastered":"Gemeistert","You deal {p}% more damage to it.":"Du verursachst {p} % mehr Schaden an ihm.","Open codex entry":"Kodex-Eintrag öffnen","Weak to {fam}":"Anfällig für {fam}","Takes 50% more from it.":"Erleidet 50 % mehr davon.",
 "Resists {fam}":"Widersteht {fam}","Takes 40% less from it.":"Erleidet 40 % weniger davon.","{n} unknown":"{n} unbekannt","Weaknesses and resistances you have not found yet. Hit it, or Study.":"Schwächen und Resistenzen, die du noch nicht gefunden hast. Triff es, oder studiere es.",
@@ -633,4 +660,138 @@ DICT.de=Object.assign(DICT.de||{},{
 "a ward that absorbs {p}% of its HP for {n} turns":"einen Schutz, der {p} % seiner LP für {n} Runden absorbiert","a hit that always inflicts {status}":"einen Treffer, der immer {status} verursacht","Attack rises {p}% below half HP":"Angriff steigt unter halben LP um {p} %","burrows out of reach for one turn":"vergräbt sich für eine Runde unerreichbar","one weaker {name} strike":"einen einzelnen Schlag eines schwächeren {name}",
 "Its rune ward absorbs {n}.":"Seine Runenbarriere absorbiert {n}.","Its rune ward absorbs {n} and breaks.":"Seine Runenbarriere absorbiert {n} und zerbricht.","The {name}'s rune ward fades.":"Die Runenbarriere von {name} verblasst.","The {name} raises a rune ward ({n}) for {turns} turns.":"{name} errichtet für {turns} Runden eine Runenbarriere ({n}).","Perfect parry! You interrupt {sp}.":"Perfekte Parade! Du unterbrichst {sp}.","The {name} flies into a fury! (+{p}% Attack)":"{name} gerät in Raserei! (+{p} % Angriff)","The {name} burrows out of reach for one turn.":"{name} vergräbt sich für eine Runde außer Reichweite.","The {name} is beneath the roots; your strike passes overhead.":"{name} ist unter den Wurzeln; dein Schlag geht darüber hinweg.","The {name} is beneath the roots; the burst passes overhead.":"{name} ist unter den Wurzeln; die Explosion geht darüber hinweg.","The {name} rises from the roots again.":"{name} kommt wieder zwischen den Wurzeln hervor.","The {name} calls {summon} to strike!":"{name} ruft {summon} zum Angriff!","This setup move deals no damage.":"Dieser Vorbereitungsschritt verursacht keinen Schaden.","Parry ({p}%) to interrupt it; Guard braces against its next strike.":"Pariere ({p} %), um es zu unterbrechen; Block schützt vor seinem nächsten Schlag.","Rune ward {n}":"Runenbarriere {n}","Absorbs incoming damage for {n} more enemy turns; refreshes, never stacks.":"Absorbiert Schaden für {n} weitere Gegnerrunden; wird erneuert, stapelt sich aber nicht.","Burrowed":"Eingegraben","Untargetable until it emerges at the start of its next turn.":"Nicht anvisierbar, bis es zu Beginn seines nächsten Zuges wieder auftaucht.","Enraged":"Rasend","Attack is permanently increased by {p}%.":"Angriff ist dauerhaft um {p} % erhöht."
 });
+Object.assign(DICT.de,{"Fire attacks deal 15% more damage. Fire resistance, Defense and Guard still apply; enemy damage boosts combine multiplicatively.":"Feuerangriffe verursachen 15 % mehr Schaden. Feuerresistenz, Verteidigung und Blocken gelten weiterhin; gegnerische Schadensboni werden multipliziert.","Rift depth modifier: {name}. {desc}":"Rift-Tiefenmodifikator: {name}. {desc}"});
 DICT.de["Parry ({p}%) to interrupt it, or Guard to brace your next attack."]="Pariere ({p} %), um es zu unterbrechen, oder nutze Block für deinen nächsten verstärkten Angriff.";
+Object.assign(DICT.de,{
+"Poison fog":"Giftnebel","A landed foe hit adds one Poison stack (up to three). Guard blocks it; a successful Parry interrupts a telegraphed special; Poison resistance shortens it.":"Ein gegnerischer Treffer fügt eine Giftstufe hinzu (bis zu drei). Blocken verhindert sie; ein erfolgreiches Parieren unterbricht einen angekündigten Spezialangriff; Giftresistenz verkürzt die Dauer.",
+"Killing chill":"Tödliche Kälte","A landed foe hit applies Chill for up to two turns. Guard blocks it; a successful Parry interrupts a telegraphed special; Ice resistance shortens it.":"Ein gegnerischer Treffer verursacht bis zu zwei Runden lang Kälte. Blocken verhindert sie; ein erfolgreiches Parieren unterbricht einen angekündigten Spezialangriff; Eisresistenz verkürzt die Dauer.",
+"Cinder air":"Glutluft","A landed foe hit applies Burn for up to two turns. Guard blocks it; a successful Parry interrupts a telegraphed special; Fire resistance shortens it.":"Ein gegnerischer Treffer verursacht bis zu zwei Runden lang Verbrennung. Blocken verhindert sie; ein erfolgreiches Parieren unterbricht einen angekündigten Spezialangriff; Feuerresistenz verkürzt die Dauer.",
+"Arcane surge":"Arkane Woge","On every third enemy turn, its next attack (if any) has 25% more power and uses Arcane. Guard and Parry work as usual; Arcane resistance reduces it.":"In jeder dritten Gegnerphase hat sein nächster Angriff (falls vorhanden) 25 % mehr Kraft und ist arkan. Blocken und Parieren wirken wie gewohnt; arkane Resistenz verringert den Schaden.",
+"Blinding sand":"Blendender Sand","Your attacks deal 20% less damage on every third turn. The cadence is fixed by the battle turn.":"Jede dritte Runde verursachen deine Angriffe 20 % weniger Schaden. Der Rhythmus folgt der Kampfrunde.",
+"Grave fear":"Grabesfurcht","A landed, unguarded foe hit leaves you off balance for your next action. Guard blocks it; a successful Parry interrupts a telegraphed special.":"Ein nicht geblockter gegnerischer Treffer bringt dich für deine nächste Aktion aus dem Gleichgewicht. Blocken verhindert es; ein erfolgreiches Parieren unterbricht einen angekündigten Spezialangriff.",
+"Drowning pressure":"Tiefendruck","At the end of every third enemy turn, pressure deals 4% of your maximum HP, reduced by Stone resistance. It bypasses Defense and Guard, even if the attack was parried.":"Am Ende jeder dritten Gegnerphase verursacht der Druck Schaden in Höhe von 4 % deiner maximalen LP, verringert durch Steinresistenz. Er umgeht Verteidigung und Blocken, auch wenn der Angriff pariert wurde.",
+"Rift biome":"Rift-Biom","Rift modifier":"Rift-Modifikator","Neutral":"Neutral","Neutral biome":"Neutrales Biom","Forest has no Rift modifier.":"Im Wald gibt es keinen Rift-Modifikator.","Forest is the neutral Rift biome: it has no extra combat modifier.":"Der Wald ist das neutrale Rift-Biom und hat keinen zusätzlichen Kampfmodifikator.",
+"Rift biome: {name}. {desc}":"Rift-Biom: {name}. {desc}","Rift depth modifier":"Rift-Tiefenmodifikator","Rift depth modifier: {name}. {desc}":"Rift-Tiefenmodifikator: {name}. {desc}","Burning air":"Brennende Luft","Fire attacks deal 15% more damage after daily and biome attack modifiers; normal resistance, Defense and Guard still apply.":"Feuerangriffe verursachen 15 % mehr Schaden nach täglichen und Biom-Angriffsmodifikatoren; normale Resistenz, Verteidigung und Blocken gelten weiterhin.","Thin wards":"Dünne Barrieren","Your rune ward can absorb at most half of each enemy hit; the rest of its ward points remain for later hits.":"Deine Runenbarriere fängt höchstens die Hälfte jedes gegnerischen Treffers ab; übrige Barrierepunkte bleiben für spätere Treffer erhalten.","Fast foes":"Schnelle Gegner","Enemy specials recur one turn sooner, to a minimum interval of two turns; their tells and Parry windows remain intact.":"Spezialangriffe der Gegner kommen eine Runde früher wieder, mindestens aber alle zwei Runden; Warnzeichen und Parierfenster bleiben erhalten.","Grave fear leaves you off balance for your next action.":"Die Grabesfurcht bringt dich für deine nächste Aktion aus dem Gleichgewicht.","The sandstorm blunts your strikes by {p}%.":"Der Sandsturm schwächt deine Angriffe um {p} %.","An arcane surge charges the strike: +{p}% power.":"Eine arkane Woge verstärkt den Angriff: +{p} % Kraft.","Drowning pressure crushes you for {n} damage.":"Der Tiefendruck quetscht dich und verursacht {n} Schaden."
+});
+// V-16 authored-region alpha labels and reward rule.
+DICT.de=Object.assign(DICT.de||{},{
+  "Alpha":"Alpha",
+  "A named regional wild mini-boss with three fixed affixes.":"Ein benannter regionaler Wild-Miniboss mit drei festen Affixen.",
+  "Alpha rewards follow the region's normal wild drop rules; no affix essences.":"Alpha-Belohnungen folgen den normalen regionalen Beuteraten; es gibt keine Affixessenzen.",
+  "Thornheart Alpha":"Dornherz-Alpha",
+  "Frosthorn Alpha":"Frosthorn-Alpha",
+  "Cinderback Alpha":"Glutpanzer-Alpha",
+  "Starcrown Alpha":"Sternkrone-Alpha"
+});
+DICT.de=Object.assign(DICT.de||{},{
+  "Reed Snare":"Schilfschlinge","coiling its vines around the reeds":"windet seine Ranken um das Schilf",
+  "Silt Hex":"Schlickfluch","drawing a circle in the silt":"zieht einen Kreis in den Schlick",
+  "Rooted Guard":"Verwurzelte Deckung","sinking its roots deep":"senkt seine Wurzeln tief in den Grund",
+  "Spore Burst":"Sporenstoß","swelling with pale green light":"schwillt in blassgrünem Licht an",
+  "Sunk Aegis":"Versunkener Schild","locking its shield into the mud":"verankert seinen Schild im Schlamm",
+  "Cattail Rush":"Rohrkolbensturm","lowering its crown of antlers":"senkt sein Geweih",
+  "The Drowned Matriarch":"Die ertrunkene Matriarchin","the Matriarch":"die Matriarchin",
+  "The reeds part. The Drowned Matriarch rises from the Fen's deepest pool.":"Das Schilf teilt sich. Die ertrunkene Matriarchin erhebt sich aus dem tiefsten Tümpel des Moors.",
+  "The Fen remembers every name given to the water. She remembers who gave them.":"Das Moor bewahrt jeden Namen, den man dem Wasser gab. Sie erinnert sich an jene, die ihn aussprachen.",
+  "Flood of Spores":"Sporenflut","drawing a slow breath through the reeds":"holt langsam zwischen dem Schilf Atem",
+  "The Sinking Fen":"Das versinkende Moor",
+  "The old road ends in black water. Follow the reed-markers to the far bank; the Drowned Matriarch waits beyond them.":"Der alte Weg endet im schwarzen Wasser. Folge den Schilfmarkierungen zum anderen Ufer; dahinter wartet die ertrunkene Matriarchin.",
+  "The Fen is open because you brought down the Starfallen Archon. Its boss guards the next descent.":"Das Moor ist offen, weil du den Sternenfürsten besiegt hast. Sein Boss bewacht den nächsten Abstieg.",
+  "hit|spores you":"{name} spuckt dir {n} {g} Sporen entgegen","hit|drowns you in spore-cloud":"{name} ertränkt dich mit {n} {g} in einer Sporenwolke"
+});
+
+DICT.de=Object.assign(DICT.de||{}, {
+  "The Tidewrack":"Die Tidewrackküste",
+  "The Drowned Coast":"Die ertrunkene Küste",
+  "Saltwind Cliffs":"Salzwindklippen",
+  "The Wreck Shoals":"Die Wrackriffe",
+  "The Silt Reach":"Die Schlickweite",
+  "The Frosted Shoals":"Die frostigen Untiefen",
+  "The tide took the village, then came back for the bones.":"Die Flut nahm das Dorf und kehrte dann für die Gebeine zurück.",
+  "A salt wind worries every name off the stones.":"Ein salziger Wind nagt jeden Namen aus den Steinen.",
+  "The wrecks drift with no water beneath them.":"Die Wracks treiben, obwohl unter ihnen kein Wasser ist.",
+  "Something patient waits where the tide turns.":"Etwas Geduldiges wartet dort, wo sich die Flut wendet.",
+  "Undertow Grasp":"Soggriff","pulling you into the surf":"zieht dich in die Brandung",
+  "Brine Volley":"Salzsalve","gathering salt spray":"sammelt salzige Gischt",
+  "Breakwater Slam":"Wellenbrecherwucht","lifting a cresting wave":"hebt eine brechende Welle"
+});
+DICT.de=Object.assign(DICT.de||{}, {
+  "Windcut Crags":"Windschartige Klippen","The Windcut Crags":"Die windgeschliffenen Klippen",
+  "The Iron Highlands":"Das Eisenhochland","The Skyward Pass":"Der Himmelsgrat",
+  "The Shattered Ridge":"Der zersplitterte Grat","The Chainwind Shelf":"Die Kettenwindkante","The Highstone Reach":"Die Hochsteinweite",
+  "The wind carved the ridges and left the hardest things standing.":"Der Wind schliff die Grate und ließ nur das Härteste stehen.",
+  "Iron chains sing between cliffs when the gale turns.":"Eisenketten singen zwischen den Klippen, wenn der Sturm dreht.",
+  "The high pass belongs to whatever can keep its footing.":"Der Hochpass gehört dem, was seinen Halt bewahren kann.",
+  "Crystals ring beneath the stone whenever the sky breaks open.":"Kristalle klingen unter dem Stein, wenn der Himmel aufreißt.",
+  "Crosswind Rend":"Querwindhieb","sweeping its wings through the gale":"fegt mit den Flügeln durch den Sturm",
+  "Cragfall Crush":"Klippensturz","heaving a slab of the ridge":"wuchtet eine Felsplatte des Grats empor",
+  "Chainlash":"Kettenpeitsche","drawing the iron chains taut":"spannt die Eisenketten straff"
+});
+DICT.de=Object.assign(DICT.de||{}, {
+  "Radiant Garden":"Strahlender Garten",
+  "The Sunken Garden":"Der versunkene Garten","The Gilded Grove":"Der vergoldete Hain","The Orchard of Bones":"Der Knochenobstgarten",
+  "The Amber Conservatory":"Das Bernsteingewächshaus","The Haloed Bower":"Die Heiligenscheinlaube","The Briar Crown":"Die Dornenkrone",
+  "Sunlight pools here where no sky can reach.":"Hier sammelt sich Sonnenlicht, wohin kein Himmel reicht.",
+  "The garden keeps every bloom that ever fell.":"Der Garten bewahrt jede Blüte, die je gefallen ist.",
+  "A bright halo circles the oldest roots.":"Ein heller Schein umkreist die ältesten Wurzeln.",
+  "The orchard bears fruit that remembers its pickers.":"Der Obstgarten trägt Früchte, die sich an ihre Pflücker erinnern.",
+  "Briarwheel":"Dornenwirbel","drawing thorned vines into a shining ring":"zieht dornige Ranken zu einem leuchtenden Ring",
+  "Crownfall":"Kronensturz","raising its crown of branches":"hebt seine Krone aus Ästen",
+  "Sunward Mend":"Sonnenheilung","turning its halo to gather light":"wendet seinen Heiligenschein, um Licht zu sammeln"
+});
+
+DICT.de=Object.assign(DICT.de||{}, {
+  "Geyser Field":"Geysirfeld",
+  "The Steam Vents":"Die Dampfschlote","The Boiling Shelf":"Das siedende Plateau",
+  "The White Caldera":"Die Weiße Caldera","The Sinter Fields":"Die Sinterfelder",
+  "The Fumarole Reach":"Die Fumarolenweite","The Glasscone Basin":"Das Glaskegelbecken",
+  "The mountain breathes through every crack.":"Der Berg atmet durch jeden Spalt.",
+  "Steam hides the paths and gives away the hunters.":"Dampf verbirgt die Wege und verrät die Jäger.",
+  "Basalt cools only after the next eruption.":"Basalt kühlt erst nach dem nächsten Ausbruch ab.",
+  "A thin crust covers water hot enough to melt stone.":"Eine dünne Kruste bedeckt Wasser, heiß genug, um Stein zu schmelzen.",
+  "Fumarole Burst":"Fumarolenausbruch","drawing heat from below":"zieht Hitze aus der Tiefe",
+  "Basalt Quake":"Basaltbeben","raising a slab of heated stone":"hebt eine Platte aus erhitztem Stein an",
+  "Steam Mend":"Dampfheilung","drawing vapor through its cracks":"zieht Dampf durch seine Risse"
+});
+
+DICT.de=Object.assign(DICT.de||{}, {
+  "The Sporewood":"Der Sporenwald","The Hollow Bloom":"Die Hohle Blüte","The Weeping Canopy":"Das Tränendach",
+  "Spores drift beneath a canopy that never sees daylight.":"Sporen treiben unter einem Blätterdach, das nie Tageslicht sieht.",
+  "Each bloom opens only when something dies.":"Jede Blüte öffnet sich erst, wenn etwas stirbt.",
+  "The roots remember everything buried here.":"Die Wurzeln erinnern sich an alles, was hier begraben wurde.",
+  "A pale dust settles over every path.":"Blasser Staub legt sich auf jeden Pfad.",
+  "Sporeburst":"Sporenausbruch","releasing a cloud of spores":"stößt eine Sporenwolke aus",
+  "Thornroot Crush":"Dornwurzel-Schmettern","coiling its thorned roots":"windet seine Dornenwurzeln",
+  "Mycelial Mend":"Myzelheilung","drawing life through the fungal web":"zieht Leben durch das Pilzgeflecht"
+});
+
+// V-17 enemy roles
+DICT.de=Object.assign(DICT.de||{},{
+  "Enemy role":"Gegnerrolle",
+  "Bruiser":"Brecher","Hard to wear down; its heavy attacks punish missed defenses.":"Schwer zu besiegen; seine wuchtigen Angriffe bestrafen verpasste Verteidigungen.",
+  "Skirmisher":"Plänkler","Light and quick; it favors repeated or evasive attacks.":"Leicht und schnell; es setzt auf schnelle Serien oder Ausweichangriffe.",
+  "Caster":"Zauberwirker","Fragile at close range; it channels harmful effects or draining attacks.":"Im Nahkampf verwundbar; es wirkt schädliche Effekte oder entzieht Kraft.",
+  "Support":"Unterstützer","Sustains itself with healing, wards, or helpful status effects.":"Hält sich mit Heilung, Schutz oder hilfreichen Statuseffekten im Kampf."
+});
+
+// V-19 cross-biome factions
+DICT.de=Object.assign(DICT.de||{},{
+  "Faction":"Fraktion",
+  "Raiders":"Plünderer","Raiders strike hard and press their attack.":"Plünderer schlagen hart zu und setzen nach.",
+  "Cultists":"Kultisten","Cultists harry their prey with repeated or baleful attacks.":"Kultisten bedrängen ihre Beute mit Serienangriffen und Flüchen.",
+  "Cult of the Star":"Sternenkult","The star cult drains strength through arcane rites.":"Der Sternenkult entzieht durch arkane Rituale Kraft.",
+  "Constructs":"Konstrukte","Constructs endure and restore their defenses.":"Konstrukte halten stand und erneuern ihre Verteidigung."
+});
+
+// V-18 multi-enemy targeting
+DICT.de=Object.assign(DICT.de||{},{
+  "Choose a target":"Ziel auswählen",
+  "Pack of {n}":"Gruppe aus {n}",
+  "Target {n}: {name}":"Ziel {n}: {name}",
+  "Defeated":"Besiegt",
+  "Foes act in order. One reward for the pack.":"Die Gegner handeln der Reihe nach. Für die Gruppe gibt es eine Belohnung.",
+  "{name} joins the pack.":"{name} schließt sich der Gruppe an.",
+  "You sweep into {name}":"Du fegst gegen {name}",
+  "The {name} falls. {left} foes remain.":"{name} fällt. Noch {left} Gegner übrig.",
+  "1.0x strike with a 35% chance to stun (15% on bosses); against a pack, it hits every foe for 0.55x.":"1,0x-Angriff mit 35 % Betäubungschance (15 % bei Bossen); gegen eine Gruppe trifft er jeden Gegner mit 0,55x."
+});

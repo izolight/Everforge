@@ -49,7 +49,7 @@ function holdHint(){
 }
 let lastIntro=null;
 // ---- keep the keyboard focus across a re-render: the nav, the arena and the zone chips are rebuilt every time
-const FOCUS_ATTRS=["data-view","data-zone","data-item","data-id","data-use","data-ability","data-act","data-slot","data-heat","data-choice","data-load","data-tech","data-study","data-upgrade","data-infuse","data-pat","data-pslot","data-pm","data-tab","data-rtab","data-codex","data-tile","data-pin-rumor","data-pin-recipe","data-bulk","data-open","data-source-zone","data-goal-tab","data-gores","data-intro","data-result-equip"];
+const FOCUS_ATTRS=["data-view","data-zone","data-item","data-id","data-use","data-ability","data-act","data-slot","data-heat","data-choice","data-load","data-tech","data-study","data-upgrade","data-infuse","data-pat","data-pslot","data-pm","data-tab","data-rtab","data-codex","data-tile","data-pin-rumor","data-pin-recipe","data-bulk","data-open","data-source-zone","data-goal-tab","data-gores","data-intro","data-result-equip","data-target","data-target-cycle"];
 const focusPath=el=>{ // no id and no data attribute: the place in the tree is the key
   const parts=[];let n=el;
   while(n&&n.nodeType===1&&n!==document.body){

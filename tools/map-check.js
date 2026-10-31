@@ -67,13 +67,14 @@ const ROOT=path.resolve(__dirname,".."),URL="file://"+path.join(ROOT,"index.html
       const near=DIRS.map(([dx,dy])=>[nd.x+dx,nd.y+dy]).find(([x,y])=>walk(m,x,y));m.pos={x:near[0],y:near[1]};S.hp=pstats().maxHp;
       enter(nd);const B=S.battle;B.hp=Math.round(B.max*.4);
       const R=Math.random;Math.random=()=>.1;flee();Math.random=R;
-      return{over:B.over,max:B.max,hp:B.hp,st:(m.pois.find(q=>q.st)||{}).st};
+      const node=m.pois.find(q=>q.packState||q.st),st=node&&((node.packState&&node.packState.foes||[]).find(f=>f.id===B.id)||node.st);
+      return{over:B.over,max:B.max,hp:B.hp,st};
     });
     assert(r.over==="fled"&&r.st&&r.st.hp===r.hp,`a fled foe keeps the HP it had left (${JSON.stringify(r.st)})`);
     await p.evaluate(()=>save());await p.reload();
-    r=await p.evaluate(()=>{const nd=curMap().pois.find(q=>q.st);return{st:nd&&nd.st}});
+    r=await p.evaluate(()=>{const nd=curMap().pois.find(q=>q.packState||q.st),st=nd&&((nd.packState&&nd.packState.foes||[]).find(f=>f.id===S.battle.id)||nd.st);return{st}});
     assert(r.st&&r.st.hp>0,`the wounds survive a reload (${JSON.stringify(r.st)})`);
-    r=await p.evaluate(()=>{const nd=curMap().pois.find(q=>q.st);enter(nd);return{hp:S.battle.hp,max:S.battle.max}});
+    r=await p.evaluate(()=>{const nd=curMap().pois.find(q=>q.packState||q.st);enter(nd);return{hp:S.battle.hp,max:S.battle.max}});
     assert(r.hp>0&&r.hp<r.max,`re-engaging it starts it at the HP it had left (${r.hp}/${r.max})`);
     console.log("ok a fled foe keeps its wounds on the map, through a reload and into the next fight");
     await p.evaluate(()=>{S.battle=null;S.event=null;S.view="battle";go("battle");render()}); // back to the map for the layout checks

@@ -1,0 +1,47 @@
+== Element coverage (authored, non-boss): woods 5/5, pass 5/5, hollow 4/4, spire 4/4 ==
+== Kits (1); codex mastery on for the kit's zone and earlier ==
+melee/spire       Lv9 HP88  ATK45  MAG9   DEF63 (56%) SPD14 crit33% | Keen Iron Sword [blade,shield] | ward22 thorn24% dr6 dodge25% regen0 root0 cl0 res{"stone":40,"metal":40,"swift":35,"arcane":40,"shadow":22,"ice":5} inf{"Sharp":2,"Iron":1,"Swift":1} ess23 refine12emb | 7 crafts ~7.2 tries (~0 fizzles)
+kit warnings: 0
+
+== Matrix, ARRIVAL (previous stage's kit meets this zone; starter kit meets the woods): the main pairing: 20 fights per cell, seed 1, map row 3. Per heat: win% / mean turns / mean HP left% (losses count 0) ==
+enemy      kit              policy  H0               flags
+fen_reedstalkermelee/spire      smart   100%   3.8t  99% TOO_EASY
+fen_mirewitchmelee/spire      smart   100%   3.3t 100% TOO_EASY
+fen_peatbrutemelee/spire      smart   100%   5.3t 100%
+fen_murk_wispmelee/spire      smart   100%   3.3t  99% TOO_EASY
+fen_drowned_guardmelee/spire      smart   100%   4.2t 100%
+fen_antlerwolfmelee/spire      smart   100%   4.8t  98%
+fen_matriarchmelee/spire      smart   100%  10.0t  67%
+
+== Matrix, ON-STAGE (the kit's own zone): 20 fights per cell, seed 1, map row 3. Per heat: win% / mean turns / mean HP left% (losses count 0) ==
+enemy      kit              policy  H0               flags
+
+== Win% grid (policy smart, Heat 0; rows = kits, columns = enemies; mimic on-stage) ==
+                  fen_ fen_ fen_ fen_ fen_ fen_ fen_
+melee/spire        100  100  100  100  100  100  100
+
+== Kit strength, ARRIVAL (row = stage the kit is from; it meets the next zone) (policy smart): mean turns / mean HP left% / win% ==
+Heat 0    melee                 defensive             staff                 stacked               starter
+spire     4.9t 95% 100%         -                     -                     -                     -
+
+== Kit strength, ON-STAGE (policy smart): mean turns / mean HP left% / win% ==
+Heat 0    melee                 defensive             staff                 stacked               starter
+
+== Flagged cells, ARRIVAL: 3. TOO_EASY: win 100%, HP left >85% and turns <4 (boss <10) at Heat 0; TOO_HARD: win <50% at Heat 0; SLOG: mean turns >30 (boss >50) ==
+TOO_EASY: 3 cells
+  [smart] 3
+    melee/spire@H0       fen_reedstalker fen_mirewitch fen_murk_wisp
+TOO_HARD: 0 cells
+SLOG: 0 cells
+
+== Flagged cells, ON-STAGE: 0. TOO_EASY: win 100%, HP left >85% and turns <4 (boss <10) at Heat 0; TOO_HARD: win <50% at Heat 0; SLOG: mean turns >30 (boss >50) ==
+TOO_EASY: 0 cells
+TOO_HARD: 0 cells
+SLOG: 0 cells
+
+== Economy: 30 expeditions per zone, smart policy, melee stage kit (codex mastered for its zone), Heat 0 ==
+Columns WITHOUT salvage: embers (fight rewards), ess (essences from chests, shrines, elites, bosses...), items (all drops), xp (smith XP gained: no fight gives XP directly, only heat spoils, bounties and dailies). Columns WITH salvage (the bot never salvages; this is the value of the new non-equipped loot if you did): sv.ess (essences) and sv.emb (embers); emb+sv and ess+sv are the totals; gear/exp = (embers+sv.emb) / median shop gear price.
+zone    kit           clear% lost% fights by foe magic rare  embers sv.emb emb+sv ess  sv.ess ess+sv items shops steps dark torch xp   gear price min-med-max ess price emb@shop gear/exp
+
+wrote region-evidence/m06-fen-sim-seed1.json
+done in 0s

@@ -2,7 +2,7 @@
 // Run: node tools/name-check.js
 const fs=require("fs"),vm=require("vm"),path=require("path");
 const root=path.join(__dirname,".."),ctx=vm.createContext({console,Math,JSON,parseInt,Set,Map});
-for(const f of ["js/art/color.js","js/data.js","js/helpers.js","js/affix.js","js/monsters.js"])vm.runInContext(fs.readFileSync(path.join(root,f),"utf8"),ctx,{filename:f});
+for(const f of ["js/art/color.js","js/data.js","js/helpers.js","js/affix.js","js/roles.js","js/factions.js","js/monsters.js"])vm.runInContext(fs.readFileSync(path.join(root,f),"utf8"),ctx,{filename:f});
 const {BIOMES,GEN_T,rng,hash,genCreature,BODY_NOUNS}=vm.runInContext("({BIOMES,GEN_T,rng,hash,genCreature,BODY_NOUNS})",ctx);
 let fail=0,count=0;const bad=m=>{console.log("FAIL "+m);fail++};
 const valid=(body,name)=>BODY_NOUNS[body].some(n=>name.endsWith(" "+n));

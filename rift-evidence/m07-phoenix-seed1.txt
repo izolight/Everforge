@@ -1,0 +1,39 @@
+== Element coverage (authored, non-boss): woods 5/5, pass 5/5, hollow 4/4, spire 4/4 ==
+== Kits (2); codex mastery on for the kit's zone and earlier ==
+melee/pass        Lv5 HP76  ATK37  MAG1   DEF44 (47%) SPD9  crit25% | Frozen Keen Sword [blade,shield] | ward0 thorn28% dr1.8 dodge24% regen0 root5 cl0 res{"metal":40,"stone":40,"ice":40,"wood":40,"swift":20} inf{"Sharp":1,"Iron":1} ess9 refine0emb | 5 crafts ~5.2 tries (~0 fizzles)
+melee/hollow      Lv7 HP78  ATK38  MAG8   DEF47 (48%) SPD11 crit24% | Sunforged Swift Sword [blade,shield] | ward0 thorn30% dr2.8 dodge25% regen0 root5 cl0 res{"metal":40,"ice":40,"stone":40,"wood":40,"shadow":20,"swift":23,"fire":10,"arcane":10} inf{"Sharp":1,"Iron":1,"Swift":1} ess17 refine12emb | 6 crafts ~6.2 tries (~0 fizzles)
+kit warnings: 0
+
+== Matrix, ARRIVAL (previous stage's kit meets this zone; starter kit meets the woods): the main pairing: 20 fights per cell, seed 1, map row 3. Per heat: win% / mean turns / mean HP left% (losses count 0) ==
+enemy      kit              policy  H0               flags
+phoenix    melee/pass       smart   100%  10.5t  63%
+
+== Matrix, ON-STAGE (the kit's own zone): 20 fights per cell, seed 1, map row 3. Per heat: win% / mean turns / mean HP left% (losses count 0) ==
+enemy      kit              policy  H0               flags
+phoenix    melee/hollow     smart   100%   8.3t  77%
+
+== Win% grid (policy smart, Heat 0; rows = kits, columns = enemies; mimic on-stage) ==
+                  phoe
+melee/pass         100
+melee/hollow       100
+
+== Kit strength, ARRIVAL (row = stage the kit is from; it meets the next zone) (policy smart): mean turns / mean HP left% / win% ==
+Heat 0    melee                 defensive             staff                 stacked               starter
+pass      10.5t 63% 100%        -                     -                     -                     -
+
+== Kit strength, ON-STAGE (policy smart): mean turns / mean HP left% / win% ==
+Heat 0    melee                 defensive             staff                 stacked               starter
+hollow    8.3t 77% 100%         -                     -                     -                     -
+
+== Flagged cells, ARRIVAL: 0. TOO_EASY: win 100%, HP left >85% and turns <4 (boss <10) at Heat 0; TOO_HARD: win <50% at Heat 0; SLOG: mean turns >30 (boss >50) ==
+TOO_EASY: 0 cells
+TOO_HARD: 0 cells
+SLOG: 0 cells
+
+== Flagged cells, ON-STAGE: 0. TOO_EASY: win 100%, HP left >85% and turns <4 (boss <10) at Heat 0; TOO_HARD: win <50% at Heat 0; SLOG: mean turns >30 (boss >50) ==
+TOO_EASY: 0 cells
+TOO_HARD: 0 cells
+SLOG: 0 cells
+
+wrote rift-evidence/m07-phoenix-seed1.json
+done in 4s

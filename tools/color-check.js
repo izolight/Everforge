@@ -4,7 +4,7 @@
 const fs=require("fs"),vm=require("vm"),path=require("path");
 const root=path.join(__dirname,".."),ctx=vm.createContext({console,Math,JSON,parseInt,Set,Map});
 // the same files the browser loads, in the same order (colour helpers, the data, then the creature generator)
-for(const f of ["js/art/color.js","js/data.js","js/helpers.js","js/affix.js","js/monsters.js"])vm.runInContext(fs.readFileSync(path.join(root,f),"utf8"),ctx,{filename:f});
+for(const f of ["js/art/color.js","js/data.js","js/helpers.js","js/affix.js","js/roles.js","js/factions.js","js/monsters.js"])vm.runInContext(fs.readFileSync(path.join(root,f),"utf8"),ctx,{filename:f});
 vm.runInContext("globalThis.X={ELPAL,BIOMES,dE,ENEMIES,ZONE_BIOME,RIFT_BIOMES,genRoster,riftMake};",ctx);
 const {ELPAL,BIOMES,dE,ENEMIES,ZONE_BIOME,RIFT_BIOMES,genRoster,riftMake}=ctx.X;
 let fail=0;
