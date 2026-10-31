@@ -69,7 +69,7 @@ H3.hero.build=function(loadout,o){
     // The v2 turnaround uses an open A-pose and a slightly wider stance.
     for(const [side,sign] of [["L",1],["R",-1]]){
       const arm=hints.r["upperarm."+side]||[0,0,0];
-      hints.r["upperarm."+side]=[arm[0],arm[1],arm[2]+sign*.15];
+      hints.r["upperarm."+side]=[arm[0],arm[1],arm[2]+sign*.2];
       hints.r["thigh."+side]=[0,0,sign*.035];
     }
     // Apply one continuous rest-space profile to the assembled outfit and skeleton.
@@ -93,7 +93,7 @@ H3.hero.build=function(loadout,o){
     }
   }
   // Smooth faces retain expression; broad cloth, hair and armor use planar lighting.
-  for(const m of meshes)m.faceted=m.planar||["cloth","prism_cloth","leather","hair","prism_hair","metal","gold","wood"].includes(m.mat)&&!/^hand/.test(m.tag)&&m.slot!=="hands"&&m.slot!=="feet";
+  for(const m of meshes)m.faceted=!m.smooth&&(m.planar||["cloth","prism_cloth","leather","hair","prism_hair","metal","gold","wood"].includes(m.mat)&&!/^hand/.test(m.tag)&&m.slot!=="hands"&&m.slot!=="feet");
   return{skel,meshes,colliders,hints,loadout,equipped,kind,variant,has:has,hidden:[...hides]};
 };
 function bind(m,skel,sources){

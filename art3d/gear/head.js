@@ -32,7 +32,7 @@ function hoodKeys(ctx){
     {y:1.16,rx:0.24,rz:0.21,cz:-0.045,ty:0.045}];
 }
 H3.gear.register({id:"hood",slot:"head",name:"Leather hood",colors:{main:"#494874",trim:"#d6a56d",inner:"#302e57"},
-  hides:["hair.back"],kind:"hood",
+  hides:["hair.back","hair.top"],kind:"hood",
   build(ctx){
     const keys=hoodKeys(ctx),N=HOOD_SEG+1;
     const shell=G.loft(keys,{seg:HOOD_SEG,steps:HOOD_STEPS,open:hoodOpen,cap:false,twoSided:true,mat:"leather",

@@ -1,10 +1,16 @@
 # art3d — the 3D hero
 
-The viewer opens on the simplified base bodies, following [simplified bases v1](reference/prismatic-simplified-bases-v1.png). Both variants use compact six-head proportions, broad anatomical forms, grouped fingers with separate thumbs, large copper hair masses and linen underclothes.
+The viewer opens on the simplified base bodies, following [simplified bases v1](reference/prismatic-simplified-bases-v1.png). Both variants use:
 
-`base-v2.js` now implements this simplified direction after `wanderer.js`; its filename is retained for the existing script loader. Body, clothing and skeleton share the same rest-space profile.
+- the reference's smaller head with a tapered jaw and larger eyes
+- smoothly shaded, sculpted anatomy: pecs or bust, shoulder blades, deltoids, biceps, quads and calves
+- open hands with four curled fingers and a thumb
+- volumetric copper hair (a tousled crown for the male; side-swept bangs, face-framing locks and a high ponytail for the female)
+- linen shorts with a drawstring, plus a square-necked crop top on the female
 
-Updated renders: [female turnaround](../art-evidence/prismatic-simplified-base-female.png), [male turnaround](../art-evidence/prismatic-simplified-base-male.png). These remain procedural interpretations, with facial and hair shapes still differing from the painted reference.
+`base-v2.js` implements this direction after `wanderer.js`; the filename is kept for the existing script loader. Body, clothing and skeleton share one rest-space profile, which also scales the head about the top of the neck. Base meshes set `smooth`, so they skip the planar cloth/hair lighting. Hair is a skull-fitted cap plus ribbon locks oriented to the scalp normal. Locks carry no contact ink, so only their tips break the silhouette. The base body publishes its fitted torso and arm rings to `H3.body.dims.rings`, so tunics and sleeves wrap the larger anatomy.
+
+Updated renders: [female turnaround](../art-evidence/prismatic-simplified-base-female.png), [male turnaround](../art-evidence/prismatic-simplified-base-male.png).
 
 
 The clothed female Prismatic preset follows the [simplified hero board](reference/prismatic-simplified-heroes-v1.png): compact proportions, eight broad copper hair masses with a ponytail, mitten gloves, a short two-panel teal tunic, plain gold borders, cuffed boots and a three-fold violet cloak. The breast and cloak compasses are painted decoration. It retains the shared rig, gear slots and animation clips. `prismatic_under_cape` shows the outfit construction; `prismatic_armed` adds the sword.

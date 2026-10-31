@@ -56,3 +56,10 @@ Built-in imagegen generated four matching simplified boards using `prismatic-sim
 Prompt set: pale blue-gray production boards with navy serif titles; broad clean low-poly planes, 3–4 shading bands, violet shadows, teal/indigo cloth, warm leather and gold. Each labeled item has a main view and smaller side/reverse construction view. Simplify to approximately 3–6 primary masses, thicken weapon grips and rims, use mitten gloves with separate thumbs, boots with one broad cuff/strap, robes/capes with only a few folds, charms with a single defining feature. Paint runes/compasses instead of modeling them; omit tiny stitching, filigree, micro-rivets, chains and dense layers. Clothing shown separately for modular assembly. No people, scenery or UI. Preserve item identity, prioritize modeling economy and readability at game scale.
 
 Use these with the simplified hero/base sheets if adopting the simplified direction. The detailed boards remain available as design history. Derive actual dimensions and socket positions from the chosen 3D bodies rather than scaling independently from each illustration; small alternate-view differences remain generated concept approximations. No game models were changed by this reference generation task.
+
+## Separate simplified base sheets
+
+- `prismatic-simple-male-base-v1.png`
+- `prismatic-simple-female-base-v1.png`
+
+Generated with built-in imagegen, using the combined simplified bases as the explicit reference. Prompt set: one character per landscape sheet, large aligned front/left-side/back orthographic views, preserve adult identities and simplified six-head proportions, broad planar anatomy, chunky copper hair, mitten hands, neutral A-pose and medieval ivory linen underclothes, pale blue-gray background and sparse alignment guides. No equipment or modern sportswear. Requested identical A-pose across views; generated side views still approximate the arm pose, so validate shoulder/hand heights against front/back during modeling. These are visual references, not measured turnarounds. Three views suffice for initial modeling; resolve ambiguous volumes in 3D.

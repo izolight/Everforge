@@ -146,7 +146,9 @@ H3.gear.register({id:"wanderer_tunic",slot:"body",name:"Simple teal tunic",hides
   }}));
  for(const[side,S]of[[1,"L"],[-1,"R"]]){
   const keys=ctx.dims.rings.arm[S].filter(r=>r.y>=1.13).map(r=>({...r,rx:r.rx+.009,rz:r.rz+.009}));
-  keys.push({y:1.055,rx:.073,rz:.074,cx:side*.278,cz:.008});
+  // The hem follows the arm beneath it, so a more muscular body still fits inside the sleeve.
+  const near=ctx.dims.rings.arm[S].reduce((a,r)=>Math.abs(r.y-1.06)<Math.abs(a.y-1.06)?r:a);
+  keys.push({y:1.055,rx:Math.max(.073,near.rx+.012),rz:Math.max(.074,near.rz+.012),cx:side*.278,cz:.008});
   M.push(G.loft(keys,{seg:10,steps:2,name:"wanderer.sleeve",mat:"cloth",bind:from("arm."+S),
    pal:[{c:c("sleeve")},{c:gold,line:false}],paint:p=>p[1]<1.067?1:0}));
  }
