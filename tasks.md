@@ -1,6 +1,6 @@
 # Everforge — tasks and watchlist
 
-Single planning record, consolidated 2026-10-31. **62 tracked tasks complete; no open or active tasks.** Ideas below are unscheduled, not commitments. Completion records describe historical validation, not a fresh check of today's build.
+Single planning record, consolidated 2026-10-31. **63 tracked tasks complete; no open or active tasks.** Ideas below are unscheduled, not commitments. Completion records describe historical validation, not a fresh check of today's build.
 
 ## Next decisions and playtest watchlist
 
@@ -98,6 +98,7 @@ All rows are **Done**. Keep IDs stable; detailed implementation remains in sourc
 | A-03 | Give Rift biomes distinct terrain art |
 | A-04 | Match generated creature names to anatomy |
 | A-05 | Verify creature visual hierarchy at gameplay sizes |
+| A-06 | Add a restrained idle sway for grounded undead |
 
 ### UI
 
@@ -154,6 +155,7 @@ All rows are **Done**. Keep IDs stable; detailed implementation remains in sourc
 - Larger economy samples and SIM-04 visit-limit comparison: [exploration evidence](economy-evidence/sim04-exploration.md).
 - Pack-aware economy comparison and regression: [SIM-05 evidence](economy-evidence/sim05-pack-economy.md), [regression script](tools/sim-pack-economy-check.js).
 - Procedural creature name localization scope, acceptance, and verification: [I18N-01](docs/procedural-name-localization.md); [browser regression](tools/procedural-name-check.js).
+- Grounded undead idle motion scope and Chromium evidence: [A-06](art-evidence/a06-undead-idle.md).
 - Rift biome additions: [Tidewrack](rift-evidence/v05-tidewrack.md), [Windcut](rift-evidence/v06-windcut.md), [Garden](rift-evidence/v07-garden.md), [Geyser](rift-evidence/v08-baseline.md), [Sporewood](rift-evidence/v09-sporewood.md).
 - Combat foundations: [biome identity](rift-evidence/m05-identity.md), [specials](combat-evidence/v14-specials.md), [biome special pools](rift-evidence/v11-biome-specials.md), [element weights](rift-evidence/v13-element-weights.md), [map modifiers](rift-evidence/v15-biome-modifiers.md), [depth modifiers](rift-evidence/v21-depth-modifiers.md).
 - Design references: [roles](docs/enemy-roles.md), [factions](docs/enemy-factions.md), [multi-enemy encounters](docs/multi-enemy-encounters.md). Evidence files remain supporting records, not separate task queues.

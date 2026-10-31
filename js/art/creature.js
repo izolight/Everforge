@@ -4,7 +4,7 @@ function compose(A,c,afx,R){
   (afx||[]).forEach(id=>{const X=AFX_ART[id];if(X&&X.tat)els.push(id);else if(X&&X.p&&!parts.includes(X.p)&&!(X.p==="halo"&&parts.includes("hood")))parts.push(X.p);else rest.push(id)});
   const L=z=>parts.filter(p=>PART[p]&&PART[p].z===z).map(p=>PART[p].f(c,B.a)).join("");
   const pat=A.pat&&PAT[A.pat]?`<mask id="${c.id}k" maskUnits="userSpaceOnUse" x="0" y="0" width="120" height="120"><g filter="url(#${c.id}w)">${B.s}</g></mask><g mask="url(#${c.id}k)" opacity="${Math.min(A.po||.6,.35)}">${PAT[A.pat](c,R)}</g>`:"";
-  return{s:L(-1)+B.s+pat+B.f+tattoo(els,B.a.tt)+L(1),rest,fly:B.a.fly}; // the tattoo sits on the body, inside its bob and breath
+  return{s:L(-1)+B.s+pat+B.f+tattoo(els,B.a.tt)+L(1),rest,fly:B.a.fly,body:A.b}; // the tattoo sits on the body, inside its bob and breath
 }
 
 // the glow filters: e = bloom on eyes, cores and runes; w = the silhouette as a white mask (eroded so patterns stay inside the outline); r = rim light for magic, rare and bosses
@@ -15,7 +15,8 @@ function portrait(id,o){
   const acc=A&&A.a&&own?A.a:X.a,R=rng(hash(id+":"+el));
   const c={id:gidp,o:"#0d0a08",d:`url(#${gidp}d)`,m:`url(#${gidp}m)`,D:shade(base,-.62),M:shade(base,-.32),l:shade(tint(base,8),.38),g:base,e:X.e,a:acc,p:A&&A.pc||acc,b:shade(tint(acc,0,-.2),.1),ph:o.phased};
   let body,rest=o.afx||[],fly=FLOATS[id];
-  if(A){const r=compose(A,c,rest,R);body=r.s;rest=r.rest;fly=fly||r.fly}else body=PORTRAITS[id](c);
+  let idle="amb-breathe";
+  if(A){const r=compose(A,c,rest,R);body=r.s;rest=r.rest;fly=fly||r.fly;if(r.body==="undead"&&!fly)idle="amb-undead-sway"}else body=PORTRAITS[id](c);
   body=body.replace(new RegExp(`(fill|stroke)="${c.e}"`,"g"),`$1="${c.e}" filter="url(#${gidp}e)"`); // eyes, cores and runes bloom
   const tats=rest.filter(a=>AFX_ART[a]&&AFX_ART[a].tat);let over=tattoo(tats,[60,68,14])+rest.filter(a=>!tats.includes(a)).map(a=>AFX_ART[a]&&AFX_ART[a].f?AFX_ART[a].f(c):"").join(""); // affix marks the body could not wear (a hand-drawn portrait takes its tattoo here)
   const ghost=rest.includes("elusive")?`<g opacity=".32" transform="translate(11 -4)">${body}</g>`:""; // Elusive: an afterimage
@@ -45,5 +46,5 @@ function portrait(id,o){
     <filter id="${gidp}w" x="0" y="0" width="1" height="1"><feColorMatrix type="matrix" values="0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 1 0"/><feMorphology operator="erode" radius="1.5"/></filter>
     ${rim?glowF(gidp+"r",rim):""}</defs>
     <circle cx="60" cy="62" r="58" fill="url(#${gidp})"/>${amb.b}${boss}${aura}<ellipse class="${fly?"amb-shadow":""}" cx="60" cy="113" rx="${fly?24:36}" ry="${fly?3.5:5}" fill="#000" opacity="${fly?.25:.4}"/>
-    <g class="${fly?"amb-hover":"amb-breathe"}"${rim?` filter="url(#${gidp}r)"`:""}>${ghost}${body}</g>${amb.f}${spark}${over}</svg>`;
+    <g class="${fly?"amb-hover":idle}"${rim?` filter="url(#${gidp}r)"`:""}>${ghost}${body}</g>${amb.f}${spark}${over}</svg>`;
 }

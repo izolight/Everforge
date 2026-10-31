@@ -19,6 +19,40 @@ const URL="file://"+path.resolve(__dirname,"..","index.html"),shotArg=process.ar
         startBattle("boar",{rar:"normal",afx:[]});S.battle.hp=S.battle.max=10000;S.battle.atk=1;render();
       };
     });
+    const idle=await page.evaluate(()=>{
+      ENEMIES.motion_float={...ENEMIES.ghoul,art:{...ENEMIES.ghoul.art}};FLOATS.motion_float=1;
+      const host=document.createElement("div");host.id="idleFixture";host.style.cssText="display:flex;gap:8px;position:fixed;left:-10000px;top:0;width:400px;height:140px";
+      host.innerHTML=`<div class="portrait" id="idleUndead">${portrait("ghoul",{burn:true})}</div><div class="portrait" id="idleBeast">${portrait("stag",{})}</div><div class="portrait" id="idleAuthored">${portrait("boar",{})}</div><div class="portrait" id="idleFloating">${portrait("motion_float",{})}</div>`;
+      document.body.appendChild(host);delete ENEMIES.motion_float;delete FLOATS.motion_float;
+      const svg=id=>document.querySelector(`#${id} svg`);
+      const motion=id=>{const g=[...svg(id).querySelectorAll(":scope > g")].find(x=>["amb-breathe","amb-undead-sway","amb-hover"].some(c=>x.classList.contains(c)));return{class:g.className.baseVal,animation:getComputedStyle(g).animationName,g,badge:svg(id).querySelector(".sbadge")}};
+      const u=motion("idleUndead"),b=motion("idleBeast"),a=motion("idleAuthored"),f=motion("idleFloating");
+      const anim=u.g.getAnimations()[0];anim.pause();anim.currentTime=1250;const angleAt=t=>{anim.currentTime=t;const m=new DOMMatrixReadOnly(getComputedStyle(u.g).transform);return Math.atan2(m.b,m.a)*180/Math.PI};
+      const angle1=angleAt(0),badge1=u.badge.getBoundingClientRect().toJSON(),bounds1=u.g.getBoundingClientRect().toJSON(),angle2=angleAt(2500),badge2=u.badge.getBoundingClientRect().toJSON(),bounds2=u.g.getBoundingClientRect().toJSON();anim.play();
+      return{undead:u.class,undeadAnimation:u.animation,beast:b.class,authored:a.class,floating:f.class,floatingAnimation:f.animation,angle1,angle2,badge1,badge2,
+        bounds1,bounds2,svg:svg("idleUndead").getBoundingClientRect().toJSON(),svgOverflow:getComputedStyle(svg("idleUndead")).overflow};
+    });
+    assert.equal(idle.undead,"amb-undead-sway");assert.equal(idle.undeadAnimation,"ambUndeadSway");
+    assert.equal(idle.beast,"amb-breathe");assert.equal(idle.authored,"amb-breathe");
+    assert.equal(idle.floating,"amb-hover");assert.equal(idle.floatingAnimation,"ambHover");
+    assert(Math.abs(idle.angle1-.6)<.02&&Math.abs(idle.angle2+.6)<.02,`undead sway stays within ±0.6 degrees (${idle.angle1}, ${idle.angle2})`);
+    assert.deepEqual(idle.badge1,idle.badge2,"status badges remain fixed while undead body sways");assert.equal(idle.svgOverflow,"visible");
+    for(const b of [idle.bounds1,idle.bounds2])assert(b.left>=idle.svg.left-1&&b.right<=idle.svg.right+1&&b.top>=idle.svg.top-1&&b.bottom<=idle.svg.bottom+1,"undead remains within portrait viewBox at sway extrema (1px tolerance for browser subpixel rounding)");
+    await page.emulateMedia({reducedMotion:"reduce"});
+    await page.waitForFunction(()=>[...document.querySelector("#idleUndead svg").getAnimations()].every(a=>a.playState==="finished"||a.playState==="idle"));
+    assert.equal(await page.evaluate(()=>getComputedStyle(document.querySelector("#idleUndead svg > g.amb-undead-sway")).animationName),"none");
+    await page.emulateMedia({reducedMotion:"no-preference"});
+    await page.waitForFunction(()=>document.querySelector("#idleUndead svg > g.amb-undead-sway").getAnimations().some(a=>a.playState==="running"));
+    if(shots){
+      fs.mkdirSync(shots,{recursive:true});
+      await page.evaluate(()=>{const h=$("idleFixture");h.style.cssText="display:flex;gap:8px;position:fixed;left:8px;top:8px;width:500px;height:140px;padding:8px;background:#17130f;border:1px solid #795a3b;z-index:99999";
+        const a=document.querySelector("#idleUndead svg > g.amb-undead-sway").getAnimations()[0];a.pause();a.currentTime=0});
+      await page.locator("#idleFixture").screenshot({path:path.join(shots,"undead-idle-positive.png")});
+      await page.evaluate(()=>{const a=document.querySelector("#idleUndead svg > g.amb-undead-sway").getAnimations()[0];a.currentTime=2500});
+      await page.locator("#idleFixture").screenshot({path:path.join(shots,"undead-idle-negative.png")});
+      await page.evaluate(()=>$("idleFixture").remove());
+    }else await page.evaluate(()=>$("idleFixture").remove());
+    console.log("ok composed undead alone sways, floating/authored portraits retain motion, badges stay fixed and reduced motion resumes live");
     for(const [form,mark] of [["blade","slash"],["spear","thrust"],["staff","arc"],["claws","claws"]]){
       const r=await page.evaluate(form=>{
         fight(form);const turn=S.battle.turn;$("atk").click();
