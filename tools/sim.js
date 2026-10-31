@@ -281,9 +281,11 @@ function setup(opts){ // runs inside the game page; everything here uses the rea
   SIM.exped=(snap,zone,heat,pol,seedKey,seed)=>{
     useSeed(seed,seedKey);S=JSON.parse(snap);S.zone=zone;S.embers=0;S.hp=pstats().maxHp;S.camp=2;S.maps[zone]=genMap({heat,zone});S.stats.earned=0;
     return walkExped(pol)};
+  SIM.fightPolicy=(B,pol)=>PACKS_ENABLED&&pol==="smart"&&B.foes&&B.foes.length>1?"pack-smart":pol;
+  SIM.fightTurn=(B,pol)=>POL[SIM.fightPolicy(B,pol)](B);
   const walkExped=pol=>{ // one expedition on the current S (its map), walked to the boss or a defeat
     const r={won:0,lost:0,fights:0,cont:0,mags:0,rares:0,shops:[],visits:{},hp0:S.hp},e0=essCount(),i0=itemCount(),inv0={...S.inv},xp0=S.xp;let steps=0;
-    const fightOut=()=>{const B=S.battle;let g=0;while(S.battle===B&&!B.over&&B.turn<150&&g++<600)POL[pol](B);r.fights++;if(B.by==="it")r.cont++;if(B.afx.length)r[B.rar==="rare"?"rares":"mags"]++;return B.over};
+    const fightOut=()=>{const B=S.battle;let g=0;while(S.battle===B&&!B.over&&B.turn<150&&g++<600)SIM.fightTurn(B,pol);r.fights++;if(B.by==="it")r.cont++;if(B.afx.length)r[B.rar==="rare"?"rares":"mags"]++;return B.over};
     const settle=()=>{
       for(let k=0;k<12;k++){
         if(S.battle&&!S.battle.over){if(fightOut()==="lost")return false;continue}

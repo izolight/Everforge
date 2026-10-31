@@ -1,6 +1,6 @@
 # Everforge — tasks and watchlist
 
-Single planning record, consolidated 2026-10-31. **60 tracked tasks complete; no open or active tasks.** Ideas below are unscheduled, not commitments. Completion records describe historical validation, not a fresh check of today's build.
+Single planning record, consolidated 2026-10-31. **61 tracked tasks complete; no open or active tasks.** Ideas below are unscheduled, not commitments. Completion records describe historical validation, not a fresh check of today's build.
 
 ## Next decisions and playtest watchlist
 
@@ -11,9 +11,9 @@ Refresh measurements on the current build before opening follow-up tasks.
 | First forge and research pace | Does waiting for the first slot technique feel too long? Weaponcraft/Armorcraft cost 14 RP, Infusing 8, Improving 10 in the completed rework. | Adjust `TECHS` costs after playtesting; preserve M-10 tutorial preparation. |
 | Bot priorities | Six expedition samples show gear-first buys gear techniques earlier than cheapest-first. [SIM-02 evidence](economy-evidence/sim02-research-policy.md). | Compare larger samples and real player choices before drawing pacing conclusions. |
 | Fusing timing | `--fresh` only plays the Woods, so the intended second-region timing is unmeasured. | Extend the sim into the Pass or check in play. |
-| Expedition visit cap | Larger samples show a higher limit is associated with more fights and rewards; Hollow had 7/90 defeats at limit 8 and 10/90 at limit 12 in the single-foe reference. [SIM-04 evidence](economy-evidence/sim04-exploration.md). | Compare against current multi-foe packs before considering any `DENSITY_RW` balance change. |
+| Expedition visit cap | SIM-04 single-foe and SIM-05 pack-aware samples associate a higher limit with more fights and steps; the pack-aware sample had 9/90 Hollow and 12/90 Spire defeats at limit 8, compared with 15/90 and 11/90 respectively at limit 12. [SIM-04](economy-evidence/sim04-exploration.md), [SIM-05](economy-evidence/sim05-pack-economy.md). | Consider balance only after more seeds or play data; the 90-run cells are exploratory. |
 | Roaming ambushes | Denser maps increased encounters initiated by roamers in the recorded run. | Add a movement cap only if play shows excessive ambushes; the tried cap of six had no measurable sim effect. |
-| Essence/material income | SIM-04 shows substantial estimated Spire salvage essence value in the single-foe reference; pack effects remain unmeasured. [SIM-04 evidence](economy-evidence/sim04-exploration.md). | Retune `FRAG`/drop chances only after current pack-aware economy measurements. |
+| Essence/material income | SIM-05 pack-aware runs show substantial estimated Spire salvage essence value, lower than the SIM-04 single-foe estimate in these samples. [SIM-04](economy-evidence/sim04-exploration.md), [SIM-05](economy-evidence/sim05-pack-economy.md). | Retune `FRAG`/drop chances only after broader samples and player data. |
 | Regional material coverage | Pass lacks local Timber; Hollow/Spire lack local Leather. Earlier zones supply these. | Decide whether every region should supply every material type. |
 | Trait stacking | Earlier runs found stacked kits very strong at Heat 5. | Decide whether a soft cap is desirable; it would rescale existing items. Remeasure before specifying it. |
 | Roster coverage | Spire has six authored regulars; the other regions have seven. The Woods' stag is also weak to Stone. | Check whether the asymmetry and Stone-kit matchup warrant changes. |
@@ -136,6 +136,10 @@ All rows are **Done**. Keep IDs stable; detailed implementation remains in sourc
 | SIM-03 | Use the equipped weapon and real research gates for fresh-mode essence crafting |
 | SIM-04 | Compare 30 expedition samples across three seeds at POI limits 8 and 12 |
 
+| ID | Scope and acceptance | Status |
+|---|---|---|
+| SIM-05 | Verify pack-aware fight dispatch in economy and fresh modes; correct it if needed; add a regression that observes real multi-foe fights using pack-smart; compare Heat-0 smart stage-melee economy samples (seeds 1/7/11, 30 expeditions per zone, limits 8/12) with SIM-04 and document exact revision, configuration, outcomes and policy caveats. No tuning. | Done |
+
 ## Evidence and future task upkeep
 
 - Art: [acceptance sheets](art-evidence/README.md); UI wording: [terminology](ui-terminology.md).
@@ -143,6 +147,7 @@ All rows are **Done**. Keep IDs stable; detailed implementation remains in sourc
 - Fresh research policies: [SIM-02 comparison](economy-evidence/sim02-research-policy.md).
 - Fresh weapon infusion gates and SIM-03 measurements: [fresh infusion evidence](economy-evidence/sim03-fresh-infusion.md).
 - Larger economy samples and SIM-04 visit-limit comparison: [exploration evidence](economy-evidence/sim04-exploration.md).
+- Pack-aware economy comparison and regression: [SIM-05 evidence](economy-evidence/sim05-pack-economy.md), [regression script](tools/sim-pack-economy-check.js).
 - Rift biome additions: [Tidewrack](rift-evidence/v05-tidewrack.md), [Windcut](rift-evidence/v06-windcut.md), [Garden](rift-evidence/v07-garden.md), [Geyser](rift-evidence/v08-baseline.md), [Sporewood](rift-evidence/v09-sporewood.md).
 - Combat foundations: [biome identity](rift-evidence/m05-identity.md), [specials](combat-evidence/v14-specials.md), [biome special pools](rift-evidence/v11-biome-specials.md), [element weights](rift-evidence/v13-element-weights.md), [map modifiers](rift-evidence/v15-biome-modifiers.md), [depth modifiers](rift-evidence/v21-depth-modifiers.md).
 - Design references: [roles](docs/enemy-roles.md), [factions](docs/enemy-factions.md), [multi-enemy encounters](docs/multi-enemy-encounters.md). Evidence files remain supporting records, not separate task queues.
