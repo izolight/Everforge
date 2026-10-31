@@ -62,7 +62,8 @@ details and a new map miniature remain later deliverables. Skin/eye masks are
 authored for these three presets, not reusable across arbitrary generated faces.
 Future variants must pass close-up checks as well as gameplay-size checks.
 
-Next: batch 3, three blade shapes, two guards, two grips and two pommels with
-shared assembly anchors, material treatments and fitted tests in both hands.
-Use this canvas and its hand positions as the wearable registration reference;
-inventory assemblies need their own square canvas and grip pivots.
+Batch 3 is now available in the [modular blade kit](../weapons/blade-kit/README.md):
+three blade shapes, interchangeable fittings, dedicated material artwork and
+fitted tests in both hands. That proof records separate measured closed-grip
+anchors while retaining this appearance canvas as the wearable registration
+reference. Next is batch 4, clothing and occlusion.

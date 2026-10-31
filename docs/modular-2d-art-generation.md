@@ -147,7 +147,19 @@ hairstyles on a fixed 1024 × 1536 canvas, separate body/underclothes layers,
 skin/iris/hair masks, assembly metadata, and nine-combination review sheets.
 The proof runs separately from the live SVG equipment renderer. Fitted equipment,
 helmet hair, the full starter appearance counts and runtime migration remain
-outstanding. The next generation batch is the modular blade kit (batch 3).
+outstanding.
+
+## Current blade proof
+
+[Batch 3 is complete](../assets/weapons/blade-kit/README.md): three steel blade
+shapes, two guards, two grips and two pommels produce 24 steel recipes. Dedicated
+wood/crystal standard blades bring the supported total to 40. Registered layers,
+surface/trim masks, measured assembly anchors, bare-hand occlusion patches and
+light/dark inventory review sheets are retained with reproducible tooling.
+The workbench checks all five blade/material representations in both hands and
+keeps appearance and equipment recipes independent. The live game still uses
+its existing SVG equipment during migration. Next is batch 4: clothing,
+glove/boot/helmet fit, shield/charm, hair hiding and overlap rules.
 
 ## Generation prompt contract
 

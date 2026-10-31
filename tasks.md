@@ -2,6 +2,23 @@
 
 Single planning record, consolidated 2026-10-31. **65 tracked tasks complete; no open or active tasks.** Ideas below are unscheduled, not commitments. Completion records describe historical validation, not a fresh check of today's build.
 
+## Modular 2D art production status
+
+- **Appearance proof (batch 2): complete.** Three registered faces × three
+  hairstyles, skin/iris/hair masks and a separate preview workbench.
+  [Assets and workflow](assets/hero/README.md).
+- **Blade proof (batch 3): complete.** Three steel blades, two guards, two grips
+  and two pommels; dedicated standard wood/crystal blades; 40 assembly recipes;
+  fitted bare-hand occlusion in both hands. Source PNGs, prompts, masks,
+  registration metadata and review sheets retained. Validation covers recipe
+  uniqueness/determinism, joins, material masks, hand fits, appearance independence,
+  persistence, fallbacks and mobile layout. [Evidence and workflow](assets/weapons/blade-kit/README.md).
+- **Next: batch 4, clothing and occlusion.** Tunic/robe/plate, glove/boot/helmet,
+  shield/charm, hair hiding, long hems, gripping and dual-wield overlap checks.
+  The live SVG equipment renderer remains in use pending fitted kit coverage.
+
+These production batches are separate from the historical 65-task index below.
+
 ## Next decisions and playtest watchlist
 
 Refresh measurements on the current build before opening follow-up tasks.

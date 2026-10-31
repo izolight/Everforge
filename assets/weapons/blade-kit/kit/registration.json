@@ -1,0 +1,211 @@
+{
+  "blade-standard-steel-v1": {
+    "source": "sources/blade-standard-steel-v1.png",
+    "sourceSize": [
+      1254,
+      1254
+    ],
+    "crop": [
+      555,
+      29,
+      145,
+      1187
+    ],
+    "target": [
+      464,
+      100,
+      96,
+      640
+    ]
+  },
+  "blade-short-steel-v1": {
+    "source": "sources/blade-short-steel-v1.png",
+    "sourceSize": [
+      1254,
+      1254
+    ],
+    "crop": [
+      469,
+      68,
+      315,
+      1108
+    ],
+    "target": [
+      460,
+      360,
+      104,
+      380
+    ]
+  },
+  "blade-broad-steel-v1": {
+    "source": "sources/blade-broad-steel-v1.png",
+    "sourceSize": [
+      1254,
+      1254
+    ],
+    "crop": [
+      473,
+      24,
+      309,
+      1205
+    ],
+    "target": [
+      432,
+      160,
+      160,
+      580
+    ]
+  },
+  "blade-standard-wood-v1": {
+    "source": "sources/blade-standard-wood-v1.png",
+    "sourceSize": [
+      1254,
+      1254
+    ],
+    "crop": [
+      552,
+      32,
+      151,
+      1185
+    ],
+    "target": [
+      464,
+      100,
+      96,
+      640
+    ]
+  },
+  "blade-standard-crystal-v1": {
+    "source": "sources/blade-standard-crystal-v1.png",
+    "sourceSize": [
+      1254,
+      1254
+    ],
+    "crop": [
+      551,
+      31,
+      154,
+      1185
+    ],
+    "target": [
+      464,
+      100,
+      96,
+      640
+    ]
+  },
+  "guard-straight-v1": {
+    "source": "sources/guard-straight-v1.png",
+    "sourceSize": [
+      1254,
+      1254
+    ],
+    "crop": [
+      32,
+      538,
+      1190,
+      189
+    ],
+    "target": [
+      352,
+      700,
+      320,
+      80
+    ]
+  },
+  "guard-swept-v1": {
+    "source": "sources/guard-swept-v1.png",
+    "sourceSize": [
+      1254,
+      1254
+    ],
+    "crop": [
+      31,
+      484,
+      1192,
+      288
+    ],
+    "target": [
+      352,
+      688,
+      320,
+      96
+    ]
+  },
+  "grip-leather-v1": {
+    "source": "sources/grip-leather-v1.png",
+    "sourceSize": [
+      1254,
+      1254
+    ],
+    "crop": [
+      523,
+      127,
+      209,
+      1009
+    ],
+    "target": [
+      483,
+      750,
+      58,
+      158
+    ]
+  },
+  "grip-wood-v1": {
+    "source": "sources/grip-wood-v1.png",
+    "sourceSize": [
+      1254,
+      1254
+    ],
+    "crop": [
+      509,
+      141,
+      236,
+      972
+    ],
+    "target": [
+      483,
+      750,
+      58,
+      158
+    ]
+  },
+  "pommel-disc-v1": {
+    "source": "sources/pommel-disc-v1.png",
+    "sourceSize": [
+      1254,
+      1254
+    ],
+    "crop": [
+      181,
+      141,
+      893,
+      964
+    ],
+    "target": [
+      472,
+      884,
+      80,
+      80
+    ]
+  },
+  "pommel-diamond-v1": {
+    "source": "sources/pommel-diamond-v1.png",
+    "sourceSize": [
+      1254,
+      1254
+    ],
+    "crop": [
+      376,
+      248,
+      502,
+      711
+    ],
+    "target": [
+      476,
+      884,
+      72,
+      84
+    ]
+  }
+}
