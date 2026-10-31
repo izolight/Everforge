@@ -170,6 +170,11 @@ function build(o){
   // chunky locks at the nape (hair.back)
   for(const x of[-0.05,0,0.05])M.push(tube([{p:[x,1.66,-0.158],r:0.026},{p:[x*1.2,1.56,-0.172],r:0.03},{p:[x*1.3,1.46,-0.168],r:0.024},{p:[x*1.3,1.38,-0.152],r:0.013}],
     {seg:12,steps:3,tag:"hair.back",mat:"hair",color:C.hair,bind:{bones:["neck","head"],power:4}}));
+  // Longer side locks distinguish the female profile, including under a hood.
+  if(o.variant==="female")for(const s of[-1,1])M.push(tube([
+    {p:[s*0.14,1.64,-0.035],r:0.035},{p:[s*0.15,1.47,-0.035],r:0.034},
+    {p:[s*0.14,1.31,-0.045],r:0.027},{p:[s*0.16,1.22,-0.055],r:0.008}],
+    {seg:14,steps:5,tag:"hair.back",mat:"hair",color:C.hair,bind:{bones:["neck","head"],power:4}}));
   // ears, bound to the head (tag head.ears)
   for(const s of[1,-1])M.push(xform(ball(0.02,0.036,0.024,{seg:14,rings:6,tag:"head.ears",color:C.skin,mat:"skin",bind:"head"}),{t:[s*0.146,1.5,-0.004]}));
   // colliders for spring bones (capes, hood tips, long hair)

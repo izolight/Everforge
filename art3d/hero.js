@@ -36,7 +36,7 @@ const norm=e=>e==null||e===""?null:typeof e==="string"?{id:e}:e;
 // ---------- assembly ----------
 H3.hero.build=function(loadout,o){
   o=o||{};loadout=Object.assign({},loadout||{});
-  const skel=R.skeleton(H3.body.bones),body=H3.body.build(o.body||{}),meshes=[],hides=new Set(),hints={r:{}},colliders=body.colliders.slice();
+  const skel=R.skeleton(H3.body.bones),body=H3.body.build(Object.assign({},o.body,{variant:o.variant||"male"})),meshes=[],hides=new Set(),hints={r:{}},colliders=body.colliders.slice();
   const equipped={};for(const s of SLOTS){const e=norm(loadout[s]);if(!e)continue;const def=items[e.id];if(!def){console.warn("unknown gear "+e.id);continue}
     if(def.slot!==s&&!(def.slot==="main"&&s==="off")&&!(def.slot==="off"&&s==="main"))console.warn(e.id+" is a "+def.slot+" item, worn in "+s);equipped[s]={def,e}}
   for(const m of body.meshes)bind(m,skel,[]);
@@ -62,7 +62,25 @@ H3.hero.build=function(loadout,o){
   for(const m of out)bind(m,skel,sources);
   for(const m of body.meshes)if(!hidden(m.tag))meshes.push(m);
   meshes.push(...out);
-  return{skel,meshes,colliders,hints,loadout,equipped,kind,has:has,hidden:[...hides]};
+  const variant=o.variant||"male";
+  if(!["male","female"].includes(variant))throw new Error("unknown body variant "+variant);
+  if(variant==="female"){
+    // Apply one continuous rest-space profile to the assembled outfit and skeleton.
+    // Binding is done first so clothing keeps the same weights as the body beneath it.
+    const keys=[[0.0,1],[0.45,1],[0.66,1.10],[0.88,0.84],[1.13,0.91],[1.25,0.88],[1.34,0.94],[1.44,0.89],[1.6,0.96],[1.81,0.96]];
+    const fit=p=>{let scale=keys[keys.length-1][1];
+      for(let i=1;i<keys.length;i++)if(p[1]<=keys[i][0]){const a=keys[i-1],b=keys[i],t=U.sstep(a[0],b[0],p[1]);scale=a[1]+(b[1]-a[1])*t;break}
+      return[p[0]*scale,p[1],p[2]]};
+    for(const m of meshes){
+      // Rigid props retain their shape and move with their attachment point.
+      const bone=typeof m.bind==="string"?skel.bones[skel.idx[m.bind]]:null;
+      if(m.item&&bone){const a=bone.head,b=fit(a);m.v=m.v.map(p=>p.map((v,i)=>v+b[i]-a[i]))}
+      else m.v=m.v.map(fit);
+    }
+    for(const b of skel.bones){b.head=fit(b.head);b.tail=fit(b.tail);b.len=U.len(U.sub(b.tail,b.head))}
+    for(const c of colliders){c.a=fit(c.a);if(c.b)c.b=fit(c.b)}
+  }
+  return{skel,meshes,colliders,hints,loadout,equipped,kind,variant,has:has,hidden:[...hides]};
 };
 function bind(m,skel,sources){
   const b=m.bind;

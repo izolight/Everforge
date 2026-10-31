@@ -143,3 +143,11 @@ H3.gear.register({id:"hood", slot:"head", name:"Leather hood", colors:{main:"#4b
 - Stills render supersampled: 760×1000 at ss=2 takes about 0.4 s in Node or the browser.
 - The viewer previews at a reduced resolution, around 30 ms per frame, and redraws at full quality when paused.
 - `H3.hero.frame(..., {bg:false})` gives a transparent sprite with its ground shadow.
+
+## Body variants
+
+The viewer offers Male and Female under Appearance. `H3.hero.build(loadout, {variant:"female"})`
+uses a continuous rest-space body profile, longer side locks, and the same gear and animation
+registries. The profile fits clothing and the skeleton together after binding; rigid props
+keep their shape. The default remains `male`. Profiles do not modify the shared base body.
+The main game's Gear tab links to this standalone viewer, which includes a return link.

@@ -792,3 +792,5 @@ DICT.ko=Object.assign(DICT.ko||{},{
   "The {name} falls. {left} foes remain.":"{name}이(가) 쓰러졌습니다. 적 {left}마리가 남았습니다.",
   "1.0x strike with a 35% chance to stun (15% on bosses); against a pack, it hits every foe for 0.55x.":"1.0배 피해를 주고 35% 확률로 기절시킵니다(보스는 15%). 무리 전투에서는 모든 적에게 0.55배 피해를 줍니다."
 });
+
+DICT.ko["3D hero prototype"]="3D 영웅 프로토타입";

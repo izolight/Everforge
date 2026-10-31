@@ -55,3 +55,19 @@ assert(Buffer.compare(Buffer.from(a.rgba.buffer),Buffer.from(b.rgba.buffer))===0
 let figure=0;for(let i=0;i<a.rgba.length;i+=4)if(a.rgba[i]+a.rgba[i+1]+a.rgba[i+2]>140)figure++;
 assert(figure>400,"the figure did not render");
 console.log(`ok a ${cl} frame renders deterministically (${Date.now()-t0} ms total)`);
+
+// Both profiles must coexist without changing the shared body or each other's rig.
+const original=JSON.stringify(H3.body.bones),maleBefore=JSON.stringify(base.meshes.map(m=>m.v));
+for(const [name,L] of Object.entries(H3.hero.presets)){
+  const female=H3.hero.build(L,{variant:"female"});checkModel(female,"female "+name);
+  assert.equal(female.variant,"female");
+  for(const clip of clips)for(const t of [0,clip.duration/2,clip.duration]){
+    const P=H3.hero.pose(female,clip.id,t);
+    assert(P.world.pos.every(finite),"female "+clip.id+": invalid pose");
+    assert(footMin(female,P)>-0.03,"female "+clip.id+": foot below floor");
+  }
+}
+assert.equal(JSON.stringify(H3.body.bones),original,"variant changed shared skeleton");
+assert.equal(JSON.stringify(base.meshes.map(m=>m.v)),maleBefore,"variant changed existing model");
+assert.notDeepEqual(H3.hero.build({},{variant:"female"}).meshes.find(m=>m.tag==="torso").v,base.meshes.find(m=>m.tag==="torso").v);
+console.log("ok female profile: every preset and animation, isolated geometry and rig");

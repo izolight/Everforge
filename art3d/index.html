@@ -26,6 +26,7 @@
 <body>
 <div class="wrap">
   <div>
+    <a href="../index.html" style="color:var(--accent)">← Back to game</a>
     <h1>3D hero (Everforge)</h1>
     <p>The base hero with modular, swappable gear, a skeleton rig and animations. Drag to turn, scroll to zoom.</p>
     <div class="stage"><canvas id="c" width="760" height="1000"></canvas><div class="hud" id="hud"></div></div>
@@ -36,6 +37,7 @@
     </div>
   </div>
   <div class="side">
+    <h2>Appearance</h2><label for="variant">Body variant</label> <select id="variant"><option value="male">Male</option><option value="female">Female</option></select>
     <h2>Preset</h2><div class="row" id="presets"></div>
     <h2>Equipment</h2><div class="slots" id="slots"></div>
     <h2>Animation</h2>
@@ -59,10 +61,11 @@
 <script>
 (()=>{
   const $=id=>document.getElementById(id),canvas=$("c"),ctx=canvas.getContext("2d");
-  const st={loadout:Object.assign({},H3.hero.presets.wanderer||{}),anim:"idle",yaw:0.6,pitch:0.08,dist:3.4,playing:true,speed:1};
+  const st={loadout:Object.assign({},H3.hero.presets.wanderer||{}),variant:"male",anim:"idle",yaw:0.6,pitch:0.08,dist:3.4,playing:true,speed:1};
   if(!H3.anim.get(st.anim))st.anim="rest";
-  let model=null,player=null,last=0,dirty=true,busy=false;
-  const rebuild=()=>{model=H3.hero.build(st.loadout);player=H3.hero.player(model,st.anim);dirty=true};
+  let model=null,player=null,posed=null,last=0,dirty=true,busy=false;
+  const rebuild=()=>{model=H3.hero.build(st.loadout,{variant:st.variant});player=H3.hero.player(model,st.anim);posed=player.step(0);dirty=true};
+  $("variant").onchange=e=>{st.variant=e.target.value;rebuild()};
   // ---- UI ----
   const pr=$("presets");for(const k of Object.keys(H3.hero.presets)){const b=document.createElement("button");b.textContent=k;b.onclick=()=>{st.loadout=Object.assign({},H3.hero.presets[k]);syncSlots();rebuild()};pr.appendChild(b)}
   const sl=$("slots"),sel={};
@@ -72,10 +75,10 @@
     x.onchange=()=>{st.loadout[s]=x.value||null;rebuild()};sel[s]=x;sl.append(l,x)}
   const syncSlots=()=>{for(const s of H3.hero.SLOTS){const v=st.loadout[s];sel[s].value=v?(typeof v==="string"?v:v.id):""}};syncSlots();
   const an=$("anim");an.innerHTML=H3.anim.list().map(c=>`<option value="${c.id}">${c.name||c.id}</option>`).join("");an.value=st.anim;
-  an.onchange=()=>{st.anim=an.value;player.set(st.anim,0);dirty=true};
+  an.onchange=()=>{st.anim=an.value;player.set(st.anim,0);posed=player.step(0);dirty=true};
   $("play").onclick=()=>{st.playing=!st.playing;$("play").textContent=st.playing?"pause":"play";dirty=true};
   $("speed").onchange=e=>st.speed=+e.target.value;
-  $("scrub").oninput=e=>{st.playing=false;$("play").textContent="play";player.seek(+e.target.value*player.clip.duration);dirty=true};
+  $("scrub").oninput=e=>{st.playing=false;$("play").textContent="play";posed=player.seek(+e.target.value*player.clip.duration);dirty=true};
   document.querySelectorAll("[data-y]").forEach(b=>b.onclick=()=>{st.yaw=+b.dataset.y;dirty=true});
   $("above").onclick=()=>{st.pitch=st.pitch>0.3?0.08:0.6;dirty=true};
   $("save").onclick=()=>{draw(true);const a=document.createElement("a");a.download="hero3d.png";a.href=canvas.toDataURL("image/png");a.click()};
@@ -89,7 +92,7 @@
   canvas.addEventListener("pointerup",()=>{drag=null;dirty=true});
   canvas.addEventListener("wheel",e=>{e.preventDefault();st.dist=Math.max(1.6,Math.min(6,st.dist*(1+e.deltaY*0.001)));dirty=true},{passive:false});
   // ---- drawing ----
-  let posed=null,pv=0.6;
+  let pv=0.6;
   function draw(full){
     // preview resolution adapts to keep playback near 30 fps; paused frames are drawn at full quality
     const hq=full||(!st.playing&&!drag)||$("hq").checked,W=hq?760:Math.round(760*pv),H=hq?1000:Math.round(1000*pv);

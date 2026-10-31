@@ -795,3 +795,5 @@ DICT.de=Object.assign(DICT.de||{},{
   "The {name} falls. {left} foes remain.":"{name} fällt. Noch {left} Gegner übrig.",
   "1.0x strike with a 35% chance to stun (15% on bosses); against a pack, it hits every foe for 0.55x.":"1,0x-Angriff mit 35 % Betäubungschance (15 % bei Bossen); gegen eine Gruppe trifft er jeden Gegner mit 0,55x."
 });
+
+DICT.de["3D hero prototype"]="3D-Heldenprototyp";
