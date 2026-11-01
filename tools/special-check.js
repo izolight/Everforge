@@ -2,7 +2,7 @@
 // Usage: node tools/special-check.js (requires Playwright + Chromium).
 const {chromium}=require("playwright"),path=require("path"),fs=require("fs");
 const URL="file://"+path.resolve(__dirname,"..","index.html");
-const EVIDENCE=path.resolve(__dirname,"..","combat-evidence");
+const EVIDENCE=path.resolve(__dirname,"..","archive","combat-evidence");
 let fails=0;
 const ok=(c,m)=>{if(!c)fails++;console.log(c?"ok  ":"FAIL",m)};
 (async()=>{

@@ -1,0 +1,30 @@
+{
+  "tool": "built-in image_gen.imagegen",
+  "referencePathBase": "repository root",
+  "prompts": [
+    {
+      "id": "tunic",
+      "prompt": "Use case: precise-object-edit. Asset tunic-plain-base-v2. Edit target is the supplied already registered transparent wearable. A plain muted teal short-sleeved knee-length tunic. Remove ALL gold trim, embroidery, compass motifs, gems, belt and buckles. Fill their former areas with matching plain teal fabric, retaining faceted folds. No accessories. Preserve the EXACT original outer silhouette, sleeve openings, neck opening and split hem. Critical invariants: output the SAME 1024x1536 portrait canvas, do not zoom, recenter, resize, change perspective or move ANY garment landmark. The garment occupies y255..890 and its current exact x positions. ALL currently transparent pixels must remain transparent. Render the complete plain garment with continuous opaque fabric under the removed decorations, not holes. Keep the original Prismatic angular painterly shading and upper-left lighting. Only remove sophistication. NO body, skin, head, hair, hands, feet, other clothes, floor, text, background or glow. This is a fixed base that will stay identical at every upgrade level."
+    },
+    {
+      "id": "robe",
+      "prompt": "Use case: precise-object-edit. Asset robe-plain-base-v2. Edit target is the supplied already registered transparent wearable. A plain violet sleeveless ankle-length robe. Remove ALL gold edging, embroidered lines, diamonds, teal jewels, waist belt and buckle. Fill former areas with plain violet fabric and existing broad faceted folds. Preserve EXACT original outer silhouette, collar, armholes and every long layered hem. Critical invariants: output the SAME 1024x1536 portrait canvas, do not zoom, recenter, resize, change perspective or move ANY garment landmark. The garment occupies y255..1435 and its current exact x positions. ALL currently transparent pixels must remain transparent. Render the complete plain garment with continuous opaque fabric under the removed decorations, not holes. Keep the original Prismatic angular painterly shading and upper-left lighting. Only remove sophistication. NO body, skin, head, hair, hands, feet, other clothes, floor, text, background or glow. This is a fixed base that will stay identical at every upgrade level."
+    },
+    {
+      "id": "plate",
+      "prompt": "Use case: precise-object-edit. Asset plate-plain-base-v2. Edit target is the supplied already registered transparent wearable. A plain indigo short-sleeved padded gambeson with knee-length split cloth skirt. Remove ALL stone/metal plates, pauldrons, tassets, leather straps, belt, gold edging and buckles. Replace their former areas with plain dark indigo quilted fabric. Retain EXACT garment outer silhouette/registration including shoulder and skirt extents so separate armor overlays will fit later. No armor, ornaments or accessories. Critical invariants: output the SAME 1024x1536 portrait canvas, do not zoom, recenter, resize, change perspective or move ANY garment landmark. The garment occupies y255..890 and its current exact x positions. ALL currently transparent pixels must remain transparent. Render the complete plain garment with continuous opaque fabric under the removed decorations, not holes. Keep the original Prismatic angular painterly shading and upper-left lighting. Only remove sophistication. NO body, skin, head, hair, hands, feet, other clothes, floor, text, background or glow. This is a fixed base that will stay identical at every upgrade level."
+    },
+    {
+      "id": "boots",
+      "prompt": "Use case: precise-object-edit. Asset boots-plain-base-v2. Make BOTH boots plain brown leather. Remove all teal fabric cuff inserts, gold edging, gold diamonds, buckles and ankle straps. Replace those areas with simple continuous brown leather. Keep original boot silhouettes, shafts, feet, soles, folds, lighting, pair spacing and position EXACTLY unchanged. Fixed registration: preserve the exact 1024x1536 canvas and every existing landmark; do not zoom or recenter. Upper-left lighting, original Prismatic angular painterly style. Genuine transparent RGBA background. Do not add any new items or text. This plain base will be kept identical beneath separate original cuff/strap upgrades."
+    },
+    {
+      "id": "gloves",
+      "prompt": "Use case: precise-object-edit. Asset gloves-plain-base-v2. Change ONLY the two teal/gold glove cuffs into plain dark brown leather matching the fingers. Remove the gold buckles, straps and teal color. Keep the ENTIRE rest of image EXACTLY unchanged, especially hand shapes, finger positions around the gray cylinders, wrists, skin, body, canvas and transparent background. Fixed registration: preserve the exact 1024x1536 canvas and every existing landmark; do not zoom or recenter. Upper-left lighting, original Prismatic angular painterly style. Genuine transparent RGBA background. Do not add any new items or text. This plain base will be kept identical beneath separate original cuff/strap upgrades."
+    },
+    {
+      "id": "trousers",
+      "prompt": "Use case: precise-object-edit. Asset trousers-complete-base-v2. Edit target is the exact registered bald adult hero reference on 1024x1536 canvas. Change ONLY the ivory linen shorts into full-length plain fitted indigo trousers. Waistband y585, crotch y748, ankles y1400. Follow EXACT existing body legs and stance. Trousers must completely cover thighs down from waist to ankles, including original skin right below the shorts. Simple medieval fantasy dark indigo fabric with broad Prismatic faceted folds, no gold trim, belt, ornament, armor, boots, pockets or accessories. Preserve EXACT pose, body size, head, hands, bare feet, canvas registration, transparent background and upper-left lighting. Do not zoom, recenter or change identity. This will be cropped to one reusable trouser layer."
+    }
+  ]
+}

@@ -2,7 +2,7 @@
 // Usage: node tools/geyser-biome-check.js (requires Playwright + Chromium).
 const {chromium}=require("playwright"),path=require("path");
 const URL="file://"+path.resolve(__dirname,"..","index.html");
-const EVIDENCE=path.join(__dirname,"..","rift-evidence");
+const EVIDENCE=path.join(__dirname,"..","archive","rift-evidence");
 let fails=0;const ok=(c,m)=>{if(!c)fails++;console.log(c?"ok  ":"FAIL",m)};
 (async()=>{
   const browser=await chromium.launch();

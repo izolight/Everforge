@@ -1,0 +1,47 @@
+{
+  "cropped": {
+    "source": "hair-copper-cropped-v1.png",
+    "crop": [
+      77,
+      27,
+      1123,
+      1142
+    ],
+    "target": [
+      413,
+      20,
+      185,
+      181
+    ]
+  },
+  "tousled": {
+    "source": "sources/hair-tousled-clean-v2.png",
+    "crop": [
+      122,
+      25,
+      756,
+      739
+    ],
+    "target": [
+      380,
+      15,
+      245,
+      245
+    ]
+  },
+  "bob": {
+    "source": "sources/hair-bob-clean-v2.png",
+    "crop": [
+      144,
+      82,
+      737,
+      734
+    ],
+    "target": [
+      403,
+      25,
+      202,
+      225
+    ]
+  }
+}

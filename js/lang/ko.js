@@ -794,3 +794,6 @@ DICT.ko=Object.assign(DICT.ko||{},{
 });
 
 DICT.ko["3D hero prototype"]="3D 영웅 프로토타입";
+
+// Appearance preview access from equipment.
+Object.assign(DICT.ko, {"Appearance workbench": "외형 작업실", "Opens in a new tab. Preview colors and styles without changing your game character.": "새 탭에서 열립니다. 게임 캐릭터를 변경하지 않고 색상과 스타일을 미리 볼 수 있습니다."});

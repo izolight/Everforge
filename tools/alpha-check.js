@@ -48,7 +48,7 @@ let fails=0;const ok=(c,m)=>{if(!c)fails++;console.log(c?"ok  ":"FAIL",m)};
       const cell=host.querySelector(".tl.alpha");return{found:!!cell,marker:!!cell?.querySelector(".alpha-mark"),width:cell&&Math.round(cell.getBoundingClientRect().width),height:cell&&Math.round(cell.getBoundingClientRect().height),label:cell&&cell.getAttribute("aria-label")};
     });
     ok(art.found&&art.marker&&art.width<=48&&art.height<=48,"alpha uses a visible star and distinct frame on a mobile size tile");
-    await p.locator("#v16-alpha-mobile-review").screenshot({path:path.resolve(__dirname,"../art-evidence/v16-alpha-map-mobile.png")});
+    await p.locator("#v16-alpha-mobile-review").screenshot({path:path.resolve(__dirname,"../archive/art-evidence/v16-alpha-map-mobile.png")});
     ok(!errs.length,"no browser errors: "+errs.join("; "));
     console.log(JSON.stringify({rows:r.rows,combat,mobile:art},null,2));
   }finally{await browser.close()}

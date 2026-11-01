@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Clothing and occlusion workbench</title>
+<style>
+:root{color-scheme:dark;font:14px system-ui;background:#171821;color:#eee}body{max-width:1120px;margin:24px auto;padding:0 16px}h1{font-size:25px}p{color:#bbc1d1;line-height:1.5}a{color:#afc9ff}.controls,.stages,.actions{display:flex;flex-wrap:wrap;gap:12px;margin:18px 0}label{display:grid;gap:4px}select,button{font:inherit;padding:8px;background:#292d3d;color:#fff;border:1px solid #596078;border-radius:5px}button{cursor:pointer}.card{padding:12px;border:1px solid #41475d;border-radius:8px;background:#222633}.hero{width:212px;height:318px}.light{background:#e8e3dc}.dark{background:#11131b}.detail{width:180px;height:225px}#status{min-height:22px;color:#a0e4c6}#proofs{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}.proof{border:1px solid #41475d;border-radius:8px;padding:10px}.proof canvas{max-width:100%;height:auto}#mini{width:24px;height:36px;image-rendering:auto}.swatches{display:flex;gap:8px}.swatches canvas{width:64px;height:64px}@media(max-width:420px){body{padding:0 12px}.card{max-width:calc(100% - 26px)}#proofs{grid-template-columns:1fr}}
+</style>
+<h1>Clothing and occlusion workbench</h1>
+<p>Start with plain fabric and leather. Add belts and straps, stone protection, then gold trim and cuffs over the same base garments. Fabric and leather dyes preserve shading; metal and gems keep their colors. Hero previews use the game’s 318 px height. <a href="hero-kit.html">Appearance</a> · <a href="blade-kit.html">Blades</a></p>
+<div class="controls" id="equipment"></div><div class="controls" id="appearance"></div>
+<div class="actions"><button id="preset-plain">Plain</button><button id="preset-equipped">Add utility / protection</button><button id="preset-decorated">Add ornament</button><button id="download">Download hero PNG</button><button id="reset">Reset proof</button></div>
+<p id="status" role="status">Loading wardrobe…</p>
+<div class="stages" id="overview">
+ <div class="card"><p>Light / gameplay size</p><canvas id="hero" class="hero light" aria-label="Dressed hero on light background"></canvas></div>
+ <div class="card"><p>Dark / gameplay size</p><canvas id="hero-dark" class="hero dark" aria-label="Dressed hero on dark background"></canvas></div>
+ <div class="card"><p>Glove and weapon joins</p><canvas id="hand-left" class="detail light"></canvas><canvas id="hand-right" class="detail dark"></canvas></div>
+ <div class="card"><p>36 px silhouette</p><canvas id="mini" class="light"></canvas><p>Torso detail at 64 px</p><div class="swatches"><canvas id="icon-light" class="light"></canvas><canvas id="icon-dark" class="dark"></canvas></div></div>
+</div>
+<h2>Overlap and appearance review</h2><div id="proofs"></div>
+<h2>Same base, additive upgrades</h2><p>Plain → utility and protection → decorated. Each step retains every earlier layer.</p><div id="progression" class="stages"></div>
+<h2>Same artwork, different dyes</h2><p>Original → teal → rust → linen. Dyed versions use charcoal leather; the gold, stone and gems remain unchanged.</p><div id="dyes" class="stages"></div>
+<h2>Fitted components at 64 px</h2><p>Wearable-layer thumbnails on light and dark backgrounds. Separate inventory representations remain a later batch.</p><div id="components" class="stages"></div>
+<script src="../js/art/hero-kit.js"></script><script src="../js/art/blade-kit.js"></script><script src="../js/art/clothing-kit.js"></script>
+<script>
+window.clothingReady=(async()=>{
+ const read=async f=>{const r=await fetch(f);if(!r.ok)throw Error(`Unable to load ${f}`);return r.json()};
+ const[m,hm,bm]=await Promise.all([read('../assets/hero/clothing-kit/manifest.json'),read('../assets/hero/kit/manifest.json'),read('../assets/weapons/blade-kit/manifest.json')]);
+ let state;try{state=JSON.parse(localStorage.getItem('clothing-kit-preview'))}catch{}
+ state={appearance:HeroKit.normalize(hm,state?.appearance||{}),equipment:ClothingKit.normalize(m,state?.equipment||{})};
+ const controls={};let revision=0;
+ function select(host,key,values,selected,onchange){const label=document.createElement('label');label.textContent=({fabric:'Fabric dye',leatherColor:'Leather dye'})[key]||key;const s=document.createElement('select');s.id=host+'-'+key;s.setAttribute('aria-label',host+' '+key);for(const id of values)s.add(new Option(id,id));s.value=selected;s.onchange=()=>{onchange(s.value);update().catch(fail)};label.append(s);document.getElementById(host).append(label);return s}
+ for(const[key,values]of Object.entries(m.choices))controls[key]=select('equipment',key,values,state.equipment[key],v=>{state.equipment[key]=v});
+ for(const[id,preset]of Object.entries(m.presets))document.getElementById('preset-'+id).onclick=()=>{Object.assign(state.equipment,preset);update().catch(fail)};
+ for(const key of ['face','hair','skin','eyes','hairColor'])select('appearance',key,Object.keys(key==='face'?hm.faces:key==='hair'?hm.hairs:hm.palettes[key]),state.appearance[key],v=>{state.appearance[key]=v});
+ const copy=(id,source,w=source.width,h=source.height,crop=null)=>{const c=document.getElementById(id);c.width=w;c.height=h;const x=c.getContext('2d');if(crop)x.drawImage(source,...crop,0,0,w,h);else x.drawImage(source,0,0,w,h)};
+ async function update(){const current=++revision,equipment=ClothingKit.normalize(m,state.equipment),appearance={...state.appearance},c=document.createElement('canvas');await ClothingKit.render(c,hm,bm,m,appearance,equipment);if(current!==revision)return;
+  state.equipment=equipment;for(const[k,s]of Object.entries(controls))s.value=equipment[k];controls.left.disabled=equipment.shield!=='none';
+  copy('hero',c);copy('hero-dark',c);copy('mini',c,24,36);for(const side of ['left','right'])copy('hand-'+side,c,180,225,[side==='left'?140:690,620,180,225]);
+  for(const theme of ['light','dark'])copy('icon-'+theme,c,64,64,[300,275,410,410]);
+  localStorage.setItem('clothing-kit-preview',JSON.stringify(state));document.getElementById('status').textContent=`${equipment.outfit} · utility ${equipment.utility} / protection ${equipment.protection} / ornament ${equipment.ornament} · ${equipment.helmet==='none'?'hair visible':'helmet hides hair'} · left ${equipment.shield==='none'?equipment.left:'shield'} / right ${equipment.right}`;
+ }
+ document.getElementById('reset').onclick=()=>{localStorage.removeItem('clothing-kit-preview');location.reload()};document.getElementById('download').onclick=()=>{const a=document.createElement('a');a.href=document.getElementById('hero').toDataURL();a.download='hero-wardrobe.png';a.click()};
+ await update();
+ const proofs=[
+  ['Tunic / dual blades',{outfit:'tunic',right:'short'},{face:'neutral',hair:'cropped'}],
+  ['Robe / long hem / crystal',{outfit:'robe',left:'crystal',right:'empty'},{face:'keen',hair:'tousled'}],
+  ['Plate / helmet / shield',{outfit:'plate',helmet:'iron',shield:'kite',right:'standard'},{face:'angular',hair:'bob',skin:'umber'}],
+  ['Same tunic / different hero',{outfit:'tunic',right:'short'},{face:'angular',hair:'bob',skin:'rose'}],
+  ['Helmet / bob hidden',{outfit:'robe',helmet:'iron',left:'empty',right:'short'},{face:'neutral',hair:'bob'}],
+  ['Bare hands / dual blades',{outfit:'plate',gloves:'none',left:'standard',right:'crystal'},{face:'keen',hair:'tousled',skin:'umber'}]
+ ];
+ for(const[label,equipment,appearance]of proofs){const card=document.createElement('div');card.className='proof';const title=document.createElement('p');title.textContent=label;card.append(title);const sheet=document.createElement('canvas');sheet.width=424;sheet.height=318;const sx=sheet.getContext('2d'),c=document.createElement('canvas');await ClothingKit.render(c,hm,bm,m,appearance,{...m.defaults,...m.presets.decorated,...equipment});for(let n=0;n<2;n++){sx.fillStyle=n?'#11131b':'#e8e3dc';sx.fillRect(n*212,0,212,318);sx.drawImage(c,n*212,0,212,318)}card.append(sheet);document.getElementById('proofs').append(card)}
+ for(const outfit of ['tunic','robe','plate']){
+  const card=document.createElement('div');card.className='proof';const label=document.createElement('p');label.textContent=outfit==='plate'?'Padded base → stone plates → ornament':outfit+' · plain → belted → ornament';card.append(label);
+  const sheet=document.createElement('canvas');sheet.width=636;sheet.height=318;sheet.style.width='636px';sheet.style.maxWidth='100%';sheet.style.height='auto';const x=sheet.getContext('2d');let n=0;
+  for(const preset of Object.values(m.presets)){const c=document.createElement('canvas');await ClothingKit.render(c,hm,bm,m,{}, {...m.defaults,outfit,left:'empty',right:'empty',charm:'none',...preset});x.fillStyle=n%2?'#11131b':'#e8e3dc';x.fillRect(n*212,0,212,318);x.drawImage(c,n*212,0,212,318);n++}card.append(sheet);document.getElementById('progression').append(card);
+ }
+ for(const outfit of ['tunic','robe','plate']){
+  const card=document.createElement('div');card.className='proof';const label=document.createElement('p');label.textContent=outfit;card.append(label);const sheet=document.createElement('canvas');sheet.width=848;sheet.height=318;sheet.style.width='848px';sheet.style.maxWidth='100%';sheet.style.height='auto';const x=sheet.getContext('2d');let n=0;
+  for(const fabric of ['original','teal','rust','linen']){const c=document.createElement('canvas');await ClothingKit.render(c,hm,bm,m,{}, {...m.defaults,...m.presets.decorated,outfit,left:'empty',right:'empty',fabric,leatherColor:n?'charcoal':'original'});x.fillStyle=n%2?'#11131b':'#e8e3dc';x.fillRect(n*212,0,212,318);x.drawImage(c,n*212,0,212,318);n++}card.append(sheet);document.getElementById('dyes').append(card);
+ }
+ for(const[id,part]of Object.entries(m.layers)){
+  if(part.role==='legacy-reference')continue;
+  const i=new Image();i.src='../assets/hero/clothing-kit/'+part.src;await i.decode();const c=document.createElement('canvas');c.width=1024;c.height=1536;const x=c.getContext('2d');x.drawImage(i,0,0);const d=x.getImageData(0,0,1024,1536).data;let l=1024,t=1536,r=0,b=0;
+  for(let y=0;y<1536;y++)for(let a=0;a<1024;a++)if(d[(y*1024+a)*4+3]>32){l=Math.min(l,a);r=Math.max(r,a);t=Math.min(t,y);b=Math.max(b,y)}
+  const card=document.createElement('div');card.className='card';const p=document.createElement('p');p.textContent=id;card.append(p);const row=document.createElement('div');row.className='swatches';
+  for(const theme of ['light','dark']){const icon=document.createElement('canvas');icon.width=64;icon.height=64;icon.className=theme;const w=r-l+1,h=b-t+1,scale=58/Math.max(w,h);icon.getContext('2d').drawImage(i,l,t,w,h,(64-w*scale)/2,(64-h*scale)/2,w*scale,h*scale);row.append(icon)}card.append(row);document.getElementById('components').append(card);
+ }
+ window.clothingManifest=m;window.clothingHeroManifest=hm;window.clothingBladeManifest=bm;return true;
+})();
+function fail(e){document.getElementById('status').textContent=e.message;console.error(e)}window.clothingReady.catch(fail);
+</script>
+</html>

@@ -1,0 +1,149 @@
+{
+  "version": 1,
+  "status": "appearance proof; equipment not yet fitted",
+  "canvas": {
+    "width": 1024,
+    "height": 1536,
+    "colorSpace": "srgb",
+    "lighting": "upper-left"
+  },
+  "anchors": {
+    "scalp": [
+      505,
+      38
+    ],
+    "eyeLine": 138,
+    "chin": [
+      505,
+      221
+    ],
+    "neck": [
+      505,
+      258
+    ],
+    "leftHand": [
+      231,
+      770
+    ],
+    "rightHand": [
+      779,
+      770
+    ],
+    "feetY": 1486
+  },
+  "body": "body.png",
+  "clothing": {
+    "torso": "underclothes-torso.png",
+    "trousers": "underclothes-trousers.png"
+  },
+  "masks": {
+    "skin": "mask-skin.png"
+  },
+  "layerOrder": [
+    "hair.back",
+    "body",
+    "clothing.torso",
+    "clothing.trousers",
+    "face",
+    "hair.front"
+  ],
+  "defaults": {
+    "face": "neutral",
+    "hair": "cropped",
+    "skin": "original",
+    "eyes": "original",
+    "hairColor": "original"
+  },
+  "faces": {
+    "neutral": {
+      "src": "face-neutral.png",
+      "skinMask": "mask-face-neutral.png",
+      "eyeMask": "mask-eyes-neutral.png",
+      "compatibleHair": [
+        "cropped",
+        "tousled",
+        "bob"
+      ]
+    },
+    "keen": {
+      "src": "face-keen.png",
+      "skinMask": "mask-face-keen.png",
+      "eyeMask": "mask-eyes-keen.png",
+      "compatibleHair": [
+        "cropped",
+        "tousled",
+        "bob"
+      ]
+    },
+    "angular": {
+      "src": "face-angular.png",
+      "skinMask": "mask-face-angular.png",
+      "eyeMask": "mask-eyes-angular.png",
+      "compatibleHair": [
+        "cropped",
+        "tousled",
+        "bob"
+      ]
+    }
+  },
+  "hairs": {
+    "cropped": {
+      "front": "hair-cropped-front.png",
+      "back": "hair-cropped-back.png",
+      "mask": "mask-hair-cropped.png",
+      "backMask": "mask-hair-cropped.png",
+      "helmet": {
+        "rule": "hide front and back; fitted helmet hair not yet produced"
+      }
+    },
+    "tousled": {
+      "front": "hair-tousled-front.png",
+      "back": "hair-tousled-back.png",
+      "mask": "mask-hair-tousled.png",
+      "backMask": "mask-hair-tousled.png",
+      "helmet": {
+        "rule": "hide front and back; fitted helmet hair not yet produced"
+      }
+    },
+    "bob": {
+      "front": "hair-bob-front.png",
+      "back": "hair-bob-back.png",
+      "mask": "mask-hair-bob.png",
+      "backMask": "mask-hair-bob.png",
+      "helmet": {
+        "rule": "hide front and back; fitted helmet hair not yet produced"
+      }
+    }
+  },
+  "palettes": {
+    "skin": {
+      "original": null,
+      "umber": "#94674d",
+      "rose": "#d0a38c"
+    },
+    "eyes": {
+      "original": null,
+      "teal": "#338b91",
+      "amber": "#ad7b31"
+    },
+    "hairColor": {
+      "original": null,
+      "ebony": "#3e333d",
+      "silver": "#a7b3c1"
+    }
+  },
+  "fallback": {
+    "unknownRecipeValues": "use defaults",
+    "missingAsset": "report load error; production game retains existing SVG hero"
+  },
+  "limitations": [
+    "Initial shared silhouette only; no fitted equipment or helmet hair yet.",
+    "Underclothes are retained beneath future equipment; concealed anatomy is not reconstructed.",
+    "Skin and eye masks are authored approximations; inspect source-scale eye close-ups before expansion."
+  ],
+  "tintReferenceLuma": {
+    "skin": 175,
+    "eyes": 95,
+    "hairColor": 110
+  }
+}

@@ -1,7 +1,7 @@
 // M-06 Fen promotion: roster, unlock/save migration, deterministic map, palette and score.
 const {chromium}=require("playwright"),path=require("path"),fs=require("fs"),assert=require("assert");
 const URL="file://"+path.resolve(__dirname,"..","index.html");
-const EVIDENCE=path.resolve(__dirname,"..","region-evidence");fs.mkdirSync(EVIDENCE,{recursive:true});
+const EVIDENCE=path.resolve(__dirname,"..","archive","region-evidence");fs.mkdirSync(EVIDENCE,{recursive:true});
 (async()=>{
   const browser=await chromium.launch();
   try{

@@ -1,0 +1,296 @@
+{
+  "version": 1,
+  "status": "batch 3 blade assembly and bare-hand fit proof",
+  "canvas": {
+    "width": 1024,
+    "height": 1024,
+    "colorSpace": "srgb",
+    "view": "near-front, upright, tip up",
+    "lighting": "upper-left"
+  },
+  "anchors": {
+    "axisX": 512,
+    "bladeRoot": [
+      512,
+      730
+    ],
+    "guard": [
+      512,
+      736
+    ],
+    "gripTop": [
+      512,
+      758
+    ],
+    "gripPivot": [
+      512,
+      824
+    ],
+    "gripBottom": [
+      512,
+      900
+    ],
+    "pommel": [
+      512,
+      922
+    ]
+  },
+  "components": {
+    "blade-standard-steel-v1": {
+      "family": "blade",
+      "source": "sources/blade-standard-steel-v1.png",
+      "src": "kit/blade-standard-steel-v1.png",
+      "mask": "kit/mask-blade-standard-steel-v1.png",
+      "target": [
+        464,
+        100,
+        96,
+        640
+      ]
+    },
+    "blade-short-steel-v1": {
+      "family": "blade",
+      "source": "sources/blade-short-steel-v1.png",
+      "src": "kit/blade-short-steel-v1.png",
+      "mask": "kit/mask-blade-short-steel-v1.png",
+      "target": [
+        460,
+        360,
+        104,
+        380
+      ]
+    },
+    "blade-broad-steel-v1": {
+      "family": "blade",
+      "source": "sources/blade-broad-steel-v1.png",
+      "src": "kit/blade-broad-steel-v1.png",
+      "mask": "kit/mask-blade-broad-steel-v1.png",
+      "target": [
+        432,
+        160,
+        160,
+        580
+      ]
+    },
+    "blade-standard-wood-v1": {
+      "family": "blade",
+      "source": "sources/blade-standard-wood-v1.png",
+      "src": "kit/blade-standard-wood-v1.png",
+      "mask": "kit/mask-blade-standard-wood-v1.png",
+      "target": [
+        464,
+        100,
+        96,
+        640
+      ]
+    },
+    "blade-standard-crystal-v1": {
+      "family": "blade",
+      "source": "sources/blade-standard-crystal-v1.png",
+      "src": "kit/blade-standard-crystal-v1.png",
+      "mask": "kit/mask-blade-standard-crystal-v1.png",
+      "target": [
+        464,
+        100,
+        96,
+        640
+      ]
+    },
+    "guard-straight-v1": {
+      "family": "guard",
+      "source": "sources/guard-straight-v1.png",
+      "src": "kit/guard-straight-v1.png",
+      "mask": "kit/mask-guard-straight-v1.png",
+      "target": [
+        352,
+        700,
+        320,
+        80
+      ],
+      "trimMask": "kit/mask-guard-straight-v1-trim.png"
+    },
+    "guard-swept-v1": {
+      "family": "guard",
+      "source": "sources/guard-swept-v1.png",
+      "src": "kit/guard-swept-v1.png",
+      "mask": "kit/mask-guard-swept-v1.png",
+      "target": [
+        352,
+        688,
+        320,
+        96
+      ]
+    },
+    "grip-leather-v1": {
+      "family": "grip",
+      "source": "sources/grip-leather-v1.png",
+      "src": "kit/grip-leather-v1.png",
+      "mask": "kit/mask-grip-leather-v1.png",
+      "target": [
+        483,
+        750,
+        58,
+        158
+      ]
+    },
+    "grip-wood-v1": {
+      "family": "grip",
+      "source": "sources/grip-wood-v1.png",
+      "src": "kit/grip-wood-v1.png",
+      "mask": "kit/mask-grip-wood-v1.png",
+      "target": [
+        483,
+        750,
+        58,
+        158
+      ]
+    },
+    "pommel-disc-v1": {
+      "family": "pommel",
+      "source": "sources/pommel-disc-v1.png",
+      "src": "kit/pommel-disc-v1.png",
+      "mask": "kit/mask-pommel-disc-v1.png",
+      "target": [
+        472,
+        884,
+        80,
+        80
+      ],
+      "trimMask": "kit/mask-pommel-disc-v1-trim.png"
+    },
+    "pommel-diamond-v1": {
+      "family": "pommel",
+      "source": "sources/pommel-diamond-v1.png",
+      "src": "kit/pommel-diamond-v1.png",
+      "mask": "kit/mask-pommel-diamond-v1.png",
+      "target": [
+        476,
+        884,
+        72,
+        84
+      ],
+      "trimMask": "kit/mask-pommel-diamond-v1-trim.png"
+    }
+  },
+  "blades": {
+    "short": {
+      "materials": {
+        "steel": "blade-short-steel-v1"
+      }
+    },
+    "standard": {
+      "materials": {
+        "steel": "blade-standard-steel-v1",
+        "wood": "blade-standard-wood-v1",
+        "crystal": "blade-standard-crystal-v1"
+      }
+    },
+    "broad": {
+      "materials": {
+        "steel": "blade-broad-steel-v1"
+      }
+    }
+  },
+  "guards": {
+    "straight": "guard-straight-v1",
+    "swept": "guard-swept-v1"
+  },
+  "grips": {
+    "leather": "grip-leather-v1",
+    "wood": "grip-wood-v1"
+  },
+  "pommels": {
+    "disc": "pommel-disc-v1",
+    "diamond": "pommel-diamond-v1"
+  },
+  "defaults": {
+    "blade": "standard",
+    "material": "steel",
+    "guard": "straight",
+    "grip": "leather",
+    "pommel": "disc"
+  },
+  "layerOrder": [
+    "blade",
+    "grip",
+    "pommel",
+    "guard"
+  ],
+  "hands": {
+    "left": {
+      "space": "image-left",
+      "anchor": [
+        227,
+        733
+      ],
+      "rotationDegrees": -6.5,
+      "scale": 0.62,
+      "patch": "kit/hand-left.png",
+      "replace": "kit/replace-left.png",
+      "region": [
+        185,
+        672,
+        104,
+        180
+      ],
+      "measuredReferenceAxis": [
+        [
+          220,
+          640
+        ],
+        [
+          237,
+          794
+        ]
+      ]
+    },
+    "right": {
+      "space": "image-right",
+      "anchor": [
+        783,
+        734
+      ],
+      "rotationDegrees": 6.5,
+      "scale": 0.62,
+      "patch": "kit/hand-right.png",
+      "replace": "kit/replace-right.png",
+      "region": [
+        731,
+        672,
+        104,
+        180
+      ],
+      "measuredReferenceAxis": [
+        [
+          790,
+          640
+        ],
+        [
+          773,
+          794
+        ]
+      ]
+    }
+  },
+  "visibility": {
+    "weapon": "behind body and fitted fingers",
+    "emptyHand": "retain original relaxed hand",
+    "mirroring": "never; rotate same near-front assembly for each hand"
+  },
+  "fallback": {
+    "unknownParts": "defaults",
+    "unsupportedMaterial": "steel",
+    "missingFile": "visible load error in workbench; live SVG equipment remains available"
+  },
+  "coverage": {
+    "steelCombinations": 24,
+    "woodCombinations": 8,
+    "crystalCombinations": 8
+  },
+  "limitations": [
+    "Wood and crystal standard blades use dedicated material artwork; short and broad support steel only.",
+    "This batch proves blade/dagger assembly; spellblade fittings and other weapon families are later batches.",
+    "Fitted bare-hand patches use the shared body's warm skin palette and receive the appearance skin tint.",
+    "No live game equipment replacement or save migration."
+  ]
+}

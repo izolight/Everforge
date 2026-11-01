@@ -3,8 +3,8 @@
 const assert=require("assert"),fs=require("fs"),path=require("path");
 const {chromium}=require("playwright");
 const URL="file://"+path.resolve(__dirname,"..","index.html");
-const SHOT=path.resolve(__dirname,"../combat-evidence/v18-pack-mobile.png");
-const MAPSHOT=path.resolve(__dirname,"../combat-evidence/v18-pack-map-mobile.png");
+const SHOT=path.resolve(__dirname,"../archive/combat-evidence/v18-pack-mobile.png");
+const MAPSHOT=path.resolve(__dirname,"../archive/combat-evidence/v18-pack-map-mobile.png");
 
 (async()=>{
   const browser=await chromium.launch();
