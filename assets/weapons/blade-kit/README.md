@@ -73,7 +73,7 @@ ornaments, all other weapon families, animation, gloves and additional poses
 remain outside this batch. Hand patches are fitted to the current shared body;
 they are not generic hands for arbitrary silhouettes.
 
-**Next is batch 4:** tunic, robe and plate components; one glove, boot and helmet
-kit; shield and charm. Reuse this weapon/hand proof to validate gloves gripping
-weapons, shield forearm overlap, dual wielding, long hems and hair hiding before
-expanding the equipment families.
+[Batch 4 clothing and occlusion](../../hero/clothing-kit/README.md) is now
+available: three outfits, boots, fitted closed gloves, helmet, shield and charm.
+It reuses this blade/hand registration for dual wielding and glove overlap.
+Equipment expansion and full runtime migration remain later work.

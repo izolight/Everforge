@@ -1,0 +1,1685 @@
+{
+  "version": 2,
+  "canvas": {
+    "width": 1024,
+    "height": 1536,
+    "colorSpace": "srgb"
+  },
+  "status": "additive wardrobe proof",
+  "defaults": {
+    "outfit": "tunic",
+    "boots": "leather",
+    "gloves": "leather",
+    "helmet": "none",
+    "shield": "none",
+    "charm": "none",
+    "left": "standard",
+    "right": "empty",
+    "utility": "none",
+    "protection": "none",
+    "ornament": "none",
+    "fabric": "original",
+    "leatherColor": "original"
+  },
+  "choices": {
+    "outfit": [
+      "none",
+      "tunic",
+      "robe",
+      "plate"
+    ],
+    "boots": [
+      "none",
+      "leather"
+    ],
+    "gloves": [
+      "none",
+      "leather"
+    ],
+    "helmet": [
+      "none",
+      "iron"
+    ],
+    "shield": [
+      "none",
+      "kite"
+    ],
+    "charm": [
+      "none",
+      "glass"
+    ],
+    "left": [
+      "empty",
+      "standard",
+      "short",
+      "crystal"
+    ],
+    "right": [
+      "empty",
+      "standard",
+      "short",
+      "crystal"
+    ],
+    "utility": [
+      "none",
+      "leather"
+    ],
+    "protection": [
+      "none",
+      "stone"
+    ],
+    "ornament": [
+      "none",
+      "gold"
+    ],
+    "fabric": [
+      "original",
+      "teal",
+      "indigo",
+      "rust",
+      "linen"
+    ],
+    "leatherColor": [
+      "original",
+      "umber",
+      "charcoal",
+      "oxblood"
+    ]
+  },
+  "weapons": {
+    "standard": {},
+    "short": {
+      "blade": "short"
+    },
+    "crystal": {
+      "material": "crystal",
+      "guard": "swept"
+    }
+  },
+  "layers": {
+    "tunic": {
+      "source": "sources/tunic-v1.png",
+      "src": "kit/tunic.png",
+      "mask": "kit/mask-tunic.png",
+      "trimMask": "kit/mask-tunic-trim.png",
+      "rows": [
+        [
+          142,
+          260,
+          0.95
+        ],
+        [
+          215,
+          290,
+          0.95
+        ],
+        [
+          438,
+          460,
+          0.78
+        ],
+        [
+          535,
+          565,
+          0.94
+        ],
+        [
+          875,
+          890,
+          0.86
+        ]
+      ],
+      "role": "legacy-reference"
+    },
+    "trousers": {
+      "source": "sources/tunic-v1.png",
+      "src": "kit/trousers.png",
+      "mask": "kit/mask-trousers.png",
+      "trimMask": "kit/mask-trousers-trim.png",
+      "rows": [
+        [
+          840,
+          865,
+          0.97
+        ],
+        [
+          1050,
+          1060,
+          1
+        ],
+        [
+          1445,
+          1410,
+          1
+        ]
+      ],
+      "isolateIndigo": true,
+      "role": "legacy-reference"
+    },
+    "robe": {
+      "source": "sources/robe-v1.png",
+      "src": "kit/robe.png",
+      "mask": "kit/mask-robe.png",
+      "trimMask": "kit/mask-robe-trim.png",
+      "rows": [
+        [
+          80,
+          255,
+          1
+        ],
+        [
+          160,
+          290,
+          1.25
+        ],
+        [
+          450,
+          560,
+          1.12
+        ],
+        [
+          740,
+          850,
+          0.75
+        ],
+        [
+          1475,
+          1435,
+          0.53
+        ]
+      ],
+      "role": "legacy-reference",
+      "horizontalFit": [
+        [
+          0,
+          1
+        ],
+        [
+          290,
+          1
+        ],
+        [
+          355,
+          0.89
+        ],
+        [
+          402,
+          0.82
+        ],
+        [
+          458,
+          0.87
+        ],
+        [
+          513,
+          0.97
+        ],
+        [
+          560,
+          1
+        ],
+        [
+          1536,
+          1
+        ]
+      ]
+    },
+    "plate": {
+      "source": "sources/plate-v1.png",
+      "src": "kit/plate.png",
+      "mask": "kit/mask-plate.png",
+      "trimMask": "kit/mask-plate-trim.png",
+      "rows": [
+        [
+          200,
+          255,
+          0.7
+        ],
+        [
+          290,
+          290,
+          0.65
+        ],
+        [
+          685,
+          450,
+          0.52
+        ],
+        [
+          840,
+          565,
+          0.75
+        ],
+        [
+          1275,
+          885,
+          0.7
+        ]
+      ],
+      "role": "legacy-reference"
+    },
+    "boot-left": {
+      "source": "sources/boots-v1.png",
+      "src": "kit/boot-left.png",
+      "mask": "kit/mask-boot-left.png",
+      "trimMask": "kit/mask-boot-left-trim.png",
+      "crop": [
+        88,
+        355,
+        380,
+        990
+      ],
+      "target": [
+        285,
+        1100,
+        150,
+        400
+      ],
+      "role": "legacy-reference"
+    },
+    "boot-right": {
+      "source": "sources/boots-v1.png",
+      "src": "kit/boot-right.png",
+      "mask": "kit/mask-boot-right.png",
+      "trimMask": "kit/mask-boot-right-trim.png",
+      "crop": [
+        570,
+        355,
+        370,
+        990
+      ],
+      "target": [
+        580,
+        1100,
+        160,
+        400
+      ],
+      "role": "legacy-reference"
+    },
+    "helmet": {
+      "source": "sources/helmet-v1.png",
+      "src": "kit/helmet.png",
+      "mask": "kit/mask-helmet.png",
+      "trimMask": "kit/mask-helmet-trim.png",
+      "crop": [
+        130,
+        68,
+        760,
+        1180
+      ],
+      "target": [
+        410,
+        0,
+        190,
+        252
+      ]
+    },
+    "shield": {
+      "source": "sources/shield-v1.png",
+      "src": "kit/shield.png",
+      "mask": "kit/mask-shield.png",
+      "trimMask": "kit/mask-shield-trim.png",
+      "crop": [
+        102,
+        55,
+        820,
+        1370
+      ],
+      "target": [
+        125,
+        575,
+        260,
+        470
+      ]
+    },
+    "charm": {
+      "source": "sources/charm-v1.png",
+      "src": "kit/charm.png",
+      "mask": "kit/mask-charm.png",
+      "trimMask": "kit/mask-charm-trim.png",
+      "crop": [
+        230,
+        210,
+        560,
+        905
+      ],
+      "target": [
+        480,
+        330,
+        50,
+        100
+      ]
+    },
+    "glove-left": {
+      "source": "sources/gloves-reference-v1.png",
+      "src": "kit/glove-left.png",
+      "mask": "kit/mask-glove-left.png",
+      "trimMask": "kit/mask-glove-left-trim.png",
+      "crop": [
+        0,
+        0,
+        1024,
+        1536
+      ],
+      "target": [
+        0,
+        0,
+        1024,
+        1536
+      ],
+      "polygon": [
+        [
+          242,
+          646
+        ],
+        [
+          277,
+          658
+        ],
+        [
+          265,
+          686
+        ],
+        [
+          259,
+          707
+        ],
+        [
+          264,
+          723
+        ],
+        [
+          254,
+          758
+        ],
+        [
+          242,
+          770
+        ],
+        [
+          211,
+          770
+        ],
+        [
+          194,
+          749
+        ],
+        [
+          190,
+          713
+        ],
+        [
+          205,
+          700
+        ],
+        [
+          232,
+          687
+        ]
+      ],
+      "excludeGray": true,
+      "role": "legacy-reference"
+    },
+    "glove-right": {
+      "source": "sources/gloves-reference-v1.png",
+      "src": "kit/glove-right.png",
+      "mask": "kit/mask-glove-right.png",
+      "trimMask": "kit/mask-glove-right-trim.png",
+      "crop": [
+        0,
+        0,
+        1024,
+        1536
+      ],
+      "target": [
+        0,
+        0,
+        1024,
+        1536
+      ],
+      "polygon": [
+        [
+          768,
+          647
+        ],
+        [
+          733,
+          659
+        ],
+        [
+          745,
+          687
+        ],
+        [
+          751,
+          708
+        ],
+        [
+          746,
+          724
+        ],
+        [
+          756,
+          759
+        ],
+        [
+          768,
+          771
+        ],
+        [
+          799,
+          771
+        ],
+        [
+          816,
+          750
+        ],
+        [
+          820,
+          714
+        ],
+        [
+          805,
+          701
+        ],
+        [
+          778,
+          688
+        ]
+      ],
+      "excludeGray": true,
+      "role": "legacy-reference"
+    },
+    "tunic-base": {
+      "source": "sources/tunic-plain-base-v2.png",
+      "src": "kit/tunic-base.png",
+      "mask": "kit/mask-tunic-base.png",
+      "trimMask": "kit/mask-tunic-base-trim.png",
+      "crop": [
+        0,
+        0,
+        1024,
+        1536
+      ],
+      "target": [
+        0,
+        0,
+        1024,
+        1536
+      ],
+      "role": "base",
+      "tintGroup": "fabric",
+      "tintReferenceLuma": 105
+    },
+    "robe-base": {
+      "source": "sources/robe-plain-base-v2.png",
+      "src": "kit/robe-base.png",
+      "mask": "kit/mask-robe-base.png",
+      "trimMask": "kit/mask-robe-base-trim.png",
+      "crop": [
+        0,
+        0,
+        1024,
+        1536
+      ],
+      "target": [
+        0,
+        0,
+        1024,
+        1536
+      ],
+      "role": "base",
+      "horizontalFit": [
+        [
+          0,
+          1
+        ],
+        [
+          290,
+          1
+        ],
+        [
+          355,
+          0.89
+        ],
+        [
+          402,
+          0.82
+        ],
+        [
+          458,
+          0.87
+        ],
+        [
+          513,
+          0.97
+        ],
+        [
+          560,
+          1
+        ],
+        [
+          1536,
+          1
+        ]
+      ],
+      "sourcePatch": {
+        "source": "sources/robe-plain-base-v3.png",
+        "crop": [
+          305,
+          145,
+          410,
+          305
+        ],
+        "target": [
+          320,
+          325,
+          350,
+          225
+        ],
+        "polygon": [
+          [
+            349,
+            332
+          ],
+          [
+            650,
+            332
+          ],
+          [
+            650,
+            420
+          ],
+          [
+            620,
+            498
+          ],
+          [
+            607,
+            538
+          ],
+          [
+            380,
+            538
+          ],
+          [
+            364,
+            490
+          ],
+          [
+            334,
+            410
+          ]
+        ],
+        "feather": 7
+      },
+      "tintGroup": "fabric",
+      "tintReferenceLuma": 80
+    },
+    "plate-base": {
+      "source": "sources/plate-plain-base-v2.png",
+      "src": "kit/plate-base.png",
+      "mask": "kit/mask-plate-base.png",
+      "trimMask": "kit/mask-plate-base-trim.png",
+      "crop": [
+        0,
+        0,
+        1024,
+        1536
+      ],
+      "target": [
+        0,
+        0,
+        1024,
+        1536
+      ],
+      "role": "base",
+      "tintGroup": "fabric",
+      "tintReferenceLuma": 53
+    },
+    "boot-left-base": {
+      "source": "sources/boots-plain-base-v2.png",
+      "src": "kit/boot-left-base.png",
+      "mask": "kit/mask-boot-left-base.png",
+      "trimMask": "kit/mask-boot-left-base-trim.png",
+      "crop": [
+        88,
+        355,
+        380,
+        990
+      ],
+      "target": [
+        285,
+        1100,
+        150,
+        400
+      ],
+      "role": "base",
+      "tintGroup": "leatherColor",
+      "tintReferenceLuma": 68
+    },
+    "boot-right-base": {
+      "source": "sources/boots-plain-base-v2.png",
+      "src": "kit/boot-right-base.png",
+      "mask": "kit/mask-boot-right-base.png",
+      "trimMask": "kit/mask-boot-right-base-trim.png",
+      "crop": [
+        570,
+        355,
+        370,
+        990
+      ],
+      "target": [
+        580,
+        1100,
+        160,
+        400
+      ],
+      "role": "base",
+      "tintGroup": "leatherColor",
+      "tintReferenceLuma": 70
+    },
+    "glove-left-base": {
+      "source": "sources/gloves-plain-base-v2.png",
+      "src": "kit/glove-left-base.png",
+      "mask": "kit/mask-glove-left-base.png",
+      "trimMask": "kit/mask-glove-left-base-trim.png",
+      "crop": [
+        0,
+        0,
+        1024,
+        1536
+      ],
+      "target": [
+        0,
+        0,
+        1024,
+        1536
+      ],
+      "polygon": [
+        [
+          242,
+          646
+        ],
+        [
+          277,
+          658
+        ],
+        [
+          265,
+          686
+        ],
+        [
+          259,
+          707
+        ],
+        [
+          264,
+          723
+        ],
+        [
+          254,
+          758
+        ],
+        [
+          242,
+          770
+        ],
+        [
+          211,
+          770
+        ],
+        [
+          194,
+          749
+        ],
+        [
+          190,
+          713
+        ],
+        [
+          205,
+          700
+        ],
+        [
+          232,
+          687
+        ]
+      ],
+      "excludeGray": true,
+      "role": "base",
+      "tintGroup": "leatherColor",
+      "tintReferenceLuma": 63
+    },
+    "glove-right-base": {
+      "source": "sources/gloves-plain-base-v2.png",
+      "src": "kit/glove-right-base.png",
+      "mask": "kit/mask-glove-right-base.png",
+      "trimMask": "kit/mask-glove-right-base-trim.png",
+      "crop": [
+        0,
+        0,
+        1024,
+        1536
+      ],
+      "target": [
+        0,
+        0,
+        1024,
+        1536
+      ],
+      "polygon": [
+        [
+          768,
+          647
+        ],
+        [
+          733,
+          659
+        ],
+        [
+          745,
+          687
+        ],
+        [
+          751,
+          708
+        ],
+        [
+          746,
+          724
+        ],
+        [
+          756,
+          759
+        ],
+        [
+          768,
+          771
+        ],
+        [
+          799,
+          771
+        ],
+        [
+          816,
+          750
+        ],
+        [
+          820,
+          714
+        ],
+        [
+          805,
+          701
+        ],
+        [
+          778,
+          688
+        ]
+      ],
+      "excludeGray": true,
+      "role": "base",
+      "tintGroup": "leatherColor",
+      "tintReferenceLuma": 63
+    },
+    "tunic-belt": {
+      "fromLayer": "tunic",
+      "src": "kit/tunic-belt.png",
+      "mask": "kit/mask-tunic-belt.png",
+      "trimMask": "kit/mask-tunic-belt-trim.png",
+      "role": "upgrade",
+      "polygons": [
+        [
+          [
+            396,
+            525
+          ],
+          [
+            603,
+            525
+          ],
+          [
+            620,
+            568
+          ],
+          [
+            582,
+            584
+          ],
+          [
+            450,
+            581
+          ],
+          [
+            391,
+            568
+          ]
+        ]
+      ],
+      "tintGroup": "leatherColor",
+      "tintReferenceLuma": 59
+    },
+    "tunic-ornament": {
+      "fromLayer": "tunic",
+      "src": "kit/tunic-ornament.png",
+      "mask": "kit/mask-tunic-ornament.png",
+      "trimMask": "kit/mask-tunic-ornament-trim.png",
+      "role": "upgrade",
+      "selection": "gold-and-gems",
+      "excludePolygons": [
+        [
+          [
+            396,
+            525
+          ],
+          [
+            603,
+            525
+          ],
+          [
+            620,
+            568
+          ],
+          [
+            582,
+            584
+          ],
+          [
+            450,
+            581
+          ],
+          [
+            391,
+            568
+          ]
+        ]
+      ]
+    },
+    "robe-belt": {
+      "fromLayer": "robe",
+      "src": "kit/robe-belt.png",
+      "mask": "kit/mask-robe-belt.png",
+      "trimMask": "kit/mask-robe-belt-trim.png",
+      "role": "upgrade",
+      "polygons": [
+        [
+          [
+            379,
+            535
+          ],
+          [
+            597,
+            535
+          ],
+          [
+            625,
+            561
+          ],
+          [
+            625,
+            606
+          ],
+          [
+            380,
+            600
+          ],
+          [
+            365,
+            575
+          ]
+        ]
+      ],
+      "tintGroup": "leatherColor",
+      "tintReferenceLuma": 72
+    },
+    "robe-ornament": {
+      "fromLayer": "robe",
+      "src": "kit/robe-ornament.png",
+      "mask": "kit/mask-robe-ornament.png",
+      "trimMask": "kit/mask-robe-ornament-trim.png",
+      "role": "upgrade",
+      "selection": "gold-and-gems",
+      "excludePolygons": [
+        [
+          [
+            379,
+            535
+          ],
+          [
+            597,
+            535
+          ],
+          [
+            625,
+            561
+          ],
+          [
+            625,
+            606
+          ],
+          [
+            380,
+            600
+          ],
+          [
+            365,
+            575
+          ]
+        ]
+      ]
+    },
+    "plate-belt": {
+      "fromLayer": "plate",
+      "src": "kit/plate-belt.png",
+      "mask": "kit/mask-plate-belt.png",
+      "trimMask": "kit/mask-plate-belt-trim.png",
+      "role": "upgrade",
+      "polygons": [
+        [
+          [
+            371,
+            513
+          ],
+          [
+            621,
+            510
+          ],
+          [
+            656,
+            547
+          ],
+          [
+            665,
+            580
+          ],
+          [
+            628,
+            612
+          ],
+          [
+            347,
+            581
+          ],
+          [
+            352,
+            550
+          ]
+        ]
+      ],
+      "tintGroup": "leatherColor",
+      "tintReferenceLuma": 80
+    },
+    "plate-ornament": {
+      "fromLayer": "plate",
+      "src": "kit/plate-ornament.png",
+      "mask": "kit/mask-plate-ornament.png",
+      "trimMask": "kit/mask-plate-ornament-trim.png",
+      "role": "upgrade",
+      "selection": "gold-and-gems",
+      "excludePolygons": [
+        [
+          [
+            371,
+            513
+          ],
+          [
+            621,
+            510
+          ],
+          [
+            656,
+            547
+          ],
+          [
+            665,
+            580
+          ],
+          [
+            628,
+            612
+          ],
+          [
+            347,
+            581
+          ],
+          [
+            352,
+            550
+          ]
+        ]
+      ]
+    },
+    "plate-cuirass": {
+      "fromLayer": "plate",
+      "src": "kit/plate-cuirass.png",
+      "mask": "kit/mask-plate-cuirass.png",
+      "trimMask": "kit/mask-plate-cuirass-trim.png",
+      "role": "upgrade",
+      "polygons": [
+        [
+          [
+            396,
+            332
+          ],
+          [
+            423,
+            330
+          ],
+          [
+            449,
+            337
+          ],
+          [
+            565,
+            337
+          ],
+          [
+            599,
+            321
+          ],
+          [
+            619,
+            388
+          ],
+          [
+            603,
+            427
+          ],
+          [
+            602,
+            473
+          ],
+          [
+            626,
+            519
+          ],
+          [
+            584,
+            533
+          ],
+          [
+            553,
+            536
+          ],
+          [
+            454,
+            531
+          ],
+          [
+            411,
+            532
+          ],
+          [
+            399,
+            504
+          ],
+          [
+            408,
+            470
+          ],
+          [
+            398,
+            432
+          ],
+          [
+            388,
+            388
+          ]
+        ]
+      ]
+    },
+    "plate-shoulders": {
+      "fromLayer": "plate",
+      "src": "kit/plate-shoulders.png",
+      "mask": "kit/mask-plate-shoulders.png",
+      "trimMask": "kit/mask-plate-shoulders-trim.png",
+      "role": "upgrade",
+      "polygons": [
+        [
+          [
+            281,
+            322
+          ],
+          [
+            358,
+            283
+          ],
+          [
+            381,
+            314
+          ],
+          [
+            397,
+            339
+          ],
+          [
+            373,
+            359
+          ],
+          [
+            333,
+            363
+          ],
+          [
+            309,
+            387
+          ],
+          [
+            270,
+            399
+          ]
+        ],
+        [
+          [
+            636,
+            286
+          ],
+          [
+            708,
+            314
+          ],
+          [
+            728,
+            341
+          ],
+          [
+            743,
+            404
+          ],
+          [
+            715,
+            394
+          ],
+          [
+            689,
+            371
+          ],
+          [
+            638,
+            355
+          ],
+          [
+            617,
+            320
+          ]
+        ]
+      ]
+    },
+    "plate-tassets": {
+      "fromLayer": "plate",
+      "src": "kit/plate-tassets.png",
+      "mask": "kit/mask-plate-tassets.png",
+      "trimMask": "kit/mask-plate-tassets-trim.png",
+      "role": "upgrade",
+      "polygons": [
+        [
+          [
+            408,
+            594
+          ],
+          [
+            587,
+            600
+          ],
+          [
+            608,
+            657
+          ],
+          [
+            544,
+            722
+          ],
+          [
+            506,
+            751
+          ],
+          [
+            412,
+            675
+          ]
+        ],
+        [
+          [
+            301,
+            693
+          ],
+          [
+            342,
+            604
+          ],
+          [
+            368,
+            617
+          ],
+          [
+            346,
+            691
+          ],
+          [
+            308,
+            836
+          ],
+          [
+            282,
+            817
+          ]
+        ],
+        [
+          [
+            394,
+            696
+          ],
+          [
+            508,
+            749
+          ],
+          [
+            577,
+            710
+          ],
+          [
+            613,
+            830
+          ],
+          [
+            509,
+            876
+          ],
+          [
+            398,
+            829
+          ]
+        ],
+        [
+          [
+            649,
+            615
+          ],
+          [
+            672,
+            607
+          ],
+          [
+            715,
+            698
+          ],
+          [
+            698,
+            720
+          ],
+          [
+            680,
+            707
+          ]
+        ],
+        [
+          [
+            643,
+            703
+          ],
+          [
+            677,
+            715
+          ],
+          [
+            732,
+            833
+          ],
+          [
+            684,
+            856
+          ]
+        ]
+      ]
+    },
+    "boot-left-straps": {
+      "fromLayer": "boot-left",
+      "src": "kit/boot-left-straps.png",
+      "mask": "kit/mask-boot-left-straps.png",
+      "trimMask": "kit/mask-boot-left-straps-trim.png",
+      "role": "upgrade",
+      "polygons": [
+        [
+          [
+            326,
+            1342
+          ],
+          [
+            400,
+            1345
+          ],
+          [
+            401,
+            1395
+          ],
+          [
+            352,
+            1416
+          ],
+          [
+            327,
+            1395
+          ]
+        ]
+      ],
+      "tintGroup": "leatherColor",
+      "tintReferenceLuma": 71
+    },
+    "boot-left-cuff": {
+      "fromLayer": "boot-left",
+      "src": "kit/boot-left-cuff.png",
+      "mask": "kit/mask-boot-left-cuff.png",
+      "trimMask": "kit/mask-boot-left-cuff-trim.png",
+      "role": "upgrade",
+      "polygons": [
+        [
+          [
+            290,
+            1090
+          ],
+          [
+            441,
+            1090
+          ],
+          [
+            441,
+            1201
+          ],
+          [
+            288,
+            1201
+          ]
+        ]
+      ]
+    },
+    "glove-left-cuff": {
+      "fromLayer": "glove-left",
+      "src": "kit/glove-left-cuff.png",
+      "mask": "kit/mask-glove-left-cuff.png",
+      "trimMask": "kit/mask-glove-left-cuff-trim.png",
+      "role": "upgrade",
+      "polygons": [
+        [
+          [
+            170,
+            630
+          ],
+          [
+            290,
+            630
+          ],
+          [
+            290,
+            696
+          ],
+          [
+            170,
+            696
+          ]
+        ]
+      ]
+    },
+    "boot-right-straps": {
+      "fromLayer": "boot-right",
+      "src": "kit/boot-right-straps.png",
+      "mask": "kit/mask-boot-right-straps.png",
+      "trimMask": "kit/mask-boot-right-straps-trim.png",
+      "role": "upgrade",
+      "polygons": [
+        [
+          [
+            597,
+            1342
+          ],
+          [
+            678,
+            1342
+          ],
+          [
+            692,
+            1399
+          ],
+          [
+            655,
+            1425
+          ],
+          [
+            606,
+            1395
+          ]
+        ]
+      ],
+      "tintGroup": "leatherColor",
+      "tintReferenceLuma": 68
+    },
+    "boot-right-cuff": {
+      "fromLayer": "boot-right",
+      "src": "kit/boot-right-cuff.png",
+      "mask": "kit/mask-boot-right-cuff.png",
+      "trimMask": "kit/mask-boot-right-cuff-trim.png",
+      "role": "upgrade",
+      "polygons": [
+        [
+          [
+            575,
+            1090
+          ],
+          [
+            744,
+            1090
+          ],
+          [
+            744,
+            1201
+          ],
+          [
+            575,
+            1201
+          ]
+        ]
+      ]
+    },
+    "glove-right-cuff": {
+      "fromLayer": "glove-right",
+      "src": "kit/glove-right-cuff.png",
+      "mask": "kit/mask-glove-right-cuff.png",
+      "trimMask": "kit/mask-glove-right-cuff-trim.png",
+      "role": "upgrade",
+      "polygons": [
+        [
+          [
+            720,
+            630
+          ],
+          [
+            845,
+            630
+          ],
+          [
+            845,
+            697
+          ],
+          [
+            720,
+            697
+          ]
+        ]
+      ]
+    },
+    "trousers-base": {
+      "source": "sources/trousers-complete-base-v2.png",
+      "src": "kit/trousers-base.png",
+      "mask": "kit/mask-trousers-base.png",
+      "trimMask": "kit/mask-trousers-base-trim.png",
+      "crop": [
+        300,
+        575,
+        420,
+        830
+      ],
+      "target": [
+        300,
+        575,
+        420,
+        830
+      ],
+      "isolateIndigo": true,
+      "role": "base"
+    }
+  },
+  "layerOrder": [
+    "weapons",
+    "body",
+    "trousers",
+    "boots",
+    "outfit",
+    "charm",
+    "helmet",
+    "hands",
+    "shield"
+  ],
+  "visibility": {
+    "helmet": "hide all front and back hair; no helmet hair in this proof",
+    "shield": "occupies image-left hand and replaces its weapon",
+    "gloves": "closed fitted hands replace relaxed hands, including empty slots",
+    "robe": "long hem drawn over boots",
+    "underclothes": "hidden only when an outer outfit is present",
+    "upgrades": "Always keep assembly base; append enabled protection, utility and ornament layers. No replacement outfits."
+  },
+  "fallback": {
+    "unknownValues": "defaults",
+    "missingFile": "visible load error; live SVG game remains available"
+  },
+  "limitations": [
+    "One shared body and fixed front view only.",
+    "No live game equipment migration or new save format.",
+    "Closed gloves only; empty gloved hands retain relaxed fists.",
+    "Runtime tinting dyes cloth and leather; stone, gold, gems, helmet and shield retain source colors."
+  ],
+  "assemblies": {
+    "tunic": {
+      "base": [
+        "tunic-base"
+      ],
+      "utility": [
+        "tunic-belt"
+      ],
+      "protection": [],
+      "ornament": [
+        "tunic-ornament"
+      ]
+    },
+    "robe": {
+      "base": [
+        "robe-base"
+      ],
+      "utility": [
+        "robe-belt"
+      ],
+      "protection": [],
+      "ornament": [
+        "robe-ornament"
+      ]
+    },
+    "plate": {
+      "base": [
+        "plate-base"
+      ],
+      "utility": [
+        "plate-belt"
+      ],
+      "protection": [
+        "plate-cuirass",
+        "plate-shoulders",
+        "plate-tassets"
+      ],
+      "ornament": [
+        "plate-ornament"
+      ]
+    },
+    "boot-left": {
+      "base": [
+        "boot-left-base"
+      ],
+      "utility": [
+        "boot-left-straps"
+      ],
+      "protection": [],
+      "ornament": [
+        "boot-left-cuff"
+      ]
+    },
+    "glove-left": {
+      "base": [
+        "glove-left-base"
+      ],
+      "utility": [],
+      "protection": [],
+      "ornament": [
+        "glove-left-cuff"
+      ]
+    },
+    "boot-right": {
+      "base": [
+        "boot-right-base"
+      ],
+      "utility": [
+        "boot-right-straps"
+      ],
+      "protection": [],
+      "ornament": [
+        "boot-right-cuff"
+      ]
+    },
+    "glove-right": {
+      "base": [
+        "glove-right-base"
+      ],
+      "utility": [],
+      "protection": [],
+      "ornament": [
+        "glove-right-cuff"
+      ]
+    }
+  },
+  "upgradeOrder": [
+    "base",
+    "protection",
+    "utility",
+    "ornament"
+  ],
+  "presets": {
+    "plain": {
+      "utility": "none",
+      "protection": "none",
+      "ornament": "none"
+    },
+    "equipped": {
+      "utility": "leather",
+      "protection": "stone",
+      "ornament": "none"
+    },
+    "decorated": {
+      "utility": "leather",
+      "protection": "stone",
+      "ornament": "gold"
+    }
+  },
+  "palettes": {
+    "fabric": {
+      "original": null,
+      "teal": "#3a7f86",
+      "indigo": "#505b84",
+      "rust": "#996b51",
+      "linen": "#b8ab94"
+    },
+    "leatherColor": {
+      "original": null,
+      "umber": "#6d5140",
+      "charcoal": "#44454c",
+      "oxblood": "#78414a"
+    }
+  },
+  "tintMethod": "Reference luminance is the measured mean of source surface pixels with alpha and mask >200; tint preserves alpha and source luminance detail."
+}

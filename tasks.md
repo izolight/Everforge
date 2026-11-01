@@ -13,8 +13,16 @@ Single planning record, consolidated 2026-10-31. **65 tracked tasks complete; no
   registration metadata and review sheets retained. Validation covers recipe
   uniqueness/determinism, joins, material masks, hand fits, appearance independence,
   persistence, fallbacks and mobile layout. [Evidence and workflow](assets/weapons/blade-kit/README.md).
-- **Next: batch 4, clothing and occlusion.** Tunic/robe/plate, glove/boot/helmet,
-  shield/charm, hair hiding, long hems, gripping and dual-wield overlap checks.
+- **Clothing proof (batch 4): complete.** Tunic/robe/plate, shared trousers,
+  glove/boot/helmet, shield/charm. V2 adds plain permanent bases and additive
+  belts, armor panels, trim and cuffs: 26 active layers, eight retained v1
+  references and 68 masks. Six upgrade transitions preserve all earlier layers
+  and only change pixels under new overlays. V3 corrects the robe bodice and adds
+  runtime fabric/leather dyes (21 mask/alpha/shading cases). Workbench also covers hair hiding,
+  shield occupancy, long hems, gripping and dual wielding.
+  [Assets, limitations and validation](assets/hero/clothing-kit/README.md).
+- **Next: batch 5, equipment expansion.** Remaining weapon forms and fitted slot
+  coverage, separate inventory representations, helmet hair and open gloves.
   The live SVG equipment renderer remains in use pending fitted kit coverage.
 
 These production batches are separate from the historical 65-task index below.

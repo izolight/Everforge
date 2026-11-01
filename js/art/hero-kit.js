@@ -32,16 +32,18 @@
     }
     ctx.putImageData(pixels,0,0); return layer;
   }
-  async function render(target, manifest, rawRecipe = {}, baseURL = '../assets/hero/kit/') {
+  async function render(target, manifest, rawRecipe = {}, baseURL = '../assets/hero/kit/', options = {}) {
     const recipe = normalize(manifest,rawRecipe), face = manifest.faces[recipe.face], hair = manifest.hairs[recipe.hair];
     target.width=manifest.canvas.width; target.height=manifest.canvas.height;
     const ctx=target.getContext('2d'); ctx.clearRect(0,0,target.width,target.height);
     const draw = async (asset,mask,color,referenceLuma) => ctx.drawImage(await tinted(baseURL+asset,mask ? baseURL+mask : null,color,referenceLuma),0,0);
     const skin=manifest.palettes.skin[recipe.skin], hairColor=manifest.palettes.hairColor[recipe.hairColor];
-    if (hair.back) await draw(hair.back,hair.backMask,hairColor,manifest.tintReferenceLuma.hairColor);
+    if (hair.back && !options.hideHair) await draw(hair.back,hair.backMask,hairColor,manifest.tintReferenceLuma.hairColor);
     await draw(manifest.body,manifest.masks.skin,skin,manifest.tintReferenceLuma.skin);
-    await draw(manifest.clothing.torso);
-    await draw(manifest.clothing.trousers);
+    if (!options.hideUnderclothes) {
+      await draw(manifest.clothing.torso);
+      await draw(manifest.clothing.trousers);
+    }
     const faceLayer=await tinted(baseURL+face.src,baseURL+face.skinMask,skin,manifest.tintReferenceLuma.skin);
     // Eyes are independently masked, after the skin pass.
     const eyes=manifest.palettes.eyes[recipe.eyes];
@@ -50,8 +52,8 @@
       ctx.drawImage(await tinted(tempURL,baseURL+face.eyeMask,eyes,manifest.tintReferenceLuma.eyes),0,0);
       images.delete(tempURL);
     } else ctx.drawImage(faceLayer,0,0);
-    await draw(hair.front,hair.mask,hairColor,manifest.tintReferenceLuma.hairColor);
+    if (!options.hideHair) await draw(hair.front,hair.mask,hairColor,manifest.tintReferenceLuma.hairColor);
     return recipe;
   }
-  window.HeroKit={render,normalize};
+  window.HeroKit={render,normalize,tinted};
 })();

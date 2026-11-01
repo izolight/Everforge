@@ -19,4 +19,4 @@ function artServer() {
   return new Promise(resolve => server.listen(0, '127.0.0.1', () => resolve({server, url:`http://127.0.0.1:${server.address().port}`})));
 }
 module.exports = {artServer};
-if (require.main === module) artServer().then(({url}) => console.log(`Appearance: ${url}/tools/hero-kit.html\nBlade kit: ${url}/tools/blade-kit.html`));
+if (require.main === module) artServer().then(({url}) => console.log(`Appearance: ${url}/tools/hero-kit.html\nBlade kit: ${url}/tools/blade-kit.html\nClothing: ${url}/tools/clothing-kit.html`));

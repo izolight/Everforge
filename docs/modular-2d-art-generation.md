@@ -145,9 +145,9 @@ The first registered appearance kit and its preparation/preview workflow are in
 [assets/hero/README.md](../assets/hero/README.md). It contains three faces and three
 hairstyles on a fixed 1024 × 1536 canvas, separate body/underclothes layers,
 skin/iris/hair masks, assembly metadata, and nine-combination review sheets.
-The proof runs separately from the live SVG equipment renderer. Fitted equipment,
-helmet hair, the full starter appearance counts and runtime migration remain
-outstanding.
+The proof runs separately from the live SVG equipment renderer. Batch 4 adds
+fitted clothing below. Helmet hair, the full starter appearance counts and
+runtime migration remain outstanding.
 
 ## Current blade proof
 
@@ -158,8 +158,24 @@ surface/trim masks, measured assembly anchors, bare-hand occlusion patches and
 light/dark inventory review sheets are retained with reproducible tooling.
 The workbench checks all five blade/material representations in both hands and
 keeps appearance and equipment recipes independent. The live game still uses
-its existing SVG equipment during migration. Next is batch 4: clothing,
-glove/boot/helmet fit, shield/charm, hair hiding and overlap rules.
+its existing SVG equipment during migration. Batch 4 is now available below.
+
+## Current clothing proof
+
+[Batch 4 is complete](../assets/hero/clothing-kit/README.md): three outfits,
+shared trousers, boots, fitted closed gloves, open helmet, kite shield and glass
+charm. V2 adds plain base garments, boots/gloves and complete shared trousers;
+26 active full-canvas layers plus eight reference layers have 68 masks. Belts,
+separate stone panels and ornamental trim/cuffs are additive upgrades over fixed
+bases, with plain/equipped/decorated preview presets. Six tested transitions
+retain every previous layer and only change pixels beneath new overlays. Source
+art, exact prompts and measured fitting metadata are retained. V3 corrects the
+robe bodice to the shared body and adds masked runtime fabric/leather dyes,
+reusing PNGs for every palette; gold, stone and gems stay independent. The separate workbench verifies helmet hair
+hiding, shield hand occupancy, robe hems, gloved/bare weapon grips, dual wielding,
+appearance independence and persistence on light/dark backgrounds. Open gloves,
+helmet hair, dedicated inventory representations and remaining equipment forms
+are later work; the live SVG renderer remains in use.
 
 ## Generation prompt contract
 

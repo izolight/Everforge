@@ -56,9 +56,10 @@ available in a separate workbench. The live equipment screen retains its working
 SVG hero until fitted raster equipment is ready. No game appearance selector or
 save migration has been added.
 
-The base retains ivory underclothes and bare feet. Concealed anatomy, a neutral
-outer outfit, footwear, separate ground shadow, helmet hair, facial hair, face
-details and a new map miniature remain later deliverables. Skin/eye masks are
+The base retains ivory underclothes and bare feet. Batch 4 adds outer outfits
+and footwear as separate layers. Concealed anatomy, a separate ground shadow,
+helmet hair, facial hair, face details and a new map miniature remain later
+deliverables. Skin/eye masks are
 authored for these three presets, not reusable across arbitrary generated faces.
 Future variants must pass close-up checks as well as gameplay-size checks.
 
@@ -66,4 +67,5 @@ Batch 3 is now available in the [modular blade kit](../weapons/blade-kit/README.
 three blade shapes, interchangeable fittings, dedicated material artwork and
 fitted tests in both hands. That proof records separate measured closed-grip
 anchors while retaining this appearance canvas as the wearable registration
-reference. Next is batch 4, clothing and occlusion.
+reference. [Batch 4 clothing and occlusion](clothing-kit/README.md) is now available with
+three outfits, boots, gloves, helmet, shield and charm.

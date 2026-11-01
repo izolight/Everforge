@@ -1,0 +1,39 @@
+{
+  "tool": "built-in image_gen.imagegen",
+  "references": {
+    "hero": "assets/hero/sources/hero-base-bald-v1.png",
+    "style": "art-reference/prismatic-armor-clothing-v1.png",
+    "gloves": "assets/weapons/blade-kit/sources/hero-closed-grip-reference-v1.png"
+  },
+  "prompts": [
+    {
+      "id": "tunic",
+      "prompt": "Use case: stylized-concept. Asset ID tunic-v1, production modular wearable layer. Input 1 is the EXACT hero registration template, input 2 is style reference ONLY. Create ONLY a teal short-sleeved knee-length adventurer tunic and fitted indigo trousers in the exact front-facing stance and proportions of input 1, as an invisible mannequin garment. Do not render any body, skin, head, hair, hands or feet; all empty areas must be transparent. Full portrait 1024x1536 canvas. Preserve garment placement: neck opening centered (505,280), shoulders x350..655 y290, waist y560, short sleeves end y415 following arms, tunic hem y880, trouser legs follow original legs to ankle y1405, toes remain absent. Teal angular painterly fabric with antique gold border and small compass motif, a simple brown waist belt integrated into tunic, indigo fitted trousers. Adult wearable, upper-left light, Prismatic style, strong broad planes. No cape, pouch, baldric, armor, weapons, boots, gloves, labels, background, floor or cast shadow. Match the template registration precisely, generous transparent padding. Output only clothing as a genuine RGBA transparent image."
+    },
+    {
+      "id": "robe",
+      "prompt": "Use case: stylized-concept. Asset robe-v1, registered modular 2D wearable. Input 1 is EXACT hero pose and registration template; input 2 is Prismatic style only. ONLY a sleeveless violet mage robe, fitted bodice and flowing ankle-length long hem, gold edging and teal small geometric accents, waist belt. No trousers. Neck (505,268), shoulders x350..660 y290, waist y560, hem x290..720 y1400; armholes must leave arms entirely empty. Front-facing view, preserve original body size and pose, full portrait 1024x1536 canvas; do not enlarge the item to fill canvas. Upper-left light, angular painterly planes, restrained teal/violet/copper/gold palette. Render only requested equipment on genuine transparent RGBA background. NO body, skin, head, hands, feet, neighboring gear, text, watermark, background color, floor, halo or cast shadow. All non-equipment pixels transparent."
+    },
+    {
+      "id": "plate",
+      "prompt": "Use case: stylized-concept. Asset plate-v1, registered modular 2D wearable. Input 1 is EXACT hero pose and registration template; input 2 is Prismatic style only. ONLY a gray stone plate cuirass over an indigo short-sleeved gambeson, antique gold trim, brown belt and segmented tassets ending at y890. NO trousers. Neck (505,268), shoulder plates x320..690 y290, waist y560, hem x325..690 y890; sleeves end y430. Front-facing view, preserve original body size and pose, full portrait 1024x1536 canvas; do not enlarge the item to fill canvas. Upper-left light, angular painterly planes, restrained teal/violet/copper/gold palette. Render only requested equipment on genuine transparent RGBA background. NO body, skin, head, hands, feet, neighboring gear, text, watermark, background color, floor, halo or cast shadow. All non-equipment pixels transparent."
+    },
+    {
+      "id": "boots",
+      "prompt": "Use case: stylized-concept. Asset boots-v1, registered modular 2D wearable. Input 1 is EXACT hero pose and registration template; input 2 is Prismatic style only. ONLY a matching PAIR of brown leather knee-high adventurer boots with teal cuff inset and gold small buckles, fitted to the original legs/feet. Left boot bounds x290..420 y1110..1495, right x590..735 y1110..1495. Original stance with toes pointed slightly outward. Empty canvas everywhere else. Front-facing view, preserve original body size and pose, full portrait 1024x1536 canvas; do not enlarge the item to fill canvas. Upper-left light, angular painterly planes, restrained teal/violet/copper/gold palette. Render only requested equipment on genuine transparent RGBA background. NO body, skin, head, hands, feet, neighboring gear, text, watermark, background color, floor, halo or cast shadow. All non-equipment pixels transparent."
+    },
+    {
+      "id": "helmet",
+      "prompt": "Use case: stylized-concept. Asset helmet-v1, registered modular 2D wearable. Input 1 is EXACT hero pose and registration template; input 2 is Prismatic style only. ONLY an open-faced iron helmet with antique gold brow band, subtle pointed crown and cheek guards. Fit skull at center (505,135), outer bounds x416..594 y28..235. Open face area MUST BE TRANSPARENT, face eyes and mouth will show through. Hide scalp and ears but no hair beneath. No face, hair or skin. Front-facing view, preserve original body size and pose, full portrait 1024x1536 canvas; do not enlarge the item to fill canvas. Upper-left light, angular painterly planes, restrained teal/violet/copper/gold palette. Render only requested equipment on genuine transparent RGBA background. NO body, skin, head, hands, feet, neighboring gear, text, watermark, background color, floor, halo or cast shadow. All non-equipment pixels transparent."
+    },
+    {
+      "id": "shield",
+      "prompt": "Use case: stylized-concept. Asset shield-v1, registered modular 2D wearable. Input 1 is EXACT hero pose and registration template; input 2 is Prismatic style only. ONLY a front-facing teal and brown wood kite shield with antique gold rim and simple compass boss, painterly faceted. Upright vertically on portrait canvas, shield bounds x140..380 y590..1040, fitted outside the image-left forearm of template. No hand, arm, straps protruding, weapons or person. Front-facing view, preserve original body size and pose, full portrait 1024x1536 canvas; do not enlarge the item to fill canvas. Upper-left light, angular painterly planes, restrained teal/violet/copper/gold palette. Render only requested equipment on genuine transparent RGBA background. NO body, skin, head, hands, feet, neighboring gear, text, watermark, background color, floor, halo or cast shadow. All non-equipment pixels transparent."
+    },
+    {
+      "id": "charm",
+      "prompt": "Use case: stylized-concept. Asset charm-v1, registered modular 2D wearable. Input 1 is EXACT hero pose and registration template; input 2 is Prismatic style only. ONLY a small copper-framed violet glass pendant charm hanging from a short gold chain, fitted to center chest of reference at (505,390), bounds x480..530 y330..430. Small self-contained glow inside glass only. Empty canvas elsewhere; no body or clothes or necklace going around neck. Front-facing view, preserve original body size and pose, full portrait 1024x1536 canvas; do not enlarge the item to fill canvas. Upper-left light, angular painterly planes, restrained teal/violet/copper/gold palette. Render only requested equipment on genuine transparent RGBA background. NO body, skin, head, hands, feet, neighboring gear, text, watermark, background color, floor, halo or cast shadow. All non-equipment pixels transparent."
+    }
+  ],
+  "referencePathBase": "repository root"
+}
