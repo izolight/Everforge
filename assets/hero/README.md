@@ -44,7 +44,21 @@ crossing shoulders or equipment needs fitted front/rear masses rather than a
 horizontal cut through the fringe.
 
 `HeroKit.render(canvas, manifest, recipe, assetBaseURL)` renders deterministically;
-unknown recipe values use defaults. Missing image files raise a clear error.
+recipe colors accept palette names or arbitrary `#RGB` / `#RRGGBB` values.
+For example:
+
+```js
+await HeroKit.render(canvas, manifest, {
+  face: 'neutral', hair: 'bob', skin: '#94674d', hairColor: '#283548'
+}, '../assets/hero/kit/');
+```
+
+Colors are applied at runtime to the existing artwork and masks, preserving
+shading and transparency; no per-color PNGs are needed. The workbench includes
+custom skin and hair color pickers and saves their values. `BladeKit.renderHeld`
+and `ClothingKit.render` accept the same appearance recipe and tint exposed grip
+patches to match. `HeroKit.color(manifest, key, value)` resolves a palette name or
+hex value for other fitted layers. Invalid recipe values use defaults. Missing image files raise a clear error.
 Luminance-based tinting preserves shading and alpha within grayscale masks;
 iris masks exclude pupil cores and highlights. Palette reference luminances are
 shared across body and face to avoid a recolored neck seam.

@@ -29,6 +29,9 @@ const {artServer}=require('./art-server');
     }
    }
    const original=canvas();await HeroKit.render(original,hm);const empty=canvas();await BladeKit.renderHeld(empty,hm,m,{},{});if(hash(empty)!==hash(original))throw Error('Empty loadout changes appearance');
+   const custom=canvas(),named=canvas(),loadout={left:{blade:'standard'},right:{blade:'short'}};
+   await BladeKit.renderHeld(custom,hm,m,{skin:hm.palettes.skin.umber},loadout);await BladeKit.renderHeld(named,hm,m,{skin:'umber'},loadout);
+   if(hash(custom)!==hash(named))throw Error('Custom skin did not reach held hand patches');
    const head=original.getContext('2d').getImageData(0,0,1024,280).data;
    let fits=0;
    for(const recipe of [{blade:'short'},{blade:'standard'},{blade:'broad'},{blade:'standard',material:'wood'},{blade:'standard',material:'crystal'}])for(const side of ['left','right']){

@@ -9,10 +9,23 @@
     return images.get(url);
   }
   const canvas = (w,h) => Object.assign(document.createElement('canvas'), {width:w,height:h});
+  // Recipes accept palette names or CSS hex colors; store custom colors canonically.
+  function hexColor(value) {
+    if (typeof value !== 'string' || !/^#(?:[0-9a-f]{3}|[0-9a-f]{6})$/i.test(value)) return null;
+    const hex=value.slice(1).toLowerCase();
+    return '#'+(hex.length===3 ? [...hex].map(c=>c+c).join('') : hex);
+  }
+  function color(manifest, key, value) {
+    return hexColor(value) || (Object.hasOwn(manifest.palettes[key],value) ? manifest.palettes[key][value] : null);
+  }
   function normalize(manifest, recipe = {}) {
     const result = {...manifest.defaults, ...recipe};
     for (const key of ['face','hair']) if (!Object.hasOwn(manifest[key + 's'],result[key])) result[key] = manifest.defaults[key];
-    for (const key of ['skin','eyes','hairColor']) if (!Object.hasOwn(manifest.palettes[key],result[key])) result[key] = manifest.defaults[key];
+    for (const key of ['skin','eyes','hairColor']) {
+      const custom=hexColor(result[key]);
+      if (custom) result[key]=custom;
+      else if (!Object.hasOwn(manifest.palettes[key],result[key])) result[key]=manifest.defaults[key];
+    }
     return result;
   }
   async function tinted(url, maskURL, color, referenceLuma) {
@@ -37,7 +50,7 @@
     target.width=manifest.canvas.width; target.height=manifest.canvas.height;
     const ctx=target.getContext('2d'); ctx.clearRect(0,0,target.width,target.height);
     const draw = async (asset,mask,color,referenceLuma) => ctx.drawImage(await tinted(baseURL+asset,mask ? baseURL+mask : null,color,referenceLuma),0,0);
-    const skin=manifest.palettes.skin[recipe.skin], hairColor=manifest.palettes.hairColor[recipe.hairColor];
+    const skin=color(manifest,'skin',recipe.skin), hairColor=color(manifest,'hairColor',recipe.hairColor);
     if (hair.back && !options.hideHair) await draw(hair.back,hair.backMask,hairColor,manifest.tintReferenceLuma.hairColor);
     await draw(manifest.body,manifest.masks.skin,skin,manifest.tintReferenceLuma.skin);
     if (!options.hideUnderclothes) {
@@ -46,7 +59,7 @@
     }
     const faceLayer=await tinted(baseURL+face.src,baseURL+face.skinMask,skin,manifest.tintReferenceLuma.skin);
     // Eyes are independently masked, after the skin pass.
-    const eyes=manifest.palettes.eyes[recipe.eyes];
+    const eyes=color(manifest,'eyes',recipe.eyes);
     if (eyes) {
       const tempURL=faceLayer.toDataURL();
       ctx.drawImage(await tinted(tempURL,baseURL+face.eyeMask,eyes,manifest.tintReferenceLuma.eyes),0,0);
@@ -55,5 +68,5 @@
     if (!options.hideHair) await draw(hair.front,hair.mask,hairColor,manifest.tintReferenceLuma.hairColor);
     return recipe;
   }
-  window.HeroKit={render,normalize,tinted};
+  window.HeroKit={render,normalize,tinted,color};
 })();

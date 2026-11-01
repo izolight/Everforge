@@ -797,3 +797,6 @@ DICT.de=Object.assign(DICT.de||{},{
 });
 
 DICT.de["3D hero prototype"]="3D-Heldenprototyp";
+
+// Appearance preview access from equipment.
+Object.assign(DICT.de, {"Appearance workbench": "Aussehen-Werkstatt", "Opens in a new tab. Preview colors and styles without changing your game character.": "Öffnet sich in einem neuen Tab. Sieh dir Farben und Stile an, ohne deine Spielfigur zu verändern."});

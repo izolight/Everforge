@@ -32,6 +32,8 @@ const {artServer}=require('./art-server');
    }
    const warm=await render({},{}),umber=await render({},{skin:'umber'});
    for(const region of [[195,705,48,45],[758,705,48,45]])if(hash(warm,region)!==hash(umber,region))throw Error('Skin tint changes gloves');
+   const bareHands={gloves:'none',left:'standard',right:'short',shield:'none'};
+   if(hash(await render(bareHands,{skin:hm.palettes.skin.umber}))!==hash(await render(bareHands,{skin:'umber'})))throw Error('Custom skin did not reach wardrobe hand patches');
    // Upgrades must retain the same base and change pixels only under new overlays.
    let transitions=0;
    for(const outfit of ['tunic','robe','plate']){

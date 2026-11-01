@@ -42,7 +42,7 @@
     if(r.outfit!=='none')await assembly(r.outfit);
     if(r.charm!=='none')await draw('charm');
     if(r.helmet!=='none')await draw('helmet');
-    const app=HeroKit.normalize(hm,appearance),skin=hm.palettes.skin[app.skin];
+    const app=HeroKit.normalize(hm,appearance),skin=HeroKit.color(hm,'skin',app.skin);
     for(const side of Object.keys(occupied)){
       if(r.gloves!=='none'){await assembly('glove-'+side);continue}
       const c=make(),cx=c.getContext('2d');cx.drawImage(await image('../assets/weapons/blade-kit/'+bm.hands[side].patch),0,0);

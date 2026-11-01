@@ -57,6 +57,7 @@ h1{font-family:var(--display);font-weight:700;font-size:2.1rem;line-height:1;col
 .btn.sm{padding:6px 10px;font-size:.85rem;min-height:40px}
 .btn:disabled{opacity:.4;cursor:default}
 .actions{display:flex;gap:8px;flex-wrap:wrap}
+.btn.appearance-workbench{color:var(--fg);text-decoration:none;display:inline-flex;align-items:center;min-height:44px}
 .actions .grow{flex:1;min-width:100px}
 
 /* tab bar */

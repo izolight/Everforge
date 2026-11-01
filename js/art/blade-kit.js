@@ -31,7 +31,7 @@
       x.save();x.translate(...hand.anchor);x.rotate(hand.rotationDegrees*Math.PI/180);x.scale(hand.scale,hand.scale);x.translate(-m.anchors.gripPivot[0],-m.anchors.gripPivot[1]);x.drawImage(weapon,0,0);x.restore();
     }
     x.drawImage(body,0,0);
-    const recipe=HeroKit.normalize(heroManifest,appearance),skin=heroManifest.palettes.skin[recipe.skin];
+    const recipe=HeroKit.normalize(heroManifest,appearance),skin=HeroKit.color(heroManifest,'skin',recipe.skin);
     for(const side of Object.keys(recipes)){
       const patch=make(body.width,body.height),px=patch.getContext('2d');px.drawImage(await image(baseURL+m.hands[side].patch),0,0);
       if(skin){const color=skin.match(/\w\w/g).map(c=>parseInt(c,16)),d=px.getImageData(0,0,patch.width,patch.height);for(let i=0;i<d.data.length;i+=4){if(!d.data[i+3])continue;const luma=.2126*d.data[i]+.7152*d.data[i+1]+.0722*d.data[i+2];for(let k=0;k<3;k++)d.data[i+k]=Math.min(255,color[k]*luma/heroManifest.tintReferenceLuma.skin)}px.putImageData(d,0,0)}
