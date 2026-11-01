@@ -117,3 +117,6 @@ coverage before replacing the live SVG renderer. The 64 px component previews
 are fitted wearable thumbnails, not final inventory art. No animation, game stat/progression rules or game
 save migration is included. The protection toggle has artwork only for the
 padded/plate family. Helmet and shield remain optional single-piece equipment.
+
+See [runtime colors](../../../docs/runtime-colors.md) for custom whole-part, surface and trim
+colors on every modular raster part, per-hand weapon colors, and workbench controls.

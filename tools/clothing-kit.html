@@ -4,10 +4,13 @@
 <title>Clothing and occlusion workbench</title>
 <style>
 :root{color-scheme:dark;font:14px system-ui;background:#171821;color:#eee}body{max-width:1120px;margin:24px auto;padding:0 16px}h1{font-size:25px}p{color:#bbc1d1;line-height:1.5}a{color:#afc9ff}.controls,.stages,.actions{display:flex;flex-wrap:wrap;gap:12px;margin:18px 0}label{display:grid;gap:4px}select,button{font:inherit;padding:8px;background:#292d3d;color:#fff;border:1px solid #596078;border-radius:5px}button{cursor:pointer}.card{padding:12px;border:1px solid #41475d;border-radius:8px;background:#222633}.hero{width:212px;height:318px}.light{background:#e8e3dc}.dark{background:#11131b}.detail{width:180px;height:225px}#status{min-height:22px;color:#a0e4c6}#proofs{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}.proof{border:1px solid #41475d;border-radius:8px;padding:10px}.proof canvas{max-width:100%;height:auto}#mini{width:24px;height:36px;image-rendering:auto}.swatches{display:flex;gap:8px}.swatches canvas{width:64px;height:64px}@media(max-width:420px){body{padding:0 12px}.card{max-width:calc(100% - 26px)}#proofs{grid-template-columns:1fr}}
+input[type="color"]{width:94px;height:36px;padding:3px;cursor:pointer}details{margin:14px 0}summary{cursor:pointer}label{min-width:0}select{max-width:100%}
 </style>
+<nav><a href="../index.html">Game</a> · <a href="hero-kit.html">Appearance</a> · <a href="blade-kit.html">Weapons</a> · <a href="clothing-kit.html">Wardrobe</a></nav>
 <h1>Clothing and occlusion workbench</h1>
-<p>Start with plain fabric and leather. Add belts and straps, stone protection, then gold trim and cuffs over the same base garments. Fabric and leather dyes preserve shading; metal and gems keep their colors. Hero previews use the game’s 318 px height. <a href="hero-kit.html">Appearance</a> · <a href="blade-kit.html">Blades</a></p>
+<p>Start with plain fabric and leather. Add belts and straps, stone protection, then gold trim and cuffs over the same base garments. Fabric and leather dyes preserve shading. Expand the part color controls to tint individual garments, armor, trim, gems, and weapon fittings. Hero previews use the game’s 318 px height. <a href="hero-kit.html">Appearance</a> · <a href="blade-kit.html">Blades</a></p>
 <div class="controls" id="equipment"></div><div class="controls" id="appearance"></div>
+<div id="part-colors"></div>
 <div class="actions"><button id="preset-plain">Plain</button><button id="preset-equipped">Add utility / protection</button><button id="preset-decorated">Add ornament</button><button id="download">Download hero PNG</button><button id="reset">Reset proof</button></div>
 <p id="status" role="status">Loading wardrobe…</p>
 <div class="stages" id="overview">
@@ -20,7 +23,7 @@
 <h2>Same base, additive upgrades</h2><p>Plain → utility and protection → decorated. Each step retains every earlier layer.</p><div id="progression" class="stages"></div>
 <h2>Same artwork, different dyes</h2><p>Original → teal → rust → linen. Dyed versions use charcoal leather; the gold, stone and gems remain unchanged.</p><div id="dyes" class="stages"></div>
 <h2>Fitted components at 64 px</h2><p>Wearable-layer thumbnails on light and dark backgrounds. Separate inventory representations remain a later batch.</p><div id="components" class="stages"></div>
-<script src="../js/art/hero-kit.js"></script><script src="../js/art/blade-kit.js"></script><script src="../js/art/clothing-kit.js"></script>
+<script src="../js/art/hero-kit.js"></script><script src="kit-colors.js"></script><script src="../js/art/blade-kit.js"></script><script src="../js/art/clothing-kit.js"></script>
 <script>
 window.clothingReady=(async()=>{
  const read=async f=>{const r=await fetch(f);if(!r.ok)throw Error(`Unable to load ${f}`);return r.json()};
@@ -29,9 +32,16 @@ window.clothingReady=(async()=>{
  state={appearance:HeroKit.normalize(hm,state?.appearance||{}),equipment:ClothingKit.normalize(m,state?.equipment||{})};
  const controls={};let revision=0;
  function select(host,key,values,selected,onchange){const label=document.createElement('label');label.textContent=({fabric:'Fabric dye',leatherColor:'Leather dye'})[key]||key;const s=document.createElement('select');s.id=host+'-'+key;s.setAttribute('aria-label',host+' '+key);for(const id of values)s.add(new Option(id,id));s.value=selected;s.onchange=()=>{onchange(s.value);update().catch(fail)};label.append(s);document.getElementById(host).append(label);return s}
- for(const[key,values]of Object.entries(m.choices))controls[key]=select('equipment',key,values,state.equipment[key],v=>{state.equipment[key]=v});
+ for(const[key,values]of Object.entries(m.choices)){
+  if(m.palettes[key])KitColors.palette(document.getElementById('equipment'),'equipment-'+key,key,m.palettes[key],()=>state.equipment[key],v=>{state.equipment[key]=v},()=>update().catch(fail));
+  else controls[key]=select('equipment',key,values,state.equipment[key],v=>{state.equipment[key]=v});
+ }
  for(const[id,preset]of Object.entries(m.presets))document.getElementById('preset-'+id).onclick=()=>{Object.assign(state.equipment,preset);update().catch(fail)};
- for(const key of ['face','hair','skin','eyes','hairColor'])select('appearance',key,Object.keys(key==='face'?hm.faces:key==='hair'?hm.hairs:hm.palettes[key]),state.appearance[key],v=>{state.appearance[key]=v});
+ for(const key of ['face','hair'])select('appearance',key,Object.keys(key==='face'?hm.faces:hm.hairs),state.appearance[key],v=>{state.appearance[key]=v});
+ for(const key of ['skin','eyes','hairColor'])KitColors.palette(document.getElementById('appearance'),'appearance-'+key,key,hm.palettes[key],()=>state.appearance[key],v=>{state.appearance[key]=v},()=>update().catch(fail));
+ KitColors.parts(document.getElementById('part-colors'),'Wardrobe part colors',Object.fromEntries(Object.entries(m.layers).filter(([,p])=>p.role!=='legacy-reference')),()=>state.equipment.colors,v=>{state.equipment.colors=v},()=>update().catch(fail));
+ for(const side of ['left','right'])KitColors.parts(document.getElementById('part-colors'),side+' weapon part colors',Object.fromEntries(['blade','guard','grip','pommel'].map(id=>[id,{trimMask:['guard','pommel'].includes(id)}])),()=>state.equipment.weaponColors?.[side],v=>{state.equipment.weaponColors={...state.equipment.weaponColors,[side]:v}},()=>update().catch(fail));
+
  const copy=(id,source,w=source.width,h=source.height,crop=null)=>{const c=document.getElementById(id);c.width=w;c.height=h;const x=c.getContext('2d');if(crop)x.drawImage(source,...crop,0,0,w,h);else x.drawImage(source,0,0,w,h)};
  async function update(){const current=++revision,equipment=ClothingKit.normalize(m,state.equipment),appearance={...state.appearance},c=document.createElement('canvas');await ClothingKit.render(c,hm,bm,m,appearance,equipment);if(current!==revision)return;
   state.equipment=equipment;for(const[k,s]of Object.entries(controls))s.value=equipment[k];controls.left.disabled=equipment.shield!=='none';

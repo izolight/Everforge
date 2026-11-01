@@ -7,13 +7,14 @@
   :root{color-scheme:dark;font:15px system-ui;background:#171821;color:#eee}
   body{max-width:1280px;margin:24px auto;padding:0 20px}h1{font-size:25px;margin-bottom:8px}p{color:#b8bacb;max-width:850px;line-height:1.6}
   .controls{display:flex;flex-wrap:wrap;gap:14px;margin:22px 0}label{display:grid;gap:6px;font-size:13px}select,button,input{padding:8px;border:1px solid #62677b;border-radius:5px;background:#292c3b;color:white;font:inherit}
-  input[type="color"]{width:94px;height:36px;padding:3px;cursor:pointer}
   #hero{width:212px;height:318px}.stage{background:#eee9e2;border-radius:8px;padding:10px;display:inline-flex;gap:12px;align-items:center}
   .checker{background-color:#ddd;background-image:conic-gradient(#fff 25%,#ddd 0 50%,#fff 0 75%,#ddd 0);background-size:20px 20px}
   #detail{width:280px;height:280px}#swaps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:18px}
   .tile{background:#292c3b;border:1px solid #414658;border-radius:8px;padding:8px;overflow:hidden}.tile p{font-size:12px;margin:6px 0}.pair{display:flex;gap:5px;justify-content:center}.pair canvas{width:120px;height:180px;background:#e8e3dc}.pair canvas+canvas{background:#11131b}
   #status{min-height:25px;color:#9ce2c2}button{cursor:pointer}a{color:#b5c8ff}@media(max-width:700px){#swaps{grid-template-columns:1fr}.stage{display:flex;flex-wrap:wrap}#detail{width:210px;height:210px}}
+input[type="color"]{width:94px;height:36px;padding:3px;cursor:pointer}details{margin:14px 0}summary{cursor:pointer}label{min-width:0}select{max-width:100%}
 </style>
+<nav><a href="../index.html">Game</a> · <a href="hero-kit.html">Appearance</a> · <a href="blade-kit.html">Weapons</a> · <a href="clothing-kit.html">Wardrobe</a></nav>
 <h1>Hero appearance workbench</h1>
 <p>One body, three faces, three hairstyles. Choose presets or custom skin and hair colors, applied at runtime to the same registered layers. Compare them on light and dark backgrounds. The main portrait is capped at the game's 318 px hero height; the square shows the head at source scale.</p>
 <div class="controls" id="controls"></div>
@@ -23,7 +24,7 @@
 <button id="reset" type="button">Reset appearance</button>
 <h2>All face and hair combinations</h2>
 <div id="swaps"></div>
-<script src="../js/art/hero-kit.js"></script>
+<script src="../js/art/hero-kit.js"></script><script src="kit-colors.js"></script>
 <script>
 window.kitReady=(async()=>{
   const response=await fetch('../assets/hero/kit/manifest.json');if(!response.ok)throw Error('Appearance manifest unavailable');
@@ -35,11 +36,11 @@ window.kitReady=(async()=>{
     const select=document.createElement('select');select.id=key;select.setAttribute('aria-label',label.textContent);
     const values=key==='face'?manifest.faces:key==='hair'?manifest.hairs:manifest.palettes[key];
     for(const value of Object.keys(values))select.add(new Option(value,value));
-    if(key==='skin'||key==='hairColor')select.add(new Option('Custom…','custom'));
+    if(['skin','eyes','hairColor'].includes(key))select.add(new Option('Custom…','custom'));
     select.value=Object.hasOwn(values,recipe[key])?recipe[key]:'custom';
     label.append(select);controls.append(label);
-    if(key==='skin'||key==='hairColor'){
-      const picker=document.createElement('input');picker.type='color';picker.id=key+'Custom';picker.setAttribute('aria-label','Custom '+(key==='skin'?'skin color':'hair color'));
+    if(['skin','eyes','hairColor'].includes(key)){
+      const picker=document.createElement('input');picker.type='color';picker.id=key+'Custom';picker.setAttribute('aria-label','Custom '+(key==='skin'?'skin color':key==='eyes'?'eye color':'hair color'));
       // Picker swatches approximate the source art when the original palette is selected.
       picker.value=HeroKit.color(manifest,key,recipe[key])||(key==='skin'?'#bd8e6d':'#a35e35');
       picker.oninput=()=>{recipe[key]=picker.value;select.value='custom';update().catch(fail)};
@@ -47,13 +48,14 @@ window.kitReady=(async()=>{
       label.append(picker);
     }else select.onchange=()=>{recipe[key]=select.value;update().catch(fail)};
   }
+  const syncParts=KitColors.parts(controls.parentNode.insertBefore(document.createElement('div'),document.getElementById('stage')),'Underclothes colors', {torso:{},trousers:{}},()=>recipe.colors,v=>{recipe.colors=v},()=>update().catch(fail));
   async function update(){
     const current=++revision,buffer=document.createElement('canvas');await HeroKit.render(buffer,manifest,recipe);if(current!==revision)return;
     hero.width=buffer.width;hero.height=buffer.height;hero.getContext('2d').drawImage(buffer,0,0);
     detail.width=280;detail.height=280;detail.getContext('2d').drawImage(buffer,365,0,280,280,0,0,280,280);
     localStorage.setItem('hero-kit-preview',JSON.stringify(recipe));document.getElementById('status').textContent=`${recipe.face} / ${recipe.hair} · registered 1024 × 1536`;
   }
-  document.getElementById('reset').onclick=()=>{recipe={...manifest.defaults};for(const key of Object.keys(recipe))document.getElementById(key).value=recipe[key];document.getElementById('skinCustom').value='#bd8e6d';document.getElementById('hairColorCustom').value='#a35e35';update().catch(fail)};
+  document.getElementById('reset').onclick=()=>{recipe={...manifest.defaults};for(const key of Object.keys(recipe))document.getElementById(key).value=recipe[key];document.getElementById('skinCustom').value='#bd8e6d';document.getElementById('hairColorCustom').value='#a35e35';document.getElementById('eyesCustom').value='#808080';syncParts();update().catch(fail)};
   document.getElementById('download').onclick=()=>{const a=document.createElement('a');a.download=`hero-${recipe.face}-${recipe.hair}.png`;a.href=hero.toDataURL();a.click()};
   await update();
   for(const face of Object.keys(manifest.faces))for(const hair of Object.keys(manifest.hairs)){

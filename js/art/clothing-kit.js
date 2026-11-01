@@ -1,11 +1,12 @@
 /* Fitted wardrobe proof. Recipes stay separate from hero appearance and game saves. */
 (()=>{
   const images=new Map(),make=()=>Object.assign(document.createElement('canvas'),{width:1024,height:1536});
-  const tintedLayers=new Map();
   function image(url){if(!images.has(url))images.set(url,new Promise((resolve,reject)=>{const i=new Image();i.onload=()=>resolve(i);i.onerror=()=>reject(Error(`Missing clothing art: ${url}`));i.src=url}));return images.get(url)}
   function normalize(m,raw={}){
-    const r={};for(const key of Object.keys(m.defaults))r[key]=m.choices[key].includes(raw[key])?raw[key]:m.defaults[key];
+    const r={};for(const key of Object.keys(m.defaults))r[key]=m.palettes[key]&&HeroKit.hexColor(raw[key])?HeroKit.hexColor(raw[key]):m.choices[key].includes(raw[key])?raw[key]:m.defaults[key];
     // A shield occupies the image-left hand; recipes never silently draw both.
+    const colors=HeroKit.normalizeColors(raw.colors,Object.keys(m.layers));if(Object.keys(colors).length)r.colors=colors;
+    const weaponColors={};for(const side of ['left','right']){const colors=HeroKit.normalizeColors(raw.weaponColors?.[side],['blade','guard','grip','pommel']);if(Object.keys(colors).length)weaponColors[side]=colors}if(Object.keys(weaponColors).length)r.weaponColors=weaponColors;
     if(r.shield==='kite')r.left='empty';return r;
   }
   function assemblyLayers(m,id,r){
@@ -13,12 +14,13 @@
     return m.upgradeOrder.flatMap(group=>group==='base'||r[group]!=='none'?a[group]:[]);
   }
   async function layer(m,id,r,base='../assets/hero/clothing-kit/'){
-    const part=m.layers[id],color=part.tintGroup&&m.palettes[part.tintGroup][r[part.tintGroup]];
-    if(!color)return image(base+part.src);
-    const key=JSON.stringify([base+part.src,part.mask,color,part.tintReferenceLuma]);
-    if(!tintedLayers.has(key))tintedLayers.set(key,HeroKit.tinted(base+part.src,base+part.mask,color,part.tintReferenceLuma));
-    return tintedLayers.get(key);
+    const descriptor=m.layers[id],color=descriptor.tintGroup&&HeroKit.color(m,descriptor.tintGroup,r[descriptor.tintGroup]);
+    // Keep the original missing-file diagnostic for wardrobe callers.
+    await image(base+descriptor.src);
+    const overrides=r.colors?.[id]||{};
+    return HeroKit.part(base,descriptor,overrides,Object.hasOwn(overrides,'all')?{}:{surface:color});
   }
+
   async function render(target,hm,bm,m,appearance={},raw={},base='../assets/hero/clothing-kit/'){
     const r=normalize(m,raw),body=make(),bx=body.getContext('2d');
     await HeroKit.render(body,hm,appearance,'../assets/hero/kit/',{hideHair:r.helmet!=='none',hideUnderclothes:r.outfit!=='none'});
@@ -30,7 +32,7 @@
       const closed=r[side]!=='empty'||r.gloves!=='none'||(side==='left'&&r.shield!=='none');
       if(closed){bx.globalCompositeOperation='destination-out';bx.drawImage(await image('../assets/weapons/blade-kit/'+bm.hands[side].replace),0,0);bx.globalCompositeOperation='source-over';occupied[side]=true}
       if(r[side]==='empty')continue;
-      const weapon=make(),hand=bm.hands[side];await BladeKit.render(weapon,bm,m.weapons[r[side]]);
+      const weapon=make(),hand=bm.hands[side];await BladeKit.render(weapon,bm,{...m.weapons[r[side]],colors:r.weaponColors?.[side]});
       x.save();x.translate(...hand.anchor);x.rotate(hand.rotationDegrees*Math.PI/180);x.scale(hand.scale,hand.scale);x.translate(-bm.anchors.gripPivot[0],-bm.anchors.gripPivot[1]);x.drawImage(weapon,0,0);x.restore();
     }
     if(r.boots!=='none'){

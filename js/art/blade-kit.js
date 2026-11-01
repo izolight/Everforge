@@ -10,13 +10,14 @@
     const r={};for(const key of ['blade','material','guard','grip','pommel'])r[key]=raw[key]??m.defaults[key];
     for(const [key,collection]of [['blade','blades'],['guard','guards'],['grip','grips'],['pommel','pommels']])if(!Object.hasOwn(m[collection],r[key]))r[key]=m.defaults[key];
     if(!Object.hasOwn(m.blades[r.blade].materials,r.material))r.material='steel';
+    const colors=HeroKit.normalizeColors(raw.colors,['blade','guard','grip','pommel']);if(Object.keys(colors).length)r.colors=colors;
     return r;
   }
   function componentIDs(m,raw){const r=normalize(m,raw);return{blade:m.blades[r.blade].materials[r.material],guard:m.guards[r.guard],grip:m.grips[r.grip],pommel:m.pommels[r.pommel]}}
   async function render(target,m,raw={},baseURL='../assets/weapons/blade-kit/'){
     const recipe=normalize(m,raw),parts=componentIDs(m,recipe);
     target.width=m.canvas.width;target.height=m.canvas.height;const x=target.getContext('2d');
-    for(const slot of m.layerOrder)x.drawImage(await image(baseURL+m.components[parts[slot]].src),0,0);
+    for(const slot of m.layerOrder)x.drawImage(await HeroKit.part(baseURL,m.components[parts[slot]],recipe.colors?.[slot]),0,0);
     return recipe;
   }
   async function renderHeld(target,heroManifest,m,appearance={},equipment={},baseURL='../assets/weapons/blade-kit/',heroURL='../assets/hero/kit/'){

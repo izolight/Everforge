@@ -83,3 +83,6 @@ fitted tests in both hands. That proof records separate measured closed-grip
 anchors while retaining this appearance canvas as the wearable registration
 reference. [Batch 4 clothing and occlusion](clothing-kit/README.md) is now available with
 three outfits, boots, gloves, helmet, shield and charm.
+
+See [runtime colors](../../docs/runtime-colors.md) for custom whole-part, surface and trim
+colors on every modular raster part, per-hand weapon colors, and workbench controls.

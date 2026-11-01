@@ -26,7 +26,55 @@
       if (custom) result[key]=custom;
       else if (!Object.hasOwn(manifest.palettes[key],result[key])) result[key]=manifest.defaults[key];
     }
+    const colors=normalizeColors(recipe.colors,['torso','trousers']);
+    if(Object.keys(colors).length)result.colors=colors;else delete result.colors;
     return result;
+  }
+  function normalizeColors(raw, ids) {
+    const result={};
+    for(const id of ids){
+      const input=raw?.[id];if(!input||typeof input!=='object')continue;
+      const channels={};
+      for(const channel of ['all','surface','trim']){
+        const value=hexColor(input[channel]);
+        if(value||input[channel]==='original')channels[channel]=value||'original';
+      }
+      if(Object.keys(channels).length)result[id]=channels;
+    }
+    return result;
+  }
+  // Any registered raster can use this path. Missing masks select visible pixels.
+  // Every channel reads source luminance, so overlapping masks never compound tint.
+  const parts=new Map();
+  async function part(base, descriptor, colors={}, defaults={}) {
+    const channels={...defaults,...colors},key=JSON.stringify([base,descriptor,channels]);
+    if(parts.has(key))return parts.get(key);
+    const pending=(async()=>{
+      const source=await image(base+descriptor.src),layer=canvas(source.width,source.height),ctx=layer.getContext('2d');ctx.drawImage(source,0,0);
+      if(!Object.values(channels).some(hexColor))return layer;
+      const original=ctx.getImageData(0,0,layer.width,layer.height),pixels=ctx.getImageData(0,0,layer.width,layer.height);
+      for(const channel of ['all','surface','trim']){
+        const color=hexColor(channels[channel]),restore=channels[channel]==='original';if(!color&&!restore)continue;
+        const maskFile=channel==='surface'?descriptor.mask:channel==='trim'?descriptor.trimMask:null;
+        let selection;
+        if(maskFile){const m=canvas(layer.width,layer.height),mx=m.getContext('2d');mx.drawImage(await image(base+maskFile),0,0);selection=mx.getImageData(0,0,m.width,m.height).data}
+        // An absent trim mask means this asset has no separate trim channel.
+        if(channel==='trim'&&!selection)continue;
+        const weight=i=>selection?selection[i]/255*selection[i+3]/255:1;
+        let sum=0,total=0;
+        for(let i=0;i<original.data.length;i+=4){const w=weight(i)*original.data[i+3]/255;sum+=(.2126*original.data[i]+.7152*original.data[i+1]+.0722*original.data[i+2])*w;total+=w}
+        const reference=(channel==='surface'&&descriptor.tintReferenceLuma)||sum/total||128;
+        const rgb=color&&color.slice(1).match(/../g).map(v=>parseInt(v,16));
+        for(let i=0;i<pixels.data.length;i+=4){const w=weight(i);if(!w||!original.data[i+3])continue;
+          const l=.2126*original.data[i]+.7152*original.data[i+1]+.0722*original.data[i+2];
+          for(let k=0;k<3;k++)pixels.data[i+k]=pixels.data[i+k]*(1-w)+(restore?original.data[i+k]:Math.min(255,rgb[k]*l/reference))*w;
+        }
+      }
+      ctx.putImageData(pixels,0,0);return layer;
+    })();
+    // Bound memory when dragging a color picker across many custom colors.
+    if(parts.size>=16)parts.delete(parts.keys().next().value);
+    parts.set(key,pending);try{return await pending}catch(error){parts.delete(key);throw error}
   }
   async function tinted(url, maskURL, color, referenceLuma) {
     const source = await image(url), layer = canvas(source.width,source.height), ctx = layer.getContext('2d');
@@ -54,8 +102,7 @@
     if (hair.back && !options.hideHair) await draw(hair.back,hair.backMask,hairColor,manifest.tintReferenceLuma.hairColor);
     await draw(manifest.body,manifest.masks.skin,skin,manifest.tintReferenceLuma.skin);
     if (!options.hideUnderclothes) {
-      await draw(manifest.clothing.torso);
-      await draw(manifest.clothing.trousers);
+      for(const id of ['torso','trousers'])ctx.drawImage(await part(baseURL,{src:manifest.clothing[id]},recipe.colors?.[id]),0,0);
     }
     const faceLayer=await tinted(baseURL+face.src,baseURL+face.skinMask,skin,manifest.tintReferenceLuma.skin);
     // Eyes are independently masked, after the skin pass.
@@ -68,5 +115,5 @@
     if (!options.hideHair) await draw(hair.front,hair.mask,hairColor,manifest.tintReferenceLuma.hairColor);
     return recipe;
   }
-  window.HeroKit={render,normalize,tinted,color};
+  window.HeroKit={render,normalize,tinted,color,hexColor,normalizeColors,part};
 })();

@@ -77,3 +77,6 @@ they are not generic hands for arbitrary silhouettes.
 available: three outfits, boots, fitted closed gloves, helmet, shield and charm.
 It reuses this blade/hand registration for dual wielding and glove overlap.
 Equipment expansion and full runtime migration remain later work.
+
+See [runtime colors](../../../docs/runtime-colors.md) for custom whole-part, surface and trim
+colors on every modular raster part, per-hand weapon colors, and workbench controls.

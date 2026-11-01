@@ -4,7 +4,9 @@
 <title>Modular blade workbench</title>
 <style>
 :root{color-scheme:dark;font:14px system-ui;background:#171821;color:#eee}body{max-width:1200px;margin:24px auto;padding:0 18px}h1{font-size:25px;margin-bottom:8px}p{color:#b9bed0;line-height:1.6}a{color:#afc9ff}.controls,.actions{display:flex;flex-wrap:wrap;gap:12px;margin:18px 0}label{display:grid;gap:5px}select,button{padding:8px;background:#292d3d;color:white;border:1px solid #596078;border-radius:5px;font:inherit}button{cursor:pointer}.stages{display:flex;flex-wrap:wrap;gap:16px;align-items:start}.card{padding:12px;border:1px solid #41475d;border-radius:8px;background:#222633}.checker{background-color:#ddd;background-image:conic-gradient(#fff 25%,#ddd 0 50%,#fff 0 75%,#ddd 0);background-size:20px 20px}#inventory{width:256px;height:256px}#hero{width:212px;height:318px}.icons{display:flex;gap:8px;margin-top:8px}.icons canvas{width:64px;height:64px;background:#e8e3dc}.icons canvas+canvas{background:#11131b}.hands{display:flex;flex-wrap:wrap;gap:10px}.hands canvas{width:180px;height:225px;background:#e8e3dc}#status{min-height:22px;color:#a0e4c6}#recipes{display:grid;grid-template-columns:repeat(auto-fit,minmax(176px,1fr));gap:10px}.tile{border:1px solid #41475d;background:#252a39;border-radius:6px;padding:9px}.tile p{font-size:11px;margin:5px 0}.tile .icons{justify-content:center}#fit-proof{display:flex;flex-wrap:wrap;gap:12px}.fit{background:#e8e3dc;border-radius:6px;padding:8px;color:#222}.fit canvas{width:212px;height:318px}.fit p{color:#333;font-size:12px}@media(max-width:420px){#inventory{width:240px;height:240px}.card{max-width:calc(100% - 26px)}#recipes{grid-template-columns:1fr}}
+input[type="color"]{width:94px;height:36px;padding:3px;cursor:pointer}details{margin:14px 0}summary{cursor:pointer}label{min-width:0}select{max-width:100%}
 </style>
+<nav><a href="../index.html">Game</a> · <a href="hero-kit.html">Appearance</a> · <a href="blade-kit.html">Weapons</a> · <a href="clothing-kit.html">Wardrobe</a></nav>
 <h1>Modular blade workbench</h1>
 <p>Three silhouettes, interchangeable fittings, and dedicated steel, wood and crystal artwork. Inventory icons are shown at 64 px; the hero uses the existing 318 px display height. <a href="hero-kit.html">Appearance workbench</a></p>
 <section id="overview">
@@ -19,7 +21,7 @@
 </section>
 <h2>Same equipment across appearances</h2><div id="fit-proof"></div>
 <h2>All 40 supported recipes at inventory size</h2><div id="recipes"></div>
-<script src="../js/art/hero-kit.js"></script><script src="../js/art/blade-kit.js"></script>
+<script src="../js/art/hero-kit.js"></script><script src="kit-colors.js"></script><script src="../js/art/blade-kit.js"></script>
 <script>
 window.bladeReady=(async()=>{
  const read=async url=>{const r=await fetch(url);if(!r.ok)throw Error(`Unable to load ${url}`);return r.json()};
@@ -33,8 +35,11 @@ window.bladeReady=(async()=>{
  function control(host,key,values,selected,change){const label=document.createElement('label');label.textContent=key;const s=document.createElement('select');s.id=host+'-'+key;s.setAttribute('aria-label',host+' '+key);for(const id of values)s.add(new Option(id,id));s.value=selected;s.onchange=()=>change(s.value);label.append(s);document.getElementById(host).append(label);return s}
  const selectors={};
  for(const [key,values]of Object.entries({blade:Object.keys(manifest.blades),material:['steel','wood','crystal'],guard:Object.keys(manifest.guards),grip:Object.keys(manifest.grips),pommel:Object.keys(manifest.pommels)}))selectors[key]=control('parts',key,values,state.recipe[key],value=>{state.recipe[key]=value;state.recipe=BladeKit.normalize(manifest,state.recipe);sync();update().catch(fail)});
- for(const key of ['face','hair','skin'])control('appearance',key,Object.keys(key==='face'?heroManifest.faces:key==='hair'?heroManifest.hairs:heroManifest.palettes.skin),state.appearance[key],value=>{state.appearance[key]=value;update().catch(fail)});
- function sync(){for(const [key,s]of Object.entries(selectors))s.value=state.recipe[key];for(const option of selectors.material.options)option.disabled=!Object.hasOwn(manifest.blades[state.recipe.blade].materials,option.value)}
+ for(const key of ['face','hair'])control('appearance',key,Object.keys(key==='face'?heroManifest.faces:heroManifest.hairs),state.appearance[key],value=>{state.appearance[key]=value;update().catch(fail)});
+ for(const key of ['skin','eyes','hairColor'])KitColors.palette(document.getElementById('appearance'),'appearance-'+key,key,heroManifest.palettes[key],()=>state.appearance[key],v=>{state.appearance[key]=v},()=>update().catch(fail));
+ const syncColors=KitColors.parts(document.getElementById('overview'),'Weapon part colors',Object.fromEntries(['blade','guard','grip','pommel'].map(id=>[id,{get trimMask(){return manifest.components[BladeKit.componentIDs(manifest,state.recipe)[id]].trimMask}}])),()=>state.recipe.colors,v=>{state.recipe.colors=v},()=>update().catch(fail));
+
+ function sync(){syncColors();for(const [key,s]of Object.entries(selectors))s.value=state.recipe[key];for(const option of selectors.material.options)option.disabled=!Object.hasOwn(manifest.blades[state.recipe.blade].materials,option.value)}
  function icon(id,source){const c=document.getElementById(id);c.width=64;c.height=64;c.getContext('2d').drawImage(source,0,0,64,64)}
  async function update(){const current=++revision,w=document.createElement('canvas'),h=document.createElement('canvas');await Promise.all([BladeKit.render(w,manifest,state.recipe),BladeKit.renderHeld(h,heroManifest,manifest,state.appearance,state.equipment)]);if(current!==revision)return;
   inventory.width=w.width;inventory.height=w.height;inventory.getContext('2d').drawImage(w,0,0);icon('icon-light',w);icon('icon-dark',w);
@@ -46,7 +51,7 @@ window.bladeReady=(async()=>{
  for(const side of ['left','right'])document.getElementById('equip-'+side).onclick=()=>{state.equipment[side]={...state.recipe};update().catch(fail)};
  document.getElementById('clear').onclick=()=>{state.equipment={left:null,right:null};update().catch(fail)};
  document.getElementById('reset').onclick=()=>{localStorage.removeItem('blade-kit-preview');location.reload()};
- document.getElementById('download').onclick=()=>{const a=document.createElement('a');a.href=inventory.toDataURL();a.download=`weapon-${Object.values(state.recipe).join('-')}.png`;a.click()};
+ document.getElementById('download').onclick=()=>{const a=document.createElement('a');a.href=inventory.toDataURL();a.download=`weapon-${['blade','material','guard','grip','pommel'].map(key=>state.recipe[key]).join('-')}.png`;a.click()};
  sync();await update();
  const shared={left:{...manifest.defaults,material:'crystal',guard:'swept',pommel:'diamond'},right:{...manifest.defaults,blade:'short',grip:'wood'}};
  for(const appearance of [{face:'neutral',hair:'cropped'},{face:'keen',hair:'tousled'},{face:'angular',hair:'bob',skin:'umber'}]){const card=document.createElement('div');card.className='fit';const c=document.createElement('canvas');await BladeKit.renderHeld(c,heroManifest,manifest,appearance,shared);const p=document.createElement('p');p.textContent=Object.values(appearance).join(' / ');card.append(c,p);document.getElementById('fit-proof').append(card)}
